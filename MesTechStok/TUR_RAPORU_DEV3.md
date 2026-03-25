@@ -551,3 +551,53 @@ Etsy + Shopify artık Retry-After header'ını parse ediyor. Shopify 429 eksikli
 Sonraki turda: eBay, Ozon, Amazon retry'ları da two-stage yapılabilir ama öncelik düşük
 (mevcut exponential backoff yeterli, 429 yakalanıyor).
 Durum: **RATE-LIMIT RESILIENCE İYİLEŞTİRİLDİ**
+
+---
+
+## TUR 14 — 2026-03-25 (Final Tarama + CHECKPOINT)
+
+### BİLİM ADAMI TARAMA (FINAL SWEEP)
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| NotImplementedException | 0 |
+| Empty catch | 0 |
+| TODO/FIXME | 0 |
+| new HttpClient() | 0 |
+| PII sızıntı | 0 (tüm fatura provider'lar masked) |
+| Guid.Empty (Jobs) | 0 (DEV1 G008+G009 çözdü) |
+| Kargo retry+CB | 7/7 ✅ |
+
+### CERRAH AMELİYAT
+Yeni borç bulunamadı — ameliyat yok.
+
+### KARAR
+DEV 3 alanı (Integration/Jobs/Messaging) **TAVAN NOKTASINDA**. 14 tur, 32 commit.
+Tüm P0-P3 borçlar kapatıldı. Bölüm 6 Katman 1-4 tarandı.
+Kalan adapter iyileştirmeler (eBay/Ozon/Amazon two-stage retry) düşük öncelikli —
+mevcut exponential backoff yeterli.
+
+=== CHECKPOINT 2026-03-25 ===
+Son commit: a1f1b775 (TUR 13 rapor)
+Kalan borç: 0 (DEV 3 alanı)
+Sonraki hedef: İZLEME MODU — yeni domain event/handler gelince reactive fix
+Aktif dosyalar: yok (tüm değişiklikler commit'li)
+===========================
+
+### KÜMÜLATİF DEV 3 FINAL (14 tur, 32 commit)
+| Metrik | Başlangıç | Final | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | **-25** |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | **-8** |
+| Silent stub | 8 | 0 | **-8** |
+| Thread-safety risk | 2 | 0 | **-2** |
+| new HttpClient() | 1 | 0 | **-1** |
+| Webhook validator | 8 | 14 | **+6** |
+| Retry-After parsing | 2 | 4 | **+2** |
+| NotImpl | 0 | 0 | 0 |
+| TODO/FIXME | 0 | 0 | 0 |
+| Toplam capability | 22 | 90 | **+68** |
+| Ortalama skor | 1.7/6 | 6.0/6 | **+4.3** |
+
+Durum: **İZLEME MODU — ALAN TAVAN NOKTASINDA**
