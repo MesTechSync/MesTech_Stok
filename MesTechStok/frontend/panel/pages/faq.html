@@ -190,6 +190,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" crossorigin="anonymous"></script>
   <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-theme.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -212,8 +213,13 @@
               </ol>
             </nav>
           </div>
-          <div class="text-end">
-            <small class="d-block opacity-75" data-i18n="faq.subtitle">50 soru, 10 kategori</small>
+          <div class="d-flex align-items-center gap-2">
+            <button data-theme-toggle class="btn btn-sm btn-outline-light" title="Koyu temaya gec">
+              <i class="fas fa-moon"></i>
+            </button>
+            <div class="text-end">
+              <small class="d-block opacity-75" data-i18n="faq.subtitle">50 soru, 10 kategori</small>
+            </div>
           </div>
         </div>
       </div>

@@ -77,7 +77,12 @@
         <h1><i class="fas fa-money-bill-wave me-2"></i>Nakit Akis Raporu</h1>
         <p>Gunluk giris, cikis ve bakiye takibi</p>
       </div>
-      <button class="btn-mestech" onclick="loadData()"><i class="fas fa-sync-alt me-1"></i>Yenile</button>
+      <div class="d-flex gap-2">
+        <button data-theme-toggle class="btn btn-sm btn-outline-light" title="Koyu temaya gec">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="btn-mestech" onclick="loadData()"><i class="fas fa-sync-alt me-1"></i>Yenile</button>
+      </div>
     </div>
 
     <!-- KPI Cards -->
@@ -142,6 +147,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/mestech-api.js"></script>
+  <script src="../../js/mestech-theme.js"></script>
   <script>
     'use strict';
 
