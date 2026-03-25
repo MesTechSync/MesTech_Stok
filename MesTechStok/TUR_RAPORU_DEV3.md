@@ -104,3 +104,45 @@ Durum: **KEŞİF FAZINA GEÇTİ**
 ### KARAR
 Tüm `SupportsShipment => true` adapter'lar artık `IShipmentCapableAdapter` implemente ediyor.
 Sonraki hedef: ISettlementCapable gap (HB, ÇS, Ozon, PttAvm, Shopify, WooCommerce eksik) veya başka DEV.
+
+---
+
+## TUR 4 — 2026-03-25 (KEŞİF FAZI — Settlement)
+
+### BİLİM ADAMI
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| ISettlementCapable gap | 6 (parser var ama capability yok) |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 11 | HB+ÇS+AmazonTr Adapter | ISettlementCapableAdapter + GetSettlement/GetCargoInvoices | 84aa426d |
+| 12 | eBay+Pazarama+OpenCart Adapter | ISettlementCapableAdapter + GetSettlement/GetCargoInvoices | faffb966 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| ISettlementCapable adapter | 2 | 8 | +6 ✅ |
+
+### GÜNCEL CAPABİLİTY MATRİSİ
+```
+Adapter                Ord  Ship  Setl  Clm  Inv  Whk
+Trendyol               ✅   ✅   ✅   ✅   ✅   ✅  (6/6 TAM)
+N11                    ✅   ✅   ✅   ✅   ✅   —   (5/6)
+Pazarama               ✅   ✅   ✅   ✅   ✅   —   (5/6)
+Hepsiburada            ✅   ✅   ✅   —   —   —   (3/6)
+Ciceksepeti            ✅   ✅   ✅   —   —   ✅  (4/6)
+AmazonTr               ✅   ✅   ✅   —   —   —   (3/6)
+AmazonEu               ✅   ✅   —   —   —   —   (2/6)
+eBay                   ✅   ✅   ✅   —   —   —   (3/6)
+Ozon                   ✅   ✅   —   —   —   —   (2/6)
+PttAvm                 ✅   ✅   —   —   —   —   (2/6)
+OpenCart                ✅   —   ✅   —   —   —   (2/6)
+Shopify                ✅   ✅   —   —   —   ✅  (3/6)
+WooCommerce            ✅   ✅   —   —   —   —   (2/6)
+```
+
+### KARAR
+Settlement parser'ı olan tüm adapter'lar artık ISettlementCapable. Durum: DEVAM (IClaimCapable veya diğer gap'ler).
