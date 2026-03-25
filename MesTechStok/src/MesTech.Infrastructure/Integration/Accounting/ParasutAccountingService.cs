@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -103,7 +103,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     /// <inheritdoc/>
     public async Task<ParasutBalanceDto> GetBalanceAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("Parasut GetBalance");
+        _logger.LogDebug("Parasut GetBalance breadcrumb");
 
         try
         {
@@ -112,8 +112,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("Parasut GetBalance failed: {Status} — {Error}",
-                    response.StatusCode, errorBody);
+                _logger.LogWarning("Parasut GetBalance failed: {StatusCode} — {ErrorBody}", response.StatusCode, errorBody);
 
                 // Return zero balance on failure — caller can check logs
                 return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
@@ -158,12 +157,12 @@ public sealed class ParasutAccountingService : IParasutAccountingService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Parasut GetBalance HTTP exception");
+            _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Parasut GetBalance unexpected exception");
+            _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
         }
     }
@@ -172,7 +171,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     public async Task<IReadOnlyList<ParasutTransactionDto>> GetRecentTransactionsAsync(
         int days = 30, CancellationToken ct = default)
     {
-        _logger.LogInformation("Parasut GetRecentTransactions for last {Days} days", days);
+        _logger.LogDebug("Parasut GetRecentTransactions breadcrumb, days={Days}", days);
 
         try
         {
@@ -185,8 +184,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("Parasut GetRecentTransactions failed: {Status} — {Error}",
-                    response.StatusCode, errorBody);
+                _logger.LogWarning("Parasut GetRecentTransactions failed: {StatusCode} — {ErrorBody}", response.StatusCode, errorBody);
                 return Array.Empty<ParasutTransactionDto>();
             }
 
