@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -49,43 +50,43 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
+            var result = await _mediator.Send(new GetDropshipDashboardQuery(Guid.Empty));
 
             // Original KPIs
-            TotalOrders = 347;
-            TotalRevenue = 284_500.00m;
-            TotalProfit = 42_675.00m;
-            AverageMargin = 15.0m;
+            TotalOrders = result.PendingOrders;
+            TotalRevenue = result.MonthlyRevenue;
+            TotalProfit = result.MonthlyProfit;
+            AverageMargin = result.AverageMargin;
 
             // Enhanced KPIs
-            SupplierCount = 12;
-            ActiveSupplierText = "8 aktif";
-            ActiveProductCount = 1_284;
-            ProductGrowthText = "+42 bu hafta";
-            ProfitabilityPercent = 15.0m;
-            ProfitTrendText = "+2.3% onceki aya gore";
-            AverageDeliveryDays = 2.8;
-            DeliveryTrendText = "-0.3 gun iyilesme";
+            SupplierCount = result.ActiveSuppliers;
+            ActiveSupplierText = $"{result.ActiveSuppliers} aktif";
+            ActiveProductCount = result.TotalDropshipProducts;
+            ProductGrowthText = $"{result.ActiveFeeds} aktif feed";
+            ProfitabilityPercent = result.AverageMargin;
+            ProfitTrendText = string.Empty;
+            AverageDeliveryDays = 0;
+            DeliveryTrendText = string.Empty;
 
-            // Supplier performance (enhanced with new columns)
+            // Supplier performance mapped from TopSuppliers
             Suppliers.Clear();
-            Suppliers.Add(new DropshipSupplierPerformanceDto { SupplierName = "ABC Elektronik", OrderCount = 145, CompletedCount = 141, ErrorCount = 4, Revenue = 128_400m, FulfillRate = 97.2, AvgDeliveryDays = 2.1, RatingStars = "4.8" });
-            Suppliers.Add(new DropshipSupplierPerformanceDto { SupplierName = "XYZ Bilisim", OrderCount = 98, CompletedCount = 93, ErrorCount = 5, Revenue = 87_300m, FulfillRate = 94.8, AvgDeliveryDays = 2.8, RatingStars = "4.5" });
-            Suppliers.Add(new DropshipSupplierPerformanceDto { SupplierName = "Guney Aksesuar", OrderCount = 67, CompletedCount = 61, ErrorCount = 6, Revenue = 42_100m, FulfillRate = 91.5, AvgDeliveryDays = 3.2, RatingStars = "4.2" });
-            Suppliers.Add(new DropshipSupplierPerformanceDto { SupplierName = "Delta Depo", OrderCount = 37, CompletedCount = 33, ErrorCount = 4, Revenue = 26_700m, FulfillRate = 88.9, AvgDeliveryDays = 3.5, RatingStars = "3.9" });
+            foreach (var s in result.TopSuppliers)
+            {
+                Suppliers.Add(new DropshipSupplierPerformanceDto
+                {
+                    SupplierName = s.Name,
+                    OrderCount = s.OrderCount,
+                    CompletedCount = s.OrderCount,
+                    ErrorCount = 0,
+                    Revenue = s.Revenue,
+                    FulfillRate = 0,
+                    AvgDeliveryDays = 0,
+                    RatingStars = s.AvgMargin.ToString("F1")
+                });
+            }
 
-            // Top 10 profitable products
+            // TopProfitableProducts — no direct mapping in DropshipDashboardDto; clear list
             TopProfitableProducts.Clear();
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Samsung Galaxy S24 Ultra", SalesCount = 42, Profit = 8_820m, MarginPercent = 21.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "iPhone 15 Pro Max", SalesCount = 28, Profit = 7_560m, MarginPercent = 18.5 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "MacBook Air M3", SalesCount = 15, Profit = 5_250m, MarginPercent = 12.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "AirPods Pro 2", SalesCount = 67, Profit = 4_690m, MarginPercent = 28.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Samsung Galaxy Tab S9", SalesCount = 22, Profit = 3_960m, MarginPercent = 16.5 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Xiaomi 14 Ultra", SalesCount = 31, Profit = 3_410m, MarginPercent = 14.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "JBL Flip 6", SalesCount = 54, Profit = 2_700m, MarginPercent = 32.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Logitech MX Master 3S", SalesCount = 38, Profit = 2_280m, MarginPercent = 24.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Sony WH-1000XM5", SalesCount = 19, Profit = 2_090m, MarginPercent = 22.0 });
-            TopProfitableProducts.Add(new DropshipProfitableProductDto { ProductName = "Apple Watch SE", SalesCount = 24, Profit = 1_920m, MarginPercent = 16.0 });
 
             IsEmpty = Suppliers.Count == 0;
 
