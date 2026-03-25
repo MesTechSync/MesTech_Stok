@@ -14,6 +14,7 @@ public interface IOrderRepository
         Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default);
     Task<IReadOnlyList<Order>> GetStaleOrdersAsync(
         Guid tenantId, DateTime cutoffDate, CancellationToken ct = default);
+    Task<IReadOnlyList<Order>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default);
     Task AddAsync(Order order);
     Task UpdateAsync(Order order);
     Task<int> GetCountAsync();

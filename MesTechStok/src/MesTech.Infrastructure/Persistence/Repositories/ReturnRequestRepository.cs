@@ -21,6 +21,15 @@ public sealed class ReturnRequestRepository : IReturnRequestRepository
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<ReturnRequest>> GetByTenantAsync(Guid tenantId, int count, CancellationToken ct = default)
+        => await _context.ReturnRequests
+            .Where(r => r.TenantId == tenantId)
+            .OrderByDescending(r => r.RequestDate)
+            .Take(count)
+            .Include(r => r.Lines)
+            .AsNoTracking().ToListAsync(ct)
+            .ConfigureAwait(false);
+
     public async Task AddAsync(ReturnRequest returnRequest)
         => await _context.ReturnRequests.AddAsync(returnRequest).ConfigureAwait(false);
 

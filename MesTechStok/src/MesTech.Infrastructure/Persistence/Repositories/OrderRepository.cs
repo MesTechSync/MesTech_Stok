@@ -70,6 +70,14 @@ public sealed class OrderRepository : IOrderRepository
             .OrderBy(o => o.OrderDate)
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Order>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)
+        => await _context.Orders
+            .Where(o => o.TenantId == tenantId)
+            .OrderByDescending(o => o.OrderDate)
+            .Take(count)
+            .Include(o => o.OrderItems)
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+
     public async Task<int> GetCountAsync()
         => await _context.Orders.CountAsync().ConfigureAwait(false);
 }

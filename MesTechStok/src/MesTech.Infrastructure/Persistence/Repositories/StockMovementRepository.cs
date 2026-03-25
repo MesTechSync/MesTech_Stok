@@ -25,6 +25,13 @@ public sealed class StockMovementRepository : IStockMovementRepository
             .OrderByDescending(m => m.Date)
             .AsNoTracking().ToListAsync();
 
+    public async Task<IReadOnlyList<StockMovement>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)
+        => await _context.StockMovements
+            .Where(m => m.TenantId == tenantId)
+            .OrderByDescending(m => m.Date)
+            .Take(count)
+            .AsNoTracking().ToListAsync(ct);
+
     public async Task AddAsync(StockMovement movement)
         => await _context.StockMovements.AddAsync(movement);
 
