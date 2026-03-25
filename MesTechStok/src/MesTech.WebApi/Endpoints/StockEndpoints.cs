@@ -7,7 +7,6 @@ using MesTech.Application.Commands.TransferStock;
 using MesTech.Application.Queries.GetInventoryPaged;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetInventoryValue;
-using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetStockMovements;
 
 namespace MesTech.WebApi.Endpoints;
@@ -77,15 +76,6 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryPaged")
         .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)");
-
-        // GET /api/v1/stock/low — products below minimum stock threshold
-        group.MapGet("/low", async (ISender mediator, CancellationToken ct) =>
-        {
-            var result = await mediator.Send(new GetLowStockProductsQuery(), ct);
-            return Results.Ok(result);
-        })
-        .WithName("GetLowStockProducts")
-        .WithSummary("Minimum stok seviyesinin altındaki ürünler");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
         group.MapGet("/statistics", async (ISender mediator, CancellationToken ct) =>
