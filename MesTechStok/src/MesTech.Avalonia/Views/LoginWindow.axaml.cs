@@ -81,13 +81,9 @@ public partial class LoginWindow : Window
 
         try
         {
-            // BCrypt doğrulama — ICurrentUserService DI'dan
-            bool isValid = await Task.Run(() =>
-            {
-                // TODO(v2): Wire IAuthService.ValidateAsync(username, password)
-                // Hardcoded credentials removed (FIX-18). Auth service integration pending.
-                return false;
-            });
+            // Auth doğrulama — IAuthService DI kaydı bekliyor (DEV1)
+            // Şimdilik offline: auth servisi yapılandırılana kadar giriş yapılamaz
+            bool isValid = false;
 
             // Minimum 300ms bekleme (psikolojik: "sistem kontrol ediyor")
             var elapsed = DateTime.Now - loginStart;

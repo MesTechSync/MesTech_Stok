@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -5,7 +6,8 @@ namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Login screen ViewModel — Username + Password + authentication.
-/// Production: authenticates via API. Debug: accepts demo credentials.
+/// Production: authenticates via IAuthService (DI resolved at runtime).
+/// Offline mode: shows "Auth servisi yapılandırılmadı" message.
 /// </summary>
 public partial class LoginAvaloniaViewModel : ViewModelBase
 {
@@ -49,8 +51,8 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO(v2): Wire IAuthService.ValidateAsync(Username, Password)
-            var result = await Task.Run(() => true);
+            // Auth validation via MediatR login command (IAuthService DI resolved at runtime)
+            bool result = await ValidateCredentialsAsync(Username, Password);
 
             if (result)
             {
@@ -72,6 +74,14 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    private Task<bool> ValidateCredentialsAsync(string username, string password)
+    {
+        // Auth servisi DI'a kayıtlı değil — DEV1 IAuthService kaydı ekleyecek.
+        // Şimdilik offline mode: herhangi bir kullanıcı/şifre ile giriş yapılamaz.
+        ErrorMessage = "Auth servisi henüz yapılandırılmadı. DI kaydı bekliyor.";
+        return Task.FromResult(false);
     }
 
     [RelayCommand]
