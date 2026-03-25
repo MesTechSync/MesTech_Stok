@@ -198,6 +198,52 @@ KATMAN 5 — Enforcement:
 
 ### SONRAKİ HEDEF
 Billing ALAN_GENISLEME **TAMAMLANDI** — 5 katmanlı SaaS billing stack.
+
+---
+
+## TUR: 4 (2026-03-25) — GÜVENLİK DENETİMİ
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| Raw ex.Message leak (WebApi) | 7 |
+| Security headers | 5/6 (CSP eksik) |
+| Cross-DEV güvenlik görevi | 0 |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| Raw ex.Message leak (WebApi) | 2 (SeedEndpoints — dev-only, kabul edilebilir) |
+| Security headers | 6/6 (CSP eklendi) ✅ |
+| Cross-DEV güvenlik görevi | 3 (G017, G018, G019) |
+
+### DELTA
+- Exception leak: 7→2 (-5) ✅ (ErpEndpoints 4 + InvoiceEndpoints 1)
+- CSP header: 0→1 ✅ (Blazor Server + SignalR uyumlu policy)
+- Cross-DEV görev: 0→3 (Blazor error boundary, adapter swallowing, billing test)
+
+### COMMIT
+- `7132db5f` fix(security): sanitize raw ex.Message in ErpEndpoints + InvoiceEndpoints — OWASP A01
+- `e315c4ed` fix(security): add Content-Security-Policy header + logger fix
+- `9ae15e9f` docs(v6): 3 cross-DEV güvenlik görevi — GOREV_HAVUZU
+
+### FMEA
+- CSP unsafe-eval (Blazor): Şiddet=4 × Olasılık=3 × Tespit=2 = RPN=24 (kabul edilebilir)
+  - Blazor Server JS interop için gerekli; nonce-based CSP gelecek faz
+- Exception sanitization: Şiddet=7 × Olasılık=1 × Tespit=1 = RPN=7 (düşük — düzeltildi)
+
+### GÜVENLİK DENETİM SKORKART
+| Kategori | Durum |
+|----------|-------|
+| Authorization | ✅ 360/360 endpoint korumalı |
+| Rate limiting | ✅ Global PerApiKey (100/min) |
+| Security headers | ✅ 6/6 (HSTS, XFO, CSP, XCT, RP, PP) |
+| Health check | ✅ PG + Redis + RMQ + MinIO |
+| Exception leak | ✅ 5/7 düzeltildi (2 dev-only) |
+| OpenAPI docs | ✅ 359/360 (%99.7) |
+| Request limits | ✅ 50MB body, 16KB header, 30s timeout |
+
+### SONRAKİ HEDEF
 Alan genişleme seçenekleri:
 - A) Onboarding flow — tenant registration
 - C) KVKK/GDPR — kişisel veri silme/dışa aktarma
