@@ -17,7 +17,7 @@ public static class WebhookServiceRegistration
 {
     public static IServiceCollection AddWebhookServices(this IServiceCollection services)
     {
-        // === Webhook Signature Validators (8 platform) ===
+        // === Webhook Signature Validators (14 platform) ===
         services.AddSingleton<IWebhookSignatureValidator, TrendyolSignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, ShopifySignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, WooCommerceSignatureValidator>();
@@ -26,6 +26,12 @@ public static class WebhookServiceRegistration
         services.AddSingleton<IWebhookSignatureValidator, CiceksepetiSignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, EbaySignatureValidator>();
         services.AddSingleton<IWebhookSignatureValidator, N11SignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, OzonSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, PttAvmSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, PazaramaSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, EtsySignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, ZalandoSignatureValidator>();
+        services.AddSingleton<IWebhookSignatureValidator, Bitrix24SignatureValidator>();
 
         // === Webhook Processing Pipeline ===
         services.AddScoped<WebhookEventRouter>();
