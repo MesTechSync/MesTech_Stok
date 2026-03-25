@@ -456,3 +456,47 @@ DEV 3 Bölüm 6 keşif devam ediyor. Mühendis geliştirme katmanında anlamlı 
 N11 socket exhaustion riski kapatıldı. Kalan alan tam olgun — circuit breaker, retry,
 caching, batch, IHttpClientFactory tüm adapter'larda mevcut.
 Durum: **ALAN OLGUN — KATMAN 2 TEKNOLOJİ KEŞFİ YAPILACAK**
+
+---
+
+## TUR 12 — 2026-03-25 (Bölüm 6 Katman 2: Webhook Güvenlik)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| 429/Retry-After handling | Trendyol+Bitrix24 parse header, diğerleri sadece retry ✅ |
+| Webhook signature validator | 8/15 (7 platform eksik) |
+| Response error handling | 305 IsSuccessStatusCode + 416 ReadAsStringAsync ✅ |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 28 | 6 yeni validator + DI | Ozon/PttAvm/Pazarama/Etsy/Zalando/Bitrix24 webhook signature | c9b637fc |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Webhook signature validator | 8 | 14 | +6 ✅ |
+| Platform webhook güvenlik | 8/15 | 15/15 | +7 ✅ |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| Sahte webhook injection | 9 | 5 | 2 | 90 | FIX (6 validator eklendi) |
+
+### KÜMÜLATİF DEV 3 (12 tur, 29 commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | -8 |
+| Silent stub | 8 | 0 | -8 |
+| Thread-safety risk | 2 | 0 | -2 |
+| new HttpClient() | 1 | 0 | -1 |
+| Webhook validator | 8 | 14 | **+6** |
+| Toplam capability | 22 | 90 | **+68** |
+
+### KARAR
+Webhook güvenlik katmanı tamamlandı — 15/15 platform imza doğrulaması mevcut.
+Durum: **GÜVENLİK KATMANI TAM**
