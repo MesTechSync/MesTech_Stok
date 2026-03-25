@@ -69,6 +69,10 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
 
+    /// <summary>LoadDataCommand — used by F5 keybinding and Retry button in error state.</summary>
+    [RelayCommand]
+    private Task LoadData() => LoadAsync();
+
     [RelayCommand]
     private async Task CreateLead()
     {
