@@ -3,6 +3,7 @@ using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.UpdateProductImage;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductById;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -110,4 +111,45 @@ public static class ProductEndpoints
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
+
+    /// <summary>Buybox analiz endpoint'leri — G016 DEV 6 TUR 5.</summary>
+    public static void MapBuybox(WebApplication app)
+    {
+        var group = app.MapGroup("/api/v1/products/buybox")
+            .WithTags("Products — Buybox")
+            .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/products/buybox/positions — buybox pozisyon listesi
+        group.MapGet("/positions", async (
+            Guid tenantId, string platformCode,
+            IBuyboxService buybox, CancellationToken ct) =>
+        {
+            var result = await buybox.CheckBuyboxPositionsAsync(tenantId, platformCode, ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBuyboxPositions")
+        .WithSummary("Tüm ürünlerin buybox pozisyon listesi");
+
+        // GET /api/v1/products/buybox/lost — kaybedilen buybox'lar
+        group.MapGet("/lost", async (
+            Guid tenantId,
+            IBuyboxService buybox, CancellationToken ct) =>
+        {
+            var result = await buybox.GetLostBuyboxesAsync(tenantId, ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLostBuyboxes")
+        .WithSummary("Buybox kaybedilen ürün listesi");
+
+        // GET /api/v1/products/buybox/analyze/{sku} — tekil ürün rakip analizi
+        group.MapGet("/analyze/{sku}", async (
+            string sku, decimal currentPrice, string platformCode,
+            IBuyboxService buybox, CancellationToken ct) =>
+        {
+            var result = await buybox.AnalyzeCompetitorsAsync(sku, currentPrice, platformCode, ct);
+            return Results.Ok(result);
+        })
+        .WithName("AnalyzeBuyboxCompetitors")
+        .WithSummary("Tekil ürün rakip fiyat analizi ve önerilen fiyat");
+    }
 }

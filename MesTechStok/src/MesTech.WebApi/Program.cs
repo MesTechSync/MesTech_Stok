@@ -419,6 +419,7 @@ HealthEndpoints.Map(app);
 // API v1 endpoints
 AuthEndpoints.Map(app);
 ProductEndpoints.Map(app);
+ProductEndpoints.MapBuybox(app);
 StockEndpoints.Map(app);
 CategoryEndpoints.Map(app);
 OrderEndpoints.Map(app);
