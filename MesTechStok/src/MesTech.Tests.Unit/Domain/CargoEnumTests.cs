@@ -10,8 +10,8 @@ public class CargoEnumTests
     [Fact]
     public void CargoProvider_ShouldHave9Members()
     {
-        // Sendeo=8 was added in Dalga 3 — expected count is now 9
-        Enum.GetValues<CargoProvider>().Should().HaveCount(9);
+        // DHL=9, FedEx=10 added — expected count is now 11
+        Enum.GetValues<CargoProvider>().Should().HaveCount(11);
     }
 
     [Theory]
@@ -24,6 +24,8 @@ public class CargoEnumTests
     [InlineData(CargoProvider.Hepsijet, 6)]
     [InlineData(CargoProvider.UPS, 7)]
     [InlineData(CargoProvider.Sendeo, 8)]
+    [InlineData(CargoProvider.DHL, 9)]
+    [InlineData(CargoProvider.FedEx, 10)]
     public void CargoProvider_Values_ShouldMatchExpected(CargoProvider provider, int expected)
     {
         ((int)provider).Should().Be(expected);
