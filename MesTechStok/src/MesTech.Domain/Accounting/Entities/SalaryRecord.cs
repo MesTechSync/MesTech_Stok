@@ -17,7 +17,7 @@ public class SalaryRecord : BaseEntity, ITenantEntity
     public decimal IncomeTax { get; private set; }
     public decimal StampTax { get; private set; }
     public decimal NetSalary { get; private set; }
-    public decimal TotalEmployerCost => GrossSalary + SGKEmployer;
+    public decimal TotalEmployerCost { get => GrossSalary + SGKEmployer; private set { } }
     public int Year { get; private set; }
     public int Month { get; private set; }
     public PaymentStatus PaymentStatus { get; private set; }

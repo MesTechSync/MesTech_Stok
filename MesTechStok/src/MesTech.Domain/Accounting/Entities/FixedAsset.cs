@@ -35,7 +35,7 @@ public class FixedAsset : BaseEntity, ITenantEntity
     public decimal AccumulatedDepreciation { get; private set; }
 
     /// <summary>Net defter degeri = Maliyet - Birikmis Amortisman.</summary>
-    public decimal NetBookValue => AcquisitionCost - AccumulatedDepreciation;
+    public decimal NetBookValue { get => AcquisitionCost - AccumulatedDepreciation; private set { } }
 
     /// <summary>Varlik aktif mi yoksa hurda/satis ile cikis mi yapildi.</summary>
     public bool IsActive { get; private set; } = true;
