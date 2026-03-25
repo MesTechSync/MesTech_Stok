@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
+using MesTech.Application.Features.Onboarding.Commands.RegisterTenant;
 using MesTech.Application.Features.Onboarding.Commands.StartOnboarding;
 using MesTech.Application.Features.Onboarding.Queries.GetOnboardingProgress;
 using MesTech.Application.Features.Onboarding.Queries.GetV5ReadinessCheck;
@@ -61,5 +62,18 @@ public static class OnboardingEndpoints
         })
         .WithName("GetV5ReadinessCheck")
         .WithSummary("V5 özellik hazırlık kontrolü — ERP, Fulfillment, Komisyon, Cari, Raporlama");
+
+        // POST /api/v1/onboarding/register — tam kayıt (tenant + admin + trial + onboarding)
+        group.MapPost("/register", async (
+            ISender mediator,
+            RegisterTenantCommand command,
+            CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/onboarding/progress", result);
+        })
+        .WithName("RegisterTenant")
+        .WithSummary("Yeni tenant kaydı — firma + admin kullanıcı + 14 gün trial + onboarding")
+        .AllowAnonymous(); // Kayıt endpoint'i auth gerektirmez
     }
 }
