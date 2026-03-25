@@ -292,7 +292,57 @@ Alan genişleme seçenekleri:
 |------|-------|
 | B) Billing | ✅ TAMAMLANDI (TUR 2-3) |
 | C) KVKK/GDPR | ✅ TAMAMLANDI (TUR 5) |
-| A) Onboarding | BEKLİYOR |
+| A) Onboarding | ✅ TAMAMLANDI (TUR 6) |
 
-### SONRAKİ HEDEF
-- A) Onboarding flow — tenant registration, ilk mağaza ekleme
+---
+
+## TUR: 6 (2026-03-25) — ONBOARDING FLOW
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| RegisterTenant command | 0 (sadece basit CreateTenant) |
+| Onboarding→Billing bağlantı | 0 (trial otomatik başlamıyor) |
+| Onboarding→User bağlantı | 0 (admin user oluşturulmuyor) |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| RegisterTenant command | 1 (atomik: tenant+admin+trial+onboarding) |
+| RegisterTenant validator | 1 (firma adı, username, email, şifre güçlülüğü) |
+| Onboarding→Billing | ✅ Trial subscription otomatik başlatılıyor |
+| Onboarding→User | ✅ Admin user BCrypt hash ile oluşturuluyor |
+| POST /register endpoint | 1 (AllowAnonymous) |
+
+### DELTA
+- RegisterTenant: 0→1 ✅ (4 entity atomik oluşturma)
+- Validator: 0→1 ✅ (username format, password strength, email)
+- Endpoint: 0→1 ✅ (POST /api/v1/onboarding/register)
+- Cross-DEV: G022 (DEV5 test), G023 (DEV2 Blazor wiring)
+
+### COMMIT
+- `236644d2` feat(onboarding): RegisterTenant — atomic tenant+admin+trial+onboarding
+- `1fe1352e` docs(v6): G022+G023 cross-DEV onboarding görevleri
+
+### FMEA
+- RegisterTenant AllowAnonymous: Şiddet=7 × Olasılık=4 × Tespit=3 = RPN=84
+  - Korunma: Rate limiting (20/min per IP auth policy), validator, duplicate check
+  - Gelecek: CAPTCHA veya email doğrulama eklenebilir
+
+### 3 ALAN_GENISLEME TAMAMLANDI
+| Alan | Durum | TUR |
+|------|-------|-----|
+| B) Billing | ✅ 5 katmanlı SaaS stack | TUR 2-3 |
+| C) KVKK/GDPR | ✅ Audit log + full export | TUR 5 |
+| A) Onboarding | ✅ Atomik kayıt + trial | TUR 6 |
+
+### DEV 6 GENEL DURUM — 6 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **22** |
+| Yeni dosya | **~30** |
+| Yeni endpoint | **11** |
+| GOREV kapatılan | **6** |
+| Cross-DEV görev | **10** |
+| Alan genişleme | **3/3 TAMAMLANDI** |
+| Build error | **0** |
