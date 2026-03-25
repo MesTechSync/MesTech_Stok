@@ -52,20 +52,15 @@ public sealed class ProfitabilityReportHandler
             };
         }
 
-        // Urun maliyetlerini cache'le (N+1 sorgu onleme)
+        // Urun maliyetlerini batch query ile cek (tek SQL — N+1 onleme)
         var productIds = completedOrders
             .SelectMany(o => o.OrderItems)
             .Select(i => i.ProductId)
             .Distinct()
             .ToList();
 
-        var productCosts = new Dictionary<Guid, decimal>();
-        foreach (var pid in productIds)
-        {
-            var product = await _productRepository.GetByIdAsync(pid);
-            if (product is not null)
-                productCosts[pid] = product.PurchasePrice;
-        }
+        var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
+        var productCosts = products.ToDictionary(p => p.Id, p => p.PurchasePrice);
 
         // Her siparis icin kar hesapla
         decimal totalRevenue = 0, totalCost = 0, totalCommission = 0, totalShipping = 0, totalTax = 0;
