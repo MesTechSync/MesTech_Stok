@@ -50,9 +50,9 @@
 **/.github/
 **/.gitlab-ci.yml
 
-# ── Frontend (not needed for WebAPI image) ──
+# ── Frontend (not needed for WebAPI image, but Blazor wwwroot IS needed) ──
 **/frontend/
-**/wwwroot/
+# NOTE: Do NOT exclude wwwroot — Blazor Server requires it for static assets
 
 # ── Misc ──
 **/*.md
