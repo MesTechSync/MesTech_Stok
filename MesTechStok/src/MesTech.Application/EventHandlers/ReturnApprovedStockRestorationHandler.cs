@@ -40,10 +40,14 @@ public sealed class ReturnApprovedStockRestorationHandler : IReturnApprovedStock
         IReadOnlyList<ReturnLineInfoEvent> lines,
         CancellationToken ct)
     {
+        // Batch query — N+1 yerine tek SQL
+        var productIds = lines.Select(l => l.ProductId).Distinct().ToList();
+        var products = await _productRepo.GetByIdsAsync(productIds, ct).ConfigureAwait(false);
+        var productMap = products.ToDictionary(p => p.Id);
+
         foreach (var line in lines)
         {
-            var product = await _productRepo.GetByIdAsync(line.ProductId).ConfigureAwait(false);
-            if (product is null)
+            if (!productMap.TryGetValue(line.ProductId, out var product))
             {
                 _logger.LogWarning("İade stok geri — ürün bulunamadı: {ProductId}", line.ProductId);
                 continue;
