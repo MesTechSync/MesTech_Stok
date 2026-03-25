@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -35,19 +36,25 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with real system metrics query
+            var result = await _mediator.Send(new GetPlatformHealthQuery(Guid.Empty));
 
-            CpuUsage = 42;
-            RamUsage = 68;
-            DiskUsage = 55;
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
             ServiceStatuses.Clear();
-            ServiceStatuses.Add(new ServiceStatusDto { ServiceName = "PostgreSQL", Status = "Aktif", ResponseTime = "12ms", LastCheck = DateTime.Now.ToString("dd.MM.yyyy HH:mm") });
-            ServiceStatuses.Add(new ServiceStatusDto { ServiceName = "Redis", Status = "Aktif", ResponseTime = "3ms", LastCheck = DateTime.Now.ToString("dd.MM.yyyy HH:mm") });
-            ServiceStatuses.Add(new ServiceStatusDto { ServiceName = "RabbitMQ", Status = "Aktif", ResponseTime = "8ms", LastCheck = DateTime.Now.ToString("dd.MM.yyyy HH:mm") });
-            ServiceStatuses.Add(new ServiceStatusDto { ServiceName = "Seq (Logging)", Status = "Aktif", ResponseTime = "15ms", LastCheck = DateTime.Now.ToString("dd.MM.yyyy HH:mm") });
-            ServiceStatuses.Add(new ServiceStatusDto { ServiceName = "MinIO (Storage)", Status = "Aktif", ResponseTime = "22ms", LastCheck = DateTime.Now.ToString("dd.MM.yyyy HH:mm") });
+            foreach (var p in result)
+            {
+                ServiceStatuses.Add(new ServiceStatusDto
+                {
+                    ServiceName = p.Platform,
+                    Status = p.Status,
+                    ResponseTime = $"{p.ErrorCount24h} hata/24h",
+                    LastCheck = p.LastSyncAt.HasValue
+                        ? p.LastSyncAt.Value.ToString("dd.MM.yyyy HH:mm")
+                        : "--"
+                });
+            }
+
+            IsEmpty = ServiceStatuses.Count == 0;
         }
         catch (Exception ex)
         {
