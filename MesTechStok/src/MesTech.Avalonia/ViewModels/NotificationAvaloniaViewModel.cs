@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.System.UserNotifications.Queries.GetUserNotifications;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -32,17 +33,24 @@ public partial class NotificationAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetUserNotificationsQuery(
+                TenantId: Guid.Empty,
+                UserId: Guid.Empty));
 
             Notifications.Clear();
-            Notifications.Add(new NotificationItemDto { Title = "Stok Uyarisi", Message = "Samsung Galaxy S24 Ultra stok seviyesi kritik (3 adet kaldi)", TimeAgo = "5 dk once", StatusColor = "#EF4444" });
-            Notifications.Add(new NotificationItemDto { Title = "Yeni Siparis", Message = "Trendyol uzerinden 3 yeni siparis alindi", TimeAgo = "12 dk once", StatusColor = "#059669" });
-            Notifications.Add(new NotificationItemDto { Title = "Kargo Teslim", Message = "Siparis #1042 basariyla teslim edildi", TimeAgo = "1 saat once", StatusColor = "#2563EB" });
-            Notifications.Add(new NotificationItemDto { Title = "Fiyat Guncelleme", Message = "Hepsiburada fiyat senkronizasyonu tamamlandi (47 urun)", TimeAgo = "2 saat once", StatusColor = "#059669" });
-            Notifications.Add(new NotificationItemDto { Title = "Sistem Bakimi", Message = "Planlanan bakim yarın 02:00-04:00 arasi yapilacak", TimeAgo = "3 saat once", StatusColor = "#F59E0B" });
+            foreach (var n in result.Items)
+            {
+                Notifications.Add(new NotificationItemDto
+                {
+                    Title = n.Title,
+                    Message = n.Message,
+                    TimeAgo = FormatTimeAgo(n.CreatedAt),
+                    StatusColor = n.IsRead ? "#94A3B8" : "#2563EB"
+                });
+            }
 
-            TotalCount = Notifications.Count;
-            IsEmpty = TotalCount == 0;
+            TotalCount = result.TotalCount;
+            IsEmpty = Notifications.Count == 0;
         }
         catch (Exception ex)
         {
@@ -53,6 +61,15 @@ public partial class NotificationAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    private static string FormatTimeAgo(DateTime createdAt)
+    {
+        var diff = DateTime.UtcNow - createdAt.ToUniversalTime();
+        if (diff.TotalMinutes < 1) return "Az once";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} dk once";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} saat once";
+        return $"{(int)diff.TotalDays} gun once";
     }
 
     [RelayCommand]
