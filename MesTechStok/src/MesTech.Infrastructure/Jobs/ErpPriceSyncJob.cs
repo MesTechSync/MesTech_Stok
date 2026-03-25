@@ -1,7 +1,9 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
+using System.Diagnostics;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -9,6 +11,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ERP fiyat sync job — gunluk 4 kez calisir (06:00, 12:00, 18:00, 23:00).
 /// ERP'den urun fiyatlarini ceker ve MesTech'e gunceller.
 /// Phase-2 TAM: IErpPriceCapable adapter'lardan fiyat ceker, SKU eslestirip Product.UpdatePrice cagirir.
+/// ErpSyncLog ile her provider icin sync sonucu kaydedilir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class ErpPriceSyncJob : ISyncJob
@@ -18,15 +21,18 @@ public sealed class ErpPriceSyncJob : ISyncJob
 
     private readonly IErpAdapterFactory _factory;
     private readonly IProductRepository _productRepository;
+    private readonly IErpSyncLogRepository _syncLogRepository;
     private readonly ILogger<ErpPriceSyncJob> _logger;
 
     public ErpPriceSyncJob(
         IErpAdapterFactory factory,
         IProductRepository productRepository,
+        IErpSyncLogRepository syncLogRepository,
         ILogger<ErpPriceSyncJob> logger)
     {
         _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _syncLogRepository = syncLogRepository ?? throw new ArgumentNullException(nameof(syncLogRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -42,6 +48,11 @@ public sealed class ErpPriceSyncJob : ISyncJob
         foreach (var provider in providers)
         {
             ct.ThrowIfCancellationRequested();
+
+            var sw = Stopwatch.StartNew();
+            var syncLog = ErpSyncLog.Create(Guid.Empty, provider, "PriceSync", Guid.NewGuid());
+            var providerUpdated = 0;
+            var providerSkipped = 0;
 
 #pragma warning disable CA1031 // Intentional: per-adapter isolation — one failure must not stop others
             try
@@ -61,6 +72,10 @@ public sealed class ErpPriceSyncJob : ISyncJob
                 {
                     _logger.LogWarning(
                         "[{JobId}] {Provider} ping failed, skipping price sync", JobId, provider);
+                    sw.Stop();
+                    syncLog.MarkFailure("Ping failed");
+                    syncLog.SetDetails(0, 0, 1, 0, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                    await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
                     continue;
                 }
 
@@ -69,6 +84,10 @@ public sealed class ErpPriceSyncJob : ISyncJob
                 {
                     _logger.LogInformation(
                         "[{JobId}] {Provider} returned 0 price items", JobId, provider);
+                    sw.Stop();
+                    syncLog.MarkSuccess($"{provider}-prices-0");
+                    syncLog.SetDetails(0, 0, 0, 0, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                    await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
                     continue;
                 }
 
@@ -79,13 +98,13 @@ public sealed class ErpPriceSyncJob : ISyncJob
                     var product = await _productRepository.GetBySKUAsync(priceItem.ProductCode).ConfigureAwait(false);
                     if (product is null)
                     {
-                        totalSkipped++;
+                        providerSkipped++;
                         continue;
                     }
 
                     if (product.SalePrice == priceItem.SalePrice && product.PurchasePrice == priceItem.PurchasePrice)
                     {
-                        totalSkipped++;
+                        providerSkipped++;
                         continue;
                     }
 
@@ -96,12 +115,20 @@ public sealed class ErpPriceSyncJob : ISyncJob
                         product.ListPrice = priceItem.ListPrice.Value;
 
                     await _productRepository.UpdateAsync(product).ConfigureAwait(false);
-                    totalUpdated++;
+                    providerUpdated++;
                 }
+
+                totalUpdated += providerUpdated;
+                totalSkipped += providerSkipped;
+
+                sw.Stop();
+                syncLog.MarkSuccess($"{provider}-prices-{erpPrices.Count}");
+                syncLog.SetDetails(erpPrices.Count, providerUpdated, 0, providerSkipped, sw.ElapsedMilliseconds, triggeredBy: "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
 
                 _logger.LogInformation(
                     "[{JobId}] {Provider} price sync: {Count} items fetched, {Updated} updated, {Skipped} skipped",
-                    JobId, provider, erpPrices.Count, totalUpdated, totalSkipped);
+                    JobId, provider, erpPrices.Count, providerUpdated, providerSkipped);
             }
             catch (OperationCanceledException)
             {
@@ -111,6 +138,11 @@ public sealed class ErpPriceSyncJob : ISyncJob
             catch (Exception ex)
             {
                 totalFailed++;
+                sw.Stop();
+                syncLog.MarkFailure(ex.Message);
+                syncLog.SetDetails(0, 0, 1, 0, sw.ElapsedMilliseconds, ex.ToString(), "Hangfire");
+                await _syncLogRepository.AddAsync(syncLog, ct).ConfigureAwait(false);
+
                 _logger.LogError(ex,
                     "[{JobId}] {Provider} fiyat sync HATA", JobId, provider);
             }
