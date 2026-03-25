@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 
@@ -39,7 +39,7 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
 
             StoreName = "Ana Magaza - Trendyol";
             PlatformName = "Trendyol";
-            ApiKey = "tr-api-key-****";
+            ApiKey = "[API Key from user-secrets]";
             ApiSecret = "****";
             SellerId = "123456";
             WebhookUrl = "https://api.mestech.com/webhooks/trendyol";
