@@ -20,20 +20,27 @@ public partial class ImageDialog : Window
 
     private async void OnAddImage(object? sender, RoutedEventArgs e)
     {
-        var storage = StorageProvider;
-        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        try
         {
-            Title = "Resim Sec",
-            AllowMultiple = true,
-            FileTypeFilter = new[]
+            var storage = StorageProvider;
+            var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                new FilePickerFileType("Resim Dosyalari") { Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.webp" } }
-            }
-        });
+                Title = "Resim Sec",
+                AllowMultiple = true,
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType("Resim Dosyalari") { Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.webp" } }
+                }
+            });
 
-        foreach (var file in files)
+            foreach (var file in files)
+            {
+                _imagePaths.Add(file.Path.LocalPath);
+            }
+        }
+        catch (Exception ex)
         {
-            _imagePaths.Add(file.Path.LocalPath);
+            System.Diagnostics.Debug.WriteLine($"[ImageDialog] Resim secme hatasi: {ex.Message}");
         }
     }
 

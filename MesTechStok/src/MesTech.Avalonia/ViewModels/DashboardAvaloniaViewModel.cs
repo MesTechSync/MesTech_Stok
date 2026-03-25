@@ -90,8 +90,15 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     private async void OnRefreshTimerTick(object? sender, EventArgs e)
     {
-        if (IsAutoRefreshEnabled && !IsLoading)
-            await LoadAsync();
+        try
+        {
+            if (IsAutoRefreshEnabled && !IsLoading)
+                await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Dashboard] Auto-refresh hatasi: {ex.Message}");
+        }
     }
 
     /// <summary>

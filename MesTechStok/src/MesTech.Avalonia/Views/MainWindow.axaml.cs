@@ -143,14 +143,21 @@ public partial class MainWindow : Window
 
     private async void OpenCommandPalette()
     {
-        var dialog = new CommandPaletteDialog();
-        await dialog.ShowDialog(this);
-
-        if (dialog.SelectedCommand != null)
+        try
         {
-            System.Diagnostics.Debug.WriteLine(
-                $"[CommandPalette] Selected: {dialog.SelectedCommand.Title} ({dialog.SelectedCommand.Category})");
-            NavigateToCommand(dialog.SelectedCommand);
+            var dialog = new CommandPaletteDialog();
+            await dialog.ShowDialog(this);
+
+            if (dialog.SelectedCommand != null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[CommandPalette] Selected: {dialog.SelectedCommand.Title} ({dialog.SelectedCommand.Category})");
+                NavigateToCommand(dialog.SelectedCommand);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CommandPalette] Acma hatasi: {ex.Message}");
         }
     }
 
