@@ -870,25 +870,34 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         _ => "NEW"
     };
 
-    private async Task EnsureAuthHeaderAsync(CancellationToken ct)
+    private async Task<string> GetAuthTokenAsync(CancellationToken ct)
     {
         if (_authProvider is null)
             throw new InvalidOperationException("Bitrix24Adapter not configured. Call TestConnectionAsync first.");
 
         var token = await _authProvider.GetTokenAsync(ct).ConfigureAwait(false);
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token.AccessToken);
+        return token.AccessToken;
+    }
+
+    private async Task EnsureAuthHeaderAsync(CancellationToken ct)
+    {
+        var token = await GetAuthTokenAsync(ct).ConfigureAwait(false);
+        // Per-request auth is now handled in ExecuteWithRetryAsync.
+        // This method is kept for backward compat but is a no-op.
+        _ = token;
     }
 
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
+        var authToken = await GetAuthTokenAsync(ct).ConfigureAwait(false);
         await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
