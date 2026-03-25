@@ -40,7 +40,8 @@ public static class InvoiceEndpoints
             }
         })
         .WithName("CreateInvoiceViaAdapter")
-        .WithSummary("Fatura oluştur (adapter üzerinden)");
+        .WithSummary("Fatura oluştur (adapter üzerinden)")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/invoices — fatura listesi
         group.MapGet("/", async (

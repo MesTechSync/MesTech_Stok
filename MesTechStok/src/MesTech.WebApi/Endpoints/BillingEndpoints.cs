@@ -52,7 +52,8 @@ public static class BillingEndpoints
             return Results.Created($"/api/v1/billing/subscription", new { id });
         })
         .WithName("CreateSubscription")
-        .WithSummary("Yeni abonelik başlat");
+        .WithSummary("Yeni abonelik başlat")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/billing/subscription/cancel — cancel subscription
         group.MapPost("/subscription/cancel", async (
@@ -88,7 +89,8 @@ public static class BillingEndpoints
             return Results.Created($"/api/v1/billing/invoices/{id}", new { id });
         })
         .WithName("CreateBillingInvoice")
-        .WithSummary("Fatura oluştur");
+        .WithSummary("Fatura oluştur")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/billing/subscription/change-plan — plan yükselt/düşür
         group.MapPut("/subscription/change-plan", async (
