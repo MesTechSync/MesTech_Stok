@@ -100,6 +100,18 @@ services:
       Seq__ServerUrl: "http://seq:5341"
     restart: always
 
+  blazor:
+    cpus: 1.0
+    pids_limit: 150
+    ports:
+      - "${BLAZOR_PORT:-3200}:3200"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${PG_DATABASE:?PG_DATABASE zorunlu};Username=${POSTGRES_USER:?POSTGRES_USER zorunlu};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}"
+      Seq__ServerUrl: "http://seq:5341"
+    restart: always
+
   minio:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z@sha256:e18c64a852e81bb76d5be1c8d8318694adf18d0b517e49a96fc9402dbcdc396a
     cpus: 1.0

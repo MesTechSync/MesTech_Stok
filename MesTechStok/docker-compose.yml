@@ -273,6 +273,54 @@ services:
       - mestech-monitoring
 
   # ─────────────────────────────────────────
+  # MesTech Blazor — .NET 9.0 SaaS Frontend (Dalga 14+)
+  # ─────────────────────────────────────────
+  blazor:
+    build:
+      context: ../..
+      dockerfile: MesTech_Stok/MesTechStok/src/MesTech.Blazor/Dockerfile
+    container_name: mestech-blazor
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 150
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - "${BLAZOR_PORT:-3200}:3200"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=mestech_stok;Username=mestech_user;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}"
+      Seq__ServerUrl: "http://seq:5341"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      webapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3200/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mestech-frontend
+      - mestech-backend
+
+  # ─────────────────────────────────────────
   # MinIO — Belge Depolama (Dalga 8)
   # ─────────────────────────────────────────
   minio:
