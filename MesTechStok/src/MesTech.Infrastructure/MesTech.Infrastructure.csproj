@@ -7,6 +7,7 @@
 
   <ItemGroup>
 
+    <PackageReference Include="Sentry" />
     <PackageReference Include="EPPlus" />
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="QuestPDF" />
