@@ -17,6 +17,13 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Kestrel request size limits — prevent resource exhaustion (KEŞİF-DEV6)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 50 * 1024 * 1024; // 50 MB (bulk import + file upload)
+    options.Limits.MaxRequestHeadersTotalSize = 16 * 1024; // 16 KB headers
+});
+
 // Development: skip DI validation (some repos not yet implemented)
 if (builder.Environment.IsDevelopment())
 {
