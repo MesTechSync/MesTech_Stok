@@ -47,7 +47,7 @@ public static class StockEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AddStock")
         .WithSummary("Ürüne stok girişi");
@@ -58,7 +58,7 @@ public static class StockEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("RemoveStock")
         .WithSummary("Üründen stok çıkışı");
@@ -102,7 +102,7 @@ public static class StockEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("TransferStock")
         .WithSummary("Depolar arası stok transferi");
@@ -115,7 +115,7 @@ public static class StockEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AdjustStock")
         .WithSummary("Stok düzeltme / sayım farkı girişi");
@@ -128,7 +128,7 @@ public static class StockEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AddStockLot")
         .WithSummary("Lot/parti bazlı stok girişi");

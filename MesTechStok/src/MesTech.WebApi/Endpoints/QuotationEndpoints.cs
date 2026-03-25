@@ -49,7 +49,7 @@ public static class QuotationEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Created($"/api/v1/quotations/{result.QuotationId}", result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateQuotation")
         .WithSummary("Yeni teklif oluştur");
@@ -60,7 +60,7 @@ public static class QuotationEndpoints
             var result = await mediator.Send(new AcceptQuotationCommand(id), ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AcceptQuotation")
         .WithSummary("Teklifi kabul et");
@@ -71,7 +71,7 @@ public static class QuotationEndpoints
             var result = await mediator.Send(new RejectQuotationCommand(id), ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("RejectQuotation")
         .WithSummary("Teklifi reddet");
@@ -83,7 +83,7 @@ public static class QuotationEndpoints
                 new ConvertQuotationToInvoiceCommand(id, body.InvoiceNumber), ct);
             return result.IsSuccess
                 ? Results.Created($"/api/v1/invoices/{result.InvoiceId}", result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("ConvertQuotationToInvoice")
         .WithSummary("Kabul edilen teklifi faturaya dönüştür");

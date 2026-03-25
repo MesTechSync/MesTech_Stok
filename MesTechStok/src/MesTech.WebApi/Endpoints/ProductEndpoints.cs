@@ -52,7 +52,7 @@ public static class ProductEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Created($"/api/v1/products/{result.ProductId}", result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateProduct")
         .WithSummary("Yeni ürün oluştur")
@@ -68,7 +68,7 @@ public static class ProductEndpoints
             var result = await mediator.Send(adjusted, ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("UpdateProduct")
         .WithSummary("Ürün güncelle")
@@ -81,7 +81,7 @@ public static class ProductEndpoints
             var result = await mediator.Send(new DeleteProductCommand(id), ct);
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)")

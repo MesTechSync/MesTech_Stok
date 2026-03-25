@@ -51,7 +51,7 @@ public static class StoreEndpoints
             var result = await sender.Send(new TestStoreConnectionCommand(id), ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("TestStoreConnection")
         .WithSummary("Mağaza API bağlantı testi");
