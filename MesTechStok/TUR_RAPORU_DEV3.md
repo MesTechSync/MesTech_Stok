@@ -350,3 +350,60 @@ Zalando                ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
 **TÜM 15 ADAPTER 6/6 TAM.** Adapter capability borcu sıfır.
 Kalan borçlar: Guid.Empty (11, DEV 1 bağımlı), Hardcoded URL (yapısal — Options pattern'da, müdahale gereksiz).
 Durum: **ALAN TEMİZ — KEŞİF FAZINDA YENİ HEDEF GEREKLİ**
+
+---
+
+## TUR 10 — 2026-03-25 (Derin Keşif — Thread Safety + Stub Logging)
+
+### BİLİM ADAMI TARAMA (DERİN)
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| NotImplementedException | 0 |
+| Boş catch | 0 |
+| Silent stub (Task.FromResult(false)) | 8 (ÇS 1 + Etsy 4 + Zalando 3) |
+| DefaultRequestHeaders runtime mutation | 5 (Bitrix24 1 + Zalando 4) |
+| Guid.Empty in Jobs | 4 (DEV 1 bağımlı) |
+| Etsy/Zalando test | 0 (DEV 5 bağımlı) |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 24 | ÇS+Etsy+Zalando | Silent stub → debug logging (8 method) | 23d9164b |
+| 25 | Bitrix24Adapter | DefaultRequestHeaders → per-request auth | 5b728638 |
+| 26 | ZalandoAdapter | 4 runtime header mutation → per-request auth | 3d32f63e |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Silent stub methods | 8 | 0 | -8 ✅ |
+| DefaultRequestHeaders runtime | 5 | 0 | -5 ✅ |
+| Thread-safety risk adapters | 2 | 0 | -2 ✅ |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| Singleton concurrent auth race | 8 | 4 | 6 | 192 | FIX (Bitrix24+Zalando) |
+| Silent false → misdiagnosis | 3 | 5 | 8 | 120 | FIX (8 stub logged) |
+
+### GOREV_HAVUZU EKLEMELERİ (cross-DEV)
+- G012: DEV4 — Singleton adapter DI pattern review (EbayAdapter, EtsyAdapter, HB, Pazarama, PttAvm, WooCommerce init-time DefaultRequestHeaders.Authorization mutation'ları refactor edilebilir)
+- G013: DEV5 — Etsy + Zalando adapter test dosyası oluştur (0 test)
+
+### KÜMÜLATİF DEV 3 (10 tur, 26+ commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | -8 |
+| Silent stub | 8 | 0 | -8 |
+| Thread-safety risk | 2 | 0 | -2 |
+| Toplam capability | 22 | 90 | **+68** |
+| Ortalama skor | 1.7/6 | 6.0/6 | **+4.3** |
+
+### KARAR
+DEV 3 alanı (Integration/Jobs/Messaging) TAM TEMİZ. Kalan borçlar:
+- Guid.Empty (4 job): DEV 1 bağımlı (Domain sabiti)
+- 10 adapter init-time DefaultRequestHeaders: yapısal — configure sırasında 1 kez set edilir, thread-safe
+- Etsy/Zalando test: 0 → DEV 5
+Durum: **ALAN BORÇSUZ — KEŞİF FAZI BİTTİ**
