@@ -1,4 +1,26 @@
 @inherits LayoutComponentBase
 
 @* Minimal layout for login page — no sidebar, no top bar *@
-@Body
+<ErrorBoundary>
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card border-danger shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2.5rem;"></i>
+                            <h5 class="text-danger mt-3">Bir Hata Olustu</h5>
+                            <p class="text-muted">Giris sayfasi yuklenirken bir sorun meydana geldi.</p>
+                            <a href="/login" class="btn btn-danger">
+                                <i class="fas fa-redo me-1"></i>Tekrar Dene
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
