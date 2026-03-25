@@ -1,5 +1,7 @@
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
+using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -22,5 +24,19 @@ public static class PlatformSyncEndpoint
         })
         .WithName("GetPlatformSyncStatus")
         .WithSummary("Platform senkronizasyon durum listesi");
+
+        // POST /api/v1/platforms/{platformCode}/sync — platform senkronizasyonu başlat
+        group.MapPost("/{platformCode}/sync", async (
+            string platformCode,
+            SyncDirection? direction,
+            DateTime? since,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand(platformCode, direction ?? SyncDirection.Bidirectional, since), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncPlatform")
+        .WithSummary("Belirtilen platformu senkronize et (* = tümü)");
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Commands.SyncBitrix24Contacts;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
 using MesTech.Application.Features.Crm.Commands.WinDeal;
@@ -143,5 +144,17 @@ public static class CrmEndpoints
         })
         .WithName("GetSuppliersCrm")
         .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)");
+
+        // POST /api/v1/crm/bitrix24/sync-contacts — Bitrix24 contact senkronizasyonu
+        group.MapPost("/bitrix24/sync-contacts", async (
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SyncBitrix24ContactsCommand(), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.UnprocessableEntity(result);
+        })
+        .WithName("SyncBitrix24Contacts")
+        .WithSummary("Bitrix24 CRM contact senkronizasyonu başlat");
     }
 }
