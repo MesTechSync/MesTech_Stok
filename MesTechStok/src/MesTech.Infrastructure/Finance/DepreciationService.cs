@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Finance;
 /// Azalan Bakiyeler (declining): (Kalan Deger * 2) / Faydali Omur — cift azalan.
 /// VUK 315. madde: Amortismana tabi iktisadi kiymetler.
 /// </summary>
-public class DepreciationService : IDepreciationService
+public sealed class DepreciationService : IDepreciationService
 {
     /// <inheritdoc />
     public List<DepreciationScheduleDto> CalculateDepreciation(

@@ -4,7 +4,7 @@ using MesTech.Domain.Events.Documents;
 
 namespace MesTech.Domain.Entities.Documents;
 
-public class Document : BaseEntity, ITenantEntity
+public sealed class Document : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? FolderId { get; private set; }

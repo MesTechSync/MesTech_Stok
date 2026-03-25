@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class WarehouseRack : BaseEntity, ITenantEntity
+public sealed class WarehouseRack : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

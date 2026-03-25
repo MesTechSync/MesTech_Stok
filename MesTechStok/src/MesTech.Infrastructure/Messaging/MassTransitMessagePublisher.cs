@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Messaging;
 /// MassTransit IPublishEndpoint üzerinden IMessagePublisher implementasyonu.
 /// Application katmanını MassTransit bağımlılığından ayırır.
 /// </summary>
-public class MassTransitMessagePublisher : IMessagePublisher
+public sealed class MassTransitMessagePublisher : IMessagePublisher
 {
     private readonly IPublishEndpoint _publishEndpoint;
 

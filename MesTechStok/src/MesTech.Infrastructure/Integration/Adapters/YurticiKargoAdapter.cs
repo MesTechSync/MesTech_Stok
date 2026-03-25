@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Yurtici Kargo SOAP adaptoru.
 /// SimpleSoapClient uzerinden XML/SOAP istekleri gonderir.
 /// </summary>
-public class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<YurticiKargoAdapter> _logger;

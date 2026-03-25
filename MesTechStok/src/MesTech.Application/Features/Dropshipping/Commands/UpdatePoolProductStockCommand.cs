@@ -10,7 +10,7 @@ public record UpdatePoolProductStockCommand(
     decimal NewPrice
 ) : IRequest<bool>;
 
-public class UpdatePoolProductStockCommandValidator : AbstractValidator<UpdatePoolProductStockCommand>
+public sealed class UpdatePoolProductStockCommandValidator : AbstractValidator<UpdatePoolProductStockCommand>
 {
     public UpdatePoolProductStockCommandValidator()
     {
@@ -19,7 +19,7 @@ public class UpdatePoolProductStockCommandValidator : AbstractValidator<UpdatePo
     }
 }
 
-public class UpdatePoolProductStockCommandHandler(
+public sealed class UpdatePoolProductStockCommandHandler(
     IDropshippingPoolRepository poolRepo,
     ICurrentUserService currentUser
 ) : IRequestHandler<UpdatePoolProductStockCommand, bool>

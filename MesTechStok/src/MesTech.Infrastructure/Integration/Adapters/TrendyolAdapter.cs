@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// + IInvoiceCapableAdapter + IClaimCapableAdapter + ISettlementCapableAdapter
 /// Rate limiting, Polly retry, Basic Auth mevcut koddan alinmistir.
 /// </summary>
-public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
+public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter,
     IShipmentCapableAdapter, IPingableAdapter
 {

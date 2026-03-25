@@ -24,7 +24,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
+public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;

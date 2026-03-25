@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Kategori-Platform eşleştirme — platformdaki kategori ID'si.
 /// AI auto-mapping desteği, güven skoru ve kategori yolu takibi.
 /// </summary>
-public class CategoryPlatformMapping : BaseEntity, ITenantEntity
+public sealed class CategoryPlatformMapping : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CategoryId { get; set; }

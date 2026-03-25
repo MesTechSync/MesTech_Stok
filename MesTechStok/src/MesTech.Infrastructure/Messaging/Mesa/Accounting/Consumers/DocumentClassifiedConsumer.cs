@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA AI belge siniflandirma sonucunu consume eder.
 /// AccountingDocument status gunceller ve cikarilan verileri kaydeder.
 /// </summary>
-public class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
+public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;

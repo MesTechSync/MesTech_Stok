@@ -5,7 +5,7 @@ namespace MesTech.Application.Features.Dropshipping.Queries;
 
 public record GetPoolProductByIdQuery(Guid PoolProductId) : IRequest<PoolProductDto?>;
 
-public class GetPoolProductByIdQueryHandler(
+public sealed class GetPoolProductByIdQueryHandler(
     IDropshippingPoolRepository poolRepo
 ) : IRequestHandler<GetPoolProductByIdQuery, PoolProductDto?>
 {

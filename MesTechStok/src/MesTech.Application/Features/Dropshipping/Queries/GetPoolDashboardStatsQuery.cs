@@ -18,7 +18,7 @@ public record PoolDashboardStatsDto(
     DateTime? LastSyncAt
 );
 
-public class GetPoolDashboardStatsQueryHandler(
+public sealed class GetPoolDashboardStatsQueryHandler(
     IDropshippingPoolRepository poolRepo,
     ISupplierFeedRepository feedRepo,
     ITenantProvider tenantProvider

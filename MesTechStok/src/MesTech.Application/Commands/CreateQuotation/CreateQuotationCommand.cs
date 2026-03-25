@@ -26,7 +26,7 @@ public record CreateQuotationCommand(
     List<CreateQuotationLineInput>? Lines = null
 ) : IRequest<CreateQuotationResult>;
 
-public class CreateQuotationResult
+public sealed class CreateQuotationResult
 {
     public bool IsSuccess { get; set; }
     public Guid QuotationId { get; set; }

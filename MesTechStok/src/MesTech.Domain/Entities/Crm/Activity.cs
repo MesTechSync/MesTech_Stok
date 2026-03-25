@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class Activity : BaseEntity, ITenantEntity
+public sealed class Activity : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public ActivityType Type { get; private set; }

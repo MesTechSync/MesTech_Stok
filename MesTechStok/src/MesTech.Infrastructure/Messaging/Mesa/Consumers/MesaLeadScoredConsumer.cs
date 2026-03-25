@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Consumers;
 /// MESA AI lead'e skor atadığında consume eder.
 /// Lead entity'ye skor bilgisi loglanır; Score property DEV 1 scope'unda eklenecek.
 /// </summary>
-public class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
+public sealed class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ICrmLeadRepository _leadRepository;

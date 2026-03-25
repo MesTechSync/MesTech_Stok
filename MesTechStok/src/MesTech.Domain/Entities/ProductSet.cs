@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Satış yapıldığında her bileşenin stoğu otomatik düşürülür.
 /// Dairesel referans yapısal olarak imkansızdır: set yalnızca Product (Guid) içerir.
 /// </summary>
-public class ProductSet : BaseEntity, ITenantEntity
+public sealed class ProductSet : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

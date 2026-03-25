@@ -11,7 +11,7 @@ public record ProcessBotReturnRequestCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class ProcessBotReturnRequestHandler : IRequestHandler<ProcessBotReturnRequestCommand>
+public sealed class ProcessBotReturnRequestHandler : IRequestHandler<ProcessBotReturnRequestCommand>
 {
     public Task Handle(ProcessBotReturnRequestCommand request, CancellationToken cancellationToken)
     {

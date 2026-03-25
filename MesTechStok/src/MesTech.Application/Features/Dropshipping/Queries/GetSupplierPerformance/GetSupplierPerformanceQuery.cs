@@ -14,7 +14,7 @@ public record GetSupplierPerformanceQuery(
 /// <summary>
 /// Tedarikçi performans özet DTO'su.
 /// </summary>
-public class SupplierPerformanceDto
+public sealed class SupplierPerformanceDto
 {
     public Guid SupplierId { get; init; }
     public string SupplierName { get; init; } = string.Empty;

@@ -21,8 +21,9 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// LWA OAuth2, Catalog, Orders, Feeds (XDocument), RDT, Notifications.
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
-public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+    IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter,
+    IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -1401,5 +1402,54 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipme
             _logger.LogError(ex, "AmazonTR SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter — Amazon uses SQS/EventBridge, not HTTP webhooks
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Amazon SP-API uses EventBridge / SQS for notifications instead of HTTP webhooks.
+    /// Webhook registration must be configured in Seller Central or via Notifications API (destination + subscription).
+    /// This method logs the guidance and returns true to indicate acknowledgement.
+    /// </remarks>
+    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "AmazonTrAdapter.RegisterWebhookAsync: Amazon uses EventBridge/SQS notifications — configure in Seller Central or via Notifications SP-API. CallbackUrl={Url} ignored.",
+            callbackUrl);
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Amazon SP-API notification subscriptions are managed via Seller Central or Notifications API.
+    /// This method logs and returns true.
+    /// </remarks>
+    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("AmazonTrAdapter.UnregisterWebhookAsync: Amazon notification subscriptions are managed via Seller Central — no HTTP unregister needed.");
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Processes an Amazon SNS notification JSON payload.
+    /// Amazon EventBridge/SQS delivers notifications as SNS messages with a Topic and Message field.
+    /// </remarks>
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+
+        var topic = doc.RootElement.TryGetProperty("TopicArn", out var topicEl) ? topicEl.GetString() :
+                    doc.RootElement.TryGetProperty("notificationType", out var ntEl) ? ntEl.GetString() : "unknown";
+        var messageId = doc.RootElement.TryGetProperty("MessageId", out var midEl) ? midEl.GetString() : null;
+
+        _logger.LogInformation(
+            "AmazonTrAdapter SNS webhook processed: Topic={Topic} MessageId={MessageId} PayloadLength={Length}",
+            topic, messageId, payload.Length);
+
+        return Task.CompletedTask;
     }
 }

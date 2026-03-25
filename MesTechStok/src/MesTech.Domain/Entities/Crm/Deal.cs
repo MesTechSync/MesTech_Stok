@@ -4,7 +4,7 @@ using MesTech.Domain.Events.Crm;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class Deal : BaseEntity, ITenantEntity
+public sealed class Deal : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; private set; }

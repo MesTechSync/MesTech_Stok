@@ -7,7 +7,7 @@ namespace MesTech.Domain.Services;
 /// Siparis bilgilerine gore en uygun kargo firmasini belirler.
 /// Saf is kurallari, altyapi bagimliligi yok.
 /// </summary>
-public class AutoShipmentService : IAutoShipmentService
+public sealed class AutoShipmentService : IAutoShipmentService
 {
     /// <summary>
     /// Buyuk sehirler listesi — ozel kargo sozlesmesi olan iller.

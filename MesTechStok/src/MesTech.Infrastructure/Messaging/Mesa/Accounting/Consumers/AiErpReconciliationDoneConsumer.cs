@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA AI ERP uzlastirmasi tamamladi — uyusmazliklar raporlanir.
 /// Her mismatch icin NeedsReview statulu ReconciliationMatch olusturur.
 /// </summary>
-public class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDoneIntegrationEvent>
+public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliationDoneIntegrationEvent>
 {
     private readonly IMediator _mediator;
     private readonly IReconciliationMatchRepository _matchRepository;

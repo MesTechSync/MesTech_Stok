@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// CheckVknMukellefAsync: VKN mukellef sorgusu (GIB public endpoint).
 /// GetCreditBalanceAsync: e-Arsiv Portal ucretsiz (-1 = sinirsiz).
 /// </summary>
-public class GibPortalEInvoiceProvider : IEInvoiceProvider
+public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<GibPortalEInvoiceProvider> _logger;

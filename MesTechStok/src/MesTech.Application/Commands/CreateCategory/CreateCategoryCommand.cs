@@ -8,7 +8,7 @@ public record CreateCategoryCommand(
     bool IsActive = true
 ) : IRequest<CategoryCommandResult>;
 
-public class CategoryCommandResult
+public sealed class CategoryCommandResult
 {
     public bool IsSuccess { get; set; }
     public Guid CategoryId { get; set; }

@@ -27,7 +27,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// UpdatePrice  → PUT /v3/application/listings/{listingId} (price field)
 /// Categories   → GET /v3/application/seller-taxonomy/nodes
 /// </summary>
-public class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EtsyAdapter> _logger;

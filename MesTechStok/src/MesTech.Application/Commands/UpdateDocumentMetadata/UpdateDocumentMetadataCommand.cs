@@ -13,7 +13,7 @@ public record UpdateDocumentMetadataCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateDocumentMetadataHandler : IRequestHandler<UpdateDocumentMetadataCommand>
+public sealed class UpdateDocumentMetadataHandler : IRequestHandler<UpdateDocumentMetadataCommand>
 {
     public Task Handle(UpdateDocumentMetadataCommand request, CancellationToken cancellationToken)
     {

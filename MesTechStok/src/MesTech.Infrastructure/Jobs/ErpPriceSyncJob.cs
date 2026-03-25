@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Simdilk log-only placeholder — real structure.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ErpPriceSyncJob : ISyncJob
+public sealed class ErpPriceSyncJob : ISyncJob
 {
     public string JobId => "erp-price-sync";
     public string CronExpression => "0 6,12,18,23 * * *"; // Gunluk 4x

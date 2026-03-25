@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Kar/zarar girisi — donem bazli gelir/gider takibi.
 /// </summary>
-public class ProfitLossEntry : BaseEntity, ITenantEntity
+public sealed class ProfitLossEntry : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Period { get; set; } = string.Empty;  // "2026-03" format

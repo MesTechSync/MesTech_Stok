@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Tasks;
 
-public class TimeEntry : BaseEntity, ITenantEntity
+public sealed class TimeEntry : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid WorkTaskId { get; private set; }

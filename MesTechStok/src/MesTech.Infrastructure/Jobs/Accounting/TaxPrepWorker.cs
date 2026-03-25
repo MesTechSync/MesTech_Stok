@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// RabbitMQ uzerinden bot bildirim icin publish eder.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class TaxPrepWorker : IAccountingJob
+public sealed class TaxPrepWorker : IAccountingJob
 {
     public string JobId => "accounting-tax-prep";
     public string CronExpression => "0 6 1 * *"; // Her ayin 1'i saat 06:00

@@ -7,7 +7,7 @@ namespace MesTech.Domain.Services;
 /// Stok hesaplama domain servisi — WAC (Weighted Average Cost), FEFO, seviye kontrol.
 /// Saf iş kuralları, altyapı bağımlılığı yok.
 /// </summary>
-public class StockCalculationService
+public sealed class StockCalculationService
 {
     /// <summary>
     /// Weighted Average Cost (Ağırlıklı Ortalama Maliyet) hesaplar.

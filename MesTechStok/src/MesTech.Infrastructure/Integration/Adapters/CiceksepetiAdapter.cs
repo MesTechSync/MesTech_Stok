@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// IIntegratorAdapter + IWebhookCapableAdapter + IOrderCapableAdapter + IShipmentCapableAdapter
 /// x-api-key auth, Polly retry, SemaphoreSlim rate limiting.
 /// </summary>
-public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
+public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter,
     IInvoiceCapableAdapter
 {

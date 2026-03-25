@@ -11,7 +11,7 @@ public record UpdateBotNotificationStatusCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateBotNotificationStatusHandler : IRequestHandler<UpdateBotNotificationStatusCommand>
+public sealed class UpdateBotNotificationStatusHandler : IRequestHandler<UpdateBotNotificationStatusCommand>
 {
     public Task Handle(UpdateBotNotificationStatusCommand request, CancellationToken cancellationToken)
     {

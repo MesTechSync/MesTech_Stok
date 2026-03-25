@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA Bot'un bildirim gonderim sonucunu consume eder.
 /// Basarili ise NotificationLog'u Sent, basarisiz ise Failed olarak kaydeder.
 /// </summary>
-public class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
+public sealed class NotificationSentConsumer : IConsumer<BotNotificationSentEvent>
 {
     private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;

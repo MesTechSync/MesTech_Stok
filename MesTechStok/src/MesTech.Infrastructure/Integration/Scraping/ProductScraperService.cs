@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Integration.Scraping;
 /// Web scraping YAPMAZ — platform API endpointlerini kullanir.
 /// Desteklenen platformlar: Trendyol, Hepsiburada, N11, Ciceksepeti, Pazarama.
 /// </summary>
-public class ProductScraperService : IProductScraperService
+public sealed class ProductScraperService : IProductScraperService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ProductScraperService> _logger;

@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sendeo Kargo REST adaptoru.
 /// Bearer token auth (API key), JSON payloads, Polly retry + circuit breaker.
 /// </summary>
-public class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SendeoCargoAdapter> _logger;

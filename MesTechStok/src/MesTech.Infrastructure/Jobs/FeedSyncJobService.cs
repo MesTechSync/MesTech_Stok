@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// TriggerFeedImportCommandHandler tarafından kullanılır.
 /// Sprint-D DEV1 — Dalga 8 Dropshipping aktivasyonu.
 /// </summary>
-public class FeedSyncJobService : IFeedSyncJobService
+public sealed class FeedSyncJobService : IFeedSyncJobService
 {
     /// <inheritdoc />
     public string EnqueueFeedSync(Guid feedId)

@@ -4,7 +4,7 @@ using Minio.DataModel.Args;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
-public class MinioHealthCheck : IHealthCheck
+public sealed class MinioHealthCheck : IHealthCheck
 {
     private readonly IMinioClient _minioClient;
 

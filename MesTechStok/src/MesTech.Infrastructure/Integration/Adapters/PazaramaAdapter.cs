@@ -18,14 +18,14 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// <summary>
 /// Pazarama platform adaptoru — Dalga 4 tam entegrasyon.
 /// IIntegratorAdapter + IOrderCapableAdapter + IShipmentCapableAdapter +
-/// IClaimCapableAdapter + IInvoiceCapableAdapter.
+/// IClaimCapableAdapter + IInvoiceCapableAdapter + IWebhookCapableAdapter.
 /// OAuth 2.0 Client Credentials auth, Polly retry, SemaphoreSlim rate limiting.
 /// Async batch product create with polling.
 /// 2-stage cargo notification (Hazirlaniyor → Kargoya Verildi).
 /// </summary>
-public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
+public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter,
-    ISettlementCapableAdapter
+    ISettlementCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
@@ -1081,5 +1081,88 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     {
         _logger.LogInformation("PazaramaAdapter.GetCargoInvoicesAsync: Pazarama does not provide cargo invoices separately — returning empty list. StartDate={StartDate}", startDate);
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PazaramaAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var payload = new
+            {
+                callbackUrl,
+                events = new[] { "ORDER_CREATED", "ORDER_UPDATED", "RETURN_CREATED", "STOCK_ALERT" }
+            };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post, "/api/webhook/register");
+                    req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama RegisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Pazarama RegisterWebhook exception");
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PazaramaAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Delete, "/api/webhook/unregister"), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Pazarama UnregisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Pazarama UnregisterWebhook exception");
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+
+        _logger.LogInformation(
+            "PazaramaAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
+            eventType, payload.Length);
+
+        return Task.CompletedTask;
     }
 }

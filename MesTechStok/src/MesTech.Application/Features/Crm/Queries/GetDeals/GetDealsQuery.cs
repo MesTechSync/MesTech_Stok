@@ -12,7 +12,7 @@ public record GetDealsQuery(
     int PageSize = 50
 ) : IRequest<GetDealsResult>;
 
-public class GetDealsResult
+public sealed class GetDealsResult
 {
     public IReadOnlyList<DealDto> Items { get; set; } = [];
     public int TotalCount { get; set; }

@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Kargo gider kaydi — siparis bazinda kargo maliyeti.
 /// </summary>
-public class CargoExpense : BaseEntity, ITenantEntity
+public sealed class CargoExpense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string? OrderId { get; private set; }

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// Fatura sablonu — logo, imza, iletisim bilgileri.
 /// Her Store'un birden fazla sablonu olabilir, biri IsDefault.
 /// </summary>
-public class InvoiceTemplate : BaseEntity, ITenantEntity
+public sealed class InvoiceTemplate : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid StoreId { get; set; }

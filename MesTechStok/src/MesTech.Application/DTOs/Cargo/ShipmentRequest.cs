@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Cargo;
 /// <summary>
 /// Kargo gonderi olusturma istegi.
 /// </summary>
-public class ShipmentRequest
+public sealed class ShipmentRequest
 {
     public Guid OrderId { get; set; }
     public string RecipientName { get; set; } = string.Empty;

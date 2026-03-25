@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Ürün-Platform eşleştirme — platformdaki ürün ID'si.
 /// OpenCartProductId gibi alanlar buraya taşınır.
 /// </summary>
-public class ProductPlatformMapping : BaseEntity, ITenantEntity
+public sealed class ProductPlatformMapping : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

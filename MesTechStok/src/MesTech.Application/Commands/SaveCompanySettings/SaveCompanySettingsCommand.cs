@@ -11,7 +11,7 @@ public record SaveCompanySettingsCommand(
     List<WarehouseInput> Warehouses
 ) : IRequest<SaveCompanySettingsResult>;
 
-public class WarehouseInput
+public sealed class WarehouseInput
 {
     public string Name { get; set; } = string.Empty;
     public string? Address { get; set; }
@@ -19,7 +19,7 @@ public class WarehouseInput
     public string? Phone { get; set; }
 }
 
-public class SaveCompanySettingsResult
+public sealed class SaveCompanySettingsResult
 {
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }

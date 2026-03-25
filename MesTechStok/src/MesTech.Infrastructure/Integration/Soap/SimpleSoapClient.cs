@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Integration.Soap;
 /// Full WCF bagimliligini onlemek icin minimal HttpClient tabanli implementasyon.
 /// Polly retry + circuit breaker dahil.
 /// </summary>
-public class SimpleSoapClient
+public sealed class SimpleSoapClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;

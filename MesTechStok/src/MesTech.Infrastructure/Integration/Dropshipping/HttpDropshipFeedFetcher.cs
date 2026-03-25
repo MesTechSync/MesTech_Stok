@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Dropshipping;
 /// IDropshipFeedFetcher implementasyonu — HTTP ile tedarikci API'sinden JSON feed ceker.
 /// K1d-05: SyncDropshipProductsHandler icin infrastructure servisi.
 /// </summary>
-public class HttpDropshipFeedFetcher : IDropshipFeedFetcher
+public sealed class HttpDropshipFeedFetcher : IDropshipFeedFetcher
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HttpDropshipFeedFetcher> _logger;

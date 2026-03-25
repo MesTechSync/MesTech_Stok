@@ -12,7 +12,7 @@ public record GetBarcodeScanLogsQuery(
     DateTime? To = null
 ) : IRequest<GetBarcodeScanLogsResult>;
 
-public class GetBarcodeScanLogsResult
+public sealed class GetBarcodeScanLogsResult
 {
     public IReadOnlyList<DTOs.BarcodeScanLogDto> Items { get; set; } = [];
     public int TotalCount { get; set; }

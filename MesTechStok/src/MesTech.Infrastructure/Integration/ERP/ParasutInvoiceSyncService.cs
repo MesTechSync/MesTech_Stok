@@ -20,7 +20,7 @@ public interface IParasutInvoiceSyncService
     Task<byte[]?> GetInvoicePdfAsync(string eInvoiceId, CancellationToken ct = default);
 }
 
-public class ParasutInvoiceSyncService : IParasutInvoiceSyncService
+public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
 {
     private readonly HttpClient _httpClient;
     private readonly ParasutOptions _options;

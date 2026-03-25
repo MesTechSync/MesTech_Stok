@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Dropshipping.Queries;
 
 public record GetFeedSourceByIdQuery(Guid FeedId) : IRequest<FeedSourceDto?>;
 
-public class GetFeedSourceByIdQueryHandler(
+public sealed class GetFeedSourceByIdQueryHandler(
     ISupplierFeedRepository feedRepo
 ) : IRequestHandler<GetFeedSourceByIdQuery, FeedSourceDto?>
 {

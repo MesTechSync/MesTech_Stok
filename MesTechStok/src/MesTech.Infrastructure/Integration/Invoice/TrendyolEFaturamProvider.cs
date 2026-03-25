@@ -17,7 +17,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Auth: Bearer token (Trendyol API key).
 /// URL pattern: {baseUrl}/suppliers/{supplierId}/e-invoices/...
 /// </summary>
-public class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
+public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolEFaturamProvider> _logger;

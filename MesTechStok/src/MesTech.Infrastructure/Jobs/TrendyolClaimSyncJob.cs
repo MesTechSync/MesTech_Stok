@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 15 dakikada Trendyol iade bildirimlerini ceker.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class TrendyolClaimSyncJob : ISyncJob
+public sealed class TrendyolClaimSyncJob : ISyncJob
 {
     public string JobId => "trendyol-claim-sync";
     public string CronExpression => "*/15 * * * *"; // Her 15 dk

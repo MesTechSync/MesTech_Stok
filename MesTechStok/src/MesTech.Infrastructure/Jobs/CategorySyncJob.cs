@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Gunde 1 kez Trendyol kategori agacini ceker ve cache'e yazar.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class CategorySyncJob : ISyncJob
+public sealed class CategorySyncJob : ISyncJob
 {
     public string JobId => "category-sync";
     public string CronExpression => "0 4 * * *"; // Her gun 04:00

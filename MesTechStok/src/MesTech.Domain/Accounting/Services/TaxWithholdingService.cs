@@ -4,7 +4,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// Stopaj (tevkifat) hesaplama servisi.
 /// 9284 CB kurali: matrah = KDV HARIC tutar; komisyon/kargo matrahi DEGISTIRMEZ.
 /// </summary>
-public class TaxWithholdingService : ITaxWithholdingService
+public sealed class TaxWithholdingService : ITaxWithholdingService
 {
     /// <inheritdoc />
     public decimal CalculateWithholding(decimal taxExclusiveAmount, decimal rate)

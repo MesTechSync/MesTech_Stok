@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Messaging;
 /// In-memory IEventPublisher implementation for Desktop use.
 /// Logs events but does not send them to an external bus.
 /// </summary>
-public class InMemoryEventPublisher : IEventPublisher
+public sealed class InMemoryEventPublisher : IEventPublisher
 {
     private readonly ILogger<InMemoryEventPublisher>? _logger;
 

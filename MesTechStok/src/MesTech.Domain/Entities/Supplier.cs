@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Tedarikçi entity'si.
 /// </summary>
-public class Supplier : BaseEntity, ITenantEntity
+public sealed class Supplier : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

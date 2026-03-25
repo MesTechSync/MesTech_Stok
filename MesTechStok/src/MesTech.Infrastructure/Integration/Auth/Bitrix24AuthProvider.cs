@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// access_token TTL: 30 min, refresh buffer: 5 min.
 /// CRITICAL: Each refresh returns a NEW refresh_token — old one becomes invalid.
 /// </summary>
-public class Bitrix24AuthProvider : IAuthenticationProvider
+public sealed class Bitrix24AuthProvider : IAuthenticationProvider
 {
     public string PlatformCode => "Bitrix24";
 

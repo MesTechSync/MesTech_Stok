@@ -13,7 +13,7 @@ public record UpdateProductPriceCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateProductPriceHandler : IRequestHandler<UpdateProductPriceCommand>
+public sealed class UpdateProductPriceHandler : IRequestHandler<UpdateProductPriceCommand>
 {
     public Task Handle(UpdateProductPriceCommand request, CancellationToken cancellationToken)
     {

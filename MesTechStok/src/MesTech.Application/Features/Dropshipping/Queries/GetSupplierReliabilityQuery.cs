@@ -18,7 +18,7 @@ public record SupplierReliabilityDto(
     decimal ResponseTime
 );
 
-public class GetSupplierReliabilityQueryHandler(
+public sealed class GetSupplierReliabilityQueryHandler(
     IFeedReliabilityScoreService scoreService,
     IMemoryCache cache
 ) : IRequestHandler<GetSupplierReliabilityQuery, SupplierReliabilityDto?>

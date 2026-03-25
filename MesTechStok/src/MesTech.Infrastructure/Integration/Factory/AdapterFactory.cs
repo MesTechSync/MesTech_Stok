@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Integration.Factory;
 /// DI'dan gelen tum IIntegratorAdapter'lari dictionary'de tutar.
 /// PlatformType enum veya string ile hizli lookup.
 /// </summary>
-public class AdapterFactory : IAdapterFactory
+public sealed class AdapterFactory : IAdapterFactory
 {
     private readonly Dictionary<string, IIntegratorAdapter> _adapters;
     private readonly ILogger<AdapterFactory> _logger;

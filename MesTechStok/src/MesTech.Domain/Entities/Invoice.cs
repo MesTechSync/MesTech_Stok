@@ -5,7 +5,7 @@ using MesTech.Domain.Exceptions;
 
 namespace MesTech.Domain.Entities;
 
-public class Invoice : BaseEntity, ITenantEntity
+public sealed class Invoice : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; set; }

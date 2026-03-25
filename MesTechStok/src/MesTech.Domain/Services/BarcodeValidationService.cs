@@ -3,7 +3,7 @@ namespace MesTech.Domain.Services;
 /// <summary>
 /// Barkod doğrulama domain servisi — saf iş kuralları.
 /// </summary>
-public class BarcodeValidationService
+public sealed class BarcodeValidationService
 {
     /// <summary>
     /// EAN-13 check digit doğrulaması.

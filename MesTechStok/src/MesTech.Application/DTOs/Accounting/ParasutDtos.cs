@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Paraşüt'e kayıt gönderme sonucu.
 /// </summary>
-public class ParasutSyncResult
+public sealed class ParasutSyncResult
 {
     public bool Success { get; init; }
     public string? ExternalId { get; init; }     // Paraşüt record ID
@@ -13,7 +13,7 @@ public class ParasutSyncResult
 /// <summary>
 /// Paraşüt'ten çekilen cari bakiye özeti.
 /// </summary>
-public class ParasutBalanceDto
+public sealed class ParasutBalanceDto
 {
     public decimal TotalReceivable { get; init; }    // Toplam alacak
     public decimal TotalPayable { get; init; }       // Toplam borç
@@ -24,7 +24,7 @@ public class ParasutBalanceDto
 /// <summary>
 /// Paraşüt'ten çekilen tek bir hareket kaydı.
 /// </summary>
-public class ParasutTransactionDto
+public sealed class ParasutTransactionDto
 {
     public string Id { get; init; } = string.Empty;
     public string Type { get; init; } = string.Empty;   // "income" | "expense"

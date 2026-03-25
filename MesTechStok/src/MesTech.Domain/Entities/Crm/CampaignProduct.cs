@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class CampaignProduct : BaseEntity, ITenantEntity
+public sealed class CampaignProduct : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CampaignId { get; private set; }

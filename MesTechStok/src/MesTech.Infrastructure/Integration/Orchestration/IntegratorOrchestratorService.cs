@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Orchestration;
 /// Coklu platform orkestrasyon servisi.
 /// Paralel sync, per-adapter timeout, event-driven push.
 /// </summary>
-public class IntegratorOrchestratorService : IIntegratorOrchestrator
+public sealed class IntegratorOrchestratorService : IIntegratorOrchestrator
 {
     private readonly IAdapterFactory _factory;
     private readonly ILogger<IntegratorOrchestratorService> _logger;

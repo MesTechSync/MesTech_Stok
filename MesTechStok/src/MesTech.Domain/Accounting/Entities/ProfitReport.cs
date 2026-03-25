@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Kar/zarar raporu — donem ve platform bazinda finansal ozet.
 /// </summary>
-public class ProfitReport : BaseEntity, ITenantEntity
+public sealed class ProfitReport : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public DateTime ReportDate { get; private set; }

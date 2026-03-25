@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Kisisel/operasyonel gider kaydi — onay akisli.
 /// </summary>
-public class PersonalExpense : BaseEntity, ITenantEntity
+public sealed class PersonalExpense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Title { get; private set; } = string.Empty;

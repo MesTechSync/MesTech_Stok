@@ -10,7 +10,7 @@ public record RejectReturnCommand(
     string? RejectionReason = null
 ) : IRequest<RejectReturnResult>;
 
-public class RejectReturnResult
+public sealed class RejectReturnResult
 {
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }

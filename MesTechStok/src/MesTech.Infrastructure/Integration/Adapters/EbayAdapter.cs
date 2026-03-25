@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter + IShipmentCapableAdapter.
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
-public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
+public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
     ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;

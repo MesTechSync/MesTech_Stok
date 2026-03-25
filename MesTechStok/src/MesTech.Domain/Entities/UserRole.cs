@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class UserRole : BaseEntity, ITenantEntity
+public sealed class UserRole : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid UserId { get; set; }

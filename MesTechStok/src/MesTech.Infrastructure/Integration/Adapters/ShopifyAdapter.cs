@@ -29,7 +29,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// RegisterWebhook: webhooks.json POST.
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
-public class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter
+public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;

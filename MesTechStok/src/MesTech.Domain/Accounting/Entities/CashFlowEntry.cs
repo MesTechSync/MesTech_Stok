@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Nakit akisi girisi — gelis/gidis yonlu, kategorili.
 /// </summary>
-public class CashFlowEntry : BaseEntity, ITenantEntity
+public sealed class CashFlowEntry : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public DateTime EntryDate { get; private set; }

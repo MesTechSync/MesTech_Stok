@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.Realtime;
 /// IDashboardNotifier implementasyonu. DashboardEvent olusturup
 /// WebSocketConnectionManager uzerinden tum bagli istemcilere broadcast yapar.
 /// </summary>
-public class WebSocketDashboardNotifier : IDashboardNotifier
+public sealed class WebSocketDashboardNotifier : IDashboardNotifier
 {
     private readonly WebSocketConnectionManager _connectionManager;
 

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Envanter lot'u — FEFO (First Expire First Out) yönetimi.
 /// </summary>
-public class InventoryLot : BaseEntity, ITenantEntity
+public sealed class InventoryLot : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

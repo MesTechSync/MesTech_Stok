@@ -3,7 +3,7 @@ namespace MesTech.Domain.Services;
 /// <summary>
 /// Fiyatlama domain servisi — saf iş kuralları.
 /// </summary>
-public class PricingService
+public sealed class PricingService
 {
     /// <summary>
     /// Kar marjı hesaplar (%).

@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Storage;
 /// MinIO bazli belge depolama servisi.
 /// Dalga 8 H27: Minio SDK 6.0.3 ile gercek implementasyon.
 /// </summary>
-public class MinioDocumentStorageService : IDocumentStorageService
+public sealed class MinioDocumentStorageService : IDocumentStorageService
 {
     private readonly IMinioClient _minio;
     private readonly string _endpoint;

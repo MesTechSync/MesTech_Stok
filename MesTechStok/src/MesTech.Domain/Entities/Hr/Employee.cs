@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Hr;
 
-public class Employee : BaseEntity, ITenantEntity
+public sealed class Employee : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid UserId { get; private set; }

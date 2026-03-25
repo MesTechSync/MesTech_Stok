@@ -4,7 +4,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
-public class PostgresHealthCheck : IHealthCheck
+public sealed class PostgresHealthCheck : IHealthCheck
 {
     private readonly AppDbContext _db;
 

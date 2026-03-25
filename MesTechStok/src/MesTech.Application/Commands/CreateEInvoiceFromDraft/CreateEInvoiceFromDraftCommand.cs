@@ -10,7 +10,7 @@ public record CreateEInvoiceFromDraftCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class CreateEInvoiceFromDraftHandler : IRequestHandler<CreateEInvoiceFromDraftCommand>
+public sealed class CreateEInvoiceFromDraftHandler : IRequestHandler<CreateEInvoiceFromDraftCommand>
 {
     public Task Handle(CreateEInvoiceFromDraftCommand request, CancellationToken cancellationToken)
     {

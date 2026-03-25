@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// Bu wrapper Infrastructure katmaninda kalir ve MediatR handler'larin
 /// domain event'leri yakalamasini saglar.
 /// </summary>
-public class DomainEventNotification<TEvent> : INotification
+public sealed class DomainEventNotification<TEvent> : INotification
     where TEvent : IDomainEvent
 {
     public TEvent DomainEvent { get; }

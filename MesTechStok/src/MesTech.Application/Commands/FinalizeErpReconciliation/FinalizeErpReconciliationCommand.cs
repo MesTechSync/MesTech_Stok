@@ -10,7 +10,7 @@ public record FinalizeErpReconciliationCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class FinalizeErpReconciliationHandler : IRequestHandler<FinalizeErpReconciliationCommand>
+public sealed class FinalizeErpReconciliationHandler : IRequestHandler<FinalizeErpReconciliationCommand>
 {
     public Task Handle(FinalizeErpReconciliationCommand request, CancellationToken cancellationToken)
     {

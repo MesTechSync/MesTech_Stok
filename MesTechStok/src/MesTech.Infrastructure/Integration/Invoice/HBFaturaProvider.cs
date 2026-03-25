@@ -16,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Auth: HTTP Basic Auth — Authorization: Basic Base64(username:apiKey).
 /// URL pattern: {baseUrl}/invoice/api/v1/...
 /// </summary>
-public class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable
+public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<HBFaturaProvider> _logger;

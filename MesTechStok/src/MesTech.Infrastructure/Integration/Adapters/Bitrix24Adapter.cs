@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Rate limit: SemaphoreSlim configurable (Enterprise 50, Free 2).
 /// Batch API: 50 commands/request chunking.
 /// </summary>
-public class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
+public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;

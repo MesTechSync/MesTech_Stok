@@ -7,7 +7,7 @@ namespace MesTech.Domain.Dropshipping.Entities;
 /// Dropshipping tedarikçisinden gelen harici ürün.
 /// MesTech ürünüyle eşleştirildiğinde IsLinked=true olur.
 /// </summary>
-public class DropshipProduct : BaseEntity, ITenantEntity
+public sealed class DropshipProduct : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid DropshipSupplierId { get; private set; }

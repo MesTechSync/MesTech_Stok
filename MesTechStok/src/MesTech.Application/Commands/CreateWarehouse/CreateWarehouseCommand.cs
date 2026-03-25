@@ -11,7 +11,7 @@ public record CreateWarehouseCommand(
     Guid TenantId = default
 ) : IRequest<CreateWarehouseResult>;
 
-public class CreateWarehouseResult
+public sealed class CreateWarehouseResult
 {
     public bool IsSuccess { get; set; }
     public Guid WarehouseId { get; set; }

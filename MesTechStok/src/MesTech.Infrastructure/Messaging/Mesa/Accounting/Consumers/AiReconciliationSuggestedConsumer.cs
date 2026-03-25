@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA AI mutabakat eslestirme onerisi consume eder.
 /// AI onerileri her zaman NeedsReview ile olusturulur — insan denetimi zorunlu.
 /// </summary>
-public class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSuggestedEvent>
+public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliationSuggestedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IReconciliationMatchRepository _matchRepository;

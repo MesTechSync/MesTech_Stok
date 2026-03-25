@@ -9,7 +9,7 @@ namespace MesTech.Domain.Entities;
 /// Her kullanici-kanal cifti icin bir kayit olusturulur.
 /// ChannelAddress PII icerdigi icin log'a YAZILMAZ.
 /// </summary>
-public class NotificationSetting : BaseEntity, ITenantEntity
+public sealed class NotificationSetting : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid UserId { get; set; }

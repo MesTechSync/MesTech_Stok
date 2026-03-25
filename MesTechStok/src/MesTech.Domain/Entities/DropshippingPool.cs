@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Birden fazla tedarikçiden gelen ürünlerin tek havuzda toplandığı reseller senaryosu için kullanılır.
 /// IsPublic=true ise diğer tenant'lar da havuzu görebilir (çok kiracılı dropshipping marketplace).
 /// </summary>
-public class DropshippingPool : BaseEntity, ITenantEntity
+public sealed class DropshippingPool : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

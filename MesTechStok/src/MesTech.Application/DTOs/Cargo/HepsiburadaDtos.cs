@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Cargo;
 /// <summary>
 /// Hepsiburada API response modelleri — adapter icinde kullanilir.
 /// </summary>
-public class HbListingsResponse
+public sealed class HbListingsResponse
 {
     public List<HbListing> Listings { get; set; } = new();
     public int TotalCount { get; set; }
@@ -12,7 +12,7 @@ public class HbListingsResponse
 /// <summary>
 /// Hepsiburada listing modeli.
 /// </summary>
-public class HbListing
+public sealed class HbListing
 {
     public string HepsiburadaSku { get; set; } = string.Empty;
     public string MerchantSku { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ public class HbListing
 /// <summary>
 /// Hepsiburada siparis listesi response.
 /// </summary>
-public class HbOrderListResponse
+public sealed class HbOrderListResponse
 {
     public List<HbOrder> Orders { get; set; } = new();
     public int TotalCount { get; set; }
@@ -38,7 +38,7 @@ public class HbOrderListResponse
 /// <summary>
 /// Hepsiburada siparis modeli.
 /// </summary>
-public class HbOrder
+public sealed class HbOrder
 {
     public string OrderNumber { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
@@ -55,7 +55,7 @@ public class HbOrder
 /// <summary>
 /// Hepsiburada siparis kalemi.
 /// </summary>
-public class HbOrderItem
+public sealed class HbOrderItem
 {
     public string MerchantSku { get; set; } = string.Empty;
     public string HepsiburadaSku { get; set; } = string.Empty;
@@ -71,7 +71,7 @@ public class HbOrderItem
 /// <summary>
 /// Hepsiburada claim listesi response.
 /// </summary>
-public class HbClaimListResponse
+public sealed class HbClaimListResponse
 {
     public List<HbClaimDto> Claims { get; set; } = new();
     public int TotalCount { get; set; }
@@ -105,7 +105,7 @@ public record HbUploadStatusDto(
 /// <summary>
 /// Hepsiburada komisyon listesi response.
 /// </summary>
-public class HbCommissionListResponse
+public sealed class HbCommissionListResponse
 {
     public List<HbCommissionDto> Commissions { get; set; } = new();
     public int TotalCount { get; set; }

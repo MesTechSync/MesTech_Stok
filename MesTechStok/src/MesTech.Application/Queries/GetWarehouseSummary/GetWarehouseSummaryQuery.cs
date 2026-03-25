@@ -4,7 +4,7 @@ namespace MesTech.Application.Queries.GetWarehouseSummary;
 
 public record GetWarehouseSummaryQuery(Guid TenantId) : IRequest<IReadOnlyList<WarehouseSummaryDto>>;
 
-public class WarehouseSummaryDto
+public sealed class WarehouseSummaryDto
 {
     public Guid WarehouseId { get; set; }
     public string Name { get; set; } = string.Empty;

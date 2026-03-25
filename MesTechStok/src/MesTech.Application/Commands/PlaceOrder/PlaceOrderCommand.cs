@@ -16,7 +16,7 @@ public record PlaceOrderItem(
     decimal UnitPrice,
     decimal TaxRate = 0.18m);
 
-public class PlaceOrderResult
+public sealed class PlaceOrderResult
 {
     public bool IsSuccess { get; set; }
     public Guid OrderId { get; set; }

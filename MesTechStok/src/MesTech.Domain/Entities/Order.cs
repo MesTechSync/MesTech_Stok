@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Sipariş Aggregate Root.
 /// </summary>
-public class Order : BaseEntity, ITenantEntity
+public sealed class Order : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string OrderNumber { get; set; } = string.Empty;

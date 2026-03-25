@@ -26,7 +26,7 @@ public interface IFeedCredentialProtector
 /// Dahili şifreleme için <see cref="AesGcmEncryptionService"/> kullanır.
 /// Separator olarak ASCII Unit Separator (0x1F) kullanılır — URL/JSON safe.
 /// </summary>
-public class FeedCredentialProtector : IFeedCredentialProtector
+public sealed class FeedCredentialProtector : IFeedCredentialProtector
 {
     private const char Separator = '\u001F'; // ASCII Unit Separator
 

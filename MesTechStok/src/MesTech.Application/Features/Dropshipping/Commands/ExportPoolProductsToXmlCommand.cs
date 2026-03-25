@@ -12,7 +12,7 @@ public record ExportPoolProductsToXmlCommand(
     bool HideSupplierInfo
 ) : IRequest<byte[]>;
 
-public class ExportPoolProductsToXmlCommandValidator : AbstractValidator<ExportPoolProductsToXmlCommand>
+public sealed class ExportPoolProductsToXmlCommandValidator : AbstractValidator<ExportPoolProductsToXmlCommand>
 {
     public ExportPoolProductsToXmlCommandValidator()
     {
@@ -21,7 +21,7 @@ public class ExportPoolProductsToXmlCommandValidator : AbstractValidator<ExportP
     }
 }
 
-public class ExportPoolProductsToXmlCommandHandler(
+public sealed class ExportPoolProductsToXmlCommandHandler(
     IDropshippingPoolRepository poolRepo,
     IXmlExportService xmlExport
 ) : IRequestHandler<ExportPoolProductsToXmlCommand, byte[]>

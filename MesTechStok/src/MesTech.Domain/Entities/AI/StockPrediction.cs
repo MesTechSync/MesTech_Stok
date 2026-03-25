@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities.AI;
 /// <summary>
 /// AI stok tahmini history — gerceklesen taleple karsilastirilarak dogruluk olculur.
 /// </summary>
-public class StockPrediction : BaseEntity, ITenantEntity
+public sealed class StockPrediction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

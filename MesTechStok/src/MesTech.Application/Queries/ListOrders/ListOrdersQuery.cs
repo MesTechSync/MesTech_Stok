@@ -9,7 +9,7 @@ public record ListOrdersQuery(
     string? Status = null
 ) : IRequest<IReadOnlyList<OrderListDto>>;
 
-public class OrderListDto
+public sealed class OrderListDto
 {
     public Guid Id { get; set; }
     public string OrderNumber { get; set; } = string.Empty;

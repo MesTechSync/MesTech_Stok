@@ -32,7 +32,7 @@ namespace MesTech.Infrastructure.Integration.Cargo;
     "All 7 cargo adapters now implement ICargoRateProvider directly. " +
     "Archived to _Deprecated/ per ENT-ARSIV-001. Do not use in production code.",
     error: false)]
-public class NullCargoRateProvider : ICargoRateProvider
+public sealed class NullCargoRateProvider : ICargoRateProvider
 {
     /// <inheritdoc/>
     /// <remarks>Bu implementasyon her zaman null döndürür — üretim için kullanılamaz.</remarks>

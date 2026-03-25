@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 03:30'da calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class SettlementSyncWorker : IAccountingJob
+public sealed class SettlementSyncWorker : IAccountingJob
 {
     public string JobId => "accounting-settlement-sync";
     public string CronExpression => "30 3 * * *"; // Her gun 03:30

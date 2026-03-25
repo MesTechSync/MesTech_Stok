@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Fatura provider fabrikasi — InvoiceProvider enum ile provider resolve eder.
 /// CargoProviderFactory pattern'ini takip eder.
 /// </summary>
-public class InvoiceProviderFactory : IInvoiceProviderFactory
+public sealed class InvoiceProviderFactory : IInvoiceProviderFactory
 {
     private readonly Dictionary<InvoiceProvider, IInvoiceProvider> _providers;
     private readonly ILogger<InvoiceProviderFactory> _logger;

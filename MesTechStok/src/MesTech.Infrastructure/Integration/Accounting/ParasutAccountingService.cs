@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Integration.Accounting;
 /// Base URL: https://api.parasut.com/v4/{company_id}/
 /// Gelir/gider kayıtlarını Paraşüt'e iletir; bakiye ve hareketleri çeker.
 /// </summary>
-public class ParasutAccountingService : IParasutAccountingService
+public sealed class ParasutAccountingService : IParasutAccountingService
 {
     private readonly HttpClient _httpClient;
     private readonly IIncomeRepository _incomeRepository;

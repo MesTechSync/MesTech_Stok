@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Gider kaydı — OnMuhasebe modülü için.
 /// </summary>
-public class Expense : BaseEntity, ITenantEntity
+public sealed class Expense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; set; }

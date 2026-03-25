@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class Campaign : BaseEntity, ITenantEntity
+public sealed class Campaign : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Muhasebe donemi — ay bazli acma/kapama.
 /// Kapali donemde kayit yapilamaz.
 /// </summary>
-public class AccountingPeriod : BaseEntity, ITenantEntity
+public sealed class AccountingPeriod : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public int Year { get; private set; }

@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Messaging;
 /// Consumer'lar islemi sonrasi bu servisi cagirir.
 /// MesaEventHub arsivlendi (2026-03-24, kayitsiz dead code) — broadcast kaldirildi, buffer korundu.
 /// </summary>
-public class MesaEventBroadcastService
+public sealed class MesaEventBroadcastService
 {
     private readonly ConcurrentQueue<MesaEventMessage> _buffer = new();
     private readonly ILogger<MesaEventBroadcastService> _logger;

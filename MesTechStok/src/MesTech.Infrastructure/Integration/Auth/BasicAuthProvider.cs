@@ -5,7 +5,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// <summary>
 /// HTTP Basic Auth — Hepsiburada.
 /// </summary>
-public class BasicAuthProvider : IAuthenticationProvider
+public sealed class BasicAuthProvider : IAuthenticationProvider
 {
     public string PlatformCode { get; }
     private readonly string _username;

@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Tracking WSDL: https://pttws.ptt.gov.tr/GonderiTakip/services/Sorgu?wsdl
 /// Auth: Username + Password + MusteriId (from credentials)
 /// </summary>
-public class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttKargoAdapter> _logger;

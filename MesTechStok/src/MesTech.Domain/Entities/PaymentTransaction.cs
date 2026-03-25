@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Odeme islemi kaydi — PayTR uzerinden gerceklestirilen odemelerin takibi.
 /// Her odeme denemesi icin ayri bir kayit tutulur.
 /// </summary>
-public class PaymentTransaction : BaseEntity, ITenantEntity
+public sealed class PaymentTransaction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; set; }

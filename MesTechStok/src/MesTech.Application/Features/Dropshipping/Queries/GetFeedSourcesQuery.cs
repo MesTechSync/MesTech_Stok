@@ -25,7 +25,7 @@ public record FeedSourceDto(
     int ProductCount
 );
 
-public class GetFeedSourcesQueryHandler(
+public sealed class GetFeedSourcesQueryHandler(
     ISupplierFeedRepository feedRepo,
     ITenantProvider tenantProvider
 ) : IRequestHandler<GetFeedSourcesQuery, PagedResult<FeedSourceDto>>

@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Stopaj (tevkifat) kaydi — 9284 CB kuralina uygun.
 /// Matrah = KDV haric tutar; komisyon/kargo matrahi degistirmez.
 /// </summary>
-public class TaxWithholding : BaseEntity, ITenantEntity
+public sealed class TaxWithholding : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? InvoiceId { get; private set; }

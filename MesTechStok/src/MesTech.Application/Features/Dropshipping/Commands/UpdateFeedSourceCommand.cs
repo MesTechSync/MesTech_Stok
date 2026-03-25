@@ -19,7 +19,7 @@ public record UpdateFeedSourceCommand(
     bool IsActive
 ) : IRequest<bool>;
 
-public class UpdateFeedSourceCommandValidator : AbstractValidator<UpdateFeedSourceCommand>
+public sealed class UpdateFeedSourceCommandValidator : AbstractValidator<UpdateFeedSourceCommand>
 {
     public UpdateFeedSourceCommandValidator()
     {
@@ -33,7 +33,7 @@ public class UpdateFeedSourceCommandValidator : AbstractValidator<UpdateFeedSour
     }
 }
 
-public class UpdateFeedSourceCommandHandler(
+public sealed class UpdateFeedSourceCommandHandler(
     ISupplierFeedRepository feedRepo,
     ICurrentUserService currentUser
 ) : IRequestHandler<UpdateFeedSourceCommand, bool>

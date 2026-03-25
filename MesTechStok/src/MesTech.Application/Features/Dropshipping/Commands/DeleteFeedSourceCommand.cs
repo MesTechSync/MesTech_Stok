@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands;
 
 public record DeleteFeedSourceCommand(Guid Id) : IRequest<bool>;
 
-public class DeleteFeedSourceCommandHandler(
+public sealed class DeleteFeedSourceCommandHandler(
     ISupplierFeedRepository feedRepo,
     ICurrentUserService currentUser
 ) : IRequestHandler<DeleteFeedSourceCommand, bool>

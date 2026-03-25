@@ -4,7 +4,7 @@ using MesTech.Domain.Events.Hr;
 
 namespace MesTech.Domain.Entities.Hr;
 
-public class Leave : BaseEntity, ITenantEntity
+public sealed class Leave : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid EmployeeId { get; private set; }

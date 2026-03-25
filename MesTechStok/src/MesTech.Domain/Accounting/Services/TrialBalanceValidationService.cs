@@ -12,7 +12,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// 2. Her entry'nin Lines'ini kontrol et: entry-bazli borc == alacak
 /// 3. Genel toplam: tum satirlarin borc ve alacak toplami karsilastirilir
 /// </summary>
-public class TrialBalanceValidationService : ITrialBalanceValidationService
+public sealed class TrialBalanceValidationService : ITrialBalanceValidationService
 {
     /// <summary>
     /// Kurus altindaki farklar icin tolerans — floating point islemlerinden kaynaklanabilir.

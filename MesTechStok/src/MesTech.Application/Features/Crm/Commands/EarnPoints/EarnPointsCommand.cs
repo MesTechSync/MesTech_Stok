@@ -9,7 +9,7 @@ public record EarnPointsCommand(
     decimal OrderAmount
 ) : IRequest<EarnPointsResult>;
 
-public class EarnPointsResult
+public sealed class EarnPointsResult
 {
     public int EarnedPoints { get; set; }
     public Guid? TransactionId { get; set; }

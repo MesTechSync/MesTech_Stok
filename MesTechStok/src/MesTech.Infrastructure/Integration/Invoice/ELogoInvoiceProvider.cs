@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum, PDF, iptal,
 /// toplu fatura, gelen fatura, kontor bakiye.
 /// </summary>
-public class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable
+public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable
 {
     private readonly HttpClient _httpClient;
     private readonly SimpleSoapClient _soapClient;

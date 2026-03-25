@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Yevmiye satiri — bir hesaba borc veya alacak kaydi.
 /// JournalEntry'nin alt kaydi.
 /// </summary>
-public class JournalLine : BaseEntity, ITenantEntity
+public sealed class JournalLine : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid JournalEntryId { get; private set; }

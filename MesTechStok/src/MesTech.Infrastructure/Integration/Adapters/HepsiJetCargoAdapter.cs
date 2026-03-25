@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// OAuth2-like Bearer token auth (username/password → token), JSON payloads,
 /// Polly retry + circuit breaker.
 /// </summary>
-public class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<HepsiJetCargoAdapter> _logger;

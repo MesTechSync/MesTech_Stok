@@ -10,7 +10,7 @@ public record UpdatePoolProductReliabilityCommand(
     ReliabilityColor NewColor
 ) : IRequest<bool>;
 
-public class UpdatePoolProductReliabilityCommandValidator : AbstractValidator<UpdatePoolProductReliabilityCommand>
+public sealed class UpdatePoolProductReliabilityCommandValidator : AbstractValidator<UpdatePoolProductReliabilityCommand>
 {
     public UpdatePoolProductReliabilityCommandValidator()
     {
@@ -20,7 +20,7 @@ public class UpdatePoolProductReliabilityCommandValidator : AbstractValidator<Up
     }
 }
 
-public class UpdatePoolProductReliabilityCommandHandler(
+public sealed class UpdatePoolProductReliabilityCommandHandler(
     IDropshippingPoolRepository poolRepo
 ) : IRequestHandler<UpdatePoolProductReliabilityCommand, bool>
 {

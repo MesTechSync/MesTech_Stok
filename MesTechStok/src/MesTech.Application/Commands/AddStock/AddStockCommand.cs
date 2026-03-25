@@ -13,7 +13,7 @@ public record AddStockCommand(
     bool SyncToPlatforms = true
 ) : IRequest<AddStockResult>;
 
-public class AddStockResult
+public sealed class AddStockResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }

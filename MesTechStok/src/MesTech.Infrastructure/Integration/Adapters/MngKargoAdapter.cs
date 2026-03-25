@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Base URL: https://apizone.mngkargo.com.tr/ (configurable via credentials["BaseUrl"])
 /// Note: Endpoint paths, auth scheme, and field names are provisional — confirm with MNG Kargo API documentation.
 /// </summary>
-public class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<MngKargoAdapter> _logger;

@@ -4,7 +4,7 @@ namespace MesTech.Domain.Services;
 /// 1000 ürün sync &lt; 60 saniye hedefi için batch sync domain servisi.
 /// Adapter'lardan gelen ürünleri batch halinde DB'ye yazar.
 /// </summary>
-public class ProductSyncBatchService
+public sealed class ProductSyncBatchService
 {
     private const int DefaultBatchSize = 100;
 

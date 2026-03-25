@@ -25,7 +25,7 @@ namespace MesTech.Domain.Accounting.Services;
 ///   Stopaj: %0, %10, %20 (9284 CB, matrah = KDV haric tutar)
 ///   Komisyon: platform bazli (%10-%25 arasi)
 /// </summary>
-public class KdvCalculationService : IKdvCalculationService
+public sealed class KdvCalculationService : IKdvCalculationService
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 

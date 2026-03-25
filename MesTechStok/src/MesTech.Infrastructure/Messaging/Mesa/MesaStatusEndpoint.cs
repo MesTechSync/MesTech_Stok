@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// event publish/consume istatistiklerini sunar.
 /// HealthCheckEndpoint pattern'ini kullanir (port 3101).
 /// </summary>
-public class MesaStatusEndpoint : BackgroundService
+public sealed class MesaStatusEndpoint : BackgroundService
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaStatusEndpoint> _logger;

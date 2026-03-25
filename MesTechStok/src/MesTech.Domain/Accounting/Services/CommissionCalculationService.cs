@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// Varsayilan oranlar: Trendyol %15, Hepsiburada %18, N11 %12, Ciceksepeti %20.
 /// rateProvider null ise (legacy) veya sonuc null ise fallback kullanir.
 /// </summary>
-public class CommissionCalculationService : ICommissionCalculationService
+public sealed class CommissionCalculationService : ICommissionCalculationService
 {
     private static readonly Dictionary<string, decimal> _fallbackRates = new(StringComparer.OrdinalIgnoreCase)
     {

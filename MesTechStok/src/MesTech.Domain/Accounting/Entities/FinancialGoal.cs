@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Finansal hedef — hedef tutar, mevcut tutar ve basari durumu takibi.
 /// </summary>
-public class FinancialGoal : BaseEntity, ITenantEntity
+public sealed class FinancialGoal : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Title { get; private set; } = string.Empty;

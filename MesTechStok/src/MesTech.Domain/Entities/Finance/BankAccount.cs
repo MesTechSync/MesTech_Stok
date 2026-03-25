@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Finance;
 
-public class BankAccount : BaseEntity, ITenantEntity
+public sealed class BankAccount : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; private set; }

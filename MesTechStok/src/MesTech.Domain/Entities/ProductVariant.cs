@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Ürün varyantı — renk/beden kombinasyonları + esnek JSON attribute desteği.
 /// </summary>
-public class ProductVariant : BaseEntity, ITenantEntity
+public sealed class ProductVariant : BaseEntity, ITenantEntity
 {
     // ── ITenantEntity ──
     public Guid TenantId { get; set; }

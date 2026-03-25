@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// Multi-tenant kiracı entity'si.
 /// Her müşteri firma bir Tenant'tır.
 /// </summary>
-public class Tenant : BaseEntity
+public sealed class Tenant : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? TaxNumber { get; set; }

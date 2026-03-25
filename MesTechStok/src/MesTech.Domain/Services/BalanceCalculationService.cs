@@ -8,7 +8,7 @@ namespace MesTech.Domain.Services;
 /// Balance = sum(debit) - sum(credit).
 /// Saf iş kuralları, altyapı bağımlılığı yok.
 /// </summary>
-public class BalanceCalculationService
+public sealed class BalanceCalculationService
 {
     /// <summary>
     /// Hesap bakiyesi hesaplar: sum(debit) - sum(credit).

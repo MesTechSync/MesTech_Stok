@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// toplu fatura, sablon ayari.
 /// URL pattern: {baseUrl}/api/v1/invoices/...
 /// </summary>
-public class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoiceTemplateCapable
+public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoiceTemplateCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<BirFaturaProvider> _logger;

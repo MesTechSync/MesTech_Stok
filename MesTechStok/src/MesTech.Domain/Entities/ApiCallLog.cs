@@ -2,7 +2,7 @@
 
 namespace MesTech.Domain.Entities;
 
-public class ApiCallLog : BaseEntity, ITenantEntity
+public sealed class ApiCallLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Endpoint { get; set; } = string.Empty;

@@ -4,7 +4,7 @@ namespace MesTech.Application.Queries.GetCategories;
 
 public record GetCategoriesQuery(bool ActiveOnly = true) : IRequest<IReadOnlyList<CategoryListDto>>;
 
-public class CategoryListDto
+public sealed class CategoryListDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

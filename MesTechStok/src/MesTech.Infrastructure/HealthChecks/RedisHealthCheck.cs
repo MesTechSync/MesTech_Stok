@@ -3,7 +3,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
-public class RedisHealthCheck : IHealthCheck
+public sealed class RedisHealthCheck : IHealthCheck
 {
     private readonly IDistributedCache _cache;
 

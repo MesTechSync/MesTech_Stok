@@ -12,7 +12,7 @@ public record ExportPoolProductsToCsvCommand(
     bool HideSupplierInfo
 ) : IRequest<byte[]>;
 
-public class ExportPoolProductsToCsvCommandValidator : AbstractValidator<ExportPoolProductsToCsvCommand>
+public sealed class ExportPoolProductsToCsvCommandValidator : AbstractValidator<ExportPoolProductsToCsvCommand>
 {
     public ExportPoolProductsToCsvCommandValidator()
     {
@@ -21,7 +21,7 @@ public class ExportPoolProductsToCsvCommandValidator : AbstractValidator<ExportP
     }
 }
 
-public class ExportPoolProductsToCsvCommandHandler(
+public sealed class ExportPoolProductsToCsvCommandHandler(
     IDropshippingPoolRepository poolRepo,
     ICsvExportService csvExport
 ) : IRequestHandler<ExportPoolProductsToCsvCommand, byte[]>

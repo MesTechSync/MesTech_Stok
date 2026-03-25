@@ -7,7 +7,7 @@ public record UpdateProductImageCommand(
     string ImageUrl
 ) : IRequest<UpdateProductImageResult>;
 
-public class UpdateProductImageResult
+public sealed class UpdateProductImageResult
 {
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }

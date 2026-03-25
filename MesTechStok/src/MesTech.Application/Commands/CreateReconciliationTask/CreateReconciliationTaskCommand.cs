@@ -11,7 +11,7 @@ public record CreateReconciliationTaskCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class CreateReconciliationTaskHandler : IRequestHandler<CreateReconciliationTaskCommand>
+public sealed class CreateReconciliationTaskHandler : IRequestHandler<CreateReconciliationTaskCommand>
 {
     public Task Handle(CreateReconciliationTaskCommand request, CancellationToken cancellationToken)
     {

@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Payment;
 /// Config keys: PayTR:MerchantId, PayTR:MerchantKey, PayTR:MerchantSalt,
 ///              PayTR:IFrameBaseUrl, PayTR:TestMode
 /// </summary>
-public class PayTRiFrameAdapter : IPaymentProvider
+public sealed class PayTRiFrameAdapter : IPaymentProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PayTRiFrameAdapter> _logger;

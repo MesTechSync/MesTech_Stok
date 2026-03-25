@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities.Erp;
 /// Audit trail for ERP sync conflict resolutions.
 /// Every detected conflict is logged with both values and the resolution decision.
 /// </summary>
-public class ErpConflictLog : BaseEntity, ITenantEntity
+public sealed class ErpConflictLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Integration.Dropshipping;
 /// Manuel mapping override destekler (IMemoryCache kalıcı değil — yeniden başlatmada sıfırlanır).
 /// ENT-DROP-IMP-SPRINT-D — DEV 1 Task D-02
 /// </summary>
-public class CategoryAutoMapper(
+public sealed class CategoryAutoMapper(
     ICategoryRepository categoryRepo,
     IMemoryCache cache,
     ILogger<CategoryAutoMapper> logger

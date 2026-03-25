@@ -12,7 +12,7 @@ public record GetPlatformMessagesQuery(
     int PageSize = 50
 ) : IRequest<GetPlatformMessagesResult>;
 
-public class GetPlatformMessagesResult
+public sealed class GetPlatformMessagesResult
 {
     public IReadOnlyList<PlatformMessageDto> Items { get; set; } = [];
     public int TotalCount { get; set; }

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Fiyat değişiklik geçmişi — ürün fiyat takibi ve analiz.
 /// </summary>
-public class PriceHistory : BaseEntity, ITenantEntity
+public sealed class PriceHistory : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

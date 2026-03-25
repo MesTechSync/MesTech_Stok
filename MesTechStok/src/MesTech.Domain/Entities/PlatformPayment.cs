@@ -9,7 +9,7 @@ namespace MesTech.Domain.Entities;
 /// Her platform farklı ödeme takvimi uygular (Trendyol haftalık, HB 2 haftalık vb.).
 /// Settlement (hesap kesimi) dönemi bazında takip edilir.
 /// </summary>
-public class PlatformPayment : BaseEntity, ITenantEntity
+public sealed class PlatformPayment : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; set; }

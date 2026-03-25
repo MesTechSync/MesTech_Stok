@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Butce plani — planlanan vs gerceklesen gelir/gider karsilastirmasi.
 /// </summary>
-public class BudgetPlan : BaseEntity, ITenantEntity
+public sealed class BudgetPlan : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

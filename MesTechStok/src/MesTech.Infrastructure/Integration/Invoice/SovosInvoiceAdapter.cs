@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// <summary>
 /// Sovos adapter — full 4 capability. Wraps existing SovosInvoiceProvider.
 /// </summary>
-public class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
+public sealed class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
 {
     private readonly SovosInvoiceProvider _provider;
     private readonly IGibMukellefService _gibService;

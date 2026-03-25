@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Ürün Aggregate Root — Stok yönetim sisteminin merkezi entity'si.
 /// </summary>
-public class Product : BaseEntity, ITenantEntity
+public sealed class Product : BaseEntity, ITenantEntity
 {
     // Multi-tenant
     public Guid TenantId { get; set; }

@@ -18,7 +18,7 @@ public interface IIncomeTaxService
 /// <summary>
 /// Gelir vergisi hesaplama sonucu.
 /// </summary>
-public class IncomeTaxResultDto
+public sealed class IncomeTaxResultDto
 {
     public decimal TaxableIncome { get; set; }
     public decimal TotalTax { get; set; }
@@ -30,7 +30,7 @@ public class IncomeTaxResultDto
 /// <summary>
 /// Vergi dilimi detayi.
 /// </summary>
-public class TaxBracketDetailDto
+public sealed class TaxBracketDetailDto
 {
     public decimal LowerBound { get; set; }
     public decimal UpperBound { get; set; }

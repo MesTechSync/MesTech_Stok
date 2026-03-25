@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities.Finance;
 /// <summary>
 /// Kasa hareketi — gelir, gider veya transfer kaydi.
 /// </summary>
-public class CashTransaction : BaseEntity, ITenantEntity
+public sealed class CashTransaction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CashRegisterId { get; private set; }

@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Surat Kargo REST adaptoru.
 /// Basic Auth, JSON payloads, Polly retry.
 /// </summary>
-public class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SuratKargoAdapter> _logger;

@@ -8,13 +8,13 @@ public record GetCategoriesPagedQuery(
     int PageSize = 50
 ) : IRequest<PagedCategoryResult>;
 
-public class PagedCategoryResult
+public sealed class PagedCategoryResult
 {
     public IReadOnlyList<CategoryItemDto> Items { get; set; } = Array.Empty<CategoryItemDto>();
     public int TotalCount { get; set; }
 }
 
-public class CategoryItemDto
+public sealed class CategoryItemDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

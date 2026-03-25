@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities.Billing;
 /// MesTech'in musteriye kestigi platform faturasi (SaaS abonelik faturasi).
 /// Bu, marketplace satici faturasi degil — MesTech → Tenant yonunde.
 /// </summary>
-public class BillingInvoice : BaseEntity, ITenantEntity
+public sealed class BillingInvoice : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid SubscriptionId { get; private set; }

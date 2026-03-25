@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities.AI;
 /// <summary>
 /// AI fiyat onerisi history — her oneri kaydedilir, dogruluk takibi yapilir.
 /// </summary>
-public class PriceRecommendation : BaseEntity, ITenantEntity
+public sealed class PriceRecommendation : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.Messaging.Filters;
 /// Publish filter — adds X-Event-Version header to all outbound messages.
 /// Currently V1. When breaking changes occur, V2 exchange transition is used.
 /// </summary>
-public class EventVersionPublishFilter<T> : IFilter<PublishContext<T>>
+public sealed class EventVersionPublishFilter<T> : IFilter<PublishContext<T>>
     where T : class
 {
     public Task Send(PublishContext<T> context, IPipe<PublishContext<T>> next)

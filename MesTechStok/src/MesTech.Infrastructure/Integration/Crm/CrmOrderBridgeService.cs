@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Integration.Crm;
 /// CRM ↔ Order cift yonlu kopru.
 /// Deal kazanilinca Order baglantisi kurulur; yeni pazaryeri siparisi gelince Lead olusturur.
 /// </summary>
-public class CrmOrderBridgeService : ICrmOrderBridgeService
+public sealed class CrmOrderBridgeService : ICrmOrderBridgeService
 {
     private readonly AppDbContext _context;
     private readonly IUnitOfWork _uow;

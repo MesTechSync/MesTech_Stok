@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Realtime;
 /// Port 3102'de ws://localhost:3102/ws/dashboard dinler.
 /// HealthCheckEndpoint (3100) ve MesaStatusEndpoint (3101) ile ayni pattern.
 /// </summary>
-public class RealtimeDashboardEndpoint : BackgroundService
+public sealed class RealtimeDashboardEndpoint : BackgroundService
 {
     private readonly WebSocketConnectionManager _connectionManager;
     private readonly ILogger<RealtimeDashboardEndpoint> _logger;

@@ -11,7 +11,7 @@ public interface IConnectivityService
     event EventHandler<ConnectivityChangedEventArgs>? ConnectivityChanged;
 }
 
-public class ConnectivityChangedEventArgs : EventArgs
+public sealed class ConnectivityChangedEventArgs : EventArgs
 {
     public bool IsOnline { get; }
 

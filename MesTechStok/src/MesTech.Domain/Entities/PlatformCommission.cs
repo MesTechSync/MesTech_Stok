@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Her platform+kategori çifti için komisyon oranı tanımlanır.
 /// Sipariş tamamlandığında ilgili oran üzerinden komisyon hesaplanır.
 /// </summary>
-public class PlatformCommission : BaseEntity, ITenantEntity
+public sealed class PlatformCommission : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public PlatformType Platform { get; set; }

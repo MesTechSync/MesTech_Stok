@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Integration.Factory;
 /// Kargo adapter fabrikasi — CargoProvider enum ile adapter resolve eder.
 /// AdapterFactory pattern'ini takip eder.
 /// </summary>
-public class CargoProviderFactory : ICargoProviderFactory
+public sealed class CargoProviderFactory : ICargoProviderFactory
 {
     private readonly Dictionary<CargoProvider, ICargoAdapter> _adapters;
     private readonly ILogger<CargoProviderFactory> _logger;

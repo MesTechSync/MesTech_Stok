@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 ///   &lt; 0.70 → skip (eslestirilemez)
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ReconciliationWorker : IAccountingJob
+public sealed class ReconciliationWorker : IAccountingJob
 {
     public string JobId => "accounting-reconciliation";
     public string CronExpression => "0 */4 * * *"; // Her 4 saatte bir

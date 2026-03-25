@@ -13,7 +13,7 @@ public interface IWebhookReceiverService
     Task<WebhookProcessResult> ProcessGenericWebhookAsync(string platformCode, string eventType, string payload, CancellationToken ct = default);
 }
 
-public class WebhookProcessResult
+public sealed class WebhookProcessResult
 {
     public bool Success { get; set; }
     public string? Message { get; set; }

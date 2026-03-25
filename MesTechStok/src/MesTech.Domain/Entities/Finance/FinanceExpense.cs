@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities.Finance;
 /// Harcama/Gider kaydı — Finance modülü için (onay akışlı).
 /// OnMuhasebe modülündeki Expense'den farklıdır.
 /// </summary>
-public class FinanceExpense : BaseEntity, ITenantEntity
+public sealed class FinanceExpense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; private set; }

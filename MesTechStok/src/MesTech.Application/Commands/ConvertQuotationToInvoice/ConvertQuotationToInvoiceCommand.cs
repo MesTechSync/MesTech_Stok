@@ -7,7 +7,7 @@ public record ConvertQuotationToInvoiceCommand(
     string InvoiceNumber
 ) : IRequest<ConvertQuotationToInvoiceResult>;
 
-public class ConvertQuotationToInvoiceResult
+public sealed class ConvertQuotationToInvoiceResult
 {
     public bool IsSuccess { get; set; }
     public Guid InvoiceId { get; set; }

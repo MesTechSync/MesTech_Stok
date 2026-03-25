@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// OAuth 2.0 kimlik dogrulama — Amazon, eBay.
 /// client_credentials grant, token cache, auto-refresh.
 /// </summary>
-public class OAuth2AuthProvider : IAuthenticationProvider
+public sealed class OAuth2AuthProvider : IAuthenticationProvider
 {
     public string PlatformCode { get; }
     private readonly HttpClient _httpClient;

@@ -4,12 +4,12 @@ namespace MesTech.Application.Queries.GetSyncStatus;
 
 public record GetSyncStatusQuery(string? PlatformCode = null) : IRequest<SyncStatusResult>;
 
-public class SyncStatusResult
+public sealed class SyncStatusResult
 {
     public List<PlatformSyncStatus> Platforms { get; set; } = new();
 }
 
-public class PlatformSyncStatus
+public sealed class PlatformSyncStatus
 {
     public string PlatformCode { get; set; } = string.Empty;
     public string PlatformName { get; set; } = string.Empty;

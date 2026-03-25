@@ -9,7 +9,7 @@ namespace MesTech.Domain.Entities;
 /// Hangfire job periyodik olarak feed URL'den çeker, parse eder, fiyat markup uygular.
 /// Stok sıfır olan ürünler otomatik pasife alınır.
 /// </summary>
-public class SupplierFeed : BaseEntity, ITenantEntity
+public sealed class SupplierFeed : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid SupplierId { get; set; }

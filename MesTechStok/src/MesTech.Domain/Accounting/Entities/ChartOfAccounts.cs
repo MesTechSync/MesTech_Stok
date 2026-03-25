@@ -9,7 +9,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Hesap Plani — Tekduzen Hesap Plani (THP) destekli.
 /// Hiyerarsik yapida: ParentId ile alt hesaplar tanimlanir.
 /// </summary>
-public class ChartOfAccounts : BaseEntity, ITenantEntity
+public sealed class ChartOfAccounts : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Code { get; private set; } = string.Empty;

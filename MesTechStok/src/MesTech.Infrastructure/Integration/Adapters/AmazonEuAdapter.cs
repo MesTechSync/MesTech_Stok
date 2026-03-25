@@ -31,7 +31,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 ///   SE = A2NODRKZP88ZB9
 ///   PL = A1C3SOZRARQ6R3
 /// </summary>
-public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter
+public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonEuAdapter> _logger;
@@ -995,6 +996,382 @@ public class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipme
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon EU ping failed");
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter — Financial Events (SP-API)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// GET /finances/v0/financialEvents — Amazon SP-API financial events for settlement.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            var postedAfter = startDate.ToUniversalTime().ToString("o");
+            var postedBefore = endDate.ToUniversalTime().ToString("o");
+            var url = $"/finances/v0/financialEvents?PostedAfter={Uri.EscapeDataString(postedAfter)}&PostedBefore={Uri.EscapeDataString(postedBefore)}";
+
+            var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Amazon EU GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = PlatformCode,
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "EUR"
+            };
+
+            // Parse payload.financialEvents.ShipmentEventList
+            if (doc.RootElement.TryGetProperty("payload", out var payload) &&
+                payload.TryGetProperty("financialEvents", out var events))
+            {
+                if (events.TryGetProperty("ShipmentEventList", out var shipments) &&
+                    shipments.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var shipment in shipments.EnumerateArray())
+                    {
+                        var orderId = shipment.TryGetProperty("AmazonOrderId", out var oid) ? oid.GetString() : null;
+                        var postedDate = shipment.TryGetProperty("PostedDate", out var pd) && pd.TryGetDateTime(out var pdt)
+                            ? pdt : startDate;
+
+                        if (shipment.TryGetProperty("ShipmentItemList", out var items) &&
+                            items.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var item in items.EnumerateArray())
+                            {
+                                decimal itemAmount = 0m;
+                                decimal commissionAmount = 0m;
+
+                                if (item.TryGetProperty("ItemChargeList", out var charges) &&
+                                    charges.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var charge in charges.EnumerateArray())
+                                    {
+                                        if (charge.TryGetProperty("ChargeAmount", out var ca) &&
+                                            ca.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            itemAmount += amount.GetDecimal();
+                                        }
+                                    }
+                                }
+
+                                if (item.TryGetProperty("ItemFeeList", out var fees) &&
+                                    fees.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var fee in fees.EnumerateArray())
+                                    {
+                                        if (fee.TryGetProperty("FeeAmount", out var fa) &&
+                                            fa.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            commissionAmount += Math.Abs(amount.GetDecimal());
+                                        }
+                                    }
+                                }
+
+                                settlement.TotalSales += itemAmount;
+                                settlement.TotalCommission += commissionAmount;
+
+                                settlement.Lines.Add(new SettlementLineDto
+                                {
+                                    OrderNumber = orderId,
+                                    TransactionType = "Shipment",
+                                    Amount = itemAmount,
+                                    CommissionAmount = commissionAmount,
+                                    TransactionDate = postedDate
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Parse RefundEventList for return deductions
+                if (events.TryGetProperty("RefundEventList", out var refunds) &&
+                    refunds.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var refund in refunds.EnumerateArray())
+                    {
+                        var orderId = refund.TryGetProperty("AmazonOrderId", out var oid) ? oid.GetString() : null;
+                        var postedDate = refund.TryGetProperty("PostedDate", out var pd) && pd.TryGetDateTime(out var pdt)
+                            ? pdt : startDate;
+
+                        if (refund.TryGetProperty("ShipmentItemAdjustmentList", out var adjustments) &&
+                            adjustments.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var adj in adjustments.EnumerateArray())
+                            {
+                                decimal refundAmount = 0m;
+
+                                if (adj.TryGetProperty("ItemChargeAdjustmentList", out var chargeAdj) &&
+                                    chargeAdj.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var charge in chargeAdj.EnumerateArray())
+                                    {
+                                        if (charge.TryGetProperty("ChargeAmount", out var ca) &&
+                                            ca.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            refundAmount += Math.Abs(amount.GetDecimal());
+                                        }
+                                    }
+                                }
+
+                                settlement.TotalReturnDeduction += refundAmount;
+
+                                settlement.Lines.Add(new SettlementLineDto
+                                {
+                                    OrderNumber = orderId,
+                                    TransactionType = "Refund",
+                                    Amount = -refundAmount,
+                                    TransactionDate = postedDate
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("Amazon EU GetSettlement: {LineCount} lines, net={NetAmount}",
+                settlement.Lines.Count, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Amazon EU GetSettlement exception for {StartDate}–{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Amazon EU cargo invoices — not available via SP-API; returns empty list.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("Amazon EU GetCargoInvoices: cargo invoice API not available via SP-API — returning empty list");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade/Claim Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
+
+            // Use Orders API to fetch return orders — Amazon SP-API returns via orders with ReturnStatus
+            var url = $"/orders/v0/orders?MarketplaceIds={_activeMarketplaceId}&OrderStatuses=Returned,Cancelled&MaxResultsPerPage=50";
+            if (since.HasValue)
+                url += "&CreatedAfter=" + since.Value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            else
+                url += "&CreatedAfter=" + DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Amazon EU PullClaims failed: {Status} {Error}",
+                    response.StatusCode, errorBody);
+                return claims;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (doc.RootElement.TryGetProperty("payload", out var payload) &&
+                payload.TryGetProperty("Orders", out var ordersEl))
+            {
+                foreach (var order in ordersEl.EnumerateArray())
+                {
+                    claims.Add(new ExternalClaimDto
+                    {
+                        PlatformClaimId = order.TryGetProperty("AmazonOrderId", out var oidEl) ? oidEl.GetString() ?? string.Empty : string.Empty,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = order.TryGetProperty("AmazonOrderId", out var onEl) ? onEl.GetString() ?? string.Empty : string.Empty,
+                        Status = order.TryGetProperty("OrderStatus", out var stEl) ? stEl.GetString() ?? string.Empty : string.Empty,
+                        Reason = order.TryGetProperty("CancelReason", out var rsEl) ? rsEl.GetString() ?? string.Empty : "Return",
+                        CustomerName = order.TryGetProperty("BuyerInfo", out var biEl) && biEl.TryGetProperty("BuyerName", out var bnEl)
+                            ? bnEl.GetString() ?? string.Empty : string.Empty,
+                        Amount = order.TryGetProperty("OrderTotal", out var otEl) && otEl.TryGetProperty("Amount", out var amEl)
+                            && decimal.TryParse(amEl.GetString(), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out var amt) ? amt : 0m,
+                        Currency = order.TryGetProperty("OrderTotal", out var ocEl) && ocEl.TryGetProperty("CurrencyCode", out var ccEl)
+                            ? ccEl.GetString() ?? "EUR" : "EUR",
+                        ClaimDate = order.TryGetProperty("PurchaseDate", out var pdEl) && pdEl.TryGetDateTime(out var pd) ? pd : DateTime.UtcNow
+                    });
+                }
+            }
+
+            _logger.LogInformation("Amazon EU PullClaims: {Count} claims fetched", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Amazon EU PullClaims exception");
+        }
+
+        return claims;
+    }
+
+    /// <inheritdoc />
+    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        // Amazon auto-processes most returns — manual approval is not supported via SP-API.
+        _logger.LogInformation("Amazon EU ApproveClaimAsync: Amazon auto-processes returns. ClaimId={ClaimId} acknowledged", claimId);
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        // Amazon does not support claim rejection via SP-API — returns are auto-processed.
+        _logger.LogWarning("Amazon EU RejectClaimAsync: Amazon does not support return rejection via API. ClaimId={ClaimId}, Reason={Reason}", claimId, reason);
+        return Task.FromResult(false);
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Fatura Gonderme
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Amazon SP-API uses feed-based invoice submission (UPLOAD_VAT_INVOICE).
+    /// URL-only invoice links are not natively supported — logging and returning true.
+    /// </remarks>
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation(
+            "AmazonEuAdapter.SendInvoiceLinkAsync: Package={PackageId} — URL-only not natively supported by Amazon SP-API, skipping feed. InvoiceUrl={InvoiceUrl}",
+            shipmentPackageId, invoiceUrl);
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Submits PDF invoice via Amazon SP-API Feeds (UPLOAD_VAT_INVOICE feed type).
+    /// Step 1: POST /feeds/2021-06-30/documents to create feed document.
+    /// Step 2: Upload PDF to the pre-signed URL.
+    /// Step 3: POST /feeds/2021-06-30/feeds to create feed referencing the document.
+    /// </remarks>
+    public async Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("AmazonEuAdapter.SendInvoiceFileAsync: Package={PackageId} File={FileName}",
+            shipmentPackageId, fileName);
+
+        try
+        {
+            // Step 1: Create feed document
+            var createDocPayload = new { contentType = "application/pdf" };
+            var createDocJson = JsonSerializer.Serialize(createDocPayload, _jsonOptions);
+
+            var createDocRequest = await CreateAuthenticatedRequestAsync(
+                HttpMethod.Post, "/feeds/2021-06-30/documents", ct).ConfigureAwait(false);
+            createDocRequest.Content = new StringContent(createDocJson, Encoding.UTF8, "application/json");
+
+            var createDocResponse = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(createDocRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!createDocResponse.IsSuccessStatusCode)
+            {
+                var error = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Amazon EU CreateFeedDocument failed: {Status} - {Error}",
+                    createDocResponse.StatusCode, error);
+                return false;
+            }
+
+            var docContent = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var docJson = JsonDocument.Parse(docContent);
+            var feedDocumentId = docJson.RootElement.TryGetProperty("feedDocumentId", out var docIdEl)
+                ? docIdEl.GetString() : null;
+            var uploadUrl = docJson.RootElement.TryGetProperty("url", out var urlEl)
+                ? urlEl.GetString() : null;
+
+            if (string.IsNullOrEmpty(feedDocumentId) || string.IsNullOrEmpty(uploadUrl))
+            {
+                _logger.LogError("Amazon EU CreateFeedDocument returned empty feedDocumentId or url");
+                return false;
+            }
+
+            // Step 2: Upload PDF to the pre-signed URL
+            using var uploadRequest = new HttpRequestMessage(HttpMethod.Put, uploadUrl);
+            uploadRequest.Content = new ByteArrayContent(pdfBytes);
+            uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+
+            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            if (!uploadResponse.IsSuccessStatusCode)
+            {
+                var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Amazon EU UploadInvoicePdf failed: {Status} - {Error}",
+                    uploadResponse.StatusCode, error);
+                return false;
+            }
+
+            // Step 3: Create feed referencing the document
+            var feedPayload = new
+            {
+                feedType = "UPLOAD_VAT_INVOICE",
+                marketplaceIds = new[] { _activeMarketplaceId },
+                inputFeedDocumentId = feedDocumentId
+            };
+            var feedJson = JsonSerializer.Serialize(feedPayload, _jsonOptions);
+
+            var feedRequest = await CreateAuthenticatedRequestAsync(
+                HttpMethod.Post, "/feeds/2021-06-30/feeds", ct).ConfigureAwait(false);
+            feedRequest.Content = new StringContent(feedJson, Encoding.UTF8, "application/json");
+
+            var feedResponse = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(feedRequest, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!feedResponse.IsSuccessStatusCode)
+            {
+                var error = await feedResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Amazon EU CreateFeed (UPLOAD_VAT_INVOICE) failed: {Status} - {Error}",
+                    feedResponse.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Amazon EU SendInvoiceFile OK: Package={PackageId} FeedDocumentId={FeedDocumentId}",
+                shipmentPackageId, feedDocumentId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Amazon EU SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
         }
     }

@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Mock IInvoiceProvider — returns realistic sample data so the Fatura Yonetimi
 /// screen is functional. Will be replaced by real Sovos/Parasut providers in production.
 /// </summary>
-public class MockInvoiceProvider : IInvoiceProvider
+public sealed class MockInvoiceProvider : IInvoiceProvider
 {
     public string ProviderName => "Mock e-Fatura (Test)";
     public InvoiceProvider Provider => InvoiceProvider.Manual;

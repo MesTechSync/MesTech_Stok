@@ -8,7 +8,7 @@ public record RedeemPointsCommand(
     int PointsToRedeem
 ) : IRequest<RedeemPointsResult>;
 
-public class RedeemPointsResult
+public sealed class RedeemPointsResult
 {
     public int RedeemedPoints { get; set; }
     public decimal DiscountAmount { get; set; }

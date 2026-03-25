@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// donusturup MesaEventPublisher ile RabbitMQ'ya publish eder.
 /// DomainEventNotification wrapper kullanir — Domain katmani INotification bilmez.
 /// </summary>
-public class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ProductCreatedEvent>>
+public sealed class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ProductCreatedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -48,7 +48,7 @@ public class ProductCreatedBridgeHandler : INotificationHandler<DomainEventNotif
     }
 }
 
-public class LowStockBridgeHandler : INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>
+public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -87,7 +87,7 @@ public class LowStockBridgeHandler : INotificationHandler<DomainEventNotificatio
     }
 }
 
-public class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotification<OrderPlacedEvent>>
+public sealed class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotification<OrderPlacedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -124,7 +124,7 @@ public class OrderPlacedBridgeHandler : INotificationHandler<DomainEventNotifica
     }
 }
 
-public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotification<PriceChangedEvent>>
+public sealed class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotification<PriceChangedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -161,7 +161,7 @@ public class PriceChangedBridgeHandler : INotificationHandler<DomainEventNotific
     }
 }
 
-public class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceSentEvent>>
+public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceSentEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -198,7 +198,7 @@ public class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainEventNot
     }
 }
 
-public class InvoiceCancelledBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceCancelledEvent>>
+public sealed class InvoiceCancelledBridgeHandler : INotificationHandler<DomainEventNotification<InvoiceCancelledEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -234,7 +234,7 @@ public class InvoiceCancelledBridgeHandler : INotificationHandler<DomainEventNot
     }
 }
 
-public class ReturnCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnCreatedEvent>>
+public sealed class ReturnCreatedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnCreatedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -272,7 +272,7 @@ public class ReturnCreatedBridgeHandler : INotificationHandler<DomainEventNotifi
     }
 }
 
-public class ReturnResolvedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnResolvedEvent>>
+public sealed class ReturnResolvedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnResolvedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -309,7 +309,7 @@ public class ReturnResolvedBridgeHandler : INotificationHandler<DomainEventNotif
     }
 }
 
-public class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNotification<BuyboxLostEvent>>
+public sealed class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNotification<BuyboxLostEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -348,7 +348,7 @@ public class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNotificat
     }
 }
 
-public class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventNotification<SupplierFeedSyncedEvent>>
+public sealed class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventNotification<SupplierFeedSyncedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -385,7 +385,7 @@ public class SupplierFeedSyncedBridgeHandler : INotificationHandler<DomainEventN
     }
 }
 
-public class DailySummaryBridgeHandler : INotificationHandler<DomainEventNotification<DailySummaryGeneratedEvent>>
+public sealed class DailySummaryBridgeHandler : INotificationHandler<DomainEventNotification<DailySummaryGeneratedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -421,7 +421,7 @@ public class DailySummaryBridgeHandler : INotificationHandler<DomainEventNotific
     }
 }
 
-public class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotification<SyncErrorOccurredEvent>>
+public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotification<SyncErrorOccurredEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly IMesaEventMonitor _monitor;
@@ -459,7 +459,7 @@ public class SyncErrorBridgeHandler : INotificationHandler<DomainEventNotificati
 
 // ── V4 Bridge Handlers ──────────────────────────────────────────
 
-public class ZeroStockBridgeHandler : INotificationHandler<DomainEventNotification<ZeroStockDetectedEvent>>
+public sealed class ZeroStockBridgeHandler : INotificationHandler<DomainEventNotification<ZeroStockDetectedEvent>>
 {
     private readonly ILogger<ZeroStockBridgeHandler> _logger;
     public ZeroStockBridgeHandler(ILogger<ZeroStockBridgeHandler> logger) => _logger = logger;
@@ -472,7 +472,7 @@ public class ZeroStockBridgeHandler : INotificationHandler<DomainEventNotificati
     }
 }
 
-public class PriceLossBridgeHandler : INotificationHandler<DomainEventNotification<PriceLossDetectedEvent>>
+public sealed class PriceLossBridgeHandler : INotificationHandler<DomainEventNotification<PriceLossDetectedEvent>>
 {
     private readonly ILogger<PriceLossBridgeHandler> _logger;
     public PriceLossBridgeHandler(ILogger<PriceLossBridgeHandler> logger) => _logger = logger;
@@ -485,7 +485,7 @@ public class PriceLossBridgeHandler : INotificationHandler<DomainEventNotificati
     }
 }
 
-public class StaleOrderBridgeHandler : INotificationHandler<DomainEventNotification<StaleOrderDetectedEvent>>
+public sealed class StaleOrderBridgeHandler : INotificationHandler<DomainEventNotification<StaleOrderDetectedEvent>>
 {
     private readonly ILogger<StaleOrderBridgeHandler> _logger;
     public StaleOrderBridgeHandler(ILogger<StaleOrderBridgeHandler> logger) => _logger = logger;
@@ -498,7 +498,7 @@ public class StaleOrderBridgeHandler : INotificationHandler<DomainEventNotificat
     }
 }
 
-public class ReturnApprovedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnApprovedEvent>>
+public sealed class ReturnApprovedBridgeHandler : INotificationHandler<DomainEventNotification<ReturnApprovedEvent>>
 {
     private readonly ILogger<ReturnApprovedBridgeHandler> _logger;
     public ReturnApprovedBridgeHandler(ILogger<ReturnApprovedBridgeHandler> logger) => _logger = logger;

@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Orchestration;
 /// Pazarama 2-stage (status 12→5) PazaramaAdapter.SendShipmentAsync icinde handle edilir,
 /// bu servis tum platformlara ayni sekilde davranir.
 /// </summary>
-public class AutoShipmentService : IAutoShipmentService
+public sealed class AutoShipmentService : IAutoShipmentService
 {
     private readonly ICargoProviderSelector _selector;
     private readonly ICargoProviderFactory _cargoFactory;

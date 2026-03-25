@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Payment;
 /// iyzico REST API v2 kullanir. Sandbox/Production mode destekler.
 /// NuGet: Iyzipay (resmi SDK) eklendiginde tam implementasyona gecilir.
 /// </summary>
-public class IyzicoPaymentGateway : IPaymentGateway
+public sealed class IyzicoPaymentGateway : IPaymentGateway
 {
     private readonly ILogger<IyzicoPaymentGateway> _logger;
     private readonly IyzicoOptions _options;
@@ -166,7 +166,7 @@ public class IyzicoPaymentGateway : IPaymentGateway
 }
 
 /// <summary>iyzico yapilandirma.</summary>
-public class IyzicoOptions
+public sealed class IyzicoOptions
 {
     public string ApiKey { get; set; } = string.Empty;
     public string SecretKey { get; set; } = string.Empty;

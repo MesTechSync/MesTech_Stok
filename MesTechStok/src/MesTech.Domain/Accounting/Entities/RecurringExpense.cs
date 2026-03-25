@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Tekrarlayan gider — aylik/ceyreklik/yillik otomatik gider takibi.
 /// </summary>
-public class RecurringExpense : BaseEntity, ITenantEntity
+public sealed class RecurringExpense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

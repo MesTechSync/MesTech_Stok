@@ -9,7 +9,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Tekduzen Hesap Plani: 253 Tesis/Makine/Cihaz, 254 Tasitlar, 255 Demirbaslar.
 /// Amortisman hesabinda (1/Omur)*2 oranli cift azalan veya esit payli yontem kullanilir.
 /// </summary>
-public class FixedAsset : BaseEntity, ITenantEntity
+public sealed class FixedAsset : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

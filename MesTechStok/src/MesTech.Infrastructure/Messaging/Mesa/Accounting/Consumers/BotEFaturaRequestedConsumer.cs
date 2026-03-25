@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA Bot e-fatura talep etti — WhatsApp/Telegram kanali mekanizmasi.
 /// Talebi NotificationLog olarak kaydeder, muhasebe ekibini bilgilendirir.
 /// </summary>
-public class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedIntegrationEvent>
+public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedIntegrationEvent>
 {
     private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;

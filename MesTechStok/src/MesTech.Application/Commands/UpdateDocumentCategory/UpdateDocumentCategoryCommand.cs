@@ -12,7 +12,7 @@ public record UpdateDocumentCategoryCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateDocumentCategoryHandler : IRequestHandler<UpdateDocumentCategoryCommand>
+public sealed class UpdateDocumentCategoryHandler : IRequestHandler<UpdateDocumentCategoryCommand>
 {
     public Task Handle(UpdateDocumentCategoryCommand request, CancellationToken cancellationToken)
     {

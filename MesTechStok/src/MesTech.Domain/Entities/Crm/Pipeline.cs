@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class Pipeline : BaseEntity, ITenantEntity
+public sealed class Pipeline : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

@@ -9,7 +9,7 @@ public record AdjustStockCommand(
     string? PerformedBy = null
 ) : IRequest<AdjustStockResult>;
 
-public class AdjustStockResult
+public sealed class AdjustStockResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }

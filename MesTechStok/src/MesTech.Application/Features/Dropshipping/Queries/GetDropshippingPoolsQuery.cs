@@ -23,7 +23,7 @@ public record DropshippingPoolDto(
     DateTime CreatedAt
 );
 
-public class GetDropshippingPoolsQueryHandler(
+public sealed class GetDropshippingPoolsQueryHandler(
     IDropshippingPoolRepository poolRepo,
     ITenantProvider tenantProvider
 ) : IRequestHandler<GetDropshippingPoolsQuery, PagedResult<DropshippingPoolDto>>

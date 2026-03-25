@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Finance;
 /// VUK 396 Sira No'lu Genel Teblig formatina uygun XML uretir.
 /// FormTipi: "Ba" = alis bildirimi, "Bs" = satis bildirimi.
 /// </summary>
-public class BaBsXmlExportService : IBaBsXmlExportService
+public sealed class BaBsXmlExportService : IBaBsXmlExportService
 {
     private static readonly HashSet<string> ValidFormTypes = new(StringComparer.OrdinalIgnoreCase) { "Ba", "Bs" };
 

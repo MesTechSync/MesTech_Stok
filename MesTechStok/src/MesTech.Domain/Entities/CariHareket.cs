@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Cari hesap hareketi (borç/alacak) — OnMuhasebe modülü için.
 /// </summary>
-public class CariHareket : BaseEntity, ITenantEntity
+public sealed class CariHareket : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CariHesapId { get; set; }

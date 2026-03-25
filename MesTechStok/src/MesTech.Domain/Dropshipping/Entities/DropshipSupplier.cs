@@ -7,7 +7,7 @@ namespace MesTech.Domain.Dropshipping.Entities;
 /// Dropshipping tedarikçisi. API bilgileri, kâr marjı ayarları ve otomatik senkronizasyon yapılandırması içerir.
 /// ApiKey şifrelenmiş olarak saklanır.
 /// </summary>
-public class DropshipSupplier : BaseEntity, ITenantEntity
+public sealed class DropshipSupplier : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

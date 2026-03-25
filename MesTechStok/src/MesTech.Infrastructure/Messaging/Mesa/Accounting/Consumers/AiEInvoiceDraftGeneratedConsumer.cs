@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA AI e-fatura taslagi olusturdu — muhasebe onayina gonder.
 /// Taslak bilgisini NotificationLog olarak kaydeder, muhasebe ekibini bilgilendirir.
 /// </summary>
-public class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGeneratedIntegrationEvent>
+public sealed class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraftGeneratedIntegrationEvent>
 {
     private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;

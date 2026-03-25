@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 1 dakikada tum platform API'lerinin saglik durumunu kontrol eder.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class HealthCheckJob : ISyncJob
+public sealed class HealthCheckJob : ISyncJob
 {
     public string JobId => "health-check";
     public string CronExpression => "* * * * *"; // Her 1 dk

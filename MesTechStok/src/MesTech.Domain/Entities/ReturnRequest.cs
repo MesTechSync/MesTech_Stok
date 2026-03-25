@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Platform-agnostik iade talebi. Platform kuralları config-driven uygulanır.
 /// İade onaylandığında stok atomik olarak artırılır (aynı transaction).
 /// </summary>
-public class ReturnRequest : BaseEntity, ITenantEntity
+public sealed class ReturnRequest : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; set; }

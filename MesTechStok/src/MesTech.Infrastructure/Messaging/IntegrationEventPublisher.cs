@@ -14,7 +14,7 @@ public interface IIntegrationEventPublisher
     Task PublishProductUpdatedAsync(Guid productId, string sku, string updatedField);
 }
 
-public class IntegrationEventPublisher : IIntegrationEventPublisher
+public sealed class IntegrationEventPublisher : IIntegrationEventPublisher
 {
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantProvider _tenantProvider;

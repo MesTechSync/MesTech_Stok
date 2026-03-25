@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class QuotationLine : BaseEntity
+public sealed class QuotationLine : BaseEntity
 {
     public Guid QuotationId { get; set; }
     public Guid? ProductId { get; set; }

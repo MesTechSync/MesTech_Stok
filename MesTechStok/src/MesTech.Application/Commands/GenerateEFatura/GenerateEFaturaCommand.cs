@@ -10,7 +10,7 @@ public record GenerateEFaturaCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class GenerateEFaturaHandler : IRequestHandler<GenerateEFaturaCommand>
+public sealed class GenerateEFaturaHandler : IRequestHandler<GenerateEFaturaCommand>
 {
     public Task Handle(GenerateEFaturaCommand request, CancellationToken cancellationToken)
     {

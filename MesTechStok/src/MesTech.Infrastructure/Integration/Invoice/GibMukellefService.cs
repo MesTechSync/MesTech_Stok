@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Cache TTL: 24 saat (GIB registry gece guncellenir).
 /// Fallback: hata durumunda false doner (e-Arsiv, guvenli B2C varsayimi).
 /// </summary>
-public class GibMukellefService : IGibMukellefService
+public sealed class GibMukellefService : IGibMukellefService
 {
     private const string CachePrefix = "gib:vkn:";
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);

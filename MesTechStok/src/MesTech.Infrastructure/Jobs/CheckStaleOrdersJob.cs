@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Ciddiyet bazlı: 72+ saat = Kritik, 48-72 saat = Uyarı.
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
-public class CheckStaleOrdersJob
+public sealed class CheckStaleOrdersJob
 {
     private readonly IMediator _mediator;
     private readonly ITenantRepository _tenantRepo;

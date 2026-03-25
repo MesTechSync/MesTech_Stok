@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
-public class RabbitMqHealthCheck : IHealthCheck
+public sealed class RabbitMqHealthCheck : IHealthCheck
 {
     private readonly IConfiguration _configuration;
 

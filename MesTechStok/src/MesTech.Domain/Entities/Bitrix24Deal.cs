@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// MesTech Order ↔ Bitrix24 Deal mapping.
 /// crm.deal.add sonucu — ExternalDealId Bitrix24'teki deal ID'si.
 /// </summary>
-public class Bitrix24Deal : BaseEntity, ITenantEntity
+public sealed class Bitrix24Deal : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; set; }

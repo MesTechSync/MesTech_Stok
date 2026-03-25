@@ -14,7 +14,7 @@ public record CreateAutoOrderCommand(
 /// <summary>
 /// Otomatik sipariş sonuç DTO'su.
 /// </summary>
-public class AutoOrderResultDto
+public sealed class AutoOrderResultDto
 {
     public int OrdersCreated { get; init; }
     public decimal TotalAmount { get; init; }
@@ -24,7 +24,7 @@ public class AutoOrderResultDto
 /// <summary>
 /// Oluşturulan her sipariş kaydının özeti.
 /// </summary>
-public class AutoOrderItemDto
+public sealed class AutoOrderItemDto
 {
     public Guid OrderId { get; init; }
     public Guid ProductId { get; init; }

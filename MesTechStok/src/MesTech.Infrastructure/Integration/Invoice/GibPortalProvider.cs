@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Endpoint: {baseUrl}/earsiv-services/dispatch
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, VKN sorgu, iptal.
 /// </summary>
-public class GibPortalProvider : IInvoiceProvider
+public sealed class GibPortalProvider : IInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<GibPortalProvider> _logger;

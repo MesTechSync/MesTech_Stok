@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Accounting;
 /// Her platformun en son settlement batch'inden gercek oran hesaplar.
 /// Settlement yoksa null doner — CommissionCalculationService fallback kullanir.
 /// </summary>
-public class PlatformCommissionRateProvider : ICommissionRateProvider
+public sealed class PlatformCommissionRateProvider : ICommissionRateProvider
 {
     private readonly ISettlementBatchRepository _settlementRepo;
     private readonly ILogger<PlatformCommissionRateProvider> _logger;

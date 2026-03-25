@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Muhasebe modulu tedarikci hesabi — tedarikci bazinda bakiye ve son islem takibi.
 /// Mevcut Domain.Entities.SupplierAccount'tan farkli: muhasebe odakli, basitleştirilmis.
 /// </summary>
-public class AccountingSupplierAccount : BaseEntity, ITenantEntity
+public sealed class AccountingSupplierAccount : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid SupplierId { get; private set; }

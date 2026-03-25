@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// JournalEntry: Borc (gider hesabi) = Alacak (kasa/banka hesabi).
 /// Post() sonrasi LedgerPostedEvent tetiklenir → AnomalyCheckHandler devreye girer.
 /// </summary>
-public class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
+public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApprovedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;

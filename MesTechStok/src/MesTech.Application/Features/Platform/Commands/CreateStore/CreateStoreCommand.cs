@@ -10,7 +10,7 @@ public record CreateStoreCommand(
     Dictionary<string, string> Credentials
 ) : IRequest<CreateStoreResult>;
 
-public class CreateStoreResult
+public sealed class CreateStoreResult
 {
     public bool IsSuccess { get; set; }
     public Guid? StoreId { get; set; }

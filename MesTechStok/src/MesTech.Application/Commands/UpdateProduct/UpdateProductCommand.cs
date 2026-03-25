@@ -21,7 +21,7 @@ public record UpdateProductCommand(
     bool SyncToPlatforms = true
 ) : IRequest<UpdateProductResult>;
 
-public class UpdateProductResult
+public sealed class UpdateProductResult
 {
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }

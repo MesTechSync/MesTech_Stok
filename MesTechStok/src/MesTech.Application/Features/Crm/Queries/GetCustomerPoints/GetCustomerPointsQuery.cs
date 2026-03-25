@@ -8,7 +8,7 @@ public record GetCustomerPointsQuery(
     Guid CustomerId
 ) : IRequest<GetCustomerPointsResult>;
 
-public class GetCustomerPointsResult
+public sealed class GetCustomerPointsResult
 {
     public int TotalEarned { get; set; }
     public int TotalRedeemed { get; set; }
@@ -17,7 +17,7 @@ public class GetCustomerPointsResult
     public IReadOnlyList<LoyaltyTransactionDto> TransactionHistory { get; set; } = [];
 }
 
-public class LoyaltyTransactionDto
+public sealed class LoyaltyTransactionDto
 {
     public Guid Id { get; set; }
     public int Points { get; set; }

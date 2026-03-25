@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// <summary>
 /// Parasut adapter — IBulkInvoiceCapable only. Wraps existing ParasutInvoiceProvider.
 /// </summary>
-public class ParasutInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable
+public sealed class ParasutInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable
 {
     private readonly ParasutInvoiceProvider _provider;
     private readonly ILogger<ParasutInvoiceAdapter> _logger;

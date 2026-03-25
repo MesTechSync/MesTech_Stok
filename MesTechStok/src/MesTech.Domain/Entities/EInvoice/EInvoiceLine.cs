@@ -2,7 +2,7 @@
 
 namespace MesTech.Domain.Entities.EInvoice;
 
-public class EInvoiceLine : BaseEntity, ITenantEntity
+public sealed class EInvoiceLine : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid EInvoiceDocumentId { get; private set; }

@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Realtime;
 /// WebSocket baglanti yonetimi. Tum bagli istemcilere broadcast yapar.
 /// Thread-safe: ConcurrentDictionary ile baglanti takibi.
 /// </summary>
-public class WebSocketConnectionManager
+public sealed class WebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<string, WebSocket> _connections = new();
     private readonly ILogger<WebSocketConnectionManager> _logger;

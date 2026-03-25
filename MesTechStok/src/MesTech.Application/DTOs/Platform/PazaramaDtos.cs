@@ -7,7 +7,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Pazarama generic API response wrapper.
 /// </summary>
-public class PzApiResponse<T>
+public sealed class PzApiResponse<T>
 {
     public T? Data { get; set; }
     public bool Success { get; set; }
@@ -24,7 +24,7 @@ public class PzApiResponse<T>
 /// <summary>
 /// Pazarama batch product create request (async — returns batchRequestId).
 /// </summary>
-public class PzProductCreateRequest
+public sealed class PzProductCreateRequest
 {
     public List<PzProductDetail> Products { get; set; } = new();
 }
@@ -32,7 +32,7 @@ public class PzProductCreateRequest
 /// <summary>
 /// Pazarama batch product create response.
 /// </summary>
-public class PzProductCreateResponse
+public sealed class PzProductCreateResponse
 {
     public Guid BatchRequestId { get; set; }
     public DateTime CreationDate { get; set; }
@@ -42,7 +42,7 @@ public class PzProductCreateResponse
 /// Pazarama batch result polling response.
 /// Status: 1=InProgress, 2=Done, 3=Error.
 /// </summary>
-public class PzBatchResultResponse
+public sealed class PzBatchResultResponse
 {
     public int Status { get; set; }
     public List<PzBatchResultItem> BatchResult { get; set; } = new();
@@ -53,7 +53,7 @@ public class PzBatchResultResponse
 /// <summary>
 /// Single item result within a batch operation.
 /// </summary>
-public class PzBatchResultItem
+public sealed class PzBatchResultItem
 {
     public string? Code { get; set; }
     public bool IsSuccess { get; set; }
@@ -63,7 +63,7 @@ public class PzBatchResultItem
 /// <summary>
 /// Pazarama product list response.
 /// </summary>
-public class PzProductListResponse
+public sealed class PzProductListResponse
 {
     public List<PzProduct> Data { get; set; } = new();
     public bool Success { get; set; }
@@ -89,7 +89,7 @@ public class PzProduct
 /// <summary>
 /// Pazarama product detail (extends PzProduct with creation fields).
 /// </summary>
-public class PzProductDetail : PzProduct
+public sealed class PzProductDetail : PzProduct
 {
     public Guid BrandId { get; set; }
     public Guid CategoryId { get; set; }
@@ -105,7 +105,7 @@ public class PzProductDetail : PzProduct
 /// <summary>
 /// Pazarama product attribute.
 /// </summary>
-public class PzAttribute
+public sealed class PzAttribute
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -115,7 +115,7 @@ public class PzAttribute
 /// <summary>
 /// Pazarama product image.
 /// </summary>
-public class PzImage
+public sealed class PzImage
 {
     public string Url { get; set; } = string.Empty;
     public bool IsMain { get; set; }
@@ -128,7 +128,7 @@ public class PzImage
 /// <summary>
 /// Pazarama price update request.
 /// </summary>
-public class PzPriceUpdateRequest
+public sealed class PzPriceUpdateRequest
 {
     public List<PzPriceItem> Items { get; set; } = new();
 }
@@ -136,7 +136,7 @@ public class PzPriceUpdateRequest
 /// <summary>
 /// Pazarama price item.
 /// </summary>
-public class PzPriceItem
+public sealed class PzPriceItem
 {
     public string Code { get; set; } = string.Empty;
     public decimal ListPrice { get; set; }
@@ -146,7 +146,7 @@ public class PzPriceItem
 /// <summary>
 /// Pazarama stock update request.
 /// </summary>
-public class PzStockUpdateRequest
+public sealed class PzStockUpdateRequest
 {
     public List<PzStockItem> Items { get; set; } = new();
 }
@@ -154,7 +154,7 @@ public class PzStockUpdateRequest
 /// <summary>
 /// Pazarama stock item.
 /// </summary>
-public class PzStockItem
+public sealed class PzStockItem
 {
     public string Code { get; set; } = string.Empty;
     public int StockCount { get; set; }
@@ -167,7 +167,7 @@ public class PzStockItem
 /// <summary>
 /// Pazarama order list request (POST, date range required, max 1 month).
 /// </summary>
-public class PzOrderListRequest
+public sealed class PzOrderListRequest
 {
     public int PageSize { get; set; } = 50;
     public int PageNumber { get; set; } = 1;
@@ -179,7 +179,7 @@ public class PzOrderListRequest
 /// <summary>
 /// Pazarama order list response.
 /// </summary>
-public class PzOrderListResponse
+public sealed class PzOrderListResponse
 {
     public List<PzOrder> Data { get; set; } = new();
     public bool Success { get; set; }
@@ -188,7 +188,7 @@ public class PzOrderListResponse
 /// <summary>
 /// Pazarama order model.
 /// </summary>
-public class PzOrder
+public sealed class PzOrder
 {
     public Guid OrderId { get; set; }
     public long OrderNumber { get; set; }
@@ -205,7 +205,7 @@ public class PzOrder
 /// <summary>
 /// Pazarama order item.
 /// </summary>
-public class PzOrderItem
+public sealed class PzOrderItem
 {
     public Guid OrderItemId { get; set; }
     public int OrderItemStatus { get; set; }
@@ -223,7 +223,7 @@ public class PzOrderItem
 /// <summary>
 /// Pazarama cargo information within an order item.
 /// </summary>
-public class PzCargoInfo
+public sealed class PzCargoInfo
 {
     public string? CompanyName { get; set; }
     public string? TrackingNumber { get; set; }
@@ -233,7 +233,7 @@ public class PzCargoInfo
 /// <summary>
 /// Pazarama product info within an order item.
 /// </summary>
-public class PzProductInfo
+public sealed class PzProductInfo
 {
     public Guid ProductId { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -245,7 +245,7 @@ public class PzProductInfo
 /// <summary>
 /// Pazarama address model.
 /// </summary>
-public class PzAddress
+public sealed class PzAddress
 {
     public string? FullName { get; set; }
     public string? Address { get; set; }
@@ -262,7 +262,7 @@ public class PzAddress
 /// <summary>
 /// Pazarama order status update request (2-stage: status=12 Hazirlaniyor, status=5 Kargoya Verildi).
 /// </summary>
-public class PzUpdateOrderStatusRequest
+public sealed class PzUpdateOrderStatusRequest
 {
     public long OrderNumber { get; set; }
     public PzOrderStatusItem Item { get; set; } = new();
@@ -271,7 +271,7 @@ public class PzUpdateOrderStatusRequest
 /// <summary>
 /// Pazarama order status item for cargo notification.
 /// </summary>
-public class PzOrderStatusItem
+public sealed class PzOrderStatusItem
 {
     public Guid OrderItemId { get; set; }
     public int Status { get; set; }
@@ -288,7 +288,7 @@ public class PzOrderStatusItem
 /// <summary>
 /// Pazarama refund list request.
 /// </summary>
-public class PzRefundListRequest
+public sealed class PzRefundListRequest
 {
     public int PageSize { get; set; } = 50;
     public int PageNumber { get; set; } = 1;
@@ -300,7 +300,7 @@ public class PzRefundListRequest
 /// <summary>
 /// Pazarama refund list response.
 /// </summary>
-public class PzRefundListResponse
+public sealed class PzRefundListResponse
 {
     public PzRefundData? Data { get; set; }
     public bool Success { get; set; }
@@ -309,7 +309,7 @@ public class PzRefundListResponse
 /// <summary>
 /// Pazarama refund data container with pagination info.
 /// </summary>
-public class PzRefundData
+public sealed class PzRefundData
 {
     public int ResponsePage { get; set; }
     public int PageReport { get; set; }
@@ -319,7 +319,7 @@ public class PzRefundData
 /// <summary>
 /// Pazarama refund model.
 /// </summary>
-public class PzRefund
+public sealed class PzRefund
 {
     public Guid RefundId { get; set; }
     public long OrderNumber { get; set; }
@@ -337,7 +337,7 @@ public class PzRefund
 /// Pazarama refund status update request.
 /// Firms can only send status 2 (Onay/Approve) or 3 (Ret/Reject).
 /// </summary>
-public class PzUpdateRefundRequest
+public sealed class PzUpdateRefundRequest
 {
     public Guid RefundId { get; set; }
     public int Status { get; set; }
@@ -350,7 +350,7 @@ public class PzUpdateRefundRequest
 /// <summary>
 /// Pazarama invoice link request.
 /// </summary>
-public class PzInvoiceLinkRequest
+public sealed class PzInvoiceLinkRequest
 {
     public string InvoiceLink { get; set; } = string.Empty;
     public Guid OrderId { get; set; }
@@ -365,7 +365,7 @@ public class PzInvoiceLinkRequest
 /// <summary>
 /// Pazarama category tree node.
 /// </summary>
-public class PzCategoryTree
+public sealed class PzCategoryTree
 {
     public Guid Id { get; set; }
     public Guid? ParentId { get; set; }
@@ -378,7 +378,7 @@ public class PzCategoryTree
 /// <summary>
 /// Pazarama category with its attributes.
 /// </summary>
-public class PzCategoryAttributes
+public sealed class PzCategoryAttributes
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -388,7 +388,7 @@ public class PzCategoryAttributes
 /// <summary>
 /// Pazarama category attribute definition.
 /// </summary>
-public class PzCategoryAttribute
+public sealed class PzCategoryAttribute
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -400,7 +400,7 @@ public class PzCategoryAttribute
 /// <summary>
 /// Pazarama attribute value.
 /// </summary>
-public class PzAttributeValue
+public sealed class PzAttributeValue
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -409,7 +409,7 @@ public class PzAttributeValue
 /// <summary>
 /// Pazarama brand model.
 /// </summary>
-public class PzBrand
+public sealed class PzBrand
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

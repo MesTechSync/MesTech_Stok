@@ -26,7 +26,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// PushPriceUpdate: GET products?sku={sku} → PUT products/{id} with regular_price.
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
-public class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
+public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;

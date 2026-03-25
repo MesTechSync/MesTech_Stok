@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Tasks;
 
-public class Project : BaseEntity, ITenantEntity
+public sealed class Project : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; private set; }

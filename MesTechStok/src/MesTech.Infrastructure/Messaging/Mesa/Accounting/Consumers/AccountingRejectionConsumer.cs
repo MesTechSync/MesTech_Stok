@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// WhatsApp/Panel uzerinden reddedilen muhasebe belgesini consume eder.
 /// Belge status bilgisini gunceller ve red sebebini kaydeder.
 /// </summary>
-public class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
+public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejectedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;

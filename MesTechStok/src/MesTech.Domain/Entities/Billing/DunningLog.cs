@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities.Billing;
 /// <summary>
 /// Odeme tahsilat kaydi — basarisiz odeme sonrasi uyari/yeniden deneme/askiya alma/iptal adimlari.
 /// </summary>
-public class DunningLog : BaseEntity, ITenantEntity
+public sealed class DunningLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid TenantSubscriptionId { get; private set; }

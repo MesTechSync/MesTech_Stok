@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.HealthChecks;
 /// /health adresinde JSON formatinda saglik durumu sunar.
 /// Docker healthcheck ve Prometheus icin kullanilir.
 /// </summary>
-public class HealthCheckEndpoint : BackgroundService
+public sealed class HealthCheckEndpoint : BackgroundService
 {
     private readonly HealthCheckService _healthCheckService;
     private readonly ILogger<HealthCheckEndpoint> _logger;

@@ -11,7 +11,7 @@ public record ApproveReturnCommand(
     bool AutoRestoreStock = true
 ) : IRequest<ApproveReturnResult>;
 
-public class ApproveReturnResult
+public sealed class ApproveReturnResult
 {
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }

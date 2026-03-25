@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Platform mağazası — bir tenant'ın bir e-ticaret platformundaki mağazası.
 /// </summary>
-public class Store : BaseEntity, ITenantEntity
+public sealed class Store : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public PlatformType PlatformType { get; set; }

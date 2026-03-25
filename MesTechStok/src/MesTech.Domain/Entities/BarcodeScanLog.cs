@@ -2,7 +2,7 @@
 
 namespace MesTech.Domain.Entities;
 
-public class BarcodeScanLog : BaseEntity, ITenantEntity
+public sealed class BarcodeScanLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Barcode { get; set; } = string.Empty;

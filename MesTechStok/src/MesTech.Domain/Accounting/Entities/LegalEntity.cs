@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Tüzel kisilik — firma bilgileri.
 /// VKN sifreli saklanir.
 /// </summary>
-public class LegalEntity : BaseEntity, ITenantEntity
+public sealed class LegalEntity : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

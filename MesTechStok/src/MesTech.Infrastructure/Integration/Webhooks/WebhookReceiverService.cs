@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Integration.Webhooks;
 /// Bitrix24: ONCRMDEALADD, ONCRMDEALUPDATE, ONCRMCONTACTADD, ONCRMCONTACTUPDATE (form-encoded)
 /// Diger platformlar: generic event routing
 /// </summary>
-public class WebhookReceiverService : IWebhookReceiverService
+public sealed class WebhookReceiverService : IWebhookReceiverService
 {
     private readonly IEnumerable<IIntegratorAdapter> _adapters;
     private readonly ILogger<WebhookReceiverService> _logger;

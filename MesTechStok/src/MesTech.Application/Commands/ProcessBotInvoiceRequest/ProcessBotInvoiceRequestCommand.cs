@@ -10,7 +10,7 @@ public record ProcessBotInvoiceRequestCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class ProcessBotInvoiceRequestHandler : IRequestHandler<ProcessBotInvoiceRequestCommand>
+public sealed class ProcessBotInvoiceRequestHandler : IRequestHandler<ProcessBotInvoiceRequestCommand>
 {
     public Task Handle(ProcessBotInvoiceRequestCommand request, CancellationToken cancellationToken)
     {

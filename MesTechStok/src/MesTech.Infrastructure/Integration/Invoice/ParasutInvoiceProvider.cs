@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Content-Type: application/vnd.api+json
 /// Request/response wrapped in { data: { type, attributes } }
 /// </summary>
-public class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
+public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ParasutInvoiceProvider> _logger;

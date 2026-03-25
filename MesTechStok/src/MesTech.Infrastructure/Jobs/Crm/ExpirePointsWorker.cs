@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Crm;
 /// Creates an Expire transaction for each expirable Earn, zeroing out the points.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ExpirePointsWorker : ISyncJob
+public sealed class ExpirePointsWorker : ISyncJob
 {
     public string JobId => "crm-expire-loyalty-points";
     public string CronExpression => "0 2 * * *"; // Daily at 02:00

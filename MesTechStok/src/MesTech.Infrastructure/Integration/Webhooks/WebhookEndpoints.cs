@@ -54,7 +54,7 @@ public static class WebhookEndpoints
 /// Webhook request DTO — platform webhook cagirildiginda gelen istek modeli.
 /// Minimal API endpoint handler'larinda bind edilir.
 /// </summary>
-public class WebhookRequest
+public sealed class WebhookRequest
 {
     public string? EventType { get; set; }
     public string? Signature { get; set; }

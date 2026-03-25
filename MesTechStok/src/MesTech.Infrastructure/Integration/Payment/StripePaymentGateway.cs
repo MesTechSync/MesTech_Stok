@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Payment;
 /// Stripe REST API v1 kullanir. Sandbox/Production mode destekler.
 /// NuGet: Stripe.net (resmi SDK) eklendiginde tam implementasyona gecilir.
 /// </summary>
-public class StripePaymentGateway : IPaymentGateway
+public sealed class StripePaymentGateway : IPaymentGateway
 {
     private readonly ILogger<StripePaymentGateway> _logger;
     private readonly StripeOptions _options;
@@ -150,7 +150,7 @@ public class StripePaymentGateway : IPaymentGateway
 }
 
 /// <summary>Stripe yapilandirma.</summary>
-public class StripeOptions
+public sealed class StripeOptions
 {
     public string PublishableKey { get; set; } = string.Empty;
     public string SecretKey { get; set; } = string.Empty;

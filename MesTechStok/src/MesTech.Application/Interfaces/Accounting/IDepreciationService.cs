@@ -22,7 +22,7 @@ public interface IDepreciationService
 /// <summary>
 /// Yillik amortisman satiri.
 /// </summary>
-public class DepreciationScheduleDto
+public sealed class DepreciationScheduleDto
 {
     public int Year { get; set; }
     public decimal DepreciationAmount { get; set; }

@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging;
 /// Manuel tetiklenir (admin endpoint).
 /// Max 3 reprocess denemesi — sonra permanent-dlq'ya tasi.
 /// </summary>
-public class DlqReprocessService
+public sealed class DlqReprocessService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -189,7 +189,7 @@ public class DlqReprocessService
     }
 }
 
-public class DlqReprocessResult
+public sealed class DlqReprocessResult
 {
     public string QueueName { get; set; } = string.Empty;
     public int TotalFound { get; set; }
@@ -199,7 +199,7 @@ public class DlqReprocessResult
     public string? ErrorMessage { get; set; }
 }
 
-public class DlqQueueStatus
+public sealed class DlqQueueStatus
 {
     public string QueueName { get; set; } = string.Empty;
     public int MessageCount { get; set; }

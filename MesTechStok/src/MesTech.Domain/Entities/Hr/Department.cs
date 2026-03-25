@@ -1,7 +1,7 @@
 using MesTech.Domain.Common;
 namespace MesTech.Domain.Entities.Hr;
 
-public class Department : BaseEntity, ITenantEntity
+public sealed class Department : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

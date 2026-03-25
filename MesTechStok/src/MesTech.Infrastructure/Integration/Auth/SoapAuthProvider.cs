@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// <summary>
 /// SOAP tabanlı kimlik doğrulama — N11.
 /// </summary>
-public class SoapAuthProvider : IAuthenticationProvider
+public sealed class SoapAuthProvider : IAuthenticationProvider
 {
     public string PlatformCode { get; }
     private readonly string _appKey;

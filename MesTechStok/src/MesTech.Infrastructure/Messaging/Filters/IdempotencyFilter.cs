@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Messaging.Filters;
 
-public class IdempotencyFilter<T> : IFilter<ConsumeContext<T>>
+public sealed class IdempotencyFilter<T> : IFilter<ConsumeContext<T>>
     where T : class
 {
     private readonly IProcessedMessageStore _store;

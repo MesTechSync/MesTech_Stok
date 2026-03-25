@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Sosyal ticaret feed yapilandirmasi — bir tenant'in bir platforma yonelik feed ayarlari.
 /// Google Merchant, Facebook Shop, Akakce, Cimri vb. platformlara urun feed'i uretir.
 /// </summary>
-public class SocialFeedConfiguration : BaseEntity, ITenantEntity
+public sealed class SocialFeedConfiguration : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public SocialFeedPlatform Platform { get; set; }

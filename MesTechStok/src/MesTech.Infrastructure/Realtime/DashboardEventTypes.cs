@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace MesTech.Infrastructure.Realtime;
 
-public class DashboardEvent
+public sealed class DashboardEvent
 {
     [JsonPropertyName("eventType")]
     public string EventType { get; set; } = string.Empty;

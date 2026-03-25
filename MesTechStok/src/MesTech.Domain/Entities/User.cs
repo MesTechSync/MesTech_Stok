@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Tenant hiyerarşisi: Tenant → Store → User.
 /// ITenantEntity implement etmez — kullanıcı sorguları tenant-filtered değildir.
 /// </summary>
-public class User : BaseEntity
+public sealed class User : BaseEntity
 {
     public string Username { get; set; } = string.Empty;
     public string? Email { get; set; }

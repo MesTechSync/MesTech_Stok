@@ -8,7 +8,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Yevmiye kaydi — muhasebe fisinin baslik kismi.
 /// Borç = Alacak kurali Validate() ile garanti altina alinir.
 /// </summary>
-public class JournalEntry : BaseEntity, ITenantEntity
+public sealed class JournalEntry : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public DateTime EntryDate { get; private set; }

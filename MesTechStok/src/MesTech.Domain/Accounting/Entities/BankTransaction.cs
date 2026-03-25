@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Banka hareketi — ekstre satirlari, idempotency key ile tekrar engeli.
 /// Mevcut Finance.BankAccount entity'sine referans verir.
 /// </summary>
-public class BankTransaction : BaseEntity, ITenantEntity
+public sealed class BankTransaction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid BankAccountId { get; private set; }

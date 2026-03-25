@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Platform hesap kesimi — Trendyol, Hepsiburada vb. periyodik odeme toplami.
 /// </summary>
-public class SettlementBatch : BaseEntity, ITenantEntity
+public sealed class SettlementBatch : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Platform { get; private set; } = string.Empty;

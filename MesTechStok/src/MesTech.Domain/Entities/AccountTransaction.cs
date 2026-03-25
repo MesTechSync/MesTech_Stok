@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Düzeltme gerekirse ters hareket (Adjustment) yazılır.
 /// Debit = borç, Credit = alacak.
 /// </summary>
-public class AccountTransaction : BaseEntity, ITenantEntity
+public sealed class AccountTransaction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid AccountId { get; internal set; }

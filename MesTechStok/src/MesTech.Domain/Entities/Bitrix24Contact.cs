@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// MesTech Customer ↔ Bitrix24 Contact mapping.
 /// crm.contact.add sonucu — ExternalContactId Bitrix24'teki contact ID'si.
 /// </summary>
-public class Bitrix24Contact : BaseEntity, ITenantEntity
+public sealed class Bitrix24Contact : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CustomerId { get; set; }

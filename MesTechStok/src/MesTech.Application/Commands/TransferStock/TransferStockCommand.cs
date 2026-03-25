@@ -10,7 +10,7 @@ public record TransferStockCommand(
     string? Notes = null
 ) : IRequest<TransferStockResult>;
 
-public class TransferStockResult
+public sealed class TransferStockResult
 {
     public bool IsSuccess { get; set; }
     public int SourceRemainingStock { get; set; }

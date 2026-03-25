@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Stok hareketi entity'si.
 /// </summary>
-public class StockMovement : BaseEntity, ITenantEntity
+public sealed class StockMovement : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities.Erp;
 /// Basarili/basarisiz sonuc, ERP referansi, retry bilgisi ve hata detayi saklanir.
 /// Dalga 11: ERP entegrasyonu icin eklendi.
 /// </summary>
-public class ErpSyncLog : BaseEntity, ITenantEntity
+public sealed class ErpSyncLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

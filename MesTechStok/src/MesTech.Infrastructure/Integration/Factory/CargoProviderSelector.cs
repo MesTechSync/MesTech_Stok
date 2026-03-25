@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Integration.Factory;
 /// Siparis icin en uygun kargo firmasini secer.
 /// Phase C: 3 strateji destegi — AvailabilityFirst, CheapestFirst, FastestFirst.
 /// </summary>
-public class CargoProviderSelector : ICargoProviderSelector
+public sealed class CargoProviderSelector : ICargoProviderSelector
 {
     private readonly ICargoProviderFactory _factory;
     private readonly ILogger<CargoProviderSelector> _logger;

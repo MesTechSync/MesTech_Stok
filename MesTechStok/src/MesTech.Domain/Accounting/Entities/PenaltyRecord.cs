@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Ceza kaydi — platform veya resmi kurum kaynakli cezalar.
 /// </summary>
-public class PenaltyRecord : BaseEntity, ITenantEntity
+public sealed class PenaltyRecord : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public PenaltySource Source { get; private set; }

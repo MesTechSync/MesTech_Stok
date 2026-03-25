@@ -26,7 +26,7 @@ public record ExportHistoryDto(
 /// Export geçmişi için stub handler — IExportHistoryRepository Sprint B-06'da eklenir.
 /// Şu an boş liste döner.
 /// </summary>
-public class GetExportHistoryQueryHandler
+public sealed class GetExportHistoryQueryHandler
     : IRequestHandler<GetExportHistoryQuery, PagedResult<ExportHistoryDto>>
 {
     public Task<PagedResult<ExportHistoryDto>> Handle(

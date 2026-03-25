@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Kargo maliyet kaydi — her gonderim icin kargo ucretini tutar.
 /// Zincir 7: Siparis kargolandiginda otomatik gider kaydi olusturur.
 /// </summary>
-public class ShipmentCost : BaseEntity, ITenantEntity
+public sealed class ShipmentCost : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; private set; }

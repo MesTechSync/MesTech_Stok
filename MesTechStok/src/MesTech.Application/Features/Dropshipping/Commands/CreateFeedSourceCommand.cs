@@ -19,7 +19,7 @@ public record CreateFeedSourceCommand(
     bool AutoDeactivateOnZeroStock
 ) : IRequest<Guid>;
 
-public class CreateFeedSourceCommandValidator : AbstractValidator<CreateFeedSourceCommand>
+public sealed class CreateFeedSourceCommandValidator : AbstractValidator<CreateFeedSourceCommand>
 {
     public CreateFeedSourceCommandValidator()
     {
@@ -34,7 +34,7 @@ public class CreateFeedSourceCommandValidator : AbstractValidator<CreateFeedSour
     }
 }
 
-public class CreateFeedSourceCommandHandler(
+public sealed class CreateFeedSourceCommandHandler(
     ISupplierFeedRepository feedRepo,
     ICurrentUserService currentUser,
     ITenantProvider tenantProvider

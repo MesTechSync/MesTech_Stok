@@ -5,7 +5,7 @@ namespace MesTech.Domain.Services;
 /// Depo stok cikislarinda son kullanma tarihine gore onceliklendirme yapar.
 /// Saf is kurallari, altyapi bagimliligi yok.
 /// </summary>
-public class FEFOSortingService : IFEFOSortingService
+public sealed class FEFOSortingService : IFEFOSortingService
 {
     /// <summary>
     /// Stok kalemlerini FEFO kuralina gore siralar.

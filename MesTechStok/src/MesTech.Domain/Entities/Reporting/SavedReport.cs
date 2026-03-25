@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities.Reporting;
 /// ReportType: Sales, Profitability, Stock, Commission, BaBs.
 /// FilterJson: Rapor parametreleri JSON olarak saklanir.
 /// </summary>
-public class SavedReport : BaseEntity, ITenantEntity
+public sealed class SavedReport : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

@@ -4,7 +4,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 /// Nebim V3 ERP API configuration options.
 /// Config section: "ERP:Nebim"
 /// </summary>
-public class NebimOptions
+public sealed class NebimOptions
 {
     public const string SectionName = "ERP:Nebim";
     public string BaseUrl { get; set; } = string.Empty;

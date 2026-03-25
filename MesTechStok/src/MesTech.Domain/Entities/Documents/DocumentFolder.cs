@@ -1,7 +1,7 @@
 using MesTech.Domain.Common;
 namespace MesTech.Domain.Entities.Documents;
 
-public class DocumentFolder : BaseEntity, ITenantEntity
+public sealed class DocumentFolder : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Simdilk log-only placeholder — real structure.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ErpAccountSyncJob : ISyncJob
+public sealed class ErpAccountSyncJob : ISyncJob
 {
     public string JobId => "erp-account-sync";
     public string CronExpression => "0 3 * * *"; // Her gece 03:00

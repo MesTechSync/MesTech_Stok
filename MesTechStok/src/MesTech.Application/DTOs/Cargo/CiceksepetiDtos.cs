@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Cargo;
 /// <summary>
 /// Ciceksepeti API response modelleri — adapter icinde kullanilir.
 /// </summary>
-public class CsProductListResponse
+public sealed class CsProductListResponse
 {
     public List<CsProduct> Products { get; set; } = new();
     public int TotalCount { get; set; }
@@ -12,7 +12,7 @@ public class CsProductListResponse
 /// <summary>
 /// Ciceksepeti urun modeli.
 /// </summary>
-public class CsProduct
+public sealed class CsProduct
 {
     public long ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
@@ -30,7 +30,7 @@ public class CsProduct
 /// <summary>
 /// Ciceksepeti siparis listesi response.
 /// </summary>
-public class CsOrderListResponse
+public sealed class CsOrderListResponse
 {
     public List<CsOrder> Orders { get; set; } = new();
     public int TotalCount { get; set; }
@@ -39,7 +39,7 @@ public class CsOrderListResponse
 /// <summary>
 /// Ciceksepeti siparis modeli.
 /// </summary>
-public class CsOrder
+public sealed class CsOrder
 {
     public long OrderId { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
@@ -54,7 +54,7 @@ public class CsOrder
 /// <summary>
 /// Ciceksepeti alt siparis modeli.
 /// </summary>
-public class CsSubOrder
+public sealed class CsSubOrder
 {
     public long SubOrderId { get; set; }
     public string Status { get; set; } = string.Empty;
@@ -67,7 +67,7 @@ public class CsSubOrder
 /// <summary>
 /// Ciceksepeti siparis kalemi.
 /// </summary>
-public class CsOrderItem
+public sealed class CsOrderItem
 {
     public long ItemId { get; set; }
     public string StockCode { get; set; } = string.Empty;
@@ -81,7 +81,7 @@ public class CsOrderItem
 /// <summary>
 /// Ciceksepeti webhook payload modeli.
 /// </summary>
-public class CsWebhookPayload
+public sealed class CsWebhookPayload
 {
     public string? EventType { get; set; }
     public long? OrderId { get; set; }
@@ -92,7 +92,7 @@ public class CsWebhookPayload
 /// <summary>
 /// K1c-06: Ciceksepeti iade listesi response.
 /// </summary>
-public class CsReturnListResponse
+public sealed class CsReturnListResponse
 {
     public List<CsReturnDto> Returns { get; set; } = new();
     public int TotalCount { get; set; }
@@ -101,7 +101,7 @@ public class CsReturnListResponse
 /// <summary>
 /// K1c-06: Ciceksepeti iade modeli.
 /// </summary>
-public class CsReturnDto
+public sealed class CsReturnDto
 {
     public long ReturnId { get; set; }
     public long SubOrderId { get; set; }
@@ -116,7 +116,7 @@ public class CsReturnDto
 /// <summary>
 /// K1c-06: Ciceksepeti iade kalemi.
 /// </summary>
-public class CsReturnItemDto
+public sealed class CsReturnItemDto
 {
     public long ItemId { get; set; }
     public string StockCode { get; set; } = string.Empty;
@@ -130,7 +130,7 @@ public class CsReturnItemDto
 /// <summary>
 /// Ciceksepeti kategori listesi response.
 /// </summary>
-public class CsCategoryListResponse
+public sealed class CsCategoryListResponse
 {
     public List<CsCategoryDto> Categories { get; set; } = new();
 }
@@ -146,7 +146,7 @@ public record CsCategoryDto(
 /// <summary>
 /// Ciceksepeti kategori attribute listesi response.
 /// </summary>
-public class CsAttributeListResponse
+public sealed class CsAttributeListResponse
 {
     public List<CsAttributeDto> Attributes { get; set; } = new();
 }

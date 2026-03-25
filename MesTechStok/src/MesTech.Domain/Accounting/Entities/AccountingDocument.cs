@@ -8,7 +8,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Muhasebe belgesi — fatura, fis, ekstre vb. dosya meta verisi.
 /// Dosya icerigi MinIO/S3 gibi object storage'da saklanir.
 /// </summary>
-public class AccountingDocument : BaseEntity, ITenantEntity
+public sealed class AccountingDocument : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string FileName { get; private set; } = string.Empty;

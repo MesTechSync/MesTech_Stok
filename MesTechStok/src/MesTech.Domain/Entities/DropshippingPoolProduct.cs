@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// Dropshipping havuzundaki ürün kaydı.
 /// Hangi ürünün hangi havuzda olduğunu, kim eklediğini, hangi fiyatla paylaşıldığını tutar.
 /// </summary>
-public class DropshippingPoolProduct : BaseEntity, ITenantEntity
+public sealed class DropshippingPoolProduct : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

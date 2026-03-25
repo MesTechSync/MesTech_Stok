@@ -13,7 +13,7 @@ public record AddProductToPoolCommand(
     decimal PoolPrice
 ) : IRequest<Guid>;
 
-public class AddProductToPoolCommandValidator : AbstractValidator<AddProductToPoolCommand>
+public sealed class AddProductToPoolCommandValidator : AbstractValidator<AddProductToPoolCommand>
 {
     public AddProductToPoolCommandValidator()
     {
@@ -23,7 +23,7 @@ public class AddProductToPoolCommandValidator : AbstractValidator<AddProductToPo
     }
 }
 
-public class AddProductToPoolCommandHandler(
+public sealed class AddProductToPoolCommandHandler(
     IDropshippingPoolRepository poolRepo,
     IProductRepository productRepo,
     ITenantProvider tenantProvider,

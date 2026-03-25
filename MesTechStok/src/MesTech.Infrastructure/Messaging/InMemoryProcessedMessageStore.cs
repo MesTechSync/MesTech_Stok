@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace MesTech.Infrastructure.Messaging;
 
-public class InMemoryProcessedMessageStore : IProcessedMessageStore
+public sealed class InMemoryProcessedMessageStore : IProcessedMessageStore
 {
     private readonly ConcurrentDictionary<Guid, DateTimeOffset> _processed = new();
     private readonly TimeSpan _ttl = TimeSpan.FromDays(7);

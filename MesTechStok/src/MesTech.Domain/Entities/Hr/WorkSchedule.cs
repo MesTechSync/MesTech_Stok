@@ -1,7 +1,7 @@
 using MesTech.Domain.Common;
 namespace MesTech.Domain.Entities.Hr;
 
-public class WorkSchedule : BaseEntity, ITenantEntity
+public sealed class WorkSchedule : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid EmployeeId { get; private set; }

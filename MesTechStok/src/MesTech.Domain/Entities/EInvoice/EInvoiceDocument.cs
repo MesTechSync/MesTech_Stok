@@ -5,7 +5,7 @@ using MesTech.Domain.Exceptions;
 
 namespace MesTech.Domain.Entities.EInvoice;
 
-public class EInvoiceDocument : BaseEntity, ITenantEntity
+public sealed class EInvoiceDocument : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     // GIB Zorunlu Alanlar

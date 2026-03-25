@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Finance;
 ///   580K - 3.000.000 → %35
 ///   3M+             → %40
 /// </summary>
-public class IncomeTaxService : IIncomeTaxService
+public sealed class IncomeTaxService : IIncomeTaxService
 {
     /// <summary>
     /// 2026 Turkiye gelir vergisi dilimleri.

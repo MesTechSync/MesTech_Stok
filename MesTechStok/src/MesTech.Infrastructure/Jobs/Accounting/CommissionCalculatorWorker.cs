@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her 15 dakikada bir calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class CommissionCalculatorWorker : IAccountingJob
+public sealed class CommissionCalculatorWorker : IAccountingJob
 {
     public string JobId => "accounting-commission-calculator";
     public string CronExpression => "*/15 * * * *"; // Her 15 dakika

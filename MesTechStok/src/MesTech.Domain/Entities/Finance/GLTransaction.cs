@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Finance;
 
-public class GLTransaction : BaseEntity, ITenantEntity
+public sealed class GLTransaction : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; private set; }

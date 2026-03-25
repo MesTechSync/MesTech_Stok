@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class CrmContact : BaseEntity, ITenantEntity
+public sealed class CrmContact : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? CustomerId { get; private set; }

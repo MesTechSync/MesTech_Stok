@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Platform mesaji entity'si — pazaryeri mesajlarini temsil eder.
 /// </summary>
-public class PlatformMessage : BaseEntity, ITenantEntity
+public sealed class PlatformMessage : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public PlatformType Platform { get; set; }

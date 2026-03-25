@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.HealthChecks;
 /// GET http://localhost:{Mesa:BaseUrl}/health endpoint'ini sorgular.
 /// MESA OS erisilemezse Degraded doner — MesTech calismaya devam eder (mock modunda).
 /// </summary>
-public class MesaOSHealthCheck : IHealthCheck
+public sealed class MesaOSHealthCheck : IHealthCheck
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<MesaOSHealthCheck> _logger;

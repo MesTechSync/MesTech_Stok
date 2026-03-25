@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.EInvoice;
 
-public class EInvoiceSendLog : BaseEntity, ITenantEntity
+public sealed class EInvoiceSendLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid EInvoiceDocumentId { get; private set; }

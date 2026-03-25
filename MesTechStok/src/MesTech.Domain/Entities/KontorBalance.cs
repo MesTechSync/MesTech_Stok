@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Fatura entegrator kontor bakiyesi — provider bazinda takip.
 /// Composite unique: (StoreId, Provider) — bir store'un bir provider'i icin tek kayit.
 /// </summary>
-public class KontorBalance : BaseEntity, ITenantEntity
+public sealed class KontorBalance : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid StoreId { get; set; }

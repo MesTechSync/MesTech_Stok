@@ -25,7 +25,7 @@ public record PoolProductDto(
     DateTime LastUpdated
 );
 
-public class GetPoolProductsQueryHandler(
+public sealed class GetPoolProductsQueryHandler(
     IDropshippingPoolRepository poolRepo,
     ITenantProvider tenantProvider
 ) : IRequestHandler<GetPoolProductsQuery, PagedResult<PoolProductDto>>

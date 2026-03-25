@@ -9,7 +9,7 @@ namespace MesTech.Domain.Entities;
 /// Pozitif bakiye = müşteri bize borçlu.
 /// Transaction log immutable — düzeltme ters hareketle yapılır.
 /// </summary>
-public class CustomerAccount : BaseEntity, ITenantEntity
+public sealed class CustomerAccount : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CustomerId { get; set; }

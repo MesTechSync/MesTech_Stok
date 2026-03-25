@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// Dead Letter Queue consumer — MassTransit _error queue'dan gelen
 /// basarisiz mesajlari loglar ve izler.
 /// </summary>
-public class MesaDlqConsumer : IConsumer<Fault>
+public sealed class MesaDlqConsumer : IConsumer<Fault>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaDlqConsumer> _logger;

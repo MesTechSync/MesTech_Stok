@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Tasks;
 
-public class ProjectMember : BaseEntity
+public sealed class ProjectMember : BaseEntity
 {
     public Guid ProjectId { get; private set; }
     public Guid UserId { get; private set; }

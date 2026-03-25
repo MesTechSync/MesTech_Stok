@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class OfflineQueueItem : BaseEntity, ITenantEntity
+public sealed class OfflineQueueItem : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Channel { get; set; } = "Generic";

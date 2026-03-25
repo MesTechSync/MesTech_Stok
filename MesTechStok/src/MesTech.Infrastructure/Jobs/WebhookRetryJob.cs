@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Hangfire recurring job olarak calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class WebhookRetryJob : ISyncJob
+public sealed class WebhookRetryJob : ISyncJob
 {
     public string JobId => "webhook-retry";
     public string CronExpression => "* * * * *"; // Her dakika kontrol

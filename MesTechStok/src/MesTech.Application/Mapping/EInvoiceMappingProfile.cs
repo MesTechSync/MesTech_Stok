@@ -4,7 +4,7 @@ using MesTech.Domain.Entities.EInvoice;
 
 namespace MesTech.Application.Mapping;
 
-public class EInvoiceMappingProfile : IRegister
+public sealed class EInvoiceMappingProfile : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

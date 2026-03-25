@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 5 dakikada Trendyol'dan yeni siparisleri ceker.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class TrendyolOrderSyncJob : ISyncJob
+public sealed class TrendyolOrderSyncJob : ISyncJob
 {
     public string JobId => "trendyol-order-sync";
     public string CronExpression => "*/5 * * * *"; // Her 5 dk

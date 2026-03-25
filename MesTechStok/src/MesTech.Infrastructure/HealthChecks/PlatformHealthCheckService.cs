@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.HealthChecks;
 
-public class PlatformHealthCheckResult
+public sealed class PlatformHealthCheckResult
 {
     public string Status { get; set; } = "healthy";
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public Dictionary<string, PlatformStatus> Platforms { get; set; } = new();
 }
 
-public class PlatformStatus
+public sealed class PlatformStatus
 {
     public string Status { get; set; } = "unknown";
     public int? LatencyMs { get; set; }
@@ -23,7 +23,7 @@ public class PlatformStatus
 /// <summary>
 /// Tum platform API'lerinin saglik durumunu kontrol eder ve raporlar.
 /// </summary>
-public class PlatformHealthCheckService
+public sealed class PlatformHealthCheckService
 {
     private readonly ICacheService _cache;
     private readonly ILogger<PlatformHealthCheckService> _logger;

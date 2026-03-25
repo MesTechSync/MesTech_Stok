@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Her sync denemesi için ayrı bir kayıt tutulur.
 /// SupplierFeed.LastSync* alanları sadece son sync'i saklarken bu entity tüm geçmişi korur.
 /// </summary>
-public class FeedImportLog : BaseEntity, ITenantEntity
+public sealed class FeedImportLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

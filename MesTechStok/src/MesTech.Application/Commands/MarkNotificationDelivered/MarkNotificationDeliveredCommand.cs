@@ -13,7 +13,7 @@ public record MarkNotificationDeliveredCommand : IRequest
     public string? ErrorMessage { get; init; }
 }
 
-public class MarkNotificationDeliveredHandler : IRequestHandler<MarkNotificationDeliveredCommand>
+public sealed class MarkNotificationDeliveredHandler : IRequestHandler<MarkNotificationDeliveredCommand>
 {
     public Task Handle(MarkNotificationDeliveredCommand request, CancellationToken cancellationToken)
     {

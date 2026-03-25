@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class Role : BaseEntity
+public sealed class Role : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }

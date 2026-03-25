@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// Mustache-style placeholder destekli ({{productName}}, {{currentStock}}, vb.).
 /// Kanal bazli (Email/Push/SMS/InApp) sablon yonetimi saglar.
 /// </summary>
-public class NotificationTemplate : BaseEntity, ITenantEntity
+public sealed class NotificationTemplate : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

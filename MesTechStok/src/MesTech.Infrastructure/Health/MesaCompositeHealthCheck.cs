@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Health;
 /// 3. Circuit Breaker State
 /// 4. Staleness Detection: Son event timestamp
 /// </summary>
-public class MesaCompositeHealthCheck : IHealthCheck
+public sealed class MesaCompositeHealthCheck : IHealthCheck
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly MesaEventBroadcastService _broadcastService;

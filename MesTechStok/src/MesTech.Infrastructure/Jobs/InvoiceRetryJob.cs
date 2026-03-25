@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 10 dakikada basarisiz faturalari tekrar dener.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class InvoiceRetryJob : ISyncJob
+public sealed class InvoiceRetryJob : ISyncJob
 {
     public string JobId => "invoice-retry";
     public string CronExpression => "*/10 * * * *"; // Her 10 dk

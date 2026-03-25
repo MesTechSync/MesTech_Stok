@@ -8,7 +8,7 @@ namespace MesTech.Application.Queries.GetCompanySettings;
 /// </summary>
 public record GetCompanySettingsQuery() : IRequest<CompanySettingsDto?>;
 
-public class CompanySettingsDto
+public sealed class CompanySettingsDto
 {
     public string CompanyName { get; set; } = string.Empty;
     public string? TaxNumber { get; set; }

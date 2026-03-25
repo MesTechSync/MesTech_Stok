@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities.Billing;
 /// <summary>
 /// Tenant'in aktif aboneligi — hangi plan, ne zaman basladi, odeme durumu.
 /// </summary>
-public class TenantSubscription : BaseEntity, ITenantEntity
+public sealed class TenantSubscription : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid PlanId { get; private set; }

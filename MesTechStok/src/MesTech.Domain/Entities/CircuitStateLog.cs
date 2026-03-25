@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Domain.Entities;
 
-public class CircuitStateLog : BaseEntity, ITenantEntity
+public sealed class CircuitStateLog : BaseEntity, ITenantEntity
 {
     public string PreviousState { get; set; } = string.Empty;
     public string NewState { get; set; } = string.Empty;

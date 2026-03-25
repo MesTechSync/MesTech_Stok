@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Bildirim kaydi entity'si.
 /// Tum kanallardaki (WhatsApp, Telegram, Email, Push, SMS) bildirim gecmisini saklar.
 /// </summary>
-public class NotificationLog : BaseEntity, ITenantEntity
+public sealed class NotificationLog : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public NotificationChannel Channel { get; private set; }

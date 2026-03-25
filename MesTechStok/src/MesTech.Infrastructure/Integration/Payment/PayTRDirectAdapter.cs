@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Payment;
 /// Config keys: PayTR:MerchantId, PayTR:MerchantKey, PayTR:MerchantSalt,
 ///              PayTR:DirectBaseUrl, PayTR:TestMode
 /// </summary>
-public class PayTRDirectAdapter : IPaymentProvider
+public sealed class PayTRDirectAdapter : IPaymentProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PayTRDirectAdapter> _logger;

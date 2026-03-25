@@ -20,7 +20,7 @@ public enum InventorySortOrder
     LastMovement, LastMovementDesc
 }
 
-public class GetInventoryPagedResult
+public sealed class GetInventoryPagedResult
 {
     public IReadOnlyList<DTOs.InventoryItemDto> Items { get; set; } = [];
     public int TotalItems { get; set; }

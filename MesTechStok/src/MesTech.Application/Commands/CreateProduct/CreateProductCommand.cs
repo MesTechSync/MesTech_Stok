@@ -20,7 +20,7 @@ public record CreateProductCommand(
     bool SyncToPlatforms = true
 ) : IRequest<CreateProductResult>;
 
-public class CreateProductResult
+public sealed class CreateProductResult
 {
     public bool IsSuccess { get; set; }
     public Guid ProductId { get; set; }

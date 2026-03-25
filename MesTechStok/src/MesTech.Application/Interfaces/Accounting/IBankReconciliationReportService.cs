@@ -19,7 +19,7 @@ public interface IBankReconciliationReportService
 /// <summary>
 /// Banka mutabakat rapor sonucu.
 /// </summary>
-public class BankReconciliationReportDto
+public sealed class BankReconciliationReportDto
 {
     public Guid TenantId { get; set; }
     public DateTime StartDate { get; set; }
@@ -52,7 +52,7 @@ public class BankReconciliationReportDto
 /// <summary>
 /// Mutabakat hareket satiri.
 /// </summary>
-public class ReconciliationItemDto
+public sealed class ReconciliationItemDto
 {
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }

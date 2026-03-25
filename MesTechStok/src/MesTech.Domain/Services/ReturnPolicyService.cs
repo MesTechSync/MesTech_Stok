@@ -7,7 +7,7 @@ namespace MesTech.Domain.Services;
 /// İade politika servisi — platform kurallarını uygular.
 /// Saf domain servisi, altyapı bağımlılığı yok.
 /// </summary>
-public class ReturnPolicyService
+public sealed class ReturnPolicyService
 {
     private readonly IReadOnlyDictionary<PlatformType, PlatformReturnPolicy> _policies;
 

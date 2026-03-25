@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// MESA OS REST API gercek entegrasyon.
 /// Feature flag: Mesa:BridgeEnabled=true olunca Mock yerine bu kullanilir.
 /// </summary>
-public class RealMesaEventPublisher : IMesaEventPublisher
+public sealed class RealMesaEventPublisher : IMesaEventPublisher
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;

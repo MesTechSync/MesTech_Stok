@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Finance;
 /// Cache: IMemoryCache, 1 saat TTL.
 /// Fallback: TCMB'ye ulasilamazsa sabit kurlar kullanilir.
 /// </summary>
-public class ExchangeRateService : IExchangeRateService
+public sealed class ExchangeRateService : IExchangeRateService
 {
     private const string TcmbUrl = "https://www.tcmb.gov.tr/kurlar/today.xml";
     private const string CacheKey = "tcmb:exchange_rates";

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// Login denemesi kaydı — brute force koruması için DB persistence.
 /// Her başarılı/başarısız deneme kayıt altına alınır.
 /// </summary>
-public class LoginAttempt : BaseEntity
+public sealed class LoginAttempt : BaseEntity
 {
     public string Username { get; set; } = string.Empty;
     public string IpAddress { get; set; } = string.Empty;

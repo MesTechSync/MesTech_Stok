@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// Urun bazli depo/fulfillment center stok kaydi.
 /// Ayni urunun farkli depo ve fulfillment merkezlerindeki stok dagilimini tutar.
 /// </summary>
-public class ProductWarehouseStock : BaseEntity, ITenantEntity
+public sealed class ProductWarehouseStock : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; private set; }

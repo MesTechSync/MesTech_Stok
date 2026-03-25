@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// MUH-03 DEV 4.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class EmailScanWorker : IAccountingJob
+public sealed class EmailScanWorker : IAccountingJob
 {
     public string JobId => "accounting-email-scan";
     public string CronExpression => "0 */2 * * *"; // Her 2 saatte bir

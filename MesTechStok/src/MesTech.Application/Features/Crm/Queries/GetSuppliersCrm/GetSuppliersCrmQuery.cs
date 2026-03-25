@@ -12,7 +12,7 @@ public record GetSuppliersCrmQuery(
     int PageSize = 50
 ) : IRequest<GetSuppliersCrmResult>;
 
-public class GetSuppliersCrmResult
+public sealed class GetSuppliersCrmResult
 {
     public IReadOnlyList<SupplierCrmDto> Items { get; set; } = [];
     public int TotalCount { get; set; }

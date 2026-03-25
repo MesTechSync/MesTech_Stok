@@ -18,7 +18,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// Dogrulama adimi:
 ///   TotalAssets == TotalLiabilities + TotalEquity + (Revenue - Expense)
 /// </summary>
-public class BalanceSheetValidationService : IBalanceSheetValidationService
+public sealed class BalanceSheetValidationService : IBalanceSheetValidationService
 {
     /// <summary>
     /// Kurus altindaki farklar icin tolerans.

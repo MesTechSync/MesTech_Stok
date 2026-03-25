@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Maas kaydi — calisan bazinda aylik maas detaylari ve vergi/SGK hesaplamalari.
 /// </summary>
-public class SalaryRecord : BaseEntity, ITenantEntity
+public sealed class SalaryRecord : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string EmployeeName { get; private set; } = string.Empty;

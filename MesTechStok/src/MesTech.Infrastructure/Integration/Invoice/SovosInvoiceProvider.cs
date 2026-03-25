@@ -16,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, iptal.
 /// Dalga 9: IEInvoiceProvider eklendi — UBL-TR 1.2 XML, VKN mukellef sorgu, kredi bakiye.
 /// </summary>
-public class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable, IEInvoiceProvider
+public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;

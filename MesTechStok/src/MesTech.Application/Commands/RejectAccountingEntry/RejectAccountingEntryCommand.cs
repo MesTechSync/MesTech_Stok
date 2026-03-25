@@ -11,7 +11,7 @@ public record RejectAccountingEntryCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class RejectAccountingEntryHandler : IRequestHandler<RejectAccountingEntryCommand>
+public sealed class RejectAccountingEntryHandler : IRequestHandler<RejectAccountingEntryCommand>
 {
     public Task Handle(RejectAccountingEntryCommand request, CancellationToken cancellationToken)
     {

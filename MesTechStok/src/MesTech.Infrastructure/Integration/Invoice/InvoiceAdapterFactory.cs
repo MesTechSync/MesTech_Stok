@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// IInvoiceAdapter factory — parallel to InvoiceProviderFactory.
 /// Resolves adapters by InvoiceProvider enum.
 /// </summary>
-public class InvoiceAdapterFactory : IInvoiceAdapterFactory
+public sealed class InvoiceAdapterFactory : IInvoiceAdapterFactory
 {
     private readonly Dictionary<InvoiceProvider, IInvoiceAdapter> _adapters;
     private readonly ILogger<InvoiceAdapterFactory> _logger;

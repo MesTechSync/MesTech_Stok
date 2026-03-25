@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Gunde 1 kez Trendyol cari hesap ekstresini ceker.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class SettlementSyncJob : ISyncJob
+public sealed class SettlementSyncJob : ISyncJob
 {
     public string JobId => "settlement-sync";
     public string CronExpression => "0 3 * * *"; // Her gun 03:00

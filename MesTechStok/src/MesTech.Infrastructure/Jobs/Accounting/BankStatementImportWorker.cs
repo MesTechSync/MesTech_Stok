@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 04:00'da calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class BankStatementImportWorker : IAccountingJob
+public sealed class BankStatementImportWorker : IAccountingJob
 {
     public string JobId => "accounting-bank-statement-import";
     public string CronExpression => "0 4 * * *"; // Her gun 04:00

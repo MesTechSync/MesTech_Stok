@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ve kullaniciya InApp bildirim olusturur.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ScheduledReportGenerationJob : IAccountingJob
+public sealed class ScheduledReportGenerationJob : IAccountingJob
 {
     public string JobId { get; }
     public string CronExpression { get; }

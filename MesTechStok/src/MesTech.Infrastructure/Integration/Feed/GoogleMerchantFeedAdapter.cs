@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Feed;
 /// Generates Google Shopping XML with g: namespace (Atom/RSS hybrid).
 /// Currency: TRY. Language: tr.
 /// </summary>
-public class GoogleMerchantFeedAdapter : ISocialFeedAdapter
+public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<GoogleMerchantFeedAdapter> _logger;

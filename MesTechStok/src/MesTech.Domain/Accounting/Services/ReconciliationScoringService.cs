@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// 4 bileskenli skor: tutar (%40), tarih (%25), aciklama (%20), karsi taraf (%15).
 /// Esik degerleri: >= 0.95 AutoMatched, 0.70-0.94 NeedsReview, &lt; 0.70 Unmatched.
 /// </summary>
-public class ReconciliationScoringService : IReconciliationScoringService
+public sealed class ReconciliationScoringService : IReconciliationScoringService
 {
     /// <inheritdoc />
     public decimal AutoMatchThreshold => 0.85m;

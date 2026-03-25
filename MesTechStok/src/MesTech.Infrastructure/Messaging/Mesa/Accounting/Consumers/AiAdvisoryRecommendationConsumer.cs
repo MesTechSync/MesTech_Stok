@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// MESA AI finansal danismanlik onerilerini consume eder.
 /// Onerileri NotificationLog olarak kaydeder ve dashboard'a bildirir.
 /// </summary>
-public class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendationEvent>
+public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecommendationEvent>
 {
     private readonly IMediator _mediator;
     private readonly INotificationLogRepository _notificationLogRepository;

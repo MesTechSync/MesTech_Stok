@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// Dalga 5 IP-5: TenantId eklendi — fallback: ITenantProvider.
 /// I-13 S-02: 7 consumer deepened — domain logic on top of existing logs.
 /// </summary>
-public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
+public sealed class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -124,7 +124,7 @@ public class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEvent>
     }
 }
 
-public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
+public sealed class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -233,7 +233,7 @@ public class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
     }
 }
 
-public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
+public sealed class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -326,7 +326,7 @@ public class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEvent>
     }
 }
 
-public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
+public sealed class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -441,7 +441,7 @@ public class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimizedEvent>
     }
 }
 
-public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
+public sealed class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -552,7 +552,7 @@ public class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredictedEvent>
     }
 }
 
-public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEvent>
+public sealed class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;
@@ -653,7 +653,7 @@ public class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequestedEv
     }
 }
 
-public class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
+public sealed class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnRequestedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IMesaEventMonitor _monitor;

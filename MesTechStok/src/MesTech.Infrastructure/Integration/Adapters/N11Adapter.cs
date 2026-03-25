@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// SimpleSoapClient + N11SoapRequestBuilder kullanan WCF'siz SOAP client.
 /// Sayfa bazli pagination (FetchAllPagesAsync), CultureInfo.InvariantCulture.
 /// </summary>
-public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
     IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;

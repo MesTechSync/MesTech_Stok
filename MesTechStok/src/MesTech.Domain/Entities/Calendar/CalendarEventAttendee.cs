@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Calendar;
 
-public class CalendarEventAttendee : BaseEntity, ITenantEntity
+public sealed class CalendarEventAttendee : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid CalendarEventId { get; private set; }

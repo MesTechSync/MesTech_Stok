@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// Thread-safe in-memory token cache.
 /// Redis'e gecis icin sadece DI registration degistirilir.
 /// </summary>
-public class InMemoryTokenCacheProvider : ITokenCacheProvider
+public sealed class InMemoryTokenCacheProvider : ITokenCacheProvider
 {
     private readonly ConcurrentDictionary<string, AuthToken> _cache = new();
 

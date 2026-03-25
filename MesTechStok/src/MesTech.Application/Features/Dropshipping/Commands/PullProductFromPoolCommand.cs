@@ -12,7 +12,7 @@ public record PullProductFromPoolCommand(
     Guid TargetWarehouseId
 ) : IRequest<bool>;
 
-public class PullProductFromPoolCommandValidator : AbstractValidator<PullProductFromPoolCommand>
+public sealed class PullProductFromPoolCommandValidator : AbstractValidator<PullProductFromPoolCommand>
 {
     public PullProductFromPoolCommandValidator()
     {
@@ -21,7 +21,7 @@ public class PullProductFromPoolCommandValidator : AbstractValidator<PullProduct
     }
 }
 
-public class PullProductFromPoolCommandHandler(
+public sealed class PullProductFromPoolCommandHandler(
     IDropshippingPoolRepository poolRepo,
     IStockMovementRepository movementRepo,
     IProductRepository productRepo,

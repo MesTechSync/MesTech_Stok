@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Polly retry pipeline, batch stok guncelleme, siparis cekme, musteri ve kategori senkronizasyonu destegi.
 /// OpenCart'ta kargo yonetimi yok (SupportsShipment = false).
 /// </summary>
-public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
+public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     ICustomerSyncCapable, ICategorySyncCapable, ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;

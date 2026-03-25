@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Cari hesap (müşteri/tedarikçi) — OnMuhasebe modülü için.
 /// </summary>
-public class CariHesap : BaseEntity, ITenantEntity
+public sealed class CariHesap : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

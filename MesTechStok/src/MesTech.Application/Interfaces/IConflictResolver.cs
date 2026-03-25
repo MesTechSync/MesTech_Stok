@@ -8,7 +8,7 @@ public interface IConflictResolver
     Task<ConflictResolutionResult> ResolveAsync(SyncConflict conflict, CancellationToken ct = default);
 }
 
-public class SyncConflict
+public sealed class SyncConflict
 {
     public Guid Id { get; set; }
     public string EntityType { get; set; } = string.Empty;
@@ -19,7 +19,7 @@ public class SyncConflict
     public DateTime DetectedAt { get; set; } = DateTime.UtcNow;
 }
 
-public class ConflictResolutionResult
+public sealed class ConflictResolutionResult
 {
     public bool IsResolved { get; set; }
     public string Resolution { get; set; } = string.Empty;

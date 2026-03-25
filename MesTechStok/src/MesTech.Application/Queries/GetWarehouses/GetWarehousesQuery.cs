@@ -4,7 +4,7 @@ namespace MesTech.Application.Queries.GetWarehouses;
 
 public record GetWarehousesQuery(bool ActiveOnly = true) : IRequest<IReadOnlyList<WarehouseListDto>>;
 
-public class WarehouseListDto
+public sealed class WarehouseListDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

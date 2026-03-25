@@ -6,7 +6,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Stok alarm kaydı — düşük/kritik/sıfır stok uyarıları.
 /// </summary>
-public class StockAlert : BaseEntity, ITenantEntity
+public sealed class StockAlert : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }

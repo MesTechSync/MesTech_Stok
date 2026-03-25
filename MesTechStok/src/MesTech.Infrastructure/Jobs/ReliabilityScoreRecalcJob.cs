@@ -16,7 +16,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// </summary>
 [DisableConcurrentExecution(timeoutInSeconds: 300)]
 [AutomaticRetry(Attempts = 1)]
-public class ReliabilityScoreRecalcJob
+public sealed class ReliabilityScoreRecalcJob
 {
     private const int BatchSize = 100;
 

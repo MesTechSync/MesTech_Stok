@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Aras Kargo REST adaptoru.
 /// Basic Auth, JSON payloads, Polly retry.
 /// </summary>
-public class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
+public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ArasKargoAdapter> _logger;

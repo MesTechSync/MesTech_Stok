@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities.Onboarding;
 /// Adimlar: 1.Kayit → 2.Firma Bilgileri → 3.Ilk Magaza → 4.Platform Bagla →
 /// 5.Credential Gir → 6.Ilk Sync → 7.Dashboard
 /// </summary>
-public class OnboardingProgress : BaseEntity, ITenantEntity
+public sealed class OnboardingProgress : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public OnboardingStep CurrentStep { get; private set; }

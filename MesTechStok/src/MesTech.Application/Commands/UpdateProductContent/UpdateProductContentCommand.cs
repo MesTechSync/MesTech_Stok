@@ -11,7 +11,7 @@ public record UpdateProductContentCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateProductContentHandler : IRequestHandler<UpdateProductContentCommand>
+public sealed class UpdateProductContentHandler : IRequestHandler<UpdateProductContentCommand>
 {
     public Task Handle(UpdateProductContentCommand request, CancellationToken cancellationToken)
     {

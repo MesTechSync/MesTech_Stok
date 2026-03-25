@@ -4,7 +4,7 @@ namespace MesTech.Domain.Accounting.Services;
 /// Kar/zarar hesaplama servisi.
 /// FIFO COGS destekli detayli P&amp;L hesaplama.
 /// </summary>
-public class ProfitCalculationService : IProfitCalculationService
+public sealed class ProfitCalculationService : IProfitCalculationService
 {
     /// <inheritdoc />
     public decimal CalculateNetProfit(

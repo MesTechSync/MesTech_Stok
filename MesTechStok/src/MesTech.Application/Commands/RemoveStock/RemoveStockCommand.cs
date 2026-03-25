@@ -10,7 +10,7 @@ public record RemoveStockCommand(
     bool SyncToPlatforms = true
 ) : IRequest<RemoveStockResult>;
 
-public class RemoveStockResult
+public sealed class RemoveStockResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }

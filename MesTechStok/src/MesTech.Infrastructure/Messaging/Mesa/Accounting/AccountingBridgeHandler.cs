@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting;
 /// DomainEventNotification wrapper kullanir — Domain katmani INotification bilmez.
 /// IMesaEventPublisher'a dokunmaz — IPublishEndpoint direkt kullanilir (ADDITIVE).
 /// </summary>
-public class SettlementImportedBridgeHandler
+public sealed class SettlementImportedBridgeHandler
     : INotificationHandler<DomainEventNotification<SettlementImportedEvent>>
 {
     private readonly IPublishEndpoint _publishEndpoint;
@@ -66,7 +66,7 @@ public class SettlementImportedBridgeHandler
     }
 }
 
-public class DocumentReceivedBridgeHandler
+public sealed class DocumentReceivedBridgeHandler
     : INotificationHandler<DomainEventNotification<DocumentReceivedEvent>>
 {
     private readonly IPublishEndpoint _publishEndpoint;

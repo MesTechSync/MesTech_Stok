@@ -14,7 +14,7 @@ public record ExportPoolProductsToPlatformCommand(
 
 public record ExportToPlatformResult(int Sent, int Failed, IList<string> Errors);
 
-public class ExportPoolProductsToPlatformCommandValidator
+public sealed class ExportPoolProductsToPlatformCommandValidator
     : AbstractValidator<ExportPoolProductsToPlatformCommand>
 {
     public ExportPoolProductsToPlatformCommandValidator()
@@ -25,7 +25,7 @@ public class ExportPoolProductsToPlatformCommandValidator
     }
 }
 
-public class ExportPoolProductsToPlatformCommandHandler(
+public sealed class ExportPoolProductsToPlatformCommandHandler(
     IDropshippingPoolRepository poolRepo,
     IAdapterFactory adapterFactory
 ) : IRequestHandler<ExportPoolProductsToPlatformCommand, ExportToPlatformResult>

@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, iptal.
 /// URL pattern: {baseUrl}/api/invoices/...
 /// </summary>
-public class DijitalPlanetProvider : IInvoiceProvider
+public sealed class DijitalPlanetProvider : IInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<DijitalPlanetProvider> _logger;

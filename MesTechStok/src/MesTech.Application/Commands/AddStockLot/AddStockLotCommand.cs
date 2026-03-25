@@ -12,7 +12,7 @@ public record AddStockLotCommand(
     Guid? WarehouseId = null
 ) : IRequest<AddStockLotResult>;
 
-public class AddStockLotResult
+public sealed class AddStockLotResult
 {
     public bool IsSuccess { get; set; }
     public int NewStockLevel { get; set; }

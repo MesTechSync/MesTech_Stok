@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Consumers;
 /// MESA Bot üzerinden WhatsApp/Telegram ile ayarlanan toplantıları
 /// MesTech Takvim'e otomatik ekler.
 /// </summary>
-public class MesaMeetingScheduledConsumer : IConsumer<MesaMeetingScheduledEvent>
+public sealed class MesaMeetingScheduledConsumer : IConsumer<MesaMeetingScheduledEvent>
 {
     private readonly IMediator _mediator;
     private readonly ILogger<MesaMeetingScheduledConsumer> _logger;

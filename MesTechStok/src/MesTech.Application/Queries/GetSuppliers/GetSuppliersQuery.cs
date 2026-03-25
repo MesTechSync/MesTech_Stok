@@ -4,7 +4,7 @@ namespace MesTech.Application.Queries.GetSuppliers;
 
 public record GetSuppliersQuery(bool ActiveOnly = true) : IRequest<IReadOnlyList<SupplierListDto>>;
 
-public class SupplierListDto
+public sealed class SupplierListDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

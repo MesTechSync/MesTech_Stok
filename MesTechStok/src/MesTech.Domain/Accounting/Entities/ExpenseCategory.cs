@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Gider kategorisi — hiyerarsik (ParentId ile alt kategori destegi).
 /// </summary>
-public class ExpenseCategory : BaseEntity, ITenantEntity
+public sealed class ExpenseCategory : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

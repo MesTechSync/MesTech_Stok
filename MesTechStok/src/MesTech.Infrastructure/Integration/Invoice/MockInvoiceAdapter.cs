@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Mock adapter — no capability interfaces. Test/development only.
 /// Wraps existing MockInvoiceProvider via composition.
 /// </summary>
-public class MockInvoiceAdapter : IInvoiceAdapter
+public sealed class MockInvoiceAdapter : IInvoiceAdapter
 {
     private readonly MockInvoiceProvider _provider;
 

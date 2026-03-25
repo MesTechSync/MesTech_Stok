@@ -5,7 +5,7 @@ using MesTech.Domain.Events.Calendar;
 
 namespace MesTech.Domain.Entities.Calendar;
 
-public class CalendarEvent : BaseEntity, ITenantEntity
+public sealed class CalendarEvent : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Title { get; private set; } = string.Empty;

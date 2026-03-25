@@ -15,7 +15,7 @@ public record ApplyOptimizedPriceCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedPriceCommand>
+public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedPriceCommand>
 {
     public Task Handle(ApplyOptimizedPriceCommand request, CancellationToken cancellationToken)
     {

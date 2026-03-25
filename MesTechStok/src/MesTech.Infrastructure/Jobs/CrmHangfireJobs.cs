@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// CRM periyodik job'ları — Hangfire tarafından çalıştırılır.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class CrmHangfireJobs
+public sealed class CrmHangfireJobs
 {
     private readonly ICrmLeadRepository _leadRepo;
     private readonly IWorkTaskRepository _taskRepo;

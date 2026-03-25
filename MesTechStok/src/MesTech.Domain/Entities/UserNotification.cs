@@ -8,7 +8,7 @@ namespace MesTech.Domain.Entities;
 /// InApp bildirimler (rapor hazir, stok uyarisi, sistem bildirimi vb.) icin kullanilir.
 /// BaseEntity'den miras alir (Id, CreatedAt, audit, soft delete).
 /// </summary>
-public class UserNotification : BaseEntity, ITenantEntity
+public sealed class UserNotification : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid UserId { get; private set; }

@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Capabilities: e-Fatura, e-Arsiv, e-Irsaliye, Bulk, KontorBalance, Template.
 /// NOT: IncomingInvoice not supported by Trendyol e-Faturam API.
 /// </summary>
-public class TrendyolEFaturamAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
+public sealed class TrendyolEFaturamAdapter : IInvoiceAdapter, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
 {
     private readonly TrendyolEFaturamProvider _provider;
     private readonly ILogger<TrendyolEFaturamAdapter> _logger;

@@ -13,7 +13,7 @@ public record ShareProductToPoolCommand(
     Guid? SourceFeedId
 ) : IRequest<Guid>;
 
-public class ShareProductToPoolCommandValidator : AbstractValidator<ShareProductToPoolCommand>
+public sealed class ShareProductToPoolCommandValidator : AbstractValidator<ShareProductToPoolCommand>
 {
     public ShareProductToPoolCommandValidator()
     {
@@ -23,7 +23,7 @@ public class ShareProductToPoolCommandValidator : AbstractValidator<ShareProduct
     }
 }
 
-public class ShareProductToPoolCommandHandler(
+public sealed class ShareProductToPoolCommandHandler(
     IDropshippingPoolRepository poolRepo,
     IProductRepository productRepo,
     ITenantProvider tenantProvider,

@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Integration.Dropshipping;
 /// SemaphoreSlim ile eşzamanlılık sınırı, SHA256 ile hash-based dedup.
 /// ENT-DROP-IMP-SPRINT-D — DEV 3 Task D-06
 /// </summary>
-public class ImageDownloadService(
+public sealed class ImageDownloadService(
     IHttpClientFactory httpClientFactory,
     ILogger<ImageDownloadService> logger
 ) : IImageDownloadService

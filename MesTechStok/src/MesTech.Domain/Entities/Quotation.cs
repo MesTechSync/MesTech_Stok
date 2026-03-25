@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities;
 
-public class Quotation : BaseEntity, ITenantEntity
+public sealed class Quotation : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

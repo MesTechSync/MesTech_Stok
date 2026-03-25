@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Caching;
 
-public class RedisCacheService : ICacheService
+public sealed class RedisCacheService : ICacheService
 {
     private readonly IDistributedCache _cache;
     private readonly ILogger<RedisCacheService> _logger;

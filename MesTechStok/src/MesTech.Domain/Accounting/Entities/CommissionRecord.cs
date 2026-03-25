@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Komisyon kaydi — siparis bazinda platform komisyon detayi.
 /// </summary>
-public class CommissionRecord : BaseEntity, ITenantEntity
+public sealed class CommissionRecord : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string? OrderId { get; private set; }

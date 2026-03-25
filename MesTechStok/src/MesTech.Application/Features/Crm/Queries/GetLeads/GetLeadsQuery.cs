@@ -12,7 +12,7 @@ public record GetLeadsQuery(
     int PageSize = 50
 ) : IRequest<GetLeadsResult>;
 
-public class GetLeadsResult
+public sealed class GetLeadsResult
 {
     public IReadOnlyList<LeadDto> Items { get; set; } = [];
     public int TotalCount { get; set; }

@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Marka entity'si.
 /// </summary>
-public class Brand : BaseEntity, ITenantEntity
+public sealed class Brand : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Ürün kategorisi.
 /// </summary>
-public class Category : BaseEntity, ITenantEntity
+public sealed class Category : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;

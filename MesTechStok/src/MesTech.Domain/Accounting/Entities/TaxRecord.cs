@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Vergi kaydi — donem bazinda vergi tutarlari ve odeme durumu.
 /// </summary>
-public class TaxRecord : BaseEntity, ITenantEntity
+public sealed class TaxRecord : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Period { get; private set; } = string.Empty;

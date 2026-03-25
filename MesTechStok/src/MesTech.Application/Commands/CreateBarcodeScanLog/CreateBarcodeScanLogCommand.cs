@@ -13,7 +13,7 @@ public record CreateBarcodeScanLogCommand(
     string? CorrelationId = null
 ) : IRequest<CreateBarcodeScanLogResult>;
 
-public class CreateBarcodeScanLogResult
+public sealed class CreateBarcodeScanLogResult
 {
     public bool IsSuccess { get; set; }
     public Guid LogId { get; set; }

@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities.Finance;
 /// Kasa entity — nakit giris/cikis takibi.
 /// Her tenant'in birden fazla kasasi olabilir (TRY, USD, EUR).
 /// </summary>
-public class CashRegister : BaseEntity, ITenantEntity
+public sealed class CashRegister : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

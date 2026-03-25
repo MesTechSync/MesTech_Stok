@@ -8,7 +8,7 @@ namespace MesTech.Domain.Dropshipping.Entities;
 /// MesTech siparişi ile tedarikçi siparişi arasındaki köprü.
 /// Durum geçişleri guard validation ile korunur.
 /// </summary>
-public class DropshipOrder : BaseEntity, ITenantEntity
+public sealed class DropshipOrder : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
 

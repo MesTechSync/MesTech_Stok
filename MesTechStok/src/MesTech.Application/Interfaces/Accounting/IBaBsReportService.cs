@@ -20,7 +20,7 @@ public interface IBaBsReportService
 /// <summary>
 /// Ba/Bs form rapor sonucu.
 /// </summary>
-public class BaBsReportDto
+public sealed class BaBsReportDto
 {
     public Guid TenantId { get; set; }
     public int Year { get; set; }
@@ -43,7 +43,7 @@ public class BaBsReportDto
 /// <summary>
 /// Ba/Bs form'undaki karsi taraf bilgisi.
 /// </summary>
-public class BaBsCounterpartyDto
+public sealed class BaBsCounterpartyDto
 {
     public string Name { get; set; } = string.Empty;
     public string VKN { get; set; } = string.Empty;

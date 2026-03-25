@@ -23,7 +23,7 @@ public record FeedImportLogDto(
     TimeSpan? Duration
 );
 
-public class GetFeedImportHistoryQueryHandler(
+public sealed class GetFeedImportHistoryQueryHandler(
     IFeedImportLogRepository logRepo
 ) : IRequestHandler<GetFeedImportHistoryQuery, PagedResult<FeedImportLogDto>>
 {

@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// FBO/FBS order retrieval, stock updates via /v2/products/stocks.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
+public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;

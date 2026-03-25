@@ -9,7 +9,7 @@ namespace MesTech.Domain.Entities;
 /// Negatif bakiye = biz tedarikçiye borçluyuz.
 /// Transaction log immutable.
 /// </summary>
-public class SupplierAccount : BaseEntity, ITenantEntity
+public sealed class SupplierAccount : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid SupplierId { get; set; }

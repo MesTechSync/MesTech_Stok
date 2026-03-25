@@ -12,7 +12,7 @@ public record ProcessAiRecommendationCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class ProcessAiRecommendationHandler : IRequestHandler<ProcessAiRecommendationCommand>
+public sealed class ProcessAiRecommendationHandler : IRequestHandler<ProcessAiRecommendationCommand>
 {
     public Task Handle(ProcessAiRecommendationCommand request, CancellationToken cancellationToken)
     {

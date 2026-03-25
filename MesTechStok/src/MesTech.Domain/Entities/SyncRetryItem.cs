@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class SyncRetryItem : BaseEntity, ITenantEntity
+public sealed class SyncRetryItem : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string SyncType { get; set; } = string.Empty;

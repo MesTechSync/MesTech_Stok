@@ -7,7 +7,7 @@ public record GetWarehouseStockQuery(
     Guid TenantId
 ) : IRequest<IReadOnlyList<WarehouseStockDto>>;
 
-public class WarehouseStockDto
+public sealed class WarehouseStockDto
 {
     public Guid ProductId { get; set; }
     public string SKU { get; set; } = string.Empty;

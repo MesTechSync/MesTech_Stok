@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// ConcurrentDictionary ile lock-free sayac.
 /// Singleton olarak register edilir — uygulama boyunca tek instance.
 /// </summary>
-public class MesaEventMonitor : IMesaEventMonitor
+public sealed class MesaEventMonitor : IMesaEventMonitor
 {
     private readonly ConcurrentDictionary<string, MutableEventCounter> _counters = new();
     private readonly DateTime _startedAt = DateTime.UtcNow;

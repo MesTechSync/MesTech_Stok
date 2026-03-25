@@ -5,7 +5,7 @@ using MesTech.Domain.Entities.EInvoice;
 
 namespace MesTech.Infrastructure.Integration.Invoice;
 
-public class UblTrXmlBuilder : IUblTrXmlBuilder
+public sealed class UblTrXmlBuilder : IUblTrXmlBuilder
 {
     private static readonly XNamespace Cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
     private static readonly XNamespace Cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";

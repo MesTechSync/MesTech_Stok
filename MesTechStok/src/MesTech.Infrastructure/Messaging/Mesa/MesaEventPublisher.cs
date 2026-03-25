@@ -35,7 +35,7 @@ public interface IMesaEventPublisher
         DateTime occurredAt, CancellationToken ct = default);
 }
 
-public class MesaEventPublisher : IMesaEventPublisher
+public sealed class MesaEventPublisher : IMesaEventPublisher
 {
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<MesaEventPublisher> _logger;

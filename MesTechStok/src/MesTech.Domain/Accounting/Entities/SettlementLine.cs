@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Hesap kesimi satir detayi — siparis bazinda gelir/kesinti bilgisi.
 /// </summary>
-public class SettlementLine : BaseEntity, ITenantEntity
+public sealed class SettlementLine : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid SettlementBatchId { get; private set; }

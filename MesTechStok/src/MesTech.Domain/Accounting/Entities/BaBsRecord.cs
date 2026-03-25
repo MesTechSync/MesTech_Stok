@@ -10,7 +10,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Bs: 5.000 TL ve uzeri satislar (musteri bazli, KDV dahil).
 /// Son bildirim tarihi: takip eden ayin son gunu.
 /// </summary>
-public class BaBsRecord : BaseEntity, ITenantEntity
+public sealed class BaBsRecord : BaseEntity, ITenantEntity
 {
     /// <summary>
     /// Ba/Bs icin minimum bildirim esigi (TL, KDV dahil).

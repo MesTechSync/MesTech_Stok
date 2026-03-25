@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Mutabakat eslestirme kaydi — banka hareketi ile hesap kesimi arasi eslestirme.
 /// </summary>
-public class ReconciliationMatch : BaseEntity, ITenantEntity
+public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? SettlementBatchId { get; private set; }

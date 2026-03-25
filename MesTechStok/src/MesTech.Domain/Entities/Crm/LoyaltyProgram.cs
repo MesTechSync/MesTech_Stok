@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class LoyaltyProgram : BaseEntity, ITenantEntity
+public sealed class LoyaltyProgram : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

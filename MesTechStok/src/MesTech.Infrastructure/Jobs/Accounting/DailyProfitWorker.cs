@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 23:59'da calisir ve ProfitReport entity'si olusturur.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class DailyProfitWorker : IAccountingJob
+public sealed class DailyProfitWorker : IAccountingJob
 {
     public string JobId => "accounting-daily-profit";
     public string CronExpression => "59 23 * * *"; // Her gun 23:59

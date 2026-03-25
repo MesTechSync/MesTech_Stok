@@ -7,7 +7,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// Karsi taraf (cari) — platform, tedarikci, musteri, banka veya kargoci.
 /// VKN sifreli saklanir.
 /// </summary>
-public class Counterparty : BaseEntity, ITenantEntity
+public sealed class Counterparty : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands;
 
 public record RemoveProductFromPoolCommand(Guid PoolProductId) : IRequest<bool>;
 
-public class RemoveProductFromPoolCommandValidator : AbstractValidator<RemoveProductFromPoolCommand>
+public sealed class RemoveProductFromPoolCommandValidator : AbstractValidator<RemoveProductFromPoolCommand>
 {
     public RemoveProductFromPoolCommandValidator()
     {
@@ -15,7 +15,7 @@ public class RemoveProductFromPoolCommandValidator : AbstractValidator<RemovePro
     }
 }
 
-public class RemoveProductFromPoolCommandHandler(
+public sealed class RemoveProductFromPoolCommandHandler(
     IDropshippingPoolRepository poolRepo,
     ICurrentUserService currentUser
 ) : IRequestHandler<RemoveProductFromPoolCommand, bool>

@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Bitrix24 Deal ürün satırı — crm.deal.productrows.set ile gönderilen kalemler.
 /// </summary>
-public class Bitrix24DealProductRow : BaseEntity, ITenantEntity
+public sealed class Bitrix24DealProductRow : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid Bitrix24DealId { get; set; }

@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 /// Her gun 03:00'te calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 0)]
-public class SubscriptionRenewalWorker
+public sealed class SubscriptionRenewalWorker
 {
     public const string JobId = "subscription-renewal";
 

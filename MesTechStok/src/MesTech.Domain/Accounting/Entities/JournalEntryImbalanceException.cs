@@ -5,7 +5,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Yevmiye kaydi dengesizlik istisnasi.
 /// </summary>
-public class JournalEntryImbalanceException : DomainException
+public sealed class JournalEntryImbalanceException : DomainException
 {
     public decimal TotalDebit { get; }
     public decimal TotalCredit { get; }

@@ -26,7 +26,7 @@ public record CreateEInvoiceLineRequest(
     decimal AllowanceAmount,
     Guid? ProductId);
 
-public class CreateEInvoiceCommandValidator : AbstractValidator<CreateEInvoiceCommand>
+public sealed class CreateEInvoiceCommandValidator : AbstractValidator<CreateEInvoiceCommand>
 {
     private static readonly int[] ValidTaxRates = { 0, 1, 8, 10, 18, 20 };
 

@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands;
 
 public record TriggerFeedImportCommand(Guid FeedId) : IRequest<string>;
 
-public class TriggerFeedImportCommandHandler(
+public sealed class TriggerFeedImportCommandHandler(
     ISupplierFeedRepository feedRepo,
     IFeedSyncJobService feedSyncJobService
 ) : IRequestHandler<TriggerFeedImportCommand, string>

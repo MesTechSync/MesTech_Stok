@@ -5,7 +5,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Sipariş kalemi.
 /// </summary>
-public class OrderItem : BaseEntity, ITenantEntity
+public sealed class OrderItem : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid OrderId { get; set; }

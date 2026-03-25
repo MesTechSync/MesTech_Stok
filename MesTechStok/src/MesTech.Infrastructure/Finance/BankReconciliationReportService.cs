@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Finance;
 /// Eslesen, bankada olup muhasebede olmayan, muhasebede olup bankada olmayan
 /// hareketleri raporlar.
 /// </summary>
-public class BankReconciliationReportService : IBankReconciliationReportService
+public sealed class BankReconciliationReportService : IBankReconciliationReportService
 {
     /// <summary>
     /// Tutar esleme toleransi (kurus farklari icin).

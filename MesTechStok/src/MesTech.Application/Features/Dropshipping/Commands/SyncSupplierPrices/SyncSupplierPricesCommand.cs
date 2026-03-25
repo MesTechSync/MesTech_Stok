@@ -12,7 +12,7 @@ public record SyncSupplierPricesCommand(
 /// <summary>
 /// Fiyat senkronizasyon sonuç DTO'su.
 /// </summary>
-public class PriceSyncResultDto
+public sealed class PriceSyncResultDto
 {
     public int Updated { get; init; }
     public int Unchanged { get; init; }
@@ -23,7 +23,7 @@ public class PriceSyncResultDto
 /// <summary>
 /// Senkronizasyon sırasında oluşan hata detayı.
 /// </summary>
-public class PriceSyncErrorDto
+public sealed class PriceSyncErrorDto
 {
     public string ExternalProductId { get; init; } = string.Empty;
     public string Reason { get; init; } = string.Empty;

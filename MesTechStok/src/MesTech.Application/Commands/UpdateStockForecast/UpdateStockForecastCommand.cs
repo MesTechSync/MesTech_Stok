@@ -16,7 +16,7 @@ public record UpdateStockForecastCommand : IRequest
     public Guid TenantId { get; init; }
 }
 
-public class UpdateStockForecastHandler : IRequestHandler<UpdateStockForecastCommand>
+public sealed class UpdateStockForecastHandler : IRequestHandler<UpdateStockForecastCommand>
 {
     public Task Handle(UpdateStockForecastCommand request, CancellationToken cancellationToken)
     {

@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Messaging;
 /// kontrol eder. Derinlik > 0 ise alarm gonderir.
 /// RabbitMQ Management API kullanir: GET /api/queues/{vhost}/{queue_name}
 /// </summary>
-public class DlqMonitorService
+public sealed class DlqMonitorService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMesaBotService _bot;

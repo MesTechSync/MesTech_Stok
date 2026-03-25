@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Tasks;
 
-public class Milestone : BaseEntity, ITenantEntity
+public sealed class Milestone : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProjectId { get; private set; }

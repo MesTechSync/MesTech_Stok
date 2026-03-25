@@ -3,7 +3,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities.Crm;
 
-public class PipelineStage : BaseEntity, ITenantEntity
+public sealed class PipelineStage : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid PipelineId { get; private set; }

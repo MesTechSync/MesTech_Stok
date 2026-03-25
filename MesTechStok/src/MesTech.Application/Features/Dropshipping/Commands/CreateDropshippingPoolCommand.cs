@@ -14,7 +14,7 @@ public record CreateDropshippingPoolCommand(
     PoolPricingStrategy PricingStrategy
 ) : IRequest<Guid>;
 
-public class CreateDropshippingPoolCommandValidator : AbstractValidator<CreateDropshippingPoolCommand>
+public sealed class CreateDropshippingPoolCommandValidator : AbstractValidator<CreateDropshippingPoolCommand>
 {
     public CreateDropshippingPoolCommandValidator()
     {
@@ -23,7 +23,7 @@ public class CreateDropshippingPoolCommandValidator : AbstractValidator<CreateDr
     }
 }
 
-public class CreateDropshippingPoolCommandHandler(
+public sealed class CreateDropshippingPoolCommandHandler(
     IDropshippingPoolRepository poolRepo,
     ICurrentUserService currentUser,
     ITenantProvider tenantProvider

@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 /// AccountingDocument.ProcessedJson gunceller ve status = "Extracted".
 /// Confidence >= 0.90 ise otomatik Expense olusturur (PendingApproval).
 /// </summary>
-public class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
+public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedEvent>
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;

@@ -6,7 +6,7 @@ namespace MesTech.Domain.Accounting.Entities;
 /// <summary>
 /// Sabit gider kaydi — aylik tekrarlayan giderler (kira, internet, sigorta vb.).
 /// </summary>
-public class FixedExpense : BaseEntity, ITenantEntity
+public sealed class FixedExpense : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public string Name { get; private set; } = string.Empty;

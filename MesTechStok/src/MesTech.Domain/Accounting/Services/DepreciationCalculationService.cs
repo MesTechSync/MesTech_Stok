@@ -13,7 +13,7 @@ namespace MesTech.Domain.Accounting.Services;
 ///   - Son yil: kalan bakiye tamamen amortize edilir.
 ///   - Azalan miktar normal yontemin altina dustugunde normal oran uygulanir.
 /// </summary>
-public class DepreciationCalculationService
+public sealed class DepreciationCalculationService
 {
     /// <summary>
     /// Belirli bir sabit kiymet icin yillik amortisman tutarini hesaplar.

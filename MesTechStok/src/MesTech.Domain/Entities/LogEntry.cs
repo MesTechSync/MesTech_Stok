@@ -2,7 +2,7 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public class LogEntry : BaseEntity, ITenantEntity
+public sealed class LogEntry : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;

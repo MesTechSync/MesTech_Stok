@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// IErpStockCapable implement eden tum ERP adapter'lardan stok seviyelerini ceker.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
-public class ErpStockSyncJob : ISyncJob
+public sealed class ErpStockSyncJob : ISyncJob
 {
     public string JobId => "erp-stock-sync";
     public string CronExpression => "*/15 * * * *"; // Her 15 dk

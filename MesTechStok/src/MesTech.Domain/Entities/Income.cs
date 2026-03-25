@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Gelir kaydı — OnMuhasebe modülü için.
 /// </summary>
-public class Income : BaseEntity, ITenantEntity
+public sealed class Income : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid? StoreId { get; set; }

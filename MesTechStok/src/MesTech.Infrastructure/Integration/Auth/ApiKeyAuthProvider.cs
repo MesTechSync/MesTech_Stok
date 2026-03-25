@@ -5,7 +5,7 @@ namespace MesTech.Infrastructure.Integration.Auth;
 /// <summary>
 /// API Key tabanlı kimlik doğrulama — Trendyol, Ciceksepeti, Ozon, Pazarama, PttAVM.
 /// </summary>
-public class ApiKeyAuthProvider : IAuthenticationProvider
+public sealed class ApiKeyAuthProvider : IAuthenticationProvider
 {
     public string PlatformCode { get; }
     private readonly string _apiKey;

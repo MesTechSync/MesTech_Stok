@@ -14,7 +14,7 @@ namespace MesTech.Domain.Accounting.Services;
 ///   0.60-0.79: Tutar eslestirme + tarih 3 gun icinde (OrderId yok)
 ///   0.60 alti: Manuel inceleme gerekli — eslestirme olusturulmaz
 /// </summary>
-public class ReconciliationService : IReconciliationService
+public sealed class ReconciliationService : IReconciliationService
 {
     /// <summary>
     /// Tutar toleransi: %1.

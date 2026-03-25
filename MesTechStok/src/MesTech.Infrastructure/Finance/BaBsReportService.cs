@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Finance;
 ///   - DocumentType.SalesInvoice → Bs formu (satislar)
 ///   - CounterpartyId ile karsi taraf eslesmesi
 /// </summary>
-public class BaBsReportService : IBaBsReportService
+public sealed class BaBsReportService : IBaBsReportService
 {
     /// <summary>
     /// Ba/Bs formu icin minimum tutar esigi (TL).

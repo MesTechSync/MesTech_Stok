@@ -23,7 +23,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Stock: PUT /api/product/stock
 /// Price: PUT /api/product/price
 /// </summary>
-public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
+public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;

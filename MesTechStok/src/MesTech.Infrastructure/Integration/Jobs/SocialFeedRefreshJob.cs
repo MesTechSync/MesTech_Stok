@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Jobs;
 /// <see cref="ISocialFeedAdapter"/> and calls <see cref="ISocialFeedAdapter.GenerateFeedAsync"/>.
 /// Throttle: max 1 feed generation per 30 seconds to avoid API/storage hammering.
 /// </summary>
-public class SocialFeedRefreshJob
+public sealed class SocialFeedRefreshJob
 {
     private readonly AppDbContext _dbContext;
     private readonly IEnumerable<ISocialFeedAdapter> _adapters;
