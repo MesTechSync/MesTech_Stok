@@ -446,3 +446,38 @@ Alan genişleme seçenekleri:
 | Cross-DEV görev | **13** |
 | Alan genişleme | **3/3 TAMAMLANDI** |
 | Build error | **0** |
+
+---
+
+## TUR: 10 (2026-03-26) — IDEMPOTENCY + PRODUCTION READINESS
+
+### Bölüm 6: YENİ ÖZELLİK FAZINA GEÇİLDİ
+Borç 0, tüm GOREV kapatıldı. Production readiness keşfi başladı.
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| IdempotencyFilter | 1 (Redis IDistributedCache, 24h TTL) |
+| Applied endpoints | 3 (CreateSubscription, CreateBillingInvoice, CreateInvoiceViaAdapter) |
+| G016 | KAPANDI — endpoint tarafı TAM |
+| G027 cross-DEV | 1 (DEV5 IdempotencyFilter test) |
+
+### COMMIT
+- `85a9a3cf` feat(webapi): add IdempotencyFilter — X-Idempotency-Key duplicate protection
+
+### FMEA
+- Idempotency cache down: Şiddet=3 × Olasılık=3 × Tespit=1 = RPN=9
+  - Korunma: Graceful degradation — cache fail → request still succeeds
+- Duplicate payment without key: Şiddet=9 × Olasılık=4 × Tespit=5 = RPN=180
+  - **ÖNERİ**: Idempotency key'i ZORUNLU yap (header yoksa 400 dön) production'da
+
+### DEV 6 TOPLAM — 10 TUR
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **29** |
+| Yeni endpoint | **11** |
+| Yeni filter/middleware | **3** (PlanLimit, Idempotency) |
+| Silinen LOC | **-2240** |
+| GOREV kapatılan | **10** |
+| Cross-DEV görev | **14** |
+| Alan genişleme | **3/3 TAMAMLANDI** |
