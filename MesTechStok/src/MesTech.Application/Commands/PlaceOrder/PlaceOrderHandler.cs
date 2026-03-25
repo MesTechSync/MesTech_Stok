@@ -39,10 +39,14 @@ public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, Place
             OrderDate = DateTime.UtcNow,
         };
 
+        // Batch query — N+1 yerine tek SQL
+        var productIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
+        var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken).ConfigureAwait(false);
+        var productMap = products.ToDictionary(p => p.Id);
+
         foreach (var item in request.Items)
         {
-            var product = await _productRepository.GetByIdAsync(item.ProductId).ConfigureAwait(false);
-            if (product == null)
+            if (!productMap.TryGetValue(item.ProductId, out var product))
                 return new PlaceOrderResult { IsSuccess = false, ErrorMessage = $"Product {item.ProductId} not found." };
 
             _stockCalculation.ValidateStockSufficiency(product, item.Quantity);
