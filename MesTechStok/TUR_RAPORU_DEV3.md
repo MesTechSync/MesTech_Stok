@@ -775,4 +775,28 @@ TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari Delegat
 | Publisher CT propagation | 0/6 | 6/6 | **+6** ✅ |
 | Graceful shutdown risk | 6 methods | 0 | **-6** ✅ |
 
-### KÜMÜLATİF DEV 3 (19 tur, 49 commit)
+---
+
+## TUR 20 — 2026-03-26 (AI Service Timeout + Services Sweep + ORG025)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Services/ (25 files) | 0 TODO, 0 NotImpl, 0 new HttpClient() ✅ |
+| Middleware/ (3 files) | Clean ✅ |
+| AI services without timeout | **5** (SpeechToExpense, MesaBot, Advisory, AdvisoryV2, MesaAccounting) |
+| ORG025 | SpeechToExpenseService HttpClient timeout/retry |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 43 | 5 AI services | HttpClient.Timeout (15-30s) — prevent infinite hang | 802ee98f |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| AI service timeout | 1/6 | 6/6 | **+5** ✅ |
+| ORG025 | ACIK | **KAPANDI** | ✅ |
+| Infinite hang risk | 5 services | 0 | **-5** ✅ |
+
+### KÜMÜLATİF DEV 3 (20 tur, 52 commit)
