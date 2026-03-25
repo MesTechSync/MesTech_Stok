@@ -62,6 +62,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         _logger = logger;
 
         _httpClient.BaseAddress ??= new Uri("http://localhost:3101");
+        _httpClient.Timeout = TimeSpan.FromSeconds(30); // STT can be slow for large audio
     }
 
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(
@@ -77,7 +78,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
             "[SpeechToExpense] Ses isleme basliyor: boyut={Size} byte, mimeType={MimeType}, tenant={TenantId}",
             audioData.Length, mimeType, tenantId);
 
-        // 1. STT — ses → metin
+        // 1. STT — ses → metin (30s timeout via HttpClient.Timeout)
         string transcribedText;
         decimal sttConfidence;
 
@@ -154,7 +155,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         {
             try
             {
-                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson);
+                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, MaxDepth = 10 });
                 if (items != null)
                 {
                     foreach (var item in items)

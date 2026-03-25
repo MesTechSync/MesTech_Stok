@@ -31,6 +31,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
 
         var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
 
     public async Task<DocumentClassification> ClassifyDocumentAsync(
