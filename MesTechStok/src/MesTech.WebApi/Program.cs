@@ -1,6 +1,8 @@
-﻿using System.Threading.RateLimiting;
+﻿using System.IO.Compression;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MesTech.Domain.Interfaces;
@@ -120,6 +122,18 @@ builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
     }
 }));
 
+// Response compression — Brotli + Gzip for JSON payloads (KEŞİF-DEV6)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+    options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+    options.Level = CompressionLevel.Fastest);
+
 // SignalR real-time bildirim hub'i (G-02)
 builder.Services.AddSignalR();
 
@@ -190,6 +204,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseHttpsRedirection();
+
+// Response compression — before static files and routing (KEŞİF-DEV6)
+app.UseResponseCompression();
 
 // Security headers (OWASP recommended)
 app.Use(async (context, next) =>
