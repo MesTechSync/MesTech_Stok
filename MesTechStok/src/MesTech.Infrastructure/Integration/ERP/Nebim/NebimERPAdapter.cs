@@ -6,6 +6,9 @@ using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 
@@ -34,6 +37,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
     private readonly NebimOptions _options;
     private readonly IOrderRepository _orderRepository;
     private readonly ILogger<NebimERPAdapter> _logger;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -53,6 +57,64 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(3));
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(3));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[NebimERP] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[NebimERP] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                MinimumThroughput = 5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                BreakDuration = TimeSpan.FromSeconds(15),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogError("[NebimERP] Circuit OPEN for {Duration}s", args.BreakDuration.TotalSeconds);
+                    return default;
+                },
+                OnClosed = _ =>
+                {
+                    _logger.LogInformation("[NebimERP] Circuit CLOSED — recovered");
+                    return default;
+                }
+            })
+            .Build();
     }
 
     private string BaseUrl => !string.IsNullOrWhiteSpace(_options.BaseUrl)

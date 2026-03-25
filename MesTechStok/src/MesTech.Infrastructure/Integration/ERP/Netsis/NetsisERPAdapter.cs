@@ -7,6 +7,9 @@ using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace MesTech.Infrastructure.Integration.ERP.Netsis;
 
@@ -32,6 +35,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
     private readonly IConfiguration _config;
     private readonly IOrderRepository _orderRepository;
     private readonly ILogger<NetsisERPAdapter> _logger;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -51,6 +55,64 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(3));
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(3));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[NetsisERP] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[NetsisERP] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                MinimumThroughput = 5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                BreakDuration = TimeSpan.FromSeconds(15),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogError("[NetsisERP] Circuit OPEN for {Duration}s", args.BreakDuration.TotalSeconds);
+                    return default;
+                },
+                OnClosed = _ =>
+                {
+                    _logger.LogInformation("[NetsisERP] Circuit CLOSED — recovered");
+                    return default;
+                }
+            })
+            .Build();
     }
 
     private string BaseUrl => _config["ERP:Netsis:BaseUrl"]

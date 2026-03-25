@@ -11,6 +11,9 @@ using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 using InvoiceEntity = MesTech.Domain.Entities.Invoice;
 
@@ -30,6 +33,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
     private readonly IOrderRepository _orderRepository;
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILogger<ParasutERPAdapter> _logger;
+    private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -54,6 +58,64 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
         _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new ParasutOptions();
+
+        _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(3));
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(3));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[ParasutERP] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                DelayGenerator = args => new ValueTask<TimeSpan?>(
+                    TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>()
+                    .Handle<TaskCanceledException>(),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[ParasutERP] API retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 0.5,
+                MinimumThroughput = 5,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                BreakDuration = TimeSpan.FromSeconds(15),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode >= 500)
+                    .Handle<HttpRequestException>(),
+                OnOpened = args =>
+                {
+                    _logger.LogError("[ParasutERP] Circuit OPEN for {Duration}s", args.BreakDuration.TotalSeconds);
+                    return default;
+                },
+                OnClosed = _ =>
+                {
+                    _logger.LogInformation("[ParasutERP] Circuit CLOSED — recovered");
+                    return default;
+                }
+            })
+            .Build();
     }
 
     private string BaseUrl => $"{_options.BaseUrl}/v4/{_tokenService.CompanyId}";
