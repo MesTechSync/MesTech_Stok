@@ -346,3 +346,52 @@ Alan genişleme seçenekleri:
 | Cross-DEV görev | **10** |
 | Alan genişleme | **3/3 TAMAMLANDI** |
 | Build error | **0** |
+
+---
+
+## TUR: 7 (2026-03-26) — G020 TRIPLE HANDLING TEMİZLİĞİ
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| Log-only Application EventHandler | 50 |
+| ApplicationBridge dosya | 3 (55 class) |
+| DI registration (log-only) | 42 |
+| Triple-handled event | 5 |
+| Toplam gereksiz LOC | ~2240 |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| Log-only Application EventHandler | 0 (-50) ✅ |
+| ApplicationBridge dosya | 1 (5 class — gerçek iş) |
+| DI registration | 9 (gerçek handler'lar) |
+| Triple-handled event | 0 ✅ |
+| Silinen LOC | **-2240** |
+| Silinen dosya | **52** |
+
+### DELTA
+- G020 KAPANDI: 50 handler + 46 bridge + 42 DI registration kaldırıldı
+- 10 gerçek handler korundu (Stock, Revenue, Return, ZeroStock, GL)
+- OrphanEventBridgeHandlers 22 class ile tüm loglama konsolide
+- Cross-DEV: G024 (DEV1 orphan interface temizliği)
+
+### COMMIT
+- `3020cca9` refactor(events): remove 50 log-only handlers + 46 bridges — G020
+
+### FMEA
+- Handler silme: Şiddet=8 × Olasılık=2 × Tespit=2 = RPN=32
+  - Korunma: OrphanBridge tüm event'leri yakalar, gerçek iş handler'lar korundu
+  - Build 0 error — compile-time doğrulama geçti
+
+### DEV 6 GENEL DURUM — 7 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **24** |
+| Silinen dosya | **52** |
+| Silinen LOC | **-2240** |
+| Yeni endpoint | **11** |
+| GOREV kapatılan | **7** |
+| Cross-DEV görev | **11** |
+| Alan genişleme | **3/3 TAMAMLANDI** |
+| Build error | **0** |
