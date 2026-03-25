@@ -600,4 +600,57 @@ Aktif dosyalar: yok (tüm değişiklikler commit'li)
 | Toplam capability | 22 | 90 | **+68** |
 | Ortalama skor | 1.7/6 | 6.0/6 | **+4.3** |
 
-Durum: **İZLEME MODU — ALAN TAVAN NOKTASINDA**
+Durum: ~~İZLEME MODU~~ → DEVAM
+
+---
+
+## TUR 15 — 2026-03-25 (Two-Stage Retry Rollout — 14/16 Adapter)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 33 | eBay+AmazonTR+AmazonEU | Two-stage retry: 429 Retry-After + 5xx backoff | 4e490bc2 |
+| 34 | Ozon+HB+WooCommerce | Two-stage retry rollout batch 2 | 0e5fd9be |
+| 35 | ÇS+Pazarama+PttAvm+Zalando+Bitrix24 | Two-stage retry + Bitrix24 readonly fix | a679aebe |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Two-stage retry adapter | 4 | 14 | **+10** ✅ |
+| Retry-After parsing | 4 | 14 | **+10** ✅ |
+| Bitrix24 build fix | 1 error | 0 | -1 ✅ |
+
+### ADAPTER RETRY MATRİSİ (FINAL)
+```
+Adapter              429+RA  5xx  CB   Pattern
+Trendyol              ✅    ✅   ✅   two-stage (5+3)
+Hepsiburada           ✅    ✅   ✅   two-stage (5+3)
+N11                   —     —    ✅   SOAP internal retry
+Ciceksepeti           ✅    ✅   ✅   two-stage (5+3)
+Pazarama              ✅    ✅   ✅   two-stage (5+3)
+AmazonTR              ✅    ✅   ✅   two-stage (5+3)
+AmazonEU              ✅    ✅   ✅   two-stage (5+3)
+eBay                  ✅    ✅   ✅   two-stage (5+3)
+Ozon                  ✅    ✅   ✅   two-stage (5+3)
+PttAvm                ✅    ✅   ✅   two-stage (5+3)
+OpenCart              ✅    ✅   ✅   combined (429+5xx)
+Shopify               ✅    ✅   ✅   two-stage (5+3)
+WooCommerce           ✅    ✅   ✅   two-stage (5+3)
+Etsy                  ✅    ✅   ✅   two-stage (5+3)
+Zalando               ✅    ✅   ✅   two-stage (5+3)
+Bitrix24              ✅    ✅   ✅   Retry-After (own pattern)
+```
+
+### KÜMÜLATİF DEV 3 (15 tur, 36 commit)
+| Metrik | Başlangıç | Final | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | **-25** |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Boş catch | 8 | 0 | **-8** |
+| Silent stub | 8 | 0 | **-8** |
+| Thread-safety risk | 2 | 0 | **-2** |
+| new HttpClient() | 1 | 0 | **-1** |
+| Webhook validator | 8 | 14 | **+6** |
+| Two-stage retry | 2 | 14 | **+12** |
+| Retry-After parsing | 2 | 14 | **+12** |
+| Toplam capability | 22 | 90 | **+68** |
