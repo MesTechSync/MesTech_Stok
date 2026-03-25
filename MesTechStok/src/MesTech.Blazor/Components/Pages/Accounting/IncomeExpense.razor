@@ -71,6 +71,13 @@ else
                                 }
                             </tbody>
                         </table>
+                        @if ((_incomes?.Count ?? 0) == 0 && !isLoading)
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block opacity-50"></i>
+                                <span>Kayit bulunamadi.</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -91,6 +98,13 @@ else
                                 }
                             </tbody>
                         </table>
+                        @if ((_expenses?.Count ?? 0) == 0 && !isLoading)
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block opacity-50"></i>
+                                <span>Kayit bulunamadi.</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
