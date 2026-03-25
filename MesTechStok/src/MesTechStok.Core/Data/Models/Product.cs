@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +9,7 @@ namespace MesTechStok.Core.Data.Models;
 /// Ürün bilgilerini tutan ana model sınıfı
 /// Barkodlu stok takip sisteminin temel varlığıdır
 /// </summary>
-[Obsolete("MIGRATE: Use MesTech.Domain.Entities.Product (Guid PK, DDD aggregate). Map via ICoreEntityMapper.ToDomainProduct(). Will be removed in Dalga 6.")]
+
 public class Product
 {
     [Key]

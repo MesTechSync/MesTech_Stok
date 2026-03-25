@@ -32,7 +32,7 @@ public class AdvisoryAgentV2Tests
     public AdvisoryAgentV2Tests()
     {
         _httpHandlerMock = new Mock<HttpMessageHandler>();
-        _httpClient = new HttpClient(_httpHandlerMock.Object);
+        _httpClient = new HttpClient(_httpHandlerMock.Object) { Timeout = TimeSpan.FromSeconds(30) };
 
         _profitRepoMock = new Mock<IProfitReportRepository>();
         _commissionRepoMock = new Mock<ICommissionRecordRepository>();
@@ -65,7 +65,7 @@ public class AdvisoryAgentV2Tests
             _commissionRepoMock.Object,
             _productRepoMock.Object,
             _tenantProviderMock.Object,
-            new Mock<ILogger<AdvisoryAgentV2>>().Object);
+            Mock.Of<ILogger<AdvisoryAgentV2>>());
     }
 
     private void SetupMesaAdviceResponse(HttpStatusCode status, object? responseBody = null)

@@ -26,7 +26,7 @@ public class RealMesaAccountingClientTests
     {
         _httpHandlerMock = new Mock<HttpMessageHandler>();
 
-        _httpClient = new HttpClient(_httpHandlerMock.Object);
+        _httpClient = new HttpClient(_httpHandlerMock.Object) { Timeout = TimeSpan.FromSeconds(30) };
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>

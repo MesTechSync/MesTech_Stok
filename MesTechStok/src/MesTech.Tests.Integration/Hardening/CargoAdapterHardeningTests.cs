@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -196,7 +196,9 @@ public class CargoAdapterHardeningTests : IDisposable
     // Configure adapters
     private ArasKargoAdapter CreateArasAdapter(HttpClient httpClient)
     {
-        var adapter = new ArasKargoAdapter(httpClient, NullLogger<ArasKargoAdapter>.Instance);
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        var adapter = new SendeoCargoAdapter(httpClient, NullLogger<SendeoCargoAdapter>.Instance);w ArasKargoAdapter(httpClient, NullLogger<ArasKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
         {
             ["UserName"] = "test",

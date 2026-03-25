@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MesTechStok.Core.Data.Models;
 // AI Models will be added after migration - namespace conflict resolved
 // using MesTechStok.Core.Models;
@@ -24,7 +24,7 @@ namespace MesTechStok.Core.Data;
 ///   - Domain events (GetDomainEvents)
 ///   - 68+ DbSet (tum Domain entity'leri)
 /// </summary>
-[Obsolete("FROZEN H32: Use MesTech.Infrastructure.Persistence.AppDbContext via MediatR CQRS. 9 handlers migrated in H32. SqlBacked services + App init remain. Will be removed in Dalga 9.")]
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -81,7 +81,7 @@ public class AppDbContext : DbContext
         ConfigureDomainModels(modelBuilder);
 
         // Company Settings - single row constraint via unique index hack
-        modelBuilder.Entity<CompanySettings>(entity =>
+        ConfigureCompanySettings(modelBuilder);
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(200);
@@ -94,7 +94,7 @@ public class AppDbContext : DbContext
         // ConfigureLocationModels(modelBuilder);
 
         // OfflineQueue
-        modelBuilder.Entity<OfflineQueueItem>(entity =>
+        ConfigureOfflineQueueItem(modelBuilder);
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Channel).IsRequired().HasMaxLength(32);
@@ -108,7 +108,7 @@ public class AppDbContext : DbContext
         });
 
         // ApiCallLog (Telemetry persistence)
-        modelBuilder.Entity<ApiCallLog>(entity =>
+        ConfigureApiCallLog(modelBuilder);
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Endpoint).IsRequired().HasMaxLength(256);

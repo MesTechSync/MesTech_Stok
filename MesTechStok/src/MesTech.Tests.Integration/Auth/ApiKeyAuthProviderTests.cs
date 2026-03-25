@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Auth;
 
@@ -14,8 +14,8 @@ namespace MesTech.Tests.Integration.Auth;
 public class ApiKeyAuthProviderTests
 {
   private const string TestPlatformCode = "Trendyol";
-  private const string TestApiKey = "TY-API-KEY-abc123";
-  private const string TestApiSecret = "TY-API-SECRET-xyz789";
+  private const string TestApiKey = "placeholder-api-key";
+  private const string TestApiSecret = "placeholder-api-secret";
 
   private ApiKeyAuthProvider CreateProvider(
     string platformCode = TestPlatformCode,

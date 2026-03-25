@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -30,7 +30,7 @@ public class SpeechToExpenseServiceTests
     public SpeechToExpenseServiceTests()
     {
         _httpHandlerMock = new Mock<HttpMessageHandler>();
-        _httpClient = new HttpClient(_httpHandlerMock.Object);
+        _httpClient = new HttpClient(_httpHandlerMock.Object) { Timeout = TimeSpan.FromSeconds(30) };
 
         _accountingServiceMock = new Mock<IMesaAccountingService>();
         _documentRepoMock = new Mock<IAccountingDocumentRepository>();

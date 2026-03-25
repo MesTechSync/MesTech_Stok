@@ -79,7 +79,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ProductsView] Error at ProductsView ctor (DI fallback): {ex.Message}");
+                GlobalLogger.Instance.LogError($"[ProductsView] Error at ProductsView ctor (DI fallback): {ex.Message}");
                 _productService = new EnhancedProductService();
                 _usingDemoService = true;
             }
@@ -91,7 +91,7 @@ namespace MesTechStok.Desktop.Views
             _ = LoadCategoriesAsync(); // Kategorileri başlangıçta yükle
 
             // ReportsView profil köprüsü için son instance'ı kaydet
-            try { ProductsViewProfilesBridge.Register(this); } catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] ProfilesBridge.Register: {ex.Message}"); }
+            try { ProductsViewProfilesBridge.Register(this); } catch (Exception ex) { GlobalLogger.Instance.LogWarning($"[ProductsView] ProfilesBridge.Register: {ex.Message}"); }
 
             // Popup kaydı sonrası otomatik yenile
             MesTechStok.Desktop.Utils.EventBus.ProductsChanged += async (barcode) =>
@@ -119,11 +119,11 @@ namespace MesTechStok.Desktop.Views
                                     dgRow.Background = original;
                                 }
                             }
-                            catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] row highlight animation: {ex.Message}"); }
+                            catch (Exception ex) { GlobalLogger.Instance.LogWarning($"[ProductsView] row highlight animation: {ex.Message}"); }
                         }
                     }
                 }
-                catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] EventBus.ProductsChanged handler: {ex.Message}"); }
+                catch (Exception ex) { GlobalLogger.Instance.LogWarning($"[ProductsView] EventBus.ProductsChanged handler: {ex.Message}"); }
             };
         }
 

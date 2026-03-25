@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -194,7 +194,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(JsonTaxpayerNotFound())
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = CreateConfiguredHttpClient();
         var ublBuilder = new UblTrXmlBuilder();
         var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
         provider.Configure("test-api-key", _baseUrl);
@@ -237,7 +237,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(pdfBytes)
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = CreateConfiguredHttpClient();
         var ublBuilder = new UblTrXmlBuilder();
         var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
         provider.Configure("test-api-key", _baseUrl);
@@ -271,7 +271,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 }))
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = CreateConfiguredHttpClient();
         var options = Options.Create(new GibPortalEInvoiceOptions
         {
             BaseUrl = _baseUrl,

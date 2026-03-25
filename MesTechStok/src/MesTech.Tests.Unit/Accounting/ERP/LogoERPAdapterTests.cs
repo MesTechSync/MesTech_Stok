@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using FluentAssertions;
 using MesTech.Application.DTOs.Accounting;
@@ -113,7 +113,7 @@ public class LogoERPAdapterTests
     // ── ERPName ──
 
     [Fact]
-    public void ERPName_ReturnsLogo()
+    public void ERPName_WhenCalled_ReturnsLogo()
     {
         _sut.ERPName.Should().Be("Logo");
     }
@@ -121,7 +121,7 @@ public class LogoERPAdapterTests
     // ── Provider (Dalga 11) ──
 
     [Fact]
-    public void Provider_ReturnsLogoEnum()
+    public void Provider_WhenCalled_ReturnsLogoEnum()
     {
         ((IErpAdapter)_sut).Provider.Should().Be(ErpProvider.Logo);
     }
