@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -50,7 +51,7 @@ public sealed class ErpPriceSyncJob : ISyncJob
             ct.ThrowIfCancellationRequested();
 
             var sw = Stopwatch.StartNew();
-            var syncLog = ErpSyncLog.Create(Guid.Empty, provider, "PriceSync", Guid.NewGuid());
+            var syncLog = ErpSyncLog.Create(DomainConstants.SystemTenantId, provider, "PriceSync", Guid.NewGuid());
             var providerUpdated = 0;
             var providerSkipped = 0;
 

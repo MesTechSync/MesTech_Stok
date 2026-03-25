@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ public sealed class ErpAccountSyncJob : ISyncJob
 
             var sw = Stopwatch.StartNew();
             var syncLog = ErpSyncLog.Create(
-                Guid.Empty, // system-level sync, not tenant-specific
+                DomainConstants.SystemTenantId, // system-level sync, not tenant-specific
                 provider,
                 "AccountBalance",
                 Guid.NewGuid());

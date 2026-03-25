@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -52,7 +53,7 @@ public sealed class ErpStockSyncJob : ISyncJob
             ct.ThrowIfCancellationRequested();
 
             var sw = Stopwatch.StartNew();
-            var syncLog = ErpSyncLog.Create(Guid.Empty, provider, "StockSync", Guid.NewGuid());
+            var syncLog = ErpSyncLog.Create(DomainConstants.SystemTenantId, provider, "StockSync", Guid.NewGuid());
             var providerUpdated = 0;
             var providerSkipped = 0;
 
