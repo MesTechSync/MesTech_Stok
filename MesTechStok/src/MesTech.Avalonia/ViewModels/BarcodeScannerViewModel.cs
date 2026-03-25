@@ -104,6 +104,10 @@ public partial class BarcodeScannerViewModel : ViewModelBase
         }
     }
 
+    /// <summary>LoadDataCommand — used by F5 keybinding and Retry button in error state.</summary>
+    [RelayCommand]
+    private Task LoadData() => LoadAsync();
+
     [RelayCommand]
     private void Clear()
     {
