@@ -45,13 +45,17 @@ public sealed class ReturnApprovedHandler : IReturnApprovedHandler
             "Iade onaylandi — stok geri + ters GL baslıyor. ReturnId={ReturnId}, Kalem={Count}",
             returnRequestId, lines.Count);
 
+        // Batch query — N+1 yerine tek SQL
+        var productIds = lines.Select(l => l.ProductId).Distinct().ToList();
+        var products = await _productRepo.GetByIdsAsync(productIds, ct).ConfigureAwait(false);
+        var productMap = products.ToDictionary(p => p.Id);
+
         decimal totalRefund = 0;
 
         // Zincir 5: Her kalem icin stok geri ekle
         foreach (var line in lines)
         {
-            var product = await _productRepo.GetByIdAsync(line.ProductId).ConfigureAwait(false);
-            if (product is null)
+            if (!productMap.TryGetValue(line.ProductId, out var product))
             {
                 _logger.LogWarning("Iade stok geri — urun bulunamadi: {ProductId}", line.ProductId);
                 continue;
