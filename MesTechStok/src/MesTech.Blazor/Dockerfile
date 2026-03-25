@@ -7,7 +7,8 @@
 # ─────────────────────────────────────────────────────────────
 
 # ── Stage 1: Restore (layer-cached) ──
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS restore
+# Pin: dotnet/sdk:9.0-alpine@sha256:5e2228a03bcb9b75b9078f7a2379c2c82639422b785601ff271f744745ac2f71
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine@sha256:5e2228a03bcb9b75b9078f7a2379c2c82639422b785601ff271f744745ac2f71 AS restore
 WORKDIR /src
 
 # Copy solution and build props first for optimal layer caching
@@ -44,7 +45,8 @@ RUN dotnet publish src/MesTech.Blazor/MesTech.Blazor.csproj \
     /p:PublishTrimmed=false
 
 # ── Stage 3: Runtime (minimal attack surface) ──
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
+# Pin: dotnet/aspnet:9.0-alpine@sha256:86883194752e8cb9c3914edea40961cc179da6804fcfe814f18f89ed6515d8cf
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine@sha256:86883194752e8cb9c3914edea40961cc179da6804fcfe814f18f89ed6515d8cf AS runtime
 
 # Security: non-root user
 RUN addgroup -S mestech && adduser -S mestech -G mestech \
