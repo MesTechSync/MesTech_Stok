@@ -7,21 +7,24 @@ namespace MesTech.Infrastructure.Messaging.Mesa.Consumers;
 
 /// <summary>
 /// MESA AI lead'e skor atadığında consume eder.
-/// Lead entity'ye skor bilgisi loglanır; Score property DEV 1 scope'unda eklenecek.
+/// Lead entity'ye skor bilgisi persist edilir ve domain event yayınlanır.
 /// </summary>
 public sealed class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
 {
     private readonly IMesaEventMonitor _monitor;
     private readonly ICrmLeadRepository _leadRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MesaLeadScoredConsumer> _logger;
 
     public MesaLeadScoredConsumer(
         IMesaEventMonitor monitor,
         ICrmLeadRepository leadRepository,
+        IUnitOfWork unitOfWork,
         ILogger<MesaLeadScoredConsumer> logger)
     {
         _monitor = monitor;
         _leadRepository = leadRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -43,7 +46,9 @@ public sealed class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
                 return;
             }
 
-            // TODO: DEV 1 — Lead.UpdateScore(msg.Score, msg.Reasoning) eklenecek
+            lead.UpdateScore(msg.Score, msg.Reasoning);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
+
             _logger.LogInformation(
                 "Lead {LeadId} ({FullName}) scored {Score}/100 — Reasoning: {Reasoning}",
                 msg.LeadId, lead.FullName, msg.Score, msg.Reasoning);
