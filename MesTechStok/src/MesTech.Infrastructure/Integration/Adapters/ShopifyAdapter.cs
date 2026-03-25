@@ -29,7 +29,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// RegisterWebhook: webhooks.json POST.
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
-public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter
+public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;
@@ -1376,6 +1377,383 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         }
 
         return product;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ISettlementCapableAdapter — Shopify Payments Payouts
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Retrieves Shopify Payments settlement (payouts + balance transactions).
+    /// GET /admin/api/2024-01/shopify_payments/payouts.json
+    /// GET /admin/api/2024-01/shopify_payments/balance/transactions.json
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(
+        DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.GetSettlementAsync {Start} - {End}", startDate, endDate);
+
+        try
+        {
+            var settlement = new SettlementDto
+            {
+                PlatformCode = PlatformCode,
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "USD"
+            };
+
+            // Fetch payouts in date range
+            var payoutsUrl = $"{BaseUrl}/shopify_payments/payouts.json" +
+                $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}&status=paid";
+
+            var payoutsResponse = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(payoutsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!payoutsResponse.IsSuccessStatusCode)
+            {
+                var error = await payoutsResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Shopify GetSettlement payouts failed {Status}: {Error}",
+                    payoutsResponse.StatusCode, error);
+                return null;
+            }
+
+            var payoutsContent = await payoutsResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var payoutsDoc = JsonDocument.Parse(payoutsContent);
+
+            if (payoutsDoc.RootElement.TryGetProperty("payouts", out var payouts))
+            {
+                foreach (var payout in payouts.EnumerateArray())
+                {
+                    var amount = 0m;
+                    if (payout.TryGetProperty("amount", out var amtProp))
+                        decimal.TryParse(amtProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out amount);
+
+                    settlement.NetAmount += amount;
+
+                    var payoutId = payout.TryGetProperty("id", out var idProp) ? idProp.GetInt64().ToString() : "unknown";
+                    var payoutDate = DateTime.UtcNow;
+                    if (payout.TryGetProperty("date", out var dateProp) &&
+                        DateTime.TryParse(dateProp.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var parsed))
+                    {
+                        payoutDate = parsed;
+                    }
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = $"payout-{payoutId}",
+                        TransactionType = "Payout",
+                        Amount = amount,
+                        TransactionDate = payoutDate
+                    });
+                }
+            }
+
+            // Fetch balance transactions for detail breakdown
+            var txUrl = $"{BaseUrl}/shopify_payments/balance/transactions.json" +
+                $"?payout_status=paid&test=false";
+
+            var txResponse = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(txUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (txResponse.IsSuccessStatusCode)
+            {
+                var txContent = await txResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var txDoc = JsonDocument.Parse(txContent);
+
+                if (txDoc.RootElement.TryGetProperty("transactions", out var transactions))
+                {
+                    foreach (var tx in transactions.EnumerateArray())
+                    {
+                        var txAmount = 0m;
+                        if (tx.TryGetProperty("amount", out var txAmtProp))
+                            decimal.TryParse(txAmtProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out txAmount);
+
+                        var fee = 0m;
+                        if (tx.TryGetProperty("fee", out var feeProp))
+                            decimal.TryParse(feeProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out fee);
+
+                        var txType = tx.TryGetProperty("type", out var typeProp)
+                            ? typeProp.GetString() ?? "sale"
+                            : "sale";
+
+                        if (string.Equals(txType, "charge", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(txType, "sale", StringComparison.OrdinalIgnoreCase))
+                        {
+                            settlement.TotalSales += txAmount;
+                        }
+                        else if (string.Equals(txType, "refund", StringComparison.OrdinalIgnoreCase))
+                        {
+                            settlement.TotalReturnDeduction += Math.Abs(txAmount);
+                        }
+
+                        settlement.TotalCommission += Math.Abs(fee);
+                    }
+                }
+            }
+
+            settlement.TotalShippingCost = 0; // Shopify Payments does not break out shipping cost separately
+            _logger.LogInformation("Shopify GetSettlement OK — Net={Net}, Sales={Sales}, Commission={Commission}",
+                settlement.NetAmount, settlement.TotalSales, settlement.TotalCommission);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Shopify GetSettlement failed");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Shopify does not have a dedicated cargo invoice API.
+    /// Returns empty list — shipping costs are included in balance transactions.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(
+        DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("ShopifyAdapter.GetCargoInvoicesAsync — Shopify does not provide cargo invoices separately");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // IClaimCapableAdapter — Shopify Refunds (orders with financial_status=refunded)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Pulls refunded orders from Shopify. Shopify uses "refunds" rather than "claims".
+    /// GET /admin/api/2024-01/orders.json?financial_status=refunded
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
+            var url = $"{BaseUrl}/orders.json?financial_status=refunded" +
+                $"&updated_at_min={sinceDate:yyyy-MM-ddTHH:mm:ssZ}&status=any&limit=250";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Shopify PullClaims failed {Status}: {Error}",
+                    response.StatusCode, error);
+                return claims.AsReadOnly();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (!doc.RootElement.TryGetProperty("orders", out var orders))
+                return claims.AsReadOnly();
+
+            foreach (var order in orders.EnumerateArray())
+            {
+                var orderId = order.TryGetProperty("id", out var idProp) ? idProp.GetInt64().ToString() : string.Empty;
+                var orderNumber = order.TryGetProperty("order_number", out var onProp) ? onProp.GetInt64().ToString() : orderId;
+
+                var totalRefund = 0m;
+                if (order.TryGetProperty("refunds", out var refunds))
+                {
+                    foreach (var refund in refunds.EnumerateArray())
+                    {
+                        var refundId = refund.TryGetProperty("id", out var ridProp) ? ridProp.GetInt64().ToString() : orderId;
+
+                        var claim = new ExternalClaimDto
+                        {
+                            PlatformClaimId = refundId,
+                            PlatformCode = PlatformCode,
+                            OrderNumber = orderNumber,
+                            Status = "refunded",
+                            Reason = refund.TryGetProperty("note", out var noteProp)
+                                ? noteProp.GetString() ?? "Customer refund"
+                                : "Customer refund",
+                            Currency = order.TryGetProperty("currency", out var curProp)
+                                ? curProp.GetString() ?? "USD"
+                                : "USD"
+                        };
+
+                        if (refund.TryGetProperty("created_at", out var dateProp) &&
+                            DateTime.TryParse(dateProp.GetString(), CultureInfo.InvariantCulture,
+                                DateTimeStyles.RoundtripKind, out var claimDate))
+                        {
+                            claim.ClaimDate = claimDate;
+                        }
+                        else
+                        {
+                            claim.ClaimDate = DateTime.UtcNow;
+                        }
+
+                        // Extract customer info
+                        if (order.TryGetProperty("customer", out var customer))
+                        {
+                            var firstName = customer.TryGetProperty("first_name", out var fnProp) ? fnProp.GetString() ?? "" : "";
+                            var lastName = customer.TryGetProperty("last_name", out var lnProp) ? lnProp.GetString() ?? "" : "";
+                            claim.CustomerName = $"{firstName} {lastName}".Trim();
+                            claim.CustomerEmail = customer.TryGetProperty("email", out var emProp) ? emProp.GetString() : null;
+                        }
+
+                        // Extract refund line items
+                        if (refund.TryGetProperty("refund_line_items", out var refundLines))
+                        {
+                            foreach (var rl in refundLines.EnumerateArray())
+                            {
+                                var qty = rl.TryGetProperty("quantity", out var qtyProp) ? qtyProp.GetInt32() : 1;
+                                var subtotal = 0m;
+                                if (rl.TryGetProperty("subtotal", out var stProp))
+                                    decimal.TryParse(stProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out subtotal);
+
+                                var lineItem = rl.TryGetProperty("line_item", out var liProp) ? liProp : default;
+                                var sku = lineItem.ValueKind == JsonValueKind.Object &&
+                                    lineItem.TryGetProperty("sku", out var skuProp) ? skuProp.GetString() : null;
+                                var productName = lineItem.ValueKind == JsonValueKind.Object &&
+                                    lineItem.TryGetProperty("title", out var titleProp)
+                                    ? titleProp.GetString() ?? string.Empty
+                                    : string.Empty;
+
+                                claim.Lines.Add(new ExternalClaimLineDto
+                                {
+                                    SKU = sku,
+                                    ProductName = productName,
+                                    Quantity = qty,
+                                    UnitPrice = qty > 0 ? subtotal / qty : subtotal
+                                });
+
+                                totalRefund += subtotal;
+                            }
+                        }
+
+                        claim.Amount = totalRefund;
+                        claims.Add(claim);
+                    }
+                }
+            }
+
+            _logger.LogInformation("Shopify PullClaims: {Count} refunds fetched", claims.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Shopify PullClaims failed");
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Approves a refund on Shopify by creating a refund entry.
+    /// POST /admin/api/2024-01/orders/{orderId}/refunds.json
+    /// Note: claimId is expected to be the order ID.
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.ApproveClaimAsync ClaimId={ClaimId}", claimId);
+
+        try
+        {
+            // Shopify refund approval = calculate + create refund
+            var calcUrl = $"{BaseUrl}/orders/{claimId}/refunds/calculate.json";
+            var calcPayload = new { refund = new { shipping = new { full_refund = true } } };
+            var calcJson = JsonSerializer.Serialize(calcPayload, _jsonOptions);
+
+            var calcResponse = await ThrottledExecuteAsync(async token =>
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, calcUrl)
+                {
+                    Content = new StringContent(calcJson, Encoding.UTF8, "application/json")
+                };
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!calcResponse.IsSuccessStatusCode)
+            {
+                var error = await calcResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Shopify ApproveClaim calculate failed {Status}: {Error}",
+                    calcResponse.StatusCode, error);
+                return false;
+            }
+
+            // Create refund
+            var refundUrl = $"{BaseUrl}/orders/{claimId}/refunds.json";
+            var refundPayload = new { refund = new { notify = true } };
+            var refundJson = JsonSerializer.Serialize(refundPayload, _jsonOptions);
+
+            var refundResponse = await ThrottledExecuteAsync(async token =>
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, refundUrl)
+                {
+                    Content = new StringContent(refundJson, Encoding.UTF8, "application/json")
+                };
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (refundResponse.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Shopify ApproveClaim OK — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var refundError = await refundResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Shopify ApproveClaim create refund failed {Status}: {Error}",
+                refundResponse.StatusCode, refundError);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Shopify ApproveClaim failed — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Shopify processes refunds automatically — manual rejection is not supported.
+    /// Always returns false.
+    /// </summary>
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        _logger.LogWarning(
+            "ShopifyAdapter.RejectClaimAsync — Shopify auto-processes refunds, manual rejection not supported. ClaimId={ClaimId}",
+            claimId);
+        return Task.FromResult(false);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // IInvoiceCapableAdapter — Shopify has no invoice API
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Shopify does not have a native invoice API.
+    /// Logs the request and returns true (invoice handled externally).
+    /// </summary>
+    public Task<bool> SendInvoiceLinkAsync(
+        string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "ShopifyAdapter.SendInvoiceLinkAsync — Shopify has no invoice API, logged. PackageId={PackageId}, Url={Url}",
+            shipmentPackageId, invoiceUrl);
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// Shopify does not have a native invoice file upload API.
+    /// Logs the request and returns true (invoice handled externally).
+    /// </summary>
+    public Task<bool> SendInvoiceFileAsync(
+        string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "ShopifyAdapter.SendInvoiceFileAsync — Shopify has no invoice API, logged. PackageId={PackageId}, File={FileName}, Size={Size}",
+            shipmentPackageId, fileName, pdfBytes?.Length ?? 0);
+        return Task.FromResult(true);
     }
 }
 

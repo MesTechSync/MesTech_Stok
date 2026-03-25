@@ -21,7 +21,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// FBO/FBS order retrieval, stock updates via /v2/products/stocks.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
+public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
@@ -893,5 +894,372 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogWarning(ex, "Ozon ping failed");
             return false;
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter — Ozon Finance Transactions
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Retrieves settlement data from Ozon using POST /v3/finance/transaction/list.
+    /// Returns transaction-level breakdown with commission and delivery fees.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(
+        DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.GetSettlementAsync {Start} - {End}", startDate, endDate);
+
+        try
+        {
+            var settlement = new SettlementDto
+            {
+                PlatformCode = PlatformCode,
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "RUB"
+            };
+
+            var page = 1;
+            const int pageSize = 1000;
+
+            while (true)
+            {
+                var payload = new
+                {
+                    filter = new
+                    {
+                        date = new
+                        {
+                            from = startDate.ToString("yyyy-MM-ddT00:00:00.000Z", CultureInfo.InvariantCulture),
+                            to = endDate.ToString("yyyy-MM-ddT23:59:59.999Z", CultureInfo.InvariantCulture)
+                        },
+                        transaction_type = "all"
+                    },
+                    page,
+                    page_size = pageSize
+                };
+
+                using var request = BuildPostRequest("/v3/finance/transaction/list", payload);
+                var response = await ThrottledExecuteAsync(
+                    async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Ozon GetSettlement /v3/finance/transaction/list failed {Status}: {Error}",
+                        response.StatusCode, error);
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("result", out var result) ||
+                    !result.TryGetProperty("operations", out var operations))
+                    break;
+
+                var pageCount = 0;
+                foreach (var op in operations.EnumerateArray())
+                {
+                    pageCount++;
+
+                    var amount = 0m;
+                    if (op.TryGetProperty("amount", out var amtProp))
+                        amount = amtProp.GetDecimal();
+
+                    var commission = 0m;
+                    if (op.TryGetProperty("sale_commission", out var commProp))
+                        commission = commProp.GetDecimal();
+
+                    var delivery = 0m;
+                    if (op.TryGetProperty("delivery_charge", out var delProp))
+                        delivery = delProp.GetDecimal();
+
+                    var txType = op.TryGetProperty("operation_type", out var typeProp)
+                        ? typeProp.GetString() ?? "unknown"
+                        : "unknown";
+
+                    var orderNumber = op.TryGetProperty("posting", out var postingProp) &&
+                        postingProp.TryGetProperty("posting_number", out var pnProp)
+                        ? pnProp.GetString()
+                        : null;
+
+                    var txDate = DateTime.UtcNow;
+                    if (op.TryGetProperty("operation_date", out var dateProp) &&
+                        DateTime.TryParse(dateProp.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var parsed))
+                    {
+                        txDate = parsed;
+                    }
+
+                    settlement.TotalSales += amount;
+                    settlement.TotalCommission += Math.Abs(commission);
+                    settlement.TotalShippingCost += Math.Abs(delivery);
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderNumber,
+                        TransactionType = txType,
+                        Amount = amount,
+                        CommissionAmount = commission,
+                        TransactionDate = txDate
+                    });
+                }
+
+                if (pageCount < pageSize)
+                    break;
+
+                page++;
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission - settlement.TotalShippingCost;
+
+            _logger.LogInformation("Ozon GetSettlement OK — Net={Net}, Sales={Sales}, Commission={Commission}, Shipping={Shipping}",
+                settlement.NetAmount, settlement.TotalSales, settlement.TotalCommission, settlement.TotalShippingCost);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon GetSettlement failed");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Ozon does not have a separate cargo invoice API.
+    /// Delivery charges are included in finance transactions.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(
+        DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("OzonAdapter.GetCargoInvoicesAsync — delivery costs included in finance transactions");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Ozon FBS Returns
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Pulls FBS returns from Ozon using POST /v2/returns/company/fbs.
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
+            var offset = 0;
+            const int limit = 50;
+
+            while (true)
+            {
+                var payload = new
+                {
+                    filter = new
+                    {
+                        last_free_waiting_day_min = sinceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    },
+                    offset,
+                    limit
+                };
+
+                using var request = BuildPostRequest("/v2/returns/company/fbs", payload);
+                var response = await ThrottledExecuteAsync(
+                    async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Ozon PullClaims /v2/returns/company/fbs failed {Status}: {Error}",
+                        response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("returns", out var returns))
+                    break;
+
+                var pageCount = 0;
+                foreach (var ret in returns.EnumerateArray())
+                {
+                    pageCount++;
+
+                    var returnId = ret.TryGetProperty("return_id", out var ridProp) ? ridProp.GetInt64().ToString() : string.Empty;
+                    var postingNumber = ret.TryGetProperty("posting_number", out var pnProp) ? pnProp.GetString() ?? string.Empty : string.Empty;
+                    var status = ret.TryGetProperty("status", out var stProp) ? stProp.GetString() ?? "unknown" : "unknown";
+                    var returnReason = ret.TryGetProperty("return_reason_name", out var rrProp) ? rrProp.GetString() ?? "" : "";
+
+                    var claim = new ExternalClaimDto
+                    {
+                        PlatformClaimId = returnId,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = postingNumber,
+                        Status = status,
+                        Reason = returnReason,
+                        Currency = "RUB"
+                    };
+
+                    if (ret.TryGetProperty("created_at", out var dateProp) &&
+                        DateTime.TryParse(dateProp.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var claimDate))
+                    {
+                        claim.ClaimDate = claimDate;
+                    }
+                    else
+                    {
+                        claim.ClaimDate = DateTime.UtcNow;
+                    }
+
+                    // Extract product info from return items
+                    if (ret.TryGetProperty("items", out var items))
+                    {
+                        foreach (var item in items.EnumerateArray())
+                        {
+                            var sku = item.TryGetProperty("offer_id", out var skuProp) ? skuProp.GetString() : null;
+                            var productName = item.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? string.Empty : string.Empty;
+                            var qty = item.TryGetProperty("quantity", out var qtyProp) ? qtyProp.GetInt32() : 1;
+
+                            var price = 0m;
+                            if (item.TryGetProperty("price", out var priceProp))
+                            {
+                                if (priceProp.ValueKind == JsonValueKind.String)
+                                    decimal.TryParse(priceProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out price);
+                                else if (priceProp.ValueKind == JsonValueKind.Number)
+                                    price = priceProp.GetDecimal();
+                            }
+
+                            claim.Lines.Add(new ExternalClaimLineDto
+                            {
+                                SKU = sku,
+                                ProductName = productName,
+                                Quantity = qty,
+                                UnitPrice = price
+                            });
+
+                            claim.Amount += price * qty;
+                        }
+                    }
+
+                    claims.Add(claim);
+                }
+
+                if (pageCount < limit)
+                    break;
+
+                offset += limit;
+            }
+
+            _logger.LogInformation("Ozon PullClaims: {Count} returns fetched", claims.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon PullClaims failed");
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Approves a return on Ozon using POST /v2/returns/company/{id}/approve.
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.ApproveClaimAsync ClaimId={ClaimId}", claimId);
+
+        try
+        {
+            using var request = BuildPostRequest($"/v2/returns/company/{claimId}/approve", new { });
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ozon ApproveClaim OK — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ozon ApproveClaim failed {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon ApproveClaim failed — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Rejects a return on Ozon using POST /v2/returns/company/{id}/reject with comment.
+    /// </summary>
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.RejectClaimAsync ClaimId={ClaimId}, Reason={Reason}", claimId, reason);
+
+        try
+        {
+            var payload = new { comment = reason };
+            using var request = BuildPostRequest($"/v2/returns/company/{claimId}/reject", payload);
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ozon RejectClaim OK — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ozon RejectClaim failed {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon RejectClaim failed — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IInvoiceCapableAdapter — Ozon (not supported)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Ozon does not support invoice link submission via API.
+    /// Logs the request and returns true.
+    /// </summary>
+    public Task<bool> SendInvoiceLinkAsync(
+        string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "OzonAdapter.SendInvoiceLinkAsync — Ozon has no invoice API, logged. PostingNumber={PostingNumber}, Url={Url}",
+            shipmentPackageId, invoiceUrl);
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// Ozon does not support invoice file upload via API.
+    /// Logs the request and returns true.
+    /// </summary>
+    public Task<bool> SendInvoiceFileAsync(
+        string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "OzonAdapter.SendInvoiceFileAsync — Ozon has no invoice API, logged. PostingNumber={PostingNumber}, File={FileName}, Size={Size}",
+            shipmentPackageId, fileName, pdfBytes?.Length ?? 0);
+        return Task.FromResult(true);
     }
 }

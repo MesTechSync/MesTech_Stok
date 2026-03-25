@@ -26,7 +26,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// PushPriceUpdate: GET products?sku={sku} → PUT products/{id} with regular_price.
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
-public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
+public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;
@@ -899,6 +900,337 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
             return Array.Empty<ProductVariantDto>();
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ISettlementCapableAdapter — WooCommerce Sales Reports
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Retrieves settlement data from WooCommerce sales reports.
+    /// GET /wp-json/wc/v3/reports/sales?date_min=X&amp;date_max=Y
+    /// WooCommerce is self-hosted — no platform commission.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(
+        DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.GetSettlementAsync {Start} - {End}", startDate, endDate);
+
+        try
+        {
+            var url = $"{ApiBase}/reports/sales" +
+                $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("WooCommerce GetSettlement failed {Status}: {Error}",
+                    response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = PlatformCode,
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "TRY"
+            };
+
+            // WooCommerce reports/sales returns an array with one summary element
+            if (doc.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var report in doc.RootElement.EnumerateArray())
+                {
+                    var totalSales = 0m;
+                    if (report.TryGetProperty("total_sales", out var tsProp))
+                        decimal.TryParse(tsProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out totalSales);
+
+                    var totalRefunds = 0m;
+                    if (report.TryGetProperty("total_refunds", out var trProp))
+                        decimal.TryParse(trProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out totalRefunds);
+
+                    var totalShipping = 0m;
+                    if (report.TryGetProperty("total_shipping", out var tshProp))
+                        decimal.TryParse(tshProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out totalShipping);
+
+                    settlement.TotalSales = totalSales;
+                    settlement.TotalReturnDeduction = Math.Abs(totalRefunds);
+                    settlement.TotalShippingCost = totalShipping;
+                    settlement.TotalCommission = 0; // Self-hosted — no platform commission
+                    settlement.NetAmount = totalSales - Math.Abs(totalRefunds);
+
+                    var totalOrders = report.TryGetProperty("total_orders", out var toProp) ? toProp.GetInt32() : 0;
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        TransactionType = "SalesSummary",
+                        Amount = totalSales,
+                        TransactionDate = endDate,
+                        OrderNumber = $"{totalOrders} orders"
+                    });
+                }
+            }
+
+            _logger.LogInformation("WooCommerce GetSettlement OK — Net={Net}, Sales={Sales}",
+                settlement.NetAmount, settlement.TotalSales);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "WooCommerce GetSettlement failed");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// WooCommerce is self-hosted — no platform cargo invoices.
+    /// Returns empty list.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(
+        DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("WooCommerceAdapter.GetCargoInvoicesAsync — self-hosted, no cargo invoices");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // IClaimCapableAdapter — WooCommerce Refunded Orders
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Pulls refunded orders from WooCommerce.
+    /// GET /wp-json/wc/v3/orders?status=refunded&amp;after=ISO_DATE
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(
+        DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.PullClaimsAsync since={Since}", since);
+
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
+            var page = 1;
+
+            while (true)
+            {
+                var url = $"{ApiBase}/orders?status=refunded" +
+                    $"&after={sinceDate:yyyy-MM-ddTHH:mm:ss}" +
+                    $"&per_page={PageSize}&page={page}";
+
+                var response = await ThrottledExecuteAsync(
+                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("WooCommerce PullClaims failed {Status}: {Error}",
+                        response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                    break;
+
+                var pageCount = 0;
+                foreach (var order in doc.RootElement.EnumerateArray())
+                {
+                    pageCount++;
+
+                    var orderId = order.TryGetProperty("id", out var idProp) ? idProp.GetInt64().ToString() : string.Empty;
+                    var orderNumber = order.TryGetProperty("number", out var numProp) ? numProp.GetString() ?? orderId : orderId;
+
+                    var claim = new ExternalClaimDto
+                    {
+                        PlatformClaimId = orderId,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = orderNumber,
+                        Status = "refunded",
+                        Reason = "WooCommerce refund",
+                        Currency = order.TryGetProperty("currency", out var curProp) ? curProp.GetString() ?? "TRY" : "TRY"
+                    };
+
+                    if (order.TryGetProperty("date_modified", out var dateProp) &&
+                        DateTime.TryParse(dateProp.GetString(), CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out var claimDate))
+                    {
+                        claim.ClaimDate = claimDate;
+                    }
+                    else
+                    {
+                        claim.ClaimDate = DateTime.UtcNow;
+                    }
+
+                    // Customer info
+                    if (order.TryGetProperty("billing", out var billing))
+                    {
+                        var firstName = billing.TryGetProperty("first_name", out var fnProp) ? fnProp.GetString() ?? "" : "";
+                        var lastName = billing.TryGetProperty("last_name", out var lnProp) ? lnProp.GetString() ?? "" : "";
+                        claim.CustomerName = $"{firstName} {lastName}".Trim();
+                        claim.CustomerEmail = billing.TryGetProperty("email", out var emProp) ? emProp.GetString() : null;
+                    }
+
+                    // Line items
+                    if (order.TryGetProperty("line_items", out var lineItems))
+                    {
+                        foreach (var li in lineItems.EnumerateArray())
+                        {
+                            var sku = li.TryGetProperty("sku", out var skuProp) ? skuProp.GetString() : null;
+                            var productName = li.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? string.Empty : string.Empty;
+                            var qty = li.TryGetProperty("quantity", out var qtyProp) ? qtyProp.GetInt32() : 1;
+
+                            var lineTotal = 0m;
+                            if (li.TryGetProperty("total", out var totalProp))
+                                decimal.TryParse(totalProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out lineTotal);
+
+                            claim.Lines.Add(new ExternalClaimLineDto
+                            {
+                                SKU = sku,
+                                ProductName = productName,
+                                Quantity = qty,
+                                UnitPrice = qty > 0 ? lineTotal / qty : lineTotal
+                            });
+                        }
+                    }
+
+                    // Total
+                    var claimTotal = 0m;
+                    if (order.TryGetProperty("total", out var ctProp))
+                        decimal.TryParse(ctProp.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out claimTotal);
+                    claim.Amount = claimTotal;
+
+                    claims.Add(claim);
+                }
+
+                if (pageCount < PageSize)
+                    break;
+
+                page++;
+            }
+
+            _logger.LogInformation("WooCommerce PullClaims: {Count} refunded orders fetched", claims.Count);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "WooCommerce PullClaims failed");
+        }
+
+        return claims.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Approves a refund on WooCommerce by creating a refund entry.
+    /// POST /wp-json/wc/v3/orders/{id}/refunds
+    /// </summary>
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.ApproveClaimAsync ClaimId={ClaimId}", claimId);
+
+        try
+        {
+            // First get order total for full refund
+            var orderUrl = $"{ApiBase}/orders/{claimId}";
+            var orderResponse = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(orderUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!orderResponse.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("WooCommerce ApproveClaim — order fetch failed for {ClaimId}", claimId);
+                return false;
+            }
+
+            var orderContent = await orderResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var orderDoc = JsonDocument.Parse(orderContent);
+
+            var amount = "0";
+            if (orderDoc.RootElement.TryGetProperty("total", out var totalProp))
+                amount = totalProp.GetString() ?? "0";
+
+            // Create refund
+            var refundUrl = $"{ApiBase}/orders/{claimId}/refunds";
+            var payload = new { amount, reason = "Approved via MesTech" };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var refundResponse = await ThrottledExecuteAsync(async token =>
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, refundUrl)
+                {
+                    Content = new StringContent(json, Encoding.UTF8, "application/json")
+                };
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (refundResponse.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("WooCommerce ApproveClaim OK — ClaimId={ClaimId}", claimId);
+                return true;
+            }
+
+            var error = await refundResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("WooCommerce ApproveClaim failed {Status}: {Error}",
+                refundResponse.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "WooCommerce ApproveClaim failed — ClaimId={ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// WooCommerce does not support rejecting refunds — not a marketplace flow.
+    /// Always returns false.
+    /// </summary>
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        _logger.LogWarning(
+            "WooCommerceAdapter.RejectClaimAsync — WooCommerce does not support claim rejection. ClaimId={ClaimId}",
+            claimId);
+        return Task.FromResult(false);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // IInvoiceCapableAdapter — WooCommerce (self-hosted, no invoice API)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// WooCommerce is self-hosted — no platform invoice API.
+    /// Logs the request and returns true (invoice handled externally via PDF plugins).
+    /// </summary>
+    public Task<bool> SendInvoiceLinkAsync(
+        string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "WooCommerceAdapter.SendInvoiceLinkAsync — self-hosted, no invoice API. PackageId={PackageId}, Url={Url}",
+            shipmentPackageId, invoiceUrl);
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// WooCommerce is self-hosted — no platform invoice file upload API.
+    /// Logs the request and returns true (invoice handled externally via PDF plugins).
+    /// </summary>
+    public Task<bool> SendInvoiceFileAsync(
+        string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "WooCommerceAdapter.SendInvoiceFileAsync — self-hosted, no invoice API. PackageId={PackageId}, File={FileName}, Size={Size}",
+            shipmentPackageId, fileName, pdfBytes?.Length ?? 0);
+        return Task.FromResult(true);
     }
 }
 
