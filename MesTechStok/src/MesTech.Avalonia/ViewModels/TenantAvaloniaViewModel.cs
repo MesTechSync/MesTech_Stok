@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -34,14 +35,12 @@ public partial class TenantAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
-
-            TenantName = "MesTech Ana";
-            TenantCode = "MESTECH-001";
-            TenantPlan = "Enterprise";
-            DatabaseName = "mestech_main";
-            MaxUsers = 50;
-            StorageUsed = 12.4;
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(Guid.Empty));
+            if (subscription is not null)
+            {
+                TenantPlan = subscription.PlanName;
+                TenantCode = subscription.Id.ToString("N")[..8].ToUpperInvariant();
+            }
         }
         catch (Exception ex)
         {

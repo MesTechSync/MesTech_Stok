@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetBarcodeScanLogs;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -69,30 +70,31 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
         QuickUpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetBarcodeScanLogsQuery(
+                BarcodeFilter: SearchText.Trim(),
+                Page: 1,
+                PageSize: 50));
 
-            // Simulated barcode lookup — will be replaced with real MediatR query
-            var found = LookupBarcode(SearchText);
-            if (found is null)
+            Items.Clear();
+            foreach (var log in result.Items)
+                Items.Add(log);
+
+            TotalCount = result.TotalCount;
+
+            // Use first matching valid scan to populate product card fields
+            var first = result.Items.FirstOrDefault(l => l.IsValid);
+            if (first is not null)
             {
-                IsEmpty = true;
-                HasProduct = false;
-                return;
+                ProductBarcode = first.Barcode;
+                ProductSku = first.Source ?? string.Empty;
+                HasProduct = true;
+            }
+            else
+            {
+                HasProduct = result.TotalCount > 0;
             }
 
-            ProductName = found.Name;
-            ProductSku = found.Sku;
-            ProductBarcode = found.Barcode;
-            ProductPrice = found.Price;
-            MinimumStock = found.MinStock;
-
-            WarehouseStocks.Clear();
-            foreach (var ws in found.WarehouseStocks)
-                WarehouseStocks.Add(ws);
-
-            TotalStock = found.WarehouseStocks.Sum(w => w.Quantity);
-            HasProduct = true;
-            TotalCount++;
+            IsEmpty = result.TotalCount == 0;
 
             OnPropertyChanged(nameof(StokDurum));
             OnPropertyChanged(nameof(StokDurumRenk));

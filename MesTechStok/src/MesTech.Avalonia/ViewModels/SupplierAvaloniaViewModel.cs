@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -32,14 +33,25 @@ public partial class SupplierAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetSuppliersCrmQuery(
+                TenantId: Guid.Empty,
+                SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText));
 
             Suppliers.Clear();
-            Suppliers.Add(new SupplierItemDto { SupplierName = "ABC Elektronik Ltd.", ContactPerson = "Hasan Yildiz", Phone = "0212 555 1234", Email = "hasan@abcelektronik.com", City = "Istanbul", Balance = 125000.00m });
-            Suppliers.Add(new SupplierItemDto { SupplierName = "XYZ Bilisim A.S.", ContactPerson = "Zeynep Arslan", Phone = "0312 444 5678", Email = "zeynep@xyzbilisim.com", City = "Ankara", Balance = 48500.00m });
-            Suppliers.Add(new SupplierItemDto { SupplierName = "Guney Aksesuar", ContactPerson = "Murat Can", Phone = "0232 333 9012", Email = "murat@guneyaksesuar.com", City = "Izmir", Balance = 12750.50m });
+            foreach (var dto in result.Items)
+            {
+                Suppliers.Add(new SupplierItemDto
+                {
+                    SupplierName = dto.Name,
+                    ContactPerson = string.Empty,
+                    Phone = dto.Phone ?? string.Empty,
+                    Email = dto.Email ?? string.Empty,
+                    City = dto.City ?? string.Empty,
+                    Balance = dto.CurrentBalance
+                });
+            }
 
-            TotalCount = Suppliers.Count;
+            TotalCount = result.TotalCount;
             IsEmpty = TotalCount == 0;
         }
         catch (Exception ex)
