@@ -356,6 +356,8 @@ BillingEndpoints.Map(app);
 FulfillmentEndpoints.Map(app);
 HrEndpoints.Map(app);
 OnboardingEndpoints.Map(app);
+LogEndpoints.Map(app);
+SystemEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

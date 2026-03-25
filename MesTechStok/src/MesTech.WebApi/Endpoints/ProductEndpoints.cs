@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
+using MesTech.Application.Commands.UpdateProductImage;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductById;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -75,5 +76,22 @@ public static class ProductEndpoints
         })
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)");
+
+        // PUT /api/v1/products/{id}/image — ürün resmi güncelle
+        group.MapPut("/{id:guid}/image", async (
+            Guid id,
+            UpdateProductImageRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new UpdateProductImageCommand(id, request.ImageUrl), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { error = result.ErrorMessage });
+        })
+        .WithName("UpdateProductImage")
+        .WithSummary("Ürün resmi güncelle (URL)");
     }
+
+    private record UpdateProductImageRequest(string ImageUrl);
 }

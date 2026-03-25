@@ -1,0 +1,54 @@
+using MediatR;
+using MesTech.Application.Features.Logging.Commands.CreateLogEntry;
+using MesTech.Application.Features.Logging.Queries.GetLogCount;
+using MesTech.Application.Features.Logging.Queries.GetLogs;
+
+namespace MesTech.WebApi.Endpoints;
+
+public static class LogEndpoints
+{
+    public static void Map(WebApplication app)
+    {
+        var group = app.MapGroup("/api/v1/logs")
+            .WithTags("Logs")
+            .RequireRateLimiting("PerApiKey");
+
+        // POST /api/v1/logs — log kaydı oluştur
+        group.MapPost("/", async (
+            CreateLogEntryCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var logId = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/logs/{logId}", new { id = logId });
+        })
+        .WithName("CreateLogEntry")
+        .WithSummary("Yeni log kaydı oluştur");
+
+        // GET /api/v1/logs — log listesi (sayfalanmış, filtreli)
+        group.MapGet("/", async (
+            Guid tenantId,
+            int page = 1, int pageSize = 50,
+            string? category = null, string? userId = null,
+            string? productName = null, string? barcode = null,
+            DateTime? startDate = null, DateTime? endDate = null,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(
+                new GetLogsQuery(tenantId, page, pageSize, category, userId, productName, barcode, startDate, endDate), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLogs")
+        .WithSummary("Log listesi (sayfalanmış, kategori/tarih/kullanıcı filtresi)");
+
+        // GET /api/v1/logs/count — log sayısı
+        group.MapGet("/count", async (
+            Guid tenantId, string? category = null,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var count = await mediator.Send(new GetLogCountQuery(tenantId, category), ct);
+            return Results.Ok(new { count });
+        })
+        .WithName("GetLogCount")
+        .WithSummary("Log kayıt sayısı (kategori filtresi)");
+    }
+}

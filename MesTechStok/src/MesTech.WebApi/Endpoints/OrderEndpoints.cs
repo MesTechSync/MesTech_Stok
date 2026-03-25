@@ -1,5 +1,7 @@
 using MediatR;
 using MesTech.Application.Commands.PlaceOrder;
+using MesTech.Application.Commands.PushOrderToBitrix24;
+using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
 using MesTech.Application.Queries.ListOrders;
 
 namespace MesTech.WebApi.Endpoints;
@@ -37,5 +39,18 @@ public static class OrderEndpoints
         })
         .WithName("PlaceOrder")
         .WithSummary("Yeni sipariş oluştur");
+
+        // POST /api/v1/orders/{id}/push-bitrix24 — siparişi Bitrix24 CRM'e gönder
+        group.MapPost("/{id:guid}/push-bitrix24", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new PushOrderToBitrix24Command(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(new { error = result.ErrorMessage });
+        })
+        .WithName("PushOrderToBitrix24")
+        .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder");
     }
 }
