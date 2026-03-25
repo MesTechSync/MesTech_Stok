@@ -31,8 +31,9 @@ public static class ErpEndpoints
         });
 
         // GET /api/v1/erp/status — ping all registered ERP adapters
-        group.MapGet("/status", async (IErpAdapterFactory factory, CancellationToken ct) =>
+        group.MapGet("/status", async (IErpAdapterFactory factory, ILoggerFactory loggerFactory, CancellationToken ct) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             var statuses = new List<object>();
 
             foreach (var provider in factory.SupportedProviders)
@@ -45,8 +46,9 @@ public static class ErpEndpoints
                 {
                     isAlive = await adapter.PingAsync(ct);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogWarning(ex, "ERP ping failed for provider {Provider}", provider);
                     isAlive = false;
                 }
 #pragma warning restore CA1031

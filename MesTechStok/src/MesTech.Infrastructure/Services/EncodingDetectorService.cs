@@ -181,7 +181,7 @@ public sealed class EncodingDetectorService : IEncodingDetectorService
         {
             return Encoding.GetEncoding(1254);
         }
-        catch
+        catch (Exception) // NotSupportedException on platforms without CP1254
         {
             return Encoding.UTF8;
         }
