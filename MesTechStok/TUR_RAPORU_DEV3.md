@@ -146,3 +146,32 @@ WooCommerce            ✅   ✅   —   —   —   —   (2/6)
 
 ### KARAR
 Settlement parser'ı olan tüm adapter'lar artık ISettlementCapable. Durum: DEVAM (IClaimCapable veya diğer gap'ler).
+
+---
+
+## TUR 5 — 2026-03-25 (KEŞİF FAZI — Claims)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 14 | HB+ÇS+AmazonTR+eBay | IClaimCapableAdapter + PullClaims/Approve/Reject | 58017868 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| IClaimCapable adapter | 3 | 7 | +4 ✅ |
+
+### KÜMÜLATİF DEV 3 (5 tur, 14+1 commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| IShipmentCapable | 7 | 12 | +5 |
+| ISettlementCapable | 2 | 8 | +6 |
+| IClaimCapable | 3 | 7 | +4 |
+| Settlement mapping gap | 1 | 0 | -1 |
+| Logger eksik handler | 1 | 0 | -1 |
+
+### TOP 5 ADAPTER (capability skoru)
+1. Trendyol: 6/6 TAM ✅
+2. N11: 5/6, Ciceksepeti: 5/6, Pazarama: 5/6
+3. HB: 4/6, AmazonTR: 4/6, eBay: 4/6
