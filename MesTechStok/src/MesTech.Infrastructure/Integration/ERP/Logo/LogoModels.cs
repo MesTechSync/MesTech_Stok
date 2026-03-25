@@ -379,6 +379,39 @@ internal sealed class LogoStockUpdateRequest
 }
 
 /// <summary>
+/// GET /items/prices — price list item from Logo.
+/// </summary>
+internal sealed class LogoPriceItemResponse
+{
+    [JsonPropertyName("code")]
+    public string Code { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("purchasePrice")]
+    public decimal PurchasePrice { get; set; }
+
+    [JsonPropertyName("salePrice")]
+    public decimal SalePrice { get; set; }
+
+    [JsonPropertyName("listPrice")]
+    public decimal? ListPrice { get; set; }
+
+    [JsonPropertyName("currencyCode")]
+    public string CurrencyCode { get; set; } = "TRY";
+}
+
+/// <summary>
+/// GET /items/prices — price list wrapper.
+/// </summary>
+internal sealed class LogoPriceListResponse
+{
+    [JsonPropertyName("items")]
+    public List<LogoPriceItemResponse> Items { get; set; } = new();
+}
+
+/// <summary>
 /// POST /salesDispatches — waybill creation request.
 /// </summary>
 internal sealed class LogoSalesDispatchRequest

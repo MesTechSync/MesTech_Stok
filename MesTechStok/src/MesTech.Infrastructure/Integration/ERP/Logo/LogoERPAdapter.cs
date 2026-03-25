@@ -32,7 +32,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Logo;
 ///   - GET /currentAccounts/balances (all account balances — Dalga 12)
 ///   - GET /api/v1/companies (ping/health check)
 /// </summary>
-public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable, IErpBankCapable
+public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpWaybillCapable, IErpBankCapable, IErpPriceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly LogoTokenService _tokenService;
@@ -1297,5 +1297,97 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
         {
             RateLimiter.Release();
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpPriceCapable — ISP price capability
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <inheritdoc/>
+    public async Task<List<ErpPriceItem>> GetProductPricesAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("[LogoERPAdapter] GetProductPricesAsync");
+
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var url = $"{BaseUrl}/items?filter=ACTIVE eq 1";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "[LogoERPAdapter] GetProductPrices failed: {Status}", response.StatusCode);
+                return new List<ErpPriceItem>();
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var listResponse = JsonSerializer.Deserialize<LogoPriceListResponse>(json, JsonOptions);
+
+            if (listResponse?.Items is null || listResponse.Items.Count == 0)
+                return new List<ErpPriceItem>();
+
+            var results = new List<ErpPriceItem>(listResponse.Items.Count);
+            foreach (var item in listResponse.Items)
+            {
+                results.Add(new ErpPriceItem(
+                    item.Code,
+                    item.Name,
+                    item.PurchasePrice,
+                    item.SalePrice,
+                    item.ListPrice,
+                    item.CurrencyCode));
+            }
+
+            _logger.LogInformation(
+                "[LogoERPAdapter] Retrieved {Count} price items from Logo", results.Count);
+            return results;
+        }
+#pragma warning disable CA1031
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[LogoERPAdapter] GetProductPricesAsync exception");
+            return new List<ErpPriceItem>();
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <inheritdoc/>
+    public async Task<ErpPriceItem?> GetPriceByCodeAsync(string productCode, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(productCode);
+
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var url = $"{BaseUrl}/items/{Uri.EscapeDataString(productCode)}";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var item = JsonSerializer.Deserialize<LogoPriceItemResponse>(json, JsonOptions);
+
+            if (item is null)
+                return null;
+
+            return new ErpPriceItem(
+                item.Code,
+                item.Name,
+                item.PurchasePrice,
+                item.SalePrice,
+                item.ListPrice,
+                item.CurrencyCode);
+        }
+#pragma warning disable CA1031
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[LogoERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
+            return null;
+        }
+#pragma warning restore CA1031
     }
 }
