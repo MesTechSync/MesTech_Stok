@@ -368,6 +368,9 @@ public static class InfrastructureServiceRegistration
         });
         services.AddScoped<IDocumentStorageService, MinioDocumentStorageService>();
 
+        // === Label Print Service (barcode/product label generation) ===
+        services.AddScoped<ILabelPrintService, LabelPrintService>();
+
         // === Sandbox Test Runner (G-05a: adapter connectivity testing) ===
         services.AddScoped<ISandboxTestRunner, SandboxTestRunner>();
 
