@@ -279,3 +279,74 @@ WooCommerce            ✅   ✅   —    —    —    —    2/6
 | 5/6 adapter | 0 | 5 | +5 |
 | Toplam capability | 22 | 76 | **+54** |
 | Ortalama skor | 1.7/6 | 5.5/6 | +3.8 |
+
+---
+
+## TUR 9 — 2026-03-25 (Webhook Gap + Boş Catch)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Build error | 0 |
+| NotImplementedException | 0 |
+| IWebhookCapable gap | 4 (Ozon, PttAvm, Etsy, Zalando) |
+| Boş catch (PingAsync) | 8 adapter |
+| Hardcoded URL | 76 (yapısal — Options/const) |
+| Orphan event | 0 |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 21 | OzonAdapter + PttAvmAdapter | IWebhookCapableAdapter (5/6 → 6/6) | f12b0e73 |
+| 22 | 8 Adapter PingAsync | catch{return false} → logged warning (KÇ-07) | d63b8f24 |
+| 23 | EtsyAdapter + ZalandoAdapter | IWebhookCapableAdapter (7/7 capability) | 8d5c4ceb |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| IWebhookCapable adapter | 11 | 15 | +4 ✅ |
+| Boş catch (PingAsync) | 8 | 0 | -8 ✅ |
+| 6/6 TAM adapter | 8 | 15 | +7 ✅ |
+| 5/6 adapter | 5 | 0 | -5 ✅ |
+| Toplam capability | 76 | 90 | +14 ✅ |
+
+### FİNAL CAPABILITY MATRİSİ (TUR 9 SONU)
+```
+Adapter                Ord  Shp  Stl  Clm  Inv  Whk  SKOR
+Trendyol               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Hepsiburada            ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+N11                    ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Ciceksepeti            ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Pazarama               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+AmazonTR               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+AmazonEU               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+eBay                   ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Ozon                   ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+PttAvm                 ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+OpenCart               ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Shopify                ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+WooCommerce            ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Etsy                   ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+Zalando                ✅   ✅   ✅   ✅   ✅   ✅   6/6 TAM
+```
+
+### GOREV_HAVUZU EKLEMELERİ (cross-DEV)
+- G008: DEV1 — InvoiceSentEvent'e OrderId ekle
+- G009: DEV1 — SystemUserId Domain sabiti tanımla
+- G010: DEV5 — 15 adapter webhook testleri yaz
+- G011: DEV6 — 2 handler-endpoint gap kapat
+
+### KÜMÜLATİF DEV 3 (9 tur, 23+ commit)
+| Metrik | Başlangıç | Şimdi | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | -25 |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| 5/6 adapter | 0 | 0 | 0 |
+| Boş catch | 8 | 0 | -8 |
+| Toplam capability | 22 | 90 | **+68** |
+| Ortalama skor | 1.7/6 | 6.0/6 | **+4.3** |
+
+### KARAR
+**TÜM 15 ADAPTER 6/6 TAM.** Adapter capability borcu sıfır.
+Kalan borçlar: Guid.Empty (11, DEV 1 bağımlı), Hardcoded URL (yapısal — Options pattern'da, müdahale gereksiz).
+Durum: **ALAN TEMİZ — KEŞİF FAZINDA YENİ HEDEF GEREKLİ**
