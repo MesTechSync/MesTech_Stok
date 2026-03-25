@@ -30,6 +30,8 @@
     <!-- Polly resilience — retry + circuit breaker for API calls -->
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Polly.Extensions.Http" />
+    <!-- Prometheus metrics — /metrics endpoint for Grafana monitoring -->
+    <PackageReference Include="prometheus-net.AspNetCore" />
   </ItemGroup>
 
 </Project>

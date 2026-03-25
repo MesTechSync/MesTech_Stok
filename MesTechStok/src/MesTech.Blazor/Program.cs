@@ -7,6 +7,7 @@ using MesTech.Blazor.Components;
 using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.DependencyInjection;
+using Prometheus;
 
 using Polly;
 using Polly.Extensions.Http;
@@ -181,10 +182,12 @@ app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseRequestLocalization();
 app.UseRateLimiter();
+app.UseHttpMetrics();
 app.UseAntiforgery();
 
-// Health endpoint — Docker healthcheck + Prometheus + load balancer
+// Health + Metrics endpoints — Docker healthcheck + Prometheus + load balancer
 app.MapHealthChecks("/health");
+app.MapMetrics();
 
 // Login rate limit — apply "login" policy to /login path
 app.MapGet("/login", () => Results.Redirect("/login")).RequireRateLimiting("login");

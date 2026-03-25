@@ -13,6 +13,7 @@ using MesTech.Infrastructure.Persistence;
 using MesTech.Infrastructure.Security;
 using MesTech.WebApi.Endpoints;
 using MesTech.WebApi.Hubs;
+using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -369,6 +370,9 @@ app.UseAuthorization();
 
 // API Key middleware — bypass paths skip validation (/health, /metrics, /api/webhooks, /hubs)
 app.UseApiKeyAuthentication();
+
+// Prometheus HTTP metrics — request count, duration, status codes per endpoint
+app.UseHttpMetrics();
 
 // Rate limiter middleware — after auth so API key is available
 app.UseRateLimiter();
