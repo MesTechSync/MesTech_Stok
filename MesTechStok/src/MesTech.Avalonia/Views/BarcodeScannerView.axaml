@@ -4,6 +4,8 @@
              x:Class="MesTech.Avalonia.Views.BarcodeScannerView"
              x:DataType="vm:BarcodeScannerViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <!-- I-06 Gorev 1: Barkod Tarama Modu — tara > aninda sonuc > aksiyon -->
 
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">

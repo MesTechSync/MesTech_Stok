@@ -7,6 +7,8 @@
              x:Class="MesTech.Avalonia.Views.ImportProductsAvaloniaView"
              x:DataType="vm:ImportProductsAvaloniaViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <!-- 4-Step Import Wizard: File Selection → Preview → Column Mapping → Import Progress -->
 
     <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">

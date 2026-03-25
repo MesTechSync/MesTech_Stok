@@ -7,6 +7,8 @@
              x:Class="MesTech.Avalonia.Views.ProductVariantMatrixView"
              x:DataType="vm:ProductVariantMatrixViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <!-- Variant Matrix Editor: Attribute groups → Cartesian product → DataGrid -->
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">

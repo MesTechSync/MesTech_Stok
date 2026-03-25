@@ -4,6 +4,8 @@
              x:Class="MesTech.Avalonia.Views.InvoicePdfAvaloniaView"
              x:DataType="vm:InvoicePdfAvaloniaViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <!-- Fatura PDF Goruntuleme -->
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource BackgroundBrush}">

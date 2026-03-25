@@ -4,6 +4,8 @@
              x:Class="MesTech.Avalonia.Views.InvoiceCreateAvaloniaView"
              x:DataType="vm:InvoiceCreateAvaloniaViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <!-- Fatura Olustur — 3 Adimli Sihirbaz -->
 
     <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource BackgroundBrush}">

@@ -4,6 +4,8 @@
              x:Class="MesTech.Avalonia.Views.CrmSettingsAvaloniaView"
              x:DataType="vm:CrmSettingsAvaloniaViewModel">
 
+    <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
+
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Loading State -->
