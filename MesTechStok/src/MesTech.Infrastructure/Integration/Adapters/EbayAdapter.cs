@@ -65,6 +65,29 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         };
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            // HTTP 429 rate-limit retry — eBay uses Retry-After header
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } resp
+                        && resp.Headers.RetryAfter is { } ra)
+                    {
+                        return new ValueTask<TimeSpan?>(ra.Delta ?? TimeSpan.FromSeconds(5));
+                    }
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(5));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning("[EbayAdapter] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            // Server error retry — exponential backoff for 5xx
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = 3,
@@ -76,8 +99,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                     .Handle<TaskCanceledException>(),
                 OnRetry = args =>
                 {
-                    _logger.LogWarning(
-                        "[EbayAdapter] API retry {Attempt} after {Delay}ms",
+                    _logger.LogWarning("[EbayAdapter] API retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
                     return default;
                 }
