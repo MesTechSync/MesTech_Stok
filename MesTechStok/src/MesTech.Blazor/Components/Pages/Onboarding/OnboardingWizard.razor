@@ -381,12 +381,28 @@
       }
       else
       {
-        <button class="btn btn-success btn-lg" @onclick="CompleteOnboarding">
-          <i class="fas fa-check me-1"></i> @L["Common.Button.Confirm"]
+        <button class="btn btn-success btn-lg" @onclick="CompleteOnboarding" disabled="@_isSubmitting">
+          @if (_isSubmitting)
+          {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          }
+          else
+          {
+            <i class="fas fa-check me-1"></i>
+          }
+          @L["Common.Button.Confirm"]
         </button>
       }
     </div>
   </div>
+
+  @if (!string.IsNullOrEmpty(_errorMessage))
+  {
+    <div class="alert alert-danger mt-3 d-flex align-items-center">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      @_errorMessage
+    </div>
+  }
 </div>
 
 @code {
@@ -522,10 +538,70 @@
         }
     }
 
+    private bool _isSubmitting;
+    private string? _errorMessage;
+
     private async Task CompleteOnboarding()
     {
-        await OnboardingService.MarkOnboardingCompletedAsync(Guid.Empty);
-        Nav.NavigateTo("/dashboard", replace: true);
+        if (_isSubmitting) return;
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            // Step 2 data: company info
+            await OnboardingService.SaveOnboardingDataAsync(Guid.Empty, 2, new Dictionary<string, string>
+            {
+                ["CompanyName"] = companyName,
+                ["TaxId"] = taxId,
+                ["TaxOffice"] = taxOffice,
+                ["Address"] = companyAddress,
+                ["City"] = city,
+                ["District"] = district
+            });
+
+            // Step 3 data: marketplace
+            if (!string.IsNullOrEmpty(selectedPlatform))
+            {
+                await OnboardingService.SaveOnboardingDataAsync(Guid.Empty, 3, new Dictionary<string, string>
+                {
+                    ["Platform"] = selectedPlatform,
+                    ["SellerId"] = sellerId
+                });
+            }
+
+            // Step 5 data: stock settings
+            await OnboardingService.SaveOnboardingDataAsync(Guid.Empty, 5, new Dictionary<string, string>
+            {
+                ["MinStock"] = minStockThreshold.ToString(),
+                ["MaxStock"] = maxStockThreshold.ToString(),
+                ["LowStockAlert"] = lowStockAlertEnabled.ToString(),
+                ["AutoReorder"] = autoReorderEnabled.ToString()
+            });
+
+            // Step 6 data: notifications
+            await OnboardingService.SaveOnboardingDataAsync(Guid.Empty, 6, new Dictionary<string, string>
+            {
+                ["Email"] = notificationEmail,
+                ["Phone"] = notificationPhone,
+                ["EmailEnabled"] = emailNotificationsEnabled.ToString(),
+                ["SmsEnabled"] = smsNotificationsEnabled.ToString(),
+                ["PushEnabled"] = pushNotificationsEnabled.ToString()
+            });
+
+            // Mark complete
+            await OnboardingService.MarkOnboardingCompletedAsync(Guid.Empty);
+            Nav.NavigateTo("/dashboard", replace: true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Onboarding tamamlama hatası");
+            _errorMessage = "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
 
     private string GetNotificationSummary()
