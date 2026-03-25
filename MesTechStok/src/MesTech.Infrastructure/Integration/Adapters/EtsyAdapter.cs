@@ -991,7 +991,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     }
 
     // ── IPingableAdapter ──
-    public async Task<bool> PingAsync(CancellationToken ct = default) { try { using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct); cts.CancelAfter(TimeSpan.FromSeconds(5)); var response = await _httpClient.GetAsync($"{BaseUrl}/application/openapi-ping", cts.Token).ConfigureAwait(false); return true; } catch { return false; } }
+    public async Task<bool> PingAsync(CancellationToken ct = default) { try { using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct); cts.CancelAfter(TimeSpan.FromSeconds(5)); var response = await _httpClient.GetAsync($"{BaseUrl}/application/openapi-ping", cts.Token).ConfigureAwait(false); return true; } catch (Exception ex) { _logger.LogWarning(ex, "Etsy ping failed"); return false; } }
 
     // ── IShipmentCapableAdapter ──
     public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default) { _logger.LogInformation("[EtsyAdapter] SendShipment — Receipt:{Receipt}", platformOrderId); try { var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/application/shops/{_shopId}/receipts/{platformOrderId}/tracking") { Content = new StringContent(JsonSerializer.Serialize(new { tracking_code = trackingNumber, carrier_name = provider.ToString() }, _jsonOptions), Encoding.UTF8, "application/json") }; request.Headers.Add("x-api-key", _accessToken); var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false); return response.IsSuccessStatusCode; } catch (Exception ex) { _logger.LogError(ex, "[EtsyAdapter] SendShipment error"); return false; } }

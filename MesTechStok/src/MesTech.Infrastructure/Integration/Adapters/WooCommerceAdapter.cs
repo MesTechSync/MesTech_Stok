@@ -1248,7 +1248,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch { return false; }
+        catch (Exception ex) { _logger.LogWarning(ex, "WooCommerce ping failed"); return false; }
     }
 }
 
