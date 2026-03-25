@@ -39,6 +39,12 @@ public sealed class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
         decimal totalAmount, Guid? storeId,
         CancellationToken ct)
     {
+        if (totalAmount <= 0)
+        {
+            _logger.LogDebug("Sipariş tutarı 0 — gelir kaydı atlanıyor. OrderId={OrderId}", orderId);
+            return;
+        }
+
         var income = new Income
         {
             TenantId = tenantId,
