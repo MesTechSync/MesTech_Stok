@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
 public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
@@ -871,6 +871,91 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     {
         _logger.LogInformation("Hepsiburada GetCargoInvoices: cargo invoice API not available — returning empty list");
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade/Claim Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var url = "/api/claims";
+            if (since.HasValue)
+                url += "?startDate=" + since.Value.ToString("yyyy-MM-dd'T'HH:mm:ss");
+
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Hepsiburada PullClaims failed: {Status} {Error}",
+                    response.StatusCode, errorBody);
+                return claims;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var items = doc.RootElement.TryGetProperty("data", out var dataEl)
+                ? dataEl.EnumerateArray()
+                : doc.RootElement.EnumerateArray();
+
+            foreach (var item in items)
+            {
+                claims.Add(new ExternalClaimDto
+                {
+                    PlatformClaimId = item.TryGetProperty("id", out var idEl) ? idEl.ToString() : string.Empty,
+                    PlatformCode = PlatformCode,
+                    OrderNumber = item.TryGetProperty("orderNumber", out var onEl) ? onEl.GetString() ?? string.Empty : string.Empty,
+                    Status = item.TryGetProperty("status", out var stEl) ? stEl.GetString() ?? string.Empty : string.Empty,
+                    Reason = item.TryGetProperty("reason", out var rsEl) ? rsEl.GetString() ?? string.Empty : string.Empty,
+                    ReasonDetail = item.TryGetProperty("reasonDetail", out var rdEl) ? rdEl.GetString() : null,
+                    CustomerName = item.TryGetProperty("customerName", out var cnEl) ? cnEl.GetString() ?? string.Empty : string.Empty,
+                    CustomerEmail = item.TryGetProperty("customerEmail", out var ceEl) ? ceEl.GetString() : null,
+                    Amount = item.TryGetProperty("amount", out var amEl) && amEl.TryGetDecimal(out var amt) ? amt : 0m,
+                    Currency = item.TryGetProperty("currency", out var curEl) ? curEl.GetString() ?? "TRY" : "TRY",
+                    ClaimDate = item.TryGetProperty("claimDate", out var cdEl) && cdEl.TryGetDateTime(out var cd) ? cd : DateTime.UtcNow,
+                    ResolvedDate = item.TryGetProperty("resolvedDate", out var rvEl) && rvEl.TryGetDateTime(out var rv) ? rv : null,
+                    Lines = ParseClaimLines(item)
+                });
+            }
+
+            _logger.LogInformation("Hepsiburada PullClaims: {Count} claims fetched", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Hepsiburada PullClaims exception");
+        }
+
+        return claims;
+    }
+
+    private static List<ExternalClaimLineDto> ParseClaimLines(JsonElement item)
+    {
+        var lines = new List<ExternalClaimLineDto>();
+        if (!item.TryGetProperty("lines", out var linesEl) && !item.TryGetProperty("items", out linesEl))
+            return lines;
+
+        foreach (var line in linesEl.EnumerateArray())
+        {
+            lines.Add(new ExternalClaimLineDto
+            {
+                SKU = line.TryGetProperty("sku", out var skuEl) ? skuEl.GetString() : null,
+                Barcode = line.TryGetProperty("barcode", out var bcEl) ? bcEl.GetString() : null,
+                ProductName = line.TryGetProperty("productName", out var pnEl) ? pnEl.GetString() ?? string.Empty : string.Empty,
+                Quantity = line.TryGetProperty("quantity", out var qEl) && qEl.TryGetInt32(out var q) ? q : 1,
+                UnitPrice = line.TryGetProperty("unitPrice", out var upEl) && upEl.TryGetDecimal(out var up) ? up : 0m
+            });
+        }
+
+        return lines;
     }
 
     // ── HTTP helper ─────────────────────────────────────

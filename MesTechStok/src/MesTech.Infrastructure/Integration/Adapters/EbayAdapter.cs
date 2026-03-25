@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
 public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -1032,5 +1032,170 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
     {
         _logger.LogInformation("EbayAdapter.GetCargoInvoicesAsync: eBay does not provide cargo invoices — returning empty list. StartDate={StartDate}", startDate);
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade/Claim Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var url = $"{_ebayBaseUrl}/post-order/v2/return/search?limit=50";
+            if (since.HasValue)
+                url += "&creation_date_range_from=" + since.Value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'");
+
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Get, url);
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("eBay PullClaims failed: {Status} {Error}",
+                    response.StatusCode, errorBody);
+                return claims;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (doc.RootElement.TryGetProperty("members", out var membersEl))
+            {
+                foreach (var item in membersEl.EnumerateArray())
+                {
+                    claims.Add(new ExternalClaimDto
+                    {
+                        PlatformClaimId = item.TryGetProperty("returnId", out var idEl) ? idEl.ToString() : string.Empty,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = item.TryGetProperty("orderId", out var onEl) ? onEl.GetString() ?? string.Empty : string.Empty,
+                        Status = item.TryGetProperty("returnStatus", out var stEl) ? stEl.GetString() ?? string.Empty : string.Empty,
+                        Reason = item.TryGetProperty("returnReason", out var rsEl) ? rsEl.GetString() ?? string.Empty : string.Empty,
+                        ReasonDetail = item.TryGetProperty("comments", out var rdEl) ? rdEl.GetString() : null,
+                        CustomerName = item.TryGetProperty("buyerLoginName", out var cnEl) ? cnEl.GetString() ?? string.Empty : string.Empty,
+                        Amount = item.TryGetProperty("returnRefund", out var refEl) && refEl.TryGetProperty("estimatedRefundAmount", out var amEl)
+                            && amEl.TryGetProperty("value", out var valEl) && valEl.TryGetDecimal(out var amt) ? amt : 0m,
+                        Currency = item.TryGetProperty("returnRefund", out var rcEl) && rcEl.TryGetProperty("estimatedRefundAmount", out var curAmEl)
+                            && curAmEl.TryGetProperty("currency", out var curEl) ? curEl.GetString() ?? "USD" : "USD",
+                        ClaimDate = item.TryGetProperty("creationDate", out var cdEl) && cdEl.TryGetDateTime(out var cd) ? cd : DateTime.UtcNow,
+                        ResolvedDate = item.TryGetProperty("closedDate", out var rvEl) && rvEl.TryGetDateTime(out var rv) ? rv : null,
+                        Lines = ParseEbayClaimLines(item)
+                    });
+                }
+            }
+
+            _logger.LogInformation("eBay PullClaims: {Count} claims fetched", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay PullClaims exception");
+        }
+
+        return claims;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/post-order/v2/return/{claimId}/accept");
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                    req.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("eBay claim {ClaimId} approved (accepted)", claimId);
+                return true;
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("eBay claim {ClaimId} approve failed: {Status} {Error}",
+                claimId, response.StatusCode, errorBody);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay ApproveClaimAsync exception for {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var body = JsonSerializer.Serialize(new { comments = reason }, _jsonOptions);
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/post-order/v2/return/{claimId}/reject")
+                    {
+                        Content = new StringContent(body, Encoding.UTF8, "application/json")
+                    };
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("eBay claim {ClaimId} rejected with reason: {Reason}", claimId, reason);
+                return true;
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("eBay claim {ClaimId} reject failed: {Status} {Error}",
+                claimId, response.StatusCode, errorBody);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay RejectClaimAsync exception for {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    private static List<ExternalClaimLineDto> ParseEbayClaimLines(JsonElement item)
+    {
+        var lines = new List<ExternalClaimLineDto>();
+        if (!item.TryGetProperty("returnItems", out var linesEl))
+            return lines;
+
+        foreach (var line in linesEl.EnumerateArray())
+        {
+            lines.Add(new ExternalClaimLineDto
+            {
+                SKU = line.TryGetProperty("itemId", out var skuEl) ? skuEl.GetString() : null,
+                ProductName = line.TryGetProperty("itemTitle", out var pnEl) ? pnEl.GetString() ?? string.Empty : string.Empty,
+                Quantity = line.TryGetProperty("returnQuantity", out var qEl) && qEl.TryGetInt32(out var q) ? q : 1,
+                UnitPrice = line.TryGetProperty("itemPrice", out var ipEl) && ipEl.TryGetProperty("value", out var upEl)
+                    && upEl.TryGetDecimal(out var up) ? up : 0m
+            });
+        }
+
+        return lines;
     }
 }

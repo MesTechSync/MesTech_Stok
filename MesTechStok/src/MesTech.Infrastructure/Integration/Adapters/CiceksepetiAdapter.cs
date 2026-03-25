@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// x-api-key auth, Polly retry, SemaphoreSlim rate limiting.
 /// </summary>
 public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
-    IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter
+    IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
@@ -865,6 +865,153 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     {
         _logger.LogInformation("Ciceksepeti GetCargoInvoices: cargo invoice API not available — returning empty list");
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade/Claim Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            var url = "/api/v1/returns";
+            if (since.HasValue)
+                url += "?startDate=" + since.Value.ToString("yyyy-MM-dd'T'HH:mm:ss");
+
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ciceksepeti PullClaims failed: {Status} {Error}",
+                    response.StatusCode, errorBody);
+                return claims;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var items = doc.RootElement.TryGetProperty("data", out var dataEl)
+                ? dataEl.EnumerateArray()
+                : doc.RootElement.EnumerateArray();
+
+            foreach (var item in items)
+            {
+                claims.Add(new ExternalClaimDto
+                {
+                    PlatformClaimId = item.TryGetProperty("id", out var idEl) ? idEl.ToString() : string.Empty,
+                    PlatformCode = PlatformCode,
+                    OrderNumber = item.TryGetProperty("orderNo", out var onEl) ? onEl.GetString() ?? string.Empty : string.Empty,
+                    Status = item.TryGetProperty("status", out var stEl) ? stEl.GetString() ?? string.Empty : string.Empty,
+                    Reason = item.TryGetProperty("reason", out var rsEl) ? rsEl.GetString() ?? string.Empty : string.Empty,
+                    ReasonDetail = item.TryGetProperty("reasonDetail", out var rdEl) ? rdEl.GetString() : null,
+                    CustomerName = item.TryGetProperty("customerName", out var cnEl) ? cnEl.GetString() ?? string.Empty : string.Empty,
+                    CustomerEmail = item.TryGetProperty("customerEmail", out var ceEl) ? ceEl.GetString() : null,
+                    Amount = item.TryGetProperty("totalAmount", out var amEl) && amEl.TryGetDecimal(out var amt) ? amt : 0m,
+                    Currency = "TRY",
+                    ClaimDate = item.TryGetProperty("createdDate", out var cdEl) && cdEl.TryGetDateTime(out var cd) ? cd : DateTime.UtcNow,
+                    ResolvedDate = item.TryGetProperty("resolvedDate", out var rvEl) && rvEl.TryGetDateTime(out var rv) ? rv : null,
+                    Lines = ParseCsClaimLines(item)
+                });
+            }
+
+            _logger.LogInformation("Ciceksepeti PullClaims: {Count} claims fetched", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ciceksepeti PullClaims exception");
+        }
+
+        return claims;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/approve"), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti claim {ClaimId} approved", claimId);
+                return true;
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti claim {ClaimId} approve failed: {Status} {Error}",
+                claimId, response.StatusCode, errorBody);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ciceksepeti ApproveClaimAsync exception for {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            var body = JsonSerializer.Serialize(new { reason }, _jsonOptions);
+            var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/reject")
+                    {
+                        Content = new StringContent(body, Encoding.UTF8, "application/json")
+                    };
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti claim {ClaimId} rejected with reason: {Reason}", claimId, reason);
+                return true;
+            }
+
+            var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti claim {ClaimId} reject failed: {Status} {Error}",
+                claimId, response.StatusCode, errorBody);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ciceksepeti RejectClaimAsync exception for {ClaimId}", claimId);
+            return false;
+        }
+    }
+
+    private static List<ExternalClaimLineDto> ParseCsClaimLines(JsonElement item)
+    {
+        var lines = new List<ExternalClaimLineDto>();
+        if (!item.TryGetProperty("lines", out var linesEl) && !item.TryGetProperty("items", out linesEl))
+            return lines;
+
+        foreach (var line in linesEl.EnumerateArray())
+        {
+            lines.Add(new ExternalClaimLineDto
+            {
+                SKU = line.TryGetProperty("sku", out var skuEl) ? skuEl.GetString() : null,
+                Barcode = line.TryGetProperty("barcode", out var bcEl) ? bcEl.GetString() : null,
+                ProductName = line.TryGetProperty("productName", out var pnEl) ? pnEl.GetString() ?? string.Empty : string.Empty,
+                Quantity = line.TryGetProperty("quantity", out var qEl) && qEl.TryGetInt32(out var q) ? q : 1,
+                UnitPrice = line.TryGetProperty("unitPrice", out var upEl) && upEl.TryGetDecimal(out var up) ? up : 0m
+            });
+        }
+
+        return lines;
     }
 
     // ── HTTP helper ─────────────────────────────────────

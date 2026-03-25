@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
 public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    IPingableAdapter, ISettlementCapableAdapter
+    IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -1172,6 +1172,95 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipme
     {
         _logger.LogInformation("AmazonTR GetCargoInvoices: cargo invoice API not available via SP-API — returning empty list");
         return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    }
+
+    // ═══════════════════════════════════════════
+    // IClaimCapableAdapter — Iade/Claim Yonetimi
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var claims = new List<ExternalClaimDto>();
+
+        try
+        {
+            await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
+
+            // Use Orders API to fetch return orders — Amazon SP-API returns via orders with ReturnStatus
+            var url = $"/orders/v0/orders?MarketplaceIds={TurkeyMarketplaceId}&OrderStatuses=Returned,Cancelled&MaxResultsPerPage=50";
+            if (since.HasValue)
+                url += "&CreatedAfter=" + since.Value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            else
+                url += "&CreatedAfter=" + DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("AmazonTR PullClaims failed: {Status} {Error}",
+                    response.StatusCode, errorBody);
+                return claims;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            if (doc.RootElement.TryGetProperty("payload", out var payload) &&
+                payload.TryGetProperty("Orders", out var ordersEl))
+            {
+                foreach (var order in ordersEl.EnumerateArray())
+                {
+                    claims.Add(new ExternalClaimDto
+                    {
+                        PlatformClaimId = order.TryGetProperty("AmazonOrderId", out var oidEl) ? oidEl.GetString() ?? string.Empty : string.Empty,
+                        PlatformCode = PlatformCode,
+                        OrderNumber = order.TryGetProperty("AmazonOrderId", out var onEl) ? onEl.GetString() ?? string.Empty : string.Empty,
+                        Status = order.TryGetProperty("OrderStatus", out var stEl) ? stEl.GetString() ?? string.Empty : string.Empty,
+                        Reason = order.TryGetProperty("CancelReason", out var rsEl) ? rsEl.GetString() ?? string.Empty : "Return",
+                        CustomerName = order.TryGetProperty("BuyerInfo", out var biEl) && biEl.TryGetProperty("BuyerName", out var bnEl)
+                            ? bnEl.GetString() ?? string.Empty : string.Empty,
+                        Amount = order.TryGetProperty("OrderTotal", out var otEl) && otEl.TryGetProperty("Amount", out var amEl)
+                            && decimal.TryParse(amEl.GetString(), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out var amt) ? amt : 0m,
+                        Currency = order.TryGetProperty("OrderTotal", out var ocEl) && ocEl.TryGetProperty("CurrencyCode", out var ccEl)
+                            ? ccEl.GetString() ?? "TRY" : "TRY",
+                        ClaimDate = order.TryGetProperty("PurchaseDate", out var pdEl) && pdEl.TryGetDateTime(out var pd) ? pd : DateTime.UtcNow
+                    });
+                }
+            }
+
+            _logger.LogInformation("AmazonTR PullClaims: {Count} claims fetched", claims.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AmazonTR PullClaims exception");
+        }
+
+        return claims;
+    }
+
+    /// <inheritdoc />
+    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    {
+        // Amazon auto-processes most returns — manual approval is not supported via SP-API.
+        // Log and return true to indicate acknowledgement.
+        _logger.LogInformation("AmazonTR ApproveClaimAsync: Amazon auto-processes returns. ClaimId={ClaimId} acknowledged", claimId);
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    {
+        // Amazon does not support claim rejection via SP-API — returns are auto-processed.
+        _logger.LogWarning("AmazonTR RejectClaimAsync: Amazon does not support return rejection via API. ClaimId={ClaimId}, Reason={Reason}", claimId, reason);
+        return Task.FromResult(false);
     }
 
     // ═══════════════════════════════════════════
