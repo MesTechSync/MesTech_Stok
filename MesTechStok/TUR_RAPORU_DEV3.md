@@ -701,3 +701,35 @@ Bitrix24              ✅    ✅   ✅   Retry-After (own pattern)
 | ERP resilience | 0 | 5 | **+5** |
 | Toplam capability | 22 | 90 | **+68** |
 | Total resilient adapters | 16 | 28 | **+12** |
+
+---
+
+## TUR 17 — 2026-03-26 (ORG023 Fix + ERP Dead Code Cleanup)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 38 | Bitrix24Adapter | ORG023: Interlocked.Exchange for SemaphoreSlim swap | 8ab770a8 |
+| 39 | 5 ERP adapter | Dead-code ResiliencePipeline removed (-315 LOC) | 1d90587f |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| ORG023 thread-safety | open | **FIXED** | ✅ |
+| Dead code LOC | 315 | 0 | **-315** ✅ |
+| ERP double-retry risk | 9 attempts | 3 | ✅ |
+
+### KEŞİF NOTU
+Invoice provider'lar (9) ve ERP adapter'lar (5) zaten HttpClient-level Polly
+policies ile korunuyor (`InvoiceResiliencePolicies.cs`, `ErpResiliencePolicies.cs`).
+TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari DelegatingHandler.
+
+### KÜMÜLATİF DEV 3 (17 tur, 43 commit)
+| Metrik | Başlangıç | Final | Delta |
+|--------|-----------|-------|-------|
+| PII sızıntı | 25 | 0 | **-25** |
+| 6/6 TAM adapter | 1 | 15 | **+14** |
+| Webhook validator | 8 | 14 | **+6** |
+| Two-stage retry | 2 | 21 | **+19** |
+| Dead code removed | — | — | **-315 LOC** |
+| Toplam capability | 22 | 90 | **+68** |
