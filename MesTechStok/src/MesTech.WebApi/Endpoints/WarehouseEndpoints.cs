@@ -27,7 +27,8 @@ public static class WarehouseEndpoints
             return Results.Ok(result);
         })
         .WithName("GetWarehouses")
-        .WithSummary("Depo listesi (aktif/tümü filtresi)");
+        .WithSummary("Depo listesi (aktif/tümü filtresi)")
+        .Produces(200);
 
         // GET /api/v1/warehouses/{id} — depo detayı
         group.MapGet("/{id:guid}", async (
@@ -40,7 +41,9 @@ public static class WarehouseEndpoints
                 : Results.NotFound(new { error = $"Warehouse {id} not found" });
         })
         .WithName("GetWarehouseById")
-        .WithSummary("Depo detayı");
+        .WithSummary("Depo detayı")
+        .Produces(200)
+        .Produces(404);
 
         // POST /api/v1/warehouses — yeni depo oluştur
         group.MapPost("/", async (
@@ -53,7 +56,9 @@ public static class WarehouseEndpoints
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("CreateWarehouse")
-        .WithSummary("Yeni depo oluştur");
+        .WithSummary("Yeni depo oluştur")
+        .Produces(201)
+        .Produces(400);
 
         // PUT /api/v1/warehouses/{id} — depo güncelle
         group.MapPut("/{id:guid}", async (
@@ -70,7 +75,9 @@ public static class WarehouseEndpoints
                 : Results.NotFound(new { error = $"Warehouse {id} not found or update failed" });
         })
         .WithName("UpdateWarehouse")
-        .WithSummary("Depo bilgilerini güncelle");
+        .WithSummary("Depo bilgilerini güncelle")
+        .Produces(204)
+        .Produces(404);
 
         // DELETE /api/v1/warehouses/{id} — depo sil (soft-delete)
         group.MapDelete("/{id:guid}", async (
@@ -85,7 +92,9 @@ public static class WarehouseEndpoints
                 : Results.NotFound(new { error = $"Warehouse {id} not found or delete failed" });
         })
         .WithName("DeleteWarehouse")
-        .WithSummary("Depo sil / pasife al");
+        .WithSummary("Depo sil / pasife al")
+        .Produces(204)
+        .Produces(404);
 
         // GET /api/v1/warehouses/{id}/stock — depo stok listesi
         group.MapGet("/{id:guid}/stock", async (
@@ -96,7 +105,8 @@ public static class WarehouseEndpoints
             return Results.Ok(result);
         })
         .WithName("GetWarehouseStock")
-        .WithSummary("Depo bazlı stok listesi");
+        .WithSummary("Depo bazlı stok listesi")
+        .Produces(200);
 
         // GET /api/v1/warehouses/summary — depo özet raporu
         group.MapGet("/summary", async (
@@ -107,7 +117,8 @@ public static class WarehouseEndpoints
             return Results.Ok(result);
         })
         .WithName("GetWarehouseSummary")
-        .WithSummary("Tüm depoların özet raporu");
+        .WithSummary("Tüm depoların özet raporu")
+        .Produces(200);
     }
 
     private record UpdateWarehouseRequest(

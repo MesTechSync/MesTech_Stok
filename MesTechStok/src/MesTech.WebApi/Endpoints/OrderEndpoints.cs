@@ -25,7 +25,8 @@ public static class OrderEndpoints
             return Results.Ok(result);
         })
         .WithName("ListOrders")
-        .WithSummary("Sipariş listesi (tarih + durum filtresi)");
+        .WithSummary("Sipariş listesi (tarih + durum filtresi)")
+        .Produces(200);
 
         // POST /api/v1/orders — yeni sipariş oluştur
         group.MapPost("/", async (
@@ -38,7 +39,9 @@ public static class OrderEndpoints
                 : Results.BadRequest(new { result.ErrorMessage });
         })
         .WithName("PlaceOrder")
-        .WithSummary("Yeni sipariş oluştur");
+        .WithSummary("Yeni sipariş oluştur")
+        .Produces(201)
+        .Produces(400);
 
         // POST /api/v1/orders/{id}/push-bitrix24 — siparişi Bitrix24 CRM'e gönder
         group.MapPost("/{id:guid}/push-bitrix24", async (
@@ -51,6 +54,8 @@ public static class OrderEndpoints
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("PushOrderToBitrix24")
-        .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder");
+        .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder")
+        .Produces(200)
+        .Produces(400);
     }
 }

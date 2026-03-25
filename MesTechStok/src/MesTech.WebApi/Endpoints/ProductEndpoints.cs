@@ -22,7 +22,8 @@ public static class ProductEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProductStatus")
-        .WithSummary("Ürün DB bağlantı durumu ve sayılar");
+        .WithSummary("Ürün DB bağlantı durumu ve sayılar")
+        .Produces(200);
 
         // GET /api/v1/products/low-stock — products below minimum stock
         group.MapGet("/low-stock", async (ISender mediator, CancellationToken ct) =>
@@ -31,7 +32,8 @@ public static class ProductEndpoints
             return Results.Ok(result);
         })
         .WithName("GetLowStockProducts")
-        .WithSummary("Minimum stok altı ürünler");
+        .WithSummary("Minimum stok altı ürünler")
+        .Produces(200);
 
         // GET /api/v1/products/{id} — get single product by ID
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -40,7 +42,9 @@ public static class ProductEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetProductById")
-        .WithSummary("Tekil ürün detayı");
+        .WithSummary("Tekil ürün detayı")
+        .Produces(200)
+        .Produces(404);
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -51,7 +55,10 @@ public static class ProductEndpoints
                 : Results.BadRequest(new { result.ErrorMessage });
         })
         .WithName("CreateProduct")
-        .WithSummary("Yeni ürün oluştur");
+        .WithSummary("Yeni ürün oluştur")
+        .Produces(201)
+        .Produces(400)
+        .Produces(429);
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -64,7 +71,9 @@ public static class ProductEndpoints
                 : Results.BadRequest(new { result.ErrorMessage });
         })
         .WithName("UpdateProduct")
-        .WithSummary("Ürün güncelle");
+        .WithSummary("Ürün güncelle")
+        .Produces(200)
+        .Produces(400);
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -75,7 +84,9 @@ public static class ProductEndpoints
                 : Results.BadRequest(new { result.ErrorMessage });
         })
         .WithName("DeleteProduct")
-        .WithSummary("Ürün sil (soft-delete)");
+        .WithSummary("Ürün sil (soft-delete)")
+        .Produces(204)
+        .Produces(400);
 
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (
@@ -90,7 +101,9 @@ public static class ProductEndpoints
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("UpdateProductImage")
-        .WithSummary("Ürün resmi güncelle (URL)");
+        .WithSummary("Ürün resmi güncelle (URL)")
+        .Produces(200)
+        .Produces(400);
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
