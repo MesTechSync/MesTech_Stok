@@ -93,7 +93,7 @@ public sealed class InProcessDistributedLockService : IDistributedLockService
                     _logger.LogWarning(
                         "InProcess lock expired and auto-released: {Key}", _key);
                 }
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
         }
 
         public ValueTask DisposeAsync()
