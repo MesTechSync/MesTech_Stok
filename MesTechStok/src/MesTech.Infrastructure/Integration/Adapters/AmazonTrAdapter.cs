@@ -21,7 +21,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// LWA OAuth2, Catalog, Orders, Feeds (XDocument), RDT, Notifications.
 /// MarketplaceId: A33AVAJ2PDY3EV (Turkey)
 /// </summary>
-public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter
+public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+    IPingableAdapter, ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -998,6 +999,179 @@ public class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipme
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "AmazonTrAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter — Financial Events
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// GET /finances/v0/financialEvents — Amazon SP-API financial events for settlement.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            var postedAfter = startDate.ToUniversalTime().ToString("o");
+            var postedBefore = endDate.ToUniversalTime().ToString("o");
+            var url = $"/finances/v0/financialEvents?PostedAfter={Uri.EscapeDataString(postedAfter)}&PostedBefore={Uri.EscapeDataString(postedBefore)}";
+
+            var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("AmazonTR GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "AmazonTR",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "TRY"
+            };
+
+            // Parse payload.financialEvents.ShipmentEventList
+            if (doc.RootElement.TryGetProperty("payload", out var payload) &&
+                payload.TryGetProperty("financialEvents", out var events))
+            {
+                if (events.TryGetProperty("ShipmentEventList", out var shipments) &&
+                    shipments.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var shipment in shipments.EnumerateArray())
+                    {
+                        var orderId = shipment.TryGetProperty("AmazonOrderId", out var oid) ? oid.GetString() : null;
+                        var postedDate = shipment.TryGetProperty("PostedDate", out var pd) && pd.TryGetDateTime(out var pdt)
+                            ? pdt : startDate;
+
+                        if (shipment.TryGetProperty("ShipmentItemList", out var items) &&
+                            items.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var item in items.EnumerateArray())
+                            {
+                                decimal itemAmount = 0m;
+                                decimal commissionAmount = 0m;
+
+                                if (item.TryGetProperty("ItemChargeList", out var charges) &&
+                                    charges.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var charge in charges.EnumerateArray())
+                                    {
+                                        if (charge.TryGetProperty("ChargeAmount", out var ca) &&
+                                            ca.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            itemAmount += amount.GetDecimal();
+                                        }
+                                    }
+                                }
+
+                                if (item.TryGetProperty("ItemFeeList", out var fees) &&
+                                    fees.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var fee in fees.EnumerateArray())
+                                    {
+                                        if (fee.TryGetProperty("FeeAmount", out var fa) &&
+                                            fa.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            commissionAmount += Math.Abs(amount.GetDecimal());
+                                        }
+                                    }
+                                }
+
+                                settlement.TotalSales += itemAmount;
+                                settlement.TotalCommission += commissionAmount;
+
+                                settlement.Lines.Add(new SettlementLineDto
+                                {
+                                    OrderNumber = orderId,
+                                    TransactionType = "Shipment",
+                                    Amount = itemAmount,
+                                    CommissionAmount = commissionAmount,
+                                    TransactionDate = postedDate
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Parse RefundEventList for return deductions
+                if (events.TryGetProperty("RefundEventList", out var refunds) &&
+                    refunds.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var refund in refunds.EnumerateArray())
+                    {
+                        var orderId = refund.TryGetProperty("AmazonOrderId", out var oid) ? oid.GetString() : null;
+                        var postedDate = refund.TryGetProperty("PostedDate", out var pd) && pd.TryGetDateTime(out var pdt)
+                            ? pdt : startDate;
+
+                        if (refund.TryGetProperty("ShipmentItemAdjustmentList", out var adjustments) &&
+                            adjustments.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var adj in adjustments.EnumerateArray())
+                            {
+                                decimal refundAmount = 0m;
+
+                                if (adj.TryGetProperty("ItemChargeAdjustmentList", out var chargeAdj) &&
+                                    chargeAdj.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var charge in chargeAdj.EnumerateArray())
+                                    {
+                                        if (charge.TryGetProperty("ChargeAmount", out var ca) &&
+                                            ca.TryGetProperty("CurrencyAmount", out var amount))
+                                        {
+                                            refundAmount += Math.Abs(amount.GetDecimal());
+                                        }
+                                    }
+                                }
+
+                                settlement.TotalReturnDeduction += refundAmount;
+
+                                settlement.Lines.Add(new SettlementLineDto
+                                {
+                                    OrderNumber = orderId,
+                                    TransactionType = "Refund",
+                                    Amount = -refundAmount,
+                                    TransactionDate = postedDate
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("AmazonTR GetSettlement: {LineCount} lines, net={NetAmount}",
+                settlement.Lines.Count, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "AmazonTR GetSettlement exception for {StartDate}–{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Amazon TR cargo invoices — not available via SP-API; returns empty list.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("AmazonTR GetCargoInvoices: cargo invoice API not available via SP-API — returning empty list");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 
     // ═══════════════════════════════════════════

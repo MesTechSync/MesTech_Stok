@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// x-api-key auth, Polly retry, SemaphoreSlim rate limiting.
 /// </summary>
 public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
-    IOrderCapableAdapter, IShipmentCapableAdapter
+    IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
@@ -790,6 +790,81 @@ public class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         var result = roots.Select(Map).ToList();
         _logger.LogInformation("Ciceksepeti GetCategoriesAsync: {Count} top-level categories mapped", result.Count);
         return result.AsReadOnly();
+    }
+
+    // ── Settlement (ISettlementCapableAdapter) ────────
+    /// <summary>
+    /// GET /api/v1/settlement — Ciceksepeti cari hesap ekstresi.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            var url = $"/api/v1/settlement?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ciceksepeti GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Ciceksepeti",
+                StartDate = startDate,
+                EndDate = endDate,
+                TotalSales = root.TryGetProperty("totalSales", out var ts) ? ts.GetDecimal() : 0m,
+                TotalCommission = root.TryGetProperty("totalCommission", out var tc) ? tc.GetDecimal() : 0m,
+                TotalShippingCost = root.TryGetProperty("totalShippingCost", out var tsc) ? tsc.GetDecimal() : 0m,
+                TotalReturnDeduction = root.TryGetProperty("totalReturnDeduction", out var trd) ? trd.GetDecimal() : 0m,
+                NetAmount = root.TryGetProperty("netAmount", out var na) ? na.GetDecimal() : 0m,
+                Currency = root.TryGetProperty("currency", out var cur) ? cur.GetString() ?? "TRY" : "TRY"
+            };
+
+            if (root.TryGetProperty("lines", out var linesEl) && linesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var line in linesEl.EnumerateArray())
+                {
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = line.TryGetProperty("orderNumber", out var on) ? on.GetString() : null,
+                        TransactionType = line.TryGetProperty("transactionType", out var tt) ? tt.GetString() : null,
+                        Amount = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0m,
+                        CommissionAmount = line.TryGetProperty("commissionAmount", out var ca) ? ca.GetDecimal() : null,
+                        TransactionDate = line.TryGetProperty("transactionDate", out var td) && td.TryGetDateTime(out var dt)
+                            ? dt : startDate
+                    });
+                }
+            }
+
+            _logger.LogInformation("Ciceksepeti GetSettlement: {LineCount} lines, net={NetAmount}",
+                settlement.Lines.Count, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti GetSettlement exception for {StartDate}–{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Ciceksepeti cargo invoices — separate API not publicly available; returns empty list.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("Ciceksepeti GetCargoInvoices: cargo invoice API not available — returning empty list");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 
     // ── HTTP helper ─────────────────────────────────────

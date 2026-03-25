@@ -20,7 +20,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// IIntegratorAdapter + IOrderCapableAdapter + IShipmentCapableAdapter
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
-public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter
+public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
@@ -795,6 +796,81 @@ public class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         }
 
         return cat;
+    }
+
+    // ── Settlement (ISettlementCapableAdapter) ────────
+    /// <summary>
+    /// GET /api/settlement-reports — Hepsiburada cari hesap ekstresi.
+    /// </summary>
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            var url = $"/api/settlement-reports?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+
+            var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Hepsiburada GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Hepsiburada",
+                StartDate = startDate,
+                EndDate = endDate,
+                TotalSales = root.TryGetProperty("totalSales", out var ts) ? ts.GetDecimal() : 0m,
+                TotalCommission = root.TryGetProperty("totalCommission", out var tc) ? tc.GetDecimal() : 0m,
+                TotalShippingCost = root.TryGetProperty("totalShippingCost", out var tsc) ? tsc.GetDecimal() : 0m,
+                TotalReturnDeduction = root.TryGetProperty("totalReturnDeduction", out var trd) ? trd.GetDecimal() : 0m,
+                NetAmount = root.TryGetProperty("netAmount", out var na) ? na.GetDecimal() : 0m,
+                Currency = root.TryGetProperty("currency", out var cur) ? cur.GetString() ?? "TRY" : "TRY"
+            };
+
+            if (root.TryGetProperty("lines", out var linesEl) && linesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var line in linesEl.EnumerateArray())
+                {
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = line.TryGetProperty("orderNumber", out var on) ? on.GetString() : null,
+                        TransactionType = line.TryGetProperty("transactionType", out var tt) ? tt.GetString() : null,
+                        Amount = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0m,
+                        CommissionAmount = line.TryGetProperty("commissionAmount", out var ca) ? ca.GetDecimal() : null,
+                        TransactionDate = line.TryGetProperty("transactionDate", out var td) && td.TryGetDateTime(out var dt)
+                            ? dt : startDate
+                    });
+                }
+            }
+
+            _logger.LogInformation("Hepsiburada GetSettlement: {LineCount} lines, net={NetAmount}",
+                settlement.Lines.Count, settlement.NetAmount);
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Hepsiburada GetSettlement exception for {StartDate}–{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Hepsiburada cargo invoices — separate API not publicly available; returns empty list.
+    /// </summary>
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("Hepsiburada GetCargoInvoices: cargo invoice API not available — returning empty list");
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 
     // ── HTTP helper ─────────────────────────────────────
