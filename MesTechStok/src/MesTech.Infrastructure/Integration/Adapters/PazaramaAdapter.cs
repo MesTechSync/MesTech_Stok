@@ -24,7 +24,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// 2-stage cargo notification (Hazirlaniyor → Kargoya Verildi).
 /// </summary>
 public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
-    IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter,
+    ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
@@ -999,5 +1000,86 @@ public class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             _rateLimitSemaphore.Release();
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("PazaramaAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var url = $"/api/settlement?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+
+            var response = await ExecuteWithRetryAsync(() =>
+            {
+                var req = new HttpRequestMessage(HttpMethod.Get, new Uri(url, UriKind.Relative));
+                return req;
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Pazarama GetSettlement failed: {Status} - {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Pazarama",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "TRY"
+            };
+
+            if (doc.RootElement.TryGetProperty("data", out var data))
+            {
+                settlement.TotalSales = data.TryGetProperty("totalSales", out var ts) && ts.TryGetDecimal(out var tsv) ? tsv : 0m;
+                settlement.TotalCommission = data.TryGetProperty("totalCommission", out var tc) && tc.TryGetDecimal(out var tcv) ? tcv : 0m;
+                settlement.TotalShippingCost = data.TryGetProperty("totalShippingCost", out var tsc) && tsc.TryGetDecimal(out var tscv) ? tscv : 0m;
+                settlement.TotalReturnDeduction = data.TryGetProperty("totalReturnDeduction", out var trd) && trd.TryGetDecimal(out var trdv) ? trdv : 0m;
+                settlement.NetAmount = data.TryGetProperty("netAmount", out var na) && na.TryGetDecimal(out var nav) ? nav : 0m;
+
+                if (data.TryGetProperty("lines", out var lines) && lines.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var line in lines.EnumerateArray())
+                    {
+                        settlement.Lines.Add(new SettlementLineDto
+                        {
+                            OrderNumber = line.TryGetProperty("orderNumber", out var on) ? on.GetString() : null,
+                            TransactionType = line.TryGetProperty("transactionType", out var tt) ? tt.GetString() : null,
+                            Amount = line.TryGetProperty("amount", out var amt) && amt.TryGetDecimal(out var amtv) ? amtv : 0m,
+                            CommissionAmount = line.TryGetProperty("commissionAmount", out var ca) && ca.TryGetDecimal(out var cav) ? cav : null,
+                            TransactionDate = line.TryGetProperty("transactionDate", out var td) && DateTime.TryParse(td.GetString(), out var tdv) ? tdv : startDate
+                        });
+                    }
+                }
+            }
+
+            _logger.LogInformation("Pazarama GetSettlement: {LineCount} lines, Net={Net} TRY",
+                settlement.Lines.Count, settlement.NetAmount);
+
+            return settlement;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Pazarama GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("PazaramaAdapter.GetCargoInvoicesAsync: Pazarama does not provide cargo invoices separately — returning empty list. StartDate={StartDate}", startDate);
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 }

@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// OpenCart'ta kargo yonetimi yok (SupportsShipment = false).
 /// </summary>
 public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
-    ICustomerSyncCapable, ICategorySyncCapable
+    ICustomerSyncCapable, ICategorySyncCapable, ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
@@ -886,5 +886,119 @@ public class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogError(ex, "OpenCart GetCategories exception");
             return Array.Empty<CategoryDto>();
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OpenCartAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "OpenCart",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "TRY"
+            };
+
+            var page = 1;
+            const int limit = 100;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var url = $"/api/rest/orders?limit={limit}&page={page}" +
+                          $"&date_added_from={startDate:yyyy-MM-dd}&date_added_to={endDate:yyyy-MM-dd}";
+
+                var response = await _retryPipeline.ExecuteAsync(
+                    async token => await _httpClient.GetAsync(
+                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("OpenCart GetSettlement orders fetch failed: {Status} - {Error}", response.StatusCode, error);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (!doc.RootElement.TryGetProperty("data", out var dataArr) || dataArr.ValueKind != JsonValueKind.Array)
+                {
+                    hasMore = false;
+                    break;
+                }
+
+                var items = dataArr.EnumerateArray().ToList();
+                if (items.Count == 0) break;
+
+                foreach (var order in items)
+                {
+                    var total = order.TryGetProperty("total", out var tot) &&
+                                decimal.TryParse(tot.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var tv) ? tv : 0m;
+
+                    var orderId = order.TryGetProperty("order_id", out var oid) ? oid.ToString() : null;
+                    var orderDate = ParseOrderDate(order);
+                    var statusId = order.TryGetProperty("order_status_id", out var osid) ? osid.ToString() : "0";
+                    var status = MapOpenCartOrderStatus(statusId);
+
+                    var txType = status switch
+                    {
+                        "Refunded" or "Reversed" or "Chargeback" => "RETURN",
+                        "Canceled" or "Denied" or "Failed" or "Voided" => "CANCELLED",
+                        _ => "SALE"
+                    };
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderId,
+                        TransactionType = txType,
+                        Amount = total,
+                        CommissionAmount = null,
+                        TransactionDate = orderDate
+                    });
+
+                    if (txType == "SALE")
+                    {
+                        settlement.TotalSales += total;
+                    }
+                    else if (txType == "RETURN")
+                    {
+                        settlement.TotalReturnDeduction += total;
+                    }
+                }
+
+                hasMore = items.Count == limit;
+                page++;
+            }
+
+            // OpenCart is self-hosted — no platform commission
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("OpenCart GetSettlement: {LineCount} orders, Net={Net} TRY",
+                settlement.Lines.Count, settlement.NetAmount);
+
+            return settlement;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OpenCart GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("OpenCartAdapter.GetCargoInvoicesAsync: OpenCart does not provide cargo invoices — returning empty list. StartDate={StartDate}", startDate);
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 }

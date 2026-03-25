@@ -21,7 +21,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter + IShipmentCapableAdapter.
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
-public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter
+public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
+    ISettlementCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -928,5 +929,108 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             _logger.LogWarning(ex, "eBay ping failed");
             return false;
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // ISettlementCapableAdapter
+    // ═══════════════════════════════════════════
+
+    /// <inheritdoc />
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var filter = $"transactionDate:[{startDate:yyyy-MM-dd}T00:00:00.000Z..{endDate:yyyy-MM-dd}T23:59:59.999Z]";
+            var url = $"{_ebayBaseUrl}/sell/finances/v1/transaction?filter={Uri.EscapeDataString(filter)}&limit=200";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.GetAsync(new Uri(url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay GetSettlement failed: {Status} - {Error}", response.StatusCode, error);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "eBay",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "USD"
+            };
+
+            if (doc.RootElement.TryGetProperty("transactions", out var transactions) &&
+                transactions.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var tx in transactions.EnumerateArray())
+                {
+                    var amount = tx.TryGetProperty("amount", out var amtEl) &&
+                                 amtEl.TryGetProperty("value", out var amtVal) &&
+                                 decimal.TryParse(amtVal.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var av) ? av : 0m;
+
+                    var feeAmount = tx.TryGetProperty("totalFeeBasisAmount", out var feeEl) &&
+                                    feeEl.TryGetProperty("value", out var feeVal) &&
+                                    decimal.TryParse(feeVal.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var fv) ? fv : 0m;
+
+                    var txType = tx.TryGetProperty("transactionType", out var ttEl) ? ttEl.GetString() ?? "SALE" : "SALE";
+                    var orderId = tx.TryGetProperty("orderId", out var oidEl) ? oidEl.GetString() : null;
+                    var txDate = tx.TryGetProperty("transactionDate", out var tdEl) &&
+                                 DateTime.TryParse(tdEl.GetString(), out var tdv) ? tdv : startDate;
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderId,
+                        TransactionType = txType,
+                        Amount = amount,
+                        CommissionAmount = feeAmount,
+                        TransactionDate = txDate
+                    });
+
+                    if (txType == "SALE" || txType == "ORDER")
+                    {
+                        settlement.TotalSales += amount;
+                        settlement.TotalCommission += feeAmount;
+                    }
+                    else if (txType == "REFUND" || txType == "RETURN")
+                    {
+                        settlement.TotalReturnDeduction += Math.Abs(amount);
+                    }
+                    else if (txType == "SHIPPING_LABEL")
+                    {
+                        settlement.TotalShippingCost += Math.Abs(amount);
+                    }
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("eBay GetSettlement: {LineCount} transactions, Net={Net} {Currency}",
+                settlement.Lines.Count, settlement.NetAmount, settlement.Currency);
+
+            return settlement;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        _logger.LogInformation("EbayAdapter.GetCargoInvoicesAsync: eBay does not provide cargo invoices — returning empty list. StartDate={StartDate}", startDate);
+        return Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
     }
 }
