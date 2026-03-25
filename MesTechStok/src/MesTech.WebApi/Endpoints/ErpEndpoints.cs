@@ -73,8 +73,10 @@ public static class ErpEndpoints
         group.MapPost("/test-connection", async (
             ErpTestConnectionRequest request,
             IErpAdapterFactory factory,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             if (!Enum.TryParse<ErpProvider>(request.Provider, ignoreCase: true, out var provider)
                 || provider == ErpProvider.None)
             {
