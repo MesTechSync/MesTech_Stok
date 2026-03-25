@@ -779,7 +779,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex)
             {
                 // Log error but don't show to user
-                Console.WriteLine($"LoadAIDefaultSettings_ChatGPT error: {ex.Message}");
+                Debug.WriteLine($"LoadAIDefaultSettings_ChatGPT error: {ex.Message}");
             }
         }
 
@@ -806,7 +806,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadAIDefaultSettings_Gemini error: {ex.Message}");
+                Debug.WriteLine($"LoadAIDefaultSettings_Gemini error: {ex.Message}");
             }
         }
 
@@ -833,7 +833,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadAIDefaultSettings_DeepSeek error: {ex.Message}");
+                Debug.WriteLine($"LoadAIDefaultSettings_DeepSeek error: {ex.Message}");
             }
         }
 
@@ -858,7 +858,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadAIDefaultSettings_Claude error: {ex.Message}");
+                Debug.WriteLine($"LoadAIDefaultSettings_Claude error: {ex.Message}");
             }
         }
 
@@ -897,7 +897,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"UpdateAIUsageStatisticsAsync error: {ex.Message}");
+                Debug.WriteLine($"UpdateAIUsageStatisticsAsync error: {ex.Message}");
                 // Varsayılan değerler
                 // TodayTotalRequestsText.Text = "0";
                 // MonthTotalRequestsText.Text = "0";
@@ -1213,7 +1213,7 @@ namespace MesTechStok.Desktop.Views
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"UpdateProviderUsageDisplay error: {ex.Message}");
+                Debug.WriteLine($"UpdateProviderUsageDisplay error: {ex.Message}");
             }
         }
 
