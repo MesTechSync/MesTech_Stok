@@ -672,6 +672,30 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.ITaskOverdueEventHandler,
             Application.EventHandlers.TaskOverdueEventHandler>();
 
+        // Batch 3 — PARAMS event handlers (event property'lerinden parametre çekilen)
+        services.AddScoped<Application.EventHandlers.IEInvoiceCancelledEventHandler,
+            Application.EventHandlers.EInvoiceCancelledEventHandler>();
+        services.AddScoped<Application.EventHandlers.IEInvoiceCreatedEventHandler,
+            Application.EventHandlers.EInvoiceCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IEInvoiceSentEventHandler,
+            Application.EventHandlers.EInvoiceSentEventHandler>();
+        services.AddScoped<Application.EventHandlers.IExpenseApprovedEventHandler,
+            Application.EventHandlers.ExpenseApprovedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ILeaveRejectedEventHandler,
+            Application.EventHandlers.LeaveRejectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.INotificationSettingsUpdatedEventHandler,
+            Application.EventHandlers.NotificationSettingsUpdatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOnboardingCompletedEventHandler,
+            Application.EventHandlers.OnboardingCompletedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IPaymentFailedEventHandler,
+            Application.EventHandlers.PaymentFailedEventHandler>();
+        services.AddScoped<Application.EventHandlers.ISubscriptionCancelledEventHandler,
+            Application.EventHandlers.SubscriptionCancelledEventHandler>();
+        services.AddScoped<Application.EventHandlers.ISubscriptionCreatedEventHandler,
+            Application.EventHandlers.SubscriptionCreatedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IPlatformMessageReceivedEventHandler,
+            Application.EventHandlers.PlatformMessageReceivedEventHandler>();
+
         return services;
     }
 }
