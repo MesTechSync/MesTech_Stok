@@ -27,7 +27,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
 public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;
@@ -1232,6 +1232,10 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             shipmentPackageId, fileName, pdfBytes?.Length ?? 0);
         return Task.FromResult(true);
     }
+    // ── IWebhookCapableAdapter ──
+    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
+    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] ProcessWebhook {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

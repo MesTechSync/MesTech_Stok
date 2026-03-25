@@ -32,7 +32,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 ///   PL = A1C3SOZRARQ6R3
 /// </summary>
 public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonEuAdapter> _logger;
@@ -1375,4 +1375,8 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             return false;
         }
     }
+    // ── IWebhookCapableAdapter (Amazon SNS) ──
+    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] RegisterWebhook (SNS) {Url}", callbackUrl); return Task.FromResult(true); }
+    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] ProcessWebhook (SNS) {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
 }
