@@ -31,27 +31,27 @@
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Mağaza Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding StoreName}" Padding="10,8" />
+                            <TextBox Text="{Binding StoreName}" AutomationProperties.Name="Magaza adi" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding PlatformName}" IsReadOnly="True" Padding="10,8" />
+                            <TextBox Text="{Binding PlatformName}" AutomationProperties.Name="Platform adi" IsReadOnly="True" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding ApiKey}" PasswordChar="*" Padding="10,8" />
+                            <TextBox Text="{Binding ApiKey}" AutomationProperties.Name="API anahtari" PasswordChar="*" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="API Secret" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding ApiSecret}" PasswordChar="*" Padding="10,8" />
+                            <TextBox Text="{Binding ApiSecret}" AutomationProperties.Name="API sifresi" PasswordChar="*" Padding="10,8" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
                             <TextBlock Text="Seller ID" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                            <TextBox Text="{Binding SellerId}" Padding="10,8" />
+                            <TextBox Text="{Binding SellerId}" AutomationProperties.Name="Satici kimlik numarasi" Padding="10,8" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

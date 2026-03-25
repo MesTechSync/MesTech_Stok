@@ -56,11 +56,11 @@
                         <Grid ColumnDefinitions="*,*" Margin="0,0,0,0">
                             <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,8,0">
                                 <TextBlock Text="Fiyat Artış %" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding PriceMarkupPercent}" Padding="10,8" />
+                                <TextBox Text="{Binding PriceMarkupPercent}" AutomationProperties.Name="Fiyat artis yuzdesi" Padding="10,8" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
                                 <TextBlock Text="Minimum Marj %" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding MinimumMarginPercent}" Padding="10,8" />
+                                <TextBox Text="{Binding MinimumMarginPercent}" AutomationProperties.Name="Minimum marj yuzdesi" Padding="10,8" />
                             </StackPanel>
                         </Grid>
                     </StackPanel>

@@ -82,7 +82,7 @@
                             <TextBlock Text="Şablon Düzenle" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Şablon Adı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <TextBox Text="{Binding EditTemplateName}" Padding="10,8" />
+                                <TextBox Text="{Binding EditTemplateName}" AutomationProperties.Name="Sablon adi" Padding="10,8" />
                             </StackPanel>
 
                             <Grid ColumnDefinitions="*,Auto">
