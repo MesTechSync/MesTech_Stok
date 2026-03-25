@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Domain.Exceptions;
@@ -251,7 +252,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(error);
         ParasutSyncStatus = SyncStatus.Failed;
-        ParasutSyncError = error.Length > 500 ? error[..500] : error;
+        ParasutSyncError = DomainConstants.Truncate(error, DomainConstants.MaxSyncErrorLength);
     }
 
     public void Sign(string signedBy, SignatureType signatureType)

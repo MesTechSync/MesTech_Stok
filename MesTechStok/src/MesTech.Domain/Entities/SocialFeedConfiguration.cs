@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities;
@@ -75,9 +76,7 @@ public sealed class SocialFeedConfiguration : BaseEntity, ITenantEntity
     /// <summary>Feed uretim hatasini kaydeder.</summary>
     public void RecordError(string errorMessage)
     {
-        LastError = errorMessage?.Length > 2000
-            ? errorMessage[..2000]
-            : errorMessage;
+        LastError = DomainConstants.Truncate(errorMessage, DomainConstants.MaxErrorMessageLength);
         UpdatedAt = DateTime.UtcNow;
     }
 

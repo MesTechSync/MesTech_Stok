@@ -15,4 +15,22 @@ public static class DomainConstants
     /// Well-known TenantId for cross-tenant system operations.
     /// </summary>
     public static readonly Guid SystemTenantId = new("00000000-0000-0000-0000-000000000002");
+
+    /// <summary>
+    /// Maximum length for error message fields stored in the database.
+    /// Used by FeedImportLog, SocialFeedConfiguration, etc.
+    /// </summary>
+    public const int MaxErrorMessageLength = 2000;
+
+    /// <summary>
+    /// Maximum length for sync error fields (shorter for high-volume sync logs).
+    /// Used by Invoice Parasut sync, adapter sync errors.
+    /// </summary>
+    public const int MaxSyncErrorLength = 500;
+
+    /// <summary>
+    /// Truncates a string to the specified max length, returning null for null input.
+    /// </summary>
+    public static string? Truncate(string? value, int maxLength)
+        => value is not null && value.Length > maxLength ? value[..maxLength] : value;
 }

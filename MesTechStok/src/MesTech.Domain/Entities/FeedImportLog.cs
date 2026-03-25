@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Domain.Entities;
@@ -76,9 +77,7 @@ public sealed class FeedImportLog : BaseEntity, ITenantEntity
         NewProducts = newProducts;
         UpdatedProducts = updatedProducts;
         DeactivatedProducts = deactivatedProducts;
-        ErrorMessage = errorMessage?.Length > 2000
-            ? errorMessage[..2000]
-            : errorMessage;
+        ErrorMessage = DomainConstants.Truncate(errorMessage, DomainConstants.MaxErrorMessageLength);
         CompletedAt = DateTime.UtcNow;
         Status = FeedSyncStatus.PartiallyCompleted;
         UpdatedAt = DateTime.UtcNow;
@@ -87,9 +86,7 @@ public sealed class FeedImportLog : BaseEntity, ITenantEntity
     /// <summary>Import başarısız olduğunda çağrılır.</summary>
     public void Fail(string errorMessage)
     {
-        ErrorMessage = errorMessage?.Length > 2000
-            ? errorMessage[..2000]
-            : errorMessage;
+        ErrorMessage = DomainConstants.Truncate(errorMessage, DomainConstants.MaxErrorMessageLength);
         CompletedAt = DateTime.UtcNow;
         Status = FeedSyncStatus.Failed;
         UpdatedAt = DateTime.UtcNow;
