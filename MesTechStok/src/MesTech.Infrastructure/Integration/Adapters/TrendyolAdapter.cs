@@ -24,7 +24,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter,
-    IPingableAdapter
+    IShipmentCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolAdapter> _logger;
@@ -576,6 +576,74 @@ public class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
         catch (Exception ex)
         {
             _logger.LogError(ex, "Trendyol UpdateOrderStatus exception: {PackageId}", packageId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IShipmentCapableAdapter — Kargo Bildirimi
+
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        var cargoCompany = provider switch
+        {
+            CargoProvider.YurticiKargo => "Yurtiçi Kargo",
+            CargoProvider.ArasKargo => "Aras Kargo",
+            CargoProvider.SuratKargo => "Sürat Kargo",
+            CargoProvider.MngKargo => "MNG Kargo",
+            CargoProvider.PttKargo => "PTT Kargo",
+            CargoProvider.Hepsijet => "HepsiJet",
+            CargoProvider.Sendeo => "Sendeo",
+            CargoProvider.UPS => "UPS",
+            _ => provider.ToString()
+        };
+
+        _logger.LogInformation(
+            "TrendyolAdapter.SendShipmentAsync: Package={PackageId} Tracking={Tracking} Cargo={Cargo}",
+            platformOrderId, trackingNumber, cargoCompany);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            if (!long.TryParse(platformOrderId, out var packageIdLong))
+            {
+                _logger.LogError("SendShipment: Invalid shipmentPackageId '{Id}'", platformOrderId);
+                return false;
+            }
+
+            var payload = new
+            {
+                shipmentPackageId = packageIdLong,
+                trackingNumber,
+                cargoCompany
+            };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return await _httpClient.PutAsync(
+                        new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageIdLong}", UriKind.Relative), content, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol SendShipment failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Trendyol SendShipment OK: Package={PackageId}", platformOrderId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Trendyol SendShipment exception: Package={PackageId}", platformOrderId);
             return false;
         }
     }
