@@ -3,6 +3,7 @@ using System.Reflection;
 using MediatR;
 using MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
+using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
 using MesTech.Application.Features.System.LaunchReadiness;
 using MesTech.Application.Features.System.Users;
 
@@ -108,6 +109,18 @@ public static class SystemHealthEndpoints
         })
         .WithName("ExportPersonalData")
         .WithSummary("KVKK — kişisel veri dışa aktarma");
+
+        // GET /api/v1/admin/system/kvkk/audit-logs — KVKK denetim kayıtları
+        group.MapGet("/kvkk/audit-logs", async (
+            Guid tenantId, int page, int pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetKvkkAuditLogsQuery(tenantId, page, pageSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetKvkkAuditLogs")
+        .WithSummary("KVKK — denetim kayıtları (yasal saklama 10 yıl)");
 
         // GET /api/v1/admin/system/users — kullanıcı listesi
         group.MapGet("/users", async (
