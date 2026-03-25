@@ -150,6 +150,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/mestech-api.js"></script>
   <script src="../../js/mestech-theme.js"></script>
+  <script src="../../js/mestech-toast.js"></script>
   <script>
     'use strict';
 
@@ -171,6 +172,7 @@
       try {
         deadlines = await mestechApi.get(API_BASE + '/upcoming?days=90');
       } catch (err) {
+        mestechToast.error('Vergi takvimi yuklenemedi');
         if (errorEl) { errorEl.textContent = 'Vergi takvimi yuklenemedi: ' + err.message; errorEl.style.display = 'block'; }
         deadlines = [];
       } finally {

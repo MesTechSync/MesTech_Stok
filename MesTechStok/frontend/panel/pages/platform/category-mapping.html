@@ -276,6 +276,7 @@
   <script src="../../js/mestech-sanitize.js"></script>
   <script src="../../js/mestech-api.js"></script>
   <script src="../../js/mestech-theme.js"></script>
+  <script src="../../js/mestech-toast.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -645,6 +646,7 @@
 
       } catch (error) {
         console.error('Kategori yukleme hatasi:', error);
+        mestechToast.error('Kategori verileri yuklenemedi');
         showErrorState('mestech-tree');
         showErrorState('platform-tree');
       }
@@ -686,6 +688,7 @@
 
       } catch (error) {
         console.error('Eslestirme hatasi:', error);
+        mestechToast.error('Kategori eslestirme basarisiz oldu');
         showAlert('Eslestirme basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
       } finally {
         var mapBtn = document.getElementById('btn-map');
@@ -722,6 +725,7 @@
 
       } catch (error) {
         console.error('AI auto-map hatasi:', error);
+        mestechToast.error('AI otomatik eslestirme basarisiz');
         showAlert('AI otomatik eslestirme basarisiz. Lutfen tekrar deneyin.', 'danger');
       } finally {
         btn.disabled = false;
@@ -755,6 +759,7 @@
 
       } catch (error) {
         console.error('Sync hatasi:', error);
+        mestechToast.error('Kategori senkronizasyonu basarisiz');
         showAlert('Senkronizasyon basarisiz. Lutfen tekrar deneyin.', 'danger');
       } finally {
         btn.disabled = false;

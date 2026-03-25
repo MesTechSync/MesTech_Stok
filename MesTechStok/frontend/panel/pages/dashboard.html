@@ -267,6 +267,7 @@
   <script src="../../js/mestech-sanitize.js"></script>
   <script src="../../js/mestech-api.js"></script>
   <script src="../../js/mestech-theme.js"></script>
+  <script src="../../js/mestech-toast.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -996,6 +997,7 @@
 
       } catch (error) {
         console.error('Dashboard veri yukleme hatasi:', error);
+        mestechToast.error('Dashboard verileri yuklenemedi: ' + (error.message || 'Baglanti hatasi'));
         showFallbackState();
         document.getElementById('last-update-time').textContent =
           'Hata: ' + new Date().toLocaleTimeString('tr-TR');
@@ -1016,6 +1018,7 @@
         renderSalesTrendChart(data);
       } catch (error) {
         console.error('Satis trendi yukleme hatasi:', error);
+        mestechToast.warning('Satis trend verisi yuklenemedi');
         renderSalesTrendChart(null);
       }
     }

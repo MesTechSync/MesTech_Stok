@@ -233,6 +233,7 @@
   <script src="../../js/mestech-sanitize.js"></script>
   <script src="../../js/mestech-api.js"></script>
   <script src="../../js/mestech-theme.js"></script>
+  <script src="../../js/mestech-toast.js"></script>
 </head>
 <body>
   <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
@@ -726,6 +727,7 @@
 
       } catch (error) {
         console.error('Dogrulama hatasi:', error);
+        mestechToast.error('Dosya dogrulanamadi, formati kontrol edin');
         showAlert('Dosya dogrulanamadi. Lutfen dosya formatini kontrol edin.', 'danger');
       } finally {
         clearChildren(btn);
@@ -825,6 +827,7 @@
 
       } catch (error) {
         console.error('Import hatasi:', error);
+        mestechToast.error('Urun icerik aktarimi basarisiz oldu');
         progressEl.classList.remove('active');
         document.getElementById('import-step-upload').style.display = 'block';
         showAlert('Import basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
@@ -898,6 +901,7 @@
         document.getElementById('export-product-count').textContent = String(data.count || 0);
       } catch (error) {
         console.error('Export count hatasi:', error);
+        mestechToast.warning('Urun sayisi alinamadi');
         document.getElementById('export-product-count').textContent = '0';
       }
     }
@@ -945,6 +949,7 @@
 
       } catch (error) {
         console.error('Export hatasi:', error);
+        mestechToast.error('Urun disari aktarimi basarisiz oldu');
         showAlert('Export basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
       } finally {
         btn.disabled = false;
@@ -977,6 +982,7 @@
         renderProductTable(productList);
       } catch (error) {
         console.error('Urun listesi yukleme hatasi:', error);
+        mestechToast.error('Urun listesi yuklenemedi');
         clearChildren(wrapper);
         var fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
@@ -1210,6 +1216,7 @@
 
       } catch (error) {
         console.error('Toplu guncelleme hatasi:', error);
+        mestechToast.error('Toplu urun guncellemesi basarisiz oldu');
         showAlert('Guncelleme basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
       } finally {
         clearChildren(btn);
