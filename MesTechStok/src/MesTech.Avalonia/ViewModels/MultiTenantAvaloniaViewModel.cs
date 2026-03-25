@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Tenant.Queries.GetTenants;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -32,15 +33,26 @@ public partial class MultiTenantAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
-
-            ActiveTenantName = "MesTech Ana";
-            ActiveTenantId = "tenant-001";
+            var result = await _mediator.Send(new GetTenantsQuery());
 
             Tenants.Clear();
-            Tenants.Add(new TenantListItemDto { Name = "MesTech Ana", Database = "mestech_main", Status = "Aktif", CreatedAt = "01.01.2026" });
-            Tenants.Add(new TenantListItemDto { Name = "MesTech Test", Database = "mestech_test", Status = "Aktif", CreatedAt = "15.02.2026" });
-            Tenants.Add(new TenantListItemDto { Name = "Demo Firma", Database = "mestech_demo", Status = "Pasif", CreatedAt = "01.03.2026" });
+            foreach (var t in result.Items)
+            {
+                Tenants.Add(new TenantListItemDto
+                {
+                    Name = t.Name,
+                    Database = string.Empty,
+                    Status = t.IsActive ? "Aktif" : "Pasif",
+                    CreatedAt = string.Empty
+                });
+            }
+
+            var first = result.Items.FirstOrDefault();
+            if (first is not null)
+            {
+                ActiveTenantName = first.Name;
+                ActiveTenantId = first.Id.ToString();
+            }
         }
         catch (Exception ex)
         {

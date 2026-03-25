@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetKarZarar;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -42,32 +43,21 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var from = new DateTime(_currentPeriod.Year, _currentPeriod.Month, 1);
+            var to = from.AddMonths(1).AddDays(-1);
 
-            // Sample data
-            var revenue = 125480m;
-            var expenses = 87320m;
-            var profit = revenue - expenses;
-            var margin = revenue > 0 ? profit / revenue * 100 : 0;
+            var dto = await _mediator.Send(new GetKarZararQuery(from, to, Guid.Empty));
 
-            TotalRevenue = $"{revenue:N2} TL";
-            TotalExpenses = $"{expenses:N2} TL";
-            NetProfit = $"{profit:N2} TL";
+            var margin = dto.ToplamGelir > 0 ? dto.NetKar / dto.ToplamGelir * 100 : 0;
+
+            TotalRevenue = $"{dto.ToplamGelir:N2} TL";
+            TotalExpenses = $"{dto.ToplamGider:N2} TL";
+            NetProfit = $"{dto.NetKar:N2} TL";
             ProfitMarginText = $"%{margin:N1}";
 
             LineItems.Clear();
-            var items = new List<KarZararLineItemDto>
-            {
-                new() { Name = "Yurtici Satislar", Type = "Gelir", AmountFormatted = "98.240,00 TL", PercentFormatted = "%78,3" },
-                new() { Name = "Pazaryeri Satislari", Type = "Gelir", AmountFormatted = "27.240,00 TL", PercentFormatted = "%21,7" },
-                new() { Name = "Satilan Mal Maliyeti", Type = "Gider", AmountFormatted = "-52.400,00 TL", PercentFormatted = "%60,0" },
-                new() { Name = "Kargo Giderleri", Type = "Gider", AmountFormatted = "-12.680,00 TL", PercentFormatted = "%14,5" },
-                new() { Name = "Pazaryeri Komisyonlari", Type = "Gider", AmountFormatted = "-8.740,00 TL", PercentFormatted = "%10,0" },
-                new() { Name = "Genel Yonetim Giderleri", Type = "Gider", AmountFormatted = "-9.200,00 TL", PercentFormatted = "%10,5" },
-                new() { Name = "Personel Giderleri", Type = "Gider", AmountFormatted = "-4.300,00 TL", PercentFormatted = "%4,9" },
-            };
-            foreach (var item in items)
-                LineItems.Add(item);
+            LineItems.Add(new KarZararLineItemDto { Name = "Toplam Gelir", Type = "Gelir", AmountFormatted = $"{dto.ToplamGelir:N2} TL", PercentFormatted = "%100,0" });
+            LineItems.Add(new KarZararLineItemDto { Name = "Toplam Gider", Type = "Gider", AmountFormatted = $"-{dto.ToplamGider:N2} TL", PercentFormatted = dto.ToplamGelir > 0 ? $"%{dto.ToplamGider / dto.ToplamGelir * 100:N1}" : "%0,0" });
 
             IsEmpty = LineItems.Count == 0;
         }

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -41,30 +42,32 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var monthIndex = Months.IndexOf(SelectedMonth) + 1;
+            var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
+            var month = monthIndex > 0 ? monthIndex : DateTime.Now.Month;
 
-            var items = new List<BudgetLineItemDto>
-            {
-                new() { CategoryName = "Kira", BudgetFormatted = "15.000,00 TL", ActualFormatted = "15.000,00 TL", RemainingFormatted = "0,00 TL", StatusText = "Tamamlandi", Budget = 15000, Actual = 15000 },
-                new() { CategoryName = "Personel", BudgetFormatted = "40.000,00 TL", ActualFormatted = "38.000,00 TL", RemainingFormatted = "2.000,00 TL", StatusText = "Normal", Budget = 40000, Actual = 38000 },
-                new() { CategoryName = "Kargo", BudgetFormatted = "10.000,00 TL", ActualFormatted = "12.000,00 TL", RemainingFormatted = "-2.000,00 TL", StatusText = "ASIM", Budget = 10000, Actual = 12000 },
-                new() { CategoryName = "Reklam", BudgetFormatted = "20.000,00 TL", ActualFormatted = "8.000,00 TL", RemainingFormatted = "12.000,00 TL", StatusText = "Normal", Budget = 20000, Actual = 8000 },
-                new() { CategoryName = "Teknoloji", BudgetFormatted = "5.000,00 TL", ActualFormatted = "4.200,00 TL", RemainingFormatted = "800,00 TL", StatusText = "Normal", Budget = 5000, Actual = 4200 },
-            };
+            var result = await _mediator.Send(new GetBudgetSummaryQuery(Guid.Empty, year, month));
 
             Items.Clear();
-            foreach (var item in items)
-                Items.Add(item);
+            foreach (var cat in result.Categories)
+            {
+                var remaining = cat.Budget - cat.Spent;
+                Items.Add(new BudgetLineItemDto
+                {
+                    CategoryName = cat.Category,
+                    Budget = cat.Budget,
+                    Actual = cat.Spent,
+                    BudgetFormatted = $"{cat.Budget:N2} TL",
+                    ActualFormatted = $"{cat.Spent:N2} TL",
+                    RemainingFormatted = $"{remaining:N2} TL",
+                    StatusText = remaining < 0 ? "ASIM" : cat.Spent >= cat.Budget ? "Tamamlandi" : "Normal"
+                });
+            }
 
-            var budget = items.Sum(x => x.Budget);
-            var actual = items.Sum(x => x.Actual);
-            var remaining = budget - actual;
-            var rate = budget > 0 ? actual / budget * 100 : 0;
-
-            TotalBudget = $"{budget:N2} TL";
-            TotalActual = $"{actual:N2} TL";
-            TotalRemaining = $"{remaining:N2} TL";
-            UsageRate = $"%{rate:N0}";
+            TotalBudget = $"{result.TotalBudget:N2} TL";
+            TotalActual = $"{result.TotalSpent:N2} TL";
+            TotalRemaining = $"{result.Remaining:N2} TL";
+            UsageRate = $"%{result.UtilizationPercent:N0}";
 
             IsEmpty = Items.Count == 0;
         }

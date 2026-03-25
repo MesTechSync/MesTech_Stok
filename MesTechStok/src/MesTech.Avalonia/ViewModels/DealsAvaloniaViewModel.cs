@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetDeals;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -31,13 +32,23 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            var result = await _mediator.Send(new GetDealsQuery(Guid.Empty, Page: 1, PageSize: 100));
+
             Deals.Clear();
-            Deals.Add(new DealListItemVm { Id = Guid.NewGuid(), Title = "ABC Ltd ERP Projesi", ContactName = "Ahmet Yilmaz", Amount = 45000, Stage = "Ilk Iletisim", Probability = 30, CreatedAt = DateTime.Now.AddDays(-10) });
-            Deals.Add(new DealListItemVm { Id = Guid.NewGuid(), Title = "XYZ Stok Entegrasyonu", ContactName = "Fatma Demir", Amount = 22000, Stage = "Teklif Verildi", Probability = 50, CreatedAt = DateTime.Now.AddDays(-7) });
-            Deals.Add(new DealListItemVm { Id = Guid.NewGuid(), Title = "DEF Marketplace Setup", ContactName = "Mehmet Can", Amount = 67000, Stage = "Muzakere", Probability = 70, CreatedAt = DateTime.Now.AddDays(-14) });
-            Deals.Add(new DealListItemVm { Id = Guid.NewGuid(), Title = "GHI Dropshipping", ContactName = "Ayse Kara", Amount = 35000, Stage = "Kazanildi", Probability = 100, CreatedAt = DateTime.Now.AddDays(-21) });
-            TotalCount = Deals.Count;
+            foreach (var deal in result.Items)
+            {
+                Deals.Add(new DealListItemVm
+                {
+                    Id = deal.Id,
+                    Title = deal.Title,
+                    ContactName = deal.ContactName,
+                    Amount = deal.Amount,
+                    Stage = deal.StageName,
+                    Probability = 0,
+                    CreatedAt = deal.CreatedAt
+                });
+            }
+            TotalCount = result.TotalCount;
             TotalAmount = $"{Deals.Sum(d => d.Amount):N0} TL";
             IsEmpty = Deals.Count == 0;
         }

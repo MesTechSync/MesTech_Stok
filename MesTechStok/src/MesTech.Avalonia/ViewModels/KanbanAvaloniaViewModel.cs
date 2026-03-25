@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Avalonia.Services;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 using global::MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -54,32 +55,33 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
         try
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            // Same MediatR pipeline as WPF — GetPipelineKanbanQuery
-            // For PoC: use default stages with sample data
-            await Task.Delay(50);
+            var board = await _mediator.Send(new GetPipelineKanbanQuery(tenantId, Guid.Empty));
 
             Stages.Clear();
-            var stage1 = new KanbanStageVm { Name = "Ilk Iletisim", Color = "#3B82F6" };
-            stage1.Deals.Add(new DealCardVm { Id = Guid.NewGuid(), Title = "ABC Ltd ERP Projesi", ContactName = "Ahmet Yilmaz", Amount = 45000, StageName = "Ilk Iletisim" });
-            stage1.Deals.Add(new DealCardVm { Id = Guid.NewGuid(), Title = "XYZ Stok Entegrasyonu", ContactName = "Fatma Demir", Amount = 22000, StageName = "Ilk Iletisim" });
-            stage1.DealCount = stage1.Deals.Count;
-
-            var stage2 = new KanbanStageVm { Name = "Teklif Verildi", Color = "#F59E0B" };
-            stage2.Deals.Add(new DealCardVm { Id = Guid.NewGuid(), Title = "DEF Marketplace Setup", ContactName = "Mehmet Can", Amount = 67000, StageName = "Teklif Verildi" });
-            stage2.DealCount = stage2.Deals.Count;
-
-            var stage3 = new KanbanStageVm { Name = "Muzakere", Color = "#8B5CF6" };
-            var stage4 = new KanbanStageVm { Name = "Kazanildi", Color = "#10B981" };
-            stage4.Deals.Add(new DealCardVm { Id = Guid.NewGuid(), Title = "GHI Dropshipping", ContactName = "Ayse Kara", Amount = 35000, StageName = "Kazanildi" });
-            stage4.DealCount = stage4.Deals.Count;
-
-            var stage5 = new KanbanStageVm { Name = "Kaybedildi", Color = "#EF4444" };
-
-            Stages.Add(stage1);
-            Stages.Add(stage2);
-            Stages.Add(stage3);
-            Stages.Add(stage4);
-            Stages.Add(stage5);
+            AllDeals.Clear();
+            foreach (var stageDto in board.Stages.OrderBy(s => s.Position))
+            {
+                var stageVm = new KanbanStageVm
+                {
+                    Name = stageDto.Name,
+                    Color = stageDto.Color ?? "#3B82F6"
+                };
+                foreach (var deal in stageDto.Deals)
+                {
+                    var card = new DealCardVm
+                    {
+                        Id = deal.Id,
+                        Title = deal.Title,
+                        ContactName = deal.ContactName,
+                        Amount = deal.Amount,
+                        StageName = stageDto.Name
+                    };
+                    stageVm.Deals.Add(card);
+                    AllDeals.Add(card);
+                }
+                stageVm.DealCount = stageVm.Deals.Count;
+                Stages.Add(stageVm);
+            }
         }
         catch (Exception ex)
         {

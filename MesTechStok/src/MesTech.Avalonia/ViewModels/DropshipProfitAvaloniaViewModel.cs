@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProfitability;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -40,15 +41,22 @@ public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
+            var result = await _mediator.Send(new GetDropshipProfitabilityQuery(Guid.Empty));
 
             Items.Clear();
-            Items.Add(new DropshipProfitItemDto { ProductName = "Samsung Galaxy S24 Ultra", QuantitySold = 23, CustomerPrice = 64_999m, SupplierPrice = 52_000m, Commission = 6_500m, NetProfit = 6_499m, MarginPercent = 10.0m });
-            Items.Add(new DropshipProfitItemDto { ProductName = "Sony WH-1000XM5", QuantitySold = 45, CustomerPrice = 11_499m, SupplierPrice = 8_500m, Commission = 1_150m, NetProfit = 1_849m, MarginPercent = 16.1m });
-            Items.Add(new DropshipProfitItemDto { ProductName = "Logitech MX Master 3S", QuantitySold = 67, CustomerPrice = 3_299m, SupplierPrice = 2_400m, Commission = 330m, NetProfit = 569m, MarginPercent = 17.2m });
-            Items.Add(new DropshipProfitItemDto { ProductName = "Dell U2723QE Monitor", QuantitySold = 12, CustomerPrice = 18_799m, SupplierPrice = 14_200m, Commission = 1_880m, NetProfit = 2_719m, MarginPercent = 14.5m });
-            Items.Add(new DropshipProfitItemDto { ProductName = "Dyson V15 Supurge", QuantitySold = 18, CustomerPrice = 28_990m, SupplierPrice = 22_500m, Commission = 2_899m, NetProfit = 3_591m, MarginPercent = 12.4m });
-            Items.Add(new DropshipProfitItemDto { ProductName = "Philips Airfryer XXL", QuantitySold = 34, CustomerPrice = 7_499m, SupplierPrice = 5_800m, Commission = 750m, NetProfit = 949m, MarginPercent = 12.7m });
+            foreach (var dto in result)
+            {
+                Items.Add(new DropshipProfitItemDto
+                {
+                    ProductName = dto.ProductName,
+                    QuantitySold = dto.QuantitySold,
+                    CustomerPrice = dto.CustomerPrice,
+                    SupplierPrice = dto.SupplierPrice,
+                    Commission = dto.CommissionAmount,
+                    NetProfit = dto.NetProfit,
+                    MarginPercent = dto.ProfitMargin
+                });
+            }
 
             TotalRevenue = Items.Sum(i => i.CustomerPrice * i.QuantitySold);
             TotalCost = Items.Sum(i => i.SupplierPrice * i.QuantitySold);
