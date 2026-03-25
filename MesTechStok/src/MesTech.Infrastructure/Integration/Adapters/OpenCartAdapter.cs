@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     ICustomerSyncCapable, ICategorySyncCapable, ISettlementCapableAdapter,
-    IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
@@ -1359,4 +1359,18 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] ProcessWebhook {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            if (_httpClient.BaseAddress is null) return false;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            return (int)resp.StatusCode < 500;
+        }
+        catch { return false; }
+    }
 }

@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sayfa bazli pagination (FetchAllPagesAsync), CultureInfo.InvariantCulture.
 /// </summary>
 public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
     private readonly ResiliencePipeline _retryPipeline;
@@ -1173,5 +1173,20 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             "N11Adapter.ProcessWebhookPayloadAsync: N11 webhook not supported. PayloadLength={Length}",
             payload.Length);
         return Task.CompletedTask;
+    }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(_soapBaseUrl)) return false;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            using var http = new System.Net.Http.HttpClient();
+            var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
+            return (int)resp.StatusCode < 500;
+        }
+        catch { return false; }
     }
 }

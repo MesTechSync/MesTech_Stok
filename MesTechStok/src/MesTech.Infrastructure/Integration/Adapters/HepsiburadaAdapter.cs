@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
 public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
@@ -1162,5 +1162,19 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             eventType, payload.Length);
 
         return Task.CompletedTask;
+    }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            if (_httpClient.BaseAddress is null) return false;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            return (int)resp.StatusCode < 500;
+        }
+        catch { return false; }
     }
 }

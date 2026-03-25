@@ -25,7 +25,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     IShipmentCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter,
-    ISettlementCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
@@ -1164,5 +1164,19 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             eventType, payload.Length);
 
         return Task.CompletedTask;
+    }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            if (_httpClient.BaseAddress is null) return false;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            return (int)resp.StatusCode < 500;
+        }
+        catch { return false; }
     }
 }

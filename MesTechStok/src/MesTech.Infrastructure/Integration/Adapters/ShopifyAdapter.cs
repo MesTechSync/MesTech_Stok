@@ -30,7 +30,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
 public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;
@@ -1754,6 +1754,20 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             "ShopifyAdapter.SendInvoiceFileAsync — Shopify has no invoice API, logged. PackageId={PackageId}, File={FileName}, Size={Size}",
             shipmentPackageId, fileName, pdfBytes?.Length ?? 0);
         return Task.FromResult(true);
+    }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            if (_httpClient.BaseAddress is null) return false;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            return (int)resp.StatusCode < 500;
+        }
+        catch { return false; }
     }
 }
 
