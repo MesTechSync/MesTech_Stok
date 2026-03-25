@@ -62,7 +62,7 @@
                     BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
             <Grid>
                 <DataGrid ItemsSource="{Binding PreviewItems}"
-                          AutoGenerateColumns="False" IsReadOnly="True"
+                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />

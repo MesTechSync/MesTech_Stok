@@ -51,7 +51,7 @@
                 <TextBlock DockPanel.Dock="Top" Text="Senkronizasyon Geçmişi (Son 10)" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                 <DataGrid ItemsSource="{Binding SyncHistory}"
-                          AutoGenerateColumns="False" IsReadOnly="True"
+                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Zaman" Binding="{Binding SyncTime}" Width="180" />

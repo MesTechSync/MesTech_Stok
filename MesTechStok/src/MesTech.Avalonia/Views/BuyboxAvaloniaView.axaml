@@ -60,7 +60,7 @@
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           CanUserReorderColumns="True"
-                          CanUserSortColumns="True"
+                          CanUserSortColumns="True" CanUserResizeColumns="True"
                           GridLinesVisibility="Horizontal"
                           BorderThickness="0">
                     <DataGrid.Columns>

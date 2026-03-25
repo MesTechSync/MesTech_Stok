@@ -81,7 +81,7 @@
                     <TextBlock DockPanel.Dock="Top" Text="Tedarikci Performansi" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding Suppliers}"
-                              AutoGenerateColumns="False" IsReadOnly="True"
+                              AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
                               GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Tedarikci" Binding="{Binding SupplierName}" Width="160" />
@@ -103,7 +103,7 @@
                     <TextBlock DockPanel.Dock="Top" Text="En Karli 10 Urun" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MesDarkSlate}" Padding="16,12" />
                     <DataGrid ItemsSource="{Binding TopProfitableProducts}"
-                              AutoGenerateColumns="False" IsReadOnly="True"
+                              AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
                               GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />

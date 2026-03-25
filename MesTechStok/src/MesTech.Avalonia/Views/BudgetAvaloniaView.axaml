@@ -59,7 +59,7 @@
     <!-- Budget DataGrid -->
     <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="8" BoxShadow="{DynamicResource MesElevation1}">
       <Panel>
-        <DataGrid ItemsSource="{Binding Items}" IsReadOnly="True" AutoGenerateColumns="False"
+        <DataGrid ItemsSource="{Binding Items}" IsReadOnly="True" CanUserResizeColumns="True" AutoGenerateColumns="False"
                   GridLinesVisibility="Horizontal" BorderThickness="0"
                   IsVisible="{Binding !IsLoading}">
           <DataGrid.Columns>

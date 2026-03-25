@@ -39,7 +39,7 @@
                    IsVisible="{Binding !TrialBalanceLines.Count}"
                    Opacity="0.5" />
         <DataGrid Grid.Row="2" Margin="12" ItemsSource="{Binding TrialBalanceLines}"
-                  AutoGenerateColumns="False" CanUserSortColumns="True" IsReadOnly="True"
+                  AutoGenerateColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
                   GridLinesVisibility="Horizontal" BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}">
             <DataGrid.Columns>

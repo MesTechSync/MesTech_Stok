@@ -38,7 +38,7 @@
             <!-- Template List (when not editing) -->
             <DataGrid ItemsSource="{Binding Templates}"
                       AutoGenerateColumns="False"
-                      CanUserSortColumns="True"
+                      CanUserSortColumns="True" CanUserResizeColumns="True"
                       IsReadOnly="True"
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"

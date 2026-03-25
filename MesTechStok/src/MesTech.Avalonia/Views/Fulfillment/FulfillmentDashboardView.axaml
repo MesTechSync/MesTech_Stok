@@ -84,7 +84,7 @@
 
             <!-- DataGrid: Envanter -->
             <DataGrid ItemsSource="{Binding InventoryItems}" AutoGenerateColumns="False"
-                      IsReadOnly="True" GridLinesVisibility="Horizontal"
+                      IsReadOnly="True" CanUserResizeColumns="True" GridLinesVisibility="Horizontal"
                       Background="{DynamicResource MesBgPrimary}"
                       BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1"
                       IsVisible="{Binding !IsLoading}">

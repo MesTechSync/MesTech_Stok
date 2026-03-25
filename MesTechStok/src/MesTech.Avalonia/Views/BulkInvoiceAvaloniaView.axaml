@@ -50,7 +50,7 @@
             <!-- Orders DataGrid -->
             <DataGrid ItemsSource="{Binding Orders}"
                       AutoGenerateColumns="False"
-                      CanUserSortColumns="True"
+                      CanUserSortColumns="True" CanUserResizeColumns="True"
                       IsReadOnly="False"
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"

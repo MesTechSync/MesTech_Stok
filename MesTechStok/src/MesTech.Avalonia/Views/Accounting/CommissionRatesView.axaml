@@ -27,7 +27,7 @@
 
         <!-- Komisyon tablosu -->
         <DataGrid Grid.Row="1" Margin="12" ItemsSource="{Binding CommissionRates}"
-                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                  AutoGenerateColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
                   BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
             <DataGrid.Columns>
