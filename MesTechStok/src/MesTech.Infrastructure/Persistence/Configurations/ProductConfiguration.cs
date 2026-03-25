@@ -42,5 +42,8 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.ListPrice).HasPrecision(18, 2);
         builder.Property(p => p.TaxRate).HasPrecision(5, 2);
         builder.Property(p => p.Weight).HasPrecision(18, 4);
+
+        // Optimistic concurrency — concurrent stok güncellemelerinde veri bozulmasını önler
+        builder.Property(p => p.RowVersion).IsRowVersion();
     }
 }

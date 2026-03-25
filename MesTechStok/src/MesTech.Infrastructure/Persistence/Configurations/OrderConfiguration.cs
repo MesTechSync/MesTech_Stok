@@ -48,5 +48,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithOne()
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Optimistic concurrency — concurrent sipariş güncellemelerinde veri bozulmasını önler
+        builder.Property(o => o.RowVersion).IsRowVersion();
     }
 }

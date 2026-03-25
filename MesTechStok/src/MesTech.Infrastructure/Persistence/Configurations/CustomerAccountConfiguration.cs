@@ -47,5 +47,8 @@ public sealed class CustomerAccountConfiguration : IEntityTypeConfiguration<Cust
             .WithOne(at => at.CustomerAccount)
             .HasForeignKey(at => at.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Optimistic concurrency
+        builder.Property(ca => ca.RowVersion).IsRowVersion();
     }
 }

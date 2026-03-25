@@ -21,5 +21,8 @@ public sealed class StockMovementConfiguration : IEntityTypeConfiguration<StockM
         builder.Property(s => s.ProcessedBy).HasMaxLength(100);
         builder.Property(s => s.UnitCost).HasPrecision(18, 2);
         builder.Property(s => s.TotalCost).HasPrecision(18, 2);
+
+        // Optimistic concurrency
+        builder.Property(s => s.RowVersion).IsRowVersion();
     }
 }

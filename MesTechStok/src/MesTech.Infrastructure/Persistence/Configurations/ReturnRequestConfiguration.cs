@@ -56,5 +56,8 @@ public sealed class ReturnRequestConfiguration : IEntityTypeConfiguration<Return
             .WithOne(l => l.ReturnRequest)
             .HasForeignKey(l => l.ReturnRequestId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Optimistic concurrency
+        builder.Property(rr => rr.RowVersion).IsRowVersion();
     }
 }

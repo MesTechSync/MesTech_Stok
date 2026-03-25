@@ -28,5 +28,8 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.BillingAddress).HasMaxLength(500);
         builder.Property(c => c.City).HasMaxLength(100);
         builder.Property(c => c.Country).HasMaxLength(100);
+
+        // Optimistic concurrency
+        builder.Property(c => c.RowVersion).IsRowVersion();
     }
 }

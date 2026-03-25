@@ -37,5 +37,8 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .WithOne(l => l.Invoice)
             .HasForeignKey(l => l.InvoiceId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Optimistic concurrency — concurrent fatura güncellemelerinde veri bozulmasını önler
+        builder.Property(i => i.RowVersion).IsRowVersion();
     }
 }
