@@ -15,7 +15,7 @@ public sealed class CommissionReportHandler : IRequestHandler<CommissionReportQu
     {
         var platforms = request.PlatformFilter.HasValue
             ? new[] { request.PlatformFilter.Value.ToString() }
-            : new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama", "eBay", "Shopify", "WooCommerce" };
+            : Enum.GetValues<PlatformType>().Select(p => p.ToString()).ToArray();
 
         var breakdown = new List<PlatformCommissionBreakdownDto>();
         decimal totalCommission = 0;
