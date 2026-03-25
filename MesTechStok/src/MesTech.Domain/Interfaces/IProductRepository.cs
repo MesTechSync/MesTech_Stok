@@ -15,4 +15,5 @@ public interface IProductRepository
     Task UpdateAsync(Product product);
     Task DeleteAsync(Guid id);
     Task<int> GetCountAsync();
+    Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
 }

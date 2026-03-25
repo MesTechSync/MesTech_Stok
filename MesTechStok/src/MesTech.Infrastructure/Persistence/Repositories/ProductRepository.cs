@@ -55,6 +55,9 @@ public sealed class ProductRepository : IProductRepository
     public async Task<int> GetCountAsync()
         => await _context.Products.CountAsync().ConfigureAwait(false);
 
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.Products.CountAsync(p => p.TenantId == tenantId, ct).ConfigureAwait(false);
+
     // ── Dalga 4: Batch + Pagination ──
 
     public async Task<PagedResult<Product>> GetPagedAsync(int page = 1, int pageSize = 50, bool activeOnly = true)

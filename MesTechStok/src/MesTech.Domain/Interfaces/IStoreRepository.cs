@@ -11,4 +11,5 @@ public interface IStoreRepository
     Task AddAsync(Store store, CancellationToken ct = default);
     Task UpdateAsync(Store store, CancellationToken ct = default);
     Task DeleteAsync(Store store, CancellationToken ct = default);
+    Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
 }

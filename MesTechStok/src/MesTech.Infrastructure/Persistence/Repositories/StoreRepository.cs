@@ -45,4 +45,7 @@ public sealed class StoreRepository : IStoreRepository
         _context.Stores.Remove(store);
         return Task.CompletedTask;
     }
+
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.Stores.CountAsync(s => s.TenantId == tenantId, ct).ConfigureAwait(false);
 }

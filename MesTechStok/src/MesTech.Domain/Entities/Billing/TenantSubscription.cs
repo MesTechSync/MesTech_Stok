@@ -110,6 +110,29 @@ public sealed class TenantSubscription : BaseEntity, ITenantEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void ChangePlan(Guid newPlanId, BillingPeriod period)
+    {
+        if (Status != SubscriptionStatus.Active && Status != SubscriptionStatus.Trial)
+            throw new InvalidOperationException("Plan degisikligi sadece aktif veya trial abonelikte yapilabilir.");
+
+        var previousPlanId = PlanId;
+        PlanId = newPlanId;
+        Period = period;
+
+        if (Status == SubscriptionStatus.Trial)
+        {
+            Status = SubscriptionStatus.Active;
+            TrialEndsAt = null;
+        }
+
+        NextBillingDate = period == BillingPeriod.Annual
+            ? DateTime.UtcNow.AddYears(1)
+            : DateTime.UtcNow.AddMonths(1);
+        UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new SubscriptionPlanChangedEvent(TenantId, Id, previousPlanId, newPlanId, DateTime.UtcNow));
+    }
+
     public bool IsExpired => Status == SubscriptionStatus.Expired ||
         (TrialEndsAt.HasValue && TrialEndsAt.Value < DateTime.UtcNow && Status == SubscriptionStatus.Trial);
 }

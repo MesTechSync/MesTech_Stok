@@ -1,9 +1,11 @@
 using MediatR;
 using MesTech.Application.Features.Billing.Commands.CancelSubscription;
+using MesTech.Application.Features.Billing.Commands.ChangeSubscriptionPlan;
 using MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
 using MesTech.Application.Features.Billing.Commands.CreateSubscription;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
+using MesTech.Application.Features.Billing.Queries.GetSubscriptionUsage;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 
 namespace MesTech.WebApi.Endpoints;
@@ -86,5 +88,29 @@ public static class BillingEndpoints
         })
         .WithName("CreateBillingInvoice")
         .WithSummary("Fatura oluştur");
+
+        // PUT /api/v1/billing/subscription/change-plan — plan yükselt/düşür
+        group.MapPut("/subscription/change-plan", async (
+            ISender mediator,
+            ChangeSubscriptionPlanCommand command,
+            CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("ChangeSubscriptionPlan")
+        .WithSummary("Abonelik planını değiştir (upgrade/downgrade)");
+
+        // GET /api/v1/billing/usage — plan kullanım durumu
+        group.MapGet("/usage", async (
+            ISender mediator,
+            Guid tenantId,
+            CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(new GetSubscriptionUsageQuery(tenantId), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetSubscriptionUsage")
+        .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)");
     }
 }
