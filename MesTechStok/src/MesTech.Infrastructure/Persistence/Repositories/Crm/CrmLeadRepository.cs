@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 /// EF Core implementation for Lead aggregate persistence.
 /// DEV1-DEPENDENCY: Implements ICrmLeadRepository once DEV 1 creates it in Domain.Interfaces.
 /// </summary>
-public class CrmLeadRepository : ICrmLeadRepository
+public sealed class CrmLeadRepository : ICrmLeadRepository
 {
     private readonly AppDbContext _context;
 

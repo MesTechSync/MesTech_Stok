@@ -5,7 +5,7 @@ namespace MesTech.Infrastructure.Security;
 /// %LOCALAPPDATA%/MesTech/audit/login.log
 /// Sessiz hata — audit yazma hatası uygulamayı DURDURMAZ.
 /// </summary>
-public class LoginAuditLogger
+public sealed class LoginAuditLogger
 {
     private readonly string _logPath;
 

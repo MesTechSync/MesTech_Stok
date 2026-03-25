@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence;
 /// Seed data — Default Tenant + Store oluşturur.
 /// İlk çalıştırmada veya migration sonrası çağrılır.
 /// </summary>
-public class DataSeeder
+public sealed class DataSeeder
 {
     public static readonly Guid DefaultTenantId =
         Guid.Parse("00000000-0000-0000-0000-000000000001");

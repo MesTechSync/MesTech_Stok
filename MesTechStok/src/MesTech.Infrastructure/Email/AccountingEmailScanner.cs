@@ -30,7 +30,7 @@ public interface IAccountingEmailScanner
 /// MailKit IMAP ile e-posta tarama, ek indirme ve MESA siniflandirma.
 /// Config: Email:Accounting:Host, Port, Username, Password, Folder.
 /// </summary>
-public class AccountingEmailScanner : IAccountingEmailScanner
+public sealed class AccountingEmailScanner : IAccountingEmailScanner
 {
     private readonly IConfiguration _configuration;
     private readonly IMesaAccountingService _accountingService;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class UserNotificationRepository : IUserNotificationRepository
+public sealed class UserNotificationRepository : IUserNotificationRepository
 {
     private readonly AppDbContext _db;
 

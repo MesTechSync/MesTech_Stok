@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class ExpenseRepository : IExpenseRepository
+public sealed class ExpenseRepository : IExpenseRepository
 {
     private readonly AppDbContext _context;
 

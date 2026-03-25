@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class QuotationRepository : IQuotationRepository
+public sealed class QuotationRepository : IQuotationRepository
 {
     private readonly AppDbContext _context;
 

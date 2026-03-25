@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class AccountingDocumentConfiguration : IEntityTypeConfiguration<AccountingDocument>
+public sealed class AccountingDocumentConfiguration : IEntityTypeConfiguration<AccountingDocument>
 {
     public void Configure(EntityTypeBuilder<AccountingDocument> builder)
     {

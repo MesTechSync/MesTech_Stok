@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// ReturnRequest entity EF Core Fluent API configuration.
 /// </summary>
-public class ReturnRequestConfiguration : IEntityTypeConfiguration<ReturnRequest>
+public sealed class ReturnRequestConfiguration : IEntityTypeConfiguration<ReturnRequest>
 {
     public void Configure(EntityTypeBuilder<ReturnRequest> builder)
     {

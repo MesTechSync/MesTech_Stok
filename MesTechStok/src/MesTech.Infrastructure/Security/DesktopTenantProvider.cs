@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Security;
 /// Şu an hardcoded default tenant döndürür.
 /// İleride login akışından kullanıcının tenant bilgisi alınacak.
 /// </summary>
-public class DesktopTenantProvider : ITenantProvider
+public sealed class DesktopTenantProvider : ITenantProvider
 {
     private static readonly Guid DefaultTenantId =
         Guid.Parse("00000000-0000-0000-0000-000000000001");

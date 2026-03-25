@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Tasks;
 
-public class ProjectRepository : IProjectRepository
+public sealed class ProjectRepository : IProjectRepository
 {
     private readonly AppDbContext _context;
 

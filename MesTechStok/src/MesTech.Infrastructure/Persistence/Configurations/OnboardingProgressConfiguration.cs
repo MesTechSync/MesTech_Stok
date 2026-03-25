@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class OnboardingProgressConfiguration : IEntityTypeConfiguration<OnboardingProgress>
+public sealed class OnboardingProgressConfiguration : IEntityTypeConfiguration<OnboardingProgress>
 {
     public void Configure(EntityTypeBuilder<OnboardingProgress> builder)
     {

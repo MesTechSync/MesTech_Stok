@@ -5,7 +5,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Hr;
 
-public class DepartmentRepository : IDepartmentRepository
+public sealed class DepartmentRepository : IDepartmentRepository
 {
     private readonly AppDbContext _context;
     public DepartmentRepository(AppDbContext context) => _context = context;

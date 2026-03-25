@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CounterpartyConfiguration : IEntityTypeConfiguration<Counterparty>
+public sealed class CounterpartyConfiguration : IEntityTypeConfiguration<Counterparty>
 {
     public void Configure(EntityTypeBuilder<Counterparty> builder)
     {

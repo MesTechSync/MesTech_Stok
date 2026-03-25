@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Services;
 /// Feature flag ile aktif/pasif: XAdES.Enabled = false → orijinal XML döner.
 /// Sertifika: .pfx dosyadan veya Windows Certificate Store'dan yüklenir.
 /// </summary>
-public class XAdESSignatureService : IDigitalSignatureService
+public sealed class XAdESSignatureService : IDigitalSignatureService
 {
     private readonly XAdESOptions _options;
     private readonly ILogger<XAdESSignatureService> _logger;
@@ -182,7 +182,7 @@ public class XAdESSignatureService : IDigitalSignatureService
 }
 
 /// <summary>XAdES konfigürasyon seçenekleri.</summary>
-public class XAdESOptions
+public sealed class XAdESOptions
 {
     public bool Enabled { get; set; }
     public string CertificateSource { get; set; } = "File"; // "File" | "Store"

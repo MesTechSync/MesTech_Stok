@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class CashFlowEntryRepository : ICashFlowEntryRepository
+public sealed class CashFlowEntryRepository : ICashFlowEntryRepository
 {
     private readonly AppDbContext _context;
     public CashFlowEntryRepository(AppDbContext context) => _context = context;

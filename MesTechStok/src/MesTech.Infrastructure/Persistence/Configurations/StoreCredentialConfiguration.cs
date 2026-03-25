@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class StoreCredentialConfiguration : IEntityTypeConfiguration<StoreCredential>
+public sealed class StoreCredentialConfiguration : IEntityTypeConfiguration<StoreCredential>
 {
     public void Configure(EntityTypeBuilder<StoreCredential> builder)
     {

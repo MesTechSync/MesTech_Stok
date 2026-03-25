@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class SupplierRepository : ISupplierRepository
+public sealed class SupplierRepository : ISupplierRepository
 {
     private readonly AppDbContext _context;
 

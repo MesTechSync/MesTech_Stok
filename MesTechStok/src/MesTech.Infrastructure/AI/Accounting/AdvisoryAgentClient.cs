@@ -28,7 +28,7 @@ public record DailyBriefing(
 /// POST localhost:3101/api/v1/accounting/advisory/daily
 /// Demir Kural #12: MESA kopunca basit ozet uretir (AI'siz fallback).
 /// </summary>
-public class AdvisoryAgentClient : IAdvisoryAgentClient
+public sealed class AdvisoryAgentClient : IAdvisoryAgentClient
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;

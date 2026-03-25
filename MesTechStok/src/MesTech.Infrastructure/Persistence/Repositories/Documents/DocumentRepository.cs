@@ -5,7 +5,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Documents;
 
-public class DocumentRepository : IDocumentRepository
+public sealed class DocumentRepository : IDocumentRepository
 {
     private readonly AppDbContext _context;
     public DocumentRepository(AppDbContext context) => _context = context;

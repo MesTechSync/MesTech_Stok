@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class BarcodeScanLogConfiguration : IEntityTypeConfiguration<BarcodeScanLog>
+public sealed class BarcodeScanLogConfiguration : IEntityTypeConfiguration<BarcodeScanLog>
 {
     public void Configure(EntityTypeBuilder<BarcodeScanLog> builder)
     {

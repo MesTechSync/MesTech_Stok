@@ -5,7 +5,7 @@ using ExpenseCat = MesTech.Domain.Accounting.Entities.ExpenseCategory;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class ExpenseCategoryRepository : IExpenseCategoryRepository
+public sealed class ExpenseCategoryRepository : IExpenseCategoryRepository
 {
     private readonly AppDbContext _context;
     public ExpenseCategoryRepository(AppDbContext context) => _context = context;

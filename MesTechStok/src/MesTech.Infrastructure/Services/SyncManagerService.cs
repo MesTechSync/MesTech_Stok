@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.Services;
 /// <summary>
 /// Sync manager — iskelet implementasyon (Dalga 3'te tamamlanacak).
 /// </summary>
-public class SyncManagerService : ISyncManager
+public sealed class SyncManagerService : ISyncManager
 {
     private readonly ILogger<SyncManagerService> _logger;
 

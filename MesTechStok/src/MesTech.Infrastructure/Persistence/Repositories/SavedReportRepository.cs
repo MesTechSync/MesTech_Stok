@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class SavedReportRepository : ISavedReportRepository
+public sealed class SavedReportRepository : ISavedReportRepository
 {
     private readonly AppDbContext _context;
 

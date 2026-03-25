@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.AI;
 /// Kategori bazli gercekci Trendyol formati uretir.
 /// Dalga 2+: RealMesaAIClient ile DI'dan swap edilecek.
 /// </summary>
-public class MockMesaAIService : IMesaAIService
+public sealed class MockMesaAIService : IMesaAIService
 {
     private readonly ILogger<MockMesaAIService> _logger;
 

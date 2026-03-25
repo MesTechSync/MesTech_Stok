@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Finance;
 
-public class ExpenseRepository : IFinanceExpenseRepository
+public sealed class ExpenseRepository : IFinanceExpenseRepository
 {
     private readonly AppDbContext _context;
     public ExpenseRepository(AppDbContext context) => _context = context;

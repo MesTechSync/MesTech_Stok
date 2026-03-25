@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class SubscriptionPlanRepository : ISubscriptionPlanRepository
+public sealed class SubscriptionPlanRepository : ISubscriptionPlanRepository
 {
     private readonly AppDbContext _context;
 

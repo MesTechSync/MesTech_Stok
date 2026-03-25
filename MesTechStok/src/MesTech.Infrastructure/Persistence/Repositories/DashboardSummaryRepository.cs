@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 /// ⚠️ Doğrulanmış property adları: Product.Stock (StockQuantity değil),
 ///    ReturnRequests (Returns değil), Order.OrderDate (tarihleme için).
 /// </summary>
-public class DashboardSummaryRepository : IDashboardSummaryRepository
+public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
 {
     private readonly AppDbContext _db;
 

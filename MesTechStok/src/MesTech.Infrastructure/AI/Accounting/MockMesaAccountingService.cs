@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.AI.Accounting;
 /// MESA kopunca MesTech calismaya DEVAM eder (12. karar — bagimsizlik).
 /// Dalga 2+: RealMesaAccountingClient ile DI'dan swap edilecek.
 /// </summary>
-public class MockMesaAccountingService : IMesaAccountingService
+public sealed class MockMesaAccountingService : IMesaAccountingService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<MockMesaAccountingService> _logger;

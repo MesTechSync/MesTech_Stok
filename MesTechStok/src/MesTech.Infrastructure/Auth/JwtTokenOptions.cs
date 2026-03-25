@@ -4,7 +4,7 @@ namespace MesTech.Infrastructure.Auth;
 /// JWT token configuration options bound from appsettings "Jwt" section.
 /// Secret MUST be stored in user-secrets or environment variables — never hardcode.
 /// </summary>
-public class JwtTokenOptions
+public sealed class JwtTokenOptions
 {
     public const string SectionName = "Jwt";
 

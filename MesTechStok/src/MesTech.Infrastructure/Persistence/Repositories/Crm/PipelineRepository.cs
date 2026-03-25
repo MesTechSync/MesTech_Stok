@@ -5,7 +5,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 
-public class PipelineRepository : IPipelineRepository
+public sealed class PipelineRepository : IPipelineRepository
 {
     private readonly AppDbContext _context;
     public PipelineRepository(AppDbContext context) => _context = context;

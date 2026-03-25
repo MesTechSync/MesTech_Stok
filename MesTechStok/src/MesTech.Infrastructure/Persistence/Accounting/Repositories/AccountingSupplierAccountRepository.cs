@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class AccountingSupplierAccountRepository : IAccountingSupplierAccountRepository
+public sealed class AccountingSupplierAccountRepository : IAccountingSupplierAccountRepository
 {
     private readonly AppDbContext _context;
     public AccountingSupplierAccountRepository(AppDbContext context) => _context = context;

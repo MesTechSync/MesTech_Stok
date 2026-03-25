@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Banking.Parsers;
 /// Open Financial Exchange (OFX) 2.2 format parser.
 /// SGML-style OFX dosyalarini string islemleriyle parse eder (XDocument kullanmaz).
 /// </summary>
-public class OFXParser : IBankStatementParser
+public sealed class OFXParser : IBankStatementParser
 {
     private readonly ILogger<OFXParser> _logger;
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class PersonalExpenseRepository : IPersonalExpenseRepository
+public sealed class PersonalExpenseRepository : IPersonalExpenseRepository
 {
     private readonly AppDbContext _context;
     public PersonalExpenseRepository(AppDbContext context) => _context = context;

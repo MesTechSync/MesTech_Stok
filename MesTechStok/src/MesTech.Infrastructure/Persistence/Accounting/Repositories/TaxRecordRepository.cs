@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class TaxRecordRepository : ITaxRecordRepository
+public sealed class TaxRecordRepository : ITaxRecordRepository
 {
     private readonly AppDbContext _context;
     public TaxRecordRepository(AppDbContext context) => _context = context;

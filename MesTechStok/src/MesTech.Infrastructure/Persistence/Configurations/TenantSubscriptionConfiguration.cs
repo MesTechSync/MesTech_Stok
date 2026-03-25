@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class TenantSubscriptionConfiguration : IEntityTypeConfiguration<TenantSubscription>
+public sealed class TenantSubscriptionConfiguration : IEntityTypeConfiguration<TenantSubscription>
 {
     public void Configure(EntityTypeBuilder<TenantSubscription> builder)
     {

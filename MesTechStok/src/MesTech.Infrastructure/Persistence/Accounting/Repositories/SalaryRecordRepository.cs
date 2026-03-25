@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class SalaryRecordRepository : ISalaryRecordRepository
+public sealed class SalaryRecordRepository : ISalaryRecordRepository
 {
     private readonly AppDbContext _context;
     public SalaryRecordRepository(AppDbContext context) => _context = context;

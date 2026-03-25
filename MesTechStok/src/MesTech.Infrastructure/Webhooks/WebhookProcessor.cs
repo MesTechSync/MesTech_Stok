@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Webhooks;
 /// Merkezi webhook isleme servisi.
 /// Imza dogrulama → WebhookLog kaydi → event routing pipeline'i.
 /// </summary>
-public class WebhookProcessor : IWebhookProcessor
+public sealed class WebhookProcessor : IWebhookProcessor
 {
     private readonly IEnumerable<IWebhookSignatureValidator> _validators;
     private readonly WebhookEventRouter _router;

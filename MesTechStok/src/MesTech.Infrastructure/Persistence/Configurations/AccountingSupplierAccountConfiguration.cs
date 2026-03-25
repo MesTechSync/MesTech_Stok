@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class AccountingSupplierAccountConfiguration : IEntityTypeConfiguration<AccountingSupplierAccount>
+public sealed class AccountingSupplierAccountConfiguration : IEntityTypeConfiguration<AccountingSupplierAccount>
 {
     public void Configure(EntityTypeBuilder<AccountingSupplierAccount> builder)
     {

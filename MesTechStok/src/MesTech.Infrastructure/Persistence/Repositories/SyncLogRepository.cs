@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class SyncLogRepository : ISyncLogRepository
+public sealed class SyncLogRepository : ISyncLogRepository
 {
     private readonly AppDbContext _context;
 

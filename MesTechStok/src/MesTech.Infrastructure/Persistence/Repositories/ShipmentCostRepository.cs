@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class ShipmentCostRepository : IShipmentCostRepository
+public sealed class ShipmentCostRepository : IShipmentCostRepository
 {
     private readonly AppDbContext _context;
 

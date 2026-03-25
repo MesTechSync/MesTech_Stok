@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Persistence;
 ///
 /// Idempotent: checks AhmetBeyTenantId before inserting.
 /// </summary>
-public class AhmetBeyDemoSeeder
+public sealed class AhmetBeyDemoSeeder
 {
     // ── Deterministic GUIDs ──
     public static readonly Guid AhmetBeyTenantId =

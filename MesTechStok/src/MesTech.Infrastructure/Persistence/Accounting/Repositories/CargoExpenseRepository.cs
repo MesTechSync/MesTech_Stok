@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class CargoExpenseRepository : ICargoExpenseRepository
+public sealed class CargoExpenseRepository : ICargoExpenseRepository
 {
     private readonly AppDbContext _context;
     public CargoExpenseRepository(AppDbContext context) => _context = context;

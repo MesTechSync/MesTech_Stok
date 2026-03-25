@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class DunningLogRepository : IDunningLogRepository
+public sealed class DunningLogRepository : IDunningLogRepository
 {
     private readonly AppDbContext _context;
 

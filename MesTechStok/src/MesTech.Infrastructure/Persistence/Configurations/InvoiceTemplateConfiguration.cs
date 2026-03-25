@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class InvoiceTemplateConfiguration : IEntityTypeConfiguration<InvoiceTemplate>
+public sealed class InvoiceTemplateConfiguration : IEntityTypeConfiguration<InvoiceTemplate>
 {
     public void Configure(EntityTypeBuilder<InvoiceTemplate> builder)
     {

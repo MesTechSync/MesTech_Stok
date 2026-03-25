@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class StockPredictionRepository : IStockPredictionRepository
+public sealed class StockPredictionRepository : IStockPredictionRepository
 {
     private readonly AppDbContext _context;
 

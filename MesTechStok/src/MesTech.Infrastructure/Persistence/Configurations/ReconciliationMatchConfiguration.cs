@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ReconciliationMatchConfiguration : IEntityTypeConfiguration<ReconciliationMatch>
+public sealed class ReconciliationMatchConfiguration : IEntityTypeConfiguration<ReconciliationMatch>
 {
     public void Configure(EntityTypeBuilder<ReconciliationMatch> builder)
     {

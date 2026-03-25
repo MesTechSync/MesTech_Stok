@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Services;
 /// Veri: SupplierFeed entity'sindeki LastSync* alanlarından hesaplanır.
 /// Sprint-D DEV1 — Dalga 8 Dropshipping aktivasyonu.
 /// </summary>
-public class FeedReliabilityScoreServiceAdapter(
+public sealed class FeedReliabilityScoreServiceAdapter(
     AppDbContext db
 ) : IFeedReliabilityScoreService
 {

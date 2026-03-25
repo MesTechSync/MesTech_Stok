@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class StockAlertConfiguration : IEntityTypeConfiguration<StockAlert>
+public sealed class StockAlertConfiguration : IEntityTypeConfiguration<StockAlert>
 {
     public void Configure(EntityTypeBuilder<StockAlert> builder)
     {

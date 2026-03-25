@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Security;
 /// Sifreli format: Base64(nonce[12] + ciphertext[N] + tag[16])
 /// Key: IConfiguration["Encryption:Key"] veya user-secrets/env var.
 /// </summary>
-public class FieldEncryptionService : IFieldEncryptionService
+public sealed class FieldEncryptionService : IFieldEncryptionService
 {
     private readonly byte[] _key;
     private readonly ILogger<FieldEncryptionService> _logger;

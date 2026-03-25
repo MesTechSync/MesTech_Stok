@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// NotificationLog entity EF Core Fluent API configuration.
 /// </summary>
-public class NotificationLogConfiguration : IEntityTypeConfiguration<NotificationLog>
+public sealed class NotificationLogConfiguration : IEntityTypeConfiguration<NotificationLog>
 {
     public void Configure(EntityTypeBuilder<NotificationLog> builder)
     {

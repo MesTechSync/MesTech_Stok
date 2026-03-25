@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ApiCallLogConfiguration : IEntityTypeConfiguration<ApiCallLog>
+public sealed class ApiCallLogConfiguration : IEntityTypeConfiguration<ApiCallLog>
 {
     public void Configure(EntityTypeBuilder<ApiCallLog> builder)
     {

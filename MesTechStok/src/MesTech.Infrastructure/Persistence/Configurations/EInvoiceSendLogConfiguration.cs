@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class EInvoiceSendLogConfiguration : IEntityTypeConfiguration<EInvoiceSendLog>
+public sealed class EInvoiceSendLogConfiguration : IEntityTypeConfiguration<EInvoiceSendLog>
 {
     public void Configure(EntityTypeBuilder<EInvoiceSendLog> builder)
     {

@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// CariHesap entity EF Core Fluent API configuration.
 /// </summary>
-public class CariHesapConfiguration : IEntityTypeConfiguration<CariHesap>
+public sealed class CariHesapConfiguration : IEntityTypeConfiguration<CariHesap>
 {
     public void Configure(EntityTypeBuilder<CariHesap> builder)
     {

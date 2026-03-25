@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// Product entity EF Core Fluent API configuration.
 /// Indexes, constraints, precision for the most queried entity.
 /// </summary>
-public class ProductConfiguration : IEntityTypeConfiguration<Product>
+public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {

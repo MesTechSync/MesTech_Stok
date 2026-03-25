@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class PenaltyRecordConfiguration : IEntityTypeConfiguration<PenaltyRecord>
+public sealed class PenaltyRecordConfiguration : IEntityTypeConfiguration<PenaltyRecord>
 {
     public void Configure(EntityTypeBuilder<PenaltyRecord> builder)
     {

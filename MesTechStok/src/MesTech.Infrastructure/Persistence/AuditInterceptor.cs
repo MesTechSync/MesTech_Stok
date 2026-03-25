@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence;
 /// <summary>
 /// SaveChanges interceptor — CreatedBy/UpdatedBy otomatik doldurur.
 /// </summary>
-public class AuditInterceptor : SaveChangesInterceptor
+public sealed class AuditInterceptor : SaveChangesInterceptor
 {
     private readonly ICurrentUserService _currentUserService;
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class GLTransactionConfiguration : IEntityTypeConfiguration<GLTransaction>
+public sealed class GLTransactionConfiguration : IEntityTypeConfiguration<GLTransaction>
 {
     public void Configure(EntityTypeBuilder<GLTransaction> builder)
     {

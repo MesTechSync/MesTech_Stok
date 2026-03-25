@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class CashRegisterRepository : ICashRegisterRepository
+public sealed class CashRegisterRepository : ICashRegisterRepository
 {
     private readonly AppDbContext _context;
 

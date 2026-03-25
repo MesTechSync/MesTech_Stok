@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class CariHesapRepository : ICariHesapRepository
+public sealed class CariHesapRepository : ICariHesapRepository
 {
     private readonly AppDbContext _context;
 

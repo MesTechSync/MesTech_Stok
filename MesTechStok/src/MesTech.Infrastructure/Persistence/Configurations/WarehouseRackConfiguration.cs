@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class WarehouseRackConfiguration : IEntityTypeConfiguration<WarehouseRack>
+public sealed class WarehouseRackConfiguration : IEntityTypeConfiguration<WarehouseRack>
 {
     public void Configure(EntityTypeBuilder<WarehouseRack> builder)
     {

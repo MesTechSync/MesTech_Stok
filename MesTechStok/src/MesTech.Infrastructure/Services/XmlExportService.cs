@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Infrastructure.Services;
 
-public class XmlExportService : IXmlExportService
+public sealed class XmlExportService : IXmlExportService
 {
     public async Task<Stream> ExportProductsAsync(IEnumerable<ProductExportDto> products, CancellationToken ct = default)
     {

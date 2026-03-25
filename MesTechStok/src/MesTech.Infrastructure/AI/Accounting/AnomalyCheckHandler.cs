@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.AI.Accounting;
 ///   - UnexpectedCommission: Komisyon orani platform ortalamasinin 2 katindan fazla
 ///   - AbnormalExpense: Tutar, kategori aylik ortalamasinin 3 katindan fazla
 /// </summary>
-public class AnomalyCheckHandler
+public sealed class AnomalyCheckHandler
     : INotificationHandler<DomainEventNotification<LedgerPostedEvent>>
 {
     private readonly IJournalEntryRepository _journalEntryRepository;

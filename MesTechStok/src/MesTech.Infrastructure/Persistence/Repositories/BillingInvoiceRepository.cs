@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class BillingInvoiceRepository : IBillingInvoiceRepository
+public sealed class BillingInvoiceRepository : IBillingInvoiceRepository
 {
     private readonly AppDbContext _context;
 

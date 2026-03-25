@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Security;
 /// JWT "tenant_id" claim'inden TenantId okur.
 /// Scoped lifetime — her HTTP request için yeni instance.
 /// </summary>
-public class ApiTenantProvider : ITenantProvider
+public sealed class ApiTenantProvider : ITenantProvider
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private Guid? _tenantId;

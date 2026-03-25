@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class AccountingPeriodRepository : IAccountingPeriodRepository
+public sealed class AccountingPeriodRepository : IAccountingPeriodRepository
 {
     private readonly AppDbContext _context;
 

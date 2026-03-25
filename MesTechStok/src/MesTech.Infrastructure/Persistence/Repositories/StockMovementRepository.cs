@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class StockMovementRepository : IStockMovementRepository
+public sealed class StockMovementRepository : IStockMovementRepository
 {
     private readonly AppDbContext _context;
 

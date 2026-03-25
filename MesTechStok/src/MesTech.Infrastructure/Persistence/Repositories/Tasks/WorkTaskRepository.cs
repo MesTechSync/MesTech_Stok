@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Tasks;
 
-public class WorkTaskRepository : IWorkTaskRepository
+public sealed class WorkTaskRepository : IWorkTaskRepository
 {
     private readonly AppDbContext _context;
 

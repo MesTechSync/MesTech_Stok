@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class StoreRepository : IStoreRepository
+public sealed class StoreRepository : IStoreRepository
 {
     private readonly AppDbContext _context;
 

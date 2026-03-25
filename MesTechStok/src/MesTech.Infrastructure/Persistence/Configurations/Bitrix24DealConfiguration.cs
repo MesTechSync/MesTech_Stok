@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class Bitrix24DealConfiguration : IEntityTypeConfiguration<Bitrix24Deal>
+public sealed class Bitrix24DealConfiguration : IEntityTypeConfiguration<Bitrix24Deal>
 {
     public void Configure(EntityTypeBuilder<Bitrix24Deal> builder)
     {

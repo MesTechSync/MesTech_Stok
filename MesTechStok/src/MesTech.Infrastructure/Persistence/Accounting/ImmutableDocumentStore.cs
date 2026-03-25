@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Persistence.Accounting;
 /// Meta: {documentId}.meta.json
 /// SHA-256 hash ile butunluk garantisi. DELETE metodu YOKTUR.
 /// </summary>
-public class ImmutableDocumentStore : IImmutableDocumentStore
+public sealed class ImmutableDocumentStore : IImmutableDocumentStore
 {
     private readonly string _basePath;
     private readonly ILogger<ImmutableDocumentStore> _logger;

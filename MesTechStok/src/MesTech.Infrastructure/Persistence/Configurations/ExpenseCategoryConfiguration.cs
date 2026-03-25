@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ExpenseCategoryConfiguration : IEntityTypeConfiguration<ExpenseCategory>
+public sealed class ExpenseCategoryConfiguration : IEntityTypeConfiguration<ExpenseCategory>
 {
     public void Configure(EntityTypeBuilder<ExpenseCategory> builder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class FixedExpenseRepository : IFixedExpenseRepository
+public sealed class FixedExpenseRepository : IFixedExpenseRepository
 {
     private readonly AppDbContext _context;
     public FixedExpenseRepository(AppDbContext context) => _context = context;

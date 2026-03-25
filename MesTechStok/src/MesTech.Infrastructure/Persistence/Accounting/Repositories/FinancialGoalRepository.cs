@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class FinancialGoalRepository : IFinancialGoalRepository
+public sealed class FinancialGoalRepository : IFinancialGoalRepository
 {
     private readonly AppDbContext _context;
     public FinancialGoalRepository(AppDbContext context) => _context = context;

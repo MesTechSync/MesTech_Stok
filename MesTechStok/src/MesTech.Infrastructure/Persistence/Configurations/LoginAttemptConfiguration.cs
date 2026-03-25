@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class LoginAttemptConfiguration : IEntityTypeConfiguration<LoginAttempt>
+public sealed class LoginAttemptConfiguration : IEntityTypeConfiguration<LoginAttempt>
 {
     public void Configure(EntityTypeBuilder<LoginAttempt> builder)
     {

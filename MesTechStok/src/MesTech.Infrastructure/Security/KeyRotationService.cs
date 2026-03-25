@@ -26,7 +26,7 @@ public interface IKeyRotationService
 /// AES-256-GCM anahtar rotasyon implementasyonu.
 /// Config: Encryption:Key (yeni), Encryption:PreviousKey (eski — rotasyon icin).
 /// </summary>
-public class KeyRotationService : IKeyRotationService
+public sealed class KeyRotationService : IKeyRotationService
 {
     private readonly IFieldEncryptionService _currentEncryption;
     private readonly FieldEncryptionService? _previousEncryption;

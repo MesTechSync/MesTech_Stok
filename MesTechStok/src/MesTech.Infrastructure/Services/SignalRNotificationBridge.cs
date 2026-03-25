@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Services;
 /// IDashboardNotifier uzerinden WebSocket/SignalR broadcast yapar.
 /// MediatR INotificationHandler olarak calisan event-driven mimari.
 /// </summary>
-public class SignalRNotificationBridge :
+public sealed class SignalRNotificationBridge :
     INotificationHandler<DomainEventNotification<OrderReceivedEvent>>,
     INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>,
     INotificationHandler<DomainEventNotification<InvoiceCreatedEvent>>,

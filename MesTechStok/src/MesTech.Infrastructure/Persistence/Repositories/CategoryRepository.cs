@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class CategoryRepository : ICategoryRepository
+public sealed class CategoryRepository : ICategoryRepository
 {
     private readonly AppDbContext _context;
 

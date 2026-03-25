@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class AccountingPeriodConfiguration : IEntityTypeConfiguration<AccountingPeriod>
+public sealed class AccountingPeriodConfiguration : IEntityTypeConfiguration<AccountingPeriod>
 {
     public void Configure(EntityTypeBuilder<AccountingPeriod> builder)
     {

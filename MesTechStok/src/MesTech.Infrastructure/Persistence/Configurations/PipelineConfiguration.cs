@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class PipelineConfiguration : IEntityTypeConfiguration<Pipeline>
+public sealed class PipelineConfiguration : IEntityTypeConfiguration<Pipeline>
 {
     public void Configure(EntityTypeBuilder<Pipeline> builder)
     {

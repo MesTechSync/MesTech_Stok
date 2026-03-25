@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Accounting;
 
-public class BaBsRecordRepository : IBaBsRecordRepository
+public sealed class BaBsRecordRepository : IBaBsRecordRepository
 {
     private readonly AppDbContext _context;
 

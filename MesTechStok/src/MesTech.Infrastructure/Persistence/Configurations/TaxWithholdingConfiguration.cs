@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class TaxWithholdingConfiguration : IEntityTypeConfiguration<TaxWithholding>
+public sealed class TaxWithholdingConfiguration : IEntityTypeConfiguration<TaxWithholding>
 {
     public void Configure(EntityTypeBuilder<TaxWithholding> builder)
     {

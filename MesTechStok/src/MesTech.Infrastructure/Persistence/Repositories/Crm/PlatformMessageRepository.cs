@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 
-public class PlatformMessageRepository : IPlatformMessageRepository
+public sealed class PlatformMessageRepository : IPlatformMessageRepository
 {
     private readonly AppDbContext _context;
 

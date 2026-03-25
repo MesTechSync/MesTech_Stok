@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Security;
 ///   if (success) await _bruteForce.RecordSuccessAsync(username, ip);
 ///   else await _bruteForce.RecordFailureAsync(username, ip);
 /// </summary>
-public class BruteForceProtectionService
+public sealed class BruteForceProtectionService
 {
     private readonly LoginAttemptTracker _tracker;
     private readonly IpRateLimiter _ipLimiter;

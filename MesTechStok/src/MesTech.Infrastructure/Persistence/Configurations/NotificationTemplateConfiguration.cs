@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class NotificationTemplateConfiguration : IEntityTypeConfiguration<NotificationTemplate>
+public sealed class NotificationTemplateConfiguration : IEntityTypeConfiguration<NotificationTemplate>
 {
     public void Configure(EntityTypeBuilder<NotificationTemplate> builder)
     {

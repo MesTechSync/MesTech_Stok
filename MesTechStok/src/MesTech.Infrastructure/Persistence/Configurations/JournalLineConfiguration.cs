@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class JournalLineConfiguration : IEntityTypeConfiguration<JournalLine>
+public sealed class JournalLineConfiguration : IEntityTypeConfiguration<JournalLine>
 {
     public void Configure(EntityTypeBuilder<JournalLine> builder)
     {

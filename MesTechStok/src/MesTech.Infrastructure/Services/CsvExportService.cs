@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Services;
 /// UTF-8 BOM CSV export service — Excel uyumlu, Türkçe başlık, quoted fields.
 /// ENT-DROP-SENTEZ-001 Sprint A — DEV 3
 /// </summary>
-public class CsvExportService : ICsvExportService
+public sealed class CsvExportService : ICsvExportService
 {
     // UTF-8 BOM — Excel'in Türkçe karakterleri doğru okuyabilmesi için gerekli
     private static readonly Encoding Utf8Bom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);

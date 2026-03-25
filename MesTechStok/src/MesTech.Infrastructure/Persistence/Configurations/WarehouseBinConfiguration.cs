@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class WarehouseBinConfiguration : IEntityTypeConfiguration<WarehouseBin>
+public sealed class WarehouseBinConfiguration : IEntityTypeConfiguration<WarehouseBin>
 {
     public void Configure(EntityTypeBuilder<WarehouseBin> builder)
     {

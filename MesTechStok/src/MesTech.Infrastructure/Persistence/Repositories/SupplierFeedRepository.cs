@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 /// EF Core implementasyonu — ISupplierFeedRepository.
 /// Sprint-D DEV1 — Dalga 8 Dropshipping aktivasyonu.
 /// </summary>
-public class SupplierFeedRepository(AppDbContext db) : ISupplierFeedRepository
+public sealed class SupplierFeedRepository(AppDbContext db) : ISupplierFeedRepository
 {
     public async Task<SupplierFeed?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.SupplierFeeds

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class OfflineQueueItemConfiguration : IEntityTypeConfiguration<OfflineQueueItem>
+public sealed class OfflineQueueItemConfiguration : IEntityTypeConfiguration<OfflineQueueItem>
 {
     public void Configure(EntityTypeBuilder<OfflineQueueItem> builder)
     {

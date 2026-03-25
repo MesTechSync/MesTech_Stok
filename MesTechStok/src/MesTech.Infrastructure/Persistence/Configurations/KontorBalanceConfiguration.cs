@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class KontorBalanceConfiguration : IEntityTypeConfiguration<KontorBalance>
+public sealed class KontorBalanceConfiguration : IEntityTypeConfiguration<KontorBalance>
 {
     public void Configure(EntityTypeBuilder<KontorBalance> builder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CommissionRecordConfiguration : IEntityTypeConfiguration<CommissionRecord>
+public sealed class CommissionRecordConfiguration : IEntityTypeConfiguration<CommissionRecord>
 {
     public void Configure(EntityTypeBuilder<CommissionRecord> builder)
     {

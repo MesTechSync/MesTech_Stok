@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class PenaltyRecordRepository : IPenaltyRecordRepository
+public sealed class PenaltyRecordRepository : IPenaltyRecordRepository
 {
     private readonly AppDbContext _context;
     public PenaltyRecordRepository(AppDbContext context) => _context = context;

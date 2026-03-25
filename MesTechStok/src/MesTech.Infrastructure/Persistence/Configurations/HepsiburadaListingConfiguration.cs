@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class HepsiburadaListingConfiguration : IEntityTypeConfiguration<HepsiburadaListing>
+public sealed class HepsiburadaListingConfiguration : IEntityTypeConfiguration<HepsiburadaListing>
 {
     public void Configure(EntityTypeBuilder<HepsiburadaListing> builder)
     {

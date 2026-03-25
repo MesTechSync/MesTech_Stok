@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class CategoryPlatformMappingRepository : ICategoryPlatformMappingRepository
+public sealed class CategoryPlatformMappingRepository : ICategoryPlatformMappingRepository
 {
     private readonly AppDbContext _context;
 

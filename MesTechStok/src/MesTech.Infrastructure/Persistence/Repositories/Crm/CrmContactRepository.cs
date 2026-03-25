@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 /// <summary>
 /// EF Core implementation for CrmContact aggregate persistence.
 /// </summary>
-public class CrmContactRepository : ICrmContactRepository
+public sealed class CrmContactRepository : ICrmContactRepository
 {
     private readonly AppDbContext _context;
 

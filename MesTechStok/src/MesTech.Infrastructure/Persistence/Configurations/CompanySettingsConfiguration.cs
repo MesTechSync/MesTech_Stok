@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CompanySettingsConfiguration : IEntityTypeConfiguration<CompanySettings>
+public sealed class CompanySettingsConfiguration : IEntityTypeConfiguration<CompanySettings>
 {
     public void Configure(EntityTypeBuilder<CompanySettings> builder)
     {

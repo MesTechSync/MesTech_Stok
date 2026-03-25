@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class IncomeRepository : IIncomeRepository
+public sealed class IncomeRepository : IIncomeRepository
 {
     private readonly AppDbContext _context;
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CashTransactionConfiguration : IEntityTypeConfiguration<CashTransaction>
+public sealed class CashTransactionConfiguration : IEntityTypeConfiguration<CashTransaction>
 {
     public void Configure(EntityTypeBuilder<CashTransaction> builder)
     {

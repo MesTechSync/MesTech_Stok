@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class OnboardingProgressRepository : IOnboardingProgressRepository
+public sealed class OnboardingProgressRepository : IOnboardingProgressRepository
 {
     private readonly AppDbContext _context;
 

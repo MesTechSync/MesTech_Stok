@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Banking;
 /// Banka ekstre import orkestratoru.
 /// Format tespit → parse → idempotency key ile dedup → kaydet → event yayinla.
 /// </summary>
-public class BankStatementImportService
+public sealed class BankStatementImportService
 {
     private readonly IBankStatementParserFactory _parserFactory;
     private readonly IBankTransactionRepository _transactionRepository;
@@ -138,7 +138,7 @@ public class BankStatementImportService
 /// <summary>
 /// Banka ekstre import sonucu.
 /// </summary>
-public class BankStatementImportResult
+public sealed class BankStatementImportResult
 {
     public string Format { get; init; } = string.Empty;
     public Guid BankAccountId { get; init; }

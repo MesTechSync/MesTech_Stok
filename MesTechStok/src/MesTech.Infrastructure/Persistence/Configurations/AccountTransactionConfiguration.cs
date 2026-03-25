@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// AccountTransaction entity EF Core Fluent API configuration.
 /// </summary>
-public class AccountTransactionConfiguration : IEntityTypeConfiguration<AccountTransaction>
+public sealed class AccountTransactionConfiguration : IEntityTypeConfiguration<AccountTransaction>
 {
     public void Configure(EntityTypeBuilder<AccountTransaction> builder)
     {

@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Persistence;
 /// Mevcut DataSeeder (Default Tenant/Store) calistiktan sonra cagrilir.
 /// Idempotent: DemoTenantId zaten varsa atlar.
 /// </summary>
-public class DemoDataSeeder
+public sealed class DemoDataSeeder
 {
     public static readonly Guid DemoTenantId =
         Guid.Parse("00000000-0000-0000-0000-000000000099");

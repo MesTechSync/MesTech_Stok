@@ -37,7 +37,7 @@ public record PendingExpense(string Title, decimal Amount, string Category, deci
 /// MESA STT endpoint'ini (localhost:3101) kullanarak ses → metin → gider akisi.
 /// MESA kapaninca bos liste doner (Demir Kural #12 — bagimsizlik).
 /// </summary>
-public class SpeechToExpenseService : ISpeechToExpenseService
+public sealed class SpeechToExpenseService : ISpeechToExpenseService
 {
     private readonly HttpClient _httpClient;
     private readonly IMesaAccountingService _accountingService;
@@ -231,7 +231,7 @@ internal record SttExpenseItem
 /// Mock SpeechToExpenseService — MESA olmadan test icin.
 /// Sabit sahte veri doner.
 /// </summary>
-public class MockSpeechToExpenseService : ISpeechToExpenseService
+public sealed class MockSpeechToExpenseService : ISpeechToExpenseService
 {
     private readonly ILogger<MockSpeechToExpenseService> _logger;
 

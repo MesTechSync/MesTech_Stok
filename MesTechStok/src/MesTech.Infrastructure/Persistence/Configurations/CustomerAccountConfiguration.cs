@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// CustomerAccount entity EF Core Fluent API configuration.
 /// </summary>
-public class CustomerAccountConfiguration : IEntityTypeConfiguration<CustomerAccount>
+public sealed class CustomerAccountConfiguration : IEntityTypeConfiguration<CustomerAccount>
 {
     public void Configure(EntityTypeBuilder<CustomerAccount> builder)
     {

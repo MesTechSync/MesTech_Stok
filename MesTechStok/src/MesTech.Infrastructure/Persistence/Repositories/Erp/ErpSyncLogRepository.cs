@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Erp;
 
-public class ErpSyncLogRepository : IErpSyncLogRepository
+public sealed class ErpSyncLogRepository : IErpSyncLogRepository
 {
     private readonly AppDbContext _context;
 

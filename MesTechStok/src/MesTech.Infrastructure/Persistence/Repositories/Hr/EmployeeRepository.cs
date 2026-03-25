@@ -6,7 +6,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Hr;
 
-public class EmployeeRepository : IEmployeeRepository
+public sealed class EmployeeRepository : IEmployeeRepository
 {
     private readonly AppDbContext _context;
     public EmployeeRepository(AppDbContext context) => _context = context;

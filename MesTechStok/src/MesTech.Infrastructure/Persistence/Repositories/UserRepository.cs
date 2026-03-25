@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class UserRepository(AppDbContext db) : IUserRepository
+public sealed class UserRepository(AppDbContext db) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id) =>
         await db.Users.FindAsync(id);

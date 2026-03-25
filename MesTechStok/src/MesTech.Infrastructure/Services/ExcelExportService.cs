@@ -6,7 +6,7 @@ using OfficeOpenXml.Style;
 
 namespace MesTech.Infrastructure.Services;
 
-public class ExcelExportService : IExcelExportService
+public sealed class ExcelExportService : IExcelExportService
 {
     static ExcelExportService()
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class QuotationLineConfiguration : IEntityTypeConfiguration<QuotationLine>
+public sealed class QuotationLineConfiguration : IEntityTypeConfiguration<QuotationLine>
 {
     public void Configure(EntityTypeBuilder<QuotationLine> builder)
     {

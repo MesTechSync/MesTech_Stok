@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ChartOfAccountsConfiguration : IEntityTypeConfiguration<ChartOfAccounts>
+public sealed class ChartOfAccountsConfiguration : IEntityTypeConfiguration<ChartOfAccounts>
 {
     public void Configure(EntityTypeBuilder<ChartOfAccounts> builder)
     {

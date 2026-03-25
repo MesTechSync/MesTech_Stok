@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class ChartOfAccountsRepository : IChartOfAccountsRepository
+public sealed class ChartOfAccountsRepository : IChartOfAccountsRepository
 {
     private readonly AppDbContext _context;
     public ChartOfAccountsRepository(AppDbContext context) => _context = context;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class SettlementBatchRepository : ISettlementBatchRepository
+public sealed class SettlementBatchRepository : ISettlementBatchRepository
 {
     private readonly AppDbContext _context;
     public SettlementBatchRepository(AppDbContext context) => _context = context;

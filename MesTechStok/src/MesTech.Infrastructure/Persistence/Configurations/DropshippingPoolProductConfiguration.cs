@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class DropshippingPoolProductConfiguration : IEntityTypeConfiguration<DropshippingPoolProduct>
+public sealed class DropshippingPoolProductConfiguration : IEntityTypeConfiguration<DropshippingPoolProduct>
 {
     public void Configure(EntityTypeBuilder<DropshippingPoolProduct> builder)
     {

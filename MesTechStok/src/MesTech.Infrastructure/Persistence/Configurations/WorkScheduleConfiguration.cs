@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class WorkScheduleConfiguration : IEntityTypeConfiguration<WorkSchedule>
+public sealed class WorkScheduleConfiguration : IEntityTypeConfiguration<WorkSchedule>
 {
     public void Configure(EntityTypeBuilder<WorkSchedule> builder)
     {

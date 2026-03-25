@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class WebhookLogConfiguration : IEntityTypeConfiguration<WebhookLog>
+public sealed class WebhookLogConfiguration : IEntityTypeConfiguration<WebhookLog>
 {
     public void Configure(EntityTypeBuilder<WebhookLog> builder)
     {

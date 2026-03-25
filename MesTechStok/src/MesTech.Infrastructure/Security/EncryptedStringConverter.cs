@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Security;
 /// IFieldEncryptionService (AES-256-GCM) uzerinden transparant encrypt/decrypt.
 /// Kullanim: BankAccount.IBAN, Counterparty.VKN gibi KVKK kapsamindaki alanlar.
 /// </summary>
-public class EncryptedStringConverter : ValueConverter<string, string>
+public sealed class EncryptedStringConverter : ValueConverter<string, string>
 {
     public EncryptedStringConverter(IFieldEncryptionService encryptionService)
         : base(
@@ -19,7 +19,7 @@ public class EncryptedStringConverter : ValueConverter<string, string>
 /// <summary>
 /// Nullable string icin EF Core Value Converter — null degerler korunur.
 /// </summary>
-public class NullableEncryptedStringConverter : ValueConverter<string?, string?>
+public sealed class NullableEncryptedStringConverter : ValueConverter<string?, string?>
 {
     public NullableEncryptedStringConverter(IFieldEncryptionService encryptionService)
         : base(

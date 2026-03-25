@@ -6,7 +6,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Hr;
 
-public class LeaveRepository : ILeaveRepository
+public sealed class LeaveRepository : ILeaveRepository
 {
     private readonly AppDbContext _context;
     public LeaveRepository(AppDbContext context) => _context = context;

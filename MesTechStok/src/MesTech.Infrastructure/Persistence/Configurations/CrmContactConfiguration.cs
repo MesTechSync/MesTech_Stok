@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CrmContactConfiguration : IEntityTypeConfiguration<CrmContact>
+public sealed class CrmContactConfiguration : IEntityTypeConfiguration<CrmContact>
 {
     public void Configure(EntityTypeBuilder<CrmContact> builder)
     {

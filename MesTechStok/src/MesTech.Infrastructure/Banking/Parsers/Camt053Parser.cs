@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Banking.Parsers;
 /// ISO 20022 camt.053.001.08 (Bank-to-Customer Statement) XML parser.
 /// XDocument/LINQ to XML ile &lt;Ntry&gt; elementlerini parse eder.
 /// </summary>
-public class Camt053Parser : IBankStatementParser
+public sealed class Camt053Parser : IBankStatementParser
 {
     private const string Camt053Namespace = "urn:iso:std:iso:20022:tech:xsd:camt.053.001.08";
 

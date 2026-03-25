@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.AI;
 
-public class MockStockPredictionService : IStockPredictionService
+public sealed class MockStockPredictionService : IStockPredictionService
 {
     private readonly ILogger<MockStockPredictionService> _logger;
 

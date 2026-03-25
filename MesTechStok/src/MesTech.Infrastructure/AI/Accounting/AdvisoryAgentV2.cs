@@ -35,7 +35,7 @@ public record PlatformHealth(string Platform, string MarginTrend, decimal AvgMar
 /// POST localhost:3101/api/v1/accounting/advisory/sales
 /// Demir Kural #12: MESA kopunce kural tabanlı basit tavsiye uretir (AI'siz fallback).
 /// </summary>
-public class AdvisoryAgentV2 : IAdvisoryAgentV2
+public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;

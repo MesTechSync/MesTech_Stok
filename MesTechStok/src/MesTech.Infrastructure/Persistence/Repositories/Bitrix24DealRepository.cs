@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class Bitrix24DealRepository : IBitrix24DealRepository
+public sealed class Bitrix24DealRepository : IBitrix24DealRepository
 {
     private readonly AppDbContext _context;
 

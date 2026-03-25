@@ -5,7 +5,7 @@ using OfficeOpenXml;
 
 namespace MesTech.Infrastructure.Services;
 
-public class ExcelImportService : IExcelImportService
+public sealed class ExcelImportService : IExcelImportService
 {
     static ExcelImportService()
     {

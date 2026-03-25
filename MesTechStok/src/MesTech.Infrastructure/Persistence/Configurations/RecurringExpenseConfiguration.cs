@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class RecurringExpenseConfiguration : IEntityTypeConfiguration<RecurringExpense>
+public sealed class RecurringExpenseConfiguration : IEntityTypeConfiguration<RecurringExpense>
 {
     public void Configure(EntityTypeBuilder<RecurringExpense> builder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class ProductSetRepository : IProductSetRepository
+public sealed class ProductSetRepository : IProductSetRepository
 {
     private readonly AppDbContext _context;
 

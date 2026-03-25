@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Expense entity EF Core Fluent API configuration.
 /// </summary>
-public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
+public sealed class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
 {
     public void Configure(EntityTypeBuilder<Expense> builder)
     {

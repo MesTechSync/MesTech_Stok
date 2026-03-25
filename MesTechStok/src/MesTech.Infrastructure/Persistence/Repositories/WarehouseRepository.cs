@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class WarehouseRepository : IWarehouseRepository
+public sealed class WarehouseRepository : IWarehouseRepository
 {
     private readonly AppDbContext _context;
 

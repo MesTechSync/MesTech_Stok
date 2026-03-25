@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class SalaryRecordConfiguration : IEntityTypeConfiguration<SalaryRecord>
+public sealed class SalaryRecordConfiguration : IEntityTypeConfiguration<SalaryRecord>
 {
     public void Configure(EntityTypeBuilder<SalaryRecord> builder)
     {

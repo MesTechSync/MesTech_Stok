@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class DunningLogConfiguration : IEntityTypeConfiguration<DunningLog>
+public sealed class DunningLogConfiguration : IEntityTypeConfiguration<DunningLog>
 {
     public void Configure(EntityTypeBuilder<DunningLog> builder)
     {

@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.AI;
 /// Demir Kural: MESA kopunca veya hata verince graceful fallback — MesTech calismaya devam eder.
 /// Endpoint: Mesa:ApiUrl (appsettings: http://localhost:3000/api)
 /// </summary>
-public class ProductionMesaBotService : IMesaBotService
+public sealed class ProductionMesaBotService : IMesaBotService
 {
     private readonly HttpClient _httpClient;
     private readonly MockMesaBotService _mockFallback;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class LogEntryConfiguration : IEntityTypeConfiguration<LogEntry>
+public sealed class LogEntryConfiguration : IEntityTypeConfiguration<LogEntry>
 {
     public void Configure(EntityTypeBuilder<LogEntry> builder)
     {

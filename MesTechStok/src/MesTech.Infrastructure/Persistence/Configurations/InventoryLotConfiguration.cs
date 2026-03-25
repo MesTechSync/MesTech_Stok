@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class InventoryLotConfiguration : IEntityTypeConfiguration<InventoryLot>
+public sealed class InventoryLotConfiguration : IEntityTypeConfiguration<InventoryLot>
 {
     public void Configure(EntityTypeBuilder<InventoryLot> builder)
     {

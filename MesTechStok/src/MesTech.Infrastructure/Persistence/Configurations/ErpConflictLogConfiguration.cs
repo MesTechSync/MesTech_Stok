@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ErpConflictLogConfiguration : IEntityTypeConfiguration<ErpConflictLog>
+public sealed class ErpConflictLogConfiguration : IEntityTypeConfiguration<ErpConflictLog>
 {
     public void Configure(EntityTypeBuilder<ErpConflictLog> builder)
     {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CategoryPlatformMappingConfiguration : IEntityTypeConfiguration<CategoryPlatformMapping>
+public sealed class CategoryPlatformMappingConfiguration : IEntityTypeConfiguration<CategoryPlatformMapping>
 {
     public void Configure(EntityTypeBuilder<CategoryPlatformMapping> builder)
     {

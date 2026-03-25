@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class ReturnRequestRepository : IReturnRequestRepository
+public sealed class ReturnRequestRepository : IReturnRequestRepository
 {
     private readonly AppDbContext _context;
 

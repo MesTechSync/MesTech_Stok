@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class BaBsRecordConfiguration : IEntityTypeConfiguration<BaBsRecord>
+public sealed class BaBsRecordConfiguration : IEntityTypeConfiguration<BaBsRecord>
 {
     public void Configure(EntityTypeBuilder<BaBsRecord> builder)
     {

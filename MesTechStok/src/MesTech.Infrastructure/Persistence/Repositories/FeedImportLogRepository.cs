@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 /// EF Core implementasyonu — IFeedImportLogRepository.
 /// Sprint-D DEV1 — Dalga 8 Dropshipping aktivasyonu.
 /// </summary>
-public class FeedImportLogRepository(AppDbContext db) : IFeedImportLogRepository
+public sealed class FeedImportLogRepository(AppDbContext db) : IFeedImportLogRepository
 {
     public async Task<(IReadOnlyList<FeedImportLog> Items, int Total)> GetByFeedIdPagedAsync(
         Guid feedId,

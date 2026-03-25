@@ -5,7 +5,7 @@ namespace MesTech.Infrastructure.Security;
 /// OWASP 2026: 5 deneme → progressive lockout (60→120→240→480→1800sn max).
 /// Thread-safe (lock).
 /// </summary>
-public class LoginAttemptTracker
+public sealed class LoginAttemptTracker
 {
     private readonly Dictionary<string, LoginAttemptInfo> _attempts = new();
     private readonly object _lock = new();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class AccessLogConfiguration : IEntityTypeConfiguration<AccessLog>
+public sealed class AccessLogConfiguration : IEntityTypeConfiguration<AccessLog>
 {
     public void Configure(EntityTypeBuilder<AccessLog> builder)
     {

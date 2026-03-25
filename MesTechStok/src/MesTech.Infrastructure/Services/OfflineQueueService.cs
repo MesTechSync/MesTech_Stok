@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Services;
 /// Dalga 3'te kalici storage (PostgreSQL/Redis) gecisi yapilacak.
 /// Su an ConcurrentQueue ile bellek icinde calisir — uygulama restart'inda veri kaybolur.
 /// </summary>
-public class OfflineQueueService : IOfflineQueue
+public sealed class OfflineQueueService : IOfflineQueue
 {
     private readonly ILogger<OfflineQueueService> _logger;
     private readonly ConcurrentDictionary<Guid, OfflineQueueEntry> _queue = new();

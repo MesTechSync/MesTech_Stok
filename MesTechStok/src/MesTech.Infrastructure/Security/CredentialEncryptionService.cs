@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Security;
 /// ICredentialEncryptionService implementasyonu.
 /// IFieldEncryptionService'i sarmalayarak credential-specific maskeleme ekler.
 /// </summary>
-public class CredentialEncryptionService : ICredentialEncryptionService
+public sealed class CredentialEncryptionService : ICredentialEncryptionService
 {
     private readonly IFieldEncryptionService _fieldEncryption;
     private readonly ILogger<CredentialEncryptionService> _logger;

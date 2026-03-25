@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class CounterpartyRepository : ICounterpartyRepository
+public sealed class CounterpartyRepository : ICounterpartyRepository
 {
     private readonly AppDbContext _context;
     public CounterpartyRepository(AppDbContext context) => _context = context;

@@ -15,7 +15,7 @@ namespace MesTech.Infrastructure.Services;
 /// PNG: UTF-8 metin tabanli placeholder (SkiaSharp eklenebilir).
 /// S06b — DEV 6.
 /// </summary>
-public class LabelPrintService : ILabelPrintService
+public sealed class LabelPrintService : ILabelPrintService
 {
     private readonly ILogger<LabelPrintService> _logger;
 

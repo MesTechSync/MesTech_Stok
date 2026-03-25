@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// CariHareket entity EF Core Fluent API configuration.
 /// </summary>
-public class CariHareketConfiguration : IEntityTypeConfiguration<CariHareket>
+public sealed class CariHareketConfiguration : IEntityTypeConfiguration<CariHareket>
 {
     public void Configure(EntityTypeBuilder<CariHareket> builder)
     {

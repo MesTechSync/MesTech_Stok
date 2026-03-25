@@ -5,7 +5,7 @@ namespace MesTech.Infrastructure.Security;
 /// Idle → dim overlay, Lock → WelcomeWindow (modal, session korunur).
 /// Son açık view hatırlama.
 /// </summary>
-public class DesktopSessionManager
+public sealed class DesktopSessionManager
 {
     public string? CurrentUsername { get; private set; }
     public Guid? CurrentTenantId { get; private set; }

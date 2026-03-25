@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class LoyaltyTransactionConfiguration : IEntityTypeConfiguration<LoyaltyTransaction>
+public sealed class LoyaltyTransactionConfiguration : IEntityTypeConfiguration<LoyaltyTransaction>
 {
     public void Configure(EntityTypeBuilder<LoyaltyTransaction> builder)
     {

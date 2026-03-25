@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence;
 /// Design-time factory for EF Core migrations.
 /// dotnet ef migrations add ... --project src/MesTech.Infrastructure
 /// </summary>
-public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {

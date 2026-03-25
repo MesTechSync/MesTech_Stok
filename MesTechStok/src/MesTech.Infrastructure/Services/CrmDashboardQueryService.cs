@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Services;
 
-public class CrmDashboardQueryService : ICrmDashboardQueryService
+public sealed class CrmDashboardQueryService : ICrmDashboardQueryService
 {
     private readonly AppDbContext _db;
 

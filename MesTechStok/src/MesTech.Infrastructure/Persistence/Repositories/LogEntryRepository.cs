@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class LogEntryRepository : ILogEntryRepository
+public sealed class LogEntryRepository : ILogEntryRepository
 {
     private readonly AppDbContext _db;
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class TenantSubscriptionRepository : ITenantSubscriptionRepository
+public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
 {
     private readonly AppDbContext _context;
 

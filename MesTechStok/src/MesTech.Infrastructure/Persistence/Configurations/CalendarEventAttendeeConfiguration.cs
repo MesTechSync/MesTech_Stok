@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CalendarEventAttendeeConfiguration : IEntityTypeConfiguration<CalendarEventAttendee>
+public sealed class CalendarEventAttendeeConfiguration : IEntityTypeConfiguration<CalendarEventAttendee>
 {
     public void Configure(EntityTypeBuilder<CalendarEventAttendee> builder)
     {

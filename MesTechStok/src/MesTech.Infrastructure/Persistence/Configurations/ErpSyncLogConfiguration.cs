@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// ErpSyncLog EF Core configuration — tablo adi, index'ler, alan kisitlamalari.
 /// Dalga 11: ERP entegrasyonu icin eklendi.
 /// </summary>
-public class ErpSyncLogConfiguration : IEntityTypeConfiguration<ErpSyncLog>
+public sealed class ErpSyncLogConfiguration : IEntityTypeConfiguration<ErpSyncLog>
 {
     public void Configure(EntityTypeBuilder<ErpSyncLog> builder)
     {

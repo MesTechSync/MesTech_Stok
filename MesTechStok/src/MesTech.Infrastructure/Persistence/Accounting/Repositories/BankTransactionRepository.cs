@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class BankTransactionRepository : IBankTransactionRepository
+public sealed class BankTransactionRepository : IBankTransactionRepository
 {
     private readonly AppDbContext _context;
     public BankTransactionRepository(AppDbContext context) => _context = context;

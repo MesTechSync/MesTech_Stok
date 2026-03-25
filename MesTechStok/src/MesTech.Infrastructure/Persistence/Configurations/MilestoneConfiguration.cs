@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class MilestoneConfiguration : IEntityTypeConfiguration<Milestone>
+public sealed class MilestoneConfiguration : IEntityTypeConfiguration<Milestone>
 {
     public void Configure(EntityTypeBuilder<Milestone> builder)
     {

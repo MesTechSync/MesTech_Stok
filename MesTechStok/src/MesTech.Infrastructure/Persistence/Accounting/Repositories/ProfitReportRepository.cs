@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class ProfitReportRepository : IProfitReportRepository
+public sealed class ProfitReportRepository : IProfitReportRepository
 {
     private readonly AppDbContext _context;
     public ProfitReportRepository(AppDbContext context) => _context = context;

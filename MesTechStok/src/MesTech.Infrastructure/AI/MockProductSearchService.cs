@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.AI;
 
-public class MockProductSearchService : IProductSearchService
+public sealed class MockProductSearchService : IProductSearchService
 {
     private readonly ILogger<MockProductSearchService> _logger;
     private readonly List<ProductSummary> _products;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ProductSetConfiguration : IEntityTypeConfiguration<ProductSet>
+public sealed class ProductSetConfiguration : IEntityTypeConfiguration<ProductSet>
 {
     public void Configure(EntityTypeBuilder<ProductSet> builder)
     {

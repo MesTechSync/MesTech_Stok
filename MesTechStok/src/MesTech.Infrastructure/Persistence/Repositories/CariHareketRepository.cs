@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class CariHareketRepository : ICariHareketRepository
+public sealed class CariHareketRepository : ICariHareketRepository
 {
     private readonly AppDbContext _context;
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class NotificationSettingRepository : INotificationSettingRepository
+public sealed class NotificationSettingRepository : INotificationSettingRepository
 {
     private readonly AppDbContext _context;
 

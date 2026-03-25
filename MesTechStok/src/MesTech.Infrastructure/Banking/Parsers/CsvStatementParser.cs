@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Banking.Parsers;
 /// Tarih, Aciklama, Tutar, Referans kolonlari ile calisan, kolon mapping konfigurasyon destekli parser.
 /// Turk bankalari icin virgul decimal separator handling mevcut.
 /// </summary>
-public class CsvStatementParser : IBankStatementParser
+public sealed class CsvStatementParser : IBankStatementParser
 {
     private readonly ILogger<CsvStatementParser> _logger;
 

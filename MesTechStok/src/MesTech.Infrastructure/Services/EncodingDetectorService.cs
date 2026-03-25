@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Services;
 /// Sırasıyla: BOM kontrolü → UTF-8 geçerlilik → Türkçe heuristik → varsayılan UTF-8.
 /// ENT-DROP-SENTEZ-001 Sprint A — DEV 3
 /// </summary>
-public class EncodingDetectorService : IEncodingDetectorService
+public sealed class EncodingDetectorService : IEncodingDetectorService
 {
     // ISO-8859-9 (Latin-5) — Türkçe karakterler için en yaygın Windows dışı kodlama
     private static readonly Encoding Iso88599 = GetIso88599();

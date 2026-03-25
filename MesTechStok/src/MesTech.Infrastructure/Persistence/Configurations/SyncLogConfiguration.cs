@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class SyncLogConfiguration : IEntityTypeConfiguration<SyncLog>
+public sealed class SyncLogConfiguration : IEntityTypeConfiguration<SyncLog>
 {
     public void Configure(EntityTypeBuilder<SyncLog> builder)
     {

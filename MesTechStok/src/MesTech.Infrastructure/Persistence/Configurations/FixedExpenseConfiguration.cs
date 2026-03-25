@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class FixedExpenseConfiguration : IEntityTypeConfiguration<FixedExpense>
+public sealed class FixedExpenseConfiguration : IEntityTypeConfiguration<FixedExpense>
 {
     public void Configure(EntityTypeBuilder<FixedExpense> builder)
     {

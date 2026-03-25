@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// SupplierAccount entity EF Core Fluent API configuration.
 /// </summary>
-public class SupplierAccountConfiguration : IEntityTypeConfiguration<SupplierAccount>
+public sealed class SupplierAccountConfiguration : IEntityTypeConfiguration<SupplierAccount>
 {
     public void Configure(EntityTypeBuilder<SupplierAccount> builder)
     {

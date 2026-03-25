@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class InvoiceLineConfiguration : IEntityTypeConfiguration<InvoiceLine>
+public sealed class InvoiceLineConfiguration : IEntityTypeConfiguration<InvoiceLine>
 {
     public void Configure(EntityTypeBuilder<InvoiceLine> builder)
     {

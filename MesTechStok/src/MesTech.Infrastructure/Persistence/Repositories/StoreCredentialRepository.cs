@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 /// EF Core StoreCredential repository implementasyonu.
 /// Soft-delete filtresi AppDbContext global query filter'da uygulanir.
 /// </summary>
-public class StoreCredentialRepository : IStoreCredentialRepository
+public sealed class StoreCredentialRepository : IStoreCredentialRepository
 {
     private readonly AppDbContext _context;
 

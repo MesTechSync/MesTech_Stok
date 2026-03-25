@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class SavedReportConfiguration : IEntityTypeConfiguration<SavedReport>
+public sealed class SavedReportConfiguration : IEntityTypeConfiguration<SavedReport>
 {
     public void Configure(EntityTypeBuilder<SavedReport> builder)
     {

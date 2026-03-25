@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class PlatformCommissionRepository : IPlatformCommissionRepository
+public sealed class PlatformCommissionRepository : IPlatformCommissionRepository
 {
     private readonly AppDbContext _context;
 

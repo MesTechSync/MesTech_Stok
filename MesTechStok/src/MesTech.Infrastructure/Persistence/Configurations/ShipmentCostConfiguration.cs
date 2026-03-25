@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ShipmentCostConfiguration : IEntityTypeConfiguration<ShipmentCost>
+public sealed class ShipmentCostConfiguration : IEntityTypeConfiguration<ShipmentCost>
 {
     public void Configure(EntityTypeBuilder<ShipmentCost> builder)
     {

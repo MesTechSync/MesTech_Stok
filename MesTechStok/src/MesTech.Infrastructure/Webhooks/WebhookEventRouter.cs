@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Webhooks;
 /// order.created → OrderReceivedEvent, order.cancelled → OrderCancelledEvent, vb.
 /// MediatR IPublisher ile event'leri broadcast eder.
 /// </summary>
-public class WebhookEventRouter
+public sealed class WebhookEventRouter
 {
     private readonly IPublisher _publisher;
     private readonly ILogger<WebhookEventRouter> _logger;

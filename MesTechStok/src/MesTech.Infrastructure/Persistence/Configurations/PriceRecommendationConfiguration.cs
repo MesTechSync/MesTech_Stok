@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class PriceRecommendationConfiguration : IEntityTypeConfiguration<PriceRecommendation>
+public sealed class PriceRecommendationConfiguration : IEntityTypeConfiguration<PriceRecommendation>
 {
     public void Configure(EntityTypeBuilder<PriceRecommendation> builder)
     {

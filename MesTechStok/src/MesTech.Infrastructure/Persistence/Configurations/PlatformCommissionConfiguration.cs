@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class PlatformCommissionConfiguration : IEntityTypeConfiguration<PlatformCommission>
+public sealed class PlatformCommissionConfiguration : IEntityTypeConfiguration<PlatformCommission>
 {
     public void Configure(EntityTypeBuilder<PlatformCommission> builder)
     {

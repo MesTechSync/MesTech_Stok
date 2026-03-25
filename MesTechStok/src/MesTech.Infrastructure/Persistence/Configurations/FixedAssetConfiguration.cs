@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class FixedAssetConfiguration : IEntityTypeConfiguration<FixedAsset>
+public sealed class FixedAssetConfiguration : IEntityTypeConfiguration<FixedAsset>
 {
     public void Configure(EntityTypeBuilder<FixedAsset> builder)
     {

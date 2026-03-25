@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// DropshipOrder entity EF Core Fluent API configuration.
 /// </summary>
-public class DropshipOrderConfiguration : IEntityTypeConfiguration<DropshipOrder>
+public sealed class DropshipOrderConfiguration : IEntityTypeConfiguration<DropshipOrder>
 {
     public void Configure(EntityTypeBuilder<DropshipOrder> builder)
     {

@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories.Crm;
 /// <summary>
 /// EF Core implementation for Deal aggregate persistence.
 /// </summary>
-public class CrmDealRepository : ICrmDealRepository
+public sealed class CrmDealRepository : ICrmDealRepository
 {
     private readonly AppDbContext _context;
 

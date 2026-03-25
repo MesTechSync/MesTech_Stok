@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class CommissionRecordRepository : ICommissionRecordRepository
+public sealed class CommissionRecordRepository : ICommissionRecordRepository
 {
     private readonly AppDbContext _context;
     public CommissionRecordRepository(AppDbContext context) => _context = context;

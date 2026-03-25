@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Security;
 /// AES-256-GCM ile credential şifreleme servisi.
 /// StoreCredential değerlerini şifreler/çözer.
 /// </summary>
-public class AesGcmEncryptionService
+public sealed class AesGcmEncryptionService
 {
     private readonly byte[] _key;
 

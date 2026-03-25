@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class FeedImportLogConfiguration : IEntityTypeConfiguration<FeedImportLog>
+public sealed class FeedImportLogConfiguration : IEntityTypeConfiguration<FeedImportLog>
 {
     public void Configure(EntityTypeBuilder<FeedImportLog> builder)
     {

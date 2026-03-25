@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Dropshipping;
 
-public class DropshipOrderRepository : IDropshipOrderRepository
+public sealed class DropshipOrderRepository : IDropshipOrderRepository
 {
     private readonly AppDbContext _context;
 

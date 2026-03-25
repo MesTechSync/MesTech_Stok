@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 /// EF Core implementasyonu — IDropshippingPoolRepository.
 /// Sprint-B DEV1 B-06
 /// </summary>
-public class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepository
+public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingPoolRepository
 {
     public async Task<DropshippingPool?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.DropshippingPools

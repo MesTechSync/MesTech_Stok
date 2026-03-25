@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class AccountingDocumentRepository : IAccountingDocumentRepository
+public sealed class AccountingDocumentRepository : IAccountingDocumentRepository
 {
     private readonly AppDbContext _context;
     public AccountingDocumentRepository(AppDbContext context) => _context = context;

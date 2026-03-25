@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class SettlementBatchConfiguration : IEntityTypeConfiguration<SettlementBatch>
+public sealed class SettlementBatchConfiguration : IEntityTypeConfiguration<SettlementBatch>
 {
     public void Configure(EntityTypeBuilder<SettlementBatch> builder)
     {

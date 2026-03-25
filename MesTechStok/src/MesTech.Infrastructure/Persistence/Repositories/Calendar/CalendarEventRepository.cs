@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Infrastructure.Persistence.Repositories.Calendar;
 
-public class CalendarEventRepository : ICalendarEventRepository
+public sealed class CalendarEventRepository : ICalendarEventRepository
 {
     private readonly AppDbContext _context;
 

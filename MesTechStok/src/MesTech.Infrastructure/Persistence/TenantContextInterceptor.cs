@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Persistence;
 /// Her SQL komutu oncesi SET app.current_tenant_id ile tenant context olusturur.
 /// RLS policy'leri bu degiskeni kullanarak satir seviyesinde izolasyon saglar.
 /// </summary>
-public class TenantContextInterceptor : DbCommandInterceptor
+public sealed class TenantContextInterceptor : DbCommandInterceptor
 {
     private readonly ITenantProvider _tenantProvider;
 

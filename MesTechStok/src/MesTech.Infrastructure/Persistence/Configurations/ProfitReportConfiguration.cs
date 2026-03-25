@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class ProfitReportConfiguration : IEntityTypeConfiguration<ProfitReport>
+public sealed class ProfitReportConfiguration : IEntityTypeConfiguration<ProfitReport>
 {
     public void Configure(EntityTypeBuilder<ProfitReport> builder)
     {

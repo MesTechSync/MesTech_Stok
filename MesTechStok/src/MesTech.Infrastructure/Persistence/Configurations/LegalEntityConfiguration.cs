@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class LegalEntityConfiguration : IEntityTypeConfiguration<LegalEntity>
+public sealed class LegalEntityConfiguration : IEntityTypeConfiguration<LegalEntity>
 {
     public void Configure(EntityTypeBuilder<LegalEntity> builder)
     {

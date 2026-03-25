@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class BudgetPlanConfiguration : IEntityTypeConfiguration<BudgetPlan>
+public sealed class BudgetPlanConfiguration : IEntityTypeConfiguration<BudgetPlan>
 {
     public void Configure(EntityTypeBuilder<BudgetPlan> builder)
     {

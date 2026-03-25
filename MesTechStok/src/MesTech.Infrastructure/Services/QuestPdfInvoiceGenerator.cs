@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Services;
 /// QuestPDF ile fatura/irsaliye/SMM PDF üretimi.
 /// Türkiye e-Fatura standardına uygun A4 şablon.
 /// </summary>
-public class QuestPdfInvoiceGenerator : IInvoicePdfGenerator
+public sealed class QuestPdfInvoiceGenerator : IInvoicePdfGenerator
 {
     private readonly ILogger<QuestPdfInvoiceGenerator> _logger;
 

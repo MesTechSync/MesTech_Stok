@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.AI;
 /// Template bazli bildirim uretimi: siparis, stok, kargo.
 /// Dalga 2+: RealMesaBotClient ile DI'dan swap edilecek.
 /// </summary>
-public class MockMesaBotService : IMesaBotService
+public sealed class MockMesaBotService : IMesaBotService
 {
     private readonly ILogger<MockMesaBotService> _logger;
 

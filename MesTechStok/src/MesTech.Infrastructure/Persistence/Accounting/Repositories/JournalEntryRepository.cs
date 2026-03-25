@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class JournalEntryRepository : IJournalEntryRepository
+public sealed class JournalEntryRepository : IJournalEntryRepository
 {
     private readonly AppDbContext _context;
     public JournalEntryRepository(AppDbContext context) => _context = context;

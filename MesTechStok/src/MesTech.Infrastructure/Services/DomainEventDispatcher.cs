@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Services;
 /// Domain event dispatcher — MediatR INotification ile event handler'ları çağırır.
 /// SaveChanges sonrası UnitOfWork tarafından tetiklenir.
 /// </summary>
-public class DomainEventDispatcher : IDomainEventDispatcher
+public sealed class DomainEventDispatcher : IDomainEventDispatcher
 {
     private readonly IMediator _mediator;
     private readonly ILogger<DomainEventDispatcher> _logger;

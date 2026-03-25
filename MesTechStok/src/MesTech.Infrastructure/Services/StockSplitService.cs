@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Services;
 
-public class StockSplitService : IStockSplitService
+public sealed class StockSplitService : IStockSplitService
 {
     private readonly AppDbContext _context;
 

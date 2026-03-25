@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
+public sealed class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
 {
     private readonly AppDbContext _context;
     public EInvoiceDocumentRepository(AppDbContext context) => _context = context;

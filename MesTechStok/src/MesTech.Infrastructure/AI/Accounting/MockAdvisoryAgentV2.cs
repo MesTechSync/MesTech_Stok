@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.AI.Accounting;
 /// Mock Advisory Agent V2 — gercek MESA OS olmadan test/gelistirme icin.
 /// Statik ornek verilerle gunluk satis tavsiyesi olusturur.
 /// </summary>
-public class MockAdvisoryAgentV2 : IAdvisoryAgentV2
+public sealed class MockAdvisoryAgentV2 : IAdvisoryAgentV2
 {
     private readonly ILogger<MockAdvisoryAgentV2> _logger;
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CampaignProductConfiguration : IEntityTypeConfiguration<CampaignProduct>
+public sealed class CampaignProductConfiguration : IEntityTypeConfiguration<CampaignProduct>
 {
     public void Configure(EntityTypeBuilder<CampaignProduct> builder)
     {

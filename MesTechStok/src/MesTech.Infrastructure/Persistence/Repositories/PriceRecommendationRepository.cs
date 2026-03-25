@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
-public class PriceRecommendationRepository : IPriceRecommendationRepository
+public sealed class PriceRecommendationRepository : IPriceRecommendationRepository
 {
     private readonly AppDbContext _context;
 

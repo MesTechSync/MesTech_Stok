@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// OrderItem entity EF Core Fluent API configuration.
 /// </summary>
-public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
+public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 {
     public void Configure(EntityTypeBuilder<OrderItem> builder)
     {

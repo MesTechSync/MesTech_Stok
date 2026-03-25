@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Warehouse entity EF Core Fluent API configuration.
 /// </summary>
-public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
+public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 {
     public void Configure(EntityTypeBuilder<Warehouse> builder)
     {

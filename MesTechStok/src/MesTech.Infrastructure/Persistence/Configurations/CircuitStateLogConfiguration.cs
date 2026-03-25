@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class CircuitStateLogConfiguration : IEntityTypeConfiguration<CircuitStateLog>
+public sealed class CircuitStateLogConfiguration : IEntityTypeConfiguration<CircuitStateLog>
 {
     public void Configure(EntityTypeBuilder<CircuitStateLog> builder)
     {

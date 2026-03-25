@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class LoyaltyProgramConfiguration : IEntityTypeConfiguration<LoyaltyProgram>
+public sealed class LoyaltyProgramConfiguration : IEntityTypeConfiguration<LoyaltyProgram>
 {
     public void Configure(EntityTypeBuilder<LoyaltyProgram> builder)
     {

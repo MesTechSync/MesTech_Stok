@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Services;
 /// İnternet bağlantı kontrolü — iskelet implementasyon (Dalga 3'te tamamlanacak).
 /// Şu an her zaman online döner.
 /// </summary>
-public class ConnectivityService : IConnectivityService
+public sealed class ConnectivityService : IConnectivityService
 {
     private readonly ILogger<ConnectivityService> _logger;
 

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.AI;
 
-public class MockBuyboxService : IBuyboxService
+public sealed class MockBuyboxService : IBuyboxService
 {
     private readonly ILogger<MockBuyboxService> _logger;
 

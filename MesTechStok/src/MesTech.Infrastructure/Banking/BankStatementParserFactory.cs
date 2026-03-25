@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Banking;
 /// Banka ekstre parser factory.
 /// Format tespiti (ilk bytes/satir) ve format adina gore parser secimi.
 /// </summary>
-public class BankStatementParserFactory : IBankStatementParserFactory
+public sealed class BankStatementParserFactory : IBankStatementParserFactory
 {
     private readonly Dictionary<string, IBankStatementParser> _parsers;
     private readonly ILogger<BankStatementParserFactory> _logger;

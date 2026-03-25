@@ -47,7 +47,7 @@ public record TaxLineItem(string Description, string AccountCode, decimal Amount
 /// Odenecek KDV = 391 - 191
 /// Sonuc negatifse → Devreden KDV (190 hesabi)
 /// </summary>
-public class TaxPrepAgent : ITaxPrepAgent
+public sealed class TaxPrepAgent : ITaxPrepAgent
 {
     private const string TaxDisclaimer =
         "Bu bir TASLAK rapordur. Kesin beyanname mali musavir tarafindan hazirlanmalidir.";

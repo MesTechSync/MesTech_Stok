@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Services;
 /// Generic rapor export servisi — reflection ile herhangi bir DTO tipini Excel veya CSV'ye cevirir.
 /// EPPlus (NonCommercial lisans) Excel uretimi, UTF-8 BOM CSV export.
 /// </summary>
-public class ReportExportService : IReportExportService
+public sealed class ReportExportService : IReportExportService
 {
     // UTF-8 BOM — Excel'in Turkce karakterleri dogru okuyabilmesi icin gerekli
     private static readonly Encoding Utf8Bom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);

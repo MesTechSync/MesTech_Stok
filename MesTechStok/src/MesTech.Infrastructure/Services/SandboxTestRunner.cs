@@ -10,7 +10,7 @@ namespace MesTech.Infrastructure.Services;
 /// For each adapter: Ping (if IPingableAdapter), TestConnectionAsync, and GetCategoriesAsync.
 /// No real credentials in code — sandbox credentials come from user-secrets.
 /// </summary>
-public class SandboxTestRunner : ISandboxTestRunner
+public sealed class SandboxTestRunner : ISandboxTestRunner
 {
     private readonly IAdapterFactory _adapterFactory;
     private readonly IConfiguration _configuration;

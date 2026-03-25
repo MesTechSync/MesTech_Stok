@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
 
-public class ReconciliationMatchRepository : IReconciliationMatchRepository
+public sealed class ReconciliationMatchRepository : IReconciliationMatchRepository
 {
     private readonly AppDbContext _context;
     public ReconciliationMatchRepository(AppDbContext context) => _context = context;

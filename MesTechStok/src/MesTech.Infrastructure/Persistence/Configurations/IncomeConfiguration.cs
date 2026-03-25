@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Income entity EF Core Fluent API configuration.
 /// </summary>
-public class IncomeConfiguration : IEntityTypeConfiguration<Income>
+public sealed class IncomeConfiguration : IEntityTypeConfiguration<Income>
 {
     public void Configure(EntityTypeBuilder<Income> builder)
     {

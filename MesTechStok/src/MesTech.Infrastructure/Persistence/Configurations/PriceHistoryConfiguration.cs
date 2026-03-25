@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class PriceHistoryConfiguration : IEntityTypeConfiguration<PriceHistory>
+public sealed class PriceHistoryConfiguration : IEntityTypeConfiguration<PriceHistory>
 {
     public void Configure(EntityTypeBuilder<PriceHistory> builder)
     {

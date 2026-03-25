@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class DocumentFolderConfiguration : IEntityTypeConfiguration<DocumentFolder>
+public sealed class DocumentFolderConfiguration : IEntityTypeConfiguration<DocumentFolder>
 {
     public void Configure(EntityTypeBuilder<DocumentFolder> builder)
     {

@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.AI;
 /// Endpoint: Mesa:ApiUrl (appsettings: http://localhost:3000/api)
 /// Circuit Breaker: 3 ardisik hata sonrasi 30s acik kalir, sonra half-open ile test eder.
 /// </summary>
-public class ProductionMesaAIService : IMesaAIService
+public sealed class ProductionMesaAIService : IMesaAIService
 {
     private readonly HttpClient _httpClient;
     private readonly MockMesaAIService _mockFallback;

@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.AI.Accounting;
 /// Demir Kural #12: MESA kopunca MockMesaAccountingService'e fallback yapar.
 /// Endpoint: localhost:3101 (MESA Status port).
 /// </summary>
-public class RealMesaAccountingClient : IMesaAccountingService
+public sealed class RealMesaAccountingClient : IMesaAccountingService
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;

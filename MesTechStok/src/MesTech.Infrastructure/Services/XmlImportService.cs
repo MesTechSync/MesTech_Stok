@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Infrastructure.Services;
 
-public class XmlImportService : IXmlImportService
+public sealed class XmlImportService : IXmlImportService
 {
     public async Task<XmlImportResult> ImportProductsAsync(Stream xmlStream, CancellationToken ct = default)
     {

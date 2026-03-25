@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.AI;
 
-public class MockPriceOptimizationService : IPriceOptimizationService
+public sealed class MockPriceOptimizationService : IPriceOptimizationService
 {
     private readonly ILogger<MockPriceOptimizationService> _logger;
 

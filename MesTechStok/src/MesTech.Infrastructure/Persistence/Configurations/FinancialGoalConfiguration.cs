@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MesTech.Infrastructure.Persistence.Configurations;
 
-public class FinancialGoalConfiguration : IEntityTypeConfiguration<FinancialGoal>
+public sealed class FinancialGoalConfiguration : IEntityTypeConfiguration<FinancialGoal>
 {
     public void Configure(EntityTypeBuilder<FinancialGoal> builder)
     {
