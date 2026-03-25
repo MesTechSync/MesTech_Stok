@@ -360,6 +360,26 @@ app.UseRequestTimeouts();
 // Output cache middleware — after auth, before endpoints (KEŞİF-DEV6-T7)
 app.UseOutputCache();
 
+// TenantId validation — reject Guid.Empty to prevent cross-tenant data access (KEŞİF-DEV6-T13)
+app.Use(async (context, next) =>
+{
+    var tenantId = context.Request.Query["tenantId"].FirstOrDefault();
+    if (tenantId != null && Guid.TryParse(tenantId, out var parsed) && parsed == Guid.Empty)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            title = "Bad Request",
+            status = 400,
+            detail = "tenantId cannot be empty (Guid.Empty). Provide a valid tenant identifier."
+        });
+        return;
+    }
+    await next();
+});
+
 // Health + Metrics endpoints (HealthCheckService + Prometheus — no auth bypass paths)
 HealthEndpoints.Map(app);
 
