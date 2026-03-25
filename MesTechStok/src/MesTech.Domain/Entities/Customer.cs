@@ -73,6 +73,8 @@ public sealed class Customer : BaseEntity, ITenantEntity
 
     public void AdjustBalance(decimal amount)
     {
+        if (amount == 0)
+            throw new ArgumentException("Adjustment amount cannot be zero.", nameof(amount));
         CurrentBalance += amount;
     }
 

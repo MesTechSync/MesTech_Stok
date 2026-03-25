@@ -251,12 +251,18 @@ public sealed class Product : BaseEntity, ITenantEntity
 
     public void UpdateAiPriceSnapshot(decimal recommendedPrice)
     {
+        if (recommendedPrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(recommendedPrice), "Recommended price cannot be negative.");
         RecommendedPrice = recommendedPrice;
         LastAiPriceAt = DateTime.UtcNow;
     }
 
     public void UpdateAiStockSnapshot(int predictedDemand7d, int daysUntilStockout)
     {
+        if (predictedDemand7d < 0)
+            throw new ArgumentOutOfRangeException(nameof(predictedDemand7d), "Predicted demand cannot be negative.");
+        if (daysUntilStockout < 0)
+            throw new ArgumentOutOfRangeException(nameof(daysUntilStockout), "Days until stockout cannot be negative.");
         PredictedDemand7d = predictedDemand7d;
         DaysUntilStockout = daysUntilStockout;
         LastAiStockAt = DateTime.UtcNow;
