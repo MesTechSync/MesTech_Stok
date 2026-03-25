@@ -51,15 +51,17 @@ public class InvoiceCancelledReversalHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ZeroAmount_ThrowsArgumentException()
+    public async Task HandleAsync_ZeroAmount_SkipsReversalAndDoesNotSave()
     {
         var handler = CreateHandler();
 
-        // 0 TL fatura → JournalEntry.AddLine(0,0) domain guard fırlatır
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            handler.HandleAsync(
-                Guid.NewGuid(), Guid.NewGuid(), "INV-ZERO",
-                "Test", Guid.NewGuid(), 0m, CancellationToken.None));
+        // 0 TL fatura → grandTotal <= 0 early return — ters GL atlanır
+        await handler.HandleAsync(
+            Guid.NewGuid(), Guid.NewGuid(), "INV-ZERO",
+            "Test", Guid.NewGuid(), 0m, CancellationToken.None);
+
+        // SaveChanges çağrılmamalı — ters kayıt oluşturulmadı
+        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
