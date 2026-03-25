@@ -14,6 +14,6 @@ public class BudgetPlan : BaseEntity, ITenantEntity
     public decimal PlannedExpense { get; set; }
     public decimal ActualRevenue { get; set; }
     public decimal ActualExpense { get; set; }
-    public decimal Variance => (ActualRevenue - ActualExpense) - (PlannedRevenue - PlannedExpense);
+    public decimal Variance { get => (ActualRevenue - ActualExpense) - (PlannedRevenue - PlannedExpense); private set { } }
     public string Status { get; set; } = "Draft";  // Draft, Active, Closed
 }

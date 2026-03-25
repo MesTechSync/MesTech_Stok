@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using MesTech.Blazor.Components;
 using MesTech.Blazor.Services;
@@ -135,6 +137,35 @@ var hostedServicesToRemove = builder.Services
 foreach (var descriptor in hostedServicesToRemove)
     builder.Services.Remove(descriptor);
 
+// ── Rate Limiting (anti-brute-force login + general throttle) ──
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Login: fixed window — 5 requests / 1 minute per IP
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    // General: sliding window — 100 requests / minute per IP
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 4,
+                QueueLimit = 0
+            }));
+});
+
 // Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
 
 var app = builder.Build();
@@ -149,10 +180,14 @@ app.UseResponseCompression();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseRequestLocalization();
+app.UseRateLimiter();
 app.UseAntiforgery();
 
 // Health endpoint — Docker healthcheck + Prometheus + load balancer
 app.MapHealthChecks("/health");
+
+// Login rate limit — apply "login" policy to /login path
+app.MapGet("/login", () => Results.Redirect("/login")).RequireRateLimiting("login");
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
