@@ -28,7 +28,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 ///   - GET  /api/customers         (account balances)
 ///   - GET  /api/ping              (health check)
 /// </summary>
-public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable, IErpWaybillCapable
+public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable, IErpWaybillCapable, IErpPriceCapable
 {
     private readonly HttpClient _httpClient;
     private readonly NebimOptions _options;
@@ -957,5 +957,110 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             _httpClient.DefaultRequestHeaders.Remove("X-Nebim-Database");
             _httpClient.DefaultRequestHeaders.Add("X-Nebim-Database", _options.DatabaseCode);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpPriceCapable — Nebim price capability
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Retrieves all product prices from Nebim catalog.
+    /// GET /api/products
+    /// </summary>
+    public async Task<List<ErpPriceItem>> GetProductPricesAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("[NebimERPAdapter] GetProductPricesAsync");
+
+#pragma warning disable CA1031 // Intentional: graceful degradation — return empty on error
+        try
+        {
+            SetApiKeyHeader();
+
+            var url = $"{BaseUrl}/api/products?officeCode={_options.OfficeCode}";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning(
+                    "[NebimERPAdapter] GetProductPrices failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                return new List<ErpPriceItem>();
+            }
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
+            var items = new List<ErpPriceItem>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var productCode = item.TryGetProperty("productCode", out var pc)
+                    ? pc.GetString() ?? string.Empty : string.Empty;
+                var productName = item.TryGetProperty("productDescription", out var pd)
+                    ? pd.GetString() ?? string.Empty : string.Empty;
+                var purchasePrice = item.TryGetProperty("purchasePrice", out var pp)
+                    ? pp.GetDecimal() : 0m;
+                var salePrice = item.TryGetProperty("retailPrice", out var rp)
+                    ? rp.GetDecimal() : 0m;
+                var listPrice = item.TryGetProperty("listPrice", out var lp)
+                    ? (decimal?)lp.GetDecimal() : null;
+                var currency = item.TryGetProperty("currencyCode", out var cc)
+                    ? cc.GetString() ?? "TRY" : "TRY";
+
+                items.Add(new ErpPriceItem(productCode, productName, purchasePrice, salePrice, listPrice, currency));
+            }
+
+            _logger.LogInformation(
+                "[NebimERPAdapter] Retrieved {Count} price items from Nebim", items.Count);
+            return items;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetProductPricesAsync exception");
+            return new List<ErpPriceItem>();
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <summary>
+    /// Retrieves price for a specific product code.
+    /// GET /api/products/{productCode}
+    /// </summary>
+    public async Task<ErpPriceItem?> GetPriceByCodeAsync(string productCode, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(productCode);
+
+#pragma warning disable CA1031
+        try
+        {
+            SetApiKeyHeader();
+
+            var url = $"{BaseUrl}/api/products/{Uri.EscapeDataString(productCode)}";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
+            var item = json.RootElement;
+
+            var name = item.TryGetProperty("productDescription", out var pd)
+                ? pd.GetString() ?? string.Empty : string.Empty;
+            var purchasePrice = item.TryGetProperty("purchasePrice", out var pp)
+                ? pp.GetDecimal() : 0m;
+            var salePrice = item.TryGetProperty("retailPrice", out var rp)
+                ? rp.GetDecimal() : 0m;
+            var listPrice = item.TryGetProperty("listPrice", out var lp)
+                ? (decimal?)lp.GetDecimal() : null;
+            var currency = item.TryGetProperty("currencyCode", out var cc)
+                ? cc.GetString() ?? "TRY" : "TRY";
+
+            return new ErpPriceItem(productCode, name, purchasePrice, salePrice, listPrice, currency);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
+            return null;
+        }
+#pragma warning restore CA1031
     }
 }
