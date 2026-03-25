@@ -159,7 +159,7 @@ public class OrchestratorTests
 
         var productId = Guid.NewGuid();
         var stockEvent = new StockChangedEvent(
-            productId, "SKU-001", 10, 15,
+            productId, Guid.NewGuid(), "SKU-001", 10, 15,
             StockMovementType.StockIn, DateTime.UtcNow);
 
         // Act
@@ -192,7 +192,7 @@ public class OrchestratorTests
 
         var productId = Guid.NewGuid();
         var priceEvent = new PriceChangedEvent(
-            productId, "SKU-001", 99.90m, 79.90m, DateTime.UtcNow);
+            productId, Guid.NewGuid(), "SKU-001", 99.90m, 79.90m, DateTime.UtcNow);
 
         // Act
         await orchestrator.HandlePriceChangedAsync(priceEvent);

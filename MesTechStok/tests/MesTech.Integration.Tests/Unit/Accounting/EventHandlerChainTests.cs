@@ -40,7 +40,7 @@ public class EventHandlerChainTests
         // Arrange
         var orderId = Guid.NewGuid();
         var orderEvent = new OrderReceivedEvent(
-            orderId, "Trendyol", "TY-2026-001", 5_000m, DateTime.UtcNow);
+            orderId, Guid.NewGuid(), "Trendyol", "TY-2026-001", 5_000m, DateTime.UtcNow);
         var notification = new DomainEventNotification<OrderReceivedEvent>(orderEvent);
 
         var handler = CreateOrderHandler();
@@ -63,7 +63,7 @@ public class EventHandlerChainTests
         // Arrange — Hepsiburada siparisi
         var orderId = Guid.NewGuid();
         var orderEvent = new OrderReceivedEvent(
-            orderId, "Hepsiburada", "HB-2026-042", 3_500m, DateTime.UtcNow);
+            orderId, Guid.NewGuid(), "Hepsiburada", "HB-2026-042", 3_500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<OrderReceivedEvent>(orderEvent);
 
         var handler = CreateOrderHandler();
@@ -87,7 +87,7 @@ public class EventHandlerChainTests
         var orderId = Guid.NewGuid();
         var totalAmount = 7_500m;
         var orderEvent = new OrderReceivedEvent(
-            orderId, "N11", "N11-2026-099", totalAmount, DateTime.UtcNow);
+            orderId, Guid.NewGuid(), "N11", "N11-2026-099", totalAmount, DateTime.UtcNow);
         var notification = new DomainEventNotification<OrderReceivedEvent>(orderEvent);
 
         var handler = CreateOrderHandler();
@@ -111,8 +111,8 @@ public class EventHandlerChainTests
         var orderId1 = Guid.NewGuid();
         var orderId2 = Guid.NewGuid();
 
-        var event1 = new OrderReceivedEvent(orderId1, "Trendyol", "TY-001", 1_000m, DateTime.UtcNow);
-        var event2 = new OrderReceivedEvent(orderId2, "Trendyol", "TY-002", 2_000m, DateTime.UtcNow);
+        var event1 = new OrderReceivedEvent(orderId1, Guid.NewGuid(), "Trendyol", "TY-001", 1_000m, DateTime.UtcNow);
+        var event2 = new OrderReceivedEvent(orderId2, Guid.NewGuid(), "Trendyol", "TY-002", 2_000m, DateTime.UtcNow);
 
         var handler = CreateOrderHandler();
 
@@ -138,7 +138,7 @@ public class EventHandlerChainTests
         // idempotency MassTransit consumer tarafinda saglanir)
         var orderId = Guid.NewGuid();
         var orderEvent = new OrderReceivedEvent(
-            orderId, "Trendyol", "TY-DUP-001", 1_500m, DateTime.UtcNow);
+            orderId, Guid.NewGuid(), "Trendyol", "TY-DUP-001", 1_500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<OrderReceivedEvent>(orderEvent);
 
         var handler = CreateOrderHandler();
@@ -163,7 +163,7 @@ public class EventHandlerChainTests
         var invoiceId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
         var invoiceEvent = new InvoiceCreatedEvent(
-            invoiceId, orderId, InvoiceType.EFatura, 12_000m, DateTime.UtcNow);
+            invoiceId, orderId, Guid.NewGuid(), InvoiceType.EFatura, 12_000m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(invoiceEvent);
 
         var handler = CreateInvoiceHandler();
@@ -187,7 +187,7 @@ public class EventHandlerChainTests
         var invoiceId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
         var invoiceEvent = new InvoiceCreatedEvent(
-            invoiceId, orderId, InvoiceType.EArsiv, 8_500m, DateTime.UtcNow);
+            invoiceId, orderId, Guid.NewGuid(), InvoiceType.EArsiv, 8_500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(invoiceEvent);
 
         var handler = CreateInvoiceHandler();
@@ -212,7 +212,7 @@ public class EventHandlerChainTests
         var orderId = Guid.NewGuid();
         var grandTotal = 15_750.50m;
         var invoiceEvent = new InvoiceCreatedEvent(
-            invoiceId, orderId, InvoiceType.EFatura, grandTotal, DateTime.UtcNow);
+            invoiceId, orderId, Guid.NewGuid(), InvoiceType.EFatura, grandTotal, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(invoiceEvent);
 
         var handler = CreateInvoiceHandler();

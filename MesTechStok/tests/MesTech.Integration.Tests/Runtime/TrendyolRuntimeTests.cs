@@ -112,6 +112,7 @@ public class TrendyolRuntimeTests
 
         var stockEvent = new StockChangedEvent(
             ProductId: Guid.NewGuid(),
+            TenantId: Guid.NewGuid(),
             SKU: "TEST-SKU",
             PreviousQuantity: 10,
             NewQuantity: 5,
@@ -139,6 +140,7 @@ public class TrendyolRuntimeTests
 
         var stockEvent = new StockChangedEvent(
             ProductId: Guid.NewGuid(),
+            TenantId: Guid.NewGuid(),
             SKU: "HANDLER-TEST-SKU",
             PreviousQuantity: 20,
             NewQuantity: 15,
