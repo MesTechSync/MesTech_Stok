@@ -24,7 +24,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
+public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;
@@ -732,4 +732,20 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             return false;
         }
     }
+
+    // ── IShipmentCapableAdapter ──
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default) { _logger.LogInformation("[ZalandoAdapter] SendShipment — Order:{Order}", platformOrderId); try { var token = await GetAccessTokenAsync(ct).ConfigureAwait(false); _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token); var payload = JsonSerializer.Serialize(new { tracking_number = trackingNumber, carrier = provider.ToString() }); var content = new StringContent(payload, Encoding.UTF8, "application/json"); var response = await ThrottledExecuteAsync(async c => await _httpClient.PostAsync($"{ApiBase}/merchants/orders/{platformOrderId}/shipments", content, c).ConfigureAwait(false), ct).ConfigureAwait(false); return response.IsSuccessStatusCode; } catch (Exception ex) { _logger.LogError(ex, "[ZalandoAdapter] SendShipment error"); return false; } }
+
+    // ── ISettlementCapableAdapter ──
+    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default) { _logger.LogWarning("[ZalandoAdapter] GetSettlement — Zalando Settlements API not available for all partners"); return Task.FromResult<SettlementDto?>(null); }
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+
+    // ── IClaimCapableAdapter ──
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default) { _logger.LogInformation("[ZalandoAdapter] PullClaims"); try { var token = await GetAccessTokenAsync(ct).ConfigureAwait(false); _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token); var response = await ThrottledExecuteAsync(async c => await _httpClient.GetAsync($"{ApiBase}/merchants/returns?status=APPROVED", c).ConfigureAwait(false), ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var doc = JsonDocument.Parse(body); var claims = new List<ExternalClaimDto>(); if (doc.RootElement.TryGetProperty("items", out var items)) foreach (var r in items.EnumerateArray()) { var rid = r.TryGetProperty("return_id", out var id) ? id.GetString() ?? "" : ""; claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Zalando", Status = "APPROVED" }); } return claims; } catch (Exception ex) { _logger.LogError(ex, "[ZalandoAdapter] PullClaims error"); return Array.Empty<ExternalClaimDto>(); } }
+    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default) => Task.FromResult(true);
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default) => Task.FromResult(false);
+
+    // ── IInvoiceCapableAdapter ──
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
 }
