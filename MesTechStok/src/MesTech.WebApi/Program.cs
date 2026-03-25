@@ -230,6 +230,24 @@ app.UseHttpsRedirection();
 // Response compression — before static files and routing (KEŞİF-DEV6)
 app.UseResponseCompression();
 
+// Correlation ID — propagate or generate X-Correlation-ID for distributed tracing (KEŞİF-DEV6)
+app.Use(async (context, next) =>
+{
+    const string header = "X-Correlation-ID";
+    var correlationId = context.Request.Headers[header].FirstOrDefault()
+        ?? Guid.NewGuid().ToString("N");
+    context.Items["CorrelationId"] = correlationId;
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers[header] = correlationId;
+        return Task.CompletedTask;
+    });
+    using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
+    {
+        await next();
+    }
+});
+
 // Security headers (OWASP recommended)
 app.Use(async (context, next) =>
 {
@@ -241,8 +259,20 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Serilog HTTP request logging — structured log per request
-app.UseSerilogRequestLogging();
+// Serilog HTTP request logging — structured log per request with timing (KEŞİF-DEV6)
+app.UseSerilogRequestLogging(options =>
+{
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? string.Empty);
+        diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.FirstOrDefault() ?? string.Empty);
+        if (httpContext.Items.TryGetValue("CorrelationId", out var cid))
+            diagnosticContext.Set("CorrelationId", cid?.ToString() ?? string.Empty);
+        var apiKey = httpContext.Request.Headers["X-API-Key"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(apiKey))
+            diagnosticContext.Set("ApiKeyPrefix", apiKey[..Math.Min(8, apiKey.Length)] + "...");
+    };
+});
 
 // CORS middleware — before auth and exception handler
 app.UseCors("SaaS");
