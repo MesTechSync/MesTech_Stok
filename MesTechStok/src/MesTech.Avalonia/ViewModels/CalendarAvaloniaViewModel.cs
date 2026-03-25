@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Calendar.Queries.GetCalendarEvents;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -28,36 +29,21 @@ public partial class CalendarAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            var result = await _mediator.Send(new GetCalendarEventsQuery(Guid.Empty));
+
             Events.Clear();
-            Events.Add(new CalendarEventVm
+            foreach (var e in result)
             {
-                Id = Guid.NewGuid(), Title = "ABC Ltd Demo",
-                StartDate = DateTime.Now.AddDays(1).Date.AddHours(10),
-                EndDate = DateTime.Now.AddDays(1).Date.AddHours(11),
-                Type = "Toplanti", Color = "#3B82F6"
-            });
-            Events.Add(new CalendarEventVm
-            {
-                Id = Guid.NewGuid(), Title = "Sprint Planlama",
-                StartDate = DateTime.Now.AddDays(2).Date.AddHours(14),
-                EndDate = DateTime.Now.AddDays(2).Date.AddHours(15),
-                Type = "Toplanti", Color = "#8B5CF6"
-            });
-            Events.Add(new CalendarEventVm
-            {
-                Id = Guid.NewGuid(), Title = "Teklif son gun — XYZ AS",
-                StartDate = DateTime.Now.AddDays(3).Date.AddHours(17),
-                EndDate = DateTime.Now.AddDays(3).Date.AddHours(17),
-                Type = "Hatirlatma", Color = "#EF4444"
-            });
-            Events.Add(new CalendarEventVm
-            {
-                Id = Guid.NewGuid(), Title = "Fatma Demir takip araması",
-                StartDate = DateTime.Now.AddDays(4).Date.AddHours(9),
-                EndDate = DateTime.Now.AddDays(4).Date.AddHours(9).AddMinutes(30),
-                Type = "Arama", Color = "#10B981"
-            });
+                Events.Add(new CalendarEventVm
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    StartDate = e.StartAt,
+                    EndDate = e.EndAt,
+                    Type = e.Type.ToString(),
+                    Color = e.Color ?? "#3B82F6"
+                });
+            }
             TotalCount = Events.Count;
             IsEmpty = Events.Count == 0;
         }
