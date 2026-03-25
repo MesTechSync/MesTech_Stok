@@ -40,7 +40,7 @@
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
                                 <TextBlock Text="Tarih" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <DatePicker SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Stretch" />
+                                <DatePicker SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Stretch"  AutomationProperties.Name="Tarih" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4" Margin="0,0,12,12">
                                 <TextBlock Text="Baslangic Saati" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />

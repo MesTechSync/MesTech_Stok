@@ -51,8 +51,8 @@
     <!-- Filters -->
     <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12" Margin="0,0,0,12" BoxShadow="{DynamicResource MesElevation1}">
       <StackPanel Orientation="Horizontal" Spacing="12">
-        <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Width="120" PlaceholderText="Ay"/>
-        <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Width="100" PlaceholderText="Yil"/>
+        <ComboBox ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Width="120" PlaceholderText="Ay" AutomationProperties.Name="Ay" />
+        <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Width="100" PlaceholderText="Yil" AutomationProperties.Name="Yil" />
       </StackPanel>
     </Border>
 

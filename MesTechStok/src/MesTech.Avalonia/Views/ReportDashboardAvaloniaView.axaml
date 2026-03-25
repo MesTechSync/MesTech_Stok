@@ -118,14 +118,14 @@
                             <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
                                 <TextBlock Text="Baslangic Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
-                                <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch" />
+                                <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch"  AutomationProperties.Name="Baslangic Tarihi" />
                             </StackPanel>
 
                             <!-- End Date -->
                             <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
                                 <TextBlock Text="Bitis Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
-                                <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch" />
+                                <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch"  AutomationProperties.Name="Bitis Tarihi" />
                             </StackPanel>
 
                             <!-- Export Format -->

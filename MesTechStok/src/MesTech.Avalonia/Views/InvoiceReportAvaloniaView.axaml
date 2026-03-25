@@ -40,11 +40,11 @@
                 <TextBlock Text="Baslangic:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{DynamicResource TextSecondaryBrush}"/>
-                <DatePicker SelectedDate="{Binding FromDate}" Width="160"/>
+                <DatePicker SelectedDate="{Binding FromDate}" Width="160" AutomationProperties.Name="Baslangic:" />
                 <TextBlock Text="Bitis:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{DynamicResource TextSecondaryBrush}"/>
-                <DatePicker SelectedDate="{Binding ToDate}" Width="160"/>
+                <DatePicker SelectedDate="{Binding ToDate}" Width="160" AutomationProperties.Name="Bitis:" />
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}"/>
                 <Button Command="{Binding RefreshCommand}" Background="Transparent"

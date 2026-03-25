@@ -29,7 +29,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Calisan ara..." AutomationProperties.Name="Calisan ara..." Width="250" HorizontalAlignment="Left" />
-                <ComboBox Grid.Column="1" PlaceholderText="Departman" Width="140" Margin="8,0" />
+                <ComboBox Grid.Column="1" PlaceholderText="Departman" Width="140" Margin="8,0"  AutomationProperties.Name="Departman" />
                 <Button Grid.Column="2" Content="+ Calisan Ekle" Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
                         ToolTip.Tip="+ Calisan Ekle"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />

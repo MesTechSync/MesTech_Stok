@@ -26,7 +26,7 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Tarih Aralığı:" VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
-                <DatePicker SelectedDate="{Binding StartDate}" />
+                <DatePicker SelectedDate="{Binding StartDate}"  AutomationProperties.Name="Tarih Aralığı:" />
                 <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
                 <DatePicker SelectedDate="{Binding EndDate}" />
             </StackPanel>

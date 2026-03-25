@@ -31,10 +31,10 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Baslangic:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
-                <DatePicker SelectedDate="{Binding DateFrom}" />
+                <DatePicker SelectedDate="{Binding DateFrom}"  AutomationProperties.Name="Baslangic:" />
                 <TextBlock Text="Bitis:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
-                <DatePicker SelectedDate="{Binding DateTo}" />
+                <DatePicker SelectedDate="{Binding DateTo}"  AutomationProperties.Name="Bitis:" />
                 <TextBlock Text="Platform:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
                 <ComboBox ItemsSource="{Binding PlatformOptions}" SelectedItem="{Binding SelectedPlatform}"

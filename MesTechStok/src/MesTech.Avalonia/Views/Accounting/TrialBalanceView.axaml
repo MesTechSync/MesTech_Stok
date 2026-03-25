@@ -10,7 +10,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="12">
             <TextBlock Text="Donem:" VerticalAlignment="Center"
                        FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" />
-            <DatePicker SelectedDate="{Binding AsOfDate}" />
+            <DatePicker SelectedDate="{Binding AsOfDate}"  AutomationProperties.Name="Donem:" />
             <Button Content="Hesapla" Command="{Binding CalculateCommand}"
                     ToolTip.Tip="Hesapla"
                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"

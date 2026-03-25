@@ -61,11 +61,11 @@
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Baslangic" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
-                                    <DatePicker SelectedDate="{Binding StartDate}" Width="140" />
+                                    <DatePicker SelectedDate="{Binding StartDate}" Width="140"  AutomationProperties.Name="Baslangic" />
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Bitis" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" />
-                                    <DatePicker SelectedDate="{Binding EndDate}" Width="140" />
+                                    <DatePicker SelectedDate="{Binding EndDate}" Width="140"  AutomationProperties.Name="Bitis" />
                                 </StackPanel>
                                 <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
                                         Command="{Binding GenerateReportCommand}"

@@ -38,7 +38,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="Tarih Araligi:" VerticalAlignment="Center"
                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
-                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi" />
+                <DatePicker SelectedDate="{Binding DateFrom}" Width="140" ToolTip.Tip="Baslangic tarihi"  AutomationProperties.Name="Tarih Araligi:" />
                 <TextBlock Text="—" VerticalAlignment="Center" Foreground="{DynamicResource MesCoolGray}" />
                 <DatePicker SelectedDate="{Binding DateTo}" Width="140" ToolTip.Tip="Bitis tarihi" />
                 <Button Content="Yenile" ToolTip.Tip="Raporu yenile (F5)"

@@ -35,11 +35,11 @@
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Baslangic" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <DatePicker SelectedDate="{Binding StartDate}" Width="180" />
+                                <DatePicker SelectedDate="{Binding StartDate}" Width="180"  AutomationProperties.Name="Baslangic" />
                             </StackPanel>
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Bitis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
-                                <DatePicker SelectedDate="{Binding EndDate}" Width="180" />
+                                <DatePicker SelectedDate="{Binding EndDate}" Width="180"  AutomationProperties.Name="Bitis" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
