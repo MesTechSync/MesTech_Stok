@@ -1,5 +1,7 @@
 using MediatR;
 using MesTech.Application.EventHandlers;
+using MesTech.Domain.Accounting.Events;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
@@ -151,6 +153,50 @@ public sealed class OrderShippedCostBridge
         await _handler.HandleAsync(
             e.OrderId, e.TenantId, e.TrackingNumber,
             e.CargoProvider, totalCost,
+            cancellationToken).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Zincir 6: CommissionChargedEvent → GL komisyon gider kaydı.
+/// Event string Platform → PlatformType enum dönüşümü bridge'de yapılır.
+/// </summary>
+public sealed class CommissionChargedGLBridge
+    : INotificationHandler<DomainEventNotification<CommissionChargedEvent>>
+{
+    private readonly ICommissionChargedGLHandler _handler;
+    private readonly ILogger<CommissionChargedGLBridge> _logger;
+
+    public CommissionChargedGLBridge(
+        ICommissionChargedGLHandler handler,
+        ILogger<CommissionChargedGLBridge> logger)
+    {
+        _handler = handler;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<CommissionChargedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+
+        // Platform string → PlatformType enum dönüşümü
+        if (!Enum.TryParse<PlatformType>(e.Platform, ignoreCase: true, out var platformType))
+            platformType = PlatformType.OpenCart; // fallback — bilinmeyen platform
+
+        // OrderId string → Guid dönüşümü
+        var orderId = Guid.TryParse(e.OrderId, out var parsedOrderId)
+            ? parsedOrderId
+            : Guid.Empty;
+
+        _logger.LogDebug(
+            "[Bridge] CommissionCharged → GL: Platform={Platform}, Amount={Amount}, Rate={Rate}%",
+            platformType, e.CommissionAmount, e.CommissionRate * 100);
+
+        await _handler.HandleAsync(
+            orderId, e.TenantId, platformType,
+            e.CommissionAmount, e.CommissionRate,
             cancellationToken).ConfigureAwait(false);
     }
 }

@@ -703,7 +703,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.InvoiceCancelledReversalHandler>();
         services.AddScoped<Application.EventHandlers.IOrderShippedCostHandler,
             Application.EventHandlers.OrderShippedCostHandler>();
-        // CommissionChargedGLHandler: PARKED — CommissionChargedEvent yok.
+        services.AddScoped<Application.EventHandlers.ICommissionChargedGLHandler,
+            Application.EventHandlers.CommissionChargedGLHandler>();
 
         return services;
     }

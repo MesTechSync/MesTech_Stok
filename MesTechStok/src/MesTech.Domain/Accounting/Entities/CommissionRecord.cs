@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 
@@ -44,7 +45,7 @@ public sealed class CommissionRecord : BaseEntity, ITenantEntity
         if (commissionRate < 0)
             throw new ArgumentOutOfRangeException(nameof(commissionRate), "Commission rate must be non-negative.");
 
-        return new CommissionRecord
+        var record = new CommissionRecord
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -59,6 +60,16 @@ public sealed class CommissionRecord : BaseEntity, ITenantEntity
             RateSource = rateSource,
             CreatedAt = DateTime.UtcNow
         };
+
+        if (commissionAmount > 0)
+        {
+            record.RaiseDomainEvent(new CommissionChargedEvent(
+                record.Id, tenantId, platform, orderId,
+                grossAmount, commissionRate, commissionAmount,
+                DateTime.UtcNow));
+        }
+
+        return record;
     }
 
     /// <summary>
