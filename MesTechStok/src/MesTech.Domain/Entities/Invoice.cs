@@ -248,5 +248,8 @@ public class Invoice : BaseEntity, ITenantEntity
         if (envelopeId != null) GibEnvelopeId = envelopeId;
     }
 
+    // Concurrency
+    public byte[]? RowVersion { get; set; }
+
     public override string ToString() => $"Invoice #{InvoiceNumber} ({Status}) - {GrandTotal:C}";
 }

@@ -120,5 +120,8 @@ public class CustomerAccount : BaseEntity, ITenantEntity
 
     public bool HasExceededCreditLimit => CreditLimit > 0 && Balance > CreditLimit;
 
+    // Concurrency
+    public byte[]? RowVersion { get; set; }
+
     public override string ToString() => $"Müşteri [{AccountCode}] {CustomerName} Bakiye:{Balance:N2}";
 }

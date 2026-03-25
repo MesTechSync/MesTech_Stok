@@ -427,6 +427,8 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(i => i.StoreId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            e.Property(i => i.RowVersion).IsRowVersion();
         });
 
         // InvoiceLine
@@ -516,6 +518,7 @@ public class AppDbContext : DbContext
                 .HasDatabaseName("IX_ReturnRequests_Tenant_Platform_Status");
             e.Property(r => r.RefundAmount).HasPrecision(18, 2);
             e.Property(r => r.CustomerName).HasMaxLength(300);
+            e.Property(r => r.RowVersion).IsRowVersion();
         });
 
         // AccountTransaction
@@ -534,6 +537,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CustomerAccount>(e =>
         {
             e.HasIndex(a => a.TenantId).HasDatabaseName("IX_CustomerAccounts_TenantId");
+            e.Property(a => a.RowVersion).IsRowVersion();
         });
 
         // SupplierAccount

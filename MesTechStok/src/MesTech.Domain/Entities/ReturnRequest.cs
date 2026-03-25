@@ -130,5 +130,8 @@ public class ReturnRequest : BaseEntity, ITenantEntity
         return request;
     }
 
+    // Concurrency
+    public byte[]? RowVersion { get; set; }
+
     public override string ToString() => $"Return #{PlatformReturnId ?? Id.ToString()[..8]} ({Status}) - {Platform}";
 }
