@@ -40,13 +40,16 @@ public sealed class CreateAutoOrderHandler : IRequestHandler<CreateAutoOrderComm
         var supplier = await _supplierRepository.GetByIdAsync(request.SupplierId, cancellationToken)
             ?? throw new InvalidOperationException($"Supplier '{request.SupplierId}' not found.");
 
+        // Batch query — N+1 yerine tek SQL
+        var allProducts = await _productRepository.GetByIdsAsync(request.ProductIds, cancellationToken);
+        var productMap = allProducts.ToDictionary(p => p.Id);
+
         var orders = new List<AutoOrderItemDto>();
         decimal totalAmount = 0;
 
         foreach (var productId in request.ProductIds)
         {
-            var product = await _productRepository.GetByIdAsync(productId);
-            if (product is null)
+            if (!productMap.TryGetValue(productId, out var product))
                 continue;
 
             // Sadece minimum stok altındaki ürünler için sipariş oluştur
