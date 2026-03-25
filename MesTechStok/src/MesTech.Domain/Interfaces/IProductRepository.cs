@@ -5,6 +5,7 @@ namespace MesTech.Domain.Interfaces;
 public interface IProductRepository
 {
     Task<Product?> GetByIdAsync(Guid id);
+    Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task<Product?> GetBySKUAsync(string sku);
     Task<Product?> GetByBarcodeAsync(string barcode);
     Task<IReadOnlyList<Product>> GetAllAsync();
