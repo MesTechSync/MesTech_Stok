@@ -57,7 +57,7 @@
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Kolon Eslestirme" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <DataGrid ItemsSource="{Binding ColumnMappings}"
-                                          AutoGenerateColumns="False" IsReadOnly="False" CanUserResizeColumns="True"
+                                          AutoGenerateColumns="False" IsReadOnly="False" CanUserResizeColumns="True" CanUserReorderColumns="True"
                                           GridLinesVisibility="Horizontal" BorderThickness="0"
                                           MaxHeight="200">
                                     <DataGrid.Columns>
@@ -83,7 +83,7 @@
                                                FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
                                 </Grid>
                                 <DataGrid ItemsSource="{Binding PreviewRows}"
-                                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
+                                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                                           GridLinesVisibility="Horizontal" BorderThickness="0"
                                           MaxHeight="300">
                                     <DataGrid.Columns>
@@ -258,7 +258,7 @@
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Onizleme" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
                                 <DataGrid ItemsSource="{Binding BulkPreviewRows}"
-                                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
+                                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                                           GridLinesVisibility="Horizontal" BorderThickness="0"
                                           MaxHeight="250">
                                     <DataGrid.Columns>

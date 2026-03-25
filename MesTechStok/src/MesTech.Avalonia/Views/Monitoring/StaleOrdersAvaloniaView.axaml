@@ -62,7 +62,7 @@
                   ItemsSource="{Binding StaleOrders}"
                   AutoGenerateColumns="False"
                   CanUserSortColumns="True"
-                  CanUserResizeColumns="True"
+                  CanUserResizeColumns="True" CanUserReorderColumns="True"
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"

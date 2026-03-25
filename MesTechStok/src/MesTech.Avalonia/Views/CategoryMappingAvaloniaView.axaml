@@ -125,7 +125,7 @@
                 <TextBlock DockPanel.Dock="Top" Text="Mevcut Eslestirmeler" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesDarkSlate}" Padding="12,8" />
                 <DataGrid ItemsSource="{Binding Mappings}"
-                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
+                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Yerel Kategori" Binding="{Binding LocalCategory}" Width="*" />

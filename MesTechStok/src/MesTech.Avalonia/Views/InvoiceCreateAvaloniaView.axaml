@@ -77,7 +77,7 @@
 
                 <DataGrid ItemsSource="{Binding Orders}"
                           AutoGenerateColumns="False"
-                          CanUserSortColumns="True" CanUserResizeColumns="True"
+                          CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                           IsReadOnly="False"
                           GridLinesVisibility="Horizontal"
                           BorderThickness="1"

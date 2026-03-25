@@ -140,7 +140,7 @@
 
                         <DataGrid ItemsSource="{Binding BackupHistory}"
                                   AutoGenerateColumns="False"
-                                  CanUserResizeColumns="True"
+                                  CanUserResizeColumns="True" CanUserReorderColumns="True"
                                   CanUserSortColumns="True"
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"

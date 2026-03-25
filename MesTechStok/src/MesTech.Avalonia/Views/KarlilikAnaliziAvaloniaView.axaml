@@ -80,7 +80,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       CanUserSortColumns="True"
-                      CanUserResizeColumns="True">
+                      CanUserResizeColumns="True" CanUserReorderColumns="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Urun" Binding="{Binding ProductName}" Width="*" />
                     <DataGridTextColumn Header="Satis" Binding="{Binding SalesFormatted}" Width="120" />

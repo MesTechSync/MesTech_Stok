@@ -39,7 +39,7 @@
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Users}"
                   AutoGenerateColumns="False"
-                  CanUserSortColumns="True" CanUserResizeColumns="True"
+                  CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"

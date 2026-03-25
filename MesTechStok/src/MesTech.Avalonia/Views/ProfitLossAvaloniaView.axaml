@@ -82,7 +82,7 @@
                           IsReadOnly="True"
                           GridLinesVisibility="Horizontal"
                           BorderThickness="0"
-                          CanUserSortColumns="True" CanUserResizeColumns="True">
+                          CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Item" Binding="{Binding Name}" Width="*" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100" />

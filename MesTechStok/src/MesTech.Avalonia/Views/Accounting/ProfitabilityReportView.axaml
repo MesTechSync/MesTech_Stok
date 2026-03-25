@@ -53,7 +53,7 @@
                 <DataGrid ItemsSource="{Binding PlatformProfits}"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           GridLinesVisibility="Horizontal" BorderThickness="0"
-                          CanUserSortColumns="True" CanUserResizeColumns="True">
+                          CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="160" />
                         <DataGridTextColumn Header="Gelir" Binding="{Binding RevenueFormatted}" Width="140" />

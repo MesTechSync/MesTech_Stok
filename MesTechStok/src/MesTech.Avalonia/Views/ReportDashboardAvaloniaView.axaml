@@ -167,7 +167,7 @@
 
                         <DataGrid ItemsSource="{Binding ScheduledReports}"
                                   AutoGenerateColumns="False"
-                                  CanUserResizeColumns="True"
+                                  CanUserResizeColumns="True" CanUserReorderColumns="True"
                                   CanUserSortColumns="True"
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
@@ -204,7 +204,7 @@
 
                         <DataGrid ItemsSource="{Binding RecentReports}"
                                   AutoGenerateColumns="False"
-                                  CanUserResizeColumns="True"
+                                  CanUserResizeColumns="True" CanUserReorderColumns="True"
                                   CanUserSortColumns="True"
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"

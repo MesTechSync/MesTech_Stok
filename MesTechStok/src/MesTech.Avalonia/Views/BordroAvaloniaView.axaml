@@ -78,7 +78,7 @@
                           GridLinesVisibility="Horizontal"
                           BorderThickness="0"
                           CanUserSortColumns="True"
-                          CanUserResizeColumns="True">
+                          CanUserResizeColumns="True" CanUserReorderColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Personel" Binding="{Binding EmployeeName}" Width="*" />
                         <DataGridTextColumn Header="Brut" Binding="{Binding GrossFormatted}" Width="110" />

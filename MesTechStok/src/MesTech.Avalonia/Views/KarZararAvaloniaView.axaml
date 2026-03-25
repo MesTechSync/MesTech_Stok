@@ -81,7 +81,7 @@
                           IsReadOnly="True"
                           GridLinesVisibility="Horizontal"
                           BorderThickness="0"
-                          CanUserSortColumns="True" CanUserResizeColumns="True">
+                          CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Kalem" Binding="{Binding Name}" Width="*" />
                         <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="100" />

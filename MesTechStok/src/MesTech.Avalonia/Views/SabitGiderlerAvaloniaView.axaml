@@ -83,7 +83,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       CanUserSortColumns="True"
-                      CanUserResizeColumns="True">
+                      CanUserResizeColumns="True" CanUserReorderColumns="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Gider Adi" Binding="{Binding Name}" Width="*" />
                     <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140" />
