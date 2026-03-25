@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
 public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -1231,5 +1231,93 @@ public class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCa
             shipmentPackageId, fileName);
 
         return Task.FromResult(true);
+    }
+
+    // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            var payload = new { topicId = "MARKETPLACE_ACCOUNT_DELETION", callbackUrl };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                await GetAccessTokenAsync(token).ConfigureAwait(false);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage(HttpMethod.Post,
+                    new Uri($"{_ebayBaseUrl}/commerce/notification/v1/subscription"));
+                request.Content = content;
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("eBay RegisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay RegisterWebhook exception");
+            return false;
+        }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.UnregisterWebhookAsync");
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                await GetAccessTokenAsync(token).ConfigureAwait(false);
+                var request = new HttpRequestMessage(HttpMethod.Delete,
+                    new Uri($"{_ebayBaseUrl}/commerce/notification/v1/subscription/{{subscriptionId}}"));
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("eBay UnregisterWebhook failed: {Status} {Error}",
+                    response.StatusCode, error);
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "eBay UnregisterWebhook exception");
+            return false;
+        }
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(payload);
+        var notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
+            && meta.TryGetProperty("topic", out var topic)
+                ? topic.GetString()
+                : "unknown";
+
+        _logger.LogInformation(
+            "EbayAdapter webhook processed: NotificationType={NotificationType} PayloadLength={Length}",
+            notificationType, payload.Length);
+
+        return Task.CompletedTask;
     }
 }

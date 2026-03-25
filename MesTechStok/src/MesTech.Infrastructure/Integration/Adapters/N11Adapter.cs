@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sayfa bazli pagination (FetchAllPagesAsync), CultureInfo.InvariantCulture.
 /// </summary>
 public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter
+    IClaimCapableAdapter, ISettlementCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
 {
     private readonly ILogger<N11Adapter> _logger;
     private readonly ResiliencePipeline _retryPipeline;
@@ -1147,5 +1147,31 @@ public class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCap
         settlement.NetAmount = lines.Sum(l => l.Amount) - settlement.TotalCommission;
 
         return settlement;
+    }
+
+    // ═══════════════════════════════════════════
+    // IWebhookCapableAdapter
+    // ═══════════════════════════════════════════
+
+    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "N11Adapter.RegisterWebhookAsync: N11 does not support webhooks — use polling. CallbackUrl={Url}",
+            callbackUrl);
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("N11Adapter.UnregisterWebhookAsync: N11 does not support webhooks — no-op");
+        return Task.FromResult(true);
+    }
+
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        _logger.LogWarning(
+            "N11Adapter.ProcessWebhookPayloadAsync: N11 webhook not supported. PayloadLength={Length}",
+            payload.Length);
+        return Task.CompletedTask;
     }
 }
