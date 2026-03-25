@@ -68,6 +68,31 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         };
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            // HTTP 429 rate-limit retry — respects Retry-After header or defaults to 2s (Etsy: 10 req/s)
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 5,
+                DelayGenerator = args =>
+                {
+                    if (args.Outcome.Result is { StatusCode: System.Net.HttpStatusCode.TooManyRequests } retryResponse
+                        && retryResponse.Headers.RetryAfter is { } retryAfter)
+                    {
+                        var delay = retryAfter.Delta ?? TimeSpan.FromSeconds(2);
+                        return new ValueTask<TimeSpan?>(delay);
+                    }
+                    return new ValueTask<TimeSpan?>(TimeSpan.FromSeconds(2));
+                },
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .HandleResult(r => (int)r.StatusCode == 429),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "Etsy API rate limited (429). Retry {Attempt} after {Delay}ms",
+                        args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
+                    return default;
+                }
+            })
+            // Server error retry — exponential backoff for 5xx
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = 3,
@@ -75,7 +100,6 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                     TimeSpan.FromSeconds(Math.Pow(2, args.AttemptNumber))),
                 ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
                     .HandleResult(r => (int)r.StatusCode >= 500)
-                    .HandleResult(r => (int)r.StatusCode == 429) // Etsy rate limiting
                     .Handle<HttpRequestException>()
                     .Handle<TaskCanceledException>(),
                 OnRetry = args =>
