@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -42,19 +43,21 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Will be replaced with GetStockAlertsQuery via MediatR
+            var alerts = await _mediator.Send(new GetStockAlertsQuery(Guid.Empty));
 
-            _allAlerts =
-            [
-                new() { Sku = "TS-001", ProductName = "Erkek Tisort Basic", Level = "OutOfStock", CurrentStock = 0, MinimumStock = 5, WarehouseName = "Ana Depo" },
-                new() { Sku = "AY-003", ProductName = "Spor Ayakkabi Pro", Level = "OutOfStock", CurrentStock = 0, MinimumStock = 8, WarehouseName = "Ana Depo" },
-                new() { Sku = "EL-007", ProductName = "Bluetooth Kulaklik", Level = "OutOfStock", CurrentStock = 0, MinimumStock = 10, WarehouseName = "Yedek Depo" },
-                new() { Sku = "KZ-005", ProductName = "Kadin Kazak Kis", Level = "Critical", CurrentStock = 3, MinimumStock = 5, WarehouseName = "Ana Depo" },
-                new() { Sku = "CN-008", ProductName = "Canta Laptop 15.6", Level = "Critical", CurrentStock = 2, MinimumStock = 3, WarehouseName = "Ana Depo" },
-                new() { Sku = "AY-012", ProductName = "Ayakkabi Spor", Level = "Low", CurrentStock = 12, MinimumStock = 10, WarehouseName = "Depo 2" },
-                new() { Sku = "GL-015", ProductName = "Gozluk Gunes UV400", Level = "Low", CurrentStock = 18, MinimumStock = 15, WarehouseName = "Ana Depo" },
-                new() { Sku = "TL-020", ProductName = "Telefon Kilifi Silikon", Level = "Low", CurrentStock = 25, MinimumStock = 20, WarehouseName = "Yedek Depo" },
-            ];
+            _allAlerts = alerts.Select(a => new StockAlertItemDto
+            {
+                Sku = a.SKU,
+                ProductName = a.Name,
+                Level = a.CurrentStock <= 0
+                    ? "OutOfStock"
+                    : a.CurrentStock <= a.MinThreshold
+                        ? "Critical"
+                        : "Low",
+                CurrentStock = a.CurrentStock,
+                MinimumStock = a.MinThreshold,
+                WarehouseName = a.Platform ?? string.Empty
+            }).ToList();
 
             ApplyFilter();
             OnPropertyChanged(nameof(AlertSummary));
