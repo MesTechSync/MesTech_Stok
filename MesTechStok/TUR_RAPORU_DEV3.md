@@ -222,3 +222,28 @@ WooCommerce            ✅   ✅   —    —    —    —    2/6
 | IWebhookCapable | 4 | 7 | +3 |
 | 6/6 TAM adapter | 1 | 5 | +4 |
 | Toplam capability | 22 | 56 | +34 |
+
+---
+
+## TUR 7 — 2026-03-25 (KEŞİF — Webhook + AmazonEU derinleştirme)
+
+### CERRAH AMELİYAT
+- PazaramaAdapter → IWebhookCapableAdapter eklendi (6/6 TAM)
+- AmazonTrAdapter → IWebhookCapableAdapter eklendi (6/6 TAM)
+- AmazonEuAdapter → ISettlement + IClaim + IInvoice eklendi (2/6 → 5/6)
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| 6/6 TAM adapter | 5 | 7 | +2 ✅ |
+| AmazonEU capability | 2/6 | 5/6 | +3 ✅ |
+| IWebhookCapable | 7 | 9 | +2 ✅ |
+| Toplam capability | 56 | 64 | +8 ✅ |
+
+### GÜNCEL SKOR
+```
+6/6 TAM: Trendyol, HB, N11, ÇS, Pazarama, AmazonTR, eBay (7 adapter)
+5/6:     AmazonEU
+3/6:     Shopify
+2/6:     Ozon, PttAvm, OpenCart, WooCommerce
+```
