@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// <summary>
 /// Lead convert olunca MESA AI'ya bildir — AI lead skoru ve öneri üretebilir.
 /// </summary>
-public class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotification<LeadConvertedEvent>>
+public sealed class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotification<LeadConvertedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly AppDbContext _context;

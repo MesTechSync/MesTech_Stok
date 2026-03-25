@@ -26,7 +26,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// ShipmentCostRecordedEvent → Kargo gider kaydı loglama + bildirim.
 /// Zincir Z7: Kargo → Gider GL (760.01)
 /// </summary>
-public class ShipmentCostRecordedBridgeHandler
+public sealed class ShipmentCostRecordedBridgeHandler
     : INotificationHandler<DomainEventNotification<ShipmentCostRecordedEvent>>
 {
     private readonly IMediator _mediator;
@@ -68,7 +68,7 @@ public class ShipmentCostRecordedBridgeHandler
 /// PaymentFailedEvent → Ödeme hatası loglama + bildirim.
 /// Dunning/retry tetikleyici.
 /// </summary>
-public class PaymentFailedBridgeHandler
+public sealed class PaymentFailedBridgeHandler
     : INotificationHandler<DomainEventNotification<PaymentFailedEvent>>
 {
     private readonly IMediator _mediator;
@@ -109,7 +109,7 @@ public class PaymentFailedBridgeHandler
 /// <summary>
 /// CashTransactionRecordedEvent → Nakit işlem kaydı loglama + bildirim.
 /// </summary>
-public class CashTransactionRecordedBridgeHandler
+public sealed class CashTransactionRecordedBridgeHandler
     : INotificationHandler<DomainEventNotification<CashTransactionRecordedEvent>>
 {
     private readonly ILogger<CashTransactionRecordedBridgeHandler> _logger;
@@ -130,7 +130,7 @@ public class CashTransactionRecordedBridgeHandler
 /// <summary>
 /// ExpenseApprovedEvent → Gider onayı loglama + bildirim.
 /// </summary>
-public class ExpenseApprovedBridgeHandler
+public sealed class ExpenseApprovedBridgeHandler
     : INotificationHandler<DomainEventNotification<ExpenseApprovedEvent>>
 {
     private readonly IMediator _mediator;
@@ -172,7 +172,7 @@ public class ExpenseApprovedBridgeHandler
 /// <summary>
 /// EInvoiceCreatedEvent → E-fatura oluşturuldu loglama + bildirim.
 /// </summary>
-public class EInvoiceCreatedBridgeHandler
+public sealed class EInvoiceCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<EInvoiceCreatedEvent>>
 {
     private readonly IMediator _mediator;
@@ -212,7 +212,7 @@ public class EInvoiceCreatedBridgeHandler
 /// <summary>
 /// EInvoiceCancelledEvent → E-fatura iptal loglama + bildirim.
 /// </summary>
-public class EInvoiceCancelledBridgeHandler
+public sealed class EInvoiceCancelledBridgeHandler
     : INotificationHandler<DomainEventNotification<EInvoiceCancelledEvent>>
 {
     private readonly IMediator _mediator;
@@ -252,7 +252,7 @@ public class EInvoiceCancelledBridgeHandler
 /// <summary>
 /// EInvoiceSentEvent → E-fatura gönderildi loglama + bildirim.
 /// </summary>
-public class EInvoiceSentBridgeHandler
+public sealed class EInvoiceSentBridgeHandler
     : INotificationHandler<DomainEventNotification<EInvoiceSentEvent>>
 {
     private readonly ILogger<EInvoiceSentBridgeHandler> _logger;
@@ -278,7 +278,7 @@ public class EInvoiceSentBridgeHandler
 /// ProductUpdatedEvent → Ürün güncelleme loglama.
 /// Platform sync tetikleyici olarak kullanılabilir.
 /// </summary>
-public class ProductUpdatedBridgeHandler
+public sealed class ProductUpdatedBridgeHandler
     : INotificationHandler<DomainEventNotification<ProductUpdatedEvent>>
 {
     private readonly ILogger<ProductUpdatedBridgeHandler> _logger;
@@ -303,7 +303,7 @@ public class ProductUpdatedBridgeHandler
 /// <summary>
 /// SubscriptionCreatedEvent → Abonelik oluşturuldu loglama + bildirim.
 /// </summary>
-public class SubscriptionCreatedBridgeHandler
+public sealed class SubscriptionCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<SubscriptionCreatedEvent>>
 {
     private readonly IMediator _mediator;
@@ -343,7 +343,7 @@ public class SubscriptionCreatedBridgeHandler
 /// <summary>
 /// SubscriptionCancelledEvent → Abonelik iptal loglama + bildirim.
 /// </summary>
-public class SubscriptionCancelledBridgeHandler
+public sealed class SubscriptionCancelledBridgeHandler
     : INotificationHandler<DomainEventNotification<SubscriptionCancelledEvent>>
 {
     private readonly IMediator _mediator;
@@ -387,7 +387,7 @@ public class SubscriptionCancelledBridgeHandler
 /// <summary>
 /// SyncRequestedEvent → Senkronizasyon talebi loglama.
 /// </summary>
-public class SyncRequestedBridgeHandler
+public sealed class SyncRequestedBridgeHandler
     : INotificationHandler<DomainEventNotification<SyncRequestedEvent>>
 {
     private readonly ILogger<SyncRequestedBridgeHandler> _logger;
@@ -408,7 +408,7 @@ public class SyncRequestedBridgeHandler
 /// <summary>
 /// PlatformMessageReceivedEvent → Platform mesajı loglama + bildirim.
 /// </summary>
-public class PlatformMessageReceivedBridgeHandler
+public sealed class PlatformMessageReceivedBridgeHandler
     : INotificationHandler<DomainEventNotification<PlatformMessageReceivedEvent>>
 {
     private readonly IMediator _mediator;
@@ -452,7 +452,7 @@ public class PlatformMessageReceivedBridgeHandler
 /// <summary>
 /// CalendarEventCreatedEvent → Takvim etkinliği loglama.
 /// </summary>
-public class CalendarEventCreatedBridgeHandler
+public sealed class CalendarEventCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<CalendarEventCreatedEvent>>
 {
     private readonly ILogger<CalendarEventCreatedBridgeHandler> _logger;
@@ -473,7 +473,7 @@ public class CalendarEventCreatedBridgeHandler
 /// <summary>
 /// DealStageChangedEvent → CRM deal aşama değişikliği loglama.
 /// </summary>
-public class DealStageChangedBridgeHandler
+public sealed class DealStageChangedBridgeHandler
     : INotificationHandler<DomainEventNotification<DealStageChangedEvent>>
 {
     private readonly ILogger<DealStageChangedBridgeHandler> _logger;
@@ -494,7 +494,7 @@ public class DealStageChangedBridgeHandler
 /// <summary>
 /// LeaveRejectedEvent → İzin talebi red loglama + bildirim.
 /// </summary>
-public class LeaveRejectedBridgeHandler
+public sealed class LeaveRejectedBridgeHandler
     : INotificationHandler<DomainEventNotification<LeaveRejectedEvent>>
 {
     private readonly IMediator _mediator;
@@ -532,7 +532,7 @@ public class LeaveRejectedBridgeHandler
 /// <summary>
 /// TaskCompletedEvent → Görev tamamlandı loglama.
 /// </summary>
-public class TaskCompletedBridgeHandler
+public sealed class TaskCompletedBridgeHandler
     : INotificationHandler<DomainEventNotification<TaskCompletedEvent>>
 {
     private readonly ILogger<TaskCompletedBridgeHandler> _logger;
@@ -553,7 +553,7 @@ public class TaskCompletedBridgeHandler
 /// <summary>
 /// TaskOverdueEvent → Gecikmiş görev uyarısı loglama + bildirim.
 /// </summary>
-public class TaskOverdueBridgeHandler
+public sealed class TaskOverdueBridgeHandler
     : INotificationHandler<DomainEventNotification<TaskOverdueEvent>>
 {
     private readonly IMediator _mediator;
@@ -597,7 +597,7 @@ public class TaskOverdueBridgeHandler
 /// <summary>
 /// DocumentUploadedEvent → Doküman yükleme loglama.
 /// </summary>
-public class DocumentUploadedBridgeHandler
+public sealed class DocumentUploadedBridgeHandler
     : INotificationHandler<DomainEventNotification<DocumentUploadedEvent>>
 {
     private readonly ILogger<DocumentUploadedBridgeHandler> _logger;
@@ -618,7 +618,7 @@ public class DocumentUploadedBridgeHandler
 /// <summary>
 /// NotificationSettingsUpdatedEvent → Bildirim ayarları güncelleme loglama.
 /// </summary>
-public class NotificationSettingsUpdatedBridgeHandler
+public sealed class NotificationSettingsUpdatedBridgeHandler
     : INotificationHandler<DomainEventNotification<NotificationSettingsUpdatedEvent>>
 {
     private readonly ILogger<NotificationSettingsUpdatedBridgeHandler> _logger;
@@ -639,7 +639,7 @@ public class NotificationSettingsUpdatedBridgeHandler
 /// <summary>
 /// OnboardingCompletedEvent → Kurulum tamamlandı loglama + bildirim.
 /// </summary>
-public class OnboardingCompletedBridgeHandler
+public sealed class OnboardingCompletedBridgeHandler
     : INotificationHandler<DomainEventNotification<OnboardingCompletedEvent>>
 {
     private readonly IMediator _mediator;

@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// Fatura olusturuldugunda OnMuhasebe modulu icin gider kaydi yaratir.
 /// Komisyon ve kargo giderleri fatura tutarindan otomatik hesaplanir.
 /// </summary>
-public class InvoiceGeneratedExpenseHandler
+public sealed class InvoiceGeneratedExpenseHandler
     : INotificationHandler<DomainEventNotification<InvoiceCreatedEvent>>
 {
     private readonly IExpenseRepository _expenseRepo;

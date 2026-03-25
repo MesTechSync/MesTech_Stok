@@ -14,7 +14,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// Gider ödendiğinde otomatik GL Transaction yaratır.
 /// DEV3 H28 Task 3.2
 /// </summary>
-public class ExpensePaidHandler : INotificationHandler<DomainEventNotification<ExpensePaidEvent>>
+public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotification<ExpensePaidEvent>>
 {
     private readonly IExpenseRepository _expenseRepo;
     private readonly AppDbContext _context;

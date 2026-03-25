@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// Izin onaylandi → MESA Bot calısana WhatsApp bildirimi gonderir.
 /// DomainEventNotification wrapper kullanir — Domain katmani INotification bilmez.
 /// </summary>
-public class LeaveApprovedBridgeHandler : INotificationHandler<DomainEventNotification<LeaveApprovedEvent>>
+public sealed class LeaveApprovedBridgeHandler : INotificationHandler<DomainEventNotification<LeaveApprovedEvent>>
 {
     private readonly IMesaEventPublisher _mesa;
     private readonly ILogger<LeaveApprovedBridgeHandler> _logger;

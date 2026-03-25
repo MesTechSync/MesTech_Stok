@@ -9,7 +9,7 @@ using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Infrastructure.Messaging.Handlers;
 
-public class DealLostBridgeHandler : INotificationHandler<DomainEventNotification<DealLostEvent>>
+public sealed class DealLostBridgeHandler : INotificationHandler<DomainEventNotification<DealLostEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
     private readonly AppDbContext _context;

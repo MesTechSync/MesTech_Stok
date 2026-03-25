@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// <summary>
 /// OrderShippedEvent handler — kargo takip loglama + müşteri bildirim dispatch.
 /// </summary>
-public class OrderShippedLogHandler : INotificationHandler<DomainEventNotification<OrderShippedEvent>>
+public sealed class OrderShippedLogHandler : INotificationHandler<DomainEventNotification<OrderShippedEvent>>
 {
     private readonly IMediator _mediator;
     private readonly ILogger<OrderShippedLogHandler> _logger;
@@ -48,7 +48,7 @@ public class OrderShippedLogHandler : INotificationHandler<DomainEventNotificati
 /// <summary>
 /// StockCriticalEvent handler — kritik stok seviyesi uyarısı + bildirim dispatch.
 /// </summary>
-public class StockCriticalLogHandler : INotificationHandler<DomainEventNotification<StockCriticalEvent>>
+public sealed class StockCriticalLogHandler : INotificationHandler<DomainEventNotification<StockCriticalEvent>>
 {
     private readonly IMediator _mediator;
     private readonly ILogger<StockCriticalLogHandler> _logger;
@@ -87,7 +87,7 @@ public class StockCriticalLogHandler : INotificationHandler<DomainEventNotificat
 /// <summary>
 /// InvoiceApprovedEvent handler — fatura onay loglama + bildirim dispatch.
 /// </summary>
-public class InvoiceApprovedLogHandler : INotificationHandler<DomainEventNotification<InvoiceApprovedEvent>>
+public sealed class InvoiceApprovedLogHandler : INotificationHandler<DomainEventNotification<InvoiceApprovedEvent>>
 {
     private readonly IMediator _mediator;
     private readonly ILogger<InvoiceApprovedLogHandler> _logger;

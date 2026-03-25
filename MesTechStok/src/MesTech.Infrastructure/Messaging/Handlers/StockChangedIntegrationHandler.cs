@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// StockChangedEvent → IntegrationEventPublisher (platform sync).
 /// Stok değiştiğinde pazaryeri adapter'larına bildirim gönderir.
 /// </summary>
-public class StockChangedIntegrationHandler
+public sealed class StockChangedIntegrationHandler
     : INotificationHandler<DomainEventNotification<StockChangedEvent>>
 {
     private readonly IIntegrationEventPublisher _publisher;

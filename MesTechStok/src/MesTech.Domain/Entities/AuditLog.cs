@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// BaseEntity'den miras ALMAZ — kendisi denetim kaydinin ta kendisidir.
 /// Tum entity degisikliklerini (CRUD) JSON diff olarak saklar.
 /// </summary>
-public class AuditLog : ITenantEntity
+public sealed class AuditLog : ITenantEntity
 {
     public Guid Id { get; private set; }
     public Guid TenantId { get; set; }

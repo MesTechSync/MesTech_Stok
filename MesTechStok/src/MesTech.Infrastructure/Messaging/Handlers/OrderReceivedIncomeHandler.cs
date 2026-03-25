@@ -12,7 +12,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// OrderReceivedEvent -> otomatik Income kaydi olusturma.
 /// Platform siparisi alindiginda OnMuhasebe modulu icin gelir kaydi yaratir.
 /// </summary>
-public class OrderReceivedIncomeHandler
+public sealed class OrderReceivedIncomeHandler
     : INotificationHandler<DomainEventNotification<OrderReceivedEvent>>
 {
     private readonly IIncomeRepository _incomeRepo;

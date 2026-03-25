@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// InvoiceCreatedEvent → IntegrationEventPublisher.
 /// Fatura oluşturulduğunda entegrasyonları bildirir.
 /// </summary>
-public class InvoiceCreatedIntegrationHandler
+public sealed class InvoiceCreatedIntegrationHandler
     : INotificationHandler<DomainEventNotification<InvoiceCreatedEvent>>
 {
     private readonly IIntegrationEventPublisher _publisher;

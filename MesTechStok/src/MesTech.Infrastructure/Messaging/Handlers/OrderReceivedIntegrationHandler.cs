@@ -9,7 +9,7 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// OrderReceivedEvent → IntegrationEventPublisher (platform sync).
 /// Platform siparişi alındığında entegrasyonları bildirir.
 /// </summary>
-public class OrderReceivedIntegrationHandler
+public sealed class OrderReceivedIntegrationHandler
     : INotificationHandler<DomainEventNotification<OrderReceivedEvent>>
 {
     private readonly IIntegrationEventPublisher _publisher;

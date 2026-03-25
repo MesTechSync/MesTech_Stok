@@ -7,7 +7,7 @@ namespace MesTech.Domain.Entities;
 /// Imza dogrulama sonucu, payload ve hata bilgisi saklar.
 /// Retry mekanizmasi icin IsValid=false kayitlar kullanilir.
 /// </summary>
-public class WebhookLog : ITenantEntity
+public sealed class WebhookLog : ITenantEntity
 {
     public Guid Id { get; private set; }
     public Guid TenantId { get; set; }
