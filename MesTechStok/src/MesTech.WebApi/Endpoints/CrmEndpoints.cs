@@ -3,7 +3,10 @@ using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
 using MesTech.Application.Features.Crm.Commands.WinDeal;
 using MesTech.Application.Features.Crm.Commands.LoseDeal;
+using MesTech.Application.Features.Crm.Queries.GetDeals;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
+using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 
@@ -100,5 +103,45 @@ public static class CrmEndpoints
         })
         .WithName("LoseDeal")
         .WithSummary("Deal kaybedildi olarak işaretle");
+
+        // GET /api/v1/crm/deals — fırsat listesi
+        group.MapGet("/deals", async (
+            Guid tenantId, Guid? pipelineId, int? status, Guid? assignedTo,
+            int page, int pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetDealsQuery(tenantId, pipelineId,
+                    status.HasValue ? (DealStatus)status.Value : null,
+                    assignedTo, page, pageSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetDeals")
+        .WithSummary("Fırsat listesi (pipeline + durum + atanan filtresi)");
+
+        // GET /api/v1/crm/pipelines/{pipelineId}/kanban — kanban görünümü
+        group.MapGet("/pipelines/{pipelineId:guid}/kanban", async (
+            Guid pipelineId, Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetPipelineKanbanQuery(tenantId, pipelineId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPipelineKanban")
+        .WithSummary("Pipeline kanban board görünümü");
+
+        // GET /api/v1/crm/suppliers — tedarikçi listesi
+        group.MapGet("/suppliers", async (
+            Guid tenantId, bool? isActive, bool? isPreferred, string? search,
+            int page, int pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSuppliersCrmQuery(tenantId, isActive, isPreferred, search, page, pageSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSuppliersCrm")
+        .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)");
     }
 }

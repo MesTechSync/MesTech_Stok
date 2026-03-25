@@ -22,6 +22,8 @@ using MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionR
 using MesTech.Application.Features.Accounting.Commands.UpdatePlatformCommissionRate;
 using MesTech.Application.Features.Accounting.Commands.ApproveReconciliation;
 using MesTech.Application.Features.Accounting.Commands.CreateAccountingBankAccount;
+using MesTech.Application.Features.Accounting.Commands.CreateCounterparty;
+using MesTech.Application.Features.Accounting.Commands.UpdateCounterparty;
 using MesTech.Application.Features.Accounting.Commands.CreateFinancialGoal;
 using MesTech.Application.Features.Accounting.Commands.ImportBankStatement;
 using MesTech.Application.Features.Accounting.Commands.ImportSettlement;
@@ -593,5 +595,28 @@ public static class AccountingEndpoints
         })
         .WithName("ValidateTrialBalance")
         .WithSummary("Mizan doğrulama (borç = alacak kontrolü)");
+
+        // POST /api/v1/accounting/counterparties — yeni karşı taraf oluştur
+        group.MapPost("/counterparties", async (
+            CreateCounterpartyCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/counterparties/{id}", new { id });
+        })
+        .WithName("CreateCounterparty")
+        .WithSummary("Yeni karşı taraf (müşteri/tedarikçi) oluştur");
+
+        // PUT /api/v1/accounting/counterparties/{id} — karşı taraf güncelle
+        group.MapPut("/counterparties/{id:guid}", async (
+            Guid id, UpdateCounterpartyCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var updated = command with { Id = id };
+            var success = await mediator.Send(updated, ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("UpdateCounterparty")
+        .WithSummary("Karşı taraf bilgilerini güncelle");
     }
 }

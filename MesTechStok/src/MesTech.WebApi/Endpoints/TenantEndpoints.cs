@@ -53,7 +53,20 @@ public static class TenantEndpoints
         })
         .WithName("GetTenantById")
         .WithSummary("Kiracı detayı — admin only");
+
+        // PUT /api/v1/admin/tenants/{id} — kiracı güncelle
+        group.MapPut("/{id:guid}", async (
+            Guid id, UpdateTenantRequest request,
+            ISender sender, CancellationToken ct) =>
+        {
+            var success = await sender.Send(
+                new UpdateTenantCommand(id, request.Name, request.TaxNumber, request.IsActive), ct);
+            return success ? Results.NoContent() : Results.NotFound(new { error = $"Tenant {id} not found" });
+        })
+        .WithName("UpdateTenant")
+        .WithSummary("Kiracı bilgilerini güncelle — admin only");
     }
 
     private record CreateTenantRequest(string Name, string? TaxNumber);
+    private record UpdateTenantRequest(string Name, string? TaxNumber, bool IsActive);
 }
