@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Dropship Profit data transfer object.
 /// </summary>
-public class DropshipProfitDto
+public sealed class DropshipProfitDto
 {
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;

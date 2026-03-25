@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Product data transfer object.
 /// </summary>
-public class ProductDto
+public sealed class ProductDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

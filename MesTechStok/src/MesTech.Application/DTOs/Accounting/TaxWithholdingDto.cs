@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Stopaj (tevkifat) kaydi DTO'su.
 /// </summary>
-public class TaxWithholdingDto
+public sealed class TaxWithholdingDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

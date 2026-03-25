@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs;
 /// Birden fazla platformun toplu sync sonucu.
 /// Dashboard'da gosterilir, log'a yazilir.
 /// </summary>
-public class SyncBatchResultDto
+public sealed class SyncBatchResultDto
 {
     public int TotalPlatforms { get; set; }
     public int SuccessCount { get; set; }

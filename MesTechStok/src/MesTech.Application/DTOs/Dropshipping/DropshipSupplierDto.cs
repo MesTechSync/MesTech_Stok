@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Dropshipping;
 /// <summary>
 /// Dropship Supplier data transfer object.
 /// </summary>
-public class DropshipSupplierDto
+public sealed class DropshipSupplierDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Account Balance data transfer object.
 /// </summary>
-public class AccountBalanceDto
+public sealed class AccountBalanceDto
 {
     public Guid AccountId { get; set; }
     public string Code { get; set; } = string.Empty;

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Crm;
 /// <summary>
 /// Lead data transfer object.
 /// </summary>
-public class LeadDto
+public sealed class LeadDto
 {
     public Guid Id { get; set; }
     public string FullName { get; set; } = string.Empty;

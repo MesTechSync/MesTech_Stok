@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Dashboard;
 /// Unified dashboard summary: 12 KPI + 2 chart + 2 table.
 /// Served by GET /api/v1/dashboard/summary.
 /// </summary>
-public class DashboardSummaryDto
+public sealed class DashboardSummaryDto
 {
     // Satır 1 — Ana metrikler
     public decimal TodaySalesAmount { get; set; }
@@ -27,21 +27,21 @@ public class DashboardSummaryDto
     public List<CriticalStockItemDto> CriticalStockItems { get; set; } = new();
 }
 
-public class DailySalesPointDto
+public sealed class DailySalesPointDto
 {
     public DateTime Date { get; set; }
     public decimal Amount { get; set; }
     public int OrderCount { get; set; }
 }
 
-public class PlatformOrderDistDto
+public sealed class PlatformOrderDistDto
 {
     public string PlatformName { get; set; } = string.Empty;
     public int OrderCount { get; set; }
     public decimal Percentage { get; set; }
 }
 
-public class RecentOrderItemDto
+public sealed class RecentOrderItemDto
 {
     public Guid Id { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
@@ -52,7 +52,7 @@ public class RecentOrderItemDto
     public DateTime CreatedAt { get; set; }
 }
 
-public class CriticalStockItemDto
+public sealed class CriticalStockItemDto
 {
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;

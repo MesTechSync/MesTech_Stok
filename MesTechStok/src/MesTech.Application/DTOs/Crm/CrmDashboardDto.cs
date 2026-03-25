@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Crm;
 /// <summary>
 /// Crm Dashboard data transfer object.
 /// </summary>
-public class CrmDashboardDto
+public sealed class CrmDashboardDto
 {
     public int TotalCustomers { get; set; }
     public int ActiveCustomers { get; set; }
@@ -18,7 +18,7 @@ public class CrmDashboardDto
     public IReadOnlyList<RecentActivityDto> RecentActivities { get; set; } = [];
 }
 
-public class StageSummaryDto
+public sealed class StageSummaryDto
 {
     public Guid StageId { get; set; }
     public string StageName { get; set; } = string.Empty;
@@ -27,7 +27,7 @@ public class StageSummaryDto
     public decimal TotalValue { get; set; }
 }
 
-public class RecentActivityDto
+public sealed class RecentActivityDto
 {
     public Guid Id { get; set; }
     public string Type { get; set; } = string.Empty;

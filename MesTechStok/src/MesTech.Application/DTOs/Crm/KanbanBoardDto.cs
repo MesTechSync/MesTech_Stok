@@ -2,14 +2,14 @@ namespace MesTech.Application.DTOs.Crm;
 /// <summary>
 /// Kanban Board data transfer object.
 /// </summary>
-public class KanbanBoardDto
+public sealed class KanbanBoardDto
 {
     public Guid PipelineId { get; set; }
     public string PipelineName { get; set; } = string.Empty;
     public IReadOnlyList<KanbanStageDto> Stages { get; set; } = [];
 }
 
-public class KanbanStageDto
+public sealed class KanbanStageDto
 {
     public Guid StageId { get; set; }
     public string Name { get; set; } = string.Empty;

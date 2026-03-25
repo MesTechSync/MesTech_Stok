@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Bank Transaction data transfer object.
 /// </summary>
-public class BankTransactionDto
+public sealed class BankTransactionDto
 {
     public Guid Id { get; set; }
     public Guid BankAccountId { get; set; }

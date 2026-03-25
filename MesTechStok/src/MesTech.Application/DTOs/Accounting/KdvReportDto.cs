@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// Basitlestirilmis KDV raporu — API tuketicileri icin.
 /// Detayli KDV beyanname taslagi icin KdvDeclarationDraftDto kullanilir.
 /// </summary>
-public class KdvReportDto
+public sealed class KdvReportDto
 {
     public int Year { get; set; }
     public int Month { get; set; }

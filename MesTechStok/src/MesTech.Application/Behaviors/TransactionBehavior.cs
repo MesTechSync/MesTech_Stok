@@ -6,7 +6,7 @@ namespace MesTech.Application.Behaviors;
 /// <summary>
 /// MediatR pipeline behavior — Command'ları transaction içinde çalıştırır.
 /// </summary>
-public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IUnitOfWork _unitOfWork;

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Lot bilgisi DTO — FIFO görselleştirme ve maliyet hesaplama için.
 /// </summary>
-public class InventoryLotDto
+public sealed class InventoryLotDto
 {
     public Guid Id { get; set; }
     public string LotNumber { get; set; } = string.Empty;

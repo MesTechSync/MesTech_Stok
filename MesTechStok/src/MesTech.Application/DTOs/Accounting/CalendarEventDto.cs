@@ -6,7 +6,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Calendar Event data transfer object.
 /// </summary>
-public class CalendarEventDto
+public sealed class CalendarEventDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

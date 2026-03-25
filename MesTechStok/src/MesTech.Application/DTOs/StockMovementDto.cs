@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Stock Movement data transfer object.
 /// </summary>
-public class StockMovementDto
+public sealed class StockMovementDto
 {
     public Guid Id { get; set; }
     public Guid ProductId { get; set; }

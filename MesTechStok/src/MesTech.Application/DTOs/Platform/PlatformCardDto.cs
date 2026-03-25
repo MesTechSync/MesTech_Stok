@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Platform Card data transfer object.
 /// </summary>
-public class PlatformCardDto
+public sealed class PlatformCardDto
 {
     public PlatformType Platform { get; set; }
     public string Name { get; set; } = string.Empty;

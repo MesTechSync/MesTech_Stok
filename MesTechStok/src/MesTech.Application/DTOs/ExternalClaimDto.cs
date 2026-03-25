@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Platform'dan cekilen iade/claim bilgisi.
 /// </summary>
-public class ExternalClaimDto
+public sealed class ExternalClaimDto
 {
     public string PlatformClaimId { get; set; } = string.Empty;
     public string PlatformCode { get; set; } = string.Empty;
@@ -24,7 +24,7 @@ public class ExternalClaimDto
     public List<ExternalClaimLineDto> Lines { get; set; } = new();
 }
 
-public class ExternalClaimLineDto
+public sealed class ExternalClaimLineDto
 {
     public string? SKU { get; set; }
     public string? Barcode { get; set; }

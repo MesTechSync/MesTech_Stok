@@ -19,7 +19,7 @@ namespace MesTech.Application.Services.Accounting;
 ///    en eski katmandan baslayarak tuketir ve COGS toplar.
 /// 4. Kalan katmanlar = envanter maliyeti.
 /// </summary>
-public class FifoCostCalculationService : IFifoCostCalculationService
+public sealed class FifoCostCalculationService : IFifoCostCalculationService
 {
     private readonly IStockMovementRepository _movementRepository;
     private readonly IProductRepository _productRepository;

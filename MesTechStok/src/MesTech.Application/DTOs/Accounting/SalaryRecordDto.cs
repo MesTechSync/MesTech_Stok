@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Salary Record data transfer object.
 /// </summary>
-public class SalaryRecordDto
+public sealed class SalaryRecordDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

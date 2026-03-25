@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Journal Entry data transfer object.
 /// </summary>
-public class JournalEntryDto
+public sealed class JournalEntryDto
 {
     public Guid Id { get; set; }
     public DateTime EntryDate { get; set; }
@@ -16,7 +16,7 @@ public class JournalEntryDto
     public List<JournalLineDto> Lines { get; set; } = new();
 }
 
-public class JournalLineDto
+public sealed class JournalLineDto
 {
     public Guid Id { get; set; }
     public Guid AccountId { get; set; }

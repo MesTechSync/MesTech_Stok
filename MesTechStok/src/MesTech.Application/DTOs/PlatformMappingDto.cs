@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Platform Mapping data transfer object.
 /// </summary>
-public class PlatformMappingDto
+public sealed class PlatformMappingDto
 {
     public string PlatformCode { get; set; } = string.Empty;
     public string PlatformName { get; set; } = string.Empty;

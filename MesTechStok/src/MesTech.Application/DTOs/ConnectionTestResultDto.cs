@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Connection Test Result data transfer object.
 /// </summary>
-public class ConnectionTestResultDto
+public sealed class ConnectionTestResultDto
 {
     public bool IsSuccess { get; set; }
     public string PlatformCode { get; set; } = string.Empty;

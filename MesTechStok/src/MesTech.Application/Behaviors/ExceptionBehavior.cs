@@ -8,7 +8,7 @@ namespace MesTech.Application.Behaviors;
 /// Handler'larda try-catch yazmaya gerek kalmaz; pipeline otomatik yakalar.
 /// Exception yutmaz, yeniden fırlatır (rethrow).
 /// </summary>
-public class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly ILogger<ExceptionBehavior<TRequest, TResponse>> _logger;

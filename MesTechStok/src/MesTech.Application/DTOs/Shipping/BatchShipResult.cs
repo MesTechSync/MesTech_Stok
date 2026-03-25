@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Shipping;
 /// <summary>
 /// Toplu kargo gonderim sonucu.
 /// </summary>
-public class BatchShipResult
+public sealed class BatchShipResult
 {
     public int TotalOrders { get; set; }
     public int Successful { get; set; }

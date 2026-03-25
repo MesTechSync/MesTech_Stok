@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Expense data transfer object.
 /// </summary>
-public class ExpenseDto
+public sealed class ExpenseDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

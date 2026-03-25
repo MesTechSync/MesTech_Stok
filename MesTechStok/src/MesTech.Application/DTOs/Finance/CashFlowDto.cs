@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Finance;
 /// <summary>
 /// Cash Flow data transfer object.
 /// </summary>
-public class CashFlowDto
+public sealed class CashFlowDto
 {
     public int Year { get; set; }
     public int Month { get; set; }
@@ -13,7 +13,7 @@ public class CashFlowDto
     public List<CashFlowItemDto> Items { get; set; } = new();
 }
 
-public class CashFlowItemDto
+public sealed class CashFlowItemDto
 {
     public string Category { get; set; } = string.Empty;
     public decimal Amount { get; set; }

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// <summary>
 /// Siparis karsilama raporu satiri — gonderi suresi analizi (siparis → kargo → teslimat).
 /// </summary>
-public class OrderFulfillmentReportDto
+public sealed class OrderFulfillmentReportDto
 {
     public string Platform { get; set; } = string.Empty;
     public int TotalOrders { get; set; }

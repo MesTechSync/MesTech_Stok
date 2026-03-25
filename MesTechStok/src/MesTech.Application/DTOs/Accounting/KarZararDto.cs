@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Kar Zarar data transfer object.
 /// </summary>
-public class KarZararDto
+public sealed class KarZararDto
 {
     public decimal ToplamGelir { get; set; }
     public decimal ToplamGider { get; set; }

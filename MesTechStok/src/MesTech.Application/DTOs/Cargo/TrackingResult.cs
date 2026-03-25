@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Cargo;
 /// <summary>
 /// Kargo takip sonucu.
 /// </summary>
-public class TrackingResult
+public sealed class TrackingResult
 {
     public string TrackingNumber { get; set; } = string.Empty;
     public CargoStatus Status { get; set; }
@@ -16,7 +16,7 @@ public class TrackingResult
 /// <summary>
 /// Kargo takip olaylari.
 /// </summary>
-public class TrackingEvent
+public sealed class TrackingEvent
 {
     public DateTime Timestamp { get; set; }
     public string Location { get; set; } = string.Empty;

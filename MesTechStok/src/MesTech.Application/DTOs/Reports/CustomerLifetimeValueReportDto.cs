@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// <summary>
 /// Musteri yasam boyu degeri raporu satiri — musteri bazinda siparis sayisi, toplam harcama ve CLV.
 /// </summary>
-public class CustomerLifetimeValueReportDto
+public sealed class CustomerLifetimeValueReportDto
 {
     public Guid CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;

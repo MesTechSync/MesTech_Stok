@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Accounting Expense data transfer object.
 /// </summary>
-public class AccountingExpenseDto
+public sealed class AccountingExpenseDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;

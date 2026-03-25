@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Shipping;
 /// <summary>
 /// Kargo gonderi durum bilgisi.
 /// </summary>
-public class ShipmentStatusDto
+public sealed class ShipmentStatusDto
 {
     public string TrackingNumber { get; set; } = string.Empty;
     public CargoProvider Provider { get; set; }
@@ -17,7 +17,7 @@ public class ShipmentStatusDto
 /// <summary>
 /// Kargo takip olayi.
 /// </summary>
-public class ShipmentEventDto
+public sealed class ShipmentEventDto
 {
     public DateTime Timestamp { get; set; }
     public string Location { get; set; } = string.Empty;

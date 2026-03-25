@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Counterparty data transfer object.
 /// </summary>
-public class CounterpartyDto
+public sealed class CounterpartyDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

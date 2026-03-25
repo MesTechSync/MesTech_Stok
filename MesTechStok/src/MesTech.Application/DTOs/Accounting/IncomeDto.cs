@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Income data transfer object.
 /// </summary>
-public class IncomeDto
+public sealed class IncomeDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

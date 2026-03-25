@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Tasks;
 /// <summary>
 /// Work Task data transfer object.
 /// </summary>
-public class WorkTaskDto
+public sealed class WorkTaskDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;

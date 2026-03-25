@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Reconciliation Match data transfer object.
 /// </summary>
-public class ReconciliationMatchDto
+public sealed class ReconciliationMatchDto
 {
     public Guid Id { get; set; }
     public Guid? SettlementBatchId { get; set; }

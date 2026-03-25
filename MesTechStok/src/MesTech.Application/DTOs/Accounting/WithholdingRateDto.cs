@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// KDV tevkifat orani DTO'su — GiB resmi listesi.
 /// </summary>
-public class WithholdingRateDto
+public sealed class WithholdingRateDto
 {
     /// <summary>Oran kodu (ornegin "5/10").</summary>
     public string Code { get; set; } = string.Empty;

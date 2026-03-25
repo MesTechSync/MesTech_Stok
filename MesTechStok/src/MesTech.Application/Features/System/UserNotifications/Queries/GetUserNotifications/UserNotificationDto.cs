@@ -3,7 +3,7 @@ namespace MesTech.Application.Features.System.UserNotifications.Queries.GetUserN
 /// <summary>
 /// Kullanici ici bildirim DTO.
 /// </summary>
-public class UserNotificationDto
+public sealed class UserNotificationDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

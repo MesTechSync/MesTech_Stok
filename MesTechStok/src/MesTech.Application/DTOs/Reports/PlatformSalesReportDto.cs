@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// <summary>
 /// Platform bazli satis raporu satiri — siparis, gelir, iade, komisyon ve net gelir ozetler.
 /// </summary>
-public class PlatformSalesReportDto
+public sealed class PlatformSalesReportDto
 {
     public string Platform { get; set; } = string.Empty;
     public int TotalOrders { get; set; }

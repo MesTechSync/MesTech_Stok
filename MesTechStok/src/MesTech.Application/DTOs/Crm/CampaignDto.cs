@@ -2,7 +2,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Crm;
 
-public class CampaignDto
+public sealed class CampaignDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -14,7 +14,7 @@ public class CampaignDto
     public int ProductCount { get; set; }
 }
 
-public class CampaignDiscountResultDto
+public sealed class CampaignDiscountResultDto
 {
     public decimal OriginalPrice { get; set; }
     public decimal DiscountedPrice { get; set; }

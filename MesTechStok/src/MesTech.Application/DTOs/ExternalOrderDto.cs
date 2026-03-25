@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Platform'dan cekilen siparis bilgisi.
 /// </summary>
-public class ExternalOrderDto
+public sealed class ExternalOrderDto
 {
     public string PlatformOrderId { get; set; } = string.Empty;
     public string PlatformCode { get; set; } = string.Empty;
@@ -37,7 +37,7 @@ public class ExternalOrderDto
     public List<ExternalOrderLineDto> Lines { get; set; } = new();
 }
 
-public class ExternalOrderLineDto
+public sealed class ExternalOrderLineDto
 {
     public string? PlatformLineId { get; set; }
     public string? SKU { get; set; }

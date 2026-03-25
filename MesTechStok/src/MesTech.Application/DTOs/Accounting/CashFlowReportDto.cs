@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Cash Flow Report data transfer object.
 /// </summary>
-public class CashFlowReportDto
+public sealed class CashFlowReportDto
 {
     public decimal TotalInflow { get; set; }
     public decimal TotalOutflow { get; set; }
@@ -11,7 +11,7 @@ public class CashFlowReportDto
     public List<CashFlowEntryDto> Entries { get; set; } = new();
 }
 
-public class CashFlowEntryDto
+public sealed class CashFlowEntryDto
 {
     public Guid Id { get; set; }
     public DateTime EntryDate { get; set; }

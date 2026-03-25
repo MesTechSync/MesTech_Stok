@@ -1,6 +1,6 @@
 namespace MesTech.Application.Features.Hr.Queries.GetEmployees;
 
-public class EmployeeDto
+public sealed class EmployeeDto
 {
     public Guid Id { get; set; }
     public string EmployeeCode { get; set; } = string.Empty;

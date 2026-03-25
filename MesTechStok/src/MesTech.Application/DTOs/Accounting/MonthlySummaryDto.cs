@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Aylik ozet raporu — satis, komisyon, kargo, gider, vergi ve iade metrikleri.
 /// </summary>
-public class MonthlySummaryDto
+public sealed class MonthlySummaryDto
 {
     public int Year { get; set; }
     public int Month { get; set; }
@@ -26,7 +26,7 @@ public class MonthlySummaryDto
 /// <summary>
 /// Platform bazinda satis ozeti.
 /// </summary>
-public class PlatformSalesDto
+public sealed class PlatformSalesDto
 {
     public string Platform { get; set; } = string.Empty;
     public decimal Sales { get; set; }

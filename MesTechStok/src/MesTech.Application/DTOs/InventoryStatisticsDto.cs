@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Inventory Statistics data transfer object.
 /// </summary>
-public class InventoryStatisticsDto
+public sealed class InventoryStatisticsDto
 {
     public decimal TotalInventoryValue { get; set; }
     public int LowStockCount { get; set; }

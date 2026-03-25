@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// <summary>
 /// Stok devir hizi raporu satiri — urun bazinda satis miktari, ortalama stok gunu ve devir orani.
 /// </summary>
-public class StockTurnoverReportDto
+public sealed class StockTurnoverReportDto
 {
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;

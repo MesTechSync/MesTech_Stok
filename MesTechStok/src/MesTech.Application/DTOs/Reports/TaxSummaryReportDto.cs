@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// Vergi beyanname ozet raporu satiri — KDV oran bazinda hesaplanan ve indirilecek KDV ozeti.
 /// Muhasebe modulundeki TaxSummaryDto'dan farki: bu rapor beyanname hazirligi icin donem bazli ozet sunar.
 /// </summary>
-public class TaxSummaryReportDto
+public sealed class TaxSummaryReportDto
 {
     public string TaxPeriod { get; set; } = string.Empty;
     public decimal TotalSalesAmount { get; set; }

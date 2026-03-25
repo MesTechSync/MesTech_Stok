@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// KDV beyanname taslak raporu — aylik KDV1/KDV2 draft hesaplama.
 /// Hesaplanan KDV (output) - Indirilecek KDV (input) = Odenecek/Devreden KDV.
 /// </summary>
-public class KdvDeclarationDraftDto
+public sealed class KdvDeclarationDraftDto
 {
     /// <summary>Donem (yyyy-MM formati, ornegin "2026-03").</summary>
     public string Period { get; set; } = string.Empty;

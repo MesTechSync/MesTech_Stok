@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Settlement Batch data transfer object.
 /// </summary>
-public class SettlementBatchDto
+public sealed class SettlementBatchDto
 {
     public Guid Id { get; set; }
     public string Platform { get; set; } = string.Empty;

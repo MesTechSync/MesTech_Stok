@@ -6,7 +6,7 @@ namespace MesTech.Application.Behaviors;
 /// <summary>
 /// MediatR pipeline behavior — FluentValidation ile otomatik doğrulama.
 /// </summary>
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Category Mapping View data transfer object.
 /// </summary>
-public class CategoryMappingViewDto
+public sealed class CategoryMappingViewDto
 {
     public Guid MappingId { get; set; }
     public Guid InternalCategoryId { get; set; }

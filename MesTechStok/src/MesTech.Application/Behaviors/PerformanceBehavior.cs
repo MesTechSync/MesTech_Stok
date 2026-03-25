@@ -8,7 +8,7 @@ namespace MesTech.Application.Behaviors;
 /// MediatR pipeline behavior — 500ms+ süren handler'ları loglar.
 /// Yavaş query/command'ları Seq'te filtreleyerek tespit etmeyi sağlar.
 /// </summary>
-public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly ILogger<PerformanceBehavior<TRequest, TResponse>> _logger;

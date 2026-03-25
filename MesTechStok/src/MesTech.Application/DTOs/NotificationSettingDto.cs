@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs;
 /// Bildirim ayarlari DTO'su — kullanici tercihlerini UI'a tasir.
 /// ChannelAddress PII oldugu icin bu DTO'da yer ALMAZ.
 /// </summary>
-public class NotificationSettingDto
+public sealed class NotificationSettingDto
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

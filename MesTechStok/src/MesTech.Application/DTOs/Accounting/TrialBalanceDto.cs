@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// Mizan (Trial Balance) rapor satiri.
 /// Her hesap icin acilis, donem ve kapanis borc/alacak bilgisi icerir.
 /// </summary>
-public class TrialBalanceLineDto
+public sealed class TrialBalanceLineDto
 {
     public Guid AccountId { get; set; }
     public string AccountCode { get; set; } = string.Empty;
@@ -33,7 +33,7 @@ public class TrialBalanceLineDto
 /// <summary>
 /// Mizan raporu — tum hesaplarin acilis/donem/kapanis borc-alacak ozetini icerir.
 /// </summary>
-public class TrialBalanceDto
+public sealed class TrialBalanceDto
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }

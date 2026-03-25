@@ -8,7 +8,7 @@ namespace MesTech.Application.Behaviors;
 /// Tenant izolasyonunu kontrol eden MediatR pipeline behavior.
 /// Her request'te aktif tenant ID'nin mevcut olduğunu doğrular.
 /// </summary>
-public class TenantFilterBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class TenantFilterBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly ITenantProvider _tenantProvider;

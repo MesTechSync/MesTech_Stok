@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Sync Result data transfer object.
 /// </summary>
-public class SyncResultDto
+public sealed class SyncResultDto
 {
     public bool IsSuccess { get; set; }
     public string PlatformCode { get; set; } = string.Empty;

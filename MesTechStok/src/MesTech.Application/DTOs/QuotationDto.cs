@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Quotation data transfer object.
 /// </summary>
-public class QuotationDto
+public sealed class QuotationDto
 {
     public Guid Id { get; set; }
     public string QuotationNumber { get; set; } = string.Empty;
@@ -22,7 +22,7 @@ public class QuotationDto
     public List<QuotationLineDto> Lines { get; set; } = [];
 }
 
-public class QuotationLineDto
+public sealed class QuotationLineDto
 {
     public Guid Id { get; set; }
     public string ProductName { get; set; } = string.Empty;

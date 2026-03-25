@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Crm;
 /// <summary>
 /// Supplier Crm data transfer object.
 /// </summary>
-public class SupplierCrmDto
+public sealed class SupplierCrmDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

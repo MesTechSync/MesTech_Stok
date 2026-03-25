@@ -3,14 +3,14 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Commission Summary data transfer object.
 /// </summary>
-public class CommissionSummaryDto
+public sealed class CommissionSummaryDto
 {
     public decimal TotalCommission { get; set; }
     public decimal TotalServiceFee { get; set; }
     public List<PlatformCommissionDto> ByPlatform { get; set; } = new();
 }
 
-public class PlatformCommissionDto
+public sealed class PlatformCommissionDto
 {
     public string Platform { get; set; } = string.Empty;
     public decimal TotalGross { get; set; }

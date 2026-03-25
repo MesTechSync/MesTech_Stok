@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// Platform-agnostic musteri senkronizasyon DTO'su.
 /// Tum platformlarda ortak musteri alanlari.
 /// </summary>
-public class CustomerSyncDto
+public sealed class CustomerSyncDto
 {
     public string Id { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;

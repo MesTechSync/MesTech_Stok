@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Platform Commission Rate data transfer object.
 /// </summary>
-public class PlatformCommissionRateDto
+public sealed class PlatformCommissionRateDto
 {
     public Guid Id { get; set; }
     public string Platform { get; set; } = string.Empty;

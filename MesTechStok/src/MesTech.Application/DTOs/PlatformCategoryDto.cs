@@ -6,7 +6,7 @@ namespace MesTech.Application.DTOs;
 /// Platform-agnostic kategori DTO.
 /// Her platformun kategorileri bu DTO ile dondurulur.
 /// </summary>
-public class PlatformCategoryDto
+public sealed class PlatformCategoryDto
 {
     public string CategoryId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

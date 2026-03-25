@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Platform Sync Status data transfer object.
 /// </summary>
-public class PlatformSyncStatusDto
+public sealed class PlatformSyncStatusDto
 {
     public PlatformType Platform { get; set; }
     public string PlatformName { get; set; } = string.Empty;

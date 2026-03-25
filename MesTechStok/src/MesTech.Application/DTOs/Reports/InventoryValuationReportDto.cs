@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Reports;
 /// <summary>
 /// Envanter degerleme raporu satiri — urun bazinda stok miktari, birim maliyet ve toplam deger.
 /// </summary>
-public class InventoryValuationReportDto
+public sealed class InventoryValuationReportDto
 {
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;

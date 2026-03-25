@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Shipping;
 /// <summary>
 /// Otomatik kargo gonderim sonucu.
 /// </summary>
-public class AutoShipResult
+public sealed class AutoShipResult
 {
     public bool Success { get; set; }
     public string? TrackingNumber { get; set; }

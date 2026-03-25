@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Cargo;
 /// <summary>
 /// Kargo gonderi sonucu.
 /// </summary>
-public class ShipmentResult
+public sealed class ShipmentResult
 {
     public bool Success { get; set; }
     public string? TrackingNumber { get; set; }

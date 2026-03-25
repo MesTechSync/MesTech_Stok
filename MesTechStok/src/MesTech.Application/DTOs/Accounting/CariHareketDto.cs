@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Cari Hareket data transfer object.
 /// </summary>
-public class CariHareketDto
+public sealed class CariHareketDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

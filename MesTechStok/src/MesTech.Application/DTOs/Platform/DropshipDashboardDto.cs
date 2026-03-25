@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// <summary>
 /// Dropship Dashboard data transfer object.
 /// </summary>
-public class DropshipDashboardDto
+public sealed class DropshipDashboardDto
 {
     public int ActiveSuppliers { get; set; }
     public int ActiveFeeds { get; set; }
@@ -15,7 +15,7 @@ public class DropshipDashboardDto
     public List<SupplierPerformanceDto> TopSuppliers { get; set; } = new();
 }
 
-public class SupplierPerformanceDto
+public sealed class SupplierPerformanceDto
 {
     public Guid SupplierId { get; set; }
     public string Name { get; set; } = string.Empty;

@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// Bilanco (Balance Sheet) rapor satiri.
 /// Bir hesabin bakiye bilgisini icerir.
 /// </summary>
-public class BalanceSheetLineDto
+public sealed class BalanceSheetLineDto
 {
     public Guid AccountId { get; set; }
     public string AccountCode { get; set; } = string.Empty;
@@ -16,7 +16,7 @@ public class BalanceSheetLineDto
 /// Bilanco bolumu (Assets, Liabilities, Equity).
 /// Bolum satirlarini ve bolum toplamini icerir.
 /// </summary>
-public class BalanceSheetSectionDto
+public sealed class BalanceSheetSectionDto
 {
     public string SectionName { get; set; } = string.Empty;
     public IReadOnlyList<BalanceSheetLineDto> Lines { get; set; } = Array.Empty<BalanceSheetLineDto>();
@@ -29,7 +29,7 @@ public class BalanceSheetSectionDto
 /// Muhasebe temel denklemi: Assets == Liabilities + Equity.
 /// Turkish THP mapping: 1xx=Varliklar, 2xx-3xx=Borclar, 5xx=Ozkaynaklar.
 /// </summary>
-public class BalanceSheetDto
+public sealed class BalanceSheetDto
 {
     public DateTime AsOfDate { get; set; }
 

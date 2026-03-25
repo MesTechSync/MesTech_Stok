@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Xml Import Result data transfer object.
 /// </summary>
-public class XmlImportResult
+public sealed class XmlImportResult
 {
     public int TotalRows { get; set; }
     public int SuccessCount { get; set; }
@@ -11,7 +11,7 @@ public class XmlImportResult
     public IReadOnlyList<XmlImportError> Errors { get; set; } = [];
 }
 
-public class XmlImportError
+public sealed class XmlImportError
 {
     public int Row { get; set; }
     public string Field { get; set; } = string.Empty;

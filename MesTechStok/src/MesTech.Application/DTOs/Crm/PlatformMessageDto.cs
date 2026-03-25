@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Crm;
 /// <summary>
 /// Platform Message data transfer object.
 /// </summary>
-public class PlatformMessageDto
+public sealed class PlatformMessageDto
 {
     public Guid Id { get; set; }
     public string Platform { get; set; } = string.Empty;

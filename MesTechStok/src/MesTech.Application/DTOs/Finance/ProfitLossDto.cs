@@ -1,6 +1,6 @@
 namespace MesTech.Application.DTOs.Finance;
 
-public class ProfitLossDto
+public sealed class ProfitLossDto
 {
     public int Year { get; set; }
     public int Month { get; set; }
@@ -32,14 +32,14 @@ public class ProfitLossDto
     public IReadOnlyList<ExpenseCategoryDto> ExpenseByCategory { get; set; } = [];
 }
 
-public class PlatformRevenueDto
+public sealed class PlatformRevenueDto
 {
     public string Platform { get; set; } = string.Empty;
     public decimal Revenue { get; set; }
     public int OrderCount { get; set; }
 }
 
-public class ExpenseCategoryDto
+public sealed class ExpenseCategoryDto
 {
     public string Category { get; set; } = string.Empty;
     public decimal Amount { get; set; }

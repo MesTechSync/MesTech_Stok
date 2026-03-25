@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Invoice data transfer object.
 /// </summary>
-public class InvoiceDto
+public sealed class InvoiceDto
 {
     public Guid InvoiceId { get; set; }
     public string InvoiceNumber { get; set; } = string.Empty;
@@ -30,7 +30,7 @@ public class InvoiceDto
     public List<InvoiceLineDto> Lines { get; set; } = new();
 }
 
-public class InvoiceLineDto
+public sealed class InvoiceLineDto
 {
     public string ProductName { get; set; } = string.Empty;
     public string? SKU { get; set; }

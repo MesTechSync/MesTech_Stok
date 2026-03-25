@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Cari Hesap data transfer object.
 /// </summary>
-public class CariHesapDto
+public sealed class CariHesapDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

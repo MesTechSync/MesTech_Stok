@@ -5,7 +5,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Store data transfer object.
 /// </summary>
-public class StoreDto
+public sealed class StoreDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Bildirim kaydi DTO.
 /// </summary>
-public class NotificationDto
+public sealed class NotificationDto
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

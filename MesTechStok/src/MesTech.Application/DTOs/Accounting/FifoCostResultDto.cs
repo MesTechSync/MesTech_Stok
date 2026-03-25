@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// FIFO maliyet hesaplama sonucu — urun bazinda COGS ozeti.
 /// </summary>
-public class FifoCostResultDto
+public sealed class FifoCostResultDto
 {
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
@@ -31,7 +31,7 @@ public class FifoCostResultDto
 /// <summary>
 /// Tek bir FIFO maliyet katmani — alis partisi.
 /// </summary>
-public class FifoLayerDto
+public sealed class FifoLayerDto
 {
     public DateTime PurchaseDate { get; set; }
     public int Quantity { get; set; }

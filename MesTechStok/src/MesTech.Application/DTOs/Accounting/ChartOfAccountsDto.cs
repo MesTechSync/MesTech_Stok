@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Chart Of Accounts data transfer object.
 /// </summary>
-public class ChartOfAccountsDto
+public sealed class ChartOfAccountsDto
 {
     public Guid Id { get; set; }
     public string Code { get; set; } = string.Empty;

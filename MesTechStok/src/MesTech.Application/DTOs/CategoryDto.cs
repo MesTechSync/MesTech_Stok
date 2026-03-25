@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Platform kategori bilgisi.
 /// </summary>
-public class CategoryDto
+public sealed class CategoryDto
 {
     public int PlatformCategoryId { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -14,7 +14,7 @@ public class CategoryDto
 /// <summary>
 /// Platform marka bilgisi.
 /// </summary>
-public class BrandDto
+public sealed class BrandDto
 {
     public int PlatformBrandId { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -23,7 +23,7 @@ public class BrandDto
 /// <summary>
 /// Kategori ozelligi (attribute) bilgisi — urun olusturmada zorunlu alanlar.
 /// </summary>
-public class CategoryAttributeDto
+public sealed class CategoryAttributeDto
 {
     public int AttributeId { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -36,7 +36,7 @@ public class CategoryAttributeDto
 /// <summary>
 /// Kategori ozelligi deger secenegi.
 /// </summary>
-public class CategoryAttributeValueDto
+public sealed class CategoryAttributeValueDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -45,7 +45,7 @@ public class CategoryAttributeValueDto
 /// <summary>
 /// Batch islem sonucu — async Trendyol islemleri icin.
 /// </summary>
-public class BatchRequestResultDto
+public sealed class BatchRequestResultDto
 {
     public string BatchRequestId { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
@@ -59,7 +59,7 @@ public class BatchRequestResultDto
 /// <summary>
 /// Batch islem icerisindeki tekil kayit sonucu.
 /// </summary>
-public class BatchItemDto
+public sealed class BatchItemDto
 {
     public string? RequestItem { get; set; }
     public string Status { get; set; } = string.Empty;
@@ -69,7 +69,7 @@ public class BatchItemDto
 /// <summary>
 /// Platform API saglik durumu.
 /// </summary>
-public class PlatformHealthDto
+public sealed class PlatformHealthDto
 {
     public string PlatformCode { get; set; } = string.Empty;
     public bool IsHealthy { get; set; }

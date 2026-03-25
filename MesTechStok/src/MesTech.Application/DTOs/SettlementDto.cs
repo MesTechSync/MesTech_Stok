@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Platform cari hesap ekstresi.
 /// </summary>
-public class SettlementDto
+public sealed class SettlementDto
 {
     public string PlatformCode { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
@@ -19,7 +19,7 @@ public class SettlementDto
     public List<SettlementLineDto> Lines { get; set; } = new();
 }
 
-public class SettlementLineDto
+public sealed class SettlementLineDto
 {
     public string? OrderNumber { get; set; }
     public string? TransactionType { get; set; }
@@ -31,7 +31,7 @@ public class SettlementLineDto
 /// <summary>
 /// Platform kargo faturasi.
 /// </summary>
-public class CargoInvoiceDto
+public sealed class CargoInvoiceDto
 {
     public string InvoiceNumber { get; set; } = string.Empty;
     public DateTime InvoiceDate { get; set; }

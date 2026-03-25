@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Finance;
 /// <summary>
 /// Budget Summary data transfer object.
 /// </summary>
-public class BudgetSummaryDto
+public sealed class BudgetSummaryDto
 {
     public int Year { get; set; }
     public int Month { get; set; }
@@ -14,7 +14,7 @@ public class BudgetSummaryDto
     public List<BudgetCategoryDto> Categories { get; set; } = new();
 }
 
-public class BudgetCategoryDto
+public sealed class BudgetCategoryDto
 {
     public string Category { get; set; } = string.Empty;
     public decimal Budget { get; set; }

@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs.Accounting;
 /// <summary>
 /// Sabit kiymet (amortismana tabi iktisadi kiymet) DTO'su.
 /// </summary>
-public class FixedAssetDto
+public sealed class FixedAssetDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ public class FixedAssetDto
 /// <summary>
 /// Amortisman hesaplama sonucu — yillik tablo ve ozet.
 /// </summary>
-public class DepreciationResultDto
+public sealed class DepreciationResultDto
 {
     public Guid AssetId { get; set; }
     public string AssetName { get; set; } = string.Empty;
@@ -35,7 +35,7 @@ public class DepreciationResultDto
 /// <summary>
 /// Amortisman takvimi satiri (Application DTO).
 /// </summary>
-public class DepreciationScheduleLineDto
+public sealed class DepreciationScheduleLineDto
 {
     public int Year { get; set; }
     public decimal DepreciationAmount { get; set; }

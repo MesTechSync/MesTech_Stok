@@ -4,7 +4,7 @@ namespace MesTech.Application.DTOs.Platform;
 /// Platform-agnostic kategori agac yapisi DTO'su.
 /// Parent-child iliskisi ile hiyerarsik kategori senkronizasyonu.
 /// </summary>
-public class CategoryTreeSyncDto
+public sealed class CategoryTreeSyncDto
 {
     public string Id { get; set; } = string.Empty;
     public string? ParentId { get; set; }
@@ -18,7 +18,7 @@ public class CategoryTreeSyncDto
 /// Platform-agnostic kategori push DTO'su.
 /// Yeni kategori olusturma veya mevcut guncelleme icin kullanilir.
 /// </summary>
-public class CategorySyncDto
+public sealed class CategorySyncDto
 {
     public string? Id { get; set; }
     public string? ParentId { get; set; }

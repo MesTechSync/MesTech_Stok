@@ -3,7 +3,7 @@ namespace MesTech.Application.DTOs;
 /// <summary>
 /// Invoice Result data transfer object.
 /// </summary>
-public class InvoiceResult
+public sealed class InvoiceResult
 {
     public bool Success { get; set; }
     public string? GibInvoiceId { get; set; }
@@ -13,7 +13,7 @@ public class InvoiceResult
     public string? ErrorCode { get; set; }
 }
 
-public class InvoiceStatusResult
+public sealed class InvoiceStatusResult
 {
     public bool Success { get; set; }
     public string Status { get; set; } = string.Empty;
