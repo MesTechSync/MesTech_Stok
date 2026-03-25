@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -73,7 +73,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private void ShowCriticalAlert(LogStats stats)
+        private void ShowCriticalAlert(dynamic stats)
         {
             var message = "🚨 KRİTİK SISTEM UYARISI!\n\n";
 
