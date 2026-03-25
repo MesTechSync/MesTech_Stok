@@ -415,7 +415,10 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     }
 
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
-        => Task.FromResult(false);
+    {
+        _logger.LogInformation("Ciceksepeti webhook unregistration not supported via API — manual panel config");
+        return Task.FromResult(false);
+    }
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {

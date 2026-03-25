@@ -743,11 +743,14 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // ── IClaimCapableAdapter ──
     public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default) { _logger.LogInformation("[ZalandoAdapter] PullClaims"); try { var token = await GetAccessTokenAsync(ct).ConfigureAwait(false); _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token); var response = await ThrottledExecuteAsync(async c => await _httpClient.GetAsync($"{ApiBase}/merchants/returns?status=APPROVED", c).ConfigureAwait(false), ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var doc = JsonDocument.Parse(body); var claims = new List<ExternalClaimDto>(); if (doc.RootElement.TryGetProperty("items", out var items)) foreach (var r in items.EnumerateArray()) { var rid = r.TryGetProperty("return_id", out var id) ? id.GetString() ?? "" : ""; claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Zalando", Status = "APPROVED" }); } return claims; } catch (Exception ex) { _logger.LogError(ex, "[ZalandoAdapter] PullClaims error"); return Array.Empty<ExternalClaimDto>(); } }
     public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default) => Task.FromResult(true);
-    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    { _logger.LogDebug("[ZalandoAdapter] RejectClaim — Zalando auto-accepts returns"); return Task.FromResult(false); }
 
     // ── IInvoiceCapableAdapter ──
-    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
-    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    { _logger.LogDebug("[ZalandoAdapter] SendInvoiceLink not supported — Zalando generates invoices"); return Task.FromResult(false); }
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    { _logger.LogDebug("[ZalandoAdapter] SendInvoiceFile not supported — Zalando generates invoices"); return Task.FromResult(false); }
 
     // ── IWebhookCapableAdapter ──
     public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)

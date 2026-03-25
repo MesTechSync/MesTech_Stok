@@ -1002,12 +1002,16 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
     // ── IClaimCapableAdapter ──
     public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default) { _logger.LogInformation("[EtsyAdapter] PullClaims"); try { var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/application/shops/{_shopId}/receipts?was_canceled=true&limit=25"); request.Headers.Add("x-api-key", _accessToken); var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var doc = JsonDocument.Parse(body); var claims = new List<ExternalClaimDto>(); if (doc.RootElement.TryGetProperty("results", out var results)) foreach (var r in results.EnumerateArray()) { var rid = r.TryGetProperty("receipt_id", out var id) ? id.GetInt64().ToString() : ""; claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Etsy", Status = "CANCELED" }); } return claims; } catch (Exception ex) { _logger.LogError(ex, "[EtsyAdapter] PullClaims error"); return Array.Empty<ExternalClaimDto>(); } }
-    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default) => Task.FromResult(false);
-    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default)
+    { _logger.LogDebug("[EtsyAdapter] ApproveClaim not supported — Etsy handles refunds internally"); return Task.FromResult(false); }
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
+    { _logger.LogDebug("[EtsyAdapter] RejectClaim not supported — Etsy handles refunds internally"); return Task.FromResult(false); }
 
     // ── IInvoiceCapableAdapter ──
-    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
-    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default)
+    { _logger.LogDebug("[EtsyAdapter] SendInvoiceLink not supported — no invoice API"); return Task.FromResult(false); }
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default)
+    { _logger.LogDebug("[EtsyAdapter] SendInvoiceFile not supported — no invoice API"); return Task.FromResult(false); }
 
     // ── IWebhookCapableAdapter ──
     public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
