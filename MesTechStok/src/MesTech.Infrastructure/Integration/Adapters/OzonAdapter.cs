@@ -21,7 +21,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// FBO/FBS order retrieval, stock updates via /v2/products/stocks.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
+public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
@@ -788,6 +788,86 @@ public class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAd
 
         return dto;
     }
+
+    // ═══════════════════════════════════════════
+    // IShipmentCapableAdapter — Shipment Notification
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Sends shipment notification to Ozon using FBS ship API.
+    /// POST /v3/posting/fbs/ship with posting_number, tracking_number, shipping_provider_id.
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(platformOrderId))
+            {
+                _logger.LogWarning("Ozon SendShipment — platformOrderId bos olamaz");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                _logger.LogWarning("Ozon SendShipment — trackingNumber bos olamaz. PostingNumber={PostingNumber}",
+                    platformOrderId);
+                return false;
+            }
+
+            var shippingProviderId = MapCargoProviderToOzon(provider);
+
+            var payload = new
+            {
+                posting_number = platformOrderId,
+                tracking_number = trackingNumber,
+                shipping_provider_id = shippingProviderId
+            };
+
+            using var request = BuildPostRequest("/v3/posting/fbs/ship", payload);
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "Ozon SendShipment basarili — PostingNumber={PostingNumber}, Tracking={Tracking}, Provider={Provider}",
+                    platformOrderId, trackingNumber, provider);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ozon SendShipment basarisiz {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon SendShipment hatasi — PostingNumber={PostingNumber}", platformOrderId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Maps CargoProvider enum to Ozon shipping_provider_id.
+    /// Ozon uses numeric IDs — these are approximations; real mapping from Ozon /v1/delivery-method/list.
+    /// </summary>
+    private static long MapCargoProviderToOzon(CargoProvider provider) => provider switch
+    {
+        CargoProvider.PttKargo => 1,
+        CargoProvider.YurticiKargo => 2,
+        CargoProvider.ArasKargo => 3,
+        CargoProvider.SuratKargo => 4,
+        CargoProvider.MngKargo => 5,
+        CargoProvider.UPS => 6,
+        CargoProvider.DHL => 7,
+        CargoProvider.FedEx => 8,
+        CargoProvider.Hepsijet => 9,
+        CargoProvider.Sendeo => 10,
+        _ => 0
+    };
 
     // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check

@@ -23,7 +23,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Stock: PUT /api/product/stock
 /// Price: PUT /api/product/price
 /// </summary>
-public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter
+public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttAvmAdapter> _logger;
@@ -650,6 +650,90 @@ public class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingable
             packageId, status);
         return Task.FromResult(false);
     }
+
+    // ═══════════════════════════════════════════
+    // IShipmentCapableAdapter — Shipment Notification
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Sends shipment notification to PTT AVM.
+    /// POST /api/order/shipment with orderId, trackingNumber, cargoCompany.
+    /// </summary>
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber,
+        CargoProvider provider, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(platformOrderId))
+            {
+                _logger.LogWarning("PttAVM SendShipment — platformOrderId bos olamaz");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                _logger.LogWarning("PttAVM SendShipment — trackingNumber bos olamaz. OrderId={OrderId}",
+                    platformOrderId);
+                return false;
+            }
+
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var cargoCompany = MapCargoProviderToPttAvm(provider);
+
+            var payload = new
+            {
+                orderId = platformOrderId,
+                trackingNumber,
+                cargoCompany
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/order/shipment";
+
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "PttAVM SendShipment basarili — OrderId={OrderId}, Tracking={Tracking}, Cargo={Cargo}",
+                    platformOrderId, trackingNumber, cargoCompany);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("PttAVM SendShipment basarisiz {Status}: {Error}",
+                response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM SendShipment hatasi — OrderId={OrderId}", platformOrderId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Maps CargoProvider enum to PTT AVM cargo company name.
+    /// </summary>
+    private static string MapCargoProviderToPttAvm(CargoProvider provider) => provider switch
+    {
+        CargoProvider.PttKargo => "PTT Kargo",
+        CargoProvider.YurticiKargo => "Yurtiçi Kargo",
+        CargoProvider.ArasKargo => "Aras Kargo",
+        CargoProvider.SuratKargo => "Sürat Kargo",
+        CargoProvider.MngKargo => "MNG Kargo",
+        CargoProvider.Hepsijet => "Hepsijet",
+        CargoProvider.UPS => "UPS",
+        CargoProvider.Sendeo => "Sendeo",
+        CargoProvider.DHL => "DHL",
+        CargoProvider.FedEx => "FedEx",
+        _ => provider.ToString()
+    };
 
     // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
