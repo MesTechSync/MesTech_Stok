@@ -1,4 +1,6 @@
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -6,7 +8,9 @@ namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// ERP stok sync job — her 15 dakikada calisir.
-/// IErpStockCapable implement eden tum ERP adapter'lardan stok seviyelerini ceker.
+/// IErpStockCapable implement eden tum ERP adapter'lardan stok seviyelerini ceker
+/// ve MesTech urunlerinin stok miktarlarini gunceller.
+/// Phase-2 TAM: SKU eslestirip Product.AdjustStock cagirir (delta bazli).
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class ErpStockSyncJob : ISyncJob
@@ -15,11 +19,16 @@ public sealed class ErpStockSyncJob : ISyncJob
     public string CronExpression => "*/15 * * * *"; // Her 15 dk
 
     private readonly IErpAdapterFactory _factory;
+    private readonly IProductRepository _productRepository;
     private readonly ILogger<ErpStockSyncJob> _logger;
 
-    public ErpStockSyncJob(IErpAdapterFactory factory, ILogger<ErpStockSyncJob> logger)
+    public ErpStockSyncJob(
+        IErpAdapterFactory factory,
+        IProductRepository productRepository,
+        ILogger<ErpStockSyncJob> logger)
     {
         _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -28,7 +37,8 @@ public sealed class ErpStockSyncJob : ISyncJob
         _logger.LogInformation("[{JobId}] ERP stok sync basliyor...", JobId);
 
         var providers = _factory.SupportedProviders;
-        var totalSynced = 0;
+        var totalUpdated = 0;
+        var totalSkipped = 0;
         var totalFailed = 0;
 
         foreach (var provider in providers)
@@ -40,7 +50,6 @@ public sealed class ErpStockSyncJob : ISyncJob
             {
                 var adapter = _factory.GetAdapter(provider);
 
-                // Only process adapters that support stock capability
                 if (adapter is not IErpStockCapable stockCapable)
                 {
                     _logger.LogDebug(
@@ -61,13 +70,34 @@ public sealed class ErpStockSyncJob : ISyncJob
                     continue;
                 }
 
-                // [Phase-2]: Update MesTech stock from ERP stock items
-                // For each stockItem, find matching MesTech product and update quantity
-                _logger.LogInformation(
-                    "[{JobId}] {Provider} returned {Count} stock items — ready for MesTech sync",
-                    JobId, provider, stockItems.Count);
+                foreach (var stockItem in stockItems)
+                {
+                    ct.ThrowIfCancellationRequested();
 
-                totalSynced += stockItems.Count;
+                    var product = await _productRepository.GetBySKUAsync(stockItem.ProductCode).ConfigureAwait(false);
+                    if (product is null)
+                    {
+                        totalSkipped++;
+                        continue;
+                    }
+
+                    var delta = stockItem.Quantity - product.Stock;
+                    if (delta == 0)
+                    {
+                        totalSkipped++;
+                        continue;
+                    }
+
+                    var movementType = delta > 0 ? StockMovementType.StockIn : StockMovementType.StockOut;
+                    product.AdjustStock(delta, movementType, $"ERP sync ({provider})");
+
+                    await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                    totalUpdated++;
+                }
+
+                _logger.LogInformation(
+                    "[{JobId}] {Provider} stock sync: {Count} items fetched, {Updated} updated, {Skipped} skipped",
+                    JobId, provider, stockItems.Count, totalUpdated, totalSkipped);
             }
             catch (OperationCanceledException)
             {
@@ -84,7 +114,7 @@ public sealed class ErpStockSyncJob : ISyncJob
         }
 
         _logger.LogInformation(
-            "[{JobId}] ERP stok sync tamamlandi: {Synced} items from {Providers} providers, {Failed} failed",
-            JobId, totalSynced, providers.Count, totalFailed);
+            "[{JobId}] ERP stok sync tamamlandi: {Updated} updated, {Skipped} skipped, {Failed} failed",
+            JobId, totalUpdated, totalSkipped, totalFailed);
     }
 }
