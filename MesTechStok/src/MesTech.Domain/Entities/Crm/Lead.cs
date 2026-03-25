@@ -20,6 +20,11 @@ public sealed class Lead : BaseEntity, ITenantEntity
     public DateTime? ConvertedAt { get; private set; }
     public Guid? ConvertedToCrmContactId { get; private set; }
 
+    // ── AI Scoring (MESA OS) ──
+    public int? Score { get; private set; }
+    public string? ScoreReasoning { get; private set; }
+    public DateTime? ScoredAt { get; private set; }
+
     private Lead() { }
 
     public static Lead Create(
@@ -70,6 +75,19 @@ public sealed class Lead : BaseEntity, ITenantEntity
         Status = LeadStatus.Lost;
         Notes = reason;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateScore(int score, string reasoning)
+    {
+        if (score < 0 || score > 100)
+            throw new ArgumentOutOfRangeException(nameof(score), "Score must be between 0 and 100.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(reasoning);
+
+        Score = score;
+        ScoreReasoning = reasoning;
+        ScoredAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new LeadScoredEvent(Id, TenantId, score, reasoning, DateTime.UtcNow));
     }
 
     public Guid Convert()
