@@ -90,6 +90,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void AddLine(InvoiceLine line)
     {
+        ArgumentNullException.ThrowIfNull(line);
         _lines.Add(line);
         CalculateTotals();
     }
@@ -145,12 +146,16 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void MarkAsPlatformSent(string platformInvoiceUrl)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(platformInvoiceUrl);
         PlatformInvoiceUrl = platformInvoiceUrl;
         Status = InvoiceStatus.PlatformSent;
     }
 
     public static Invoice CreateForOrder(Order order, InvoiceType type, string invoiceNumber)
     {
+        ArgumentNullException.ThrowIfNull(order);
+        ArgumentException.ThrowIfNullOrWhiteSpace(invoiceNumber);
+
         var invoice = new Invoice
         {
             OrderId = order.Id,

@@ -70,6 +70,7 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void AddItem(OrderItem item)
     {
+        ArgumentNullException.ThrowIfNull(item);
         _orderItems.Add(item);
         CalculateTotals();
     }
@@ -97,6 +98,8 @@ public sealed class Order : BaseEntity, ITenantEntity
     /// </summary>
     public void MarkAsShipped(string trackingNumber, CargoProvider provider)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(trackingNumber);
+
         if (Status != OrderStatus.Confirmed)
             throw new BusinessRuleException("OrderStatusTransition",
                 $"Cannot ship order in {Status} status. Only Confirmed orders can be shipped.");
@@ -175,6 +178,7 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void SetCargoBarcode(string barcode)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(barcode);
         CargoBarcode = barcode;
     }
 
@@ -199,6 +203,9 @@ public sealed class Order : BaseEntity, ITenantEntity
         string? customerEmail,
         IReadOnlyList<OrderItem> items)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(platformOrderId);
+        ArgumentNullException.ThrowIfNull(items);
+
         var order = new Order
         {
             Id = Guid.NewGuid(),
