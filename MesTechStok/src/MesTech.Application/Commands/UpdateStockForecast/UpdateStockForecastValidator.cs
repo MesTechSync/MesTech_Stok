@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateStockForecast;
 
-public class UpdateStockForecastValidator : AbstractValidator<UpdateStockForecastCommand>
+public sealed class UpdateStockForecastValidator : AbstractValidator<UpdateStockForecastCommand>
 {
     public UpdateStockForecastValidator()
     {

@@ -9,7 +9,7 @@ using IAutoShipmentService = MesTech.Domain.Services.IAutoShipmentService;
 
 namespace MesTech.Application.Features.Shipping.Commands.AutoShipOrder;
 
-public class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand, AutoShipResult>
+public sealed class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand, AutoShipResult>
 {
     private const string CashOnDeliveryStatus = "CashOnDelivery";
 

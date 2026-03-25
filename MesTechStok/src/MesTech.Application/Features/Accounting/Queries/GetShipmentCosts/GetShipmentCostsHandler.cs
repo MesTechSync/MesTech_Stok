@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetShipmentCosts;
 
-public class GetShipmentCostsHandler
+public sealed class GetShipmentCostsHandler
     : IRequestHandler<GetShipmentCostsQuery, IReadOnlyList<ShipmentCostDto>>
 {
     private readonly IShipmentCostRepository _repo;

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Platform.Commands.FetchProductFromUrl;
 
-public class FetchProductFromUrlHandler
+public sealed class FetchProductFromUrlHandler
     : IRequestHandler<FetchProductFromUrlCommand, FetchedProductDto?>
 {
     private readonly ILogger<FetchProductFromUrlHandler> _logger;

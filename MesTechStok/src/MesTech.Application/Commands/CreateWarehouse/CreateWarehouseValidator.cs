@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateWarehouse;
 
-public class CreateWarehouseValidator : AbstractValidator<CreateWarehouseCommand>
+public sealed class CreateWarehouseValidator : AbstractValidator<CreateWarehouseCommand>
 {
     public CreateWarehouseValidator()
     {

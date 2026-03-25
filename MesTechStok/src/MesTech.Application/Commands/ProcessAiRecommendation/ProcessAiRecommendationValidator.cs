@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ProcessAiRecommendation;
 
-public class ProcessAiRecommendationValidator : AbstractValidator<ProcessAiRecommendationCommand>
+public sealed class ProcessAiRecommendationValidator : AbstractValidator<ProcessAiRecommendationCommand>
 {
     public ProcessAiRecommendationValidator()
     {

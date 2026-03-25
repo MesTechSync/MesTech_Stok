@@ -2,7 +2,7 @@ using MediatR;
 
 namespace MesTech.Application.Queries.GetWarehouseSummary;
 
-public class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSummaryQuery, IReadOnlyList<WarehouseSummaryDto>>
+public sealed class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSummaryQuery, IReadOnlyList<WarehouseSummaryDto>>
 {
     public Task<IReadOnlyList<WarehouseSummaryDto>> Handle(
         GetWarehouseSummaryQuery request, CancellationToken cancellationToken)

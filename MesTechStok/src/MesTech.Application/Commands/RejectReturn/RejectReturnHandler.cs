@@ -6,7 +6,7 @@ namespace MesTech.Application.Commands.RejectReturn;
 /// <summary>
 /// Iade talebini reddeder ve ret sebebini kaydeder.
 /// </summary>
-public class RejectReturnHandler : IRequestHandler<RejectReturnCommand, RejectReturnResult>
+public sealed class RejectReturnHandler : IRequestHandler<RejectReturnCommand, RejectReturnResult>
 {
     private readonly IReturnRequestRepository _returnRepo;
     private readonly IUnitOfWork _unitOfWork;

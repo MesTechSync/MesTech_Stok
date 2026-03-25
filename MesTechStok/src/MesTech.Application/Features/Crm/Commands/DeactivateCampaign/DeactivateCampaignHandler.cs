@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.DeactivateCampaign;
 
-public class DeactivateCampaignHandler : IRequestHandler<DeactivateCampaignCommand, Unit>
+public sealed class DeactivateCampaignHandler : IRequestHandler<DeactivateCampaignCommand, Unit>
 {
     private readonly ICampaignRepository _repository;
     private readonly IUnitOfWork _uow;

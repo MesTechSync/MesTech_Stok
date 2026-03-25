@@ -8,7 +8,7 @@ public interface IStockCriticalEventHandler
     Task HandleAsync(StockCriticalEvent domainEvent, CancellationToken ct);
 }
 
-public class StockCriticalEventHandler : IStockCriticalEventHandler
+public sealed class StockCriticalEventHandler : IStockCriticalEventHandler
 {
     private readonly ILogger<StockCriticalEventHandler> _logger;
 

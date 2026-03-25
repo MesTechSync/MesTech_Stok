@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.DeleteProduct;
 
-public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, DeleteProductResult>
+public sealed class DeleteProductHandler : IRequestHandler<DeleteProductCommand, DeleteProductResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;

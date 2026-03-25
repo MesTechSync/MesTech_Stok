@@ -3,7 +3,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
-public class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceCommand, bool>
+public sealed class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceCommand, bool>
 {
     private readonly IEInvoiceDocumentRepository _repository;
     private readonly IEInvoiceProvider _eInvoiceProvider;

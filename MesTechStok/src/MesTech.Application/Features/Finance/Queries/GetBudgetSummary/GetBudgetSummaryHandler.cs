@@ -6,7 +6,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
 
-public class GetBudgetSummaryHandler : IRequestHandler<GetBudgetSummaryQuery, BudgetSummaryDto>
+public sealed class GetBudgetSummaryHandler : IRequestHandler<GetBudgetSummaryQuery, BudgetSummaryDto>
 {
     private readonly IFinancialGoalRepository _goalRepo;
     private readonly IFinanceExpenseRepository _expenseRepo;

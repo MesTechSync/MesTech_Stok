@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateChartOfAccount;
 
-public class UpdateChartOfAccountHandler : IRequestHandler<UpdateChartOfAccountCommand, bool>
+public sealed class UpdateChartOfAccountHandler : IRequestHandler<UpdateChartOfAccountCommand, bool>
 {
     private readonly IChartOfAccountsRepository _repository;
     private readonly IUnitOfWork _uow;

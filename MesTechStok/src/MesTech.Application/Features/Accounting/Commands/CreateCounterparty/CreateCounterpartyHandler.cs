@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateCounterparty;
 
-public class CreateCounterpartyHandler : IRequestHandler<CreateCounterpartyCommand, Guid>
+public sealed class CreateCounterpartyHandler : IRequestHandler<CreateCounterpartyCommand, Guid>
 {
     private readonly ICounterpartyRepository _repository;
     private readonly IUnitOfWork _uow;

@@ -8,7 +8,7 @@ public interface IInvoiceGeneratedForERPEventHandler
     Task HandleAsync(InvoiceGeneratedForERPEvent domainEvent, CancellationToken ct);
 }
 
-public class InvoiceGeneratedForERPEventHandler : IInvoiceGeneratedForERPEventHandler
+public sealed class InvoiceGeneratedForERPEventHandler : IInvoiceGeneratedForERPEventHandler
 {
     private readonly ILogger<InvoiceGeneratedForERPEventHandler> _logger;
 

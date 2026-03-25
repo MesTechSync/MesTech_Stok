@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 
-public class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLossDto>
+public sealed class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, ProfitLossDto>
 {
     private readonly IFinanceExpenseRepository _expenseRepo;
     private readonly IOrderRepository _orderRepo;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tasks.Commands.CreateProject;
 
-public class CreateProjectValidator : AbstractValidator<CreateProjectCommand>
+public sealed class CreateProjectValidator : AbstractValidator<CreateProjectCommand>
 {
     public CreateProjectValidator()
     {

@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetCustomersCrm;
 
-public class GetCustomersCrmHandler : IRequestHandler<GetCustomersCrmQuery, GetCustomersCrmResult>
+public sealed class GetCustomersCrmHandler : IRequestHandler<GetCustomersCrmQuery, GetCustomersCrmResult>
 {
     private readonly ICrmDashboardQueryService _queryService;
 

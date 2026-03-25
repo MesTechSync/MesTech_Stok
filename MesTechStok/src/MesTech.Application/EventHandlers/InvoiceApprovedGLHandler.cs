@@ -16,7 +16,7 @@ public interface IInvoiceApprovedGLHandler
         CancellationToken ct);
 }
 
-public class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
+public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<InvoiceApprovedGLHandler> _logger;

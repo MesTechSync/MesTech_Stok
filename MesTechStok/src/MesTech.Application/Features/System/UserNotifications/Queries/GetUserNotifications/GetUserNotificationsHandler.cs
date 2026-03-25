@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.System.UserNotifications.Queries.GetUserN
 /// Kullanici ici bildirim listesi handler'i.
 /// IUserNotificationRepository uzerinden sayfalanmis bildirim kayitlarini ceker.
 /// </summary>
-public class GetUserNotificationsHandler
+public sealed class GetUserNotificationsHandler
     : IRequestHandler<GetUserNotificationsQuery, UserNotificationListResult>
 {
     private readonly IUserNotificationRepository _repository;

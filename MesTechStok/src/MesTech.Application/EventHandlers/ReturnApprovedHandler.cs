@@ -19,7 +19,7 @@ public interface IReturnApprovedHandler
         CancellationToken ct);
 }
 
-public class ReturnApprovedHandler : IReturnApprovedHandler
+public sealed class ReturnApprovedHandler : IReturnApprovedHandler
 {
     private readonly IProductRepository _productRepo;
     private readonly IUnitOfWork _unitOfWork;

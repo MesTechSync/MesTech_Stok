@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.System.Queries.GetBackupHistory;
 
-public class GetBackupHistoryValidator : AbstractValidator<GetBackupHistoryQuery>
+public sealed class GetBackupHistoryValidator : AbstractValidator<GetBackupHistoryQuery>
 {
     public GetBackupHistoryValidator()
     {

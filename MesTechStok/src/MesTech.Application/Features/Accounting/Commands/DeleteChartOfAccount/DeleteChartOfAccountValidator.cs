@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteChartOfAccount;
 
-public class DeleteChartOfAccountValidator : AbstractValidator<DeleteChartOfAccountCommand>
+public sealed class DeleteChartOfAccountValidator : AbstractValidator<DeleteChartOfAccountCommand>
 {
     public DeleteChartOfAccountValidator()
     {

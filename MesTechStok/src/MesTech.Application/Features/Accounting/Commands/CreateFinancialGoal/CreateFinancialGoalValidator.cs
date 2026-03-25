@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateFinancialGoal;
 
-public class CreateFinancialGoalValidator : AbstractValidator<CreateFinancialGoalCommand>
+public sealed class CreateFinancialGoalValidator : AbstractValidator<CreateFinancialGoalCommand>
 {
     public CreateFinancialGoalValidator()
     {

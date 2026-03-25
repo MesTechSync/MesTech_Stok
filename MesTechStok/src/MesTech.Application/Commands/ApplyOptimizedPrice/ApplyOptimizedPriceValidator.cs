@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ApplyOptimizedPrice;
 
-public class ApplyOptimizedPriceValidator : AbstractValidator<ApplyOptimizedPriceCommand>
+public sealed class ApplyOptimizedPriceValidator : AbstractValidator<ApplyOptimizedPriceCommand>
 {
     public ApplyOptimizedPriceValidator()
     {

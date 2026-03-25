@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Stores.Queries.GetStoreCredential;
 
-public class GetStoreCredentialHandler : IRequestHandler<GetStoreCredentialQuery, StoreCredentialDto?>
+public sealed class GetStoreCredentialHandler : IRequestHandler<GetStoreCredentialQuery, StoreCredentialDto?>
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IStoreCredentialRepository _credentialRepository;

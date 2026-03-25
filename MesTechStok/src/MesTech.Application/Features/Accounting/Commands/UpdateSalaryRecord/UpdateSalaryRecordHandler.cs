@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateSalaryRecord;
 
-public class UpdateSalaryRecordHandler : IRequestHandler<UpdateSalaryRecordCommand>
+public sealed class UpdateSalaryRecordHandler : IRequestHandler<UpdateSalaryRecordCommand>
 {
     private readonly ISalaryRecordRepository _repository;
     private readonly IUnitOfWork _uow;

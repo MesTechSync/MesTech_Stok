@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Erp.Commands.SyncOrderToErp;
 
-public class SyncOrderToErpValidator : AbstractValidator<SyncOrderToErpCommand>
+public sealed class SyncOrderToErpValidator : AbstractValidator<SyncOrderToErpCommand>
 {
     public SyncOrderToErpValidator()
     {

@@ -8,7 +8,7 @@ public interface IDealWonEventHandler
     Task HandleAsync(DealWonEvent domainEvent, CancellationToken ct);
 }
 
-public class DealWonEventHandler : IDealWonEventHandler
+public sealed class DealWonEventHandler : IDealWonEventHandler
 {
     private readonly ILogger<DealWonEventHandler> _logger;
 

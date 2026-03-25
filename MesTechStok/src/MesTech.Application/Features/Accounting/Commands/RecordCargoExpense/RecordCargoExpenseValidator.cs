@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordCargoExpense;
 
-public class RecordCargoExpenseValidator : AbstractValidator<RecordCargoExpenseCommand>
+public sealed class RecordCargoExpenseValidator : AbstractValidator<RecordCargoExpenseCommand>
 {
     public RecordCargoExpenseValidator()
     {

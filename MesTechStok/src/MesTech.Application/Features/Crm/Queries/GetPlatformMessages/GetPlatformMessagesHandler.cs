@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetPlatformMessages;
 
-public class GetPlatformMessagesHandler : IRequestHandler<GetPlatformMessagesQuery, GetPlatformMessagesResult>
+public sealed class GetPlatformMessagesHandler : IRequestHandler<GetPlatformMessagesQuery, GetPlatformMessagesResult>
 {
     private readonly IPlatformMessageRepository _repository;
 

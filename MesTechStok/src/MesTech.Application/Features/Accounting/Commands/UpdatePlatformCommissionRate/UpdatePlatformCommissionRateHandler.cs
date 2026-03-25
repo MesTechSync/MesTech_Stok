@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdatePlatformCommissionRate;
 
-public class UpdatePlatformCommissionRateHandler : IRequestHandler<UpdatePlatformCommissionRateCommand, bool>
+public sealed class UpdatePlatformCommissionRateHandler : IRequestHandler<UpdatePlatformCommissionRateCommand, bool>
 {
     private readonly IPlatformCommissionRepository _repository;
     private readonly IUnitOfWork _uow;

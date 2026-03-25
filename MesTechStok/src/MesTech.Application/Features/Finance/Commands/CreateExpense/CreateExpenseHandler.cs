@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Commands.CreateExpense;
 
-public class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
+public sealed class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand, Guid>
 {
     private readonly IFinanceExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

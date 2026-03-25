@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Invoice.Commands;
 
-public class BulkCreateInvoiceValidator : AbstractValidator<BulkCreateInvoiceCommand>
+public sealed class BulkCreateInvoiceValidator : AbstractValidator<BulkCreateInvoiceCommand>
 {
     public BulkCreateInvoiceValidator()
     {

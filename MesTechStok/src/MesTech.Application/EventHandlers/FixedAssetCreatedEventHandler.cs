@@ -8,7 +8,7 @@ public interface IFixedAssetCreatedEventHandler
     Task HandleAsync(FixedAssetCreatedEvent domainEvent, CancellationToken ct);
 }
 
-public class FixedAssetCreatedEventHandler : IFixedAssetCreatedEventHandler
+public sealed class FixedAssetCreatedEventHandler : IFixedAssetCreatedEventHandler
 {
     private readonly ILogger<FixedAssetCreatedEventHandler> _logger;
 

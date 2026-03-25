@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.SyncPlatform;
 
-public class SyncPlatformValidator : AbstractValidator<SyncPlatformCommand>
+public sealed class SyncPlatformValidator : AbstractValidator<SyncPlatformCommand>
 {
     public SyncPlatformValidator()
     {

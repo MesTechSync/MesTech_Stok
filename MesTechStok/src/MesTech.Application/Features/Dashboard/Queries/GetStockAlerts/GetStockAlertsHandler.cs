@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
 /// Dusuk stok uyari isleyicisi.
 /// Stock <= MinimumStock olan aktif urunleri listeler.
 /// </summary>
-public class GetStockAlertsHandler : IRequestHandler<GetStockAlertsQuery, IReadOnlyList<StockAlertDto>>
+public sealed class GetStockAlertsHandler : IRequestHandler<GetStockAlertsQuery, IReadOnlyList<StockAlertDto>>
 {
     private readonly IProductRepository _productRepository;
 

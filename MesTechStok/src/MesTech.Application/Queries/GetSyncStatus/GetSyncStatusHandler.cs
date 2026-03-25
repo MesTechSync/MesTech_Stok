@@ -3,7 +3,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Queries.GetSyncStatus;
 
-public class GetSyncStatusHandler : IRequestHandler<GetSyncStatusQuery, SyncStatusResult>
+public sealed class GetSyncStatusHandler : IRequestHandler<GetSyncStatusQuery, SyncStatusResult>
 {
     private readonly IIntegratorOrchestrator _orchestrator;
 

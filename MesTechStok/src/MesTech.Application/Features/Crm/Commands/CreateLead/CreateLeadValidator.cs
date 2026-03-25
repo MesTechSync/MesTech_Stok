@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateLead;
 
-public class CreateLeadValidator : AbstractValidator<CreateLeadCommand>
+public sealed class CreateLeadValidator : AbstractValidator<CreateLeadCommand>
 {
     public CreateLeadValidator()
     {

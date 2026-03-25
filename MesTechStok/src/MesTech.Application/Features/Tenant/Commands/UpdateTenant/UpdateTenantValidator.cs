@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tenant.Commands.UpdateTenant;
 
-public class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>
+public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>
 {
     public UpdateTenantValidator()
     {

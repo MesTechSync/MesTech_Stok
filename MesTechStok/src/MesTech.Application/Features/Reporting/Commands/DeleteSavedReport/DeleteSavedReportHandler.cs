@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Reporting.Commands.DeleteSavedReport;
 /// Kaydedilmis rapor silme handler'i.
 /// Tenant dogrulamasi yaparak raporu siler.
 /// </summary>
-public class DeleteSavedReportHandler : IRequestHandler<DeleteSavedReportCommand, bool>
+public sealed class DeleteSavedReportHandler : IRequestHandler<DeleteSavedReportCommand, bool>
 {
     private readonly ISavedReportRepository _savedReportRepository;
     private readonly IUnitOfWork _unitOfWork;

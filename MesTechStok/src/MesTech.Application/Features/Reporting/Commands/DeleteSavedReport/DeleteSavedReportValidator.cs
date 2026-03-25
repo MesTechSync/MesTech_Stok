@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Reporting.Commands.DeleteSavedReport;
 
-public class DeleteSavedReportValidator : AbstractValidator<DeleteSavedReportCommand>
+public sealed class DeleteSavedReportValidator : AbstractValidator<DeleteSavedReportCommand>
 {
     public DeleteSavedReportValidator()
     {

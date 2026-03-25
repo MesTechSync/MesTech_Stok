@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Reports.CustomerLifetimeValueReport;
 /// Siparisleri musteri bazinda gruplayarak CLV metrikleri hesaplar.
 /// CLV = AverageOrderValue * EstimatedAnnualOrders (basit model).
 /// </summary>
-public class CustomerLifetimeValueReportHandler
+public sealed class CustomerLifetimeValueReportHandler
     : IRequestHandler<CustomerLifetimeValueReportQuery, IReadOnlyList<CustomerLifetimeValueReportDto>>
 {
     private readonly IOrderRepository _orderRepository;

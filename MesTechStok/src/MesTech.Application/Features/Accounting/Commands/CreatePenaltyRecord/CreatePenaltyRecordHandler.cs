@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreatePenaltyRecord;
 
-public class CreatePenaltyRecordHandler : IRequestHandler<CreatePenaltyRecordCommand, Guid>
+public sealed class CreatePenaltyRecordHandler : IRequestHandler<CreatePenaltyRecordCommand, Guid>
 {
     private readonly IPenaltyRecordRepository _repository;
     private readonly IUnitOfWork _uow;

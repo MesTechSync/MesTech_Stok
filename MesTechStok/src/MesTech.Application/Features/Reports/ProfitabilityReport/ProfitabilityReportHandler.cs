@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Reports.ProfitabilityReport;
 /// Net Kar = Satis Fiyati - Alis Maliyeti - Komisyon - Kargo Gideri - KDV
 /// Her siparisteki her urunun PurchasePrice'ini Product entity'den cekerçek gercek maliyet hesaplar.
 /// </summary>
-public class ProfitabilityReportHandler
+public sealed class ProfitabilityReportHandler
     : IRequestHandler<ProfitabilityReportQuery, ProfitabilityReportDto>
 {
     private readonly IOrderRepository _orderRepository;

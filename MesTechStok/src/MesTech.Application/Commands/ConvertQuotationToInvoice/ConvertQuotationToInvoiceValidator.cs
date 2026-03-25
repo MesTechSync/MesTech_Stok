@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ConvertQuotationToInvoice;
 
-public class ConvertQuotationToInvoiceValidator : AbstractValidator<ConvertQuotationToInvoiceCommand>
+public sealed class ConvertQuotationToInvoiceValidator : AbstractValidator<ConvertQuotationToInvoiceCommand>
 {
     public ConvertQuotationToInvoiceValidator()
     {

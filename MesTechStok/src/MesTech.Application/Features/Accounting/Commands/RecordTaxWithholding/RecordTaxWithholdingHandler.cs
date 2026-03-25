@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordTaxWithholding;
 
-public class RecordTaxWithholdingHandler : IRequestHandler<RecordTaxWithholdingCommand, Guid>
+public sealed class RecordTaxWithholdingHandler : IRequestHandler<RecordTaxWithholdingCommand, Guid>
 {
     private readonly ITaxWithholdingRepository _repository;
     private readonly IUnitOfWork _uow;

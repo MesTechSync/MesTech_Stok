@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateChartOfAccount;
 
-public class CreateChartOfAccountValidator : AbstractValidator<CreateChartOfAccountCommand>
+public sealed class CreateChartOfAccountValidator : AbstractValidator<CreateChartOfAccountCommand>
 {
     public CreateChartOfAccountValidator()
     {

@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Accounting.Commands.CreateAccountingBankA
 /// <summary>
 /// Mevcut Finance.BankAccount entity'sini kullanarak banka hesabi olusturur.
 /// </summary>
-public class CreateAccountingBankAccountHandler : IRequestHandler<CreateAccountingBankAccountCommand, Guid>
+public sealed class CreateAccountingBankAccountHandler : IRequestHandler<CreateAccountingBankAccountCommand, Guid>
 {
     private readonly IUnitOfWork _uow;
 

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.SyncDropshipProducts;
 
-public class SyncDropshipProductsValidator : AbstractValidator<SyncDropshipProductsCommand>
+public sealed class SyncDropshipProductsValidator : AbstractValidator<SyncDropshipProductsCommand>
 {
     public SyncDropshipProductsValidator()
     {

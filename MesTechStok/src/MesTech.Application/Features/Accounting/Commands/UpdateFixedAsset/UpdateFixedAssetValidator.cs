@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateFixedAsset;
 
-public class UpdateFixedAssetValidator : AbstractValidator<UpdateFixedAssetCommand>
+public sealed class UpdateFixedAssetValidator : AbstractValidator<UpdateFixedAssetCommand>
 {
     public UpdateFixedAssetValidator()
     {

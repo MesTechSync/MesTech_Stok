@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.CategoryMapping.Queries.GetCategoryMappings;
 
-public class GetCategoryMappingsHandler
+public sealed class GetCategoryMappingsHandler
     : IRequestHandler<GetCategoryMappingsQuery, List<CategoryMappingViewDto>>
 {
     private readonly ICategoryRepository _categoryRepository;

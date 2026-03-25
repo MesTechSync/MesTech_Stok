@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 
-public class GetTenantSubscriptionHandler : IRequestHandler<GetTenantSubscriptionQuery, TenantSubscriptionDto?>
+public sealed class GetTenantSubscriptionHandler : IRequestHandler<GetTenantSubscriptionQuery, TenantSubscriptionDto?>
 {
     private readonly ITenantSubscriptionRepository _repository;
 

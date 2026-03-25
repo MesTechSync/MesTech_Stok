@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Notifications.Commands.SendNotification;
 
-public class SendNotificationValidator : AbstractValidator<SendNotificationCommand>
+public sealed class SendNotificationValidator : AbstractValidator<SendNotificationCommand>
 {
     public SendNotificationValidator()
     {

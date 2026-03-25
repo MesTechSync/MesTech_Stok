@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetExpenses;
 
-public class GetExpensesHandler : IRequestHandler<GetExpensesQuery, IReadOnlyList<ExpenseDto>>
+public sealed class GetExpensesHandler : IRequestHandler<GetExpensesQuery, IReadOnlyList<ExpenseDto>>
 {
     private readonly IExpenseRepository _expenseRepository;
 

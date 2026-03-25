@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 
-public class DeletePersonalDataValidator : AbstractValidator<DeletePersonalDataCommand>
+public sealed class DeletePersonalDataValidator : AbstractValidator<DeletePersonalDataCommand>
 {
     public DeletePersonalDataValidator()
     {

@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 /// Delegesi IDashboardSummaryRepository — sorgular Infrastructure katmanında.
 /// Mevcut 6 Dashboard query'ye DOKUNMAZ.
 /// </summary>
-public class GetDashboardSummaryQueryHandler
+public sealed class GetDashboardSummaryQueryHandler
     : IRequestHandler<GetDashboardSummaryQuery, DashboardSummaryDto>
 {
     private readonly IDashboardSummaryRepository _repository;

@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Queries.GetCashFlow;
 
-public class GetCashFlowHandler : IRequestHandler<GetCashFlowQuery, CashFlowDto>
+public sealed class GetCashFlowHandler : IRequestHandler<GetCashFlowQuery, CashFlowDto>
 {
     private readonly IFinanceExpenseRepository _expenseRepo;
     private readonly IOrderRepository _orderRepo;

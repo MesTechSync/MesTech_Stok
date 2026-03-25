@@ -6,7 +6,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Platform.Queries.GetPlatformList;
 
-public class GetPlatformListHandler : IRequestHandler<GetPlatformListQuery, List<PlatformCardDto>>
+public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuery, List<PlatformCardDto>>
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IAdapterFactory _adapterFactory;

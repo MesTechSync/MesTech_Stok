@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Calendar.Commands.CreateCalendarEvent;
 
-public class CreateCalendarEventHandler : IRequestHandler<CreateCalendarEventCommand, Guid>
+public sealed class CreateCalendarEventHandler : IRequestHandler<CreateCalendarEventCommand, Guid>
 {
     private readonly ICalendarEventRepository _repository;
     private readonly IUnitOfWork _uow;

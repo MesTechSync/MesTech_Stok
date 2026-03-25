@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Notifications.Commands.MarkNotificationRe
 /// Bildirimi okundu olarak isaretleme handler'i.
 /// NotificationLog entity'sini yukler, MarkAsRead() cagrisini yapar ve kaydeder.
 /// </summary>
-public class MarkNotificationReadHandler : IRequestHandler<MarkNotificationReadCommand, bool>
+public sealed class MarkNotificationReadHandler : IRequestHandler<MarkNotificationReadCommand, bool>
 {
     private readonly INotificationLogRepository _repository;
     private readonly IUnitOfWork _unitOfWork;

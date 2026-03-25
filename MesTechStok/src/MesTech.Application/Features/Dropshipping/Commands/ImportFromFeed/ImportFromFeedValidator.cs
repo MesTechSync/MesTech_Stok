@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.ImportFromFeed;
 
-public class ImportFromFeedValidator : AbstractValidator<ImportFromFeedCommand>
+public sealed class ImportFromFeedValidator : AbstractValidator<ImportFromFeedCommand>
 {
     public ImportFromFeedValidator()
     {

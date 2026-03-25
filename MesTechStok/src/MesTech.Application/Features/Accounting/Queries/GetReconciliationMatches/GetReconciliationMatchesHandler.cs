@@ -5,7 +5,7 @@ using MesTech.Domain.Accounting.Enums;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetReconciliationMatches;
 
-public class GetReconciliationMatchesHandler : IRequestHandler<GetReconciliationMatchesQuery, IReadOnlyList<ReconciliationMatchDto>>
+public sealed class GetReconciliationMatchesHandler : IRequestHandler<GetReconciliationMatchesQuery, IReadOnlyList<ReconciliationMatchDto>>
 {
     private readonly IReconciliationMatchRepository _repository;
 

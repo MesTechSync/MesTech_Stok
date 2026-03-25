@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.AcceptQuotation;
 
-public class AcceptQuotationValidator : AbstractValidator<AcceptQuotationCommand>
+public sealed class AcceptQuotationValidator : AbstractValidator<AcceptQuotationCommand>
 {
     public AcceptQuotationValidator()
     {

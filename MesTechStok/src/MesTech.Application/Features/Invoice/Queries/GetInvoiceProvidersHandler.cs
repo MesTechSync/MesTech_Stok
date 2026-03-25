@@ -4,7 +4,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.Features.Invoice.Queries;
 
-public class GetInvoiceProvidersHandler : IRequestHandler<GetInvoiceProvidersQuery, List<InvoiceProviderStatusDto>>
+public sealed class GetInvoiceProvidersHandler : IRequestHandler<GetInvoiceProvidersQuery, List<InvoiceProviderStatusDto>>
 {
     private static readonly IReadOnlyList<string> AllTypes = new[] { "EFatura", "EArsiv", "EIhracat" };
     private static readonly IReadOnlyList<string> BasicTypes = new[] { "EFatura", "EArsiv" };

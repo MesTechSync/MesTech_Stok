@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateCampaign;
 
-public class CreateCampaignHandler : IRequestHandler<CreateCampaignCommand, Guid>
+public sealed class CreateCampaignHandler : IRequestHandler<CreateCampaignCommand, Guid>
 {
     private readonly ICampaignRepository _repository;
     private readonly IUnitOfWork _uow;

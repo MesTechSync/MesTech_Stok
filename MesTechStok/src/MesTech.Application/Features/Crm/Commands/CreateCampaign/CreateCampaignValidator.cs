@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateCampaign;
 
-public class CreateCampaignValidator : AbstractValidator<CreateCampaignCommand>
+public sealed class CreateCampaignValidator : AbstractValidator<CreateCampaignCommand>
 {
     public CreateCampaignValidator()
     {

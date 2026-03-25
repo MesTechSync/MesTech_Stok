@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ApproveAccountingEntry;
 
-public class ApproveAccountingEntryValidator : AbstractValidator<ApproveAccountingEntryCommand>
+public sealed class ApproveAccountingEntryValidator : AbstractValidator<ApproveAccountingEntryCommand>
 {
     public ApproveAccountingEntryValidator()
     {

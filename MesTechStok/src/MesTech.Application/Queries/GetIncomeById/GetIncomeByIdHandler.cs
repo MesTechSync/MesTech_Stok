@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetIncomeById;
 
-public class GetIncomeByIdHandler : IRequestHandler<GetIncomeByIdQuery, IncomeDto?>
+public sealed class GetIncomeByIdHandler : IRequestHandler<GetIncomeByIdQuery, IncomeDto?>
 {
     private readonly IIncomeRepository _repository;
 

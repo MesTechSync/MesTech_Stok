@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 
-public class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDataCommand, DeletePersonalDataResult>
+public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDataCommand, DeletePersonalDataResult>
 {
     private readonly ITenantRepository _tenantRepo;
     private readonly IStoreRepository _storeRepo;

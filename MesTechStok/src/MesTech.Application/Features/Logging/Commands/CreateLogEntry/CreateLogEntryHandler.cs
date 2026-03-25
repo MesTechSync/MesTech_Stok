@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Logging.Commands.CreateLogEntry;
 
-public class CreateLogEntryHandler : IRequestHandler<CreateLogEntryCommand, Guid>
+public sealed class CreateLogEntryHandler : IRequestHandler<CreateLogEntryCommand, Guid>
 {
     private readonly ILogEntryRepository _repo;
     private readonly IUnitOfWork _uow;

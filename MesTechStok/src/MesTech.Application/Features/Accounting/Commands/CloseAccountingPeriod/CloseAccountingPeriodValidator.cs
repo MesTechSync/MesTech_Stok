@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CloseAccountingPeriod;
 
-public class CloseAccountingPeriodValidator : AbstractValidator<CloseAccountingPeriodCommand>
+public sealed class CloseAccountingPeriodValidator : AbstractValidator<CloseAccountingPeriodCommand>
 {
     public CloseAccountingPeriodValidator()
     {

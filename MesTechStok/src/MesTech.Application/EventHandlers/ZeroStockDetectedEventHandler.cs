@@ -13,7 +13,7 @@ public interface IZeroStockEventHandler
     Task HandleAsync(Guid productId, string sku, Guid tenantId, CancellationToken ct);
 }
 
-public class ZeroStockDetectedEventHandler : IZeroStockEventHandler
+public sealed class ZeroStockDetectedEventHandler : IZeroStockEventHandler
 {
     private readonly IProductRepository _productRepo;
     private readonly IUnitOfWork _unitOfWork;

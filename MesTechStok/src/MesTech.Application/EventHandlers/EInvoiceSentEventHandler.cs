@@ -7,7 +7,7 @@ public interface IEInvoiceSentEventHandler
     Task HandleAsync(Guid eInvoiceId, string ettnNo, string? providerRef, CancellationToken ct);
 }
 
-public class EInvoiceSentEventHandler : IEInvoiceSentEventHandler
+public sealed class EInvoiceSentEventHandler : IEInvoiceSentEventHandler
 {
     private readonly ILogger<EInvoiceSentEventHandler> _logger;
 

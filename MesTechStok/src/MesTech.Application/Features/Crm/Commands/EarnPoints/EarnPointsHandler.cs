@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.EarnPoints;
 
-public class EarnPointsHandler : IRequestHandler<EarnPointsCommand, EarnPointsResult>
+public sealed class EarnPointsHandler : IRequestHandler<EarnPointsCommand, EarnPointsResult>
 {
     private readonly ILoyaltyProgramRepository _programRepo;
     private readonly ILoyaltyTransactionRepository _transactionRepo;

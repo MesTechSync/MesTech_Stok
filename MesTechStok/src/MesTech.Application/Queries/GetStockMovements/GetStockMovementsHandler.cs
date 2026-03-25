@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetStockMovements;
 
-public class GetStockMovementsHandler : IRequestHandler<GetStockMovementsQuery, IReadOnlyList<StockMovementDto>>
+public sealed class GetStockMovementsHandler : IRequestHandler<GetStockMovementsQuery, IReadOnlyList<StockMovementDto>>
 {
     private readonly IStockMovementRepository _movementRepository;
 

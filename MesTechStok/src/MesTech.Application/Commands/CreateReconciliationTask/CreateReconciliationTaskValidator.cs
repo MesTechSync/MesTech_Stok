@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateReconciliationTask;
 
-public class CreateReconciliationTaskValidator : AbstractValidator<CreateReconciliationTaskCommand>
+public sealed class CreateReconciliationTaskValidator : AbstractValidator<CreateReconciliationTaskCommand>
 {
     public CreateReconciliationTaskValidator()
     {

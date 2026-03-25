@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateFinancialGoal;
 
-public class CreateFinancialGoalHandler : IRequestHandler<CreateFinancialGoalCommand, Guid>
+public sealed class CreateFinancialGoalHandler : IRequestHandler<CreateFinancialGoalCommand, Guid>
 {
     private readonly IFinancialGoalRepository _repository;
     private readonly IUnitOfWork _uow;

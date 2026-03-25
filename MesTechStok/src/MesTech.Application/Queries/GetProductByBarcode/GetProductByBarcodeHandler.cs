@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetProductByBarcode;
 
-public class GetProductByBarcodeHandler : IRequestHandler<GetProductByBarcodeQuery, ProductDto?>
+public sealed class GetProductByBarcodeHandler : IRequestHandler<GetProductByBarcodeQuery, ProductDto?>
 {
     private readonly IProductRepository _productRepository;
 

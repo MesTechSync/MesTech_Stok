@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
 /// Son 30 gundeki siparis kalemlerini urun bazinda gruplar,
 /// gelire gore azalan sirada sıralar, limit kadar dondurur.
 /// </summary>
-public class GetTopProductsHandler : IRequestHandler<GetTopProductsQuery, IReadOnlyList<TopProductDto>>
+public sealed class GetTopProductsHandler : IRequestHandler<GetTopProductsQuery, IReadOnlyList<TopProductDto>>
 {
     private readonly IOrderRepository _orderRepository;
 

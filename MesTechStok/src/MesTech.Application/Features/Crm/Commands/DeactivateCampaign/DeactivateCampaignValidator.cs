@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.DeactivateCampaign;
 
-public class DeactivateCampaignValidator : AbstractValidator<DeactivateCampaignCommand>
+public sealed class DeactivateCampaignValidator : AbstractValidator<DeactivateCampaignCommand>
 {
     public DeactivateCampaignValidator()
     {

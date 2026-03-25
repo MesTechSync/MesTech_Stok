@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.RejectQuotation;
 
-public class RejectQuotationHandler : IRequestHandler<RejectQuotationCommand, RejectQuotationResult>
+public sealed class RejectQuotationHandler : IRequestHandler<RejectQuotationCommand, RejectQuotationResult>
 {
     private readonly IQuotationRepository _quotationRepository;
     private readonly IUnitOfWork _unitOfWork;

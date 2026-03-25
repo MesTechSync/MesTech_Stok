@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.MarkNotificationDelivered;
 
-public class MarkNotificationDeliveredValidator : AbstractValidator<MarkNotificationDeliveredCommand>
+public sealed class MarkNotificationDeliveredValidator : AbstractValidator<MarkNotificationDeliveredCommand>
 {
     public MarkNotificationDeliveredValidator()
     {

@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 /// Ba/Bs kayit olusturma handler — VUK 396.
 /// BaBsRecord.Create factory ile entity olusturur, domain event tetikler, veritabanina kaydeder.
 /// </summary>
-public class CreateBaBsRecordHandler : IRequestHandler<CreateBaBsRecordCommand, Guid>
+public sealed class CreateBaBsRecordHandler : IRequestHandler<CreateBaBsRecordCommand, Guid>
 {
     private readonly IBaBsRecordRepository _repository;
     private readonly IUnitOfWork _uow;

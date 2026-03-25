@@ -12,7 +12,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
 /// Kapanis bakiyesi: Acilis + Donem toplami.
 /// Sadece IsPosted == true olan kayitlar dahil edilir.
 /// </summary>
-public class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuery, TrialBalanceDto>
+public sealed class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuery, TrialBalanceDto>
 {
     private readonly IChartOfAccountsRepository _accountRepo;
     private readonly IJournalEntryRepository _journalRepo;

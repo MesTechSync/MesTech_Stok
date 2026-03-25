@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 
-public class GetErpDashboardHandler : IRequestHandler<GetErpDashboardQuery, ErpDashboardDto>
+public sealed class GetErpDashboardHandler : IRequestHandler<GetErpDashboardQuery, ErpDashboardDto>
 {
     private readonly IErpSyncLogRepository _syncRepo;
     private readonly ILogger<GetErpDashboardHandler> _logger;

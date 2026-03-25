@@ -4,7 +4,7 @@ using MesTech.Domain.Services;
 
 namespace MesTech.Application.Queries.GetInventoryValue;
 
-public class GetInventoryValueHandler : IRequestHandler<GetInventoryValueQuery, InventoryValueResult>
+public sealed class GetInventoryValueHandler : IRequestHandler<GetInventoryValueQuery, InventoryValueResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly StockCalculationService _stockCalc;

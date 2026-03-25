@@ -14,7 +14,7 @@ public interface IOrderPlacedEventHandler
     Task HandleAsync(Guid orderId, string orderNumber, CancellationToken ct);
 }
 
-public class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
+public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 {
     private readonly IOrderRepository _orderRepo;
     private readonly IProductRepository _productRepo;

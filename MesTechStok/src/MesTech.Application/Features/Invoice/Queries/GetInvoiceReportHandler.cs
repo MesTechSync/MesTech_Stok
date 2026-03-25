@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Invoice.Queries;
 
-public class GetInvoiceReportHandler : IRequestHandler<GetInvoiceReportQuery, InvoiceReportDto>
+public sealed class GetInvoiceReportHandler : IRequestHandler<GetInvoiceReportQuery, InvoiceReportDto>
 {
     private readonly IInvoiceRepository _repository;
 

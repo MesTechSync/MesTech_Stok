@@ -11,7 +11,7 @@ public interface ISubscriptionCancelledEventHandler
     Task HandleAsync(Guid tenantId, Guid subscriptionId, string? reason, CancellationToken ct);
 }
 
-public class SubscriptionCancelledEventHandler : ISubscriptionCancelledEventHandler
+public sealed class SubscriptionCancelledEventHandler : ISubscriptionCancelledEventHandler
 {
     private readonly ILogger<SubscriptionCancelledEventHandler> _logger;
 

@@ -7,7 +7,7 @@ public interface IEInvoiceCancelledEventHandler
     Task HandleAsync(Guid eInvoiceId, string ettnNo, string reason, CancellationToken ct);
 }
 
-public class EInvoiceCancelledEventHandler : IEInvoiceCancelledEventHandler
+public sealed class EInvoiceCancelledEventHandler : IEInvoiceCancelledEventHandler
 {
     private readonly ILogger<EInvoiceCancelledEventHandler> _logger;
 

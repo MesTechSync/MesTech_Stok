@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Logging.Commands.CreateLogEntry;
 
-public class CreateLogEntryValidator : AbstractValidator<CreateLogEntryCommand>
+public sealed class CreateLogEntryValidator : AbstractValidator<CreateLogEntryCommand>
 {
     private static readonly string[] ValidLevels = { "Info", "Warning", "Error", "Debug" };
 

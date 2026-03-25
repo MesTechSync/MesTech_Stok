@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordTaxWithholding;
 
-public class RecordTaxWithholdingValidator : AbstractValidator<RecordTaxWithholdingCommand>
+public sealed class RecordTaxWithholdingValidator : AbstractValidator<RecordTaxWithholdingCommand>
 {
     public RecordTaxWithholdingValidator()
     {

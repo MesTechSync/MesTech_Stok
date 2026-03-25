@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Fulfillment.Commands.CreateInboundShipmen
 /// <summary>
 /// Handler: resolves the fulfillment provider via factory and creates an inbound shipment.
 /// </summary>
-public class CreateInboundShipmentHandler
+public sealed class CreateInboundShipmentHandler
     : IRequestHandler<CreateInboundShipmentCommand, InboundResult>
 {
     private readonly IFulfillmentProviderFactory _factory;

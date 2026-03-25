@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateProduct;
 
-public class CreateProductHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
+public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;

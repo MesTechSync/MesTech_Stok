@@ -11,7 +11,7 @@ namespace MesTech.Application.Features.Accounting.Queries.ValidateBalanceSheet;
 /// 3. BalanceSheetValidationService ile dogrula
 /// 4. Sonucu dondur
 /// </summary>
-public class ValidateBalanceSheetHandler
+public sealed class ValidateBalanceSheetHandler
     : IRequestHandler<ValidateBalanceSheetQuery, BalanceSheetValidationResult>
 {
     private readonly IChartOfAccountsRepository _accountRepo;

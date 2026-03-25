@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 /// Aylik ozet raporu handler.
 /// Order + Expense + Income verilerinden aylik metrikleri hesaplar.
 /// </summary>
-public class GetMonthlySummaryHandler : IRequestHandler<GetMonthlySummaryQuery, MonthlySummaryDto>
+public sealed class GetMonthlySummaryHandler : IRequestHandler<GetMonthlySummaryQuery, MonthlySummaryDto>
 {
     private readonly IOrderRepository _orderRepo;
     private readonly IExpenseRepository _expenseRepo;

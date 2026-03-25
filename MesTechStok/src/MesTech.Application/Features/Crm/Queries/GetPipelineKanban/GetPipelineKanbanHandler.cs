@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 
-public class GetPipelineKanbanHandler : IRequestHandler<GetPipelineKanbanQuery, KanbanBoardDto>
+public sealed class GetPipelineKanbanHandler : IRequestHandler<GetPipelineKanbanQuery, KanbanBoardDto>
 {
     private readonly ICrmDealRepository _dealRepo;
     private readonly IPipelineRepository _pipelineRepo;

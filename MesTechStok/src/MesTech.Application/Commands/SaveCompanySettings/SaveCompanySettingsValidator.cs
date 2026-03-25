@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.SaveCompanySettings;
 
-public class SaveCompanySettingsValidator : AbstractValidator<SaveCompanySettingsCommand>
+public sealed class SaveCompanySettingsValidator : AbstractValidator<SaveCompanySettingsCommand>
 {
     public SaveCompanySettingsValidator()
     {

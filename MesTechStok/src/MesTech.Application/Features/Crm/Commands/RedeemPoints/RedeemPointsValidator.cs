@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.RedeemPoints;
 
-public class RedeemPointsValidator : AbstractValidator<RedeemPointsCommand>
+public sealed class RedeemPointsValidator : AbstractValidator<RedeemPointsCommand>
 {
     public RedeemPointsValidator()
     {

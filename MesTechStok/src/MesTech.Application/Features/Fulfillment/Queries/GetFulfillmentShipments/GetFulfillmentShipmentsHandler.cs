@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
 
-public class GetFulfillmentShipmentsHandler
+public sealed class GetFulfillmentShipmentsHandler
     : IRequestHandler<GetFulfillmentShipmentsQuery, FulfillmentShipmentsResultDto>
 {
     private readonly ILogger<GetFulfillmentShipmentsHandler> _logger;

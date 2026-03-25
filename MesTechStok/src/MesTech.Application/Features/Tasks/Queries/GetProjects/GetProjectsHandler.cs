@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tasks.Queries.GetProjects;
 
-public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, IReadOnlyList<ProjectDto>>
+public sealed class GetProjectsHandler : IRequestHandler<GetProjectsQuery, IReadOnlyList<ProjectDto>>
 {
     private readonly IProjectRepository _repo;
 

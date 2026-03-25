@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentInvento
 /// <summary>
 /// Handler: resolves the fulfillment provider via factory and queries inventory levels.
 /// </summary>
-public class GetFulfillmentInventoryHandler
+public sealed class GetFulfillmentInventoryHandler
     : IRequestHandler<GetFulfillmentInventoryQuery, FulfillmentInventory>
 {
     private readonly IFulfillmentProviderFactory _factory;

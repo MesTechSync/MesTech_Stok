@@ -8,7 +8,7 @@ public interface IReconciliationMatchedEventHandler
     Task HandleAsync(ReconciliationMatchedEvent domainEvent, CancellationToken ct);
 }
 
-public class ReconciliationMatchedEventHandler : IReconciliationMatchedEventHandler
+public sealed class ReconciliationMatchedEventHandler : IReconciliationMatchedEventHandler
 {
     private readonly ILogger<ReconciliationMatchedEventHandler> _logger;
 

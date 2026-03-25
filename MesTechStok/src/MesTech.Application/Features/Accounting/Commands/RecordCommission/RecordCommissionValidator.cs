@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordCommission;
 
-public class RecordCommissionValidator : AbstractValidator<RecordCommissionCommand>
+public sealed class RecordCommissionValidator : AbstractValidator<RecordCommissionCommand>
 {
     public RecordCommissionValidator()
     {

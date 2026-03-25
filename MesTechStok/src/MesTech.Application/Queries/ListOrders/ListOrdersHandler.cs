@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.ListOrders;
 
-public class ListOrdersHandler : IRequestHandler<ListOrdersQuery, IReadOnlyList<OrderListDto>>
+public sealed class ListOrdersHandler : IRequestHandler<ListOrdersQuery, IReadOnlyList<OrderListDto>>
 {
     private readonly IOrderRepository _orderRepository;
 

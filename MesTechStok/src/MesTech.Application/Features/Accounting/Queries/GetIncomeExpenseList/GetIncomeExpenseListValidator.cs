@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 
-public class GetIncomeExpenseListValidator : AbstractValidator<GetIncomeExpenseListQuery>
+public sealed class GetIncomeExpenseListValidator : AbstractValidator<GetIncomeExpenseListQuery>
 {
     public GetIncomeExpenseListValidator()
     {

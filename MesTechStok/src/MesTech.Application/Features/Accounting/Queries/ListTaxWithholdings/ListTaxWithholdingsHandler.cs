@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Queries.ListTaxWithholdings;
 /// Stopaj kayitlarini listeleme handler.
 /// ITaxWithholdingRepository uzerinden tenant ve tarih araligi filtresiyle sorgular.
 /// </summary>
-public class ListTaxWithholdingsHandler : IRequestHandler<ListTaxWithholdingsQuery, IReadOnlyList<TaxWithholdingDto>>
+public sealed class ListTaxWithholdingsHandler : IRequestHandler<ListTaxWithholdingsQuery, IReadOnlyList<TaxWithholdingDto>>
 {
     private readonly ITaxWithholdingRepository _repository;
 

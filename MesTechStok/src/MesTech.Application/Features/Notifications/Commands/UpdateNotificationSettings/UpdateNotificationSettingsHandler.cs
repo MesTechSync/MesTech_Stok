@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Notifications.Commands.UpdateNotification
 /// Mevcut User+Channel cifti varsa gunceller, yoksa yeni kayit olusturur (upsert).
 /// ChannelAddress PII — log'a yazilmaz.
 /// </summary>
-public class UpdateNotificationSettingsHandler : IRequestHandler<UpdateNotificationSettingsCommand, Guid>
+public sealed class UpdateNotificationSettingsHandler : IRequestHandler<UpdateNotificationSettingsCommand, Guid>
 {
     private readonly INotificationSettingRepository _repository;
     private readonly IUnitOfWork _unitOfWork;

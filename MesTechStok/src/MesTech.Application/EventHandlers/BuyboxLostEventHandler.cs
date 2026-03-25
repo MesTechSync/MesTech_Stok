@@ -8,7 +8,7 @@ public interface IBuyboxLostEventHandler
     Task HandleAsync(BuyboxLostEvent domainEvent, CancellationToken ct);
 }
 
-public class BuyboxLostEventHandler : IBuyboxLostEventHandler
+public sealed class BuyboxLostEventHandler : IBuyboxLostEventHandler
 {
     private readonly ILogger<BuyboxLostEventHandler> _logger;
 

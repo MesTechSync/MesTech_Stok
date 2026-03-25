@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Features.Shipping.Queries.GetShipmentStatus;
 
-public class GetShipmentStatusHandler : IRequestHandler<GetShipmentStatusQuery, ShipmentStatusDto>
+public sealed class GetShipmentStatusHandler : IRequestHandler<GetShipmentStatusQuery, ShipmentStatusDto>
 {
     private readonly ICargoProviderFactory _cargoProviderFactory;
 

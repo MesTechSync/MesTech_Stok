@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetSuppliers;
 
-public class GetSuppliersHandler : IRequestHandler<GetSuppliersQuery, IReadOnlyList<SupplierListDto>>
+public sealed class GetSuppliersHandler : IRequestHandler<GetSuppliersQuery, IReadOnlyList<SupplierListDto>>
 {
     private readonly ISupplierRepository _supplierRepository;
 

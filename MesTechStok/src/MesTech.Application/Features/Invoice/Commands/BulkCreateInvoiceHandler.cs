@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Invoice.Commands;
 
-public class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoiceCommand, BulkInvoiceResultDto>
+public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoiceCommand, BulkInvoiceResultDto>
 {
     private readonly IInvoiceRepository _repository;
     private readonly ILogger<BulkCreateInvoiceHandler> _logger;

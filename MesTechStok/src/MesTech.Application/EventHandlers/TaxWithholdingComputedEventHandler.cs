@@ -8,7 +8,7 @@ public interface ITaxWithholdingComputedEventHandler
     Task HandleAsync(TaxWithholdingComputedEvent domainEvent, CancellationToken ct);
 }
 
-public class TaxWithholdingComputedEventHandler : ITaxWithholdingComputedEventHandler
+public sealed class TaxWithholdingComputedEventHandler : ITaxWithholdingComputedEventHandler
 {
     private readonly ILogger<TaxWithholdingComputedEventHandler> _logger;
 

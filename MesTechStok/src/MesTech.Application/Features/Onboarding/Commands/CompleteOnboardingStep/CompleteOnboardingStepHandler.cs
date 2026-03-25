@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
 
-public class CompleteOnboardingStepHandler : IRequestHandler<CompleteOnboardingStepCommand, Unit>
+public sealed class CompleteOnboardingStepHandler : IRequestHandler<CompleteOnboardingStepCommand, Unit>
 {
     private readonly IOnboardingProgressRepository _repository;
     private readonly IUnitOfWork _uow;

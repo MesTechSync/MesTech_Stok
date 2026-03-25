@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.DeleteWarehouse;
 
-public class DeleteWarehouseHandler : IRequestHandler<DeleteWarehouseCommand, bool>
+public sealed class DeleteWarehouseHandler : IRequestHandler<DeleteWarehouseCommand, bool>
 {
     private readonly IWarehouseRepository _repo;
     private readonly IUnitOfWork _uow;

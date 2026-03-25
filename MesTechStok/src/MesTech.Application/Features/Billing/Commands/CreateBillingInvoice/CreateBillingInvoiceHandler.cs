@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
 
-public class CreateBillingInvoiceHandler : IRequestHandler<CreateBillingInvoiceCommand, Guid>
+public sealed class CreateBillingInvoiceHandler : IRequestHandler<CreateBillingInvoiceCommand, Guid>
 {
     private readonly IBillingInvoiceRepository _invoiceRepo;
     private readonly IUnitOfWork _uow;

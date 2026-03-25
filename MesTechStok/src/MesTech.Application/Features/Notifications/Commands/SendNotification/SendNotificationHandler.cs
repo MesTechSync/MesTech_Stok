@@ -12,7 +12,7 @@ namespace MesTech.Application.Features.Notifications.Commands.SendNotification;
 /// NotificationLog olusturur (Pending), IMessagePublisher uzerinden MESA Bot'a publish eder.
 /// MESA Bot baglantisi yoksa Pending olarak kaydeder — consumer sonradan isler.
 /// </summary>
-public class SendNotificationHandler : IRequestHandler<SendNotificationCommand, Guid>
+public sealed class SendNotificationHandler : IRequestHandler<SendNotificationCommand, Guid>
 {
     private readonly INotificationLogRepository _notificationLogRepository;
     private readonly IUnitOfWork _unitOfWork;

@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetFixedExpenseById;
 
-public class GetFixedExpenseByIdHandler : IRequestHandler<GetFixedExpenseByIdQuery, FixedExpenseDto?>
+public sealed class GetFixedExpenseByIdHandler : IRequestHandler<GetFixedExpenseByIdQuery, FixedExpenseDto?>
 {
     private readonly IFixedExpenseRepository _repository;
 

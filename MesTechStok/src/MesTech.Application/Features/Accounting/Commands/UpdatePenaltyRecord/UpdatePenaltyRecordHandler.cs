@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdatePenaltyRecord;
 
-public class UpdatePenaltyRecordHandler : IRequestHandler<UpdatePenaltyRecordCommand>
+public sealed class UpdatePenaltyRecordHandler : IRequestHandler<UpdatePenaltyRecordCommand>
 {
     private readonly IPenaltyRecordRepository _repository;
     private readonly IUnitOfWork _uow;

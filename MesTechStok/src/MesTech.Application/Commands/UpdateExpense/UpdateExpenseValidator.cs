@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateExpense;
 
-public class UpdateExpenseValidator : AbstractValidator<UpdateExpenseCommand>
+public sealed class UpdateExpenseValidator : AbstractValidator<UpdateExpenseCommand>
 {
     public UpdateExpenseValidator()
     {

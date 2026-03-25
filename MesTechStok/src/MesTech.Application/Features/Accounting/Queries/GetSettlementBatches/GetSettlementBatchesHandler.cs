@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetSettlementBatches;
 
-public class GetSettlementBatchesHandler : IRequestHandler<GetSettlementBatchesQuery, IReadOnlyList<SettlementBatchDto>>
+public sealed class GetSettlementBatchesHandler : IRequestHandler<GetSettlementBatchesQuery, IReadOnlyList<SettlementBatchDto>>
 {
     private readonly ISettlementBatchRepository _repository;
 

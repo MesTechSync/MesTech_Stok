@@ -7,7 +7,7 @@ using MesTech.Domain.Services;
 
 namespace MesTech.Application.Commands.RemoveStock;
 
-public class RemoveStockHandler : IRequestHandler<RemoveStockCommand, RemoveStockResult>
+public sealed class RemoveStockHandler : IRequestHandler<RemoveStockCommand, RemoveStockResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;

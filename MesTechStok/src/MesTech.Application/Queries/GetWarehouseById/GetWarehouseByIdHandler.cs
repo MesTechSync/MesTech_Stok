@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetWarehouseById;
 
-public class GetWarehouseByIdHandler : IRequestHandler<GetWarehouseByIdQuery, WarehouseListDto?>
+public sealed class GetWarehouseByIdHandler : IRequestHandler<GetWarehouseByIdQuery, WarehouseListDto?>
 {
     private readonly IWarehouseRepository _repo;
     public GetWarehouseByIdHandler(IWarehouseRepository repo) => _repo = repo;

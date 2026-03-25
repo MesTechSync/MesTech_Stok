@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
 
-public class CreatePlatformCommissionRateValidator : AbstractValidator<CreatePlatformCommissionRateCommand>
+public sealed class CreatePlatformCommissionRateValidator : AbstractValidator<CreatePlatformCommissionRateCommand>
 {
     public CreatePlatformCommissionRateValidator()
     {

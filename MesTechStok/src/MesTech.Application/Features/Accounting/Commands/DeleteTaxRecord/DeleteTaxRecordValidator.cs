@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteTaxRecord;
 
-public class DeleteTaxRecordValidator : AbstractValidator<DeleteTaxRecordCommand>
+public sealed class DeleteTaxRecordValidator : AbstractValidator<DeleteTaxRecordCommand>
 {
     public DeleteTaxRecordValidator()
     {

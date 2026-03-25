@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.PlaceOrder;
 
-public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand>
+public sealed class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand>
 {
     public PlaceOrderValidator()
     {

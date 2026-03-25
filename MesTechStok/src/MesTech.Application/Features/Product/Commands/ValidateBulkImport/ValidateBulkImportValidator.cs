@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Product.Commands.ValidateBulkImport;
 
-public class ValidateBulkImportValidator : AbstractValidator<ValidateBulkImportCommand>
+public sealed class ValidateBulkImportValidator : AbstractValidator<ValidateBulkImportCommand>
 {
     public ValidateBulkImportValidator()
     {

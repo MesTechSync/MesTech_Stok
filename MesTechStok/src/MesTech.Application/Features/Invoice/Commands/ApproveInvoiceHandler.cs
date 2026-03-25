@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Invoice.Commands;
 
-public class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceCommand, bool>
+public sealed class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceCommand, bool>
 {
     private readonly IInvoiceRepository _repository;
     private readonly ILogger<ApproveInvoiceHandler> _logger;

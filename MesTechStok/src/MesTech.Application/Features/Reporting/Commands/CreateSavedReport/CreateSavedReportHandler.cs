@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Reporting.Commands.CreateSavedReport;
 /// Yeni kaydedilmis rapor olusturma handler'i.
 /// SavedReport entity olusturur ve veritabanina kaydeder.
 /// </summary>
-public class CreateSavedReportHandler : IRequestHandler<CreateSavedReportCommand, Guid>
+public sealed class CreateSavedReportHandler : IRequestHandler<CreateSavedReportCommand, Guid>
 {
     private readonly ISavedReportRepository _savedReportRepository;
     private readonly IUnitOfWork _unitOfWork;

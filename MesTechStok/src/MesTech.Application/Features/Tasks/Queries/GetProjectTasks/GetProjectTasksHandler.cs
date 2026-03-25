@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tasks.Queries.GetProjectTasks;
 
-public class GetProjectTasksHandler : IRequestHandler<GetProjectTasksQuery, IReadOnlyList<WorkTaskDto>>
+public sealed class GetProjectTasksHandler : IRequestHandler<GetProjectTasksQuery, IReadOnlyList<WorkTaskDto>>
 {
     private readonly IWorkTaskRepository _repository;
 

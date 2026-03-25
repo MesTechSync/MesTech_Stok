@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.CreateDropshipSupplier;
 
-public class CreateDropshipSupplierValidator : AbstractValidator<CreateDropshipSupplierCommand>
+public sealed class CreateDropshipSupplierValidator : AbstractValidator<CreateDropshipSupplierCommand>
 {
     public CreateDropshipSupplierValidator()
     {

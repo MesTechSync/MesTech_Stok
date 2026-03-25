@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateFixedExpense;
 
-public class CreateFixedExpenseValidator : AbstractValidator<CreateFixedExpenseCommand>
+public sealed class CreateFixedExpenseValidator : AbstractValidator<CreateFixedExpenseCommand>
 {
     public CreateFixedExpenseValidator()
     {

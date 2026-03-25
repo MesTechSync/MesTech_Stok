@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Commands.RejectReconciliation;
 /// Mutabakat eslestirme reddetme isleyicisi.
 /// Status=Rejected, ReviewedBy ve ReviewedAt guncellenir.
 /// </summary>
-public class RejectReconciliationHandler : IRequestHandler<RejectReconciliationCommand, Unit>
+public sealed class RejectReconciliationHandler : IRequestHandler<RejectReconciliationCommand, Unit>
 {
     private readonly IReconciliationMatchRepository _matchRepo;
     private readonly IUnitOfWork _uow;

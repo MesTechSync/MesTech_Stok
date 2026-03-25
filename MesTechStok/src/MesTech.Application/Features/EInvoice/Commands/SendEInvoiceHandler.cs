@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
-public class SendEInvoiceHandler : IRequestHandler<SendEInvoiceCommand, bool>
+public sealed class SendEInvoiceHandler : IRequestHandler<SendEInvoiceCommand, bool>
 {
     private readonly IEInvoiceDocumentRepository _repository;
     private readonly IEInvoiceProvider _eInvoiceProvider;

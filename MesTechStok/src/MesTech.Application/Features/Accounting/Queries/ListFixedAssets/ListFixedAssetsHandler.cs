@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Queries.ListFixedAssets;
 /// Sabit kiymet listeleme handler.
 /// IFixedAssetRepository uzerinden tenant ve aktiflik filtresiyle sorgular.
 /// </summary>
-public class ListFixedAssetsHandler : IRequestHandler<ListFixedAssetsQuery, IReadOnlyList<FixedAssetDto>>
+public sealed class ListFixedAssetsHandler : IRequestHandler<ListFixedAssetsQuery, IReadOnlyList<FixedAssetDto>>
 {
     private readonly IFixedAssetRepository _repository;
 

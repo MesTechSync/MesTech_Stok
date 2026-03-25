@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Onboarding.Queries.GetOnboardingProgress;
 
-public class GetOnboardingProgressHandler : IRequestHandler<GetOnboardingProgressQuery, OnboardingProgressDto?>
+public sealed class GetOnboardingProgressHandler : IRequestHandler<GetOnboardingProgressQuery, OnboardingProgressDto?>
 {
     private readonly IOnboardingProgressRepository _repository;
 

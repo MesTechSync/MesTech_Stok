@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.ConvertQuotationToInvoice;
 
-public class ConvertQuotationToInvoiceHandler
+public sealed class ConvertQuotationToInvoiceHandler
     : IRequestHandler<ConvertQuotationToInvoiceCommand, ConvertQuotationToInvoiceResult>
 {
     private readonly IQuotationRepository _quotationRepository;

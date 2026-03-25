@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Billing.Commands.CancelSubscription;
 
-public class CancelSubscriptionHandler : IRequestHandler<CancelSubscriptionCommand, Unit>
+public sealed class CancelSubscriptionHandler : IRequestHandler<CancelSubscriptionCommand, Unit>
 {
     private readonly ITenantSubscriptionRepository _repository;
     private readonly IUnitOfWork _uow;

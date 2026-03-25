@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetCariHareketler;
 
-public class GetCariHareketlerHandler : IRequestHandler<GetCariHareketlerQuery, IReadOnlyList<CariHareketDto>>
+public sealed class GetCariHareketlerHandler : IRequestHandler<GetCariHareketlerQuery, IReadOnlyList<CariHareketDto>>
 {
     private readonly ICariHareketRepository _cariHareketRepository;
 

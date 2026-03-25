@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateProductImage;
 
-public class UpdateProductImageValidator : AbstractValidator<UpdateProductImageCommand>
+public sealed class UpdateProductImageValidator : AbstractValidator<UpdateProductImageCommand>
 {
     public UpdateProductImageValidator()
     {

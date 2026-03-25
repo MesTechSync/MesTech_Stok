@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.ReplyToMessage;
 
-public class ReplyToMessageHandler : IRequestHandler<ReplyToMessageCommand, Unit>
+public sealed class ReplyToMessageHandler : IRequestHandler<ReplyToMessageCommand, Unit>
 {
     private readonly IPlatformMessageRepository _repository;
     private readonly IUnitOfWork _unitOfWork;

@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Dropshipping;
 
 namespace MesTech.Application.Features.Dropshipping.Queries.GetDropshipProfitability;
 
-public class GetDropshipProfitabilityHandler
+public sealed class GetDropshipProfitabilityHandler
     : IRequestHandler<GetDropshipProfitabilityQuery, List<DropshipProfitDto>>
 {
     private readonly IDropshipOrderRepository _orderRepository;

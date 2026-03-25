@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentOrders;
 /// <summary>
 /// Handler: resolves the fulfillment provider via factory and queries fulfillment orders.
 /// </summary>
-public class GetFulfillmentOrdersHandler
+public sealed class GetFulfillmentOrdersHandler
     : IRequestHandler<GetFulfillmentOrdersQuery, IReadOnlyList<FulfillmentOrderResult>>
 {
     private readonly IFulfillmentProviderFactory _factory;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateProduct;
 
-public class CreateProductValidator : AbstractValidator<CreateProductCommand>
+public sealed class CreateProductValidator : AbstractValidator<CreateProductCommand>
 {
     public CreateProductValidator()
     {

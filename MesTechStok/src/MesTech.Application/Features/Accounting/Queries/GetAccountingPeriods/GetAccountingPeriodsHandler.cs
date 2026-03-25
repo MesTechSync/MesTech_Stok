@@ -3,7 +3,7 @@ using MediatR;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetAccountingPeriods;
 
-public class GetAccountingPeriodsHandler
+public sealed class GetAccountingPeriodsHandler
     : IRequestHandler<GetAccountingPeriodsQuery, IReadOnlyList<AccountingPeriodDto>>
 {
     private readonly IAccountingPeriodRepository _repo;

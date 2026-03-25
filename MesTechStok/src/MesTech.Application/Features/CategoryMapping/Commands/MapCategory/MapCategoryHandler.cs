@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.CategoryMapping.Commands.MapCategory;
 
-public class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Guid>
+public sealed class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Guid>
 {
     private readonly ICategoryPlatformMappingRepository _mappingRepository;
     private readonly IUnitOfWork _uow;

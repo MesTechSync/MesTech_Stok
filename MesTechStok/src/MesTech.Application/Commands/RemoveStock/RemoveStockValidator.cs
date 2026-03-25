@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.RemoveStock;
 
-public class RemoveStockValidator : AbstractValidator<RemoveStockCommand>
+public sealed class RemoveStockValidator : AbstractValidator<RemoveStockCommand>
 {
     public RemoveStockValidator()
     {

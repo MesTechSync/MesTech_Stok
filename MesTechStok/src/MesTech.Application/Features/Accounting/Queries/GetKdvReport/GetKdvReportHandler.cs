@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetKdvReport;
 /// Mevcut GetKdvDeclarationDraftQuery handler'ini cagirarak sonuclari sadece onemli
 /// alanlara indirger. BeyannameSonTarih: takip eden ayin 26'si.
 /// </summary>
-public class GetKdvReportHandler : IRequestHandler<GetKdvReportQuery, KdvReportDto>
+public sealed class GetKdvReportHandler : IRequestHandler<GetKdvReportQuery, KdvReportDto>
 {
     private readonly ISender _mediator;
 

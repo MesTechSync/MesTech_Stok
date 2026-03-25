@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tasks.Commands.CreateWorkTask;
 
-public class CreateWorkTaskValidator : AbstractValidator<CreateWorkTaskCommand>
+public sealed class CreateWorkTaskValidator : AbstractValidator<CreateWorkTaskCommand>
 {
     public CreateWorkTaskValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateAccountingBankAccount;
 
-public class CreateAccountingBankAccountValidator : AbstractValidator<CreateAccountingBankAccountCommand>
+public sealed class CreateAccountingBankAccountValidator : AbstractValidator<CreateAccountingBankAccountCommand>
 {
     public CreateAccountingBankAccountValidator()
     {

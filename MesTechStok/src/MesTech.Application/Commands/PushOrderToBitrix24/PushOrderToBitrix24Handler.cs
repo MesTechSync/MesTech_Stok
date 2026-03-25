@@ -6,7 +6,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.PushOrderToBitrix24;
 
-public class PushOrderToBitrix24Handler
+public sealed class PushOrderToBitrix24Handler
     : IRequestHandler<PushOrderToBitrix24Command, PushOrderToBitrix24Result>
 {
     private readonly IOrderRepository _orderRepository;

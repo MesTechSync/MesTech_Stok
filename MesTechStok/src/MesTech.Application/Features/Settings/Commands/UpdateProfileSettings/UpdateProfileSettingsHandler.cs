@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 
-public class UpdateProfileSettingsHandler : IRequestHandler<UpdateProfileSettingsCommand, bool>
+public sealed class UpdateProfileSettingsHandler : IRequestHandler<UpdateProfileSettingsCommand, bool>
 {
     private readonly ITenantRepository _repo;
     public UpdateProfileSettingsHandler(ITenantRepository repo) => _repo = repo;

@@ -5,7 +5,7 @@ using MesTech.Domain.Accounting.Services;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 
-public class GetProfitReportHandler : IRequestHandler<GetProfitReportQuery, ProfitReportDto?>
+public sealed class GetProfitReportHandler : IRequestHandler<GetProfitReportQuery, ProfitReportDto?>
 {
     private readonly IProfitReportRepository _repository;
     private readonly IProfitCalculationService _profitService;

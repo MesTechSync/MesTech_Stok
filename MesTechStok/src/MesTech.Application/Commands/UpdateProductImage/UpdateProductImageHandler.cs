@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateProductImage;
 
-public class UpdateProductImageHandler
+public sealed class UpdateProductImageHandler
     : IRequestHandler<UpdateProductImageCommand, UpdateProductImageResult>
 {
     private readonly IProductRepository _productRepository;

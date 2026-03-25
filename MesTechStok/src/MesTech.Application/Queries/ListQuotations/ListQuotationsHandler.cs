@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.ListQuotations;
 
-public class ListQuotationsHandler : IRequestHandler<ListQuotationsQuery, IReadOnlyList<QuotationDto>>
+public sealed class ListQuotationsHandler : IRequestHandler<ListQuotationsQuery, IReadOnlyList<QuotationDto>>
 {
     private readonly IQuotationRepository _quotationRepository;
 

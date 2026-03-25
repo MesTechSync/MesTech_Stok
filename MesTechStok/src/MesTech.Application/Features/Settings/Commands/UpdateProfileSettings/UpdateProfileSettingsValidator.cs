@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 
-public class UpdateProfileSettingsValidator : AbstractValidator<UpdateProfileSettingsCommand>
+public sealed class UpdateProfileSettingsValidator : AbstractValidator<UpdateProfileSettingsCommand>
 {
     public UpdateProfileSettingsValidator()
     {

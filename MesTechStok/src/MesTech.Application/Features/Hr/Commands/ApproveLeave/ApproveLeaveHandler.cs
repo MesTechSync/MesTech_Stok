@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Hr.Commands.ApproveLeave;
 
-public class ApproveLeaveHandler : IRequestHandler<ApproveLeaveCommand, Unit>
+public sealed class ApproveLeaveHandler : IRequestHandler<ApproveLeaveCommand, Unit>
 {
     private readonly ILeaveRepository _leaves;
     private readonly IUnitOfWork _uow;

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Logging.Commands.CleanOldLogs;
 
-public class CleanOldLogsHandler : IRequestHandler<CleanOldLogsCommand, int>
+public sealed class CleanOldLogsHandler : IRequestHandler<CleanOldLogsCommand, int>
 {
     private readonly ILogEntryRepository _repo;
     private readonly ILogger<CleanOldLogsHandler> _logger;

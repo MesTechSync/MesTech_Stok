@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
 
-public class MarkExpensePaidHandler : IRequestHandler<MarkExpensePaidCommand, Unit>
+public sealed class MarkExpensePaidHandler : IRequestHandler<MarkExpensePaidCommand, Unit>
 {
     private readonly IFinanceExpenseRepository _expenses;
     private readonly IUnitOfWork _uow;

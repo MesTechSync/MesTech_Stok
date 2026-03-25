@@ -8,7 +8,7 @@ public interface IInvoiceApprovedEventHandler
     Task HandleAsync(InvoiceApprovedEvent domainEvent, CancellationToken ct);
 }
 
-public class InvoiceApprovedEventHandler : IInvoiceApprovedEventHandler
+public sealed class InvoiceApprovedEventHandler : IInvoiceApprovedEventHandler
 {
     private readonly ILogger<InvoiceApprovedEventHandler> _logger;
 

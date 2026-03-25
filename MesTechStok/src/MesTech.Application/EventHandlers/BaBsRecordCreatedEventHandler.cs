@@ -8,7 +8,7 @@ public interface IBaBsRecordCreatedEventHandler
     Task HandleAsync(BaBsRecordCreatedEvent domainEvent, CancellationToken ct);
 }
 
-public class BaBsRecordCreatedEventHandler : IBaBsRecordCreatedEventHandler
+public sealed class BaBsRecordCreatedEventHandler : IBaBsRecordCreatedEventHandler
 {
     private readonly ILogger<BaBsRecordCreatedEventHandler> _logger;
 

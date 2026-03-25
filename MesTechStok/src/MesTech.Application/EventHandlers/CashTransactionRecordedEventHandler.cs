@@ -11,7 +11,7 @@ public interface ICashTransactionRecordedEventHandler
     Task HandleAsync(CashTransactionRecordedEvent domainEvent, CancellationToken ct);
 }
 
-public class CashTransactionRecordedEventHandler : ICashTransactionRecordedEventHandler
+public sealed class CashTransactionRecordedEventHandler : ICashTransactionRecordedEventHandler
 {
     private readonly ILogger<CashTransactionRecordedEventHandler> _logger;
 

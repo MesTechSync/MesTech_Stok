@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateCariHesap;
 
-public class CreateCariHesapHandler : IRequestHandler<CreateCariHesapCommand, Guid>
+public sealed class CreateCariHesapHandler : IRequestHandler<CreateCariHesapCommand, Guid>
 {
     private readonly ICariHesapRepository _cariHesapRepository;
     private readonly IUnitOfWork _unitOfWork;

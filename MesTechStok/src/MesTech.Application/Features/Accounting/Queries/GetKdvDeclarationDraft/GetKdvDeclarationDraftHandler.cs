@@ -21,7 +21,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetKdvDeclarationDraft
 ///   Input VAT (Indirilecek KDV, 191) = Alis KDV + Komisyon KDV
 ///   Odenecek KDV = Output - Input - Tevkifat - Devreden
 /// </summary>
-public class GetKdvDeclarationDraftHandler
+public sealed class GetKdvDeclarationDraftHandler
     : IRequestHandler<GetKdvDeclarationDraftQuery, KdvDeclarationDraftDto>
 {
     private readonly ITaxRecordRepository _taxRecordRepo;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ApproveReturn;
 
-public class ApproveReturnCommandValidator : AbstractValidator<ApproveReturnCommand>
+public sealed class ApproveReturnCommandValidator : AbstractValidator<ApproveReturnCommand>
 {
     public ApproveReturnCommandValidator()
     {

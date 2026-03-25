@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetInventoryPaged;
 
-public class GetInventoryPagedHandler : IRequestHandler<GetInventoryPagedQuery, GetInventoryPagedResult>
+public sealed class GetInventoryPagedHandler : IRequestHandler<GetInventoryPagedQuery, GetInventoryPagedResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;

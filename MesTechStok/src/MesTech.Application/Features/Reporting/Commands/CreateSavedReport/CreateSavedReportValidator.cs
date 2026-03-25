@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Reporting.Commands.CreateSavedReport;
 
-public class CreateSavedReportValidator : AbstractValidator<CreateSavedReportCommand>
+public sealed class CreateSavedReportValidator : AbstractValidator<CreateSavedReportCommand>
 {
     public CreateSavedReportValidator()
     {

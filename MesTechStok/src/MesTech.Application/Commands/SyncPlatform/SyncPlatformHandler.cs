@@ -3,7 +3,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 namespace MesTech.Application.Commands.SyncPlatform;
 
-public class SyncPlatformHandler : IRequestHandler<SyncPlatformCommand, SyncResultDto>
+public sealed class SyncPlatformHandler : IRequestHandler<SyncPlatformCommand, SyncResultDto>
 {
     private readonly IIntegratorOrchestrator _orchestrator;
 

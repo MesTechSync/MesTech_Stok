@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 
-public class GetPlatformCommissionRatesHandler : IRequestHandler<GetPlatformCommissionRatesQuery, IReadOnlyList<PlatformCommissionRateDto>>
+public sealed class GetPlatformCommissionRatesHandler : IRequestHandler<GetPlatformCommissionRatesQuery, IReadOnlyList<PlatformCommissionRateDto>>
 {
     private readonly IPlatformCommissionRepository _repository;
 

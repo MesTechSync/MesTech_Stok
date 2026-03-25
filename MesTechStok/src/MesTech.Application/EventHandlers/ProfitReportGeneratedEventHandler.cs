@@ -8,7 +8,7 @@ public interface IProfitReportGeneratedEventHandler
     Task HandleAsync(ProfitReportGeneratedEvent domainEvent, CancellationToken ct);
 }
 
-public class ProfitReportGeneratedEventHandler : IProfitReportGeneratedEventHandler
+public sealed class ProfitReportGeneratedEventHandler : IProfitReportGeneratedEventHandler
 {
     private readonly ILogger<ProfitReportGeneratedEventHandler> _logger;
 

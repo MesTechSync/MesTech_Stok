@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteSalaryRecord;
 
-public class DeleteSalaryRecordValidator : AbstractValidator<DeleteSalaryRecordCommand>
+public sealed class DeleteSalaryRecordValidator : AbstractValidator<DeleteSalaryRecordCommand>
 {
     public DeleteSalaryRecordValidator()
     {

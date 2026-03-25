@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 
-public class TestStoreConnectionHandler
+public sealed class TestStoreConnectionHandler
     : IRequestHandler<TestStoreConnectionCommand, ConnectionTestResultDto>
 {
     private readonly IStoreRepository _storeRepository;

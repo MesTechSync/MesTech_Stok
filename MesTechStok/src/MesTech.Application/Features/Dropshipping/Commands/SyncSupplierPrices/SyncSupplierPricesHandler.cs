@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands.SyncSupplierPrices;
 /// Tedarikçi feed'inden fiyatları çeker ve DropshipProduct.OriginalPrice'ı günceller.
 /// Linked ürünlerde Product.PurchasePrice da güncellenir.
 /// </summary>
-public class SyncSupplierPricesHandler : IRequestHandler<SyncSupplierPricesCommand, PriceSyncResultDto>
+public sealed class SyncSupplierPricesHandler : IRequestHandler<SyncSupplierPricesCommand, PriceSyncResultDto>
 {
     private readonly IDropshipSupplierRepository _supplierRepository;
     private readonly IDropshipProductRepository _productRepository;

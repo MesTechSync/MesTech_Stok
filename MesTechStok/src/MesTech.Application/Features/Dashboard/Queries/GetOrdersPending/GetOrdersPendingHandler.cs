@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetOrdersPending;
 /// 24 saatten eski olanlar "urgent" sayilir.
 /// En eski siparisin dakika cinsinden yasini hesaplar.
 /// </summary>
-public class GetOrdersPendingHandler : IRequestHandler<GetOrdersPendingQuery, OrdersPendingDto>
+public sealed class GetOrdersPendingHandler : IRequestHandler<GetOrdersPendingQuery, OrdersPendingDto>
 {
     private readonly IOrderRepository _orderRepository;
 

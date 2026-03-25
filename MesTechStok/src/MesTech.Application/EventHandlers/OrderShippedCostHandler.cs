@@ -18,7 +18,7 @@ public interface IOrderShippedCostHandler
         CancellationToken ct);
 }
 
-public class OrderShippedCostHandler : IOrderShippedCostHandler
+public sealed class OrderShippedCostHandler : IOrderShippedCostHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OrderShippedCostHandler> _logger;

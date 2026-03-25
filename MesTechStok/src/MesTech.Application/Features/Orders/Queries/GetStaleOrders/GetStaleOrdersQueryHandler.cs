@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Orders.Queries.GetStaleOrders;
 
-public class GetStaleOrdersQueryHandler
+public sealed class GetStaleOrdersQueryHandler
     : IRequestHandler<GetStaleOrdersQuery, IReadOnlyList<StaleOrderDto>>
 {
     private readonly IOrderRepository _orderRepo;

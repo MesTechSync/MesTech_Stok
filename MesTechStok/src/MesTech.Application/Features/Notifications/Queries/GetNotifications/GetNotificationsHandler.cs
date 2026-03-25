@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Notifications.Queries.GetNotifications;
 /// Bildirim listesi handler'i.
 /// Sayfalanmis bildirim kayitlarini repository'den ceker ve DTO'ya donusturur.
 /// </summary>
-public class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, NotificationListResult>
+public sealed class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, NotificationListResult>
 {
     private readonly INotificationLogRepository _repository;
 

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Finance.Commands.RecordCashTransaction;
 
-public class RecordCashTransactionValidator : AbstractValidator<RecordCashTransactionCommand>
+public sealed class RecordCashTransactionValidator : AbstractValidator<RecordCashTransactionCommand>
 {
     public RecordCashTransactionValidator()
     {

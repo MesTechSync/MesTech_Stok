@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Platform.Commands.CreateStore;
 
-public class CreateStoreValidator : AbstractValidator<CreateStoreCommand>
+public sealed class CreateStoreValidator : AbstractValidator<CreateStoreCommand>
 {
     public CreateStoreValidator()
     {

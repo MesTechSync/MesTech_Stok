@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordCommission;
 
-public class RecordCommissionHandler : IRequestHandler<RecordCommissionCommand, Guid>
+public sealed class RecordCommissionHandler : IRequestHandler<RecordCommissionCommand, Guid>
 {
     private readonly ICommissionRecordRepository _repository;
     private readonly IUnitOfWork _uow;

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.System.Queries.GetBackupHistory;
 
-public class GetBackupHistoryHandler : IRequestHandler<GetBackupHistoryQuery, IReadOnlyList<BackupEntryDto>>
+public sealed class GetBackupHistoryHandler : IRequestHandler<GetBackupHistoryQuery, IReadOnlyList<BackupEntryDto>>
 {
     private readonly ILogger<GetBackupHistoryHandler> _logger;
     public GetBackupHistoryHandler(ILogger<GetBackupHistoryHandler> logger) => _logger = logger;

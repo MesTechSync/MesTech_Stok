@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Stores.Commands.DeleteStoreCredential;
 
-public class DeleteStoreCredentialHandler : IRequestHandler<DeleteStoreCredentialCommand, bool>
+public sealed class DeleteStoreCredentialHandler : IRequestHandler<DeleteStoreCredentialCommand, bool>
 {
     private readonly IStoreCredentialRepository _credentialRepository;
     private readonly IUnitOfWork _uow;

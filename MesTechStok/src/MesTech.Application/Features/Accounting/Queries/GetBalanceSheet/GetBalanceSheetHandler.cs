@@ -13,7 +13,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
 /// Muhasebe temel denklemi: Assets == Liabilities + Equity.
 /// Revenue ve Expense net kar/zarar olarak Equity bolumune yansir.
 /// </summary>
-public class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
+public sealed class GetBalanceSheetHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
 {
     private readonly IChartOfAccountsRepository _accountRepo;
     private readonly IJournalEntryRepository _journalRepo;

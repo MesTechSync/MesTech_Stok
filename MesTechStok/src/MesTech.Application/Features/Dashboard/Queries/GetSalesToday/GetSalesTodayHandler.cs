@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetSalesToday;
 /// Bugunku ve dunku siparis toplamlarini karsilastirir.
 /// Yuzde degisim: ((bugun - dun) / dun) * 100. Dun sifirsa ve bugun > 0 ise %100.
 /// </summary>
-public class GetSalesTodayHandler : IRequestHandler<GetSalesTodayQuery, SalesTodayDto>
+public sealed class GetSalesTodayHandler : IRequestHandler<GetSalesTodayQuery, SalesTodayDto>
 {
     private readonly IOrderRepository _orderRepository;
 

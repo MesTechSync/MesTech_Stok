@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
 
-public class GetCashFlowTrendHandler : IRequestHandler<GetCashFlowTrendQuery, CashFlowTrendDto>
+public sealed class GetCashFlowTrendHandler : IRequestHandler<GetCashFlowTrendQuery, CashFlowTrendDto>
 {
     private readonly IIncomeRepository _incomeRepo;
     private readonly IExpenseRepository _expenseRepo;

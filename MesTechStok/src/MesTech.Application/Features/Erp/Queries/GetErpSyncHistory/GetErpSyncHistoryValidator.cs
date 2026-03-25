@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 
-public class GetErpSyncHistoryValidator : AbstractValidator<GetErpSyncHistoryQuery>
+public sealed class GetErpSyncHistoryValidator : AbstractValidator<GetErpSyncHistoryQuery>
 {
     public GetErpSyncHistoryValidator()
     {

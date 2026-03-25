@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.PlaceDropshipOrder;
 
-public class PlaceDropshipOrderHandler : IRequestHandler<PlaceDropshipOrderCommand, Guid>
+public sealed class PlaceDropshipOrderHandler : IRequestHandler<PlaceDropshipOrderCommand, Guid>
 {
     private readonly IDropshipOrderRepository _repository;
     private readonly IUnitOfWork _uow;

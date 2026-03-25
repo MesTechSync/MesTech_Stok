@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tasks.Commands.CompleteTask;
 
-public class CompleteTaskValidator : AbstractValidator<CompleteTaskCommand>
+public sealed class CompleteTaskValidator : AbstractValidator<CompleteTaskCommand>
 {
     public CompleteTaskValidator()
     {

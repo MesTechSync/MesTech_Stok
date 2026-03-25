@@ -8,7 +8,7 @@ public interface INotificationSettingsUpdatedEventHandler
     Task HandleAsync(Guid userId, NotificationChannel channel, bool isEnabled, CancellationToken ct);
 }
 
-public class NotificationSettingsUpdatedEventHandler : INotificationSettingsUpdatedEventHandler
+public sealed class NotificationSettingsUpdatedEventHandler : INotificationSettingsUpdatedEventHandler
 {
     private readonly ILogger<NotificationSettingsUpdatedEventHandler> _logger;
 

@@ -5,7 +5,7 @@ using MesTech.Domain.Accounting.Enums;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
 
-public class GetCashFlowReportHandler : IRequestHandler<GetCashFlowReportQuery, CashFlowReportDto>
+public sealed class GetCashFlowReportHandler : IRequestHandler<GetCashFlowReportQuery, CashFlowReportDto>
 {
     private readonly ICashFlowEntryRepository _repository;
 

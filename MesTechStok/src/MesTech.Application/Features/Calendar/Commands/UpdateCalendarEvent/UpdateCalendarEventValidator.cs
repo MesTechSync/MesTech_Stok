@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Calendar.Commands.UpdateCalendarEvent;
 
-public class UpdateCalendarEventValidator : AbstractValidator<UpdateCalendarEventCommand>
+public sealed class UpdateCalendarEventValidator : AbstractValidator<UpdateCalendarEventCommand>
 {
     public UpdateCalendarEventValidator()
     {

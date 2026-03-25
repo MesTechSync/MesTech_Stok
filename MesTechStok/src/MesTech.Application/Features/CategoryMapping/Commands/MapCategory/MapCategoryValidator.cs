@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.CategoryMapping.Commands.MapCategory;
 
-public class MapCategoryValidator : AbstractValidator<MapCategoryCommand>
+public sealed class MapCategoryValidator : AbstractValidator<MapCategoryCommand>
 {
     public MapCategoryValidator()
     {

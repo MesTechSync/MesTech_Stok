@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetSalaryRecords;
 
-public class GetSalaryRecordsHandler : IRequestHandler<GetSalaryRecordsQuery, IReadOnlyList<SalaryRecordDto>>
+public sealed class GetSalaryRecordsHandler : IRequestHandler<GetSalaryRecordsQuery, IReadOnlyList<SalaryRecordDto>>
 {
     private readonly ISalaryRecordRepository _repository;
 

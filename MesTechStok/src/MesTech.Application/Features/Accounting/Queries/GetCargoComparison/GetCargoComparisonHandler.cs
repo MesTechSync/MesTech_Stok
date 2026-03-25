@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetCargoComparison;
 /// Kargo karsilastirma sorgusu isleyicisi.
 /// Tum kayitli kargo adaptorlerinden fiyat sorgusu yapar ve karsilastirir.
 /// </summary>
-public class GetCargoComparisonHandler
+public sealed class GetCargoComparisonHandler
     : IRequestHandler<GetCargoComparisonQuery, CargoComparisonResult>
 {
     private readonly ICargoProviderFactory _factory;

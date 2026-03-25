@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
-public class CancelEInvoiceValidator : AbstractValidator<CancelEInvoiceCommand>
+public sealed class CancelEInvoiceValidator : AbstractValidator<CancelEInvoiceCommand>
 {
     public CancelEInvoiceValidator()
     {

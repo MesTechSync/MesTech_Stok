@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Billing.Commands.CreateSubscription;
 
-public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionCommand, Guid>
+public sealed class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionCommand, Guid>
 {
     private readonly ITenantSubscriptionRepository _subscriptionRepo;
     private readonly ISubscriptionPlanRepository _planRepo;

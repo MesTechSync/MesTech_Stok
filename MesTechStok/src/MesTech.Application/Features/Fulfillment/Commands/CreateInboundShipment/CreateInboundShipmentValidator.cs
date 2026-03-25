@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Fulfillment.Commands.CreateInboundShipment;
 
-public class CreateInboundShipmentValidator : AbstractValidator<CreateInboundShipmentCommand>
+public sealed class CreateInboundShipmentValidator : AbstractValidator<CreateInboundShipmentCommand>
 {
     public CreateInboundShipmentValidator()
     {

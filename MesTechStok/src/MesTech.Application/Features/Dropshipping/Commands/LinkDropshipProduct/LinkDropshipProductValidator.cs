@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct;
 
-public class LinkDropshipProductValidator : AbstractValidator<LinkDropshipProductCommand>
+public sealed class LinkDropshipProductValidator : AbstractValidator<LinkDropshipProductCommand>
 {
     public LinkDropshipProductValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.SeedDemoData;
 
-public class SeedDemoDataValidator : AbstractValidator<SeedDemoDataCommand>
+public sealed class SeedDemoDataValidator : AbstractValidator<SeedDemoDataCommand>
 {
     public SeedDemoDataValidator()
     {

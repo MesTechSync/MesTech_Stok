@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateChartOfAccount;
 
-public class CreateChartOfAccountHandler : IRequestHandler<CreateChartOfAccountCommand, Guid>
+public sealed class CreateChartOfAccountHandler : IRequestHandler<CreateChartOfAccountCommand, Guid>
 {
     private readonly IChartOfAccountsRepository _repository;
     private readonly IUnitOfWork _uow;

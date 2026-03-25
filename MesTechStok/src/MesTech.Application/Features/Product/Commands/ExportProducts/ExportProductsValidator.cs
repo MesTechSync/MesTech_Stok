@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Product.Commands.ExportProducts;
 
-public class ExportProductsValidator : AbstractValidator<ExportProductsCommand>
+public sealed class ExportProductsValidator : AbstractValidator<ExportProductsCommand>
 {
     public ExportProductsValidator()
     {

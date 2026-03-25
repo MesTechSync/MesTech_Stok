@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.DeleteCategory;
 
-public class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCommand>
+public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCommand>
 {
     public DeleteCategoryValidator()
     {

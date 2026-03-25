@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.ImportBankStatement;
 
-public class ImportBankStatementHandler : IRequestHandler<ImportBankStatementCommand, int>
+public sealed class ImportBankStatementHandler : IRequestHandler<ImportBankStatementCommand, int>
 {
     private readonly IBankTransactionRepository _repository;
     private readonly IUnitOfWork _uow;

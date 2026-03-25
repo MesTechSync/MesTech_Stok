@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.CreateDropshipSupplier;
 
-public class CreateDropshipSupplierHandler : IRequestHandler<CreateDropshipSupplierCommand, Guid>
+public sealed class CreateDropshipSupplierHandler : IRequestHandler<CreateDropshipSupplierCommand, Guid>
 {
     private readonly IDropshipSupplierRepository _repository;
     private readonly IUnitOfWork _uow;

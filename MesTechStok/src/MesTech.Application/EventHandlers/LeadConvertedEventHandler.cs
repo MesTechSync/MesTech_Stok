@@ -8,7 +8,7 @@ public interface ILeadConvertedEventHandler
     Task HandleAsync(LeadConvertedEvent domainEvent, CancellationToken ct);
 }
 
-public class LeadConvertedEventHandler : ILeadConvertedEventHandler
+public sealed class LeadConvertedEventHandler : ILeadConvertedEventHandler
 {
     private readonly ILogger<LeadConvertedEventHandler> _logger;
 

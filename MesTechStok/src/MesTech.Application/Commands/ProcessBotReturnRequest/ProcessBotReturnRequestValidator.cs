@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ProcessBotReturnRequest;
 
-public class ProcessBotReturnRequestValidator : AbstractValidator<ProcessBotReturnRequestCommand>
+public sealed class ProcessBotReturnRequestValidator : AbstractValidator<ProcessBotReturnRequestCommand>
 {
     public ProcessBotReturnRequestValidator()
     {

@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteFixedExpense;
 
-public class DeleteFixedExpenseHandler : IRequestHandler<DeleteFixedExpenseCommand>
+public sealed class DeleteFixedExpenseHandler : IRequestHandler<DeleteFixedExpenseCommand>
 {
     private readonly IFixedExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

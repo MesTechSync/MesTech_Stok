@@ -4,7 +4,7 @@ using MesTech.Domain.Entities.Erp;
 
 namespace MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 
-public class GetErpSyncHistoryHandler : IRequestHandler<GetErpSyncHistoryQuery, IReadOnlyList<ErpSyncLog>>
+public sealed class GetErpSyncHistoryHandler : IRequestHandler<GetErpSyncHistoryQuery, IReadOnlyList<ErpSyncLog>>
 {
     private readonly IErpSyncLogRepository _repo;
     public GetErpSyncHistoryHandler(IErpSyncLogRepository repo) => _repo = repo;

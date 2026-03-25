@@ -12,7 +12,7 @@ public interface IReturnCreatedEventHandler
     Task HandleAsync(ReturnCreatedEvent domainEvent, CancellationToken ct);
 }
 
-public class ReturnCreatedEventHandler : IReturnCreatedEventHandler
+public sealed class ReturnCreatedEventHandler : IReturnCreatedEventHandler
 {
     private readonly ILogger<ReturnCreatedEventHandler> _logger;
 

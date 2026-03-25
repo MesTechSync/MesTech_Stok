@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.MapProductToPlatform;
 
-public class MapProductToPlatformValidator : AbstractValidator<MapProductToPlatformCommand>
+public sealed class MapProductToPlatformValidator : AbstractValidator<MapProductToPlatformCommand>
 {
     public MapProductToPlatformValidator()
     {

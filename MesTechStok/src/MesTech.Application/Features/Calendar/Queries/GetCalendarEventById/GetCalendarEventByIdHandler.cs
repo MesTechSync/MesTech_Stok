@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Calendar.Queries.GetCalendarEventById;
 
-public class GetCalendarEventByIdHandler : IRequestHandler<GetCalendarEventByIdQuery, CalendarEventDto?>
+public sealed class GetCalendarEventByIdHandler : IRequestHandler<GetCalendarEventByIdQuery, CalendarEventDto?>
 {
     private readonly ICalendarEventRepository _repository;
 

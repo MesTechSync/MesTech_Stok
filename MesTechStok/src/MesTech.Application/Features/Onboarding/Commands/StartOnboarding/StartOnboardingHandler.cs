@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Onboarding.Commands.StartOnboarding;
 
-public class StartOnboardingHandler : IRequestHandler<StartOnboardingCommand, Guid>
+public sealed class StartOnboardingHandler : IRequestHandler<StartOnboardingCommand, Guid>
 {
     private readonly IOnboardingProgressRepository _repository;
     private readonly IUnitOfWork _uow;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Logging.Commands.CleanOldLogs;
 
-public class CleanOldLogsValidator : AbstractValidator<CleanOldLogsCommand>
+public sealed class CleanOldLogsValidator : AbstractValidator<CleanOldLogsCommand>
 {
     public CleanOldLogsValidator()
     {

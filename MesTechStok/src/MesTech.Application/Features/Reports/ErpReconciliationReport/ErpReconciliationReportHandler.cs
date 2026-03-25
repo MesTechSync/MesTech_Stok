@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Reports.ErpReconciliationReport;
 
-public class ErpReconciliationReportHandler
+public sealed class ErpReconciliationReportHandler
     : IRequestHandler<ErpReconciliationReportQuery, ErpReconciliationReportDto>
 {
     private readonly IErpAdapterFactory _erpFactory;

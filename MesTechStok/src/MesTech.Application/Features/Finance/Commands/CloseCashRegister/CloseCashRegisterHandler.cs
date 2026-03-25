@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 
-public class CloseCashRegisterHandler : IRequestHandler<CloseCashRegisterCommand, CloseCashRegisterResult>
+public sealed class CloseCashRegisterHandler : IRequestHandler<CloseCashRegisterCommand, CloseCashRegisterResult>
 {
     private readonly ICashRegisterRepository _cashRegisterRepo;
     private readonly IUnitOfWork _uow;

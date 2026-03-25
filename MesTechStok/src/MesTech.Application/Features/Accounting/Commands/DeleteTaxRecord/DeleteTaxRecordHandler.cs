@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteTaxRecord;
 
-public class DeleteTaxRecordHandler : IRequestHandler<DeleteTaxRecordCommand>
+public sealed class DeleteTaxRecordHandler : IRequestHandler<DeleteTaxRecordCommand>
 {
     private readonly ITaxRecordRepository _repository;
     private readonly IUnitOfWork _uow;

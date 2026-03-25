@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateSalaryRecord;
 
-public class CreateSalaryRecordValidator : AbstractValidator<CreateSalaryRecordCommand>
+public sealed class CreateSalaryRecordValidator : AbstractValidator<CreateSalaryRecordCommand>
 {
     public CreateSalaryRecordValidator()
     {

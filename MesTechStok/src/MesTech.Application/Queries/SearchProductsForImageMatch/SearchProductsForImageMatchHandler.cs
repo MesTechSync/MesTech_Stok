@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.SearchProductsForImageMatch;
 
-public class SearchProductsForImageMatchHandler
+public sealed class SearchProductsForImageMatchHandler
     : IRequestHandler<SearchProductsForImageMatchQuery, IReadOnlyList<ProductDto>>
 {
     private readonly IProductRepository _productRepository;

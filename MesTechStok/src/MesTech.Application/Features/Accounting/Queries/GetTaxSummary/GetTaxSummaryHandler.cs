@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetTaxSummary;
 
-public class GetTaxSummaryHandler : IRequestHandler<GetTaxSummaryQuery, TaxSummaryDto>
+public sealed class GetTaxSummaryHandler : IRequestHandler<GetTaxSummaryQuery, TaxSummaryDto>
 {
     private readonly ITaxRecordRepository _taxRecordRepo;
     private readonly ITaxWithholdingRepository _withholdingRepo;

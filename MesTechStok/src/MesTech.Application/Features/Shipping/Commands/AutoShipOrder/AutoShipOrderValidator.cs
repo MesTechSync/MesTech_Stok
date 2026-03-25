@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Shipping.Commands.AutoShipOrder;
 
-public class AutoShipOrderValidator : AbstractValidator<AutoShipOrderCommand>
+public sealed class AutoShipOrderValidator : AbstractValidator<AutoShipOrderCommand>
 {
     public AutoShipOrderValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Stores.Commands.DeleteStoreCredential;
 
-public class DeleteStoreCredentialValidator : AbstractValidator<DeleteStoreCredentialCommand>
+public sealed class DeleteStoreCredentialValidator : AbstractValidator<DeleteStoreCredentialCommand>
 {
     public DeleteStoreCredentialValidator()
     {

@@ -12,7 +12,7 @@ public interface IEInvoiceCreatedEventHandler
     Task HandleAsync(Guid eInvoiceId, string ettnNo, EInvoiceType type, CancellationToken ct);
 }
 
-public class EInvoiceCreatedEventHandler : IEInvoiceCreatedEventHandler
+public sealed class EInvoiceCreatedEventHandler : IEInvoiceCreatedEventHandler
 {
     private readonly ILogger<EInvoiceCreatedEventHandler> _logger;
 

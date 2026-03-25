@@ -8,7 +8,7 @@ public interface IPlatformMessageReceivedEventHandler
     Task HandleAsync(Guid messageId, PlatformType platform, string senderName, CancellationToken ct);
 }
 
-public class PlatformMessageReceivedEventHandler : IPlatformMessageReceivedEventHandler
+public sealed class PlatformMessageReceivedEventHandler : IPlatformMessageReceivedEventHandler
 {
     private readonly ILogger<PlatformMessageReceivedEventHandler> _logger;
 

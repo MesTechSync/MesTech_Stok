@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateCariHesap;
 
-public class UpdateCariHesapHandler : IRequestHandler<UpdateCariHesapCommand, bool>
+public sealed class UpdateCariHesapHandler : IRequestHandler<UpdateCariHesapCommand, bool>
 {
     private readonly ICariHesapRepository _cariHesapRepository;
     private readonly IUnitOfWork _unitOfWork;

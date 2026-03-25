@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Onboarding.Commands.StartOnboarding;
 
-public class StartOnboardingValidator : AbstractValidator<StartOnboardingCommand>
+public sealed class StartOnboardingValidator : AbstractValidator<StartOnboardingCommand>
 {
     public StartOnboardingValidator()
     {

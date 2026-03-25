@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
 
-public class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery, IReadOnlyList<ChartOfAccountsDto>>
+public sealed class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccountsQuery, IReadOnlyList<ChartOfAccountsDto>>
 {
     private readonly IChartOfAccountsRepository _repository;
 

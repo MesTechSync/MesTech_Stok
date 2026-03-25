@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateBarcodeScanLog;
 
-public class CreateBarcodeScanLogHandler
+public sealed class CreateBarcodeScanLogHandler
     : IRequestHandler<CreateBarcodeScanLogCommand, CreateBarcodeScanLogResult>
 {
     private readonly IBarcodeScanLogRepository _repository;

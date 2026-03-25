@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Commands.ApproveExpense;
 
-public class ApproveExpenseHandler : IRequestHandler<ApproveExpenseCommand, Unit>
+public sealed class ApproveExpenseHandler : IRequestHandler<ApproveExpenseCommand, Unit>
 {
     private readonly IFinanceExpenseRepository _expenses;
     private readonly IUnitOfWork _uow;

@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.AdjustStock;
 
-public class AdjustStockHandler : IRequestHandler<AdjustStockCommand, AdjustStockResult>
+public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, AdjustStockResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;

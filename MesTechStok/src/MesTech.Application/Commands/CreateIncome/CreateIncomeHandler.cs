@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateIncome;
 
-public class CreateIncomeHandler : IRequestHandler<CreateIncomeCommand, Guid>
+public sealed class CreateIncomeHandler : IRequestHandler<CreateIncomeCommand, Guid>
 {
     private readonly IIncomeRepository _incomeRepository;
     private readonly IUnitOfWork _unitOfWork;

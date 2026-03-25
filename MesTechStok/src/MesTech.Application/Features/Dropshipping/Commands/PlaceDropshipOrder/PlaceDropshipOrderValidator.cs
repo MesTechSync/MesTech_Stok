@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.PlaceDropshipOrder;
 
-public class PlaceDropshipOrderValidator : AbstractValidator<PlaceDropshipOrderCommand>
+public sealed class PlaceDropshipOrderValidator : AbstractValidator<PlaceDropshipOrderCommand>
 {
     public PlaceDropshipOrderValidator()
     {

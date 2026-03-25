@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetAccountingExpenses;
 
-public class GetAccountingExpensesHandler : IRequestHandler<GetAccountingExpensesQuery, IReadOnlyList<AccountingExpenseDto>>
+public sealed class GetAccountingExpensesHandler : IRequestHandler<GetAccountingExpensesQuery, IReadOnlyList<AccountingExpenseDto>>
 {
     private readonly IPersonalExpenseRepository _repository;
 

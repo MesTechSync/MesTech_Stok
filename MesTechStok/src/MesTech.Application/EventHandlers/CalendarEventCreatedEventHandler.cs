@@ -12,7 +12,7 @@ public interface ICalendarEventCreatedEventHandler
     Task HandleAsync(CalendarEventCreatedEvent domainEvent, CancellationToken ct);
 }
 
-public class CalendarEventCreatedEventHandler : ICalendarEventCreatedEventHandler
+public sealed class CalendarEventCreatedEventHandler : ICalendarEventCreatedEventHandler
 {
     private readonly ILogger<CalendarEventCreatedEventHandler> _logger;
 

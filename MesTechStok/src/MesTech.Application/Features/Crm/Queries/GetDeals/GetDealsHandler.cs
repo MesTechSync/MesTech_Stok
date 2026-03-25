@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetDeals;
 
-public class GetDealsHandler : IRequestHandler<GetDealsQuery, GetDealsResult>
+public sealed class GetDealsHandler : IRequestHandler<GetDealsQuery, GetDealsResult>
 {
     private readonly ICrmDealRepository _repository;
     public GetDealsHandler(ICrmDealRepository repository) => _repository = repository;

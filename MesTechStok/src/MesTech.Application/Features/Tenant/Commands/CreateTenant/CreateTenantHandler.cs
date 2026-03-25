@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tenant.Commands.CreateTenant;
 
-public class CreateTenantHandler : IRequestHandler<CreateTenantCommand, Guid>
+public sealed class CreateTenantHandler : IRequestHandler<CreateTenantCommand, Guid>
 {
     private readonly ITenantRepository _repo;
     private readonly IUnitOfWork _uow;

@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetKarZarar;
 
-public class GetKarZararHandler : IRequestHandler<GetKarZararQuery, KarZararDto>
+public sealed class GetKarZararHandler : IRequestHandler<GetKarZararQuery, KarZararDto>
 {
     private readonly IIncomeRepository _incomeRepository;
     private readonly IExpenseRepository _expenseRepository;

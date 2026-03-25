@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Notifications.Commands.MarkNotificationRead;
 
-public class MarkNotificationReadValidator : AbstractValidator<MarkNotificationReadCommand>
+public sealed class MarkNotificationReadValidator : AbstractValidator<MarkNotificationReadCommand>
 {
     public MarkNotificationReadValidator()
     {

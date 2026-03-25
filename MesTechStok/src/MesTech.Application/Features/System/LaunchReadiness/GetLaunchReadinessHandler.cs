@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.System.LaunchReadiness;
 /// 26 kriter kontrol eden canliya cikis hazirlik raporu.
 /// Her kriter gercek codebase/veritabani durumunu kontrol eder.
 /// </summary>
-public class GetLaunchReadinessHandler
+public sealed class GetLaunchReadinessHandler
     : IRequestHandler<GetLaunchReadinessQuery, LaunchReadinessDto>
 {
     private readonly IProductRepository _productRepo;

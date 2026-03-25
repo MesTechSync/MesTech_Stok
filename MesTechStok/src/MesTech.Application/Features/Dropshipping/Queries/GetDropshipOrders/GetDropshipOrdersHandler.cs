@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Dropshipping;
 
 namespace MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 
-public class GetDropshipOrdersHandler : IRequestHandler<GetDropshipOrdersQuery, IReadOnlyList<DropshipOrderDto>>
+public sealed class GetDropshipOrdersHandler : IRequestHandler<GetDropshipOrdersQuery, IReadOnlyList<DropshipOrderDto>>
 {
     private readonly IDropshipOrderRepository _repository;
 

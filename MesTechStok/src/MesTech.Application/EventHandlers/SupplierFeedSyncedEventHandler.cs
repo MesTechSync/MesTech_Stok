@@ -8,7 +8,7 @@ public interface ISupplierFeedSyncedEventHandler
     Task HandleAsync(SupplierFeedSyncedEvent domainEvent, CancellationToken ct);
 }
 
-public class SupplierFeedSyncedEventHandler : ISupplierFeedSyncedEventHandler
+public sealed class SupplierFeedSyncedEventHandler : ISupplierFeedSyncedEventHandler
 {
     private readonly ILogger<SupplierFeedSyncedEventHandler> _logger;
 

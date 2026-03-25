@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 
-public class CreateBaBsRecordValidator : AbstractValidator<CreateBaBsRecordCommand>
+public sealed class CreateBaBsRecordValidator : AbstractValidator<CreateBaBsRecordCommand>
 {
     public CreateBaBsRecordValidator()
     {

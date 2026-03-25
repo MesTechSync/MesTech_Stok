@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Commands.CreateFixedAsset;
 /// Yeni sabit kiymet olusturma handler.
 /// FixedAsset entity'sini olusturur, domain event'i tetikler, veritabanina kaydeder.
 /// </summary>
-public class CreateFixedAssetHandler : IRequestHandler<CreateFixedAssetCommand, Guid>
+public sealed class CreateFixedAssetHandler : IRequestHandler<CreateFixedAssetCommand, Guid>
 {
     private readonly IFixedAssetRepository _repository;
     private readonly IUnitOfWork _uow;

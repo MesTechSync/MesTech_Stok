@@ -7,7 +7,7 @@ public interface ISubscriptionCreatedEventHandler
     Task HandleAsync(Guid tenantId, Guid subscriptionId, Guid planId, CancellationToken ct);
 }
 
-public class SubscriptionCreatedEventHandler : ISubscriptionCreatedEventHandler
+public sealed class SubscriptionCreatedEventHandler : ISubscriptionCreatedEventHandler
 {
     private readonly ILogger<SubscriptionCreatedEventHandler> _logger;
 

@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.SyncBitrix24Contacts;
 
-public class SyncBitrix24ContactsHandler
+public sealed class SyncBitrix24ContactsHandler
     : IRequestHandler<SyncBitrix24ContactsCommand, SyncBitrix24ContactsResult>
 {
     private readonly IBitrix24ContactRepository _contactRepository;

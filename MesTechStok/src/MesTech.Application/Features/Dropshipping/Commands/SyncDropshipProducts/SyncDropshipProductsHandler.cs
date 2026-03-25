@@ -13,7 +13,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands.SyncDropshipProduct
 /// IDropshipFeedFetcher üzerinden feed çeker, ürünleri upsert eder.
 /// K1d-05: Placeholder'dan gerçek implementasyona geçiş.
 /// </summary>
-public class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipProductsCommand, int>
+public sealed class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipProductsCommand, int>
 {
     private readonly IDropshipSupplierRepository _supplierRepo;
     private readonly IDropshipProductRepository _productRepo;

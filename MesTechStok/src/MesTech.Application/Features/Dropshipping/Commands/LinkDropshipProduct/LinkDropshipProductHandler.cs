@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct;
 
-public class LinkDropshipProductHandler : IRequestHandler<LinkDropshipProductCommand, Unit>
+public sealed class LinkDropshipProductHandler : IRequestHandler<LinkDropshipProductCommand, Unit>
 {
     private readonly IDropshipProductRepository _repository;
     private readonly IUnitOfWork _uow;

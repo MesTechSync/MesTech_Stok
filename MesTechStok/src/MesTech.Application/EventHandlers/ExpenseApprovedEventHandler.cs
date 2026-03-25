@@ -11,7 +11,7 @@ public interface IExpenseApprovedEventHandler
     Task HandleAsync(Guid expenseId, Guid approvedByUserId, CancellationToken ct);
 }
 
-public class ExpenseApprovedEventHandler : IExpenseApprovedEventHandler
+public sealed class ExpenseApprovedEventHandler : IExpenseApprovedEventHandler
 {
     private readonly ILogger<ExpenseApprovedEventHandler> _logger;
 

@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tasks.Commands.CreateProject;
 
-public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Guid>
+public sealed class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Guid>
 {
     private readonly IProjectRepository _repository;
     private readonly IUnitOfWork _uow;

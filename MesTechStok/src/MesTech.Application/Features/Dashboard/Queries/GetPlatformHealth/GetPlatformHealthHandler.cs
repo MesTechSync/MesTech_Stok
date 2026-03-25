@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
 /// SyncLog tablosundan her platform icin en son senkronizasyon durumunu ve
 /// son 24 saatteki hata sayisini hesaplar.
 /// </summary>
-public class GetPlatformHealthHandler : IRequestHandler<GetPlatformHealthQuery, IReadOnlyList<PlatformHealthDto>>
+public sealed class GetPlatformHealthHandler : IRequestHandler<GetPlatformHealthQuery, IReadOnlyList<PlatformHealthDto>>
 {
     private readonly ISyncLogRepository _syncLogRepository;
 

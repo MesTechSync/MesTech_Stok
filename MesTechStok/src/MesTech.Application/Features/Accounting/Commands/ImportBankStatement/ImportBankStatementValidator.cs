@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.ImportBankStatement;
 
-public class ImportBankStatementValidator : AbstractValidator<ImportBankStatementCommand>
+public sealed class ImportBankStatementValidator : AbstractValidator<ImportBankStatementCommand>
 {
     public ImportBankStatementValidator()
     {

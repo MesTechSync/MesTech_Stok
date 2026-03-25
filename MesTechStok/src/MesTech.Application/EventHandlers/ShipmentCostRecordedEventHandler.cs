@@ -8,7 +8,7 @@ public interface IShipmentCostRecordedEventHandler
     Task HandleAsync(ShipmentCostRecordedEvent domainEvent, CancellationToken ct);
 }
 
-public class ShipmentCostRecordedEventHandler : IShipmentCostRecordedEventHandler
+public sealed class ShipmentCostRecordedEventHandler : IShipmentCostRecordedEventHandler
 {
     private readonly ILogger<ShipmentCostRecordedEventHandler> _logger;
 

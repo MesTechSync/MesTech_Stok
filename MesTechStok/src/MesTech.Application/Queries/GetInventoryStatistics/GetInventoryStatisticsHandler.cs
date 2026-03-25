@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetInventoryStatistics;
 
-public class GetInventoryStatisticsHandler : IRequestHandler<GetInventoryStatisticsQuery, InventoryStatisticsDto>
+public sealed class GetInventoryStatisticsHandler : IRequestHandler<GetInventoryStatisticsQuery, InventoryStatisticsDto>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _stockMovementRepository;

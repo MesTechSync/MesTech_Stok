@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateCariHesap;
 
-public class CreateCariHesapValidator : AbstractValidator<CreateCariHesapCommand>
+public sealed class CreateCariHesapValidator : AbstractValidator<CreateCariHesapCommand>
 {
     public CreateCariHesapValidator()
     {

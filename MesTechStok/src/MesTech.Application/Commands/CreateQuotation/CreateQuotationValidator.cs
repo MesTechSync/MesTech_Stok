@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateQuotation;
 
-public class CreateQuotationValidator : AbstractValidator<CreateQuotationCommand>
+public sealed class CreateQuotationValidator : AbstractValidator<CreateQuotationCommand>
 {
     public CreateQuotationValidator()
     {

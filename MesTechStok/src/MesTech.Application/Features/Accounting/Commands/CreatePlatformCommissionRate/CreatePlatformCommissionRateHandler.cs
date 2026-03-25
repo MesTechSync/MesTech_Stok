@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreatePlatformCommissionRate;
 
-public class CreatePlatformCommissionRateHandler : IRequestHandler<CreatePlatformCommissionRateCommand, Guid>
+public sealed class CreatePlatformCommissionRateHandler : IRequestHandler<CreatePlatformCommissionRateCommand, Guid>
 {
     private readonly IPlatformCommissionRepository _repository;
     private readonly IUnitOfWork _uow;

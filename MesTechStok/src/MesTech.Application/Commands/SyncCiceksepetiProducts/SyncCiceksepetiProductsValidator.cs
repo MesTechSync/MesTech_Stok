@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.SyncCiceksepetiProducts;
 
-public class SyncCiceksepetiProductsValidator : AbstractValidator<SyncCiceksepetiProductsCommand>
+public sealed class SyncCiceksepetiProductsValidator : AbstractValidator<SyncCiceksepetiProductsCommand>
 {
     public SyncCiceksepetiProductsValidator()
     {

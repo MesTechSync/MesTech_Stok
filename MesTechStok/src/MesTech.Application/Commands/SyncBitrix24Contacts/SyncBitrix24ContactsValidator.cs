@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.SyncBitrix24Contacts;
 
-public class SyncBitrix24ContactsValidator : AbstractValidator<SyncBitrix24ContactsCommand>
+public sealed class SyncBitrix24ContactsValidator : AbstractValidator<SyncBitrix24ContactsCommand>
 {
     public SyncBitrix24ContactsValidator()
     {

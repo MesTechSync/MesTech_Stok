@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
 
-public class CreateJournalEntryValidator : AbstractValidator<CreateJournalEntryCommand>
+public sealed class CreateJournalEntryValidator : AbstractValidator<CreateJournalEntryCommand>
 {
     public CreateJournalEntryValidator()
     {

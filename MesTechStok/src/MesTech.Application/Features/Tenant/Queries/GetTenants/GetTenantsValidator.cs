@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tenant.Queries.GetTenants;
 
-public class GetTenantsValidator : AbstractValidator<GetTenantsQuery>
+public sealed class GetTenantsValidator : AbstractValidator<GetTenantsQuery>
 {
     public GetTenantsValidator()
     {

@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.BulkUpdateStock;
 
-public class BulkUpdateStockHandler : IRequestHandler<BulkUpdateStockCommand, BulkUpdateResult>
+public sealed class BulkUpdateStockHandler : IRequestHandler<BulkUpdateStockCommand, BulkUpdateResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;

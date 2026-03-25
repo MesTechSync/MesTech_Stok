@@ -12,7 +12,7 @@ public interface IOrderCancelledEventHandler
     Task HandleAsync(OrderCancelledEvent domainEvent, CancellationToken ct);
 }
 
-public class OrderCancelledEventHandler : IOrderCancelledEventHandler
+public sealed class OrderCancelledEventHandler : IOrderCancelledEventHandler
 {
     private readonly ILogger<OrderCancelledEventHandler> _logger;
 

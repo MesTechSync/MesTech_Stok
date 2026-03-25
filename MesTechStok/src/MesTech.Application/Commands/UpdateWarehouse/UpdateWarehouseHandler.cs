@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateWarehouse;
 
-public class UpdateWarehouseHandler : IRequestHandler<UpdateWarehouseCommand, bool>
+public sealed class UpdateWarehouseHandler : IRequestHandler<UpdateWarehouseCommand, bool>
 {
     private readonly IWarehouseRepository _repo;
     private readonly IUnitOfWork _uow;

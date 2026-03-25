@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Platform.Commands.FetchProductFromUrl;
 
-public class FetchProductFromUrlValidator : AbstractValidator<FetchProductFromUrlCommand>
+public sealed class FetchProductFromUrlValidator : AbstractValidator<FetchProductFromUrlCommand>
 {
     public FetchProductFromUrlValidator()
     {

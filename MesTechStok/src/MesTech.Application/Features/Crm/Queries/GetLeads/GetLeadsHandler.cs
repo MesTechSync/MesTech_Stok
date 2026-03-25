@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetLeads;
 
-public class GetLeadsHandler : IRequestHandler<GetLeadsQuery, GetLeadsResult>
+public sealed class GetLeadsHandler : IRequestHandler<GetLeadsQuery, GetLeadsResult>
 {
     private readonly ICrmLeadRepository _repository;
 

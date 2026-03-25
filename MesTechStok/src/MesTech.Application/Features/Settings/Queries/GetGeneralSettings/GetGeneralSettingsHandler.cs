@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
 
-public class GetGeneralSettingsHandler : IRequestHandler<GetGeneralSettingsQuery, GeneralSettingsDto?>
+public sealed class GetGeneralSettingsHandler : IRequestHandler<GetGeneralSettingsQuery, GeneralSettingsDto?>
 {
     private readonly ITenantRepository _repo;
     public GetGeneralSettingsHandler(ITenantRepository repo) => _repo = repo;

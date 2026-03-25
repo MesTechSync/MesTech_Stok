@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 
-public class CloseCashRegisterValidator : AbstractValidator<CloseCashRegisterCommand>
+public sealed class CloseCashRegisterValidator : AbstractValidator<CloseCashRegisterCommand>
 {
     public CloseCashRegisterValidator()
     {

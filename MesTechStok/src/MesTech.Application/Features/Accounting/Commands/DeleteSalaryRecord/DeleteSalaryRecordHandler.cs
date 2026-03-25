@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteSalaryRecord;
 
-public class DeleteSalaryRecordHandler : IRequestHandler<DeleteSalaryRecordCommand>
+public sealed class DeleteSalaryRecordHandler : IRequestHandler<DeleteSalaryRecordCommand>
 {
     private readonly ISalaryRecordRepository _repository;
     private readonly IUnitOfWork _uow;

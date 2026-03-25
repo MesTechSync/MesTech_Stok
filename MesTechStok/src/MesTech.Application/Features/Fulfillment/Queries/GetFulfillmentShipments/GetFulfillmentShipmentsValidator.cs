@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
 
-public class GetFulfillmentShipmentsValidator : AbstractValidator<GetFulfillmentShipmentsQuery>
+public sealed class GetFulfillmentShipmentsValidator : AbstractValidator<GetFulfillmentShipmentsQuery>
 {
     public GetFulfillmentShipmentsValidator()
     {

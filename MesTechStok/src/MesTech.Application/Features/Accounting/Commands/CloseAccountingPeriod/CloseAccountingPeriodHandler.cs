@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Accounting.Commands.CloseAccountingPeriod;
 
-public class CloseAccountingPeriodHandler : IRequestHandler<CloseAccountingPeriodCommand, Guid>
+public sealed class CloseAccountingPeriodHandler : IRequestHandler<CloseAccountingPeriodCommand, Guid>
 {
     private readonly IAccountingPeriodRepository _repo;
     private readonly IUnitOfWork _unitOfWork;

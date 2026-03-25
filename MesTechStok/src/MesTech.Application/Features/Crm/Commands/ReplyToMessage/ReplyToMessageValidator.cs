@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.ReplyToMessage;
 
-public class ReplyToMessageValidator : AbstractValidator<ReplyToMessageCommand>
+public sealed class ReplyToMessageValidator : AbstractValidator<ReplyToMessageCommand>
 {
     public ReplyToMessageValidator()
     {

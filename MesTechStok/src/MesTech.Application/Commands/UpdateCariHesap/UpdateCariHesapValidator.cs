@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateCariHesap;
 
-public class UpdateCariHesapValidator : AbstractValidator<UpdateCariHesapCommand>
+public sealed class UpdateCariHesapValidator : AbstractValidator<UpdateCariHesapCommand>
 {
     public UpdateCariHesapValidator()
     {

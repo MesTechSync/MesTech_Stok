@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Queries.CalculateDepreciation;
 /// Amortisman hesaplama handler.
 /// FixedAsset entity'sini yukler, DepreciationCalculationService ile tam tablo olusturur.
 /// </summary>
-public class CalculateDepreciationHandler
+public sealed class CalculateDepreciationHandler
     : IRequestHandler<CalculateDepreciationQuery, DepreciationResultDto>
 {
     private readonly IFixedAssetRepository _assetRepo;

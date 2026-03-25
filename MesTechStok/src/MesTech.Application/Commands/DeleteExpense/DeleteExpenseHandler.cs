@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.DeleteExpense;
 
-public class DeleteExpenseHandler : IRequestHandler<DeleteExpenseCommand>
+public sealed class DeleteExpenseHandler : IRequestHandler<DeleteExpenseCommand>
 {
     private readonly IExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

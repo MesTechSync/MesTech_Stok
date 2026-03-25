@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateFixedExpense;
 
-public class UpdateFixedExpenseHandler : IRequestHandler<UpdateFixedExpenseCommand>
+public sealed class UpdateFixedExpenseHandler : IRequestHandler<UpdateFixedExpenseCommand>
 {
     private readonly IFixedExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

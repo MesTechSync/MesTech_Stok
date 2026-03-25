@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Shipping.Commands.BatchShipOrders;
 
-public class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersCommand, BatchShipResult>
+public sealed class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersCommand, BatchShipResult>
 {
     private readonly IMediator _mediator;
     private readonly ILogger<BatchShipOrdersHandler> _logger;

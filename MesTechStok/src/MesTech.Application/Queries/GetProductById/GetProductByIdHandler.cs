@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetProductById;
 
-public class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
+public sealed class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
 {
     private readonly IProductRepository _productRepository;
 

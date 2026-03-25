@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 
-public class GetCredentialsSettingsHandler : IRequestHandler<GetCredentialsSettingsQuery, CredentialsSettingsDto>
+public sealed class GetCredentialsSettingsHandler : IRequestHandler<GetCredentialsSettingsQuery, CredentialsSettingsDto>
 {
     private readonly IStoreRepository _storeRepo;
     public GetCredentialsSettingsHandler(IStoreRepository storeRepo) => _storeRepo = storeRepo;

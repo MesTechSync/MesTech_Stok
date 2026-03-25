@@ -8,7 +8,7 @@ public interface ISyncErrorOccurredEventHandler
     Task HandleAsync(SyncErrorOccurredEvent domainEvent, CancellationToken ct);
 }
 
-public class SyncErrorOccurredEventHandler : ISyncErrorOccurredEventHandler
+public sealed class SyncErrorOccurredEventHandler : ISyncErrorOccurredEventHandler
 {
     private readonly ILogger<SyncErrorOccurredEventHandler> _logger;
 

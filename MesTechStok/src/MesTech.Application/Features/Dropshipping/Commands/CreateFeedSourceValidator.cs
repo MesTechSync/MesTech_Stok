@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands;
 
-public class CreateFeedSourceValidator : AbstractValidator<CreateFeedSourceCommand>
+public sealed class CreateFeedSourceValidator : AbstractValidator<CreateFeedSourceCommand>
 {
     public CreateFeedSourceValidator()
     {

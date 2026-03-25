@@ -12,7 +12,7 @@ public interface IDocumentUploadedEventHandler
     Task HandleAsync(DocumentUploadedEvent domainEvent, CancellationToken ct);
 }
 
-public class DocumentUploadedEventHandler : IDocumentUploadedEventHandler
+public sealed class DocumentUploadedEventHandler : IDocumentUploadedEventHandler
 {
     private readonly ILogger<DocumentUploadedEventHandler> _logger;
 

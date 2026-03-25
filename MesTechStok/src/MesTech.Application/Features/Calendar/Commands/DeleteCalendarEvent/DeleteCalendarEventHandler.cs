@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Calendar.Commands.DeleteCalendarEvent;
 
-public class DeleteCalendarEventHandler : IRequestHandler<DeleteCalendarEventCommand>
+public sealed class DeleteCalendarEventHandler : IRequestHandler<DeleteCalendarEventCommand>
 {
     private readonly ICalendarEventRepository _repository;
     private readonly IUnitOfWork _uow;

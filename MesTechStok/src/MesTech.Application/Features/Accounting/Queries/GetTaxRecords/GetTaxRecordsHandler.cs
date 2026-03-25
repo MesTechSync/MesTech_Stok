@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetTaxRecords;
 
-public class GetTaxRecordsHandler : IRequestHandler<GetTaxRecordsQuery, IReadOnlyList<TaxRecordDto>>
+public sealed class GetTaxRecordsHandler : IRequestHandler<GetTaxRecordsQuery, IReadOnlyList<TaxRecordDto>>
 {
     private readonly ITaxRecordRepository _repository;
 

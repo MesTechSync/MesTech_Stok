@@ -11,7 +11,7 @@ public interface ITaskOverdueEventHandler
     Task HandleAsync(TaskOverdueEvent domainEvent, CancellationToken ct);
 }
 
-public class TaskOverdueEventHandler : ITaskOverdueEventHandler
+public sealed class TaskOverdueEventHandler : ITaskOverdueEventHandler
 {
     private readonly ILogger<TaskOverdueEventHandler> _logger;
 

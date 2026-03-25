@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Dropshipping.Commands.CreateAutoOrder;
 /// Minimum stok altındaki ürünler için DropshipOrder oluşturur.
 /// Product.Stock &lt; Product.MinimumStock kontrolü yapılır.
 /// </summary>
-public class CreateAutoOrderHandler : IRequestHandler<CreateAutoOrderCommand, AutoOrderResultDto>
+public sealed class CreateAutoOrderHandler : IRequestHandler<CreateAutoOrderCommand, AutoOrderResultDto>
 {
     private readonly IProductRepository _productRepository;
     private readonly IDropshipSupplierRepository _supplierRepository;

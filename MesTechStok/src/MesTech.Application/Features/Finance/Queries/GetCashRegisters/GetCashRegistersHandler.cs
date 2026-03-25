@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Queries.GetCashRegisters;
 
-public class GetCashRegistersHandler : IRequestHandler<GetCashRegistersQuery, IReadOnlyList<CashRegisterDto>>
+public sealed class GetCashRegistersHandler : IRequestHandler<GetCashRegistersQuery, IReadOnlyList<CashRegisterDto>>
 {
     private readonly ICashRegisterRepository _repository;
 

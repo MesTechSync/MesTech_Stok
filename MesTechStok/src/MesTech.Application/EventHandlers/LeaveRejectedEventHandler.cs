@@ -7,7 +7,7 @@ public interface ILeaveRejectedEventHandler
     Task HandleAsync(Guid leaveId, Guid employeeId, string reason, CancellationToken ct);
 }
 
-public class LeaveRejectedEventHandler : ILeaveRejectedEventHandler
+public sealed class LeaveRejectedEventHandler : ILeaveRejectedEventHandler
 {
     private readonly ILogger<LeaveRejectedEventHandler> _logger;
 

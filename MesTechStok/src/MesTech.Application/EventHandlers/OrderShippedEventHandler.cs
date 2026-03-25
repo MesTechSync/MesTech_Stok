@@ -12,7 +12,7 @@ public interface IOrderShippedEventHandler
     Task HandleAsync(OrderShippedEvent domainEvent, CancellationToken ct);
 }
 
-public class OrderShippedEventHandler : IOrderShippedEventHandler
+public sealed class OrderShippedEventHandler : IOrderShippedEventHandler
 {
     private readonly ILogger<OrderShippedEventHandler> _logger;
 

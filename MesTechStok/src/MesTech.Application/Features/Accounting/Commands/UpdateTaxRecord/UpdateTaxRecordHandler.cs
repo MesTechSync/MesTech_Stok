@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateTaxRecord;
 
-public class UpdateTaxRecordHandler : IRequestHandler<UpdateTaxRecordCommand>
+public sealed class UpdateTaxRecordHandler : IRequestHandler<UpdateTaxRecordCommand>
 {
     private readonly ITaxRecordRepository _repository;
     private readonly IUnitOfWork _uow;

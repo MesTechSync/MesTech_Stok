@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
 /// Ba: 5.000 TL ustu alislar — tedarikci bazli.
 /// Bs: 5.000 TL ustu satislar — musteri bazli.
 /// </summary>
-public class GenerateBaBsReportHandler
+public sealed class GenerateBaBsReportHandler
     : IRequestHandler<GenerateBaBsReportQuery, BaBsReportDto>
 {
     private readonly IBaBsReportService _babsService;

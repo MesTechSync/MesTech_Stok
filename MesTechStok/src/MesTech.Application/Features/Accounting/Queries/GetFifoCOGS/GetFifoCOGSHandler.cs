@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetFifoCOGS;
 /// FIFO COGS sorgu handler'i.
 /// Tek urun veya tum urunler icin FIFO maliyet hesaplama servisini cagirip sonuc doner.
 /// </summary>
-public class GetFifoCOGSHandler : IRequestHandler<GetFifoCOGSQuery, IReadOnlyList<FifoCostResultDto>>
+public sealed class GetFifoCOGSHandler : IRequestHandler<GetFifoCOGSQuery, IReadOnlyList<FifoCostResultDto>>
 {
     private readonly IFifoCostCalculationService _fifoService;
 

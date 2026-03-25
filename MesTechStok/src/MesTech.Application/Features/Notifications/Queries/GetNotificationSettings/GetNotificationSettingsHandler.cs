@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Notifications.Queries.GetNotificationSett
 /// Kullanici bildirim ayarlari handler'i.
 /// UserId bazinda tum NotificationSetting kayitlarini ceker ve DTO'ya donusturur.
 /// </summary>
-public class GetNotificationSettingsHandler
+public sealed class GetNotificationSettingsHandler
     : IRequestHandler<GetNotificationSettingsQuery, IReadOnlyList<NotificationSettingDto>>
 {
     private readonly INotificationSettingRepository _repository;

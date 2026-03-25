@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Reports.FulfillmentCostReport;
 
-public class FulfillmentCostReportHandler
+public sealed class FulfillmentCostReportHandler
     : IRequestHandler<FulfillmentCostReportQuery, FulfillmentCostReportDto>
 {
     private readonly IFulfillmentProviderFactory _factory;

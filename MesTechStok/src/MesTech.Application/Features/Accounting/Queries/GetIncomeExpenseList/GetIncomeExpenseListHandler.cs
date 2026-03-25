@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 
-public class GetIncomeExpenseListHandler
+public sealed class GetIncomeExpenseListHandler
     : IRequestHandler<GetIncomeExpenseListQuery, IncomeExpenseListResultDto>
 {
     private readonly IIncomeRepository _incomeRepo;

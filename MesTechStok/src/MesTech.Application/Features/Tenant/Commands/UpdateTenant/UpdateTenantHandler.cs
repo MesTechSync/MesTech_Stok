@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tenant.Commands.UpdateTenant;
 
-public class UpdateTenantHandler : IRequestHandler<UpdateTenantCommand, bool>
+public sealed class UpdateTenantHandler : IRequestHandler<UpdateTenantCommand, bool>
 {
     private readonly ITenantRepository _repo;
     private readonly IUnitOfWork _uow;

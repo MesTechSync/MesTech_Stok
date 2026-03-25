@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tenant.Queries.GetTenants;
 
-public class GetTenantsHandler : IRequestHandler<GetTenantsQuery, GetTenantsResult>
+public sealed class GetTenantsHandler : IRequestHandler<GetTenantsQuery, GetTenantsResult>
 {
     private readonly ITenantRepository _repo;
     public GetTenantsHandler(ITenantRepository repo) => _repo = repo;

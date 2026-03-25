@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.GenerateEFatura;
 
-public class GenerateEFaturaValidator : AbstractValidator<GenerateEFaturaCommand>
+public sealed class GenerateEFaturaValidator : AbstractValidator<GenerateEFaturaCommand>
 {
     public GenerateEFaturaValidator()
     {

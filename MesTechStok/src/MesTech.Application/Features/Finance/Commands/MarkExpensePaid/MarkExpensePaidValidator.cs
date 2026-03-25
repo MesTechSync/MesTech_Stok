@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
 
-public class MarkExpensePaidValidator : AbstractValidator<MarkExpensePaidCommand>
+public sealed class MarkExpensePaidValidator : AbstractValidator<MarkExpensePaidCommand>
 {
     public MarkExpensePaidValidator()
     {

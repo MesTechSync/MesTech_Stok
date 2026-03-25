@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.EarnPoints;
 
-public class EarnPointsValidator : AbstractValidator<EarnPointsCommand>
+public sealed class EarnPointsValidator : AbstractValidator<EarnPointsCommand>
 {
     public EarnPointsValidator()
     {

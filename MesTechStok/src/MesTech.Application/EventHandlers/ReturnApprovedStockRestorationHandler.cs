@@ -19,7 +19,7 @@ public interface IReturnApprovedStockRestorationHandler
         CancellationToken ct);
 }
 
-public class ReturnApprovedStockRestorationHandler : IReturnApprovedStockRestorationHandler
+public sealed class ReturnApprovedStockRestorationHandler : IReturnApprovedStockRestorationHandler
 {
     private readonly IProductRepository _productRepo;
     private readonly IUnitOfWork _uow;

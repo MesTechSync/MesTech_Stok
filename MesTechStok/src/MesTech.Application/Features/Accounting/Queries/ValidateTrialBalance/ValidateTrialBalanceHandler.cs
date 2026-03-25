@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 /// 2. TrialBalanceValidationService ile dogrula
 /// 3. Sonucu dondur
 /// </summary>
-public class ValidateTrialBalanceHandler
+public sealed class ValidateTrialBalanceHandler
     : IRequestHandler<ValidateTrialBalanceQuery, TrialBalanceValidationResult>
 {
     private readonly IJournalEntryRepository _journalRepo;

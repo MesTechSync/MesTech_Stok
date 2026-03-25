@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateDeal;
 
-public class CreateDealValidator : AbstractValidator<CreateDealCommand>
+public sealed class CreateDealValidator : AbstractValidator<CreateDealCommand>
 {
     public CreateDealValidator()
     {

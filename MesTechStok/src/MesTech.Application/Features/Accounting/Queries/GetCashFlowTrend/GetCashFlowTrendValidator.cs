@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
 
-public class GetCashFlowTrendValidator : AbstractValidator<GetCashFlowTrendQuery>
+public sealed class GetCashFlowTrendValidator : AbstractValidator<GetCashFlowTrendQuery>
 {
     public GetCashFlowTrendValidator()
     {

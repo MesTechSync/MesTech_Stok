@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateEInvoiceFromDraft;
 
-public class CreateEInvoiceFromDraftValidator : AbstractValidator<CreateEInvoiceFromDraftCommand>
+public sealed class CreateEInvoiceFromDraftValidator : AbstractValidator<CreateEInvoiceFromDraftCommand>
 {
     public CreateEInvoiceFromDraftValidator()
     {

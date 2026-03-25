@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tasks.Commands.CreateWorkTask;
 
-public class CreateWorkTaskHandler : IRequestHandler<CreateWorkTaskCommand, Guid>
+public sealed class CreateWorkTaskHandler : IRequestHandler<CreateWorkTaskCommand, Guid>
 {
     private readonly IWorkTaskRepository _repository;
     private readonly IUnitOfWork _uow;

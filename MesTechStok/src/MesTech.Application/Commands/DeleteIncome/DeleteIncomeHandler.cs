@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.DeleteIncome;
 
-public class DeleteIncomeHandler : IRequestHandler<DeleteIncomeCommand>
+public sealed class DeleteIncomeHandler : IRequestHandler<DeleteIncomeCommand>
 {
     private readonly IIncomeRepository _repository;
     private readonly IUnitOfWork _uow;

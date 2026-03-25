@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UploadAccountingDocument;
 
-public class UploadAccountingDocumentHandler : IRequestHandler<UploadAccountingDocumentCommand, Guid>
+public sealed class UploadAccountingDocumentHandler : IRequestHandler<UploadAccountingDocumentCommand, Guid>
 {
     private readonly IAccountingDocumentRepository _repository;
     private readonly IUnitOfWork _uow;

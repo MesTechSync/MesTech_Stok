@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.System.UserNotifications.Commands.MarkNot
 /// <summary>
 /// Kullanici ici bildirimi okundu olarak isaretleme handler'i.
 /// </summary>
-public class MarkUserNotificationReadHandler
+public sealed class MarkUserNotificationReadHandler
     : IRequestHandler<MarkUserNotificationReadCommand, bool>
 {
     private readonly IUserNotificationRepository _repository;

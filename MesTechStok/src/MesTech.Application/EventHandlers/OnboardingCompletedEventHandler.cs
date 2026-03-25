@@ -7,7 +7,7 @@ public interface IOnboardingCompletedEventHandler
     Task HandleAsync(Guid tenantId, Guid onboardingProgressId, DateTime startedAt, DateTime completedAt, CancellationToken ct);
 }
 
-public class OnboardingCompletedEventHandler : IOnboardingCompletedEventHandler
+public sealed class OnboardingCompletedEventHandler : IOnboardingCompletedEventHandler
 {
     private readonly ILogger<OnboardingCompletedEventHandler> _logger;
 

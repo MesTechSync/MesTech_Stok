@@ -5,7 +5,7 @@ using MesTech.Domain.Entities.EInvoice;
 
 namespace MesTech.Application.Features.EInvoice.Queries;
 
-public class GetEInvoiceByIdHandler : IRequestHandler<GetEInvoiceByIdQuery, EInvoiceDto?>
+public sealed class GetEInvoiceByIdHandler : IRequestHandler<GetEInvoiceByIdQuery, EInvoiceDto?>
 {
     private readonly IEInvoiceDocumentRepository _repository;
 

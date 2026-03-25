@@ -4,7 +4,7 @@ using MesTech.Domain.Entities.Erp;
 
 namespace MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
 
-public class GetErpSyncLogsHandler : IRequestHandler<GetErpSyncLogsQuery, IReadOnlyList<ErpSyncLog>>
+public sealed class GetErpSyncLogsHandler : IRequestHandler<GetErpSyncLogsQuery, IReadOnlyList<ErpSyncLog>>
 {
     private readonly IErpSyncLogRepository _repo;
 

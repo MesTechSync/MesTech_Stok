@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Platform.Commands.CreateStore;
 
-public class CreateStoreHandler : IRequestHandler<CreateStoreCommand, CreateStoreResult>
+public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, CreateStoreResult>
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IStoreCredentialRepository _credentialRepository;

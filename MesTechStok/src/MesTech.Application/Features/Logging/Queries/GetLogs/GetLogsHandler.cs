@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Logging.Queries.GetLogs;
 
-public class GetLogsHandler : IRequestHandler<GetLogsQuery, IReadOnlyList<LogEntry>>
+public sealed class GetLogsHandler : IRequestHandler<GetLogsQuery, IReadOnlyList<LogEntry>>
 {
     private readonly ILogEntryRepository _repo;
 

@@ -18,7 +18,7 @@ public interface IOrderConfirmedRevenueHandler
         CancellationToken ct);
 }
 
-public class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
+public sealed class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
 {
     private readonly IIncomeRepository _incomeRepo;
     private readonly IUnitOfWork _uow;

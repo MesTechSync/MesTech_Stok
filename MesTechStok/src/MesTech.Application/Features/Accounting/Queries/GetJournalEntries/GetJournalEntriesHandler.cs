@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
 
-public class GetJournalEntriesHandler : IRequestHandler<GetJournalEntriesQuery, IReadOnlyList<JournalEntryDto>>
+public sealed class GetJournalEntriesHandler : IRequestHandler<GetJournalEntriesQuery, IReadOnlyList<JournalEntryDto>>
 {
     private readonly IJournalEntryRepository _repository;
 

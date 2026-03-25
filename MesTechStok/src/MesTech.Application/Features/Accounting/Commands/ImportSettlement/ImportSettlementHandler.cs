@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.ImportSettlement;
 
-public class ImportSettlementHandler : IRequestHandler<ImportSettlementCommand, Guid>
+public sealed class ImportSettlementHandler : IRequestHandler<ImportSettlementCommand, Guid>
 {
     private readonly ISettlementBatchRepository _repository;
     private readonly IUnitOfWork _uow;

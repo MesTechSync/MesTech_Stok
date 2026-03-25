@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetCariHesaplar;
 
-public class GetCariHesaplarHandler : IRequestHandler<GetCariHesaplarQuery, IReadOnlyList<CariHesapDto>>
+public sealed class GetCariHesaplarHandler : IRequestHandler<GetCariHesaplarQuery, IReadOnlyList<CariHesapDto>>
 {
     private readonly ICariHesapRepository _cariHesapRepository;
 

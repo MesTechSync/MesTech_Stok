@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.BulkUpdatePrice;
 
-public class BulkUpdatePriceHandler : IRequestHandler<BulkUpdatePriceCommand, BulkUpdateResult>
+public sealed class BulkUpdatePriceHandler : IRequestHandler<BulkUpdatePriceCommand, BulkUpdateResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;

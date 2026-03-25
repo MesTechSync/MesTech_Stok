@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 
-public class GenerateTaxCalendarValidator : AbstractValidator<GenerateTaxCalendarCommand>
+public sealed class GenerateTaxCalendarValidator : AbstractValidator<GenerateTaxCalendarCommand>
 {
     public GenerateTaxCalendarValidator()
     {

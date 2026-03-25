@@ -19,7 +19,7 @@ namespace MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 ///
 /// Toplam: 40 etkinlik/yil
 /// </summary>
-public class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCalendarCommand, int>
+public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCalendarCommand, int>
 {
     private readonly ICalendarEventRepository _repository;
     private readonly IUnitOfWork _uow;

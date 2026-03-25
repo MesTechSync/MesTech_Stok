@@ -5,7 +5,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetPenaltyRecords;
 
-public class GetPenaltyRecordsHandler : IRequestHandler<GetPenaltyRecordsQuery, IReadOnlyList<PenaltyRecordDto>>
+public sealed class GetPenaltyRecordsHandler : IRequestHandler<GetPenaltyRecordsQuery, IReadOnlyList<PenaltyRecordDto>>
 {
     private readonly IPenaltyRecordRepository _repository;
 

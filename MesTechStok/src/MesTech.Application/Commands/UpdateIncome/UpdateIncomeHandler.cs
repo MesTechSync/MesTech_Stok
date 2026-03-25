@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateIncome;
 
-public class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
+public sealed class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
 {
     private readonly IIncomeRepository _repository;
     private readonly IUnitOfWork _uow;

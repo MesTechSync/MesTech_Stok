@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Settings.Queries.GetProfileSettings;
 
-public class GetProfileSettingsHandler : IRequestHandler<GetProfileSettingsQuery, ProfileSettingsDto?>
+public sealed class GetProfileSettingsHandler : IRequestHandler<GetProfileSettingsQuery, ProfileSettingsDto?>
 {
     private readonly ITenantRepository _repo;
     public GetProfileSettingsHandler(ITenantRepository repo) => _repo = repo;

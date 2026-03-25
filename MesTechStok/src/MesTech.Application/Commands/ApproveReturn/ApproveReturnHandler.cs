@@ -8,7 +8,7 @@ namespace MesTech.Application.Commands.ApproveReturn;
 /// <summary>
 /// Iade talebini onaylar, stok geri yukleme yapar ve ReturnResolvedEvent yayinlar.
 /// </summary>
-public class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand, ApproveReturnResult>
+public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand, ApproveReturnResult>
 {
     private readonly IReturnRequestRepository _returnRepo;
     private readonly IProductRepository _productRepo;

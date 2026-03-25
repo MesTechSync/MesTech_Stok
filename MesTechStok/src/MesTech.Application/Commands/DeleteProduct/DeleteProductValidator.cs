@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.DeleteProduct;
 
-public class DeleteProductValidator : AbstractValidator<DeleteProductCommand>
+public sealed class DeleteProductValidator : AbstractValidator<DeleteProductCommand>
 {
     public DeleteProductValidator()
     {

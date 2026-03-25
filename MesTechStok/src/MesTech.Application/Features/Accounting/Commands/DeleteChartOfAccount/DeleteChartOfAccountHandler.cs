@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeleteChartOfAccount;
 
-public class DeleteChartOfAccountHandler : IRequestHandler<DeleteChartOfAccountCommand, bool>
+public sealed class DeleteChartOfAccountHandler : IRequestHandler<DeleteChartOfAccountCommand, bool>
 {
     private readonly IChartOfAccountsRepository _repository;
     private readonly IUnitOfWork _uow;

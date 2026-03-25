@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateFixedAsset;
 
-public class CreateFixedAssetValidator : AbstractValidator<CreateFixedAssetCommand>
+public sealed class CreateFixedAssetValidator : AbstractValidator<CreateFixedAssetCommand>
 {
     public CreateFixedAssetValidator()
     {

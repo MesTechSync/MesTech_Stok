@@ -8,7 +8,7 @@ public interface IPriceChangedEventHandler
     Task HandleAsync(PriceChangedEvent domainEvent, CancellationToken ct);
 }
 
-public class PriceChangedEventHandler : IPriceChangedEventHandler
+public sealed class PriceChangedEventHandler : IPriceChangedEventHandler
 {
     private readonly ILogger<PriceChangedEventHandler> _logger;
 

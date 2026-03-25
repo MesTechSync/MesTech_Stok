@@ -12,7 +12,7 @@ public interface ISyncRequestedEventHandler
     Task HandleAsync(SyncRequestedEvent domainEvent, CancellationToken ct);
 }
 
-public class SyncRequestedEventHandler : ISyncRequestedEventHandler
+public sealed class SyncRequestedEventHandler : ISyncRequestedEventHandler
 {
     private readonly ILogger<SyncRequestedEventHandler> _logger;
 

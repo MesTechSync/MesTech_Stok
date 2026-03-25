@@ -12,7 +12,7 @@ public interface IPriceLossEventHandler
     Task HandleAsync(Guid productId, string sku, decimal purchasePrice, decimal salePrice, decimal lossPerUnit, Guid tenantId, CancellationToken ct);
 }
 
-public class PriceLossDetectedEventHandler : IPriceLossEventHandler
+public sealed class PriceLossDetectedEventHandler : IPriceLossEventHandler
 {
     private readonly ILogger<PriceLossDetectedEventHandler> _logger;
 

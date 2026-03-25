@@ -14,7 +14,7 @@ namespace MesTech.Application.Features.Accounting.Commands.RunReconciliation;
 /// 3. Her batch x tx cifti icin skor hesapla
 /// 4. >= 0.95 → AutoMatched, 0.70-0.94 → NeedsReview, &lt; 0.70 → skip (Unmatched)
 /// </summary>
-public class RunReconciliationHandler : IRequestHandler<RunReconciliationCommand, RunReconciliationResult>
+public sealed class RunReconciliationHandler : IRequestHandler<RunReconciliationCommand, RunReconciliationResult>
 {
     private readonly ISettlementBatchRepository _settlementRepo;
     private readonly IBankTransactionRepository _bankTxRepo;

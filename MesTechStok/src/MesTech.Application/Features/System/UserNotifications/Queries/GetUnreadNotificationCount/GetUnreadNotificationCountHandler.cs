@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.System.UserNotifications.Queries.GetUnrea
 /// <summary>
 /// Okunmamis bildirim sayisi handler'i.
 /// </summary>
-public class GetUnreadNotificationCountHandler
+public sealed class GetUnreadNotificationCountHandler
     : IRequestHandler<GetUnreadNotificationCountQuery, int>
 {
     private readonly IUserNotificationRepository _repository;

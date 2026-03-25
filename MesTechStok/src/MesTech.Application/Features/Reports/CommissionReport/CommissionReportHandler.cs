@@ -4,7 +4,7 @@ using MesTech.Domain.Enums;
 
 namespace MesTech.Application.Features.Reports.CommissionReport;
 
-public class CommissionReportHandler : IRequestHandler<CommissionReportQuery, CommissionReportDto>
+public sealed class CommissionReportHandler : IRequestHandler<CommissionReportQuery, CommissionReportDto>
 {
     private readonly ICommissionRecordRepository _commissionRepo;
 

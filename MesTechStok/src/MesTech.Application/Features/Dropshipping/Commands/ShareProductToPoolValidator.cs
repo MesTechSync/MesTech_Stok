@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands;
 
-public class ShareProductToPoolValidator : AbstractValidator<ShareProductToPoolCommand>
+public sealed class ShareProductToPoolValidator : AbstractValidator<ShareProductToPoolCommand>
 {
     public ShareProductToPoolValidator()
     {

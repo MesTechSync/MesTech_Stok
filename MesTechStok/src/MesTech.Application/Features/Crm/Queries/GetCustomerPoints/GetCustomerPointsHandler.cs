@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetCustomerPoints;
 
-public class GetCustomerPointsHandler : IRequestHandler<GetCustomerPointsQuery, GetCustomerPointsResult>
+public sealed class GetCustomerPointsHandler : IRequestHandler<GetCustomerPointsQuery, GetCustomerPointsResult>
 {
     private readonly ILoyaltyTransactionRepository _transactionRepo;
 

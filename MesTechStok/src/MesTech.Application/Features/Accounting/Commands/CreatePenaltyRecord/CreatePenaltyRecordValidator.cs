@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreatePenaltyRecord;
 
-public class CreatePenaltyRecordValidator : AbstractValidator<CreatePenaltyRecordCommand>
+public sealed class CreatePenaltyRecordValidator : AbstractValidator<CreatePenaltyRecordCommand>
 {
     public CreatePenaltyRecordValidator()
     {

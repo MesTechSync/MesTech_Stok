@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
 /// KDV tevkifat oranlari handler.
 /// WithholdingRates static class'indan tum GiB tanimli oranlari dondurur.
 /// </summary>
-public class GetWithholdingRatesHandler
+public sealed class GetWithholdingRatesHandler
     : IRequestHandler<GetWithholdingRatesQuery, List<WithholdingRateDto>>
 {
     public Task<List<WithholdingRateDto>> Handle(

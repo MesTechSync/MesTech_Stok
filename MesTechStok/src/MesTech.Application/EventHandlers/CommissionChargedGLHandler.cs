@@ -17,7 +17,7 @@ public interface ICommissionChargedGLHandler
         CancellationToken ct);
 }
 
-public class CommissionChargedGLHandler : ICommissionChargedGLHandler
+public sealed class CommissionChargedGLHandler : ICommissionChargedGLHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CommissionChargedGLHandler> _logger;

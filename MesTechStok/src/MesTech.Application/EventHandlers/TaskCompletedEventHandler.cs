@@ -11,7 +11,7 @@ public interface ITaskCompletedEventHandler
     Task HandleAsync(TaskCompletedEvent domainEvent, CancellationToken ct);
 }
 
-public class TaskCompletedEventHandler : ITaskCompletedEventHandler
+public sealed class TaskCompletedEventHandler : ITaskCompletedEventHandler
 {
     private readonly ILogger<TaskCompletedEventHandler> _logger;
 

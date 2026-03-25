@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetReconciliationDashb
 /// ReconciliationMatch tablosundan durum bazinda sayim ve toplam tutar hesaplar.
 /// Eslesmemis settlement batch'ler icin de istatistik sunar.
 /// </summary>
-public class GetReconciliationDashboardHandler
+public sealed class GetReconciliationDashboardHandler
     : IRequestHandler<GetReconciliationDashboardQuery, ReconciliationDashboardDto>
 {
     private readonly IReconciliationMatchRepository _matchRepo;

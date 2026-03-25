@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.AddStock;
 
-public class AddStockHandler : IRequestHandler<AddStockCommand, AddStockResult>
+public sealed class AddStockHandler : IRequestHandler<AddStockCommand, AddStockResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;

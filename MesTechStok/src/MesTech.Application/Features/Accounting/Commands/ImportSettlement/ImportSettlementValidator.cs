@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.ImportSettlement;
 
-public class ImportSettlementValidator : AbstractValidator<ImportSettlementCommand>
+public sealed class ImportSettlementValidator : AbstractValidator<ImportSettlementCommand>
 {
     public ImportSettlementValidator()
     {

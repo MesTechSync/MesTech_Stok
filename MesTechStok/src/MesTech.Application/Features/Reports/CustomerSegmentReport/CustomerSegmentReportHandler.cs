@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Reports.CustomerSegmentReport;
 /// Orders verisini musteri bazinda gruplayarak siparis sikligi ve tutarina gore segmentler.
 /// Segmentasyon: VIP (5+ siparis veya 10K+ TRY), Regular (2-4 siparis), New (1 siparis), Dormant (0 siparis donemde).
 /// </summary>
-public class CustomerSegmentReportHandler
+public sealed class CustomerSegmentReportHandler
     : IRequestHandler<CustomerSegmentReportQuery, IReadOnlyList<CustomerSegmentReportDto>>
 {
     private readonly IOrderRepository _orderRepository;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.TransferStock;
 
-public class TransferStockValidator : AbstractValidator<TransferStockCommand>
+public sealed class TransferStockValidator : AbstractValidator<TransferStockCommand>
 {
     public TransferStockValidator()
     {

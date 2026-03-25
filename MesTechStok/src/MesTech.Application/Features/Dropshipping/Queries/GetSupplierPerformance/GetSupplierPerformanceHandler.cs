@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Dropshipping.Queries.GetSupplierPerforman
 /// Tedarikçi performans hesaplama handler'ı.
 /// Sipariş verilerinden fulfillment oranı, ortalama teslim süresi ve rating hesaplar.
 /// </summary>
-public class GetSupplierPerformanceHandler
+public sealed class GetSupplierPerformanceHandler
     : IRequestHandler<GetSupplierPerformanceQuery, List<SupplierPerformanceDto>>
 {
     private readonly IDropshipSupplierRepository _supplierRepository;

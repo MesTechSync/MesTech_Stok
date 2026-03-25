@@ -8,7 +8,7 @@ public interface ILeaveApprovedEventHandler
     Task HandleAsync(LeaveApprovedEvent domainEvent, CancellationToken ct);
 }
 
-public class LeaveApprovedEventHandler : ILeaveApprovedEventHandler
+public sealed class LeaveApprovedEventHandler : ILeaveApprovedEventHandler
 {
     private readonly ILogger<LeaveApprovedEventHandler> _logger;
 

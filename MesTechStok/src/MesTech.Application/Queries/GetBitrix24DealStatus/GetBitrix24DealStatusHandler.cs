@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetBitrix24DealStatus;
 
-public class GetBitrix24DealStatusHandler
+public sealed class GetBitrix24DealStatusHandler
     : IRequestHandler<GetBitrix24DealStatusQuery, Bitrix24DealStatusDto?>
 {
     private readonly IBitrix24DealRepository _dealRepository;

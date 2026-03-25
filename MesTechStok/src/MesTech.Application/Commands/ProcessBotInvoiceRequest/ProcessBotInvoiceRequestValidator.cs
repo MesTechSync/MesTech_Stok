@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.ProcessBotInvoiceRequest;
 
-public class ProcessBotInvoiceRequestValidator : AbstractValidator<ProcessBotInvoiceRequestCommand>
+public sealed class ProcessBotInvoiceRequestValidator : AbstractValidator<ProcessBotInvoiceRequestCommand>
 {
     public ProcessBotInvoiceRequestValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.BulkUpdatePrice;
 
-public class BulkUpdatePriceValidator : AbstractValidator<BulkUpdatePriceCommand>
+public sealed class BulkUpdatePriceValidator : AbstractValidator<BulkUpdatePriceCommand>
 {
     public BulkUpdatePriceValidator()
     {

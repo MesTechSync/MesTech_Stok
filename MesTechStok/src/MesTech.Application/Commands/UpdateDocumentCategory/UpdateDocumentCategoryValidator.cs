@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateDocumentCategory;
 
-public class UpdateDocumentCategoryValidator : AbstractValidator<UpdateDocumentCategoryCommand>
+public sealed class UpdateDocumentCategoryValidator : AbstractValidator<UpdateDocumentCategoryCommand>
 {
     public UpdateDocumentCategoryValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Finance.Commands.ApproveExpense;
 
-public class ApproveExpenseValidator : AbstractValidator<ApproveExpenseCommand>
+public sealed class ApproveExpenseValidator : AbstractValidator<ApproveExpenseCommand>
 {
     public ApproveExpenseValidator()
     {

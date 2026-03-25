@@ -12,7 +12,7 @@ namespace MesTech.Application.Features.Reports.CargoPerformanceReport;
 /// Kargo performans raporu handler'i.
 /// CargoExpense + Order (shipment/delivery) verilerini kargo saglayici bazinda gruplar.
 /// </summary>
-public class CargoPerformanceReportHandler
+public sealed class CargoPerformanceReportHandler
     : IRequestHandler<CargoPerformanceReportQuery, IReadOnlyList<CargoPerformanceReportDto>>
 {
     private readonly ICargoExpenseRepository _cargoExpenseRepository;

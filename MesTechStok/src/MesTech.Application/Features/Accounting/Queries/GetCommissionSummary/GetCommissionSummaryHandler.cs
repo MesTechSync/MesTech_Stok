@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
 
-public class GetCommissionSummaryHandler : IRequestHandler<GetCommissionSummaryQuery, CommissionSummaryDto>
+public sealed class GetCommissionSummaryHandler : IRequestHandler<GetCommissionSummaryQuery, CommissionSummaryDto>
 {
     private readonly ICommissionRecordRepository _repository;
 

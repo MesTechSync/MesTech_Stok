@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.System.Users;
 
-public class GetUsersHandler : IRequestHandler<GetUsersQuery, IReadOnlyList<UserListItemDto>>
+public sealed class GetUsersHandler : IRequestHandler<GetUsersQuery, IReadOnlyList<UserListItemDto>>
 {
     private readonly IUserRepository _userRepository;
     private readonly ILogger<GetUsersHandler> _logger;

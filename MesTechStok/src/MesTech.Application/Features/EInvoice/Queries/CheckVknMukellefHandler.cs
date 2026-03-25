@@ -3,7 +3,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Features.EInvoice.Queries;
 
-public class CheckVknMukellefHandler : IRequestHandler<CheckVknMukellefQuery, VknMukellefResult>
+public sealed class CheckVknMukellefHandler : IRequestHandler<CheckVknMukellefQuery, VknMukellefResult>
 {
     private readonly IEInvoiceProvider _eInvoiceProvider;
 

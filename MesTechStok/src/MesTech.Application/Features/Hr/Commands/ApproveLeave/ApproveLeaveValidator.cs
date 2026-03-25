@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Hr.Commands.ApproveLeave;
 
-public class ApproveLeaveValidator : AbstractValidator<ApproveLeaveCommand>
+public sealed class ApproveLeaveValidator : AbstractValidator<ApproveLeaveCommand>
 {
     public ApproveLeaveValidator()
     {

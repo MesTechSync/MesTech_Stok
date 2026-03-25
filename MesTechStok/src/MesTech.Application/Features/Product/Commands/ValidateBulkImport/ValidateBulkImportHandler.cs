@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.Product.Commands.ValidateBulkImport;
 /// <summary>
 /// Excel dosyası validasyon handler'ı.
 /// </summary>
-public class ValidateBulkImportHandler : IRequestHandler<ValidateBulkImportCommand, ImportValidationResult>
+public sealed class ValidateBulkImportHandler : IRequestHandler<ValidateBulkImportCommand, ImportValidationResult>
 {
     private readonly IBulkProductImportService _importService;
 

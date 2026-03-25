@@ -8,7 +8,7 @@ public interface IDailySummaryGeneratedEventHandler
     Task HandleAsync(DailySummaryGeneratedEvent domainEvent, CancellationToken ct);
 }
 
-public class DailySummaryGeneratedEventHandler : IDailySummaryGeneratedEventHandler
+public sealed class DailySummaryGeneratedEventHandler : IDailySummaryGeneratedEventHandler
 {
     private readonly ILogger<DailySummaryGeneratedEventHandler> _logger;
 

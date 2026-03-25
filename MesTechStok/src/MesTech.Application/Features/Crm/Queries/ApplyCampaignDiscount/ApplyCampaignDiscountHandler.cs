@@ -5,7 +5,7 @@ using MesTech.Domain.Services;
 
 namespace MesTech.Application.Features.Crm.Queries.ApplyCampaignDiscount;
 
-public class ApplyCampaignDiscountHandler : IRequestHandler<ApplyCampaignDiscountQuery, CampaignDiscountResultDto>
+public sealed class ApplyCampaignDiscountHandler : IRequestHandler<ApplyCampaignDiscountQuery, CampaignDiscountResultDto>
 {
     private readonly ICampaignRepository _repository;
     private readonly PricingService _pricingService;

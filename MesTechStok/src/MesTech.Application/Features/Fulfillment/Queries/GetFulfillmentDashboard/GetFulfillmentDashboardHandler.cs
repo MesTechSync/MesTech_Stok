@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentDashboard;
 
-public class GetFulfillmentDashboardHandler : IRequestHandler<GetFulfillmentDashboardQuery, FulfillmentDashboardDto>
+public sealed class GetFulfillmentDashboardHandler : IRequestHandler<GetFulfillmentDashboardQuery, FulfillmentDashboardDto>
 {
     private readonly IProductRepository _productRepo;
     private readonly ILogger<GetFulfillmentDashboardHandler> _logger;

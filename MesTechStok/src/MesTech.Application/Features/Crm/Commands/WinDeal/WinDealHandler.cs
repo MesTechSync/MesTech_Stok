@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.WinDeal;
 
-public class WinDealHandler : IRequestHandler<WinDealCommand, Unit>
+public sealed class WinDealHandler : IRequestHandler<WinDealCommand, Unit>
 {
     private readonly ICrmDealRepository _deals;
     private readonly IUnitOfWork _uow;

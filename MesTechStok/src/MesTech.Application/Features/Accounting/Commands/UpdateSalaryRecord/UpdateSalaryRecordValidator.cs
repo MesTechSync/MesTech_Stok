@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateSalaryRecord;
 
-public class UpdateSalaryRecordValidator : AbstractValidator<UpdateSalaryRecordCommand>
+public sealed class UpdateSalaryRecordValidator : AbstractValidator<UpdateSalaryRecordCommand>
 {
     public UpdateSalaryRecordValidator()
     {

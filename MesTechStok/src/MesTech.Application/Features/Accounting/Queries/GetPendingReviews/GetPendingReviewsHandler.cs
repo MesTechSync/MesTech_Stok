@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Queries.GetPendingReviews;
 /// Inceleme bekleyen mutabakat eslestirme isleyicisi.
 /// NeedsReview durumundaki eslestirmeleri, sayfalanmis ve Confidence azalan sirada getirir.
 /// </summary>
-public class GetPendingReviewsHandler : IRequestHandler<GetPendingReviewsQuery, PendingReviewsResult>
+public sealed class GetPendingReviewsHandler : IRequestHandler<GetPendingReviewsQuery, PendingReviewsResult>
 {
     private readonly IReconciliationMatchRepository _matchRepo;
     private readonly ISettlementBatchRepository _settlementRepo;

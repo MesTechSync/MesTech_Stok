@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Erp.Commands.SyncOrderToErp;
 /// SyncOrderToErpCommand handler — siparisi ERP'ye senkronize eder ve sonucu loglar.
 /// Dalga 11: ERP entegrasyonu icin eklendi.
 /// </summary>
-public class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpCommand, ErpSyncResult>
+public sealed class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpCommand, ErpSyncResult>
 {
     private readonly IErpAdapterFactory _adapterFactory;
     private readonly IErpSyncLogRepository _syncLogRepository;

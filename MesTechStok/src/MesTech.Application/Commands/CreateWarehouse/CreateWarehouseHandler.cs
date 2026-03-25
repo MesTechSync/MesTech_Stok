@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateWarehouse;
 
-public class CreateWarehouseHandler : IRequestHandler<CreateWarehouseCommand, CreateWarehouseResult>
+public sealed class CreateWarehouseHandler : IRequestHandler<CreateWarehouseCommand, CreateWarehouseResult>
 {
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IUnitOfWork _unitOfWork;

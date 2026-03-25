@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateFixedExpense;
 
-public class CreateFixedExpenseHandler : IRequestHandler<CreateFixedExpenseCommand, Guid>
+public sealed class CreateFixedExpenseHandler : IRequestHandler<CreateFixedExpenseCommand, Guid>
 {
     private readonly IFixedExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

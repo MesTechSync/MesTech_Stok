@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateTaxRecord;
 
-public class CreateTaxRecordHandler : IRequestHandler<CreateTaxRecordCommand, Guid>
+public sealed class CreateTaxRecordHandler : IRequestHandler<CreateTaxRecordCommand, Guid>
 {
     private readonly ITaxRecordRepository _repository;
     private readonly IUnitOfWork _uow;

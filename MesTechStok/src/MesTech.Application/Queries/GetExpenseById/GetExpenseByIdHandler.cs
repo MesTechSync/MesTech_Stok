@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetExpenseById;
 
-public class GetExpenseByIdHandler : IRequestHandler<GetExpenseByIdQuery, ExpenseDto?>
+public sealed class GetExpenseByIdHandler : IRequestHandler<GetExpenseByIdQuery, ExpenseDto?>
 {
     private readonly IExpenseRepository _repository;
 

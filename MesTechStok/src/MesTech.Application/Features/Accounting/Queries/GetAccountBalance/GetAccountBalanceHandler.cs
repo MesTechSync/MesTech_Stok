@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetAccountBalance;
 
-public class GetAccountBalanceHandler : IRequestHandler<GetAccountBalanceQuery, AccountBalanceDto?>
+public sealed class GetAccountBalanceHandler : IRequestHandler<GetAccountBalanceQuery, AccountBalanceDto?>
 {
     private readonly IChartOfAccountsRepository _accountRepo;
     private readonly IJournalEntryRepository _journalRepo;

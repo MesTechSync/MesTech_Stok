@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateDocumentMetadata;
 
-public class UpdateDocumentMetadataValidator : AbstractValidator<UpdateDocumentMetadataCommand>
+public sealed class UpdateDocumentMetadataValidator : AbstractValidator<UpdateDocumentMetadataCommand>
 {
     public UpdateDocumentMetadataValidator()
     {

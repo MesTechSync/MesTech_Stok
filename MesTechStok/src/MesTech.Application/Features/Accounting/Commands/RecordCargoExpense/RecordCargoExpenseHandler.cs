@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.RecordCargoExpense;
 
-public class RecordCargoExpenseHandler : IRequestHandler<RecordCargoExpenseCommand, Guid>
+public sealed class RecordCargoExpenseHandler : IRequestHandler<RecordCargoExpenseCommand, Guid>
 {
     private readonly ICargoExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

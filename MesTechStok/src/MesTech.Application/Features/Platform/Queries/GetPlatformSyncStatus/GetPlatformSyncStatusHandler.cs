@@ -6,7 +6,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 
-public class GetPlatformSyncStatusHandler
+public sealed class GetPlatformSyncStatusHandler
     : IRequestHandler<GetPlatformSyncStatusQuery, List<PlatformSyncStatusDto>>
 {
     private readonly IStoreRepository _storeRepository;

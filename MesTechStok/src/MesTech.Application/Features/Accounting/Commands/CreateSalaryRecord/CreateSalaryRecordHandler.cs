@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateSalaryRecord;
 
-public class CreateSalaryRecordHandler : IRequestHandler<CreateSalaryRecordCommand, Guid>
+public sealed class CreateSalaryRecordHandler : IRequestHandler<CreateSalaryRecordCommand, Guid>
 {
     private readonly ISalaryRecordRepository _repository;
     private readonly IUnitOfWork _uow;

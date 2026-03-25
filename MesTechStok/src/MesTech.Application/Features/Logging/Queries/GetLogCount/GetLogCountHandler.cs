@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Logging.Queries.GetLogCount;
 
-public class GetLogCountHandler : IRequestHandler<GetLogCountQuery, long>
+public sealed class GetLogCountHandler : IRequestHandler<GetLogCountQuery, long>
 {
     private readonly ILogEntryRepository _repo;
 

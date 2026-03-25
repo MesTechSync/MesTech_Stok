@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Crm.Commands.LoseDeal;
 
-public class LoseDealValidator : AbstractValidator<LoseDealCommand>
+public sealed class LoseDealValidator : AbstractValidator<LoseDealCommand>
 {
     public LoseDealValidator()
     {

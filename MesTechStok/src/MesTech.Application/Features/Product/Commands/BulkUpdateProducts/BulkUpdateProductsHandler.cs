@@ -10,7 +10,7 @@ namespace MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
 /// Toplu ürün güncelleme handler'ı.
 /// Batch processing ile seçili ürünlere aksiyon uygular.
 /// </summary>
-public class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProductsCommand, int>
+public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProductsCommand, int>
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _uow;

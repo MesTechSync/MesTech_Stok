@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCounterparties;
 
-public class GetCounterpartiesHandler : IRequestHandler<GetCounterpartiesQuery, IReadOnlyList<CounterpartyDto>>
+public sealed class GetCounterpartiesHandler : IRequestHandler<GetCounterpartiesQuery, IReadOnlyList<CounterpartyDto>>
 {
     private readonly ICounterpartyRepository _repository;
 

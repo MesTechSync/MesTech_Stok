@@ -6,7 +6,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
 
-public class GetDropshipDashboardHandler
+public sealed class GetDropshipDashboardHandler
     : IRequestHandler<GetDropshipDashboardQuery, DropshipDashboardDto>
 {
     private readonly IDropshipSupplierRepository _supplierRepository;

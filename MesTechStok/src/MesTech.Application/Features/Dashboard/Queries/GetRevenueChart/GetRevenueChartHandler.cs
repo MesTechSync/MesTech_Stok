@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Dashboard.Queries.GetRevenueChart;
 /// Siparisleri gune gore gruplar, son N gun icin gelir ve siparis sayisi hesaplar.
 /// Siparis olmayan gunler sifir olarak doldurulur.
 /// </summary>
-public class GetRevenueChartHandler : IRequestHandler<GetRevenueChartQuery, IReadOnlyList<RevenueChartPointDto>>
+public sealed class GetRevenueChartHandler : IRequestHandler<GetRevenueChartQuery, IReadOnlyList<RevenueChartPointDto>>
 {
     private readonly IOrderRepository _orderRepository;
 

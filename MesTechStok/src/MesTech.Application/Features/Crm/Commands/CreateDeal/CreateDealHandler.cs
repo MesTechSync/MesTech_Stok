@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateDeal;
 
-public class CreateDealHandler : IRequestHandler<CreateDealCommand, Guid>
+public sealed class CreateDealHandler : IRequestHandler<CreateDealCommand, Guid>
 {
     private readonly ICrmDealRepository _repository;
     private readonly IUnitOfWork _uow;

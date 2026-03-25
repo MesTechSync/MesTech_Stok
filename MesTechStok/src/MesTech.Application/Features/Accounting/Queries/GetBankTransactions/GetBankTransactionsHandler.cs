@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetBankTransactions;
 
-public class GetBankTransactionsHandler : IRequestHandler<GetBankTransactionsQuery, IReadOnlyList<BankTransactionDto>>
+public sealed class GetBankTransactionsHandler : IRequestHandler<GetBankTransactionsQuery, IReadOnlyList<BankTransactionDto>>
 {
     private readonly IBankTransactionRepository _repository;
 

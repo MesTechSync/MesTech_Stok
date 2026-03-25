@@ -11,7 +11,7 @@ public interface IPaymentFailedEventHandler
     Task HandleAsync(Guid tenantId, Guid subscriptionId, string? errorMessage, string? errorCode, int failureCount, CancellationToken ct);
 }
 
-public class PaymentFailedEventHandler : IPaymentFailedEventHandler
+public sealed class PaymentFailedEventHandler : IPaymentFailedEventHandler
 {
     private readonly ILogger<PaymentFailedEventHandler> _logger;
 

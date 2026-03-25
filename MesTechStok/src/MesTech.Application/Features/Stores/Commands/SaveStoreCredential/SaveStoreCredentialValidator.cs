@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Stores.Commands.SaveStoreCredential;
 
-public class SaveStoreCredentialValidator : AbstractValidator<SaveStoreCredentialCommand>
+public sealed class SaveStoreCredentialValidator : AbstractValidator<SaveStoreCredentialCommand>
 {
     private static readonly string[] ValidCredentialTypes = { "api_key", "oauth2", "soap" };
 

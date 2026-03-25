@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.PreviewFeed;
 
-public class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, FeedPreviewDto>
+public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, FeedPreviewDto>
 {
     private readonly ISupplierFeedRepository _feedRepository;
     private readonly IDropshipProductRepository _productRepository;

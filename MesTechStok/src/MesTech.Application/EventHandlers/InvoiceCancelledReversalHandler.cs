@@ -16,7 +16,7 @@ public interface IInvoiceCancelledReversalHandler
         CancellationToken ct);
 }
 
-public class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalHandler
+public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<InvoiceCancelledReversalHandler> _logger;

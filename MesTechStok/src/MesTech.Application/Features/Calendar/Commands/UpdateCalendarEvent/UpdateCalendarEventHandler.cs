@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Calendar.Commands.UpdateCalendarEvent;
 
-public class UpdateCalendarEventHandler : IRequestHandler<UpdateCalendarEventCommand>
+public sealed class UpdateCalendarEventHandler : IRequestHandler<UpdateCalendarEventCommand>
 {
     private readonly ICalendarEventRepository _repository;
     private readonly IUnitOfWork _uow;

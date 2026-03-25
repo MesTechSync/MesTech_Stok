@@ -13,7 +13,7 @@ public interface IStaleOrderEventHandler
     Task HandleAsync(Guid orderId, string orderNumber, PlatformType? platform, TimeSpan elapsedSince, Guid tenantId, CancellationToken ct);
 }
 
-public class StaleOrderDetectedEventHandler : IStaleOrderEventHandler
+public sealed class StaleOrderDetectedEventHandler : IStaleOrderEventHandler
 {
     private readonly ILogger<StaleOrderDetectedEventHandler> _logger;
 

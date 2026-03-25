@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Onboarding.Queries.GetV5ReadinessCheck;
 
-public class GetV5ReadinessCheckHandler
+public sealed class GetV5ReadinessCheckHandler
     : IRequestHandler<GetV5ReadinessCheckQuery, V5ReadinessCheckDto>
 {
     private readonly IOnboardingProgressRepository _onboardingRepo;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Billing.Commands.CancelSubscription;
 
-public class CancelSubscriptionValidator : AbstractValidator<CancelSubscriptionCommand>
+public sealed class CancelSubscriptionValidator : AbstractValidator<CancelSubscriptionCommand>
 {
     public CancelSubscriptionValidator()
     {

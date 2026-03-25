@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
 
-public class CreateJournalEntryHandler : IRequestHandler<CreateJournalEntryCommand, Guid>
+public sealed class CreateJournalEntryHandler : IRequestHandler<CreateJournalEntryCommand, Guid>
 {
     private readonly IJournalEntryRepository _repository;
     private readonly IUnitOfWork _uow;

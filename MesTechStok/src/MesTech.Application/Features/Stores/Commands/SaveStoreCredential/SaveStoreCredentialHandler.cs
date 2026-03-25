@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Stores.Commands.SaveStoreCredential;
 
-public class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCommand, Guid>
+public sealed class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCredentialCommand, Guid>
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IStoreCredentialRepository _credentialRepository;

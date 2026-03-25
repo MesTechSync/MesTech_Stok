@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Finance.Commands.CreateCashRegister;
 
-public class CreateCashRegisterHandler : IRequestHandler<CreateCashRegisterCommand, Guid>
+public sealed class CreateCashRegisterHandler : IRequestHandler<CreateCashRegisterCommand, Guid>
 {
     private readonly ICashRegisterRepository _repository;
     private readonly IUnitOfWork _uow;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.UpdateBotNotificationStatus;
 
-public class UpdateBotNotificationStatusValidator : AbstractValidator<UpdateBotNotificationStatusCommand>
+public sealed class UpdateBotNotificationStatusValidator : AbstractValidator<UpdateBotNotificationStatusCommand>
 {
     public UpdateBotNotificationStatusValidator()
     {

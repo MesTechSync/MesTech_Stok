@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.DeleteExpense;
 
-public class DeleteExpenseValidator : AbstractValidator<DeleteExpenseCommand>
+public sealed class DeleteExpenseValidator : AbstractValidator<DeleteExpenseCommand>
 {
     public DeleteExpenseValidator()
     {

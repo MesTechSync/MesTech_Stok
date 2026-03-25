@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Reports.OrderFulfillmentReport;
 /// Siparis karsilama raporu handler'i.
 /// Order verilerini platform bazinda gruplayarak gonderi suresi metrikleri hesaplar.
 /// </summary>
-public class OrderFulfillmentReportHandler
+public sealed class OrderFulfillmentReportHandler
     : IRequestHandler<OrderFulfillmentReportQuery, IReadOnlyList<OrderFulfillmentReportDto>>
 {
     private readonly IOrderRepository _orderRepository;

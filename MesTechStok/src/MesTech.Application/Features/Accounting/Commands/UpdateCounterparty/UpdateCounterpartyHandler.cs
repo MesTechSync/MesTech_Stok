@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateCounterparty;
 
-public class UpdateCounterpartyHandler : IRequestHandler<UpdateCounterpartyCommand, bool>
+public sealed class UpdateCounterpartyHandler : IRequestHandler<UpdateCounterpartyCommand, bool>
 {
     private readonly ICounterpartyRepository _repository;
     private readonly IUnitOfWork _uow;

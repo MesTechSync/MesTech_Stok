@@ -12,7 +12,7 @@ namespace MesTech.Application.Features.Reports.PlatformSalesReport;
 /// Platform satis raporu handler'i.
 /// Orders + CommissionRecords + SettlementBatches verilerini platform bazinda gruplar.
 /// </summary>
-public class PlatformSalesReportHandler
+public sealed class PlatformSalesReportHandler
     : IRequestHandler<PlatformSalesReportQuery, IReadOnlyList<PlatformSalesReportDto>>
 {
     private readonly IOrderRepository _orderRepository;

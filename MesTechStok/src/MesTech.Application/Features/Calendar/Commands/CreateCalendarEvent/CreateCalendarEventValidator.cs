@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Calendar.Commands.CreateCalendarEvent;
 
-public class CreateCalendarEventValidator : AbstractValidator<CreateCalendarEventCommand>
+public sealed class CreateCalendarEventValidator : AbstractValidator<CreateCalendarEventCommand>
 {
     public CreateCalendarEventValidator()
     {

@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Reporting.Queries.GetSavedReports;
 /// Kaydedilmis rapor listeleme handler'i.
 /// Tenant bazli filtreleme ile raporlari dondurur.
 /// </summary>
-public class GetSavedReportsHandler
+public sealed class GetSavedReportsHandler
     : IRequestHandler<GetSavedReportsQuery, IReadOnlyList<SavedReportListDto>>
 {
     private readonly ISavedReportRepository _savedReportRepository;

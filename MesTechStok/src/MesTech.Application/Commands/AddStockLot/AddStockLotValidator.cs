@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.AddStockLot;
 
-public class AddStockLotValidator : AbstractValidator<AddStockLotCommand>
+public sealed class AddStockLotValidator : AbstractValidator<AddStockLotCommand>
 {
     public AddStockLotValidator()
     {

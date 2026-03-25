@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetQuotationById;
 
-public class GetQuotationByIdHandler : IRequestHandler<GetQuotationByIdQuery, QuotationDto?>
+public sealed class GetQuotationByIdHandler : IRequestHandler<GetQuotationByIdQuery, QuotationDto?>
 {
     private readonly IQuotationRepository _quotationRepository;
 

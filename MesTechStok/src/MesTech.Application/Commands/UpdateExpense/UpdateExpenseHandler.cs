@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateExpense;
 
-public class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
+public sealed class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
 {
     private readonly IExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

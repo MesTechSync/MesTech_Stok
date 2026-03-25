@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.FinalizeErpReconciliation;
 
-public class FinalizeErpReconciliationValidator : AbstractValidator<FinalizeErpReconciliationCommand>
+public sealed class FinalizeErpReconciliationValidator : AbstractValidator<FinalizeErpReconciliationCommand>
 {
     public FinalizeErpReconciliationValidator()
     {

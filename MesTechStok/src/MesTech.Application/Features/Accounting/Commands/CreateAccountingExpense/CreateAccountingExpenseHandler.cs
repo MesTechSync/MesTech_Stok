@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateAccountingExpense;
 
-public class CreateAccountingExpenseHandler : IRequestHandler<CreateAccountingExpenseCommand, Guid>
+public sealed class CreateAccountingExpenseHandler : IRequestHandler<CreateAccountingExpenseCommand, Guid>
 {
     private readonly IPersonalExpenseRepository _repository;
     private readonly IUnitOfWork _uow;

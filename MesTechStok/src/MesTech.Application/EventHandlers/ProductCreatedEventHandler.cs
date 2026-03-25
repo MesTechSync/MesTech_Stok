@@ -8,7 +8,7 @@ public interface IProductCreatedEventHandler
     Task HandleAsync(ProductCreatedEvent domainEvent, CancellationToken ct);
 }
 
-public class ProductCreatedEventHandler : IProductCreatedEventHandler
+public sealed class ProductCreatedEventHandler : IProductCreatedEventHandler
 {
     private readonly ILogger<ProductCreatedEventHandler> _logger;
 

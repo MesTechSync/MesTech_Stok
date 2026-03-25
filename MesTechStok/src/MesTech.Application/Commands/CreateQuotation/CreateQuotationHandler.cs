@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateQuotation;
 
-public class CreateQuotationHandler : IRequestHandler<CreateQuotationCommand, CreateQuotationResult>
+public sealed class CreateQuotationHandler : IRequestHandler<CreateQuotationCommand, CreateQuotationResult>
 {
     private readonly IQuotationRepository _quotationRepository;
     private readonly IUnitOfWork _unitOfWork;

@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 
-public class GetBillingInvoicesHandler : IRequestHandler<GetBillingInvoicesQuery, IReadOnlyList<BillingInvoiceDto>>
+public sealed class GetBillingInvoicesHandler : IRequestHandler<GetBillingInvoicesQuery, IReadOnlyList<BillingInvoiceDto>>
 {
     private readonly IBillingInvoiceRepository _repository;
 

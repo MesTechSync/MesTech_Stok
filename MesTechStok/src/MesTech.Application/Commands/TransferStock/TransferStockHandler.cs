@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.TransferStock;
 
-public class TransferStockHandler : IRequestHandler<TransferStockCommand, TransferStockResult>
+public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand, TransferStockResult>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;

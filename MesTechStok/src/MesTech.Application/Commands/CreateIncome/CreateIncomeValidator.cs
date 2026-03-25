@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateIncome;
 
-public class CreateIncomeValidator : AbstractValidator<CreateIncomeCommand>
+public sealed class CreateIncomeValidator : AbstractValidator<CreateIncomeCommand>
 {
     public CreateIncomeValidator()
     {

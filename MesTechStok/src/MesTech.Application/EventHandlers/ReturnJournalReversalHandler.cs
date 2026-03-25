@@ -17,7 +17,7 @@ public interface IReturnJournalReversalHandler
         CancellationToken ct);
 }
 
-public class ReturnJournalReversalHandler : IReturnJournalReversalHandler
+public sealed class ReturnJournalReversalHandler : IReturnJournalReversalHandler
 {
     private readonly IUnitOfWork _uow;
     private readonly ILogger<ReturnJournalReversalHandler> _logger;

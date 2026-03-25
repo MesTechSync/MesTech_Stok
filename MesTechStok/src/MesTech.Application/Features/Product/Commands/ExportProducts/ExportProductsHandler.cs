@@ -6,7 +6,7 @@ namespace MesTech.Application.Features.Product.Commands.ExportProducts;
 /// <summary>
 /// Ürün export handler'ı — Excel dosyası üretir.
 /// </summary>
-public class ExportProductsHandler : IRequestHandler<ExportProductsCommand, byte[]>
+public sealed class ExportProductsHandler : IRequestHandler<ExportProductsCommand, byte[]>
 {
     private readonly IBulkProductImportService _importService;
 

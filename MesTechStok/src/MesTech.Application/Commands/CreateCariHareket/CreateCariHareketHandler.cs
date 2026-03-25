@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.CreateCariHareket;
 
-public class CreateCariHareketHandler : IRequestHandler<CreateCariHareketCommand, Guid>
+public sealed class CreateCariHareketHandler : IRequestHandler<CreateCariHareketCommand, Guid>
 {
     private readonly ICariHareketRepository _cariHareketRepository;
     private readonly IUnitOfWork _unitOfWork;

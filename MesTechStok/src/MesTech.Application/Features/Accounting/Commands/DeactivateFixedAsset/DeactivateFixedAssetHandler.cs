@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
 /// Sabit kiymet pasife alma handler.
 /// Entity'yi yukler, Deactivate() domain metodunu calistirir, kaydeder.
 /// </summary>
-public class DeactivateFixedAssetHandler : IRequestHandler<DeactivateFixedAssetCommand, Unit>
+public sealed class DeactivateFixedAssetHandler : IRequestHandler<DeactivateFixedAssetCommand, Unit>
 {
     private readonly IFixedAssetRepository _repository;
     private readonly IUnitOfWork _uow;

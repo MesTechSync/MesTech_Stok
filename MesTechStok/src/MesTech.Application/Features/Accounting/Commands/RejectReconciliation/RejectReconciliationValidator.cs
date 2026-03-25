@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.RejectReconciliation;
 
-public class RejectReconciliationValidator : AbstractValidator<RejectReconciliationCommand>
+public sealed class RejectReconciliationValidator : AbstractValidator<RejectReconciliationCommand>
 {
     public RejectReconciliationValidator()
     {

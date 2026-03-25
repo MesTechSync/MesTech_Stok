@@ -8,7 +8,7 @@ public interface IExpensePaidEventHandler
     Task HandleAsync(ExpensePaidEvent domainEvent, CancellationToken ct);
 }
 
-public class ExpensePaidEventHandler : IExpensePaidEventHandler
+public sealed class ExpensePaidEventHandler : IExpensePaidEventHandler
 {
     private readonly ILogger<ExpensePaidEventHandler> _logger;
 

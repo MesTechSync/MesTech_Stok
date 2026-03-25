@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 
-public class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDataQuery, PersonalDataExportDto>
+public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDataQuery, PersonalDataExportDto>
 {
     private readonly ITenantRepository _tenantRepo;
     private readonly ILogger<ExportPersonalDataHandler> _logger;

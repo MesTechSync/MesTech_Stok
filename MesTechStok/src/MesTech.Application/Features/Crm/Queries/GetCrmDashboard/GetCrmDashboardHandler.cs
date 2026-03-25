@@ -4,7 +4,7 @@ using MesTech.Application.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetCrmDashboard;
 
-public class GetCrmDashboardHandler : IRequestHandler<GetCrmDashboardQuery, CrmDashboardDto>
+public sealed class GetCrmDashboardHandler : IRequestHandler<GetCrmDashboardQuery, CrmDashboardDto>
 {
     private readonly ICrmDashboardQueryService _queryService;
 

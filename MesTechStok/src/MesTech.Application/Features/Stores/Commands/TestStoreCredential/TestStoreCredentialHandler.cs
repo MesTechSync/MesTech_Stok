@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Stores.Commands.TestStoreCredential;
 
-public class TestStoreCredentialHandler : IRequestHandler<TestStoreCredentialCommand, CredentialTestResult>
+public sealed class TestStoreCredentialHandler : IRequestHandler<TestStoreCredentialCommand, CredentialTestResult>
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IStoreCredentialRepository _credentialRepository;

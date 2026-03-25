@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetWarehouseStock;
 
-public class GetWarehouseStockHandler : IRequestHandler<GetWarehouseStockQuery, IReadOnlyList<WarehouseStockDto>>
+public sealed class GetWarehouseStockHandler : IRequestHandler<GetWarehouseStockQuery, IReadOnlyList<WarehouseStockDto>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IWarehouseRepository _warehouseRepository;

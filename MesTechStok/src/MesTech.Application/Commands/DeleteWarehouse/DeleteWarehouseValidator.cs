@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.DeleteWarehouse;
 
-public class DeleteWarehouseValidator : AbstractValidator<DeleteWarehouseCommand>
+public sealed class DeleteWarehouseValidator : AbstractValidator<DeleteWarehouseCommand>
 {
     public DeleteWarehouseValidator()
     {

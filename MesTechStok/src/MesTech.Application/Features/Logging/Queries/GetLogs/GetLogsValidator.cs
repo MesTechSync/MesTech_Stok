@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Logging.Queries.GetLogs;
 
-public class GetLogsValidator : AbstractValidator<GetLogsQuery>
+public sealed class GetLogsValidator : AbstractValidator<GetLogsQuery>
 {
     public GetLogsValidator()
     {

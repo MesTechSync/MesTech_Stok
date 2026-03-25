@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Reports.PlatformPerformanceReport;
 
-public class PlatformPerformanceReportHandler
+public sealed class PlatformPerformanceReportHandler
     : IRequestHandler<PlatformPerformanceReportQuery, PlatformPerformanceReportDto>
 {
     private readonly IOrderRepository _orderRepo;

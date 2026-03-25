@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Reports.InventoryValuationReport;
 /// Envanter degerleme raporu handler'i.
 /// Product verilerini ceker, stok x maliyet hesabi yapar ve kategori filtrelemesi uygular.
 /// </summary>
-public class InventoryValuationReportHandler
+public sealed class InventoryValuationReportHandler
     : IRequestHandler<InventoryValuationReportQuery, IReadOnlyList<InventoryValuationReportDto>>
 {
     private readonly IProductRepository _productRepository;

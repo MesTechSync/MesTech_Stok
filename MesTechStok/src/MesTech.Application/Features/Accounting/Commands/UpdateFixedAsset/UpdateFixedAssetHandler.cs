@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Commands.UpdateFixedAsset;
 /// Entity'yi yukler, duzenlenebilir alanlari gunceller, kaydeder.
 /// AcquisitionCost immutable oldugu icin degistirilmez.
 /// </summary>
-public class UpdateFixedAssetHandler : IRequestHandler<UpdateFixedAssetCommand, Unit>
+public sealed class UpdateFixedAssetHandler : IRequestHandler<UpdateFixedAssetCommand, Unit>
 {
     private readonly IFixedAssetRepository _repository;
     private readonly IUnitOfWork _uow;

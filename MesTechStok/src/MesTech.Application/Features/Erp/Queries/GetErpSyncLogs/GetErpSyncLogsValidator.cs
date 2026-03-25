@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
 
-public class GetErpSyncLogsValidator : AbstractValidator<GetErpSyncLogsQuery>
+public sealed class GetErpSyncLogsValidator : AbstractValidator<GetErpSyncLogsQuery>
 {
     public GetErpSyncLogsValidator()
     {

@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Accounting.Commands.ApproveReconciliation
 /// Status=ManualMatch, ReviewedBy ve ReviewedAt guncellenir.
 /// Iliskilendirilen BankTransaction da reconciled olarak isaretlenir.
 /// </summary>
-public class ApproveReconciliationHandler : IRequestHandler<ApproveReconciliationCommand, Unit>
+public sealed class ApproveReconciliationHandler : IRequestHandler<ApproveReconciliationCommand, Unit>
 {
     private readonly IReconciliationMatchRepository _matchRepo;
     private readonly IBankTransactionRepository _bankTxRepo;

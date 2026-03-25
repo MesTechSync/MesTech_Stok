@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
 
-public class DeactivateFixedAssetValidator : AbstractValidator<DeactivateFixedAssetCommand>
+public sealed class DeactivateFixedAssetValidator : AbstractValidator<DeactivateFixedAssetCommand>
 {
     public DeactivateFixedAssetValidator()
     {

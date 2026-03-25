@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Product.Commands.ExecuteBulkImport;
 /// Toplu ürün import handler'ı.
 /// Validasyon + import pipeline'ını orchestrate eder.
 /// </summary>
-public class ExecuteBulkImportHandler : IRequestHandler<ExecuteBulkImportCommand, ImportResult>
+public sealed class ExecuteBulkImportHandler : IRequestHandler<ExecuteBulkImportCommand, ImportResult>
 {
     private readonly IBulkProductImportService _importService;
 

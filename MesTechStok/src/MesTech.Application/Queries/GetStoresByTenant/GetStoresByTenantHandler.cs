@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Queries.GetStoresByTenant;
 
-public class GetStoresByTenantHandler : IRequestHandler<GetStoresByTenantQuery, IReadOnlyList<StoreDto>>
+public sealed class GetStoresByTenantHandler : IRequestHandler<GetStoresByTenantQuery, IReadOnlyList<StoreDto>>
 {
     private readonly IStoreRepository _storeRepository;
 

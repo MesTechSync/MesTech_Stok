@@ -7,7 +7,7 @@ namespace MesTech.Application.Features.System.UserNotifications.Commands.MarkAll
 /// Kullanicinin tum bildirimlerini okundu olarak isaretleme handler'i.
 /// Okunmamis tum bildirimler icin MarkAsRead() cagrilir.
 /// </summary>
-public class MarkAllUserNotificationsReadHandler
+public sealed class MarkAllUserNotificationsReadHandler
     : IRequestHandler<MarkAllUserNotificationsReadCommand, int>
 {
     private readonly IUserNotificationRepository _repository;

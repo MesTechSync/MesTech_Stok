@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.UpdateCounterparty;
 
-public class UpdateCounterpartyValidator : AbstractValidator<UpdateCounterpartyCommand>
+public sealed class UpdateCounterpartyValidator : AbstractValidator<UpdateCounterpartyCommand>
 {
     public UpdateCounterpartyValidator()
     {

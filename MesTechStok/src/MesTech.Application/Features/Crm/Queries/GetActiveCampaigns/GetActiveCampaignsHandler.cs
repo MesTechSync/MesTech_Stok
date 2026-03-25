@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Queries.GetActiveCampaigns;
 
-public class GetActiveCampaignsHandler : IRequestHandler<GetActiveCampaignsQuery, GetActiveCampaignsResult>
+public sealed class GetActiveCampaignsHandler : IRequestHandler<GetActiveCampaignsQuery, GetActiveCampaignsResult>
 {
     private readonly ICampaignRepository _repository;
 

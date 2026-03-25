@@ -4,7 +4,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.CreateLead;
 
-public class CreateLeadHandler : IRequestHandler<CreateLeadCommand, Guid>
+public sealed class CreateLeadHandler : IRequestHandler<CreateLeadCommand, Guid>
 {
     private readonly ICrmLeadRepository _repository;
     private readonly IUnitOfWork _uow;

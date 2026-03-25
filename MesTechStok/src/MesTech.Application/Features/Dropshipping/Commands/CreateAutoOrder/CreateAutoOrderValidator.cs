@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands.CreateAutoOrder;
 
-public class CreateAutoOrderValidator : AbstractValidator<CreateAutoOrderCommand>
+public sealed class CreateAutoOrderValidator : AbstractValidator<CreateAutoOrderCommand>
 {
     public CreateAutoOrderValidator()
     {

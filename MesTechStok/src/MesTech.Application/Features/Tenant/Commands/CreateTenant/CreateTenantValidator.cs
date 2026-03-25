@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Tenant.Commands.CreateTenant;
 
-public class CreateTenantValidator : AbstractValidator<CreateTenantCommand>
+public sealed class CreateTenantValidator : AbstractValidator<CreateTenantCommand>
 {
     public CreateTenantValidator()
     {

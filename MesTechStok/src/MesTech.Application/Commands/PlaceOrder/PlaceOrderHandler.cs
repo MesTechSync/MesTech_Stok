@@ -6,7 +6,7 @@ using MesTech.Domain.Services;
 
 namespace MesTech.Application.Commands.PlaceOrder;
 
-public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, PlaceOrderResult>
+public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, PlaceOrderResult>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;

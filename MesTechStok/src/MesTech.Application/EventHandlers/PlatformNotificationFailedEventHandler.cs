@@ -12,7 +12,7 @@ public interface IPlatformNotificationFailedEventHandler
     Task HandleAsync(PlatformNotificationFailedEvent domainEvent, CancellationToken ct);
 }
 
-public class PlatformNotificationFailedEventHandler : IPlatformNotificationFailedEventHandler
+public sealed class PlatformNotificationFailedEventHandler : IPlatformNotificationFailedEventHandler
 {
     private readonly ILogger<PlatformNotificationFailedEventHandler> _logger;
 

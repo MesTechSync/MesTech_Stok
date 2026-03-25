@@ -11,7 +11,7 @@ public interface IDealStageChangedEventHandler
     Task HandleAsync(DealStageChangedEvent domainEvent, CancellationToken ct);
 }
 
-public class DealStageChangedEventHandler : IDealStageChangedEventHandler
+public sealed class DealStageChangedEventHandler : IDealStageChangedEventHandler
 {
     private readonly ILogger<DealStageChangedEventHandler> _logger;
 

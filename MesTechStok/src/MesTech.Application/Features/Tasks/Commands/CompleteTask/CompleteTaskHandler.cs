@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Tasks.Commands.CompleteTask;
 
-public class CompleteTaskHandler : IRequestHandler<CompleteTaskCommand, Unit>
+public sealed class CompleteTaskHandler : IRequestHandler<CompleteTaskCommand, Unit>
 {
     private readonly IWorkTaskRepository _tasks;
     private readonly IUnitOfWork _uow;

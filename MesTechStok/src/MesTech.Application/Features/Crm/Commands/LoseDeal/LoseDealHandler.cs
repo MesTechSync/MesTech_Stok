@@ -3,7 +3,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.LoseDeal;
 
-public class LoseDealHandler : IRequestHandler<LoseDealCommand, Unit>
+public sealed class LoseDealHandler : IRequestHandler<LoseDealCommand, Unit>
 {
     private readonly ICrmDealRepository _deals;
     private readonly IUnitOfWork _uow;

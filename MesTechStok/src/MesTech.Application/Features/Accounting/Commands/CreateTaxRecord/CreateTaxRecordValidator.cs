@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.CreateTaxRecord;
 
-public class CreateTaxRecordValidator : AbstractValidator<CreateTaxRecordCommand>
+public sealed class CreateTaxRecordValidator : AbstractValidator<CreateTaxRecordCommand>
 {
     public CreateTaxRecordValidator()
     {

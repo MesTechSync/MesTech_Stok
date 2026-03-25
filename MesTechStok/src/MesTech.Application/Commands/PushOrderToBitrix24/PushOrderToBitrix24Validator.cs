@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.PushOrderToBitrix24;
 
-public class PushOrderToBitrix24Validator : AbstractValidator<PushOrderToBitrix24Command>
+public sealed class PushOrderToBitrix24Validator : AbstractValidator<PushOrderToBitrix24Command>
 {
     public PushOrderToBitrix24Validator()
     {

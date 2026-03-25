@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Dropshipping.Commands;
 
-public class TriggerFeedImportValidator : AbstractValidator<TriggerFeedImportCommand>
+public sealed class TriggerFeedImportValidator : AbstractValidator<TriggerFeedImportCommand>
 {
     public TriggerFeedImportValidator()
     {

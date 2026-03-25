@@ -8,7 +8,7 @@ namespace MesTech.Application.Features.Reports.StockTurnoverReport;
 /// Stok devir hizi raporu handler'i.
 /// StockMovement + Product verilerini urun bazinda gruplayarak devir metrikleri hesaplar.
 /// </summary>
-public class StockTurnoverReportHandler
+public sealed class StockTurnoverReportHandler
     : IRequestHandler<StockTurnoverReportQuery, IReadOnlyList<StockTurnoverReportDto>>
 {
     private readonly IStockMovementRepository _movementRepository;

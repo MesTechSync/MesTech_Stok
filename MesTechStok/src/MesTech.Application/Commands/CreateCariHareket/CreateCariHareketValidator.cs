@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateCariHareket;
 
-public class CreateCariHareketValidator : AbstractValidator<CreateCariHareketCommand>
+public sealed class CreateCariHareketValidator : AbstractValidator<CreateCariHareketCommand>
 {
     public CreateCariHareketValidator()
     {

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Billing.Commands.CreateSubscription;
 
-public class CreateSubscriptionValidator : AbstractValidator<CreateSubscriptionCommand>
+public sealed class CreateSubscriptionValidator : AbstractValidator<CreateSubscriptionCommand>
 {
     public CreateSubscriptionValidator()
     {

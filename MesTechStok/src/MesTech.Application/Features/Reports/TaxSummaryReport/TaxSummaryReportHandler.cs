@@ -9,7 +9,7 @@ namespace MesTech.Application.Features.Reports.TaxSummaryReport;
 /// Orders verilerinden aylık bazda KDV ozeti hesaplar.
 /// Gercek uretimde fatura verisi (Invoice) ile zenginlestirilecektir.
 /// </summary>
-public class TaxSummaryReportHandler
+public sealed class TaxSummaryReportHandler
     : IRequestHandler<TaxSummaryReportQuery, IReadOnlyList<TaxSummaryReportDto>>
 {
     private readonly IOrderRepository _orderRepository;

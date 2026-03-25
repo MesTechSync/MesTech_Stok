@@ -8,7 +8,7 @@ public interface IBankStatementImportedEventHandler
     Task HandleAsync(BankStatementImportedEvent domainEvent, CancellationToken ct);
 }
 
-public class BankStatementImportedEventHandler : IBankStatementImportedEventHandler
+public sealed class BankStatementImportedEventHandler : IBankStatementImportedEventHandler
 {
     private readonly ILogger<BankStatementImportedEventHandler> _logger;
 

@@ -5,7 +5,7 @@ using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Crm.Commands.RedeemPoints;
 
-public class RedeemPointsHandler : IRequestHandler<RedeemPointsCommand, RedeemPointsResult>
+public sealed class RedeemPointsHandler : IRequestHandler<RedeemPointsCommand, RedeemPointsResult>
 {
     private readonly ILoyaltyProgramRepository _programRepo;
     private readonly ILoyaltyTransactionRepository _transactionRepo;

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Notifications.Commands.UpdateNotificationSettings;
 
-public class UpdateNotificationSettingsValidator : AbstractValidator<UpdateNotificationSettingsCommand>
+public sealed class UpdateNotificationSettingsValidator : AbstractValidator<UpdateNotificationSettingsCommand>
 {
     public UpdateNotificationSettingsValidator()
     {

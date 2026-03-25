@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Features.Accounting.Commands.UploadAccountingDocument;
 
-public class UploadAccountingDocumentValidator : AbstractValidator<UploadAccountingDocumentCommand>
+public sealed class UploadAccountingDocumentValidator : AbstractValidator<UploadAccountingDocumentCommand>
 {
     public UploadAccountingDocumentValidator()
     {

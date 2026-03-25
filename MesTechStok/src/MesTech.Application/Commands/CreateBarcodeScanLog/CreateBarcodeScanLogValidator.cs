@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace MesTech.Application.Commands.CreateBarcodeScanLog;
 
-public class CreateBarcodeScanLogValidator : AbstractValidator<CreateBarcodeScanLogCommand>
+public sealed class CreateBarcodeScanLogValidator : AbstractValidator<CreateBarcodeScanLogCommand>
 {
     public CreateBarcodeScanLogValidator()
     {

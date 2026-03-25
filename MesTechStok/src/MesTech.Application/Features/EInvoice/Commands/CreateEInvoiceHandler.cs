@@ -4,7 +4,7 @@ using MesTech.Domain.Entities.EInvoice;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
-public class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceCommand, Guid>
+public sealed class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceCommand, Guid>
 {
     private readonly IEInvoiceDocumentRepository _repository;
 
