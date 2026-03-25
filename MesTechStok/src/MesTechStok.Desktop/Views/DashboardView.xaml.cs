@@ -181,7 +181,7 @@ namespace MesTechStok.Desktop.Views
 
                 // Low Stock Items
                 var lowStockProducts = await _productService.GetLowStockProductsAsync();
-                LowStockWidget.Value = lowStockProducts.Count().ToString();
+                LowStockWidget.Value = lowStockProducts.Count.ToString();
 
                 // Active Categories (via MediatR)
                 var serviceProvider = App.Services;

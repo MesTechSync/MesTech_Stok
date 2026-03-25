@@ -261,7 +261,7 @@ namespace MesTechStok.Desktop.Views
                     UpdatePaginationInfo(result.TotalCount, page, pageSize);
                 });
 
-                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogInfo($"Enhanced müşteri sayfası yüklendi: {result.Items.Count()}/{result.TotalCount} öğe, Sayfa: {page}", "CustomersView");
+                MesTechStok.Desktop.Utils.GlobalLogger.Instance.LogInfo($"Enhanced müşteri sayfası yüklendi: {result.Items.Count}/{result.TotalCount} öğe, Sayfa: {page}", "CustomersView");
             }
             catch (Exception ex)
             {

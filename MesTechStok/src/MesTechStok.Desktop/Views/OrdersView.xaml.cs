@@ -578,7 +578,7 @@ namespace MesTechStok.Desktop.Views
             {
                 // Geçici: Core servis istatistik API sağlamıyor, tümünü çekip hesapla
                 var all = await _orderService.GetAllOrdersAsync();
-                TotalOrders = all.Count().ToString();
+                TotalOrders = all.Count.ToString();
                 PendingOrders = all.Count(o => o.Status == CoreOrderStatus.Pending).ToString();
                 CompletedOrders = all.Count(o => o.Status == CoreOrderStatus.Delivered).ToString();
                 CancelledOrders = all.Count(o => o.Status == CoreOrderStatus.Cancelled).ToString();

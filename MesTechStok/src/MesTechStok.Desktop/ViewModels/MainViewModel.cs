@@ -219,7 +219,7 @@ namespace MesTechStok.Desktop.ViewModels
 
                 // Load low stock products
                 var lowStockList = await _productService.GetLowStockProductsAsync();
-                LowStockProducts = lowStockList.Count();
+                LowStockProducts = lowStockList.Count;
 
                 // Load recent stock movements
                 var fromDate = DateTime.Today.AddDays(-7);
