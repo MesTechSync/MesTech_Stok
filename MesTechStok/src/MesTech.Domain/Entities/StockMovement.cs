@@ -10,6 +10,11 @@ public sealed class StockMovement : BaseEntity, ITenantEntity
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
+
+    // Product snapshot — JOIN'siz listeleme için
+    public string? ProductName { get; set; }
+    public string? ProductSKU { get; set; }
+
     public int Quantity { get; set; }
     public int PreviousStock { get; private set; }
     public int NewStock { get; private set; }

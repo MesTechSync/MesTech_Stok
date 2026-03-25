@@ -16,8 +16,8 @@ public sealed class GetStockTransfersHandler : IRequestHandler<GetStockTransfers
         return movements.Select(m => new StockTransferItemDto
         {
             Id = m.Id,
-            ProductName = m.Notes ?? m.ProductId.ToString(),
-            SKU = m.ProductId.ToString().Length > 8 ? m.ProductId.ToString().Substring(0, 8) : m.ProductId.ToString(),
+            ProductName = m.ProductName ?? string.Empty,
+            SKU = m.ProductSKU ?? string.Empty,
             Quantity = m.Quantity,
             MovementType = m.MovementType,
             Reference = m.Reason ?? string.Empty,
