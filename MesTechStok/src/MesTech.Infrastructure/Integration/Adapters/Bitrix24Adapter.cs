@@ -105,10 +105,13 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
     /// <summary>
     /// Configure rate limit concurrency at runtime (Enterprise=50, Free=2).
+    /// Thread-safe: uses Interlocked.Exchange to avoid leak of waiters on old semaphore.
     /// </summary>
     public static void ConfigureRateLimit(int maxConcurrency)
     {
-        _rateLimitSemaphore = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+        var oldSemaphore = Interlocked.Exchange(
+            ref _rateLimitSemaphore, new SemaphoreSlim(maxConcurrency, maxConcurrency));
+        oldSemaphore.Dispose();
     }
 
     #region IIntegratorAdapter — Core Methods
