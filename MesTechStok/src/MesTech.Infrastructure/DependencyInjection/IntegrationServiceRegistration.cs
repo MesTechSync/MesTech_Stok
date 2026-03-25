@@ -446,9 +446,12 @@ public static class IntegrationServiceRegistration
             new ParasutERPAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.Parasut),
                 sp.GetRequiredService<ParasutTokenService>(),
+                sp.GetRequiredService<IOrderRepository>(),
+                sp.GetRequiredService<IInvoiceRepository>(),
                 sp.GetRequiredService<ILogger<ParasutERPAdapter>>(),
                 sp.GetService<IOptions<ParasutOptions>>()));
         services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ParasutERPAdapter>());
+        services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<ParasutERPAdapter>());
 
         // MUH-03 + Dalga 12: Logo ERP adapter — L-Object REST API Bearer token + JSON sync
         // Implements both IERPAdapter (legacy batch) and IErpAdapter (Dalga 11 ID-based)
