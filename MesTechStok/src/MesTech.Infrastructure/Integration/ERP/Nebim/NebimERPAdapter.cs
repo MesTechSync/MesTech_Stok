@@ -28,7 +28,7 @@ namespace MesTech.Infrastructure.Integration.ERP.Nebim;
 ///   - GET  /api/customers         (account balances)
 ///   - GET  /api/ping              (health check)
 /// </summary>
-public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable, IErpWaybillCapable, IErpPriceCapable
+public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoiceCapable, IErpAccountCapable, IErpWaybillCapable, IErpPriceCapable, IErpBankCapable
 {
     private readonly HttpClient _httpClient;
     private readonly NebimOptions _options;
@@ -1060,6 +1060,115 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;
+        }
+#pragma warning restore CA1031
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IErpBankCapable — Nebim bank capability
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Retrieves bank transactions from Nebim.
+    /// GET /api/payments?from={from}&amp;to={to}
+    /// </summary>
+    public async Task<List<ErpBankTransaction>> GetTransactionsAsync(DateTime from, DateTime to, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[NebimERPAdapter] GetTransactionsAsync — From:{From} To:{To}", from, to);
+
+#pragma warning disable CA1031
+        try
+        {
+            SetApiKeyHeader();
+
+            var fromStr = from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            var toStr = to.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            var url = $"{BaseUrl}/api/payments?startDate={fromStr}&endDate={toStr}&officeCode={_options.OfficeCode}";
+            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("[NebimERPAdapter] GetTransactions failed: {Status} — {Error}",
+                    response.StatusCode, errorBody);
+                return new List<ErpBankTransaction>();
+            }
+
+            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
+            var items = new List<ErpBankTransaction>();
+
+            foreach (var item in json.RootElement.EnumerateArray())
+            {
+                var txDate = item.TryGetProperty("paymentDate", out var pd) && DateTime.TryParse(pd.GetString(), out var dt)
+                    ? dt : DateTime.Today;
+                var amount = item.TryGetProperty("amount", out var a) ? a.GetDecimal() : 0m;
+                var desc = item.TryGetProperty("description", out var d) ? d.GetString() ?? string.Empty : string.Empty;
+                var txType = item.TryGetProperty("paymentType", out var pt) ? pt.GetString() ?? "OTHER" : "OTHER";
+                var reference = item.TryGetProperty("documentNumber", out var dn) ? dn.GetString() : null;
+
+                items.Add(new ErpBankTransaction(txDate, amount, desc, txType, reference));
+            }
+
+            _logger.LogInformation("[NebimERPAdapter] Retrieved {Count} bank transactions", items.Count);
+            return items;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] GetTransactionsAsync exception");
+            return new List<ErpBankTransaction>();
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <summary>
+    /// Records a payment in Nebim.
+    /// POST /api/payments
+    /// </summary>
+    public async Task<ErpPaymentResult> RecordPaymentAsync(ErpPaymentRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation("[NebimERPAdapter] RecordPayment — Account:{Account} Amount:{Amount}",
+            request.AccountCode, request.Amount);
+
+#pragma warning disable CA1031
+        try
+        {
+            SetApiKeyHeader();
+
+            var payload = new
+            {
+                currAccCode = request.AccountCode,
+                amount = request.Amount,
+                paymentType = request.PaymentType,
+                dueDate = request.DueDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                description = request.Description,
+                officeCode = _options.OfficeCode
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(payload),
+                System.Text.Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payments", content, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var json = JsonDocument.Parse(body).RootElement;
+                var reference = json.TryGetProperty("documentNumber", out var dn) ? dn.GetString() ?? string.Empty : string.Empty;
+                _logger.LogInformation("[NebimERPAdapter] Payment recorded — Ref:{Ref}", reference);
+                return ErpPaymentResult.Ok(reference);
+            }
+
+            var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("[NebimERPAdapter] RecordPayment failed: {Status} — {Error}",
+                (int)response.StatusCode, err);
+            return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[NebimERPAdapter] RecordPayment exception");
+            return ErpPaymentResult.Failed(ex.Message);
         }
 #pragma warning restore CA1031
     }
