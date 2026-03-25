@@ -3,6 +3,8 @@ using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.DTOs.ERP;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 using InvoiceEntity = MesTech.Domain.Entities.Invoice;
@@ -15,18 +17,25 @@ namespace MesTech.Infrastructure.Integration.ERP.BizimHesap;
 /// Auth: API Key in "X-BizimHesap-ApiKey" header via <see cref="BizimHesapApiClient"/>.
 /// Simpler than Logo/Parasut — standard REST with JSON (not JSON:API).
 /// </summary>
-public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpPriceCapable, IErpWaybillCapable, IErpBankCapable
+public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapable, IErpAccountCapable, IErpStockCapable, IErpPriceCapable, IErpWaybillCapable, IErpBankCapable
 {
     private readonly BizimHesapApiClient _apiClient;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILogger<BizimHesapERPAdapter> _logger;
 
     public string ERPName => "BizimHesap";
+    public ErpProvider Provider => ErpProvider.BizimHesap;
 
     public BizimHesapERPAdapter(
         BizimHesapApiClient apiClient,
+        IOrderRepository orderRepository,
+        IInvoiceRepository invoiceRepository,
         ILogger<BizimHesapERPAdapter> logger)
     {
         _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+        _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -57,6 +66,27 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpInvoiceCapable, IErp
             return false;
         }
     }
+
+    // IErpAdapter (Dalga 11)
+    public async Task<ErpSyncResult> SyncOrderAsync(Guid orderId, CancellationToken ct = default)
+    {
+        if (orderId == Guid.Empty) return ErpSyncResult.Fail("OrderId empty");
+        try { var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false); if (order is null) return ErpSyncResult.Fail("Not found"); var payload = new { orderNumber = order.OrderNumber, orderDate = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), totalAmount = order.TotalAmount }; var response = await _apiClient.PostJsonAsync("api/v1/orders", payload, ct).ConfigureAwait(false); if (response.IsSuccessStatusCode) { var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false); return ErpSyncResult.Ok(r?.Reference ?? ""); } return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode); }
+        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] SyncOrder error"); return ErpSyncResult.Fail(ex.Message); }
+    }
+    public async Task<ErpSyncResult> SyncInvoiceAsync(Guid invoiceId, CancellationToken ct = default)
+    {
+        if (invoiceId == Guid.Empty) return ErpSyncResult.Fail("InvoiceId empty");
+        try { var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false); if (inv is null) return ErpSyncResult.Fail("Not found"); var payload = new { invoiceNumber = inv.InvoiceNumber, invoiceDate = inv.InvoiceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), totalAmount = inv.GrandTotal }; var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false); if (response.IsSuccessStatusCode) { var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false); return ErpSyncResult.Ok(r?.Reference ?? ""); } return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode); }
+        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] SyncInvoice error"); return ErpSyncResult.Fail(ex.Message); }
+    }
+    public async Task<IReadOnlyList<ErpAccountDto>> GetAccountBalancesAsync(CancellationToken ct = default)
+    {
+        try { var response = await _apiClient.GetAsync("api/v1/contacts", ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>(); var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapAccountResponse>>(response, ct).ConfigureAwait(false); if (items is null) return Array.Empty<ErpAccountDto>(); return items.Select(a => new ErpAccountDto(a.Code ?? "", a.Code ?? "", decimal.TryParse(a.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var b) ? b : 0m, a.Currency ?? "TRY")).ToArray(); }
+        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] GetAccountBalances error"); return Array.Empty<ErpAccountDto>(); }
+    }
+    public Task<bool> PingAsync(CancellationToken ct = default) => TestConnectionAsync(ct);
+    private sealed class BizimHesapSyncResponse { [System.Text.Json.Serialization.JsonPropertyName("reference")] public string? Reference { get; set; } }
 
     /// <inheritdoc/>
     public async Task SyncInvoicesAsync(IReadOnlyList<InvoiceEntity> invoices, CancellationToken ct = default)

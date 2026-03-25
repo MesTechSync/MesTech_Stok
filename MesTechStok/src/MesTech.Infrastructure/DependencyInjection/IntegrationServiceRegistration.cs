@@ -473,8 +473,11 @@ public static class IntegrationServiceRegistration
         services.AddScoped<BizimHesapERPAdapter>(sp =>
             new BizimHesapERPAdapter(
                 sp.GetRequiredService<BizimHesapApiClient>(),
+                sp.GetRequiredService<IOrderRepository>(),
+                sp.GetRequiredService<IInvoiceRepository>(),
                 sp.GetRequiredService<ILogger<BizimHesapERPAdapter>>()));
         services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<BizimHesapERPAdapter>());
+        services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<BizimHesapERPAdapter>());
 
         // Dalga 13: Netsis ERP adapter — Basic Auth REST API + JSON sync
         services.AddScoped<NetsisERPAdapter>(sp =>
