@@ -35,6 +35,12 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
         string? reason, Guid tenantId, decimal grandTotal,
         CancellationToken ct)
     {
+        if (grandTotal <= 0)
+        {
+            _logger.LogDebug("Fatura tutarı 0 — ters GL kaydi atlanıyor. InvoiceId={InvoiceId}", invoiceId);
+            return;
+        }
+
         _logger.LogWarning(
             "Fatura iptal — ters GL kaydi olusturuluyor. Invoice={InvoiceNumber}, Reason={Reason}",
             invoiceNumber, reason);

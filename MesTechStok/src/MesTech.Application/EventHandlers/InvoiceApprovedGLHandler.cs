@@ -35,6 +35,12 @@ public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
         decimal grandTotal, decimal taxAmount, decimal netAmount,
         CancellationToken ct)
     {
+        if (grandTotal <= 0)
+        {
+            _logger.LogDebug("Fatura tutarı 0 — GL kaydi atlanıyor. InvoiceId={InvoiceId}", invoiceId);
+            return;
+        }
+
         _logger.LogInformation(
             "GL kaydi olusturuluyor — Fatura={InvoiceNumber}, Toplam={Total}, KDV={Tax}, Net={Net}",
             invoiceNumber, grandTotal, taxAmount, netAmount);
