@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.BulkInvoiceAvaloniaView"
              x:DataType="vm:BulkInvoiceAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <!-- Toplu Fatura Olustur -->
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.KanbanAvaloniaView"
              x:DataType="vm:KanbanAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <!-- Avalonia port of WPF Views/Crm/DealsView.xaml -->
     <!-- Key changes:

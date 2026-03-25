@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.BuyboxAvaloniaView"
              x:DataType="vm:BuyboxAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <!-- FIX-18 Gorev #13: Buybox Analizi View -->
 

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              x:Class="MesTech.Avalonia.Views.Accounting.JournalEntryListView"
              x:DataType="vm:JournalEntryListViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*">
         <!-- Filtre bar -->
