@@ -1,7 +1,6 @@
 using MediatR;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
-using Microsoft.AspNetCore.Http.Timeouts;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.WebApi.Endpoints;
@@ -15,8 +14,7 @@ public static class BulkProductEndpoints
     {
         var group = app.MapGroup("/api/v1/products/bulk")
             .WithTags("BulkProducts")
-            .RequireRateLimiting("PerApiKey")
-            .WithRequestTimeout("LongRunning");
+            .RequireRateLimiting("PerApiKey");
 
         // POST /api/v1/products/bulk/validate — CSV/Excel dosya doğrulama
         group.MapPost("/validate", async (

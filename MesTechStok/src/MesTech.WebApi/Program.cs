@@ -156,17 +156,19 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 builder.Services.Configure<GzipCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Fastest);
 
-// Request timeouts — 30s default, 120s for report endpoints (KEŞİF-DEV6-T7)
+// Request timeouts — 30s default for API endpoints (KEŞİF-DEV6-T7)
 builder.Services.AddRequestTimeouts(options =>
 {
     options.DefaultPolicy = new Microsoft.AspNetCore.Http.Timeouts.RequestTimeoutPolicy
     {
         Timeout = TimeSpan.FromSeconds(30)
     };
-    options.AddPolicy("LongRunning", new Microsoft.AspNetCore.Http.Timeouts.RequestTimeoutPolicy
-    {
-        Timeout = TimeSpan.FromSeconds(120)
-    });
+});
+
+// Output cache — short-lived cache for stable lookup endpoints (KEŞİF-DEV6-T7)
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("Lookup60s", b => b.Expire(TimeSpan.FromSeconds(60)).SetVaryByQuery("*"));
 });
 
 // SignalR real-time bildirim hub'i (G-02)
@@ -343,6 +345,9 @@ app.UseRateLimiter();
 
 // Request timeout middleware — cancels long-running requests (KEŞİF-DEV6-T7)
 app.UseRequestTimeouts();
+
+// Output cache middleware — after auth, before endpoints (KEŞİF-DEV6-T7)
+app.UseOutputCache();
 
 // Health + Metrics endpoints (HealthCheckService + Prometheus — no auth bypass paths)
 HealthEndpoints.Map(app);

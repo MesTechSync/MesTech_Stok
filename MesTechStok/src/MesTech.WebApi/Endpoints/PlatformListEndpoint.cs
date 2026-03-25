@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Platform.Queries.GetPlatformList;
 
 namespace MesTech.WebApi.Endpoints;
@@ -21,6 +22,7 @@ public static class PlatformListEndpoint
             return Results.Ok(result);
         })
         .WithName("GetPlatformList")
-        .WithSummary("Kiracıya ait platform kartları listesi");
+        .WithSummary("Kiracıya ait platform kartları listesi")
+        .CacheOutput("Lookup60s");
     }
 }

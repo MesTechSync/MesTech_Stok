@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Queries.GetCategories;
 
 namespace MesTech.WebApi.Endpoints;
@@ -20,6 +21,7 @@ public static class CategoryEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCategories")
-        .WithSummary("Kategori listesi (aktif/tümü filtresi)");
+        .WithSummary("Kategori listesi (aktif/tümü filtresi)")
+        .CacheOutput("Lookup60s");
     }
 }

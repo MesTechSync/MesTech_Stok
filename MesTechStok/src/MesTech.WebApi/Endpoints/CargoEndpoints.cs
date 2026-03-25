@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
@@ -26,7 +27,8 @@ public static class CargoEndpoints
             return Results.Ok(providers);
         })
         .WithName("GetCargoProviders")
-        .WithSummary("Desteklenen kargo sağlayıcı listesi");
+        .WithSummary("Desteklenen kargo sağlayıcı listesi")
+        .CacheOutput("Lookup60s");
     }
 
     private static string GetDisplayName(CargoProvider provider)

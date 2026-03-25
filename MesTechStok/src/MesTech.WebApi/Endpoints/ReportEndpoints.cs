@@ -17,7 +17,6 @@ using MesTech.Application.Features.Reports.FulfillmentCostReport;
 using MesTech.Application.Features.Reports.PlatformPerformanceReport;
 using MesTech.Application.Features.Reports.TaxSummaryReport;
 using MesTech.Application.Interfaces;
-using Microsoft.AspNetCore.Http.Timeouts;
 using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
@@ -28,8 +27,7 @@ public static class ReportEndpoints
     {
         var group = app.MapGroup("/api/v1/reports")
             .WithTags("Reports")
-            .RequireRateLimiting("PerApiKey")
-            .WithRequestTimeout("LongRunning");
+            .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/reports/profit-loss — aylik kar/zarar raporu
         group.MapGet("/profit-loss", async (
