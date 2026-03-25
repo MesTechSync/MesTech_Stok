@@ -395,3 +395,27 @@ Alan genişleme seçenekleri:
 | Cross-DEV görev | **11** |
 | Alan genişleme | **3/3 TAMAMLANDI** |
 | Build error | **0** |
+
+---
+
+## TUR: 8 (2026-03-26) — AVALONIA ONBOARDING + ORG031
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| OnboardingWizardAvaloniaViewModel | 1 (170 LOC, 7-step wizard) |
+| ORG031 build error | FILE LOCK — geçici, 0 gerçek hata |
+| G019 | DEVAM — ViewModel hazır, AXAML view DEV 2'ye atandı (G025) |
+
+### COMMIT
+- `160f0cf4` feat(avalonia): add OnboardingWizardAvaloniaViewModel — 7-step wizard G019
+
+### DEV 6 GENEL DURUM — 8 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **25** |
+| Yeni endpoint | **11** |
+| Yeni ViewModel | **1** (OnboardingWizard) |
+| GOREV kapatılan | **7** |
+| Cross-DEV görev | **12** |
+| Alan genişleme | **3/3 TAMAMLANDI** |
