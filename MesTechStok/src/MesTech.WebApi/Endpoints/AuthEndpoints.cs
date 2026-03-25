@@ -1,5 +1,7 @@
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.Security;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -19,6 +21,7 @@ public static class AuthEndpoints
             LoginRequest request,
             IJwtTokenService jwtService,
             BruteForceProtectionService bruteForce,
+            IOptions<JwtTokenOptions> jwtOptions,
             HttpContext httpContext) =>
         {
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
@@ -65,7 +68,7 @@ public static class AuthEndpoints
             try
             {
                 var token = jwtService.GenerateToken(userId, tenantId, request.UserName, roles);
-                var expiresAt = DateTime.UtcNow.AddMinutes(480);
+                var expiresAt = DateTime.UtcNow.AddMinutes(jwtOptions.Value.ExpiryMinutes);
 
                 await bruteForce.RecordSuccessAsync(request.UserName, ip);
 
