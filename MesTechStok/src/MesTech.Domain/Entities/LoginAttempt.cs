@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Constants;
 
 namespace MesTech.Domain.Entities;
 
@@ -26,7 +27,7 @@ public sealed class LoginAttempt : BaseEntity
             Success = success,
             AttemptedAt = DateTimeOffset.UtcNow,
             UserAgent = userAgent,
-            TenantId = tenantId ?? Guid.Empty
+            TenantId = tenantId ?? DomainConstants.SystemTenantId
         };
     }
 }
