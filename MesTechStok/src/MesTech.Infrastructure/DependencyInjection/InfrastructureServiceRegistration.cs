@@ -310,7 +310,9 @@ public static class InfrastructureServiceRegistration
         services.AddHealthChecks()
             .AddCheck<RedisHealthCheck>("redis")
             .AddCheck<PostgresHealthCheck>("postgresql")
-            .AddCheck<MesaOSHealthCheck>("mesa-os");
+            .AddCheck<MesaOSHealthCheck>("mesa-os")
+            .AddCheck<RabbitMqHealthCheck>("rabbitmq")
+            .AddCheck<MinioHealthCheck>("minio");
 
         // Health Check HTTP Endpoint (http://localhost:3100/health)
         if (!skipSelfHostedEndpoints)
