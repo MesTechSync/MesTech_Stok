@@ -27,7 +27,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// UpdatePrice  → PUT /v3/application/listings/{listingId} (price field)
 /// Categories   → GET /v3/application/seller-taxonomy/nodes
 /// </summary>
-public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
+public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EtsyAdapter> _logger;
@@ -989,6 +989,25 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter
 
         return JsonSerializer.Serialize(payload, _jsonOptions);
     }
+
+    // ── IPingableAdapter ──
+    public async Task<bool> PingAsync(CancellationToken ct = default) { try { using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct); cts.CancelAfter(TimeSpan.FromSeconds(5)); var response = await _httpClient.GetAsync($"{BaseUrl}/application/openapi-ping", cts.Token).ConfigureAwait(false); return true; } catch { return false; } }
+
+    // ── IShipmentCapableAdapter ──
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default) { _logger.LogInformation("[EtsyAdapter] SendShipment — Receipt:{Receipt}", platformOrderId); try { var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/application/shops/{_shopId}/receipts/{platformOrderId}/tracking") { Content = new StringContent(JsonSerializer.Serialize(new { tracking_code = trackingNumber, carrier_name = provider.ToString() }, _jsonOptions), Encoding.UTF8, "application/json") }; request.Headers.Add("x-api-key", _accessToken); var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false); return response.IsSuccessStatusCode; } catch (Exception ex) { _logger.LogError(ex, "[EtsyAdapter] SendShipment error"); return false; } }
+
+    // ── ISettlementCapableAdapter ──
+    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default) { _logger.LogWarning("[EtsyAdapter] GetSettlement — Etsy Ledger API requires elevated scope"); return Task.FromResult<SettlementDto?>(null); }
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+
+    // ── IClaimCapableAdapter ──
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default) { _logger.LogInformation("[EtsyAdapter] PullClaims"); try { var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/application/shops/{_shopId}/receipts?was_canceled=true&limit=25"); request.Headers.Add("x-api-key", _accessToken); var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var doc = JsonDocument.Parse(body); var claims = new List<ExternalClaimDto>(); if (doc.RootElement.TryGetProperty("results", out var results)) foreach (var r in results.EnumerateArray()) { var rid = r.TryGetProperty("receipt_id", out var id) ? id.GetInt64().ToString() : ""; claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Etsy", Status = "CANCELED" }); } return claims; } catch (Exception ex) { _logger.LogError(ex, "[EtsyAdapter] PullClaims error"); return Array.Empty<ExternalClaimDto>(); } }
+    public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default) => Task.FromResult(false);
+
+    // ── IInvoiceCapableAdapter ──
+    public Task<bool> SendInvoiceLinkAsync(string shipmentPackageId, string invoiceUrl, CancellationToken ct = default) => Task.FromResult(false);
+    public Task<bool> SendInvoiceFileAsync(string shipmentPackageId, byte[] pdfBytes, string fileName, CancellationToken ct = default) => Task.FromResult(false);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
