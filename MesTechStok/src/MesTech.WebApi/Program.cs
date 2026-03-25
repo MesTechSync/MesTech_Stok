@@ -337,12 +337,15 @@ app.UseExceptionHandler(error =>
 // Swagger JSON spec — all environments for external tool consumption (A-M2-05)
 app.UseSwagger();
 
-// Swagger UI — all environments (API documentation accessible, secured by API key auth)
-app.UseSwaggerUI(c =>
+// Swagger UI — Development only (production API structure exposure = OWASP risk) (KEŞİF-DEV6-T14)
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MesTech API v1");
-    c.RoutePrefix = "swagger";
-});
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MesTech API v1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
 // JWT Authentication + Authorization middleware (G-02 SignalR auth)
 app.UseAuthentication();
