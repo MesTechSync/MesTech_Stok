@@ -487,6 +487,8 @@ services:
       - mestech_grafana_data:/var/lib/grafana
       - ../../monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
       - ../../monitoring/grafana-alerts.yml:/etc/grafana/provisioning/alerting/alerts.yml:ro
+      - ../../monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       prometheus:
         condition: service_healthy
