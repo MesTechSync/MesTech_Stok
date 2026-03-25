@@ -107,3 +107,97 @@
   - Payment webhook endpoint (Iyzico/Stripe callback)
   - Subscription renewal Hangfire job
   - Plan limit enforcement middleware
+
+---
+
+## TUR: 3 (2026-03-25)
+
+### ÖNCE
+| Metrik | Değer |
+|--------|-------|
+| Payment webhook handler | 0 |
+| Subscription renewal job | mevcut (SubscriptionRenewalWorker TAM) |
+| Plan limit enforcement | 0 |
+| Billing endpoint toplam | 8 |
+| Billing CQRS toplam | 6 cmd/qry + 3 validator |
+
+### SONRA
+| Metrik | Değer |
+|--------|-------|
+| Payment webhook handler | 1 (HMAC-SHA256 Stripe signature, 3 event handler) |
+| Plan limit enforcement | 2 filter (ProductPlanLimitFilter + StorePlanLimitFilter) |
+| Billing endpoint toplam | 10 (+2: webhook + filter applied) |
+| Billing CQRS toplam | 8 cmd/qry + 3 validator (+2: ProcessPaymentWebhook, GetSubscriptionUsage) |
+| IPaymentWebhookSecretProvider | 1 interface + 1 implementation |
+| Yeni dosya | 5 |
+| Değiştirilen dosya | 4 |
+
+### DELTA
+- Payment webhook: 0→1 ✅ (Stripe HMAC verify, payment_succeeded/failed/deleted)
+- Plan limit filter: 0→2 ✅ (Product + Store creation guarded)
+- Renewal job: zaten TAM (keşif — inşa gerekmedi)
+- Clean Architecture: IPaymentWebhookSecretProvider ile Application→Infrastructure leak önlendi
+
+### COMMIT
+- `6a971e76` feat(billing): payment webhook handler — Stripe signature verify + sub lifecycle
+- `4280bea6` feat(billing): plan limit enforcement filter on product/store creation
+
+### KULLANIM TESTİ
+- `dotnet build src/MesTech.WebApi/` → 0 Hata, 0 Uyarı ✅
+
+### FMEA
+- Webhook signature bypass (sandbox): Şiddet=8 × Olasılık=2 × Tespit=3 = RPN=48
+  - Korunma: IsConfigured check — sandbox'ta kabul, production'da HMAC zorunlu
+- Plan limit filter bypass (no tenantId): Şiddet=6 × Olasılık=3 × Tespit=2 = RPN=36
+  - Korunma: JWT middleware tenantId'yi zorunlu kılar, filter sadece ek katman
+
+### BILLING ALAN_GENISLEME STACK (TAM)
+```
+KATMAN 1 — Domain Entity:
+  SubscriptionPlan (3 seed: Basic/Pro/Enterprise)
+  TenantSubscription (Trial/Active/PastDue/Cancelled/Expired)
+  BillingInvoice (MarkPaid, sequence number)
+  DunningLog (retry tracking)
+  SubscriptionPlanChangedEvent
+  SubscriptionCreatedEvent
+  SubscriptionCancelledEvent
+
+KATMAN 2 — Application CQRS:
+  CreateSubscription + Validator
+  CancelSubscription + Validator
+  ChangeSubscriptionPlan + Validator (upgrade/downgrade + prorate)
+  CreateBillingInvoice + Validator
+  ProcessPaymentWebhook (Stripe HMAC-SHA256)
+  GetSubscriptionPlans
+  GetTenantSubscription
+  GetBillingInvoices
+  GetSubscriptionUsage
+
+KATMAN 3 — Infrastructure:
+  StripePaymentGateway (Charge, Refund, SaveCard)
+  IyzicoPaymentGateway (Charge, Refund, SaveCard)
+  PaymentWebhookSecretProvider
+  SubscriptionRenewalWorker (Hangfire daily 03:00)
+  DunningWorker (retry failed payments)
+
+KATMAN 4 — WebApi Endpoints:
+  GET  /billing/plans
+  GET  /billing/subscription
+  POST /billing/subscription
+  POST /billing/subscription/cancel
+  PUT  /billing/subscription/change-plan
+  GET  /billing/usage
+  GET  /billing/invoices
+  POST /billing/invoices
+  POST /billing/webhooks/{provider}
+
+KATMAN 5 — Enforcement:
+  ProductPlanLimitFilter (POST /products)
+  StorePlanLimitFilter (POST /stores)
+```
+
+### SONRAKİ HEDEF
+Billing ALAN_GENISLEME **TAMAMLANDI** — 5 katmanlı SaaS billing stack.
+Alan genişleme seçenekleri:
+- A) Onboarding flow — tenant registration
+- C) KVKK/GDPR — kişisel veri silme/dışa aktarma
