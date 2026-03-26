@@ -91,8 +91,13 @@ builder.Services.AddRateLimiter(options =>
     };
     options.AddPolicy("PerApiKey", context =>
     {
+        // DEV6-TUR11: Per-tenant rate limiting — API key + tenant combined partition
         var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault() ?? "anonymous";
-        return RateLimitPartition.GetFixedWindowLimiter(apiKey, _ => new FixedWindowRateLimiterOptions
+        var tenantId = context.Request.Query["tenantId"].FirstOrDefault()
+                    ?? context.Request.Headers["X-Tenant-Id"].FirstOrDefault()
+                    ?? "no-tenant";
+        var partitionKey = $"{apiKey}:{tenantId}";
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 100,
             Window = TimeSpan.FromMinutes(1),
