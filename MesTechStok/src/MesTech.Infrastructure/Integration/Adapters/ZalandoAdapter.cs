@@ -45,8 +45,8 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // 5-minute safety buffer before actual expiry
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
-    private const string TokenUrl = "https://auth.zalando.com/oauth2/access_token";
-    private const string ApiBase = "https://api.zalando.com";
+    private readonly string TokenUrl;
+    private readonly string ApiBase;
 
     public ZalandoAdapter(HttpClient httpClient, ILogger<ZalandoAdapter> logger,
         IOptions<ZalandoOptions>? options = null)
@@ -55,6 +55,8 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new ZalandoOptions();
+        TokenUrl = _options.TokenUrl;
+        ApiBase = _options.ApiBaseUrl;
 
         // Seed from options if credentials provided
         if (!string.IsNullOrWhiteSpace(_options.ClientId))

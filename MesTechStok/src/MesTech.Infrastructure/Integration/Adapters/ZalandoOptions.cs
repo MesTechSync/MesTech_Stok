@@ -22,4 +22,10 @@ public sealed class ZalandoOptions
     [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily",
         Justification = "Explicit false default documents intent for configuration binding.")]
     public bool Enabled { get; set; } = false;
+
+    /// <summary>OAuth2 token endpoint URL.</summary>
+    public string TokenUrl { get; set; } = "https://auth.zalando.com/oauth2/access_token";
+
+    /// <summary>Zalando Partner API base URL.</summary>
+    public string ApiBaseUrl { get; set; } = "https://api.zalando.com";
 }
