@@ -243,7 +243,7 @@ public sealed class WebhookEventRouter
         await _publisher.Publish(notification, ct);
     }
 
-    private static Guid? ExtractGuidField(string json, string fieldName)
+    private Guid? ExtractGuidField(string json, string fieldName)
     {
         try
         {
@@ -252,11 +252,14 @@ public sealed class WebhookEventRouter
                 prop.TryGetGuid(out var value))
                 return value;
         }
-        catch { /* Best-effort extraction */ }
+        catch (JsonException ex)
+        {
+            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract Guid field '{Field}' from payload", fieldName);
+        }
         return null;
     }
 
-    private static string? ExtractStringField(string json, string fieldName)
+    private string? ExtractStringField(string json, string fieldName)
     {
         try
         {
@@ -264,11 +267,14 @@ public sealed class WebhookEventRouter
             if (doc.RootElement.TryGetProperty(fieldName, out var prop))
                 return prop.GetString();
         }
-        catch { /* Best-effort extraction */ }
+        catch (JsonException ex)
+        {
+            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract String field '{Field}' from payload", fieldName);
+        }
         return null;
     }
 
-    private static decimal? ExtractDecimalField(string json, string fieldName)
+    private decimal? ExtractDecimalField(string json, string fieldName)
     {
         try
         {
@@ -277,7 +283,10 @@ public sealed class WebhookEventRouter
                 prop.TryGetDecimal(out var value))
                 return value;
         }
-        catch { /* Best-effort extraction */ }
+        catch (JsonException ex)
+        {
+            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract Decimal field '{Field}' from payload", fieldName);
+        }
         return null;
     }
 }
