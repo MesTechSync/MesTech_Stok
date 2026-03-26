@@ -1,15 +1,21 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// ViewModel for Cargo Tracking screen — Dalga 14/15.
+/// ViewModel for Cargo Tracking screen — wired to GetCargoTrackingListQuery via MediatR.
 /// Displays cargo shipments with firm-based filtering.
 /// </summary>
 public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedFirm = "Tümü";
 
@@ -25,6 +31,12 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
         "Sürat Kargo"
     ];
 
+    public CargoTrackingAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -33,22 +45,23 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(80); // Simulate async load
+            var result = await _mediator.Send(
+                new GetCargoTrackingListQuery(_tenantProvider.GetCurrentTenantId(), 100));
 
             _allItems.Clear();
-            _allItems.AddRange(
-            [
-                new CargoTrackingItemDto { TakipNo = "YK-2026031701", Firma = "Yurtiçi Kargo", Tarih = new DateTime(2026, 3, 15), Durum = "Teslim Edildi", Alici = "Ahmet Yılmaz" },
-                new CargoTrackingItemDto { TakipNo = "AR-2026031702", Firma = "Aras Kargo", Tarih = new DateTime(2026, 3, 15), Durum = "Yolda", Alici = "Mehmet Demir" },
-                new CargoTrackingItemDto { TakipNo = "SK-2026031703", Firma = "Sürat Kargo", Tarih = new DateTime(2026, 3, 14), Durum = "Dagitimda", Alici = "Fatma Kaya" },
-                new CargoTrackingItemDto { TakipNo = "YK-2026031704", Firma = "Yurtiçi Kargo", Tarih = new DateTime(2026, 3, 14), Durum = "Teslim Edildi", Alici = "Ali Çelik" },
-                new CargoTrackingItemDto { TakipNo = "AR-2026031705", Firma = "Aras Kargo", Tarih = new DateTime(2026, 3, 13), Durum = "Hazirlaniyor", Alici = "Zeynep Arslan" },
-                new CargoTrackingItemDto { TakipNo = "SK-2026031706", Firma = "Sürat Kargo", Tarih = new DateTime(2026, 3, 13), Durum = "Teslim Edildi", Alici = "Hasan Öztürk" },
-                new CargoTrackingItemDto { TakipNo = "YK-2026031707", Firma = "Yurtiçi Kargo", Tarih = new DateTime(2026, 3, 12), Durum = "Yolda", Alici = "Ayşe Şahin" },
-                new CargoTrackingItemDto { TakipNo = "AR-2026031708", Firma = "Aras Kargo", Tarih = new DateTime(2026, 3, 12), Durum = "Teslim Edildi", Alici = "Mustafa Koç" },
-                new CargoTrackingItemDto { TakipNo = "SK-2026031709", Firma = "Sürat Kargo", Tarih = new DateTime(2026, 3, 11), Durum = "Dagitimda", Alici = "Emine Yıldız" },
-                new CargoTrackingItemDto { TakipNo = "YK-2026031710", Firma = "Yurtiçi Kargo", Tarih = new DateTime(2026, 3, 11), Durum = "Hazirlaniyor", Alici = "İbrahim Aydın" },
-            ]);
+            _allItems.AddRange(result.Select(c => new CargoTrackingItemDto
+            {
+                TakipNo = c.TrackingNumber ?? c.OrderNumber,
+                Firma = c.CargoProvider ?? "-",
+                Tarih = c.ShippedAt ?? DateTime.MinValue,
+                Durum = c.Status switch
+                {
+                    "Delivered" => "Teslim Edildi",
+                    "Shipped" => "Yolda",
+                    _ => "Hazirlaniyor"
+                },
+                Alici = c.OrderNumber
+            }));
 
             ApplyFilter();
         }
