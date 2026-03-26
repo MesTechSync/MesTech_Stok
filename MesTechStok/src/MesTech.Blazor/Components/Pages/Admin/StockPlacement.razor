@@ -55,6 +55,12 @@ else
       <h6 class="mb-0"><i class="fas fa-th me-2" style="color: #2855AC;"></i>Zon / Raf Haritasi</h6>
     </div>
     <div class="card-body">
+      @if (!zones.Any(z => z.WarehouseId == selectedWarehouse))
+      {
+        <EmptyState Icon="fa-warehouse" Message="Henuz yerlesim kaydi bulunamadi." />
+      }
+      else
+      {
       <div class="row g-2">
         @foreach (var zone in zones.Where(z => z.WarehouseId == selectedWarehouse))
         {
@@ -74,6 +80,7 @@ else
           </div>
         }
       </div>
+      }
     </div>
   </div>
 

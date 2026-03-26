@@ -42,6 +42,10 @@ else if (errorMessage is not null)
         <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
     </div>
 }
+else if (deals.Count == 0)
+{
+    <EmptyState Icon="fa-handshake" Message="Henuz firsat bulunamadi." />
+}
 else
 {
     <!-- Kanban Board -->

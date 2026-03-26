@@ -57,26 +57,29 @@ else
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="list-group list-group-flush">
-                @foreach (var n in _notifications ?? Enumerable.Empty<NotificationItem>())
+                @if (_notifications is null || _notifications.Count == 0)
                 {
-                    <div class="list-group-item list-group-item-action @(n.IsRead ? "" : "bg-light")">
-                        <div class="d-flex w-100 justify-content-between">
-                            <div class="d-flex align-items-start">
-                                <i class="fas @GetIcon(n.Type) me-3 mt-1 text-@GetColor(n.Severity)"></i>
-                                <div>
-                                    <h6 class="mb-1 @(n.IsRead ? "" : "fw-bold")">@n.Title</h6>
-                                    <p class="mb-1 text-muted small">@n.Message</p>
-                                    <span class="badge bg-@GetColor(n.Severity) me-1">@n.Severity</span>
-                                    <span class="badge bg-secondary">@n.Type</span>
-                                </div>
-                            </div>
-                            <small class="text-muted text-nowrap">@n.CreatedAt.ToString("dd.MM HH:mm")</small>
-                        </div>
-                    </div>
+                    <EmptyState Icon="fa-bell" Message="Henuz bildirim bulunamadi." />
                 }
-                @if (_notifications?.Count == 0)
+                else
                 {
-                    <div class="list-group-item text-center text-muted py-4">Bildirim bulunmuyor.</div>
+                    @foreach (var n in _notifications)
+                    {
+                        <div class="list-group-item list-group-item-action @(n.IsRead ? "" : "bg-light")">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas @GetIcon(n.Type) me-3 mt-1 text-@GetColor(n.Severity)"></i>
+                                    <div>
+                                        <h6 class="mb-1 @(n.IsRead ? "" : "fw-bold")">@n.Title</h6>
+                                        <p class="mb-1 text-muted small">@n.Message</p>
+                                        <span class="badge bg-@GetColor(n.Severity) me-1">@n.Severity</span>
+                                        <span class="badge bg-secondary">@n.Type</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted text-nowrap">@n.CreatedAt.ToString("dd.MM HH:mm")</small>
+                            </div>
+                        </div>
+                    }
                 }
             </div>
         </div>

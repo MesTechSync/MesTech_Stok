@@ -105,7 +105,9 @@
               @if (_accounts.Count == 0)
               {
                 <tr>
-                  <td colspan="5" class="text-center text-muted py-4">Hesap plani bos.</td>
+                  <td colspan="5" class="p-0">
+                    <EmptyState Icon="fa-sitemap" Message="Henuz hesap plani bulunamadi." />
+                  </td>
                 </tr>
               }
               else

@@ -131,23 +131,28 @@ else
             </tr>
           </thead>
           <tbody>
-            @foreach (var lot in _recentLots)
-            {
-              <tr>
-                <td class="fw-semibold">@lot.LotNumber</td>
-                <td>@lot.ProductName</td>
-                <td>@lot.WarehouseName</td>
-                <td class="text-end">@lot.Quantity</td>
-                <td class="text-end">@lot.UnitCost.ToString("N2") TL</td>
-                <td>@(lot.ExpiryDate?.ToString("dd.MM.yyyy") ?? "-")</td>
-                <td class="text-muted small">@lot.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-              </tr>
-            }
             @if (_recentLots.Count == 0)
             {
               <tr>
-                <td colspan="7" class="text-center text-muted py-4">Henuz lot girisi bulunmuyor.</td>
+                <td colspan="7" class="p-0">
+                  <EmptyState Icon="fa-layer-group" Message="Henuz lot kaydi bulunamadi." />
+                </td>
               </tr>
+            }
+            else
+            {
+              @foreach (var lot in _recentLots)
+              {
+                <tr>
+                  <td class="fw-semibold">@lot.LotNumber</td>
+                  <td>@lot.ProductName</td>
+                  <td>@lot.WarehouseName</td>
+                  <td class="text-end">@lot.Quantity</td>
+                  <td class="text-end">@lot.UnitCost.ToString("N2") TL</td>
+                  <td>@(lot.ExpiryDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                  <td class="text-muted small">@lot.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                </tr>
+              }
             }
           </tbody>
         </table>
