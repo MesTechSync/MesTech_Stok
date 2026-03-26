@@ -1026,4 +1026,22 @@ Build: 0 error
 Toplam: 31 tur, 83+ commit
 ===========================
 
-### KÜMÜLATİF DEV 3 (31 tur, 83+ commit)
+---
+
+## TUR 32-33 — 2026-03-26 (UnitOfWork Tenant Fix + Security Sweep)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 56 | UnitOfWork.cs | Son FindAsync→FirstOrDefaultAsync (16/16 tam) | 18e1cf9d |
+
+### GÜVENLİK TARAMA
+| Kontrol | Sonuç |
+|---------|-------|
+| FindAsync (tenant bypass) | 0 remaining ✅ (16/16 fixed) |
+| IgnoreQueryFilters | Only seeders (intentional) ✅ |
+| Raw SQL injection | 0 user input ✅ |
+| Sensitive data in logs | 0 ✅ |
+| Endpoint auth | Group-level RequireRateLimiting ✅ |
+
+### KÜMÜLATİF DEV 3 (33 tur, 85 commit)
