@@ -133,5 +133,16 @@ public static class SystemHealthEndpoints
         })
         .WithName("GetUsers")
         .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)");
+
+        // GET /api/v1/admin/system/adapter-health — platform adapter ping durumu
+        group.MapGet("/adapter-health", async (
+            MesTech.Infrastructure.Integration.Health.AdapterHealthService healthService,
+            CancellationToken ct) =>
+        {
+            var report = await healthService.CheckAllAdaptersAsync(ct);
+            return Results.Ok(report);
+        })
+        .WithName("GetAdapterHealth")
+        .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)");
     }
 }

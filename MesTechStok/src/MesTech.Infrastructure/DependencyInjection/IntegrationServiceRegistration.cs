@@ -193,6 +193,9 @@ public static class IntegrationServiceRegistration
         // Factory — receives IEnumerable<IIntegratorAdapter>
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
 
+        // Adapter health check — parallel PingAsync for all adapters
+        services.AddSingleton<Integration.Health.AdapterHealthService>();
+
         // Cargo factory + selector + auto-shipment — Scoped (depends on scoped cargo adapters)
         services.AddScoped<ICargoProviderFactory, CargoProviderFactory>();
         services.AddScoped<ICargoProviderSelector, CargoProviderSelector>();
