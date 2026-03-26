@@ -1,11 +1,22 @@
 @page "/siparisler"
 @attribute [Authorize]
-@inject IStringLocalizer<Strings> L
 @inject MesTechApiClient ApiClient
+@inject ILogger<Orders> Logger
 
 <PageTitle>MesTech - Siparisler</PageTitle>
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-shopping-cart text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Siparisler</h3>
+        <small class="text-muted">Tum platform siparisleri tek ekranda</small>
+    </div>
+</div>
 
 @if (isLoading)
 {
@@ -22,35 +33,106 @@ else if (errorMessage is not null)
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-shopping-cart text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Orders"]</h3>
-        <small class="text-muted">Tum platform siparisleri tek ekranda</small>
-      </div>
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-4">
+                    <SearchInput @bind-Value="searchText" Placeholder="Siparis ara..." />
+                </div>
+                <div class="col-6 col-sm-3">
+                    <select class="form-select form-select-sm" @bind="statusFilter">
+                        <option value="">Tum Durumlar</option>
+                        <option value="Pending">Beklemede</option>
+                        <option value="Confirmed">Onaylandi</option>
+                        <option value="Shipped">Kargoda</option>
+                        <option value="Delivered">Teslim Edildi</option>
+                        <option value="Cancelled">Iptal</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-2">
+                    <span class="badge bg-secondary">@FilteredOrders.Count siparis</span>
+                </div>
+                <div class="col-12 col-sm-3 text-end">
+                    <button class="btn btn-sm btn-outline-success" @onclick="LoadDataAsync">
+                        <i class="fas fa-sync-alt me-1"></i>Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <EmptyState Icon="fa-shopping-cart" Message="Henuz siparis bulunamadi." />
-
-    <div class="alert alert-secondary mt-4" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Siparis listesi, platform filtresi,
-      toplu islem ve kargo takip entegrasyonu eklenecek.
-    </div>
+    @if (FilteredOrders.Count == 0)
+    {
+        <EmptyState Icon="fa-shopping-cart" Message="Filtreye uyan siparis bulunamadi." />
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Siparis No</th>
+                            <th>Musteri</th>
+                            <th>Platform</th>
+                            <th class="text-end">Tutar</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                            <th>Kargo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in FilteredOrders)
+                        {
+                            <tr>
+                                <td><code>@order.OrderNumber</code></td>
+                                <td>@order.CustomerName</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@order.Platform</span>
+                                </td>
+                                <td class="text-end fw-semibold">@order.TotalAmount.ToString("C2", _trCulture)</td>
+                                <td>
+                                    <span class="badge @GetStatusBadge(order.Status)">@order.Status</span>
+                                </td>
+                                <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(order.TrackingNumber))
+                                    {
+                                        <code class="small">@order.TrackingNumber</code>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 }
 
 @code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
     private bool isLoading = true;
     private bool _isDemoMode;
     private string? errorMessage;
+    private string? searchText;
+    private string? statusFilter;
+    private List<OrderRow> orders = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadDataAsync();
-    }
+    private List<OrderRow> FilteredOrders => orders
+        .Where(o => string.IsNullOrEmpty(searchText) ||
+            o.OrderNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            o.CustomerName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(o => string.IsNullOrEmpty(statusFilter) || o.Status == statusFilter)
+        .OrderByDescending(o => o.OrderDate)
+        .ToList();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
 
     private async Task LoadDataAsync()
     {
@@ -58,13 +140,22 @@ else
         {
             isLoading = true;
             errorMessage = null;
-            var result = await ApiClient.SafeGetAsync<List<object>>("orders");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            var result = await ApiClient.SafeGetAsync<List<OrderRow>>("orders");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                orders = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                orders = GenerateDemoOrders();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+            Logger.LogWarning(ex, "Order list load failed, using demo data");
+            _isDemoMode = true;
+            orders = GenerateDemoOrders();
         }
         finally
         {
@@ -72,4 +163,30 @@ else
             StateHasChanged();
         }
     }
+
+    private static string GetStatusBadge(string status) => status switch
+    {
+        "Pending" => "bg-warning text-dark",
+        "Confirmed" => "bg-primary",
+        "Shipped" => "bg-info text-dark",
+        "Delivered" => "bg-success",
+        "Cancelled" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private static List<OrderRow> GenerateDemoOrders() => new()
+    {
+        new("ORD-20260327-001", "Ahmet Yilmaz", "Trendyol", 1250m, "Confirmed", DateTime.Today, null),
+        new("ORD-20260327-002", "Fatma Demir", "Hepsiburada", 890m, "Shipped", DateTime.Today, "YK-123456789"),
+        new("ORD-20260326-003", "Mehmet Kaya", "N11", 3200m, "Pending", DateTime.Today.AddDays(-1), null),
+        new("ORD-20260326-004", "Ayse Celik", "Amazon", 560m, "Delivered", DateTime.Today.AddDays(-1), "AR-987654321"),
+        new("ORD-20260325-005", "Ali Ozturk", "Trendyol", 1780m, "Cancelled", DateTime.Today.AddDays(-2), null),
+        new("ORD-20260325-006", "Zeynep Arslan", "Ciceksepeti", 420m, "Shipped", DateTime.Today.AddDays(-2), "SR-456789012"),
+        new("ORD-20260324-007", "Hasan Yildiz", "Hepsiburada", 2100m, "Delivered", DateTime.Today.AddDays(-3), "YK-654321987"),
+        new("ORD-20260324-008", "Elif Sahin", "N11", 670m, "Confirmed", DateTime.Today.AddDays(-3), null),
+    };
+
+    private sealed record OrderRow(
+        string OrderNumber, string CustomerName, string Platform,
+        decimal TotalAmount, string Status, DateTime OrderDate, string? TrackingNumber);
 }

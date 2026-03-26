@@ -1,10 +1,22 @@
 @page "/stok"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<Stock> Logger
 
 <PageTitle>MesTech - Stok Yonetimi</PageTitle>
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-boxes-stacked text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Stok Yonetimi</h3>
+        <small class="text-muted">Urun ve depo stok takibi</small>
+    </div>
+</div>
 
 @if (isLoading)
 {
@@ -21,35 +33,143 @@ else if (errorMessage is not null)
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-boxes-stacked text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">Stok Yonetimi</h3>
-        <small class="text-muted">Urun ve depo stok takibi</small>
-      </div>
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-primary border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Urun</div>
+                    <div class="fs-4 fw-bold">@products.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-danger border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Dusuk Stok</div>
+                    <div class="fs-4 fw-bold text-danger">@products.Count(p => p.IsLowStock)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-success border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Stok</div>
+                    <div class="fs-4 fw-bold">@products.Sum(p => p.Stock)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-warning border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Stok Degeri</div>
+                    <div class="fs-4 fw-bold">@products.Sum(p => p.Stock * p.PurchasePrice).ToString("C0", _trCulture)</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <EmptyState Icon="fa-boxes-stacked" Message="Henuz stok hareketi bulunamadi." />
-
-    <div class="alert alert-secondary mt-4" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Urun CRUD, stok hareketleri,
-      barkod tarama ve multi-depo stok bolme eklenecek.
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-4">
+                    <SearchInput @bind-Value="searchText" Placeholder="Urun, SKU veya barkod ara..." />
+                </div>
+                <div class="col-6 col-sm-3">
+                    <select class="form-select form-select-sm" @bind="stockFilter">
+                        <option value="">Tum Stok</option>
+                        <option value="low">Dusuk Stok</option>
+                        <option value="out">Stok Bitti</option>
+                        <option value="ok">Normal</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-5 text-end">
+                    <button class="btn btn-sm btn-outline-success" @onclick="LoadDataAsync">
+                        <i class="fas fa-sync-alt me-1"></i>Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    @if (FilteredProducts.Count == 0)
+    {
+        <EmptyState Icon="fa-boxes-stacked" Message="Filtreye uyan urun bulunamadi." />
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SKU</th>
+                            <th>Urun Adi</th>
+                            <th class="text-end">Stok</th>
+                            <th class="text-end">Min</th>
+                            <th class="text-end">Alis</th>
+                            <th class="text-end">Satis</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in FilteredProducts)
+                        {
+                            <tr class="@(p.IsLowStock ? "table-warning" : p.Stock == 0 ? "table-danger" : "")">
+                                <td><code>@p.SKU</code></td>
+                                <td>@p.Name</td>
+                                <td class="text-end fw-semibold">@p.Stock</td>
+                                <td class="text-end text-muted">@p.MinStock</td>
+                                <td class="text-end">@p.PurchasePrice.ToString("C2", _trCulture)</td>
+                                <td class="text-end">@p.SalePrice.ToString("C2", _trCulture)</td>
+                                <td>
+                                    @if (p.Stock == 0)
+                                    {
+                                        <span class="badge bg-danger">Tukendi</span>
+                                    }
+                                    else if (p.IsLowStock)
+                                    {
+                                        <span class="badge bg-warning text-dark">Dusuk</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Normal</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 }
 
 @code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
     private bool isLoading = true;
     private bool _isDemoMode;
     private string? errorMessage;
+    private string? searchText;
+    private string? stockFilter;
+    private List<ProductStockRow> products = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadDataAsync();
-    }
+    private List<ProductStockRow> FilteredProducts => products
+        .Where(p => string.IsNullOrEmpty(searchText) ||
+            p.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            p.SKU.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(p => stockFilter switch
+        {
+            "low" => p.IsLowStock && p.Stock > 0,
+            "out" => p.Stock == 0,
+            "ok" => !p.IsLowStock && p.Stock > 0,
+            _ => true
+        })
+        .OrderBy(p => p.Stock)
+        .ToList();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
 
     private async Task LoadDataAsync()
     {
@@ -57,18 +177,46 @@ else
         {
             isLoading = true;
             errorMessage = null;
-            var result = await ApiClient.SafeGetAsync<List<object>>("products");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            var result = await ApiClient.SafeGetAsync<List<ProductStockRow>>("products");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                products = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                products = GenerateDemoProducts();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+            Logger.LogWarning(ex, "Stock data load failed, using demo data");
+            _isDemoMode = true;
+            products = GenerateDemoProducts();
         }
         finally
         {
             isLoading = false;
             StateHasChanged();
         }
+    }
+
+    private static List<ProductStockRow> GenerateDemoProducts() => new()
+    {
+        new("SKU-001", "iPhone 15 Pro Kilif", 45, 10, 35m, 89.90m),
+        new("SKU-002", "Samsung Galaxy S24 Cam", 3, 10, 12m, 49.90m),
+        new("SKU-003", "USB-C Kablo 1m", 120, 20, 8m, 29.90m),
+        new("SKU-004", "Bluetooth Kulaklik", 0, 5, 85m, 249.90m),
+        new("SKU-005", "Laptop Stand Aluminyum", 8, 10, 120m, 349.90m),
+        new("SKU-006", "Mouse Pad XL", 67, 15, 15m, 59.90m),
+        new("SKU-007", "Webcam 1080p", 2, 5, 95m, 299.90m),
+        new("SKU-008", "HDMI Kablo 2m", 85, 20, 10m, 39.90m),
+        new("SKU-009", "Mekanik Klavye TKL", 0, 3, 250m, 699.90m),
+        new("SKU-010", "Monitor Arm", 15, 5, 180m, 499.90m),
+    };
+
+    private sealed record ProductStockRow(string SKU, string Name, int Stock, int MinStock, decimal PurchasePrice, decimal SalePrice)
+    {
+        public bool IsLowStock => Stock <= MinStock && Stock > 0;
     }
 }
