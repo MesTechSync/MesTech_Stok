@@ -11,7 +11,7 @@ public sealed class DepartmentRepository : IDepartmentRepository
     public DepartmentRepository(AppDbContext context) => _context = context;
 
     public async Task<Department?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Departments.FindAsync([id], ct);
+        => await _context.Departments.FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<Department>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Departments.Where(d => d.TenantId == tenantId)

@@ -12,7 +12,7 @@ public sealed class Bitrix24ContactRepository : IBitrix24ContactRepository
     public Bitrix24ContactRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<Bitrix24Contact?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Bitrix24Contacts.FindAsync([id], ct).ConfigureAwait(false);
+        => await _context.Bitrix24Contacts.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<Bitrix24Contact?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
         => await _context.Bitrix24Contacts

@@ -11,7 +11,7 @@ public sealed class DocumentFolderRepository : IDocumentFolderRepository
     public DocumentFolderRepository(AppDbContext context) => _context = context;
 
     public async Task<DocumentFolder?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.DocumentFolders.FindAsync([id], ct);
+        => await _context.DocumentFolders.FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<DocumentFolder>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.DocumentFolders.Where(f => f.TenantId == tenantId)

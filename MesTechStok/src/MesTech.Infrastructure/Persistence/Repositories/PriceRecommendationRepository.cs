@@ -12,7 +12,7 @@ public sealed class PriceRecommendationRepository : IPriceRecommendationReposito
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<PriceRecommendation?> GetByIdAsync(Guid id)
-        => await _context.PriceRecommendations.FindAsync(id).ConfigureAwait(false);
+        => await _context.PriceRecommendations.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<PriceRecommendation>> GetByProductIdAsync(Guid productId)
         => await _context.PriceRecommendations

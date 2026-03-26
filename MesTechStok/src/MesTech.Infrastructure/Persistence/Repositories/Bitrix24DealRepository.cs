@@ -11,7 +11,7 @@ public sealed class Bitrix24DealRepository : IBitrix24DealRepository
     public Bitrix24DealRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<Bitrix24Deal?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Bitrix24Deals.FindAsync([id], ct).ConfigureAwait(false);
+        => await _context.Bitrix24Deals.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<Bitrix24Deal?> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
         => await _context.Bitrix24Deals

@@ -393,11 +393,19 @@ app.UseRequestTimeouts();
 // Output cache middleware — after auth, before endpoints (KEŞİF-DEV6-T7)
 app.UseOutputCache();
 
-// TenantId validation — reject Guid.Empty to prevent cross-tenant data access (KEŞİF-DEV6-T13)
+// TenantId validation — reject Guid.Empty + cross-tenant access prevention (DEV6-TUR11)
 app.Use(async (context, next) =>
 {
-    var tenantId = context.Request.Query["tenantId"].FirstOrDefault();
-    if (tenantId != null && Guid.TryParse(tenantId, out var parsed) && parsed == Guid.Empty)
+    var tenantId = context.Request.Query["tenantId"].FirstOrDefault()
+                ?? context.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+
+    if (tenantId is null)
+    {
+        await next();
+        return;
+    }
+
+    if (!Guid.TryParse(tenantId, out var parsedTenantId) || parsedTenantId == Guid.Empty)
     {
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
         context.Response.ContentType = "application/problem+json";
@@ -406,10 +414,39 @@ app.Use(async (context, next) =>
             type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             title = "Bad Request",
             status = 400,
-            detail = "tenantId cannot be empty (Guid.Empty). Provide a valid tenant identifier."
+            detail = "tenantId geçersiz veya boş. Geçerli bir tenant identifier sağlayın."
         });
         return;
     }
+
+    // JWT claim cross-tenant erişim kontrolü — GO-LIVE BLOCKER
+    var jwtTenantClaim = context.User?.FindFirst("tenant_id")?.Value
+                      ?? context.User?.FindFirst("tenantId")?.Value;
+
+    if (jwtTenantClaim is not null
+        && Guid.TryParse(jwtTenantClaim, out var jwtTenantId)
+        && jwtTenantId != parsedTenantId)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MesTech.WebApi.TenantGuard");
+        logger.LogWarning(
+            "CROSS-TENANT ACCESS BLOCKED: JWT tenant={JwtTenant}, requested tenant={RequestedTenant}, IP={IP}, Path={Path}",
+            jwtTenantId, parsedTenantId,
+            context.Connection.RemoteIpAddress,
+            context.Request.Path);
+
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            type = "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+            title = "Forbidden",
+            status = 403,
+            detail = "Bu tenant'a erişim yetkiniz yok."
+        });
+        return;
+    }
+
     await next();
 });
 

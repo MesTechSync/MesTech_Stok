@@ -11,7 +11,7 @@ public sealed class DocumentRepository : IDocumentRepository
     public DocumentRepository(AppDbContext context) => _context = context;
 
     public async Task<Document?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Documents.FindAsync([id], ct);
+        => await _context.Documents.FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<Document>> GetByFolderAsync(Guid folderId, CancellationToken ct = default)
         => await _context.Documents.Where(d => d.FolderId == folderId)

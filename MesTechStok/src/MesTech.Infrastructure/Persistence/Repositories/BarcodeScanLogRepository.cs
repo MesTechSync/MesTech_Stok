@@ -12,7 +12,7 @@ public sealed class BarcodeScanLogRepository : IBarcodeScanLogRepository
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<BarcodeScanLog?> GetByIdAsync(Guid id)
-        => await _context.BarcodeScanLogs.FindAsync(id).ConfigureAwait(false);
+        => await _context.BarcodeScanLogs.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<BarcodeScanLog>> GetPagedAsync(
         int page, int pageSize,

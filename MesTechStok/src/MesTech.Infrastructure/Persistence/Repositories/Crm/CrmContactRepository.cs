@@ -16,7 +16,7 @@ public sealed class CrmContactRepository : ICrmContactRepository
     public CrmContactRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<CrmContact?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.CrmContacts.FindAsync([id], ct).ConfigureAwait(false);
+        => await _context.CrmContacts.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<(IReadOnlyList<CrmContact> Items, int TotalCount)> GetPagedAsync(
         Guid tenantId, bool? isActive, int page, int pageSize, CancellationToken ct = default)

@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Repositories;
 
+// DEV6-TUR11: User entity ITenantEntity değil — global filter yok.
+// FindAsync → FirstOrDefaultAsync (query filter uyumlu).
+// G028: DEV 1'e atanacak — User entity'ye ITenantEntity eklenmeli.
 public sealed class UserRepository(AppDbContext db) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id) =>
-        await db.Users.FindAsync(id);
+        await db.Users.FirstOrDefaultAsync(u => u.Id == id);
 
     public async Task<User?> GetByUsernameAsync(string username) =>
         await db.Users.FirstOrDefaultAsync(u => u.Username == username);

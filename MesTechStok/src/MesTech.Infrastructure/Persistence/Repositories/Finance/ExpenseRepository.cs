@@ -11,7 +11,7 @@ public sealed class ExpenseRepository : IFinanceExpenseRepository
     public ExpenseRepository(AppDbContext context) => _context = context;
 
     public async Task<FinanceExpense?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.FinanceExpenses.FindAsync([id], ct);
+        => await _context.FinanceExpenses.FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<FinanceExpense>> GetByTenantAsync(
         Guid tenantId, ExpenseStatus? status, CancellationToken ct = default)

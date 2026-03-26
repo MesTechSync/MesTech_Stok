@@ -11,7 +11,7 @@ public sealed class InvoiceRepository : IInvoiceRepository
     public InvoiceRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<Invoice?> GetByIdAsync(Guid id)
-        => await _context.Invoices.FindAsync(id).ConfigureAwait(false);
+        => await _context.Invoices.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
 
     public async Task<Invoice?> GetByOrderIdAsync(Guid orderId)
         => await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.OrderId == orderId).ConfigureAwait(false);

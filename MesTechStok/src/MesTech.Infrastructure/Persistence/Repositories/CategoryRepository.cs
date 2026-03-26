@@ -15,7 +15,7 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task<Category?> GetByIdAsync(Guid id)
     {
-        return await _context.Categories.FindAsync(id);
+        return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<IReadOnlyList<Category>> GetAllAsync()
@@ -48,7 +48,7 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _context.Categories.FindAsync(id);
+        var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
         if (entity != null)
         {
             entity.IsDeleted = true;

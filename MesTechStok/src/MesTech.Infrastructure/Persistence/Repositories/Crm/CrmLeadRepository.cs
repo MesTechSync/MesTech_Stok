@@ -16,8 +16,9 @@ public sealed class CrmLeadRepository : ICrmLeadRepository
 
     public CrmLeadRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
+    // DEV6-TUR11: FindAsync bypasses global query filter
     public async Task<Lead?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Leads.FindAsync([id], ct).ConfigureAwait(false);
+        => await _context.Leads.FirstOrDefaultAsync(l => l.Id == id, ct).ConfigureAwait(false);
 
     public async Task<(IReadOnlyList<Lead> Items, int TotalCount)> GetPagedAsync(
         Guid tenantId, LeadStatus? status, Guid? assignedToUserId,

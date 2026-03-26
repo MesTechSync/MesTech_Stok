@@ -12,7 +12,7 @@ public sealed class EmployeeRepository : IEmployeeRepository
     public EmployeeRepository(AppDbContext context) => _context = context;
 
     public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Employees.FindAsync([id], ct);
+        => await _context.Employees.FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<IReadOnlyList<Employee>> GetByTenantAsync(
         Guid tenantId, EmployeeStatus? status = null, CancellationToken ct = default)
