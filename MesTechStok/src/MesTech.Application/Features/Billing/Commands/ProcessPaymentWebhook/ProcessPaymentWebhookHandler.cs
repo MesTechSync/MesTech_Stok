@@ -146,7 +146,14 @@ public sealed class ProcessPaymentWebhookHandler
         if (provider.Equals("stripe", StringComparison.OrdinalIgnoreCase))
             return VerifyStripeSignature(body, signature, secret);
 
-        return true; // Other providers: accept with signature present
+        if (provider.Equals("iyzico", StringComparison.OrdinalIgnoreCase))
+            return VerifyIyzicoSignature(body, signature, secret);
+
+        if (provider.Equals("paytr", StringComparison.OrdinalIgnoreCase))
+            return VerifyHmacSha256(body, signature, secret);
+
+        _logger.LogWarning("No signature verifier for provider {Provider} — rejecting", provider);
+        return false;
     }
 
     private bool VerifyStripeSignature(string body, string signature, string? secret)
@@ -175,6 +182,39 @@ public sealed class ProcessPaymentWebhookHandler
         return CryptographicOperations.FixedTimeEquals(
             Encoding.UTF8.GetBytes(hash),
             Encoding.UTF8.GetBytes(expectedHash));
+    }
+
+    /// <summary>
+    /// iyzico webhook: HMAC-SHA256 of raw body with webhook secret.
+    /// iyzico sends signature in X-IYZ-Signature header (base64).
+    /// </summary>
+    private bool VerifyIyzicoSignature(string body, string signature, string? secret)
+    {
+        if (string.IsNullOrWhiteSpace(secret))
+        {
+            _logger.LogDebug("Iyzico webhook secret not configured — sandbox mode");
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(body));
+        var computed = Convert.ToBase64String(hashBytes);
+
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(computed),
+            Encoding.UTF8.GetBytes(signature));
+    }
+
+    /// <summary>Generic HMAC-SHA256 hex verification (PayTR etc.).</summary>
+    private static bool VerifyHmacSha256(string body, string signature, string? secret)
+    {
+        if (string.IsNullOrWhiteSpace(secret))
+            return false;
+
+        var computed = ComputeHmacSha256(body, secret);
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(computed),
+            Encoding.UTF8.GetBytes(signature));
     }
 
     private static string ComputeHmacSha256(string payload, string secret)
