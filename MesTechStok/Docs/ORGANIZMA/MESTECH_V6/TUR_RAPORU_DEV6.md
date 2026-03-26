@@ -599,3 +599,35 @@ WebhookEndpoints enhanced:
 | Commit | **42** |
 | Yeni endpoint | **14** (+3 DLQ) |
 | Cross-DEV görev | **24** (+G036 retry job, +G037 DLQ test) |
+
+---
+
+## TUR: 15 (2026-03-26) — RESPONSE STANDARDIZATION + TRACING DERİNLEŞTİRME
+
+### İş Çıktısı
+| İş | Detay |
+|----|-------|
+| Response migration | CrmEndpoints (5) + StoreEndpoints (2) + ProductEndpoints (1) → ApiResponse<T> |
+| TracingBehavior | MediatR IPipelineBehavior — Activity span per handler, success/fail tags |
+| Toplam migrate | 16/99 anonymous → typed (Billing+Onboarding+Crm+Store+Product+Webhook) |
+
+### COMMIT
+- `745788c6` refactor(api): migrate CrmEndpoints+StoreEndpoints+ProductEndpoints → ApiResponse<T>
+- `82769a6e` feat(tracing): MediatR TracingBehavior — automatic Activity span per handler
+
+### Distributed Tracing Stack (TAM)
+```
+L1: W3C Trace-Context (Activity.Current) — TUR 13
+L2: Serilog TraceId+SpanId+CorrelationId enrichment — TUR 13
+L3: MediatR TracingBehavior (Activity span per handler) — TUR 15
+L4: OTel SDK (G033 → DEV 4) — bekliyor
+```
+
+### DEV 6 — 15 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **45** |
+| Endpoint | **14** |
+| Response migrate | **16/99** |
+| Tracing layer | **3/4** (OTel SDK DEV 4'te) |
+| Cross-DEV görev | **26** (+G038 TracingBehavior test) |
