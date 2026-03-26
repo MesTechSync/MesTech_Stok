@@ -214,8 +214,9 @@ public static class IntegrationServiceRegistration
         services.AddScoped<MockInvoiceProvider>();
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<MockInvoiceProvider>());
 
-        // Dalga 9: UBL-TR 1.2 XML builder
+        // Dalga 9: UBL-TR 1.2 XML builder + validator
         services.AddSingleton<IUblTrXmlBuilder, UblTrXmlBuilder>();
+        services.AddSingleton<IUblTrXmlValidator, UblTrXmlValidator>();
 
         services.AddScoped<SovosInvoiceProvider>(sp =>
             new SovosInvoiceProvider(
