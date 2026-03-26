@@ -323,5 +323,11 @@ public static class HangfireConfig
                 job => job.ExecuteAsync(code, CancellationToken.None),
                 cron);
         }
+
+        // Her 30 dakika — Fulfillment stok sync (Amazon FBA + Hepsilojistik)
+        RecurringJob.AddOrUpdate<FulfillmentStockSyncJob>(
+            "fulfillment-stock-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/30 * * * *");
     }
 }
