@@ -206,6 +206,8 @@ public static class InfrastructureServiceRegistration
 
         services.AddScoped<MesTech.Application.Interfaces.IBulkProductImportService,
             MesTech.Infrastructure.Services.BulkProductImportService>();
+        services.AddScoped<MesTech.Domain.Interfaces.IJournalEntryRepository,
+            MesTech.Infrastructure.Persistence.Repositories.JournalEntryRepository>();
         services.AddScoped<MesTech.Application.Interfaces.ICategoryPlatformMappingRepository,
             MesTech.Infrastructure.Persistence.Repositories.CategoryPlatformMappingRepository>();
         services.AddScoped<MesTech.Application.Interfaces.ICrmDashboardQueryService,
