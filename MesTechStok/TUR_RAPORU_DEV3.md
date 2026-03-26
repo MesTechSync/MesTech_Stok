@@ -915,4 +915,31 @@ core CRUD, kategoriler, siparişler, kargolar, faturalar, settlement, webhook.
 Eksik: batch stock/price update (Trendyol API destekler ama interface'de yok —
 gelecek dalga feature).
 
-### KÜMÜLATİF DEV 3 (25 tur, 67 commit)
+---
+
+## TUR 26 — 2026-03-26 (Webhook Header Map Gap — KRİTİK GÜVENLİK)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| WebApi endpoints | 355+ (72 endpoint dosyası) ✅ |
+| **Webhook SignatureHeaders** | **4/14** — 10 platform header'ı map edilmemiş! |
+| OpenTelemetry | 0 (gelecek feature) |
+| Prometheus | 6 ref (genel health) |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 49 | WebhookEndpoints.cs | SignatureHeaders 4→14 platform (KRİTİK GÜVENLİK) | 3d412a33 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Webhook header extraction | 4/14 | 14/14 | **+10** ✅ KRİTİK |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| 10 platform webhook'u imzasız kabul | 9 | 8 | 1 | 72 | **FIX** |
+
+### KÜMÜLATİF DEV 3 (26 tur, 69 commit)
