@@ -27,6 +27,9 @@ public class PlaceOrderHandlerTests
     {
         _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>())).Returns(Task.CompletedTask);
+        // Default: GetByIdsAsync returns empty (override per test)
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
     }
 
     private PlaceOrderHandler CreateHandler() =>
@@ -53,7 +56,8 @@ public class PlaceOrderHandlerTests
         // Arrange
         var product = CreateProduct(stock: 50);
         var productId = product.Id;
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var cmd = new PlaceOrderCommand(
             CustomerId: Guid.NewGuid(),
@@ -84,7 +88,9 @@ public class PlaceOrderHandlerTests
     {
         // Arrange
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        // GetByIdsAsync boş döner — product bulunamaz
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var cmd = new PlaceOrderCommand(
             CustomerId: Guid.NewGuid(),
@@ -113,8 +119,8 @@ public class PlaceOrderHandlerTests
         // Arrange
         var product1 = CreateProduct(stock: 30);
         var product2 = CreateProduct(stock: 20);
-        _productRepo.Setup(r => r.GetByIdAsync(product1.Id)).ReturnsAsync(product1);
-        _productRepo.Setup(r => r.GetByIdAsync(product2.Id)).ReturnsAsync(product2);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product1, product2 });
 
         var cmd = new PlaceOrderCommand(
             CustomerId: Guid.NewGuid(),
@@ -143,7 +149,8 @@ public class PlaceOrderHandlerTests
     {
         // Arrange — tam stok kadar sipariş
         var product = CreateProduct(stock: 10);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var cmd = new PlaceOrderCommand(
             CustomerId: Guid.NewGuid(),
