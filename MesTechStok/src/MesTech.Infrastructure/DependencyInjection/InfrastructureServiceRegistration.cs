@@ -86,6 +86,7 @@ public static class InfrastructureServiceRegistration
         });
 
         // Repositories
+        services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();

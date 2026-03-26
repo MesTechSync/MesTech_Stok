@@ -279,6 +279,7 @@ public class AppDbContext : DbContext
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     public DbSet<StockAlert> StockAlerts => Set<StockAlert>();
     public DbSet<PriceHistory> PriceHistories => Set<PriceHistory>();
+    public DbSet<ProcessedDomainEvent> ProcessedDomainEvents => Set<ProcessedDomainEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
