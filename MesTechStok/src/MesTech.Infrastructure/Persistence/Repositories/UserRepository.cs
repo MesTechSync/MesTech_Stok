@@ -26,4 +26,7 @@ public sealed class UserRepository(AppDbContext db) : IUserRepository
         db.Users.Update(user);
         return Task.CompletedTask;
     }
+
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default) =>
+        await db.Users.CountAsync(u => u.TenantId == tenantId, ct);
 }

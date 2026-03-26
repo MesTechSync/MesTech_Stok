@@ -9,4 +9,5 @@ public interface IUserRepository
     Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default);
     Task AddAsync(User user);
     Task UpdateAsync(User user);
+    Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
 }
