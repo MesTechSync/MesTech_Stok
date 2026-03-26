@@ -95,6 +95,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
         services.AddScoped<IKvkkAuditLogRepository, KvkkAuditLogRepository>();
+
+        // DEV6-TUR12: Distributed lock — Redis in production, InProcess fallback for dev
+        if (!string.IsNullOrEmpty(configuration?.GetConnectionString("Redis")))
+            services.AddSingleton<Application.Interfaces.IDistributedLockService, Services.RedisDistributedLockService>();
+        else
+            services.AddSingleton<Application.Interfaces.IDistributedLockService, Services.InProcessDistributedLockService>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IIncomeRepository, IncomeRepository>();

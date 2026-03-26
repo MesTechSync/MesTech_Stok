@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ namespace MesTech.Application.EventHandlers;
 /// <summary>
 /// Sipariş onaylandığında her kalem için stok düşürür.
 /// Zincir 1 kalbi: Platform→Sipariş→Stok düşür→StockChangedEvent→Platform sync.
-/// Infrastructure MediatR bridge handler bu servisi çağırır.
+/// DEV6-TUR12: Distributed lock ile overselling koruması eklendi.
 /// </summary>
 public interface IOrderPlacedEventHandler
 {
@@ -19,22 +20,35 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
     private readonly IOrderRepository _orderRepo;
     private readonly IProductRepository _productRepo;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDistributedLockService _lockService;
     private readonly ILogger<OrderPlacedStockDeductionHandler> _logger;
 
     public OrderPlacedStockDeductionHandler(
         IOrderRepository orderRepo,
         IProductRepository productRepo,
         IUnitOfWork unitOfWork,
+        IDistributedLockService lockService,
         ILogger<OrderPlacedStockDeductionHandler> logger)
     {
         _orderRepo = orderRepo;
         _productRepo = productRepo;
         _unitOfWork = unitOfWork;
+        _lockService = lockService;
         _logger = logger;
     }
 
     public async Task HandleAsync(Guid orderId, string orderNumber, CancellationToken ct)
     {
+        // DEV6-TUR12: Distributed lock — sipariş bazlı lock ile overselling önle
+        var lockKey = $"stock-deduction:order:{orderId}";
+        await using var lockHandle = await _lockService.AcquireLockAsync(
+            lockKey, expiry: TimeSpan.FromSeconds(30), waitTimeout: TimeSpan.FromSeconds(10), ct)
+            .ConfigureAwait(false);
+        if (lockHandle is null)
+        {
+            _logger.LogWarning("Distributed lock alınamadı — stok düşürme ertelendi. OrderId={OrderId}", orderId);
+            return;
+        }
         _logger.LogInformation(
             "OrderPlaced → stok düşürme başlıyor. OrderId={OrderId}, OrderNumber={OrderNumber}",
             orderId, orderNumber);
