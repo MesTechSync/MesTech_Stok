@@ -92,7 +92,11 @@ else
                         }
                         else
                         {
-                            <tr><td colspan="6" class="text-center text-muted py-4">FBA envanterinde urun bulunmuyor.</td></tr>
+                            <tr>
+                                <td colspan="6">
+                                    <EmptyState Icon="fa-box-open" Message="Henuz FBA envanter verisi bulunamadi." />
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>

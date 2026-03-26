@@ -216,7 +216,9 @@
               @if (suppliers.Count == 0)
               {
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">Henuz tedarikci eklenmedi.</td>
+                  <td colspan="7">
+                    <EmptyState Icon="fa-truck-field" Message="Henuz tedarikci bulunamadi." />
+                  </td>
                 </tr>
               }
               else
