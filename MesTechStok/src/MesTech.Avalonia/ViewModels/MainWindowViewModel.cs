@@ -156,6 +156,9 @@ public partial class MainWindowViewModel : ViewModelBase
             "CommissionRates" => "Komisyon Oranlari",
             "StaleOrders" => "Gecikmis Siparisler",
             "OrderKanban" => "Siparis Kanban",
+            // WPF010 — LogViewer, WPF011 — Export
+            "LogViewer" => "Uygulama Logları",
+            "Export" => "Dışa Aktar",
             // WPF005 — BarcodeReader
             "BarcodeReader" => "Barkod Okuyucu — Sayım/Giriş/Çıkış",
             // G042 — 10 missing title entries

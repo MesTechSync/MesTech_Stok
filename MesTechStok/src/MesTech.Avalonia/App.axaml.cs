@@ -245,6 +245,9 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<StockValueReportViewModel>();
                 services.AddTransient<TransferWizardAvaloniaViewModel>();
                 services.AddTransient<WarehouseSummaryAvaloniaViewModel>();
+                // WPF010: LogViewer + WPF011: Export
+                services.AddTransient<LogViewerAvaloniaViewModel>();
+                services.AddTransient<ExportAvaloniaViewModel>();
                 // WPF005: BarcodeReader view
                 services.AddTransient<BarcodeReaderViewModel>();
                 // V4 — Muhasebe + İzleme + Kanban

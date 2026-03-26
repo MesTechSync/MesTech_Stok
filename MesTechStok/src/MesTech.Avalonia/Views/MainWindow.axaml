@@ -1301,6 +1301,13 @@
                         <DataTemplate DataType="acctvm:ProfitabilityReportViewModel">
                             <acctviews:ProfitabilityReportView />
                         </DataTemplate>
+                        <!-- WPF010 — LogViewer, WPF011 — Export -->
+                        <DataTemplate DataType="vm:LogViewerAvaloniaViewModel">
+                            <views:LogViewerAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ExportAvaloniaViewModel">
+                            <views:ExportAvaloniaView />
+                        </DataTemplate>
                         <!-- Missing DataTemplates — erpvm: namespace (ERP) -->
                         <DataTemplate DataType="erpvm:ErpAccountMappingViewModel">
                             <erpviews:ErpAccountMappingView />

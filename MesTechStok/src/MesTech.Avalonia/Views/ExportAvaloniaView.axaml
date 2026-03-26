@@ -1,0 +1,159 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ExportAvaloniaView"
+             x:DataType="vm:ExportAvaloniaViewModel">
+
+    <!-- Dışa Aktar — WPF011 -->
+
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Dışa Aktar"
+                           Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Dışa Aktar"
+                        ToolTip.Tip="Seçili verileri dışa aktar"
+                        Command="{Binding ExportCommand}"
+                        IsEnabled="{Binding !IsExporting}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="20" MaxWidth="700">
+
+                <!-- Data Types Card -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
+                        Padding="24" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Veri Türleri"
+                                       FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="Dışa aktarmak istediğiniz veri türlerini seçin"
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="10">
+                            <CheckBox IsChecked="{Binding ExportProducts}"
+                                      Content="Ürünler"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource MesDarkSlate}" />
+                            <CheckBox IsChecked="{Binding ExportOrders}"
+                                      Content="Siparişler"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource MesDarkSlate}" />
+                            <CheckBox IsChecked="{Binding ExportStock}"
+                                      Content="Stok"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource MesDarkSlate}" />
+                            <CheckBox IsChecked="{Binding ExportCustomers}"
+                                      Content="Müşteriler"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource MesDarkSlate}" />
+                            <CheckBox IsChecked="{Binding ExportInvoices}"
+                                      Content="Faturalar"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource MesDarkSlate}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Format Selection Card -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
+                        Padding="24" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Dosya Formatı"
+                                       FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Text="Çıktı dosyasının formatını seçin"
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                        </StackPanel>
+                        <ComboBox Width="240"
+                                  ItemsSource="{Binding Formats}"
+                                  SelectedItem="{Binding SelectedFormat}"
+                                  HorizontalAlignment="Left"
+                                  AutomationProperties.Name="Dosya Formatı" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Progress Card — visible only while exporting -->
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="20" BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
+                        IsVisible="{Binding IsExporting}">
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ProgressBar IsIndeterminate="True" Width="80" Height="4"
+                                         VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ExportMessage}"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{DynamicResource MesAmber}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ProgressBar Value="{Binding ExportProgress}" Maximum="100"
+                                     Height="8" CornerRadius="4" />
+                        <TextBlock FontSize="{StaticResource FontSizeCaption}"
+                                   Foreground="{DynamicResource MesSlateGray}">
+                            <Run Text="{Binding ExportProgress}" />
+                            <Run Text="%" />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Result Message Card -->
+                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="14,10"
+                        BorderBrush="{DynamicResource MesBorderSuccess}" BorderThickness="1"
+                        IsVisible="{Binding ExportMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding ExportMessage}"
+                               FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesTeal}"
+                               IsVisible="{Binding !IsExporting}"
+                               TextWrapping="Wrap" />
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Yükleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding LoadDataCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

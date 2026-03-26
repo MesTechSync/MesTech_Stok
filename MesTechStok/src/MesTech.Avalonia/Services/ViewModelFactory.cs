@@ -176,6 +176,9 @@ public sealed class ViewModelFactory : IViewModelFactory
             "CommissionRates" => _provider.GetService<AcctVm.CommissionRatesViewModel>(),
             "StaleOrders" => _provider.GetService<MonVm.StaleOrdersAvaloniaViewModel>(),
             "OrderKanban" => _provider.GetService<OrdVm.OrderKanbanViewModel>(),
+            // WPF010 — LogViewer, WPF011 — Export
+            "LogViewer" => _provider.GetService<LogViewerAvaloniaViewModel>(),
+            "Export" => _provider.GetService<ExportAvaloniaViewModel>(),
             // WPF005 — BarcodeReader
             "BarcodeReader" => _provider.GetService<BarcodeReaderViewModel>(),
             // G042 — 10 missing factory keys
