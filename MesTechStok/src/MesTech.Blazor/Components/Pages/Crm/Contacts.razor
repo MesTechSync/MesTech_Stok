@@ -1,10 +1,22 @@
 @page "/crm/contacts"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<Contacts> Logger
 
 <PageTitle>MesTech - Kisiler</PageTitle>
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-address-book text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Kisiler (Contacts)</h3>
+        <small class="text-muted">Musteri ve tedarikci rehberi</small>
+    </div>
+</div>
 
 @if (isLoading)
 {
@@ -21,36 +33,94 @@ else if (errorMessage is not null)
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-address-book text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">Kisiler (Contacts)</h3>
-        <small class="text-muted">Musteri ve tedarikci rehberi</small>
-      </div>
+    <!-- Toolbar -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-4">
+                    <SearchInput @bind-Value="searchText" Placeholder="Kisi, firma veya telefon ara..." />
+                </div>
+                <div class="col-6 col-sm-3">
+                    <select class="form-select form-select-sm" @bind="typeFilter">
+                        <option value="">Tum Tipler</option>
+                        <option value="Musteri">Musteri</option>
+                        <option value="Tedarikci">Tedarikci</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-2">
+                    <span class="badge bg-secondary">@FilteredContacts.Count kisi</span>
+                </div>
+                <div class="col-12 col-sm-3 text-end">
+                    <button class="btn btn-sm btn-outline-success" @onclick="LoadDataAsync">
+                        <i class="fas fa-sync-alt me-1"></i>Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <EmptyState Icon="fa-address-book" Message="Henuz iletisim bulunamadi." />
-
-    <div class="alert alert-secondary mt-4" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Kisi listesi, detay goruntuleme,
-      iletisim gecmisi ve etiket sistemi eklenecek.
-    </div>
+    @if (FilteredContacts.Count == 0)
+    {
+        <EmptyState Icon="fa-address-book" Message="Filtreye uyan kisi bulunamadi." />
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ad</th>
+                            <th>Tip</th>
+                            <th>E-posta</th>
+                            <th>Telefon</th>
+                            <th>Sehir</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in FilteredContacts)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@c.Name</td>
+                                <td>
+                                    <span class="badge @(c.Type == "Musteri" ? "bg-primary" : "bg-info text-dark")">@c.Type</span>
+                                </td>
+                                <td>@(c.Email ?? "—")</td>
+                                <td>@(c.Phone ?? "—")</td>
+                                <td>@(c.City ?? "—")</td>
+                                <td>
+                                    <span class="badge @(c.IsActive ? "bg-success" : "bg-secondary")">
+                                        @(c.IsActive ? "Aktif" : "Pasif")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 }
 
 @code {
     private bool isLoading = true;
-    private string? errorMessage;
-
     private bool _isDemoMode;
+    private string? errorMessage;
+    private string? searchText;
+    private string? typeFilter;
+    private List<ContactRow> contacts = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadDataAsync();
-    }
+    private List<ContactRow> FilteredContacts => contacts
+        .Where(c => string.IsNullOrEmpty(searchText) ||
+            c.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            (c.Email?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (c.Phone?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false))
+        .Where(c => string.IsNullOrEmpty(typeFilter) || c.Type == typeFilter)
+        .OrderBy(c => c.Name)
+        .ToList();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
 
     private async Task LoadDataAsync()
     {
@@ -58,13 +128,22 @@ else
         {
             isLoading = true;
             errorMessage = null;
-            var result = await ApiClient.SafeGetAsync<List<object>>("crm/contacts");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            var result = await ApiClient.SafeGetAsync<List<ContactRow>>("crm/contacts");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                contacts = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                contacts = GenerateDemoContacts();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+            Logger.LogWarning(ex, "Contacts load failed, using demo data");
+            _isDemoMode = true;
+            contacts = GenerateDemoContacts();
         }
         finally
         {
@@ -72,4 +151,16 @@ else
             StateHasChanged();
         }
     }
+
+    private static List<ContactRow> GenerateDemoContacts() => new()
+    {
+        new("Ahmet Yilmaz", "Musteri", "ahmet@firma.com", "0532 111 2233", "Istanbul", true),
+        new("Fatma Demir", "Musteri", "fatma@demir.com", "0544 222 3344", "Ankara", true),
+        new("Mehmet Kaya Ltd.", "Tedarikci", "info@kayaltd.com", "0212 333 4455", "Istanbul", true),
+        new("ABC Elektronik A.S.", "Tedarikci", "satis@abcelektronik.com", "0216 444 5566", "Izmir", true),
+        new("Zeynep Arslan", "Musteri", "zeynep@email.com", null, "Bursa", false),
+        new("XYZ Lojistik", "Tedarikci", "info@xyzlojistik.com", "0232 555 6677", "Izmir", true),
+    };
+
+    private sealed record ContactRow(string Name, string Type, string? Email, string? Phone, string? City, bool IsActive);
 }

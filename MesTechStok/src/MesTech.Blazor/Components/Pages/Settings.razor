@@ -34,25 +34,21 @@ else
       @foreach (var s in settingsSections)
       {
         <div class="col-md-6">
-          <div class="card shadow-sm h-100 stat-card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-2">
-                <div class="stat-icon @s.BgClass @s.TextClass" style="width: 40px; height: 40px; font-size: 1rem;">
-                  <i class="@s.Icon"></i>
+          <a href="@s.Link" class="text-decoration-none">
+            <div class="card shadow-sm h-100 stat-card" style="cursor: pointer; transition: transform 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="stat-icon @s.BgClass @s.TextClass" style="width: 40px; height: 40px; font-size: 1rem;">
+                    <i class="@s.Icon"></i>
+                  </div>
+                  <h6 class="ms-3 mb-0 fw-semibold">@s.Name</h6>
                 </div>
-                <h6 class="ms-3 mb-0 fw-semibold">@s.Name</h6>
+                <p class="text-muted small mb-0">@s.Description</p>
               </div>
-              <p class="text-muted small mb-0">@s.Description</p>
             </div>
-          </div>
+          </a>
         </div>
       }
-    </div>
-
-    <div class="alert alert-secondary" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Kullanici yonetimi,
-      rol/yetki ayarlari, platform API anahtarlari ve bildirim tercihleri eklenecek.
     </div>
 }
 
@@ -60,22 +56,22 @@ else
     private bool isLoading = true;
     private string? errorMessage;
 
-    private record SettingsSection(string Name, string Description, string Icon, string BgClass, string TextClass);
+    private record SettingsSection(string Name, string Description, string Icon, string BgClass, string TextClass, string Link);
 
     private List<SettingsSection> settingsSections =
     [
         new("Genel Ayarlar", "Sirket bilgileri, dil, para birimi ve zaman dilimi",
-            "fas fa-sliders-h", "bg-primary bg-opacity-10", "text-primary"),
+            "fas fa-sliders-h", "bg-primary bg-opacity-10", "text-primary", "/ayarlar/genel"),
         new("Kullanici Yonetimi", "Kullanicilar, roller ve erisim yetkileri",
-            "fas fa-user-shield", "bg-info bg-opacity-10", "text-info"),
+            "fas fa-user-shield", "bg-info bg-opacity-10", "text-info", "/ayarlar/kullanicilar"),
         new("Platform Entegrasyonlari", "API anahtarlari ve senkronizasyon ayarlari",
-            "fas fa-plug", "bg-success bg-opacity-10", "text-success"),
+            "fas fa-plug", "bg-success bg-opacity-10", "text-success", "/ayarlar/entegrasyonlar"),
         new("Bildirimler", "E-posta, SMS ve uygulama ici bildirim tercihleri",
-            "fas fa-bell", "bg-warning bg-opacity-10", "text-warning"),
+            "fas fa-bell", "bg-warning bg-opacity-10", "text-warning", "/ayarlar/bildirimler"),
         new("Guvenlik", "Sifre politikasi, 2FA, oturum suresi",
-            "fas fa-shield-alt", "bg-danger bg-opacity-10", "text-danger"),
+            "fas fa-shield-alt", "bg-danger bg-opacity-10", "text-danger", "/ayarlar/guvenlik"),
         new("Yedekleme", "Veritabani yedekleme zamanlamasi ve geri yukleme",
-            "fas fa-database", "bg-secondary bg-opacity-10", "text-secondary"),
+            "fas fa-database", "bg-secondary bg-opacity-10", "text-secondary", "/ayarlar/yedekleme"),
     ];
 
     private bool _isDemoMode;

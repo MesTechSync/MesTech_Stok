@@ -1,10 +1,22 @@
 @page "/pazaryerleri"
 @attribute [Authorize]
 @inject MesTechApiClient ApiClient
+@inject ILogger<Marketplaces> Logger
 
 <PageTitle>MesTech - Pazaryerleri</PageTitle>
 
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+        <i class="fas fa-globe text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #2855AC;">Pazaryerleri</h3>
+        <small class="text-muted">10 platform entegrasyon yonetimi</small>
+    </div>
+</div>
 
 @if (isLoading)
 {
@@ -18,75 +30,101 @@ else if (errorMessage is not null)
 }
 else
 {
-    <div class="d-flex align-items-center mb-4">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-           style="width: 48px; height: 48px; background-color: #2855AC;">
-        <i class="fas fa-globe text-white"></i>
-      </div>
-      <div>
-        <h3 class="mb-0" style="color: #2855AC;">Pazaryerleri</h3>
-        <small class="text-muted">10 platform entegrasyon yonetimi</small>
-      </div>
+    <!-- Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-success border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Aktif Platform</div>
+                    <div class="fs-4 fw-bold text-success">@platforms.Count(p => p.IsConnected)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-secondary border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Platform</div>
+                    <div class="fs-4 fw-bold">@platforms.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-primary border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Urun</div>
+                    <div class="fs-4 fw-bold">@platforms.Sum(p => p.ProductCount)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-warning border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Bekleyen Sync</div>
+                    <div class="fs-4 fw-bold text-warning">@platforms.Count(p => p.SyncStatus == "Pending")</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Platform Grid -->
     <div class="row g-3 mb-4">
-      @foreach (var p in platforms)
-      {
-        <div class="col-md-4 col-lg-3">
-          <div class="card shadow-sm h-100">
-            <div class="card-body text-center py-4">
-              <i class="@p.Icon fa-2x mb-2 d-block" style="color: @p.Color;"></i>
-              <h6 class="fw-semibold mb-1">@p.Name</h6>
-              <span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">
-                @(p.IsActive ? "TAM" : "YAKIN")
-              </span>
+        @foreach (var p in platforms)
+        {
+            <div class="col-md-4 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="@p.Icon fa-lg me-2" style="color: @p.Color;"></i>
+                            <h6 class="fw-semibold mb-0">@p.Name</h6>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge @(p.IsConnected ? "bg-success" : "bg-secondary")">
+                                @(p.IsConnected ? "Bagli" : "Bagli Degil")
+                            </span>
+                            <span class="badge @GetSyncBadge(p.SyncStatus)">@p.SyncStatus</span>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="fas fa-box me-1"></i>@p.ProductCount urun
+                        </div>
+                        @if (p.LastSyncAt is not null)
+                        {
+                            <div class="small text-muted mt-1">
+                                <i class="fas fa-clock me-1"></i>@p.LastSyncAt.Value.ToString("dd.MM HH:mm")
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      }
-    </div>
-
-    <div class="alert alert-secondary" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Platform API ayarlari,
-      senkronizasyon durumu, hata loglari ve toplu islem paneli eklenecek.
+        }
     </div>
 }
 
 @code {
     private bool isLoading = true;
-    private string? errorMessage;
-
-    private record PlatformInfo(string Name, string Icon, string Color, bool IsActive);
-
-    private List<PlatformInfo> platforms =
-    [
-        new("Trendyol", "fas fa-shopping-bag", "#FF6F00", true),
-        new("OpenCart", "fas fa-cart-shopping", "#2196F3", true),
-        new("N11", "fas fa-store", "#FF5722", true),
-        new("Hepsiburada", "fas fa-box", "#FF9800", true),
-        new("Amazon TR", "fab fa-amazon", "#FF9900", true),
-        new("Pazarama", "fas fa-shop", "#4CAF50", true),
-        new("CicekSepeti", "fas fa-seedling", "#E91E63", true),
-        new("Bitrix24", "fas fa-users-cog", "#00BCD4", true),
-        new("Google Merchant", "fab fa-google", "#4285F4", true),
-        new("Facebook Shop", "fab fa-facebook", "#1877F2", true),
-    ];
-
     private bool _isDemoMode;
+    private string? errorMessage;
+    private List<PlatformRow> platforms = new();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var result = await ApiClient.SafeGetAsync<List<object>>("platforms");
-            if (result.IsSuccess) { }
-            else { _isDemoMode = true; }
+            var result = await ApiClient.SafeGetAsync<List<PlatformRow>>("platforms");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                platforms = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                platforms = GenerateDemoPlatforms();
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Veri yuklenirken hata: {ex.Message}";
+            Logger.LogWarning(ex, "Platform data load failed, using demo");
+            _isDemoMode = true;
+            platforms = GenerateDemoPlatforms();
         }
         finally
         {
@@ -94,4 +132,30 @@ else
             StateHasChanged();
         }
     }
+
+    private static string GetSyncBadge(string status) => status switch
+    {
+        "OK" => "bg-success",
+        "Pending" => "bg-warning text-dark",
+        "Error" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private static List<PlatformRow> GenerateDemoPlatforms() => new()
+    {
+        new("Trendyol", "fas fa-shopping-bag", "#FF6F00", true, "OK", 1250, DateTime.Now.AddMinutes(-15)),
+        new("Hepsiburada", "fas fa-box", "#FF9800", true, "OK", 980, DateTime.Now.AddMinutes(-30)),
+        new("N11", "fas fa-store", "#FF5722", true, "Pending", 650, DateTime.Now.AddHours(-2)),
+        new("Amazon TR", "fab fa-amazon", "#FF9900", true, "OK", 420, DateTime.Now.AddHours(-1)),
+        new("OpenCart", "fas fa-cart-shopping", "#2196F3", true, "OK", 1100, DateTime.Now.AddMinutes(-45)),
+        new("Pazarama", "fas fa-shop", "#4CAF50", true, "Error", 310, DateTime.Now.AddHours(-6)),
+        new("CicekSepeti", "fas fa-seedling", "#E91E63", true, "OK", 180, DateTime.Now.AddHours(-1)),
+        new("Bitrix24", "fas fa-users-cog", "#00BCD4", false, "—", 0, null),
+        new("Google Merchant", "fab fa-google", "#4285F4", true, "OK", 890, DateTime.Now.AddMinutes(-20)),
+        new("Facebook Shop", "fab fa-facebook", "#1877F2", false, "—", 0, null),
+    };
+
+    private sealed record PlatformRow(
+        string Name, string Icon, string Color, bool IsConnected,
+        string SyncStatus, int ProductCount, DateTime? LastSyncAt);
 }

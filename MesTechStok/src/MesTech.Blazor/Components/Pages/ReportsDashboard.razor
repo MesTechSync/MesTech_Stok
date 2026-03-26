@@ -34,25 +34,22 @@ else
       @foreach (var r in reportCategories)
       {
         <div class="col-md-4">
-          <div class="card shadow-sm h-100 stat-card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-3">
-                <div class="stat-icon @r.BgClass @r.TextClass">
-                  <i class="@r.Icon"></i>
+          <a href="@r.Link" class="text-decoration-none">
+            <div class="card shadow-sm h-100 stat-card" style="cursor: pointer; transition: transform 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stat-icon @r.BgClass @r.TextClass">
+                    <i class="@r.Icon"></i>
+                  </div>
+                  <h6 class="ms-3 mb-0 fw-semibold">@r.Name</h6>
                 </div>
-                <h6 class="ms-3 mb-0 fw-semibold">@r.Name</h6>
+                <p class="text-muted small mb-2">@r.Description</p>
+                <span class="badge @r.BgClass @r.TextClass">@r.ReportCount rapor</span>
               </div>
-              <p class="text-muted small mb-0">@r.Description</p>
             </div>
-          </div>
+          </a>
         </div>
       }
-    </div>
-
-    <div class="alert alert-secondary" role="alert">
-      <i class="fas fa-clock me-2"></i>
-      <strong>Dalga 11:</strong> Bu sayfa Dalga 11'de tamamlanacak. Excel/PDF export,
-      zamanlayici raporlar, grafik gorunumleri ve e-posta gonderim eklenecek.
     </div>
 }
 
@@ -60,22 +57,22 @@ else
     private bool isLoading = true;
     private string? errorMessage;
 
-    private record ReportCategory(string Name, string Description, string Icon, string BgClass, string TextClass);
+    private record ReportCategory(string Name, string Description, string Icon, string BgClass, string TextClass, string Link, int ReportCount);
 
     private List<ReportCategory> reportCategories =
     [
         new("Satis Raporu", "Platform bazli satis ozeti, siparis adetleri ve ciro analizi",
-            "fas fa-shopping-cart", "bg-success bg-opacity-10", "text-success"),
+            "fas fa-shopping-cart", "bg-success bg-opacity-10", "text-success", "/raporlar/satis", 4),
         new("Kar / Zarar", "Aylik ve yillik gelir-gider karsilastirmasi, net kar trendi",
-            "fas fa-chart-line", "bg-primary bg-opacity-10", "text-primary"),
+            "fas fa-chart-line", "bg-primary bg-opacity-10", "text-primary", "/raporlar/kar-zarar", 3),
         new("Stok Raporu", "Stok durumu, kritik seviye uyarilari, hareket ozeti",
-            "fas fa-boxes-stacked", "bg-warning bg-opacity-10", "text-warning"),
+            "fas fa-boxes-stacked", "bg-warning bg-opacity-10", "text-warning", "/raporlar/stok", 5),
         new("CRM Raporu", "Lead donusum oranlari, pipeline analizi, musteri segmentasyonu",
-            "fas fa-users", "bg-info bg-opacity-10", "text-info"),
+            "fas fa-users", "bg-info bg-opacity-10", "text-info", "/crm/dashboard", 3),
         new("Platform Performans", "Platform bazli siparis, iade ve komisyon karsilastirmasi",
-            "fas fa-globe", "bg-danger bg-opacity-10", "text-danger"),
+            "fas fa-globe", "bg-danger bg-opacity-10", "text-danger", "/raporlar/platform", 4),
         new("Finans Raporu", "Nakit akisi, banka mutabakat, vergi hesaplamalari",
-            "fas fa-coins", "bg-secondary bg-opacity-10", "text-secondary"),
+            "fas fa-coins", "bg-secondary bg-opacity-10", "text-secondary", "/raporlar/finans", 6),
     ];
 
     private bool _isDemoMode;
