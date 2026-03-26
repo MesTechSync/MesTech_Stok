@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MediatR;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -12,6 +13,8 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
     private readonly IOrderRepository _orderRepo;
     private readonly IProductRepository _productRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IKvkkAuditLogRepository _kvkkAuditRepo;
+    private readonly IUnitOfWork _uow;
     private readonly ILogger<ExportPersonalDataHandler> _logger;
 
     public ExportPersonalDataHandler(
@@ -20,6 +23,8 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
         IOrderRepository orderRepo,
         IProductRepository productRepo,
         IUserRepository userRepo,
+        IKvkkAuditLogRepository kvkkAuditRepo,
+        IUnitOfWork uow,
         ILogger<ExportPersonalDataHandler> logger)
     {
         _tenantRepo = tenantRepo;
@@ -27,6 +32,8 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
         _orderRepo = orderRepo;
         _productRepo = productRepo;
         _userRepo = userRepo;
+        _kvkkAuditRepo = kvkkAuditRepo;
+        _uow = uow;
         _logger = logger;
     }
 
@@ -115,6 +122,18 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
+
+        // KVKK denetim kaydı — yasal zorunluluk (defense in depth)
+        var auditLog = KvkkAuditLog.Create(
+            tenantId: request.TenantId,
+            requestedByUserId: request.RequestedByUserId,
+            operationType: KvkkOperationType.DataExport,
+            reason: "KVKK madde 11/c — kisisel verilerin disari aktarilmasi",
+            affectedRecordCount: allUsers.Count + stores.Count + orders.Count + productCount,
+            isSuccess: true,
+            details: $"Users={allUsers.Count}, Stores={stores.Count}, Orders={orders.Count}, Products={productCount}");
+        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
             "KVKK export tamamlandi: TenantId={TenantId}, Users={Users}, Stores={Stores}, Orders={Orders}, Products={Products}",

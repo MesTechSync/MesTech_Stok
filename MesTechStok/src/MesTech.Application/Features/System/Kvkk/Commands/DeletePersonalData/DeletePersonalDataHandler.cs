@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using MediatR;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +14,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
     private readonly IStoreCredentialRepository _credentialRepo;
     private readonly IOrderRepository _orderRepo;
     private readonly IUnitOfWork _uow;
+    private readonly IKvkkAuditLogRepository _kvkkAuditRepo;
     private readonly ILogger<DeletePersonalDataHandler> _logger;
 
     public DeletePersonalDataHandler(
@@ -21,6 +23,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         IStoreCredentialRepository credentialRepo,
         IOrderRepository orderRepo,
         IUnitOfWork uow,
+        IKvkkAuditLogRepository kvkkAuditRepo,
         ILogger<DeletePersonalDataHandler> logger)
     {
         _tenantRepo = tenantRepo;
@@ -28,6 +31,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         _credentialRepo = credentialRepo;
         _orderRepo = orderRepo;
         _uow = uow;
+        _kvkkAuditRepo = kvkkAuditRepo;
         _logger = logger;
     }
 
@@ -102,7 +106,17 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         _logger.LogInformation("KVKK: {Count} siparis musteri bilgisi anonimlestirildi, TenantId={TenantId}.",
             orders.Count, request.TenantId);
 
-        // 5. Loglama — KVKK uyumluluk kaydı
+        // 5. KVKK denetim kaydı — yasal zorunluluk (defense in depth)
+        var auditLog = KvkkAuditLog.Create(
+            tenantId: request.TenantId,
+            requestedByUserId: request.RequestedByUserId,
+            operationType: KvkkOperationType.DataDeletion,
+            reason: request.Reason,
+            affectedRecordCount: anonymized,
+            isSuccess: true,
+            details: $"Tenant+{tenant.Users.Count} user+{credentialDeleteCount} credential+{orders.Count} order anonimlestirildi");
+        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken);
+
         _logger.LogWarning(
             "KVKK TAMAMLANDI: TenantId={TenantId}, RequestedBy={UserId}, Reason={Reason}, " +
             "AnonymizedRecords={AnonymizedCount}, Timestamp={Timestamp}",
