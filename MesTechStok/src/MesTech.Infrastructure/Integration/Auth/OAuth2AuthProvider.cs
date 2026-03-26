@@ -36,6 +36,7 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
     {
         PlatformCode = platformCode;
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(15);
         _tokenCache = tokenCache ?? throw new ArgumentNullException(nameof(tokenCache));
         _clientId = clientId;
         _clientSecret = clientSecret;
