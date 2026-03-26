@@ -33,20 +33,22 @@ public class AdjustStockValidatorTests
     }
 
     [Fact]
-    public void Negative_Quantity_Fails()
+    public void Negative_Quantity_Passes_ForCorrection()
     {
+        // Stok düzeltme: negatif miktar kabul edilir (stok azaltma)
         var cmd = ValidCommand() with { Quantity = -1 };
         var result = _validator.Validate(cmd);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Quantity");
+        result.Errors.Should().NotContain(e => e.PropertyName == "Quantity");
     }
 
     [Fact]
-    public void Zero_Quantity_Passes()
+    public void Zero_Quantity_Fails_CannotAdjustByZero()
     {
+        // Validator değişti: adjustment quantity 0 olamaz (anlamlı değişiklik gerekli)
         var cmd = ValidCommand() with { Quantity = 0 };
         var result = _validator.Validate(cmd);
-        result.Errors.Should().NotContain(e => e.PropertyName == "Quantity");
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Quantity");
     }
 
     [Fact]

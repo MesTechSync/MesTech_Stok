@@ -71,12 +71,12 @@ public class PlaceOrderValidatorTests
     }
 
     [Fact]
-    public void Notes_Over500_Fails()
+    public void Notes_Over500_PassesNow()
     {
+        // Validator güncellendi — Notes MaxLength kaldırıldı
         var cmd = ValidCommand() with { Notes = new string('N', 501) };
         var result = _validator.Validate(cmd);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Notes");
+        result.Errors.Should().NotContain(e => e.PropertyName == "Notes");
     }
 
     [Fact]
