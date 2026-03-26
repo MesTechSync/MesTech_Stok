@@ -1,21 +1,30 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Queries.GetCategories;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Category management ViewModel — DataGrid with hierarchical categories.
-/// 12 demo categories with parent-child hierarchy (indented names).
+/// Category management ViewModel — wired to GetCategoriesQuery via MediatR.
+/// Displays hierarchical categories with parent-child indentation.
 /// </summary>
 public partial class CategoryAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<CategoryItemDto> Categories { get; } = [];
 
     private List<CategoryItemDto> _allCategories = [];
+
+    public CategoryAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     public override async Task LoadAsync()
     {
@@ -25,23 +34,19 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var result = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true));
 
-            _allCategories =
-            [
-                new() { Name = "Elektronik", ParentCategory = "—", Platform = "Trendyol", ProductCount = 245 },
-                new() { Name = "  Telefon", ParentCategory = "Elektronik", Platform = "Trendyol", ProductCount = 89 },
-                new() { Name = "    Akilli Telefon", ParentCategory = "Telefon", Platform = "Trendyol", ProductCount = 62 },
-                new() { Name = "  Bilgisayar", ParentCategory = "Elektronik", Platform = "Hepsiburada", ProductCount = 67 },
-                new() { Name = "    Dizustu", ParentCategory = "Bilgisayar", Platform = "Hepsiburada", ProductCount = 34 },
-                new() { Name = "Ev & Yasam", ParentCategory = "—", Platform = "N11", ProductCount = 312 },
-                new() { Name = "  Mutfak Gerecleri", ParentCategory = "Ev & Yasam", Platform = "Ciceksepeti", ProductCount = 134 },
-                new() { Name = "  Mobilya", ParentCategory = "Ev & Yasam", Platform = "Amazon", ProductCount = 56 },
-                new() { Name = "Giyim", ParentCategory = "—", Platform = "Trendyol", ProductCount = 478 },
-                new() { Name = "  Kadin Giyim", ParentCategory = "Giyim", Platform = "Trendyol", ProductCount = 256 },
-                new() { Name = "  Erkek Giyim", ParentCategory = "Giyim", Platform = "N11", ProductCount = 189 },
-                new() { Name = "Kozmetik", ParentCategory = "—", Platform = "Ciceksepeti", ProductCount = 201 },
-            ];
+            // Build parent name lookup for hierarchy display
+            var lookup = result.ToDictionary(c => c.Id, c => c.Name);
+
+            _allCategories = result.Select(c => new CategoryItemDto
+            {
+                Name = c.ParentCategoryId.HasValue ? $"  {c.Name}" : c.Name,
+                ParentCategory = c.ParentCategoryId.HasValue && lookup.TryGetValue(c.ParentCategoryId.Value, out var pn)
+                    ? pn : "—",
+                Platform = "-",
+                ProductCount = 0
+            }).ToList();
 
             ApplyFilters();
         }
