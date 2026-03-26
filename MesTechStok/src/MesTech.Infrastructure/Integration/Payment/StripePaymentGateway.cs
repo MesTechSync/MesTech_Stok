@@ -128,6 +128,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
     {
         var client = _httpClientFactory.CreateClient("Stripe");
         client.BaseAddress = new Uri(StripeApiBaseUrl);
+        client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.SecretKey);
         return client;
