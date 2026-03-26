@@ -11,6 +11,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using ISyncLogRepository = MesTech.Application.Interfaces.ISyncLogRepository;
 using MesTech.Tests.Unit._Shared;
 using Moq;
 
