@@ -3,108 +3,218 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.SyncStatusAvaloniaView"
              x:DataType="vm:SyncStatusAvaloniaViewModel">
-<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+  </UserControl.KeyBindings>
 
-    <!-- Platform Senkronizasyon Durumu — marketplace sync status with per-row actions -->
+  <!-- Platform Senkronizasyon Durumu — kart bazli gosterim, ozet bar, otomatik yenileme 60s -->
 
-    <Grid RowDefinitions="Auto,*">
+  <Grid RowDefinitions="Auto,Auto,*">
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Platform Senkronizasyon" Foreground="{DynamicResource MesBgPrimary}"
-                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
-                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
-                    </Border>
+    <!-- Header -->
+    <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+          <TextBlock Text="Platform Senkronizasyon" Foreground="{DynamicResource MesBgPrimary}"
+                     FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+            <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} platform'}"
+                       Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+          </Border>
+        </StackPanel>
+        <TextBlock Grid.Column="1" Text="{Binding LastRefreshedText, StringFormat='Son: {0}'}"
+                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCaption}"
+                   Opacity="0.75" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <Button Grid.Column="2" Content="Tumu Yenile"
+                ToolTip.Tip="Tumu Yenile (F5)"
+                Command="{Binding RefreshCommand}"
+                Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+      </Grid>
+    </Border>
+
+    <!-- Summary Bar -->
+    <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}" Padding="20,10" BorderThickness="0,0,0,1"
+            BorderBrush="{DynamicResource MesBorderSubtle}">
+      <StackPanel Orientation="Horizontal" Spacing="32">
+        <!-- Total -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Background="#0078D4" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <TextBlock Text="Toplam:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding TotalCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </StackPanel>
+        <!-- Basarili -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Background="#16A34A" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <TextBlock Text="Basarili:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding BasariliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#16A34A" VerticalAlignment="Center" />
+        </StackPanel>
+        <!-- Hatali -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Background="#DC2626" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <TextBlock Text="Hatali:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding HataliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#DC2626" VerticalAlignment="Center" />
+        </StackPanel>
+        <!-- Bekliyor -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Background="#D97706" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <TextBlock Text="Bekliyor:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding BekleyenCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#D97706" VerticalAlignment="Center" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- Platform Cards ScrollViewer -->
+    <ScrollViewer Grid.Row="2" Background="{DynamicResource MesBgPage}">
+      <ItemsControl ItemsSource="{Binding Items}" Margin="16,12">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SyncStatusItemDto">
+            <!-- Platform Card -->
+            <Border Background="{DynamicResource MesBgPrimary}"
+                    CornerRadius="{StaticResource MesRadiusBase}"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource MesBorderSubtle}"
+                    Padding="16,14"
+                    Margin="0,0,12,12"
+                    Width="320"
+                    MinHeight="190">
+              <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+                <!-- Card Header: Avatar + Platform Adi + Durum Badge -->
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,10">
+                  <!-- Avatar -->
+                  <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" CornerRadius="20"
+                          Width="36" Height="36" Margin="0,0,10,0">
+                    <TextBlock Text="{Binding PlatformKisaltma}" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <!-- Platform Adi -->
+                  <TextBlock Grid.Column="1" Text="{Binding PlatformAdi}"
+                             FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
+                             VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis" />
+                  <!-- Durum Badge -->
+                  <Border Grid.Column="2" Background="{Binding DurumRenk}"
+                          CornerRadius="{StaticResource MesRadiusSm}"
+                          Padding="8,3" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DurumMetni}" Foreground="White"
+                               FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />
+                  </Border>
+                </Grid>
+
+                <!-- Son Sync Zamani -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Margin="0,0,0,10">
+                  <TextBlock Text="Son Sync:" Foreground="{DynamicResource MesTextMuted}"
+                             FontSize="{StaticResource FontSizeCaption}" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding SonSenkronizasyon}" Foreground="{DynamicResource MesTextBody}"
+                             FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
-                <Button Grid.Column="1" Content="Tumu Yenile"
-                        ToolTip.Tip="Tumu Yenile"
-                        Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
-            </Grid>
-        </Border>
 
-        <!-- Platform Sync DataGrid -->
-        <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding Items}"
-                  AutoGenerateColumns="False"
-                  CanUserReorderColumns="True"
-                  CanUserResizeColumns="True"
-                  CanUserSortColumns="True"
-                  IsReadOnly="True"
-                  GridLinesVisibility="Horizontal"
-                  BorderThickness="0"
-                  Background="{DynamicResource MesBgPrimary}">
+                <!-- Sync Sayilari -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+                  <!-- Urun -->
+                  <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding UrunSayisi, StringFormat='{}{0:N0}'}"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Urun" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                  </StackPanel>
+                  <!-- Siparis -->
+                  <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding SiparisSayisi, StringFormat='{}{0:N0}'}"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesSuccess}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Siparis" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                  </StackPanel>
+                  <!-- Stok -->
+                  <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding StokSayisi, StringFormat='{}{0:N0}'}"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                               Foreground="{DynamicResource MesWarning}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Stok" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+                  </StackPanel>
+                </Grid>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Platform Adi" Binding="{Binding PlatformAdi}" Width="160" />
-                <DataGridTextColumn Header="Son Senkronizasyon" Binding="{Binding SonSenkronizasyon}" Width="180" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Durum}" Width="110" />
-                <DataGridTextColumn Header="Urun Sayisi" Binding="{Binding UrunSayisi, StringFormat='{}{0:N0}'}" Width="120" />
-                <DataGridTextColumn Header="Siparis Sayisi" Binding="{Binding SiparisSayisi, StringFormat='{}{0:N0}'}" Width="120" />
-                <DataGridTemplateColumn Header="Islem" Width="150">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:SyncStatusItemDto">
-                            <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et"
-                                    Command="{Binding $parent[DataGrid].((vm:SyncStatusAvaloniaViewModel)DataContext).SyncPlatformCommand}"
-                                    CommandParameter="{Binding}"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                    FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
-                                    Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="1" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Items.Count}" />
+                <!-- Hata Satiri (sadece Hatali ise goster) -->
+                <Border Grid.Row="3" Background="#FEF2F2" CornerRadius="{StaticResource MesRadiusSm}"
+                        Padding="8,4" Margin="0,0,0,10"
+                        IsVisible="{Binding HasErrors}">
+                  <TextBlock Text="{Binding HataSayisi, StringFormat='Bugun {0} hata'}"
+                             FontSize="{StaticResource FontSizeCaption}" Foreground="#DC2626" />
+                </Border>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource MesOverlayLight}"
-                IsVisible="{Binding IsLoading}"
-                ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Senkronizasyon durumu yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
-        </Border>
+                <!-- Simdi Senkronize Et Button -->
+                <Button Grid.Row="4"
+                        Content="{Binding SyncButtonText}"
+                        ToolTip.Tip="Bu platformu simdi senkronize et"
+                        Command="{Binding $parent[ItemsControl].((vm:SyncStatusAvaloniaViewModel)DataContext).SyncNowCommand}"
+                        CommandParameter="{Binding}"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
+                        Padding="0,8"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        CornerRadius="{StaticResource MesRadiusSm}"
+                        VerticalAlignment="Bottom" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
 
-        <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding IsEmpty}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Platform bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" Opacity="0.7" />
-            </StackPanel>
-        </Border>
+    <!-- Loading Overlay -->
+    <Border Grid.Row="0" Grid.RowSpan="3"
+            Background="{DynamicResource MesOverlayLight}"
+            IsVisible="{Binding IsLoading}"
+            ZIndex="100">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+        <TextBlock Text="Senkronizasyon durumu yukleniyor..."
+                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                   HorizontalAlignment="Center" />
+      </StackPanel>
+    </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
-            </StackPanel>
-        </Border>
-    </Grid>
+    <!-- Empty State -->
+    <Border Grid.Row="0" Grid.RowSpan="3"
+            Background="{DynamicResource MesBgSurface}"
+            IsVisible="{Binding IsEmpty}"
+            ZIndex="50">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="Platform bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                   HorizontalAlignment="Center" Opacity="0.7" />
+        <TextBlock Text="Henuz platform tanimi yapilmamis" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                   HorizontalAlignment="Center" Margin="0,4,0,0" />
+      </StackPanel>
+    </Border>
+
+    <!-- Error State -->
+    <Border Grid.Row="0" Grid.RowSpan="3"
+            Background="{DynamicResource MesBgSurface}"
+            IsVisible="{Binding HasError}"
+            ZIndex="50">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                   HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                   Margin="0,0,0,8" />
+        <TextBlock Text="{Binding ErrorMessage}"
+                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                   HorizontalAlignment="Center" Margin="0,0,0,12"
+                   TextWrapping="Wrap" MaxWidth="400" />
+        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                Command="{Binding RefreshCommand}"
+                Padding="16,6" />
+      </StackPanel>
+    </Border>
+  </Grid>
 </UserControl>
