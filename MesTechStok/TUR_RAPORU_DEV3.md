@@ -983,4 +983,17 @@ gelecek dalga feature).
 - G028 güncellendi: +Etsy (4 total)
 - G029: NEW — Hangfire dashboard production auth
 
-### KÜMÜLATİF DEV 3 (28 tur, 73 commit)
+---
+
+## TUR 29 — 2026-03-26 (Zincir Doğrulama — Z8+Z9+Z11)
+
+### DOĞRULAMA
+| Zincir | Durum | Detay |
+|--------|-------|-------|
+| Z8: Stok 0→Platform pasif | ✅ TAM | ZeroStockDeactivationHandler → parallel WhenAll, per-adapter try-catch |
+| Z9: Stok değişim→11 platform | ✅ TAM | StockChangedEventHandler → Orchestrator → parallel, 30s timeout |
+| Z11: Gecikmiş sipariş | ✅ TAM | CheckStaleOrdersJob hourly → GetStaleOrdersQuery → notification |
+| Settlement parsers | ✅ 8/8 | All with IMemoryCache + ParseAsync |
+| Orchestrator timeout | ✅ 30s | Aligned with adapter HttpClient.Timeout |
+
+### KÜMÜLATİF DEV 3 (29 tur, 76 commit)
