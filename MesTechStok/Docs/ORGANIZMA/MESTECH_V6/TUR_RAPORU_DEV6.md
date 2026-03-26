@@ -481,3 +481,34 @@ Borç 0, tüm GOREV kapatıldı. Production readiness keşfi başladı.
 | GOREV kapatılan | **10** |
 | Cross-DEV görev | **14** |
 | Alan genişleme | **3/3 TAMAMLANDI** |
+
+---
+
+## TUR: 11 (2026-03-26) — TENANT İZOLASYON GÜVENLİĞİ (KÖKÜNE İNDİ)
+
+### GO-LIVE BLOCKER AUDIT SONUÇLARI
+| Bulgu | Şiddet | Durum |
+|-------|--------|-------|
+| FindAsync EF filter bypass (43 repo) | 🔴 KRİTİK | 15 düzeltildi, 9 DEV 3'e atandı |
+| JWT cross-tenant access (no match check) | 🔴 KRİTİK | ✅ DÜZELTİLDİ — 403 Forbidden + audit log |
+| Rate limit per-key not per-tenant | ⚠️ YÜKSEK | ✅ DÜZELTİLDİ — {apiKey}:{tenantId} partition |
+| User entity no ITenantEntity | 🔴 KRİTİK | G028 DEV 1'e atandı |
+| API key→tenant binding yok | ⚠️ YÜKSEK | Gelecek sprint |
+
+### COMMIT
+- `c11289e5` fix(security): tenant isolation hardening — 15 repo FindAsync→FirstOrDefault + JWT guard
+- `cdfd8046` fix(security): per-tenant rate limiting — {apiKey}:{tenantId} partition
+
+### FMEA
+- FindAsync bypass: Şiddet=10 × Olasılık=7 × Tespit=3 = **RPN=210** → düzeltildi → RPN=21
+- JWT cross-tenant: Şiddet=10 × Olasılık=5 × Tespit=4 = **RPN=200** → düzeltildi → RPN=10
+- Per-tenant rate limit: Şiddet=6 × Olasılık=6 × Tespit=3 = **RPN=108** → düzeltildi → RPN=18
+
+### DEV 6 — 11 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **32** |
+| Güvenlik fix (GO-LIVE) | **3** (FindAsync×15, JWT guard, rate limit) |
+| GOREV kapatılan | **10** |
+| Cross-DEV görev | **17** (G028 P0, G029 P1, G030 P2) |
+| RPN azaltma | **-477** (210+200+108 → 21+10+18) |
