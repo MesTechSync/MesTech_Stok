@@ -39,7 +39,7 @@ public sealed class XAdESSignatureService : IDigitalSignatureService
 
         return await Task.Run(() =>
         {
-            var doc = new XmlDocument { PreserveWhitespace = true };
+            var doc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };
             doc.LoadXml(System.Text.Encoding.UTF8.GetString(xmlContent));
 
             var cert = LoadCertificate();
@@ -85,7 +85,7 @@ public sealed class XAdESSignatureService : IDigitalSignatureService
         {
             try
             {
-                var doc = new XmlDocument { PreserveWhitespace = true };
+                var doc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };
                 doc.LoadXml(System.Text.Encoding.UTF8.GetString(signedXml));
 
                 var signedXmlObj = new SignedXml(doc);
