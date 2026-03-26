@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
@@ -27,7 +28,7 @@ public static class ErpEndpoints
                 })
                 .ToList();
 
-            return Results.Ok(new { providers, count = providers.Count });
+            return Results.Ok(ApiResponse<object>.Ok(new { providers, count = providers.Count }));
         })
         .WithName("GetErpProviders")
         .WithSummary("Kayıtlı ERP sağlayıcı listesi");
@@ -64,7 +65,7 @@ public static class ErpEndpoints
                 });
             }
 
-            return Results.Ok(new { statuses, timestamp = DateTime.UtcNow });
+            return Results.Ok(ApiResponse<object>.Ok(new { statuses, timestamp = DateTime.UtcNow }));
         })
         .WithName("GetErpStatus")
         .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu");
@@ -80,7 +81,7 @@ public static class ErpEndpoints
             if (!Enum.TryParse<ErpProvider>(request.Provider, ignoreCase: true, out var provider)
                 || provider == ErpProvider.None)
             {
-                return Results.BadRequest(new { error = $"Invalid provider: '{request.Provider}'" });
+                return Results.BadRequest(ApiResponse<object>.Fail($"Invalid provider: '{request.Provider}'", "INVALID_PROVIDER"));
             }
 
 #pragma warning disable CA1031 // Intentional: connection test must return result, not throw
@@ -98,7 +99,7 @@ public static class ErpEndpoints
             }
             catch (ArgumentException)
             {
-                return Results.BadRequest(new { error = "Gecersiz ERP provider parametresi." });
+                return Results.BadRequest(ApiResponse<object>.Fail("Gecersiz ERP provider parametresi.", "INVALID_PROVIDER"));
             }
             catch (Exception ex)
             {
@@ -168,7 +169,7 @@ public static class ErpEndpoints
 #pragma warning restore CA1031
             }
 
-            return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
+            return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
         })
         .WithName("SyncErpStock")
         .WithSummary("Manuel ERP stok senkronizasyonu tetikle");
@@ -213,7 +214,7 @@ public static class ErpEndpoints
 #pragma warning restore CA1031
             }
 
-            return Results.Ok(new { results, triggeredAt = DateTime.UtcNow });
+            return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
         })
         .WithName("SyncErpAccounts")
         .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle");
