@@ -631,3 +631,35 @@ L4: OTel SDK (G033 → DEV 4) — bekliyor
 | Response migrate | **16/99** |
 | Tracing layer | **3/4** (OTel SDK DEV 4'te) |
 | Cross-DEV görev | **26** (+G038 TracingBehavior test) |
+
+---
+
+## TUR: 16 (2026-03-26) — ÖZ DENETİM (Popper Falsifikasyon)
+
+### KENDİ KODUMU KIRDIM — 7 HATA BULUNDU
+
+| # | Hata | Şiddet | Durum |
+|---|------|--------|-------|
+| 1 | UnitOfWork retry: Reload → handler mutation kaybolur | 🔴 P0 | G039 → DEV 1 |
+| 2 | Stock lock order bazlı → product bazlı olmalı | 🔴 KRİTİK | ✅ DÜZELTİLDİ |
+| 3 | PlanLimitFilter anonymous object | ⚠️ ORTA | ✅ DÜZELTİLDİ |
+| 4 | ChangePlan prorate Math.Max(0) credit yutuyor | 🔴 YÜKSEK | ✅ DÜZELTİLDİ |
+| 5 | Iyzico webhook signature return true | 🔴 YÜKSEK | G041 → DEV 3 |
+| 6 | IdempotencyFilter IResult serialize edilemez | 🔴 KRİTİK | G040 → DEV 6 sonraki tur |
+| 7 | RegisterTenant User.TenantId atanmıyor | 🔴 KRİTİK | ✅ DÜZELTİLDİ |
+
+### COMMIT
+- `47b0b12b` fix(self-audit): 4 critical bugs found by öz denetim
+
+### Düzeltme Detayı
+- Stock lock: `order:{orderId}` → `stock:product:{pid}` sorted acquisition + stale reload + reverse release
+- ChangePlan: `Math.Max(0, prorate)` → raw prorate (negatif = kredi)
+- RegisterTenant: `adminUser.TenantId = tenant.Id` eklendi
+- PlanLimitFilter: 3 anonymous → ApiResponse.Fail with errorCode
+
+### DEV 6 — 16 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **47** |
+| Öz denetim bulgusu | **7** (4 düzeltildi, 3 cross-DEV) |
+| Cross-DEV görev | **29** (+G039 P0, +G040 P1, +G041 P1) |
