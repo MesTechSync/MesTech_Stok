@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
@@ -12,6 +15,8 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 public partial class IncomeExpenseListViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+    private static readonly CultureInfo TrCulture = new("tr-TR");
 
     // Filters
     [ObservableProperty] private string _selectedTypeFilter = "Tumu";
@@ -38,9 +43,10 @@ public partial class IncomeExpenseListViewModel : ViewModelBase
     public ObservableCollection<string> Categories { get; } =
         ["Tumu", "Satis", "Kargo", "Genel Gider", "Komisyon", "Iade", "Hizmet", "Faiz", "Diger"];
 
-    public IncomeExpenseListViewModel(IMediator mediator)
+    public IncomeExpenseListViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         Title = "Gelir / Gider Listesi";
     }
 
@@ -48,24 +54,34 @@ public partial class IncomeExpenseListViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(200, ct); // Will be replaced with MediatR query
+            var typeFilter = SelectedTypeFilter == "Tumu" ? null : SelectedTypeFilter;
+            var from = DateFrom.HasValue ? DateFrom.Value.UtcDateTime : (DateTime?)null;
+            var to = DateTo.HasValue ? DateTo.Value.UtcDateTime : (DateTime?)null;
 
-            _allItems =
-            [
-                new() { Date = "24.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+8.240,00 TL", Amount = 8240m, Platform = "Trendyol", Description = "Trendyol satis hasilati" },
-                new() { Date = "23.03.2026", Type = "Gider", Category = "Kargo", AmountFormatted = "-620,00 TL", Amount = -620m, Platform = "Aras Kargo", Description = "Kargo gideri" },
-                new() { Date = "23.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+3.180,00 TL", Amount = 3180m, Platform = "Hepsiburada", Description = "Hepsiburada satis hasilati" },
-                new() { Date = "22.03.2026", Type = "Gider", Category = "Komisyon", AmountFormatted = "-988,80 TL", Amount = -988.80m, Platform = "Trendyol", Description = "Platform komisyonu" },
-                new() { Date = "22.03.2026", Type = "Gider", Category = "Genel Gider", AmountFormatted = "-6.500,00 TL", Amount = -6500m, Platform = "-", Description = "Ofis kirasi" },
-                new() { Date = "21.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+1.940,00 TL", Amount = 1940m, Platform = "N11", Description = "N11 satis hasilati" },
-                new() { Date = "21.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+4.520,00 TL", Amount = 4520m, Platform = "Amazon", Description = "Amazon satis hasilati" },
-                new() { Date = "20.03.2026", Type = "Gider", Category = "Kargo", AmountFormatted = "-380,00 TL", Amount = -380m, Platform = "Yurtici Kargo", Description = "Kargo gideri" },
-                new() { Date = "20.03.2026", Type = "Gelir", Category = "Hizmet", AmountFormatted = "+750,00 TL", Amount = 750m, Platform = "-", Description = "Danismanlik geliri" },
-                new() { Date = "19.03.2026", Type = "Gider", Category = "Iade", AmountFormatted = "-420,00 TL", Amount = -420m, Platform = "Trendyol", Description = "Urun iade bedeli" },
-                new() { Date = "19.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+2.350,00 TL", Amount = 2350m, Platform = "Ciceksepeti", Description = "Ciceksepeti satis hasilati" },
-                new() { Date = "18.03.2026", Type = "Gider", Category = "Genel Gider", AmountFormatted = "-1.200,00 TL", Amount = -1200m, Platform = "-", Description = "Elektrik faturasi" },
-            ];
+            var result = await _mediator.Send(
+                new GetIncomeExpenseListQuery(
+                    _currentUser.TenantId,
+                    Type: typeFilter,
+                    From: from,
+                    To: to,
+                    Page: CurrentPage,
+                    PageSize: PageSize),
+                ct);
 
+            _allItems = result.Items.Select(dto => new IncomeExpenseListItemDto
+            {
+                Date = dto.Date.ToString("dd.MM.yyyy", TrCulture),
+                Type = dto.Type,
+                Category = string.Empty,           // not in IncomeExpenseItemDto
+                Amount = dto.Amount,
+                AmountFormatted = dto.Amount >= 0
+                    ? $"+{dto.Amount:N2} TL"
+                    : $"{dto.Amount:N2} TL",
+                Platform = dto.Source,
+                Description = dto.Description
+            }).ToList();
+
+            TotalCount = result.TotalCount;
             CurrentPage = 1;
             ApplyFilters();
         }, "Gelir/Gider listesi yuklenemedi");
