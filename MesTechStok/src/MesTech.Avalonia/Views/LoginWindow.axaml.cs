@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +20,7 @@ public partial class LoginWindow : Window
 {
     private readonly LoginAttemptTracker _tracker;
     private readonly LoginAuditLogger _auditLogger;
+    private readonly IAuthService? _authService;
     private DispatcherTimer? _lockoutTimer;
     private bool _passwordVisible;
 
@@ -30,6 +32,7 @@ public partial class LoginWindow : Window
                    ?? new LoginAttemptTracker();
         _auditLogger = App.ServiceProvider?.GetService<LoginAuditLogger>()
                        ?? new LoginAuditLogger();
+        _authService = App.ServiceProvider?.GetService<IAuthService>();
 
         // Focus kullanıcı adı alanına
         Opened += OnWindowOpened;
@@ -81,9 +84,13 @@ public partial class LoginWindow : Window
 
         try
         {
-            // Auth doğrulama — IAuthService DI kaydı bekliyor (DEV1)
-            // Şimdilik offline: auth servisi yapılandırılana kadar giriş yapılamaz
+            // Auth doğrulama — IAuthService DI resolved [ENT-DEV2 G052 fix]
             bool isValid = false;
+            if (_authService != null)
+            {
+                var authResult = await _authService.ValidateAsync(username, password);
+                isValid = authResult.IsSuccess;
+            }
 
             // Minimum 300ms bekleme (psikolojik: "sistem kontrol ediyor")
             var elapsed = DateTime.Now - loginStart;
