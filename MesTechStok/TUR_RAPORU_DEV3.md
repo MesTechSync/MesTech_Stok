@@ -893,4 +893,26 @@ Bu turda kod değişikliği yok — DI audit ve cross-DEV görev keşfi.
 ### GOREV_HAVUZU
 - G028: DEV1 — PlatformType enum'a Shopify/WooCommerce/Zalando ekle
 
-### KÜMÜLATİF DEV 3 (24 tur, 65 commit)
+---
+
+## TUR 25 — 2026-03-26 (Fonksiyonel Gap Analizi — Strateji Değişikliği)
+
+### BİLİM ADAMI TARAMA (KATMAN 3 — FONKSİYONEL)
+| Metrik | Değer |
+|--------|-------|
+| SupportsStockUpdate | 15/15 marketplace ✅ |
+| SupportsPriceUpdate | 15/15 ✅ |
+| SupportsShipment | 13/15 (Etsy+Zalando: IShipmentCapable var, flag false) ✅ |
+| PullProducts + pagination | 15/15 ✅ |
+| TestConnectionAsync | 16/16 + ErrorMessage ✅ |
+| EnsureConfigured guard | 15/15 ✅ |
+| Batch stock update | 1/15 (only OpenCart) — gelecek feature |
+| Configure pattern | Consistent across all ✅ |
+
+### KARAR
+Fonksiyonel gap analizi tamamlandı. Tüm adapter'lar tam fonksiyonel —
+core CRUD, kategoriler, siparişler, kargolar, faturalar, settlement, webhook.
+Eksik: batch stock/price update (Trendyol API destekler ama interface'de yok —
+gelecek dalga feature).
+
+### KÜMÜLATİF DEV 3 (25 tur, 67 commit)
