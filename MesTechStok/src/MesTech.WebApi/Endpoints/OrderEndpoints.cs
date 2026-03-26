@@ -1,5 +1,6 @@
 using MesTech.Application.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.PlaceOrder;
 using MesTech.Application.Commands.PushOrderToBitrix24;
 using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
@@ -27,7 +28,8 @@ public static class OrderEndpoints
         })
         .WithName("ListOrders")
         .WithSummary("Sipariş listesi (tarih + durum filtresi)")
-        .Produces(200);
+        .Produces(200)
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/orders — yeni sipariş oluştur
         group.MapPost("/", async (

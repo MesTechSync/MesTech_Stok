@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.AddStock;
 using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
@@ -30,7 +31,8 @@ public static class StockEndpoints
             return Results.Ok(result);
         })
         .WithName("GetStockMovements")
-        .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)");
+        .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value — total inventory value
         group.MapGet("/value", async (ISender mediator, CancellationToken ct) =>
@@ -39,7 +41,8 @@ public static class StockEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInventoryValue")
-        .WithSummary("Toplam envanter değeri");
+        .WithSummary("Toplam envanter değeri")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/add — add stock to a product
         group.MapPost("/add", async (AddStockCommand command, ISender mediator, CancellationToken ct) =>
@@ -83,7 +86,8 @@ public static class StockEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInventoryPaged")
-        .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)");
+        .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
         group.MapGet("/statistics", async (ISender mediator, CancellationToken ct) =>
@@ -92,7 +96,8 @@ public static class StockEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInventoryStatistics")
-        .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)");
+        .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
         group.MapPost("/transfer", async (

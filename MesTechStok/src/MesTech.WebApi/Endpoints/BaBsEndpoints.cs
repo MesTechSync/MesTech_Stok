@@ -1,5 +1,6 @@
 using MesTech.Application.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
 using MesTech.Application.Interfaces.Accounting;
@@ -24,7 +25,8 @@ public static class BaBsEndpoints
             return Results.Ok(result);
         })
         .WithName("GenerateBaBsReport")
-        .WithSummary("Ba/Bs beyanname raporu (VUK 396 — 5.000 TL ustu alis/satis)");
+        .WithSummary("Ba/Bs beyanname raporu (VUK 396 — 5.000 TL ustu alis/satis)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/babs-records — yeni Ba/Bs kaydi olustur
         group.MapPost("/records", async (
@@ -93,6 +95,7 @@ public static class BaBsEndpoints
             });
         })
         .WithName("GetBaBsDeadline")
-        .WithSummary("Ba/Bs beyanname son tarihi hesapla (VUK 396)");
+        .WithSummary("Ba/Bs beyanname son tarihi hesapla (VUK 396)")
+        .CacheOutput("Lookup60s");
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Crm.Queries.GetCrmDashboard;
 
 namespace MesTech.WebApi.Endpoints;
@@ -25,6 +26,7 @@ public static class CrmDashboardEndpoint
             return Results.Ok(result);
         })
         .WithName("GetCrmDashboard")
-        .WithSummary("CRM dashboard — lead/deal/pipeline metrikleri (EMR-09)");
+        .WithSummary("CRM dashboard — lead/deal/pipeline metrikleri (EMR-09)")
+        .CacheOutput("Dashboard30s");
     }
 }
