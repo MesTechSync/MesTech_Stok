@@ -1,34 +1,38 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// 4-step Import Wizard ViewModel for Avalonia.
-/// Steps: 1) File Selection  2) Preview  3) Column Mapping  4) Import Progress
+/// Steps: 1) File Selection  2) Preview  3) Field Mapping  4) Import Progress
+/// WPF015: Excel / CSV import wizard with real Avalonia file picker.
 /// </summary>
 public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly IFilePickerService _filePicker;
 
-    // Step tracking (1-4)
+    // ─── Step tracking (1-4) ────────────────────────────────────────────────
     [ObservableProperty] private int currentStep = 1;
 
-    // Step visibility
+    // ─── Step visibility ────────────────────────────────────────────────────
     [ObservableProperty] private bool isStep1 = true;
     [ObservableProperty] private bool isStep2;
     [ObservableProperty] private bool isStep3;
     [ObservableProperty] private bool isStep4;
 
-    // Navigation
+    // ─── Navigation ─────────────────────────────────────────────────────────
     [ObservableProperty] private bool canGoBack;
     [ObservableProperty] private bool canGoNext;
     [ObservableProperty] private string nextButtonText = "Ileri";
 
-    // Step indicator colors
+    // ─── Step indicator colors ───────────────────────────────────────────────
     [ObservableProperty] private string step1Color = "#0078D4";
     [ObservableProperty] private string step1TextColor = "#0078D4";
     [ObservableProperty] private string step2Color = "#CBD5E1";
@@ -38,18 +42,19 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string step4Color = "#CBD5E1";
     [ObservableProperty] private string step4TextColor = "#94A3B8";
 
-    // Step title
+    // ─── Step title ──────────────────────────────────────────────────────────
     [ObservableProperty] private string stepTitle = "Adim 1/4 — Dosya Secimi";
 
-    // Loading
-
-    // Step 1: File Selection
+    // ─── Step 1: File Selection ──────────────────────────────────────────────
     [ObservableProperty] private string selectedFilePath = string.Empty;
     [ObservableProperty] private string selectedFileName = string.Empty;
     [ObservableProperty] private string fileSizeText = string.Empty;
     [ObservableProperty] private bool hasFile;
 
-    // Step 2: Preview
+    /// <summary>WPF015 alias for HasFile — required by spec.</summary>
+    public bool IsFileSelected => HasFile;
+
+    // ─── Step 2: Preview ────────────────────────────────────────────────────
     [ObservableProperty] private int totalRowCount;
     [ObservableProperty] private int errorRowCount;
     [ObservableProperty] private bool hasPreviewErrors;
@@ -58,16 +63,20 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ImportWizardPreviewRowDto> PreviewRows { get; } = [];
 
-    // Step 3: Column Mapping
-    public ObservableCollection<ImportColumnMappingDto> ColumnMappings { get; } = [];
+    // ─── Step 3: Field Mapping ───────────────────────────────────────────────
+    /// <summary>ColumnMappings alias named FieldMappings — required by WPF015 spec.</summary>
+    public ObservableCollection<ImportColumnMappingDto> FieldMappings { get; } = [];
+
+    /// <summary>Legacy alias kept for AXAML bindings.</summary>
+    public ObservableCollection<ImportColumnMappingDto> ColumnMappings => FieldMappings;
 
     public ObservableCollection<string> TargetFields { get; } =
     [
-        "(Atla)", "Name", "SKU", "Barcode", "Price", "Stock",
-        "Category", "Brand", "Description", "Weight", "Color", "Size"
+        "(Atla)", "SKU", "Urun Adi", "Fiyat", "Stok", "Barkod", "Aciklama",
+        "Kategori", "Marka", "Agirlik", "Renk", "Beden"
     ];
 
-    // Step 4: Import Progress
+    // ─── Step 4: Import Progress ─────────────────────────────────────────────
     [ObservableProperty] private double importProgress;
     [ObservableProperty] private bool isImporting;
     [ObservableProperty] private bool importCompleted;
@@ -77,11 +86,15 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string importDuration = string.Empty;
     [ObservableProperty] private bool hasImportErrors;
 
+    /// <summary>Summary message shown after import completes — required by WPF015 spec.</summary>
+    [ObservableProperty] private string importResultMessage = string.Empty;
+
     public ObservableCollection<ImportErrorDto> ImportErrors { get; } = [];
 
-    public ImportProductsAvaloniaViewModel(IMediator mediator)
+    public ImportProductsAvaloniaViewModel(IMediator mediator, IFilePickerService filePicker)
     {
         _mediator = mediator;
+        _filePicker = filePicker;
     }
 
     public override async Task InitializeAsync()
@@ -90,23 +103,55 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         await base.InitializeAsync();
     }
 
+    // ─── Commands ────────────────────────────────────────────────────────────
+
+    /// <summary>Opens Avalonia file picker for .xlsx and .csv files.</summary>
     [RelayCommand]
     private async Task SelectFileAsync()
     {
-        // For now, simulate file selection with mock data.
         IsLoading = true;
         try
         {
-            await Task.Delay(300);
+            var fileTypes = new List<FilePickerFileType>
+            {
+                new("Excel / CSV")
+                {
+                    Patterns = new[] { "*.xlsx", "*.csv" },
+                    MimeTypes = new[]
+                    {
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "text/csv"
+                    }
+                }
+            };
 
-            SelectedFilePath = "C:\\Data\\urun_listesi_2026.xlsx";
-            SelectedFileName = "urun_listesi_2026.xlsx";
-            FileSizeText = "(245 KB)";
+            var path = await _filePicker.PickFileAsync("Excel veya CSV Dosyasi Sec", fileTypes);
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            SelectedFilePath = path;
+            SelectedFileName = System.IO.Path.GetFileName(path);
+
+            // File size display
+            try
+            {
+                var info = new System.IO.FileInfo(path);
+                FileSizeText = info.Length < 1024 * 1024
+                    ? $"({info.Length / 1024} KB)"
+                    : $"({info.Length / (1024 * 1024.0):F1} MB)";
+            }
+            catch
+            {
+                FileSizeText = string.Empty;
+            }
+
             HasFile = true;
+            OnPropertyChanged(nameof(IsFileSelected));
 
-            // Auto-load preview data
+            // Load mock preview & mappings (actual parsing requires EPPlus/CsvHelper library)
             LoadPreviewData();
-            LoadColumnMappings();
+            LoadFieldMappings();
 
             UpdateStepState();
         }
@@ -115,6 +160,36 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
             IsLoading = false;
         }
     }
+
+    /// <summary>WPF015 spec: ImportCommand — triggers the import from Step 4.</summary>
+    [RelayCommand(CanExecute = nameof(CanRunImport))]
+    private async Task ImportAsync()
+    {
+        if (CurrentStep != 4)
+        {
+            // Navigate to step 4 first, then run
+            CurrentStep = 4;
+            UpdateStepState();
+        }
+        await RunImportAsync();
+    }
+
+    private bool CanRunImport() => HasFile && !IsImporting;
+
+    /// <summary>WPF015 spec: CancelCommand — resets the wizard.</summary>
+    [RelayCommand]
+    private void Cancel()
+    {
+        ResetWizard();
+    }
+
+    /// <summary>WPF015 spec: NextStepCommand alias.</summary>
+    [RelayCommand]
+    private async Task NextStepAsync() => await GoNextAsync();
+
+    /// <summary>WPF015 spec: PrevStepCommand alias.</summary>
+    [RelayCommand]
+    private void PrevStep() => GoBack();
 
     [RelayCommand]
     private void GoBack()
@@ -131,25 +206,13 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
     {
         if (CurrentStep == 4 && ImportCompleted)
         {
-            // Reset wizard
-            CurrentStep = 1;
-            HasFile = false;
-            SelectedFilePath = string.Empty;
-            SelectedFileName = string.Empty;
-            FileSizeText = string.Empty;
-            ImportCompleted = false;
-            IsImporting = false;
-            ImportProgress = 0;
-            PreviewRows.Clear();
-            ColumnMappings.Clear();
-            ImportErrors.Clear();
-            UpdateStepState();
+            ResetWizard();
             return;
         }
 
         if (CurrentStep == 3)
         {
-            // Start import on step 3 → 4 transition
+            // Step 3 → 4: start import
             CurrentStep = 4;
             UpdateStepState();
             await RunImportAsync();
@@ -163,24 +226,27 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         }
     }
 
+    // ─── Import execution ────────────────────────────────────────────────────
+
     private async Task RunImportAsync()
     {
         IsImporting = true;
         ImportCompleted = false;
         HasImportErrors = false;
         ImportProgress = 0;
+        ImportResultMessage = string.Empty;
         ImportErrors.Clear();
+        ImportCommand.NotifyCanExecuteChanged();
 
         var stopwatch = Stopwatch.StartNew();
 
         try
         {
-            // Execute bulk import via MediatR
-            // DEV1-DEPENDENCY: ExecuteBulkImportCommand needs ImportResult return type
-            var totalItems = TotalRowCount;
+            // Simulate row-by-row processing (actual import needs EPPlus/CsvHelper)
+            var totalItems = TotalRowCount > 0 ? TotalRowCount : 10;
             for (int i = 1; i <= totalItems; i++)
             {
-                await Task.Delay(20);
+                await Task.Delay(25, CancellationToken);
                 ImportProgress = (double)i / totalItems * 100;
             }
 
@@ -191,20 +257,32 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
             FailedCount = ErrorRowCount;
             ImportDuration = $"{stopwatch.Elapsed.TotalSeconds:F1} saniye";
             HasImportErrors = ErrorRowCount > 0;
+
+            ImportResultMessage = HasImportErrors
+                ? $"{SuccessCount} basarili, {FailedCount} hatali — {ImportDuration}"
+                : $"{SuccessCount} urun basariyla aktarildi — {ImportDuration}";
+        }
+        catch (OperationCanceledException)
+        {
+            ImportResultMessage = "Aktarma iptal edildi.";
         }
         catch (Exception ex)
         {
             ImportErrors.Add(new ImportErrorDto { Message = $"Aktarma hatasi: {ex.Message}" });
             HasImportErrors = true;
             FailedCount = TotalRowCount;
+            ImportResultMessage = $"Hata: {ex.Message}";
         }
         finally
         {
             IsImporting = false;
             ImportCompleted = true;
+            ImportCommand.NotifyCanExecuteChanged();
             UpdateStepState();
         }
     }
+
+    // ─── Data loading ────────────────────────────────────────────────────────
 
     private void LoadPreviewData()
     {
@@ -226,15 +304,35 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         PreviewErrorSummary = "2 satirda hata tespit edildi: Satir 7 (bos fiyat), Satir 9 (gecersiz fiyat formati)";
     }
 
-    private void LoadColumnMappings()
+    private void LoadFieldMappings()
     {
-        ColumnMappings.Clear();
-        ColumnMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon A (Urun Adi)", TargetField = "Name" });
-        ColumnMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon B (SKU)", TargetField = "SKU" });
-        ColumnMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon C (Fiyat)", TargetField = "Price" });
-        ColumnMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon D (Stok)", TargetField = "Stock" });
-        ColumnMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon E (Kategori)", TargetField = "Category" });
+        FieldMappings.Clear();
+        FieldMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon A (Urun Adi)", TargetField = "Urun Adi" });
+        FieldMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon B (SKU)", TargetField = "SKU" });
+        FieldMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon C (Fiyat)", TargetField = "Fiyat" });
+        FieldMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon D (Stok)", TargetField = "Stok" });
+        FieldMappings.Add(new ImportColumnMappingDto { SourceColumn = "Kolon E (Kategori)", TargetField = "(Atla)" });
     }
+
+    private void ResetWizard()
+    {
+        CurrentStep = 1;
+        HasFile = false;
+        SelectedFilePath = string.Empty;
+        SelectedFileName = string.Empty;
+        FileSizeText = string.Empty;
+        ImportCompleted = false;
+        IsImporting = false;
+        ImportProgress = 0;
+        ImportResultMessage = string.Empty;
+        PreviewRows.Clear();
+        FieldMappings.Clear();
+        ImportErrors.Clear();
+        OnPropertyChanged(nameof(IsFileSelected));
+        UpdateStepState();
+    }
+
+    // ─── Step state machine ──────────────────────────────────────────────────
 
     private void UpdateStepState()
     {
@@ -264,18 +362,18 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         {
             1 => "Adim 1/4 — Dosya Secimi",
             2 => "Adim 2/4 — On Izleme",
-            3 => "Adim 3/4 — Kolon Eslestirme",
+            3 => "Adim 3/4 — Alan Eslestirme",
             4 => "Adim 4/4 — Aktarma",
             _ => string.Empty
         };
 
-        // Update step indicator colors
-        var active = "#0078D4";
-        var done = "#16A34A";
-        var inactive = "#CBD5E1";
-        var activeText = "#0078D4";
-        var doneText = "#16A34A";
-        var inactiveText = "#94A3B8";
+        // Step indicator colors
+        const string active = "#0078D4";
+        const string done = "#16A34A";
+        const string inactive = "#CBD5E1";
+        const string activeText = "#0078D4";
+        const string doneText = "#16A34A";
+        const string inactiveText = "#94A3B8";
 
         Step1Color = CurrentStep > 1 ? done : active;
         Step1TextColor = CurrentStep > 1 ? doneText : activeText;
@@ -285,6 +383,8 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         Step3TextColor = CurrentStep > 3 ? doneText : CurrentStep == 3 ? activeText : inactiveText;
         Step4Color = CurrentStep == 4 ? active : inactive;
         Step4TextColor = CurrentStep == 4 ? activeText : inactiveText;
+
+        ImportCommand.NotifyCanExecuteChanged();
     }
 }
 

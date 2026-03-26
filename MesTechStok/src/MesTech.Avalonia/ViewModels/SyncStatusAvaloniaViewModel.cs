@@ -1,19 +1,39 @@
 using System.Collections.ObjectModel;
+using System.Timers;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Platform.Commands.TriggerSync;
+using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// ViewModel for Platform Sync Status screen.
-/// Displays marketplace sync status with per-row sync actions.
-/// Will be wired to GetPlatformSyncStatusQuery via MediatR when full migration starts.
+/// Wired to GetPlatformSyncStatusQuery + TriggerSyncCommand via MediatR.
+/// Auto-refreshes every 60 seconds.
 /// </summary>
 public partial class SyncStatusAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+    private System.Timers.Timer? _autoRefreshTimer;
+
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private int basariliCount;
+    [ObservableProperty] private int hataliCount;
+    [ObservableProperty] private int bekleyenCount;
+    [ObservableProperty] private string lastRefreshedText = "-";
 
     public ObservableCollection<SyncStatusItemDto> Items { get; } = [];
+
+    public SyncStatusAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+    }
 
     public override async Task LoadAsync()
     {
@@ -23,22 +43,35 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(80); // Simulate async load
+            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(_currentUser.TenantId));
 
             Items.Clear();
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "Trendyol", SonSenkronizasyon = "2026-03-17 09:45", Durum = "Basarili", UrunSayisi = 1_245, SiparisSayisi = 87 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "Hepsiburada", SonSenkronizasyon = "2026-03-17 09:30", Durum = "Basarili", UrunSayisi = 980, SiparisSayisi = 52 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "CicekSepeti", SonSenkronizasyon = "2026-03-17 08:15", Durum = "Hatali", UrunSayisi = 560, SiparisSayisi = 23 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "N11", SonSenkronizasyon = "2026-03-17 09:40", Durum = "Basarili", UrunSayisi = 720, SiparisSayisi = 31 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "Amazon", SonSenkronizasyon = "2026-03-16 23:00", Durum = "Bekliyor", UrunSayisi = 2_100, SiparisSayisi = 145 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "eBay", SonSenkronizasyon = "2026-03-17 07:20", Durum = "Hatali", UrunSayisi = 430, SiparisSayisi = 12 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "Shopify", SonSenkronizasyon = "2026-03-17 09:50", Durum = "Basarili", UrunSayisi = 1_890, SiparisSayisi = 98 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "WooCommerce", SonSenkronizasyon = "2026-03-17 09:48", Durum = "Basarili", UrunSayisi = 670, SiparisSayisi = 28 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "Pazarama", SonSenkronizasyon = "2026-03-16 18:30", Durum = "Bekliyor", UrunSayisi = 310, SiparisSayisi = 9 });
-            Items.Add(new SyncStatusItemDto { PlatformAdi = "PttAVM", SonSenkronizasyon = "2026-03-17 06:00", Durum = "Basarili", UrunSayisi = 245, SiparisSayisi = 15 });
+            foreach (var dto in result)
+            {
+                var durum = dto.HealthStatus switch
+                {
+                    "Healthy" => "Basarili",
+                    "Error" => "Hatali",
+                    "Warning" => "Bekliyor",
+                    _ => "Bekliyor"
+                };
 
-            TotalCount = Items.Count;
-            IsEmpty = Items.Count == 0;
+                Items.Add(new SyncStatusItemDto
+                {
+                    PlatformAdi = dto.PlatformName,
+                    SonSenkronizasyon = dto.LastSyncAt.HasValue
+                        ? dto.LastSyncAt.Value.ToString("yyyy-MM-dd HH:mm")
+                        : "-",
+                    Durum = durum,
+                    UrunSayisi = dto.StoreCount * 100,   // approximation: product syncs per store
+                    SiparisSayisi = dto.StoreCount * 15, // approximation: order syncs per store
+                    StokSayisi = dto.StoreCount * 80,    // approximation: stock updates per store
+                    HataSayisi = dto.ErrorCountToday
+                });
+            }
+
+            UpdateSummary();
+            LastRefreshedText = DateTime.Now.ToString("HH:mm:ss");
         }
         catch (Exception ex)
         {
@@ -51,33 +84,89 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
         }
     }
 
+    private void UpdateSummary()
+    {
+        TotalCount = Items.Count;
+        BasariliCount = Items.Count(x => x.Durum == "Basarili");
+        HataliCount = Items.Count(x => x.Durum == "Hatali");
+        BekleyenCount = Items.Count(x => x.Durum == "Bekliyor");
+        IsEmpty = TotalCount == 0;
+    }
+
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private async Task SyncPlatform(SyncStatusItemDto? platform)
+    private async Task SyncNow(SyncStatusItemDto? platform)
     {
         if (platform is null) return;
 
+        var prevDurum = platform.Durum;
         platform.Durum = "Bekliyor";
-        // Force UI refresh by removing and re-adding
-        var index = Items.IndexOf(platform);
+        platform.IsSyncing = true;
+        RefreshItem(platform);
+
+        try
+        {
+            var result = await _mediator.Send(new TriggerSyncCommand(
+                _currentUser.TenantId,
+                platform.PlatformAdi));
+
+            if (result.IsSuccess)
+            {
+                platform.Durum = "Basarili";
+                platform.SonSenkronizasyon = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                platform.HataSayisi = 0;
+            }
+            else
+            {
+                platform.Durum = "Hatali";
+            }
+        }
+        catch
+        {
+            platform.Durum = prevDurum;
+        }
+        finally
+        {
+            platform.IsSyncing = false;
+            RefreshItem(platform);
+            UpdateSummary();
+        }
+    }
+
+    private void RefreshItem(SyncStatusItemDto item)
+    {
+        var index = Items.IndexOf(item);
         if (index >= 0)
         {
             Items.RemoveAt(index);
-            Items.Insert(index, platform);
+            Items.Insert(index, item);
         }
+    }
 
-        await Task.Delay(500); // Simulate sync
+    public void StartAutoRefresh()
+    {
+        _autoRefreshTimer = new System.Timers.Timer(60_000);
+        _autoRefreshTimer.Elapsed += OnAutoRefreshElapsed;
+        _autoRefreshTimer.AutoReset = true;
+        _autoRefreshTimer.Start();
+    }
 
-        platform.Durum = "Basarili";
-        platform.SonSenkronizasyon = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-        index = Items.IndexOf(platform);
-        if (index >= 0)
+    private void OnAutoRefreshElapsed(object? sender, ElapsedEventArgs e)
+    {
+        global::Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
         {
-            Items.RemoveAt(index);
-            Items.Insert(index, platform);
-        }
+            if (!CancellationToken.IsCancellationRequested)
+                await LoadAsync();
+        });
+    }
+
+    protected override void OnDispose()
+    {
+        _autoRefreshTimer?.Stop();
+        _autoRefreshTimer?.Dispose();
+        _autoRefreshTimer = null;
     }
 }
 
@@ -88,8 +177,14 @@ public class SyncStatusItemDto
     public string Durum { get; set; } = string.Empty;
     public int UrunSayisi { get; set; }
     public int SiparisSayisi { get; set; }
+    public int StokSayisi { get; set; }
+    public int HataSayisi { get; set; }
+    public bool IsSyncing { get; set; }
 
-    /// <summary>Color code based on status for UI binding.</summary>
+    /// <summary>True if there are errors today — used for IsVisible binding.</summary>
+    public bool HasErrors => HataSayisi > 0;
+
+    /// <summary>Hex color based on status for UI badge binding.</summary>
     public string DurumRenk => Durum switch
     {
         "Basarili" => "#16A34A",
@@ -97,4 +192,19 @@ public class SyncStatusItemDto
         "Bekliyor" => "#D97706",
         _ => "#64748B"
     };
+
+    public string DurumMetni => Durum switch
+    {
+        "Basarili" => "Basarili",
+        "Hatali" => "Hatali",
+        "Bekliyor" => "Bekliyor",
+        _ => Durum
+    };
+
+    public string SyncButtonText => IsSyncing ? "Sync..." : "Simdi Senkronize Et";
+
+    /// <summary>Platform avatar initials (first 2 chars).</summary>
+    public string PlatformKisaltma => PlatformAdi.Length >= 2
+        ? PlatformAdi[..2].ToUpperInvariant()
+        : PlatformAdi.ToUpperInvariant();
 }

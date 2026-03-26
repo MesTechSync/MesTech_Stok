@@ -80,6 +80,7 @@ public partial class App : global::Avalonia.Application
 
                 // === Avalonia-specific services ===
                 services.AddSingleton<IDialogService, AvaloniaDialogService>();
+                services.AddSingleton<IFilePickerService, AvaloniaFilePickerService>();
                 services.AddSingleton<IViewModelFactory, ViewModelFactory>();
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IFeatureGateService, FeatureGateService>();

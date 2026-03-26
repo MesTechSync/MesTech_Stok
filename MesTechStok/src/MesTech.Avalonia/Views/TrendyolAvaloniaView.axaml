@@ -3,9 +3,11 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.TrendyolAvaloniaView"
              x:DataType="vm:TrendyolAvaloniaViewModel">
-<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -36,7 +38,7 @@
         </Border>
 
         <!-- KPI Cards -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16,16,16,0">
             <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
                 <Grid ColumnDefinitions="6,*">
@@ -95,8 +97,247 @@
             </Border>
         </Grid>
 
+        <!-- WPF013: Connection Test Panel + API Info + Quick Actions + Rate Limit -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" Margin="16,12,16,0">
+
+            <!-- Left: Connection Test + API Info + Quick Actions -->
+            <StackPanel Grid.Column="0" Spacing="10" Margin="0,0,6,0">
+
+                <!-- Connection Test Panel -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Baglanti Testi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+
+                        <!-- Status Badge Row -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Border Grid.Column="0" CornerRadius="{StaticResource MesRadiusBase}" Padding="12,8"
+                                    Background="{DynamicResource MesBgPage}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <!-- Live dot indicator -->
+                                    <Ellipse Width="10" Height="10" VerticalAlignment="Center">
+                                        <Ellipse.Fill>
+                                            <SolidColorBrush Color="{Binding ConnectionStatusColor}" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <TextBlock Text="{Binding ConnectionStatusText}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{DynamicResource MesDarkSlate}"
+                                               VerticalAlignment="Center" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                            <Button Grid.Column="1" Content="Test Et"
+                                    Command="{Binding TestConnectionCommand}"
+                                    IsEnabled="{Binding !IsConnectionTesting}"
+                                    Background="{DynamicResource MesPrimaryBlue}"
+                                    Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="SemiBold"
+                                    Padding="16,8" Margin="8,0,0,0"
+                                    CornerRadius="{StaticResource MesRadiusBase}" />
+                        </Grid>
+
+                        <!-- Progress bar when testing -->
+                        <ProgressBar IsIndeterminate="True" Height="3"
+                                     IsVisible="{Binding IsConnectionTesting}" />
+
+                        <!-- Ping info row -->
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Son Ping" FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding LastPingTime}"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                            </StackPanel>
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Gecikme" FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding PingDurationMs, StringFormat='{}{0} ms'}"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                            </StackPanel>
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Son Baglanti" FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Text="{Binding SonBaglantiZamani}"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- API Info Section -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="API Bilgileri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,0">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Satici ID"
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
+                                       VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource MesBgPage}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="10,6">
+                                <TextBlock Text="{Binding SellerId}"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" FontFamily="Cascadia Code,Consolas,monospace" />
+                            </Border>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key"
+                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
+                                       VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <Border Grid.Row="2" Grid.Column="1" Background="{DynamicResource MesBgPage}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="10,6">
+                                <TextBlock Text="{Binding ApiKeyMasked}"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" FontFamily="Cascadia Code,Consolas,monospace" />
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Quick Actions -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Hizli Islemler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Son 5 Urunu Cek"
+                                    Command="{Binding FetchProductsCommand}"
+                                    IsEnabled="{Binding !IsQuickActionRunning}"
+                                    Background="{DynamicResource MesBrandAccent}"
+                                    Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="SemiBold"
+                                    Padding="14,8"
+                                    CornerRadius="{StaticResource MesRadiusBase}" />
+                            <Button Content="Son 5 Siparisi Cek"
+                                    Command="{Binding FetchOrdersCommand}"
+                                    IsEnabled="{Binding !IsQuickActionRunning}"
+                                    Background="{DynamicResource MesEmerald}"
+                                    Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="SemiBold"
+                                    Padding="14,8"
+                                    CornerRadius="{StaticResource MesRadiusBase}" />
+                        </StackPanel>
+                        <ProgressBar IsIndeterminate="True" Height="3"
+                                     IsVisible="{Binding IsQuickActionRunning}" />
+                        <TextBlock Text="{Binding QuickActionStatus}"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesCoolGray}"
+                                   IsVisible="{Binding QuickActionStatus.Length}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Right: Rate Limit + Connection Log -->
+            <StackPanel Grid.Column="1" Spacing="10" Margin="6,0,0,0">
+
+                <!-- Rate Limit Display -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Rate Limit Durumu" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+
+                        <!-- Three stat boxes -->
+                        <Grid ColumnDefinitions="*,*,*">
+                            <Border Grid.Column="0" Background="{DynamicResource MesBgPage}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="12,10" Margin="0,0,4,0">
+                                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="Gunluk Limit" FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding RateLimitTotal}"
+                                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Background="{DynamicResource MesBgPage}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="12,10" Margin="4,0">
+                                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="Kullanilan" FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding RateLimitUsed}"
+                                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource MesAmber}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Background="{DynamicResource MesBgPage}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="12,10" Margin="4,0,0,0">
+                                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="Kalan" FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding RateLimitRemaining}"
+                                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource MesEmerald}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Progress bar -->
+                        <StackPanel Spacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Kullanim Orani" FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding RateLimitPercent, StringFormat='{}{0:F1}%'}"
+                                           FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                            </Grid>
+                            <ProgressBar Value="{Binding RateLimitPercent}" Minimum="0" Maximum="100" Height="8"
+                                         CornerRadius="4" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Connection Log -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,12"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="API Cagri Logu" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding ApiCallLogs.Count, StringFormat='Son {0} kayit'}"
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1" MinHeight="160">
+                            <DataGrid ItemsSource="{Binding ApiCallLogs}"
+                                      AutoGenerateColumns="False"
+                                      CanUserReorderColumns="False"
+                                      CanUserResizeColumns="True"
+                                      CanUserSortColumns="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal"
+                                      BorderThickness="0"
+                                      Background="{DynamicResource MesBgPrimary}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Zaman" Binding="{Binding Zaman}" Width="80" />
+                                    <DataGridTextColumn Header="Endpoint" Binding="{Binding Endpoint}" Width="*" />
+                                    <DataGridTextColumn Header="Durum" Binding="{Binding Durum}" Width="90" />
+                                    <DataGridTextColumn Header="Sure" Binding="{Binding Sure}" Width="70" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="Henuz API cagrisi yapilmadi"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,40"
+                                       Opacity="0.5"
+                                       FontSize="{StaticResource FontSizeSubtitle}"
+                                       IsVisible="{Binding !ApiCallLogs.Count}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Grid>
+
         <!-- Recent Orders DataGrid -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,0,22,22"
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,12,22,22"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
             <Grid RowDefinitions="Auto,*">
                 <Border Grid.Row="0" Padding="20,14"
@@ -110,26 +351,26 @@
                     </Grid>
                 </Border>
                 <Grid>
-                <DataGrid Grid.Row="1"
-                          ItemsSource="{Binding RecentOrders}"
-                          AutoGenerateColumns="False"
-                          CanUserReorderColumns="True"
-                          CanUserResizeColumns="True"
-                          CanUserSortColumns="True"
-                          IsReadOnly="True"
-                          GridLinesVisibility="Horizontal"
-                          BorderThickness="0"
-                          Background="{DynamicResource MesBgPrimary}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="160" />
-                        <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
-                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="200" />
-                        <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount}" Width="150" />
-                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
-                    </DataGrid.Columns>
-                </DataGrid>
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding RecentOrders}"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="True"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              BorderThickness="0"
+                              Background="{DynamicResource MesBgPrimary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="160" />
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="140" />
+                            <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="200" />
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount}" Width="150" />
+                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                     <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
+                    <TextBlock Text="Kayit bulunamadi"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Margin="0,40"
@@ -141,7 +382,7 @@
         </Border>
 
         <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -154,7 +395,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -170,7 +411,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">

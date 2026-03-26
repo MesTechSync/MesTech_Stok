@@ -162,8 +162,8 @@
                     Padding="24" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1">
                 <ScrollViewer>
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Kolon Eslestirme" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
-                        <TextBlock Text="Kaynak dosyadaki kolonlari hedef alanlara esleyin"
+                        <TextBlock Text="Alan Eslestirme" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Text="Kaynak dosyadaki kolonlari hedef sistem alanlarina esleyin"
                                    FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
 
                         <!-- Mapping Header -->
@@ -173,7 +173,7 @@
                         </Grid>
 
                         <!-- Mapping Rows -->
-                        <ItemsControl ItemsSource="{Binding ColumnMappings}">
+                        <ItemsControl ItemsSource="{Binding FieldMappings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ImportColumnMappingDto">
                                     <Grid ColumnDefinitions="*,40,*" Margin="0,4">
@@ -185,7 +185,7 @@
                                         <ComboBox Grid.Column="2"
                                                   ItemsSource="{Binding $parent[ItemsControl].((vm:ImportProductsAvaloniaViewModel)DataContext).TargetFields}"
                                                   SelectedItem="{Binding TargetField}"
-                                                  Padding="8,6"  AutomationProperties.Name="Secim yapiniz"/>
+                                                  Padding="8,6" AutomationProperties.Name="Hedef Alan Sec"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -207,6 +207,14 @@
                         <TextBlock Text="{Binding ImportProgress, StringFormat='%{0:N0}'}"
                                    FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
                     </StackPanel>
+
+                    <!-- Basla Button (visible before import starts) -->
+                    <Button Content="Baslat" Command="{Binding ImportCommand}"
+                            ToolTip.Tip="Aktarimi baslat"
+                            IsVisible="{Binding !IsImporting}"
+                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="32,12" CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeBody}"
+                            HorizontalAlignment="Center" />
 
                     <!-- Result Summary -->
                     <Border IsVisible="{Binding ImportCompleted}" Background="{DynamicResource MesBgSurface}"
@@ -236,6 +244,13 @@
                             </Grid>
                             <TextBlock Text="{Binding ImportDuration, StringFormat='Sure: {0}'}"
                                        FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            <!-- ImportResultMessage — WPF015 spec -->
+                            <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusBase}" Padding="12,8"
+                                    IsVisible="{Binding ImportResultMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <TextBlock Text="{Binding ImportResultMessage}"
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}"
+                                           HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            </Border>
                         </StackPanel>
                     </Border>
 
