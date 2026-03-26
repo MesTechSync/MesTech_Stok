@@ -101,3 +101,7 @@ appsettings.user.json
 
 # Node modules
 node_modules/
+
+# Test results and crash dumps
+**/TestResults/
+*.dmp
