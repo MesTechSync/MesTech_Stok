@@ -91,7 +91,7 @@ public static class ReportEndpoints
 
             var count = await mediator.Send(
                 new GenerateTaxCalendarCommand(year, tenantId), ct);
-            return Results.Ok(new { year, eventsCreated = count });
+            return Results.Ok(new CalendarGenerationResponse(year, count));
         })
         .WithName("GenerateTaxCalendarFromReports")
         .WithSummary("Vergi takvimi olustur (yillik ~40 etkinlik)");

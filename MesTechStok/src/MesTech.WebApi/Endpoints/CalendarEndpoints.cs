@@ -85,7 +85,7 @@ public static class CalendarEndpoints
 
             var count = await mediator.Send(
                 new GenerateTaxCalendarCommand(year, tenantId), ct);
-            return Results.Ok(new { year, eventsCreated = count });
+            return Results.Ok(new CalendarGenerationResponse(year, count));
         })
         .WithName("GenerateTaxCalendar")
         .WithSummary("Yillik vergi takvimi olustur (~40 etkinlik: KDV, SGK, Ba-Bs, Gecici Vergi, Yillik)");

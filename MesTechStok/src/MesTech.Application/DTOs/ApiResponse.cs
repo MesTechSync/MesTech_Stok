@@ -40,3 +40,12 @@ public sealed record PagedResponse<T>(IReadOnlyList<T> Items, int TotalCount);
 
 /// <summary>Standart status response — { status: string, message: string }.</summary>
 public sealed record StatusResponse(string Status, string? Message = null);
+
+/// <summary>Entity action response — { id: Guid, status: string, message: string }.</summary>
+public sealed record EntityActionResponse(Guid Id, string Status, string? Message = null);
+
+/// <summary>Sync operation response — { id: Guid, syncedCount: int }.</summary>
+public sealed record SyncResponse(Guid Id, int SyncedCount);
+
+/// <summary>Calendar generation response — { year: int, eventsCreated: int }.</summary>
+public sealed record CalendarGenerationResponse(int Year, int EventsCreated);

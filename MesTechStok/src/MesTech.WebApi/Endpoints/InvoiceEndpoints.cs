@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Application.Features.Invoice.Queries;
@@ -66,8 +67,8 @@ public static class InvoiceEndpoints
         {
             var success = await mediator.Send(new ApproveInvoiceCommand(id), ct);
             return success
-                ? Results.Ok(new { InvoiceId = id, Approved = true })
-                : Results.BadRequest(new { InvoiceId = id, Message = "Fatura onaylanamadı" });
+                ? Results.Ok(new EntityActionResponse(id, "Approved"))
+                : Results.BadRequest(new EntityActionResponse(id, "Failed", "Fatura onaylanamadı"));
         })
         .WithName("ApproveInvoice")
         .WithSummary("Fatura onayla");

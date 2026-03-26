@@ -65,8 +65,8 @@ public static class EInvoiceEndpoints
             var success = await mediator.Send(
                 new SendEInvoiceCommand(id), ct);
             return success
-                ? Results.Ok(new { EInvoiceId = id, Message = "E-Fatura başarıyla gönderildi" })
-                : Results.BadRequest(new { EInvoiceId = id, Message = "E-Fatura gönderilemedi" });
+                ? Results.Ok(new EntityActionResponse(id, "Sent", "E-Fatura başarıyla gönderildi"))
+                : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura gönderilemedi"));
         })
         .WithName("SendEInvoice")
         .WithSummary("E-faturayı GİB'e gönder")
@@ -80,8 +80,8 @@ public static class EInvoiceEndpoints
             var success = await mediator.Send(
                 new CancelEInvoiceCommand(id, reason), ct);
             return success
-                ? Results.Ok(new { EInvoiceId = id, Message = "E-Fatura iptal edildi" })
-                : Results.BadRequest(new { EInvoiceId = id, Message = "E-Fatura iptal edilemedi" });
+                ? Results.Ok(new EntityActionResponse(id, "Cancelled", "E-Fatura iptal edildi"))
+                : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura iptal edilemedi"));
         })
         .WithName("CancelEInvoice")
         .WithSummary("E-fatura iptal et");

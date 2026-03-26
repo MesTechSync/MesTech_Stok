@@ -53,7 +53,7 @@ public static class DropshippingEndpoints
         {
             var syncedCount = await mediator.Send(
                 new SyncDropshipProductsCommand(tenantId, id), ct);
-            return Results.Ok(new { supplierId = id, syncedProductCount = syncedCount });
+            return Results.Ok(new SyncResponse(id, syncedCount));
         })
         .WithName("SyncDropshipProducts")
         .WithSummary("Tedarikçi ürün senkronizasyonu başlat");
