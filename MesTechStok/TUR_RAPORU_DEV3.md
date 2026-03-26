@@ -1062,4 +1062,25 @@ Toplam: 31 tur, 83+ commit
 | MinioHealthCheck.cs | 31 | Clean (framework CT) ✅ |
 | RabbitMqHealthCheck.cs | 47 | Clean (framework CT) ✅ |
 
-### KÜMÜLATİF DEV 3 (35 tur, 87 commit)
+---
+
+## TUR 36-37 — 2026-03-26 (G055 + Final Patrol)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 58 | TrendyolAdapter + RateLimitInfo | G055: GetRateLimitInfo + PullProducts(limit) | 59a4001a |
+
+### GOREV_HAVUZU: 7/7 KAPANDI
+G018 ✅ G030 ✅ G036 ✅ G041 ✅ G051 ✅ WPF017 ✅ G055 ✅
+
+=== FINAL CHECKPOINT 2026-03-26 ===
+Son commit: 59a4001a
+Açık görev: 0
+Build: 0 error (Infrastructure scope)
+Toplam: 37 tur, 90 commit
+ORG kapatılan: ORG023 + ORG025 + ORG037
+Cross-DEV açılan: G028(DEV1) + G029(DEV4) + G030-eski(DEV5)
+===========================
+
+### KÜMÜLATİF DEV 3 FINAL (37 tur, 90 commit)
