@@ -212,7 +212,15 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
         }
     };
 });
-builder.Services.AddAuthorization();
+// G053-DEV6: Global fallback authorization — tüm endpoint'ler default authenticated.
+// AllowAnonymous: /health, /metrics, /api/webhooks, /api/v1/auth/login, /api/v1/onboarding/register,
+//                 /api/v1/billing/webhooks
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 var app = builder.Build();
 

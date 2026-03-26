@@ -37,7 +37,8 @@ public static class HealthEndpoints
         })
         .WithName("HealthCheck")
         .WithSummary("Sistem sağlık durumu — PostgreSQL, Redis, RabbitMQ, MinIO")
-        .WithTags("Health");
+        .WithTags("Health")
+        .AllowAnonymous();
 
         // GET /health/deep — infra + adapter ping + MESA (G054)
         app.MapGet("/health/deep", async (
@@ -138,7 +139,8 @@ public static class HealthEndpoints
         })
         .WithName("PrometheusMetrics")
         .WithSummary("Prometheus metrikleri — text/plain format")
-        .WithTags("Health");
+        .WithTags("Health")
+        .AllowAnonymous();
     }
 
     private sealed record HealthCheckItem(string Name, bool IsHealthy, double DurationMs, string? Error);

@@ -110,7 +110,8 @@ public static class AuthEndpoints
             }
         })
         .WithName("Login")
-        .WithSummary("JWT token ile kimlik doğrulama — brute force korumalı");
+        .WithSummary("JWT token ile kimlik doğrulama — brute force korumalı")
+        .AllowAnonymous();
 
         // POST /api/v1/auth/validate — validate an existing JWT token
         group.MapPost("/validate", (ValidateTokenRequest request, IJwtTokenService jwtService) =>

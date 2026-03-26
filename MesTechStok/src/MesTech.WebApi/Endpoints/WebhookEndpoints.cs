@@ -88,7 +88,8 @@ public static class WebhookEndpoints
         .WithDescription("Receives webhook notifications from marketplace platforms — failed webhooks saved to DLQ")
         .Produces(200)
         .Produces(400)
-        .Produces(422);
+        .Produces(422)
+        .AllowAnonymous(); // Webhook'lar platform'dan JWT olmadan gelir
 
         // GET /api/webhooks/dead-letters — DLQ list (admin)
         group.MapGet("/dead-letters", async (
