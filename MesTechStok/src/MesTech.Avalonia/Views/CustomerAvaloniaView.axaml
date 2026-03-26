@@ -5,7 +5,7 @@
              x:DataType="vm:CustomerAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
-    <!-- Avalonia port — Musteriler (DataGrid + arama) -->
+    <!-- WPF018: Musteriler CRM — segment filtreleme, detay paneli, sag-tik menu -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -13,10 +13,10 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Musteriler" Foreground="{DynamicResource MesBgPrimary}"
+                    <TextBlock Text="Müşteriler" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} musteri'}"
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} müşteri'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
@@ -27,34 +27,218 @@
             </Grid>
         </Border>
 
-        <!-- Search Bar -->
+        <!-- Search + Segment Filter Bar -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-            <TextBox Width="320" Watermark="Ad, soyad veya email ara..." AutomationProperties.Name="Ad, soyad veya email ara..."
-                     Text="{Binding SearchText}"
-                     HorizontalAlignment="Left" />
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Segment Filter Buttons -->
+                <ItemsControl Grid.Column="0" ItemsSource="{x:Static vm:CustomerAvaloniaViewModel.SegmentFilters}"
+                              Margin="0,0,16,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SegmentFilterItem">
+                            <Button Content="{Binding Label}"
+                                    Command="{Binding $parent[UserControl].((vm:CustomerAvaloniaViewModel)DataContext).FilterSegmentCommand}"
+                                    CommandParameter="{Binding Key}"
+                                    Padding="12,6"
+                                    CornerRadius="4"
+                                    FontSize="{StaticResource FontSizeSmall}"
+                                    FontWeight="SemiBold" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Search Box -->
+                <TextBox Grid.Column="2" Width="320"
+                         Watermark="Ad, soyad, email veya telefon ara..."
+                         AutomationProperties.Name="Müşteri ara"
+                         Text="{Binding SearchText}"
+                         HorizontalAlignment="Right" />
+            </Grid>
         </Border>
 
-        <!-- Customers DataGrid -->
-        <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Items}"
-                  AutoGenerateColumns="False"
-                  CanUserReorderColumns="True"
-                  CanUserResizeColumns="True"
-                  CanUserSortColumns="True"
-                  IsReadOnly="True"
-                  GridLinesVisibility="Horizontal"
-                  BorderThickness="0"
-                  Background="{DynamicResource MesBgPrimary}">
+        <!-- Main Content: DataGrid + Detail Panel -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Ad Soyad" Binding="{Binding AdSoyad}" Width="200" />
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="230" />
-                <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="160" />
-                <DataGridTextColumn Header="Sehir" Binding="{Binding Sehir}" Width="130" />
-                <DataGridTextColumn Header="Siparis Sayisi" Binding="{Binding SiparisSayisi}" Width="120" />
-            </DataGrid.Columns>
-        </DataGrid>
+            <!-- Customers DataGrid -->
+            <DataGrid Grid.Column="0"
+                      ItemsSource="{Binding Items}"
+                      SelectedItem="{Binding SelectedCustomer}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      Background="{DynamicResource MesBgPrimary}">
+
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Detay"
+                                  Command="{Binding OpenDetailCommand}"
+                                  CommandParameter="{Binding SelectedCustomer}" />
+                        <MenuItem Header="Siparişler"
+                                  Command="{Binding ShowOrdersCommand}"
+                                  CommandParameter="{Binding SelectedCustomer}" />
+                        <MenuItem Header="Not Ekle"
+                                  Command="{Binding AddNoteCommand}"
+                                  CommandParameter="{Binding SelectedCustomer}" />
+                        <Separator />
+                        <MenuItem Header="Segment Değiştir →">
+                            <MenuItem Header="VIP"    Command="{Binding ChangeSegmentCommand}" CommandParameter="VIP" />
+                            <MenuItem Header="Normal" Command="{Binding ChangeSegmentCommand}" CommandParameter="Normal" />
+                            <MenuItem Header="Pasif"  Command="{Binding ChangeSegmentCommand}" CommandParameter="Pasif" />
+                        </MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Ad Soyad"        Binding="{Binding AdSoyad}"          Width="180" />
+                    <DataGridTextColumn Header="Telefon"         Binding="{Binding Telefon}"          Width="150" />
+                    <DataGridTextColumn Header="Email"           Binding="{Binding Email}"            Width="220" />
+                    <DataGridTextColumn Header="Şehir"           Binding="{Binding Sehir}"            Width="110" />
+                    <DataGridTextColumn Header="Sipariş Sayısı"  Binding="{Binding SiparisSayisi}"    Width="110" />
+                    <DataGridTextColumn Header="Toplam Harcama"  Binding="{Binding ToplamHarcamaStr}" Width="130" />
+                    <DataGridTextColumn Header="Son Sipariş"     Binding="{Binding SonSiparis}"       Width="110" />
+                    <DataGridTemplateColumn Header="Segment" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:CustomerItemDto">
+                                <Border Background="{Binding SegmentRenk}" CornerRadius="4"
+                                        Padding="8,2" HorizontalAlignment="Left" Margin="4,2">
+                                    <TextBlock Text="{Binding Segment}"
+                                               Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Customer Detail Side Panel -->
+            <Border Grid.Column="1"
+                    IsVisible="{Binding IsDetailOpen}"
+                    Width="320"
+                    Background="{DynamicResource MesBgPrimary}"
+                    BorderBrush="{DynamicResource MesBorderMedium}"
+                    BorderThickness="1,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Detail Header -->
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1"
+                            Background="{DynamicResource MesBgSurface}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Müşteri Detayı"
+                                       FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Content="✕"
+                                    Command="{Binding CloseDetailCommand}"
+                                    Background="Transparent"
+                                    Padding="8,4"
+                                    FontSize="14" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Detail Content -->
+                    <ScrollViewer Grid.Row="1" Padding="16">
+                        <StackPanel Spacing="16" IsVisible="{Binding SelectedCustomer, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                            <!-- Segment Badge -->
+                            <Border Background="{Binding SelectedCustomer.SegmentRenk}"
+                                    CornerRadius="6" Padding="12,6" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding SelectedCustomer.Segment}"
+                                           Foreground="White" FontWeight="Bold" FontSize="13" />
+                            </Border>
+
+                            <!-- Personal Info -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="KİŞİSEL BİLGİLER" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesSlateGray}"
+                                           LetterSpacing="1" />
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" >
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Ad Soyad:" Margin="0,0,8,4"
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedCustomer.AdSoyad}"
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Email:" Margin="0,0,8,4"
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedCustomer.Email}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Telefon:" Margin="0,0,8,4"
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedCustomer.Telefon}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{DynamicResource MesDarkSlate}" />
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Şehir:" Margin="0,0,8,4"
+                                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedCustomer.Sehir}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{DynamicResource MesDarkSlate}" />
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Order Summary -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="SİPARİŞ ÖZETİ" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesSlateGray}"
+                                           LetterSpacing="1" />
+                                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12">
+                                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Sipariş Sayısı"
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   Text="{Binding SelectedCustomer.SiparisSayisi}"
+                                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource MesDarkSlate}" />
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Toplam Harcama" Margin="0,6,0,0"
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,6,0,0"
+                                                   Text="{Binding SelectedCustomer.ToplamHarcamaStr}"
+                                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource MesPrimaryBlue}" />
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Son Sipariş" Margin="0,6,0,0"
+                                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,6,0,0"
+                                                   Text="{Binding SelectedCustomer.SonSiparis}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{DynamicResource MesDarkSlate}" />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Spacing="6">
+                                <Button Content="Siparişleri Göster"
+                                        Command="{Binding ShowOrdersCommand}"
+                                        CommandParameter="{Binding SelectedCustomer}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="12,8" />
+                                <Button Content="Not Ekle"
+                                        Command="{Binding AddNoteCommand}"
+                                        CommandParameter="{Binding SelectedCustomer}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="12,8" />
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+        </Grid>
 
         <!-- Empty State: Customers -->
         <TextBlock Grid.Row="2"
@@ -73,21 +257,21 @@
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Musteriler yukleniyor..."
+                <TextBlock Text="Müşteriler yükleniyor..."
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
-        <!-- Empty State -->
+        <!-- Empty State (no data at all) -->
         <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Musteri bulunamadi" FontSize="{StaticResource FontSizeHero}"
+                <TextBlock Text="Müşteri bulunamadı" FontSize="{StaticResource FontSizeHero}"
                            HorizontalAlignment="Center" Opacity="0.5" Margin="0,0,0,8" />
-                <TextBlock Text="Henuz musteri kaydedilmemis"
+                <TextBlock Text="Henüz müşteri kaydedilmemiş"
                            FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
