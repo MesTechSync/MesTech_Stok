@@ -1,32 +1,47 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 /// <summary>
-/// Komisyon Oranları ViewModel — Zincir 6.
-/// Platform bazlı komisyon yönetimi. DEV 1'in CommissionRate entity'sine bağlanacak.
+/// Komisyon Oranları ViewModel — wired to GetPlatformCommissionRatesQuery via MediatR.
+/// Platform bazlı komisyon yönetimi (Zincir 6).
 /// </summary>
 public partial class CommissionRatesViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     public ObservableCollection<CommissionRateItem> CommissionRates { get; } = [];
+
+    public CommissionRatesViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
 
     public override async Task LoadAsync()
     {
         await SafeExecuteAsync(async () =>
         {
             CommissionRates.Clear();
-            await Task.Delay(150);
 
-            CommissionRates.Add(new("Trendyol", 15.0m, 0m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("Hepsiburada", 12.5m, 2.50m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("N11", 14.0m, 0m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("Çiçeksepeti", 18.0m, 3.00m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("Amazon TR", 15.0m, 5.00m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("eBay", 13.0m, 0m, "01.01.2026", "31.12.2026"));
-            CommissionRates.Add(new("Pazarama", 10.0m, 0m, "01.03.2026", "31.12.2026"));
-            CommissionRates.Add(new("PTT AVM", 8.0m, 1.50m, "01.01.2026", "31.12.2026"));
+            var result = await _mediator.Send(
+                new GetPlatformCommissionRatesQuery(_tenantProvider.GetCurrentTenantId()));
+
+            foreach (var c in result)
+            {
+                CommissionRates.Add(new(
+                    c.Platform,
+                    c.Rate,
+                    c.MinAmount ?? 0m,
+                    c.EffectiveFrom.ToString("dd.MM.yyyy"),
+                    c.EffectiveTo?.ToString("dd.MM.yyyy") ?? "-"));
+            }
 
             IsEmpty = CommissionRates.Count == 0;
         }, "Komisyon oranları");
