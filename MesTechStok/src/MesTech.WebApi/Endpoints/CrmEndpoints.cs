@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Commands.SyncBitrix24Contacts;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
@@ -44,7 +45,7 @@ public static class CrmEndpoints
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/crm/leads/{id}", new { id });
+            return Results.Created($"/api/v1/crm/leads/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateLead")
         .WithSummary("Yeni potansiyel müşteri oluştur");
@@ -56,7 +57,7 @@ public static class CrmEndpoints
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/crm/deals/{id}", new { id });
+            return Results.Created($"/api/v1/crm/deals/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateDeal")
         .WithSummary("Yeni fırsat oluştur");
@@ -66,7 +67,7 @@ public static class CrmEndpoints
             async (Guid dealId, ICrmOrderBridgeService bridge, CancellationToken ct) =>
             {
                 var orderId = await bridge.CreateOrderFromDealAsync(dealId, ct);
-                return Results.Ok(new { dealId, orderId });
+                return Results.Ok(ApiResponse<object>.Ok(new { dealId, orderId }));
             })
             .WithName("WinDealAndCreateOrder")
             .WithSummary("Deal kazanildi — Order baglantisi olustur (H27-3.4)");
@@ -77,8 +78,8 @@ public static class CrmEndpoints
             {
                 var leadId = await bridge.CreateLeadFromOrderAsync(orderId, ct);
                 return leadId.HasValue
-                    ? Results.Created($"/api/v1/crm/leads/{leadId}", new { orderId, leadId })
-                    : Results.Ok(new { orderId, message = "Lead zaten mevcut" });
+                    ? Results.Created($"/api/v1/crm/leads/{leadId}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(leadId.Value)))
+                    : Results.Ok(ApiResponse<StatusResponse>.Ok(new StatusResponse("exists", "Lead zaten mevcut")));
             })
             .WithName("CreateLeadFromOrder")
             .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)");

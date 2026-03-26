@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
@@ -102,7 +103,7 @@ public static class ProductEndpoints
                 new UpdateProductImageCommand(id, request.ImageUrl), ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { error = result.ErrorMessage });
+                : Results.BadRequest(ApiResponse<object>.Fail(result.ErrorMessage ?? "Resim güncellenemedi"));
         })
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")

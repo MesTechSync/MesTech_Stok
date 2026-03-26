@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Queries.GetStoresByTenant;
@@ -37,8 +38,8 @@ public static class StoreEndpoints
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Created($"/api/v1/admin/stores/{result.StoreId}", new { id = result.StoreId })
-                : Results.BadRequest(new { error = result.ErrorMessage });
+                ? Results.Created($"/api/v1/admin/stores/{result.StoreId}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(result.StoreId ?? Guid.Empty)))
+                : Results.BadRequest(ApiResponse<object>.Fail(result.ErrorMessage ?? "Mağaza oluşturulamadı"));
         })
         .WithName("CreateStore")
         .WithSummary("Yeni mağaza oluştur — admin only")
