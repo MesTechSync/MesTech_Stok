@@ -512,3 +512,26 @@ Borç 0, tüm GOREV kapatıldı. Production readiness keşfi başladı.
 | GOREV kapatılan | **10** |
 | Cross-DEV görev | **17** (G028 P0, G029 P1, G030 P2) |
 | RPN azaltma | **-477** (210+200+108 → 21+10+18) |
+
+---
+
+## TUR: 12 (2026-03-26) — CONCURRENT MUTATION GÜVENLİĞİ (KÖKÜNE İNDİ)
+
+### GO-LIVE BLOCKER AUDIT: OVERSELLING + DOUBLE-CHARGE
+| Bulgu | RPN | Durum |
+|-------|-----|-------|
+| DistributedLock service var ama DI'da YOK, 0 handler kullanıyor | 280 | ✅ DI registered + stock handler guarded |
+| UnitOfWork SaveChangesAsync — 0 concurrency retry, 136 handler korumasız | 240 | ✅ 3-attempt retry + stale entry reload |
+| Stock deduction race condition — overselling mümkün (Z15 yarım) | 280 | ✅ Distributed lock + await using |
+| 7 entity RowVersion var ama exception yakalanmıyor | 200 | ✅ UnitOfWork retry ile yakalanıyor |
+
+### COMMIT
+- `7d21fc26` fix(concurrency): distributed lock + SaveChanges retry + stock deduction guard
+
+### DEV 6 — 12 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **36** |
+| GO-LIVE fix | **6** (FindAsync×15, JWT guard, rate limit, lock DI, SaveChanges retry, stock lock) |
+| Cross-DEV görev | **19** (+G031 P0, +G032 P1) |
+| RPN azaltma | **-1477** (TUR 11: -477 + TUR 12: -1000) |
