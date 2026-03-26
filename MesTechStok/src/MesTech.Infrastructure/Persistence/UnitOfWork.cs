@@ -75,7 +75,10 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public async Task ReloadAsync<TEntity>(Guid id, CancellationToken ct = default) where TEntity : class
     {
-        var entity = await _context.Set<TEntity>().FindAsync(new object[] { id }, ct).ConfigureAwait(false);
+        // FirstOrDefaultAsync respects global query filters (tenant isolation)
+        // FindAsync bypasses them — security risk in multi-tenant context
+        var entity = await _context.Set<TEntity>()
+            .FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, ct).ConfigureAwait(false);
         if (entity is not null)
             await _context.Entry(entity).ReloadAsync(ct).ConfigureAwait(false);
     }
