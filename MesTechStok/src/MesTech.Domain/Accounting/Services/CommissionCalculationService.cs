@@ -9,12 +9,24 @@ public sealed class CommissionCalculationService : ICommissionCalculationService
 {
     private static readonly Dictionary<string, decimal> _fallbackRates = new(StringComparer.OrdinalIgnoreCase)
     {
+        // Türk pazaryerleri
         ["Trendyol"] = 0.15m,
         ["Hepsiburada"] = 0.18m,
         ["N11"] = 0.12m,
         ["Ciceksepeti"] = 0.20m,
+        ["Pazarama"] = 0.10m,
+        ["PttAVM"] = 0.10m,
+        // Uluslararası pazaryerleri
         ["Amazon"] = 0.15m,
-        ["Pazarama"] = 0.10m
+        ["AmazonEu"] = 0.15m,
+        ["eBay"] = 0.12m,
+        ["Etsy"] = 0.065m,
+        ["Ozon"] = 0.15m,
+        // Kendi mağaza platformları (komisyon yok)
+        ["OpenCart"] = 0m,
+        ["Shopify"] = 0m,
+        ["WooCommerce"] = 0m,
+        ["Bitrix24"] = 0m
     };
 
     private readonly Func<string, string?, CancellationToken, Task<DynamicRateResult?>>? _rateProvider;
@@ -117,6 +129,8 @@ public sealed class CommissionCalculationService : ICommissionCalculationService
     /// <inheritdoc />
     public decimal GetDefaultRate(string platform)
     {
-        return _fallbackRates.TryGetValue(platform, out var rate) ? rate : 0.15m;
+        // Bilinmeyen platform → 0 (komisyon yok). Yanlış %15 tahmin yerine eksik komisyon tercih edilir.
+        // Yeni platform eklendiğinde _fallbackRates'e oran eklenmeli.
+        return _fallbackRates.TryGetValue(platform, out var rate) ? rate : 0m;
     }
 }
