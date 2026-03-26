@@ -1,20 +1,27 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MesTech.Application.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Login screen ViewModel — Username + Password + authentication.
-/// Production: authenticates via IAuthService (DI resolved at runtime).
-/// Offline mode: shows "Auth servisi yapılandırılmadı" message.
+/// Authenticates via IAuthService (BCrypt password verification).
 /// </summary>
 public partial class LoginAvaloniaViewModel : ViewModelBase
 {
+    private readonly IAuthService _authService;
+
     [ObservableProperty] private string username = string.Empty;
     [ObservableProperty] private string password = string.Empty;
     [ObservableProperty] private bool isAuthenticated;
     [ObservableProperty] private string welcomeMessage = string.Empty;
+
+    public LoginAvaloniaViewModel(IAuthService authService)
+    {
+        _authService = authService;
+    }
 
     public override async Task LoadAsync()
     {
@@ -76,12 +83,18 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         }
     }
 
-    private Task<bool> ValidateCredentialsAsync(string username, string password)
+    private async Task<bool> ValidateCredentialsAsync(string username, string password)
     {
-        // Auth servisi DI'a kayıtlı değil — DEV1 IAuthService kaydı ekleyecek.
-        // Şimdilik offline mode: herhangi bir kullanıcı/şifre ile giriş yapılamaz.
-        ErrorMessage = "Auth servisi henüz yapılandırılmadı. DI kaydı bekliyor.";
-        return Task.FromResult(false);
+        var result = await _authService.ValidateAsync(username, password);
+
+        if (!result.IsSuccess)
+        {
+            ErrorMessage = result.ErrorMessage ?? "Kimlik doğrulama başarısız.";
+            return false;
+        }
+
+        WelcomeMessage = $"Hoşgeldiniz, {result.DisplayName}!";
+        return true;
     }
 
     [RelayCommand]

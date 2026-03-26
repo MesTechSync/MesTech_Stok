@@ -227,6 +227,9 @@ public static class InfrastructureServiceRegistration
         // JWT Token Service (Dalga 9 — Blazor SaaS authentication)
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+        // User Authentication Service (BCrypt — Avalonia + Blazor login)
+        services.AddScoped<IAuthService, MesTech.Infrastructure.Auth.AuthService>();
+
         // === FAZ 1: ALTYAPI AKTIFLESTIRME ===
 
         // Redis Cache
