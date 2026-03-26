@@ -2,16 +2,19 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Queries.GetInventoryPaged;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Envanter yonetimi ViewModel — 4 seviye stok badge + depo filtre + KPI kartlari + sayfalama.
-/// EMR-06 Gorev 4E: Enhanced from basic DataGrid to full-featured inventory view.
-/// Will be wired to GetInventorySummaryQuery via MediatR when full migration starts.
+/// Envanter yonetimi ViewModel — wired to GetInventoryPagedQuery via MediatR.
+/// 4 seviye stok badge + depo filtre + KPI kartlari + sayfalama.
 /// </summary>
 public partial class InventoryAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int alarmCount;
@@ -36,6 +39,11 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     public ObservableCollection<InventoryItemDto> Items { get; } = [];
     private List<InventoryItemDto> _allItems = [];
 
+    public InventoryAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -44,21 +52,19 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
+            var result = await _mediator.Send(new GetInventoryPagedQuery(
+                Page: 1, PageSize: 500, SearchTerm: null));
 
-            _allItems =
-            [
-                new() { Sku = "SKU-1001", Ad = "Samsung Galaxy S24", Miktar = 45, MinStok = 10, MaxStok = 200, Depo = "Ana Depo", UnitPrice = 54999.99m },
-                new() { Sku = "SKU-1002", Ad = "Apple MacBook Air M3", Miktar = 3, MinStok = 5, MaxStok = 50, Depo = "Ana Depo", UnitPrice = 42999.00m },
-                new() { Sku = "SKU-1003", Ad = "Sony WH-1000XM5 Kulaklik", Miktar = 78, MinStok = 20, MaxStok = 300, Depo = "Yedek Depo", UnitPrice = 8499.00m },
-                new() { Sku = "SKU-1004", Ad = "Logitech MX Master 3S", Miktar = 2, MinStok = 15, MaxStok = 150, Depo = "Ana Depo", UnitPrice = 3299.00m },
-                new() { Sku = "SKU-1005", Ad = "Dell U2723QE Monitor", Miktar = 8, MinStok = 5, MaxStok = 40, Depo = "Yedek Depo", UnitPrice = 12499.00m },
-                new() { Sku = "SKU-1006", Ad = "Anker PowerCore 20000", Miktar = 120, MinStok = 30, MaxStok = 500, Depo = "Ana Depo", UnitPrice = 449.90m },
-                new() { Sku = "SKU-1007", Ad = "Xiaomi Mi Band 8", Miktar = 0, MinStok = 25, MaxStok = 400, Depo = "Yedek Depo", UnitPrice = 999.00m },
-                new() { Sku = "SKU-1008", Ad = "HP LaserJet Pro M404", Miktar = 15, MinStok = 5, MaxStok = 30, Depo = "Ana Depo", UnitPrice = 7899.00m },
-                new() { Sku = "SKU-1009", Ad = "Canon EOS R50 Kamera", Miktar = 4, MinStok = 8, MaxStok = 25, Depo = "Yedek Depo", UnitPrice = 24999.00m },
-                new() { Sku = "SKU-1010", Ad = "JBL Charge 5 Hoparlor", Miktar = 56, MinStok = 10, MaxStok = 200, Depo = "Ana Depo", UnitPrice = 3199.00m },
-            ];
+            _allItems = result.Items.Select(i => new InventoryItemDto
+            {
+                Sku = i.Barcode,
+                Ad = i.ProductName,
+                Miktar = i.Stock,
+                MinStok = i.MinimumStock,
+                MaxStok = i.MinimumStock * 10,
+                Depo = string.IsNullOrEmpty(i.Location) ? "Ana Depo" : i.Location,
+                UnitPrice = i.Price
+            }).ToList();
 
             // Populate warehouse filter
             WarehouseFilter.Clear();
@@ -172,7 +178,6 @@ public class InventoryItemDto
     public decimal UnitPrice { get; set; }
     public bool IsAlarm => Miktar < MinStok;
 
-    /// <summary>EMR-06 renk tablosu: 4 seviye stok durumu.</summary>
     public string StokDurum
     {
         get
