@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +13,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -21,9 +23,10 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 
     private List<DropshipOrderItemDto> _allOrders = [];
 
-    public DropshipOrdersAvaloniaViewModel(IMediator mediator)
+    public DropshipOrdersAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -34,7 +37,7 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDropshipOrdersQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetDropshipOrdersQuery(_currentUser.TenantId));
 
             _allOrders = result.Select(o => new DropshipOrderItemDto
             {

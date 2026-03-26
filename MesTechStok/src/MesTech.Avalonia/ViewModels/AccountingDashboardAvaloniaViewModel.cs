@@ -4,12 +4,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
     private static readonly CultureInfo TrCulture = new("tr-TR");
 
 
@@ -21,9 +23,10 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<AccountingTransactionDto> RecentTransactions { get; } = [];
 
-    public AccountingDashboardAvaloniaViewModel(IMediator mediator)
+    public AccountingDashboardAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -36,7 +39,7 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
         {
             var now = DateTime.Now;
             var summary = await _mediator.Send(
-                new GetMonthlySummaryQuery(now.Year, now.Month, Guid.Empty));
+                new GetMonthlySummaryQuery(now.Year, now.Month, _currentUser.TenantId));
 
             var revenue = summary.TotalSales;
             var expense = summary.TotalExpenses + summary.TotalCommissions + summary.TotalShippingCost;

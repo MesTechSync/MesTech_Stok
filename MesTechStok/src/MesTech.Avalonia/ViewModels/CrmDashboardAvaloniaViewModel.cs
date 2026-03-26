@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetCrmDashboard;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI metrics — mapped from CrmDashboardDto
@@ -25,9 +27,10 @@ public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
     public ObservableCollection<CrmPipelineSummaryVm> PipelineSummary { get; } = [];
     public ObservableCollection<CrmRecentActivityVm> RecentActivities { get; } = [];
 
-    public CrmDashboardAvaloniaViewModel(IMediator mediator)
+    public CrmDashboardAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -38,7 +41,7 @@ public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var dto = await _mediator.Send(new GetCrmDashboardQuery(Guid.Empty));
+            var dto = await _mediator.Send(new GetCrmDashboardQuery(_currentUser.TenantId));
 
             TotalCustomers = dto.TotalCustomers;
             NewThisMonth = dto.ActiveCustomers;

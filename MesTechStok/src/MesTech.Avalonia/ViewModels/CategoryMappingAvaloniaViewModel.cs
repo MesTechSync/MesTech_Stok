@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.CategoryMapping.Queries.GetCategoryMappings;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -46,9 +48,10 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
     public ObservableCollection<CategoryMappingItemDto> Mappings { get; } = [];
     public ObservableCollection<string> PlatformList { get; } = ["Trendyol", "Hepsiburada", "N11", "Amazon", "Ciceksepeti"];
 
-    public CategoryMappingAvaloniaViewModel(IMediator mediator)
+    public CategoryMappingAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -59,7 +62,7 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetCategoryMappingsQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetCategoryMappingsQuery(_currentUser.TenantId));
 
             Mappings.Clear();
             foreach (var m in result)

@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetDeals;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class DealsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -19,9 +21,10 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DealListItemVm> Deals { get; } = [];
     public string[] StageOptions { get; } = ["Tumu", "Ilk Iletisim", "Teklif Verildi", "Muzakere", "Kazanildi", "Kaybedildi"];
 
-    public DealsAvaloniaViewModel(IMediator mediator)
+    public DealsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -32,7 +35,7 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDealsQuery(Guid.Empty, Page: 1, PageSize: 100));
+            var result = await _mediator.Send(new GetDealsQuery(_currentUser.TenantId, Page: 1, PageSize: 100));
 
             Deals.Clear();
             foreach (var deal in result.Items)

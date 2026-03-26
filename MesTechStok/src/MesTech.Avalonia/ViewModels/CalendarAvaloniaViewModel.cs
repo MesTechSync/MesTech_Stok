@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Calendar.Queries.GetCalendarEvents;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class CalendarAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string currentMonth = DateTime.Now.ToString("MMMM yyyy");
@@ -16,9 +18,10 @@ public partial class CalendarAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<CalendarEventVm> Events { get; } = [];
 
-    public CalendarAvaloniaViewModel(IMediator mediator)
+    public CalendarAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -29,7 +32,7 @@ public partial class CalendarAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetCalendarEventsQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetCalendarEventsQuery(_currentUser.TenantId));
 
             Events.Clear();
             foreach (var e in result)

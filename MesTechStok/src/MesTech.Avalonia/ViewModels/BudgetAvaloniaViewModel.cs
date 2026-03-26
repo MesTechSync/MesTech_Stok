@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class BudgetAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI
@@ -29,9 +31,10 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Years { get; } =
         ["2024", "2025", "2026", "2027"];
 
-    public BudgetAvaloniaViewModel(IMediator mediator)
+    public BudgetAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -46,7 +49,7 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
             var month = monthIndex > 0 ? monthIndex : DateTime.Now.Month;
 
-            var result = await _mediator.Send(new GetBudgetSummaryQuery(Guid.Empty, year, month));
+            var result = await _mediator.Send(new GetBudgetSummaryQuery(_currentUser.TenantId, year, month));
 
             Items.Clear();
             foreach (var cat in result.Categories)

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +13,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI values (original)
@@ -37,9 +39,10 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DropshipSupplierPerformanceDto> Suppliers { get; } = [];
     public ObservableCollection<DropshipProfitableProductDto> TopProfitableProducts { get; } = [];
 
-    public DropshipDashboardAvaloniaViewModel(IMediator mediator)
+    public DropshipDashboardAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -50,7 +53,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDropshipDashboardQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetDropshipDashboardQuery(_currentUser.TenantId));
 
             // Original KPIs
             TotalOrders = result.PendingOrders;
