@@ -75,10 +75,12 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "IssueTime")?.Value))
             errors.Add("IssueTime zorunlu alan eksik (UBL-TR 1.2.1 gereksinimi).");
 
-        // 8. InvoiceTypeCode
+        // 8. InvoiceTypeCode — GİB geçerli değerler
         var typeCode = root.Element(Cbc + "InvoiceTypeCode")?.Value;
         if (string.IsNullOrWhiteSpace(typeCode))
             errors.Add("InvoiceTypeCode zorunlu alan eksik.");
+        else if (typeCode is not ("SATIS" or "IADE" or "TEVKIFAT" or "ISTISNA" or "OZELMATRAH" or "IHRACKAYITLI"))
+            errors.Add($"InvoiceTypeCode geçersiz: '{typeCode}'. GİB geçerli değerler: SATIS/IADE/TEVKIFAT/ISTISNA/OZELMATRAH/IHRACKAYITLI.");
 
         // 9. DocumentCurrencyCode
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "DocumentCurrencyCode")?.Value))
@@ -162,8 +164,11 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         }
 
         var identification = party.Element(Cac + "PartyIdentification");
-        if (identification is null || string.IsNullOrWhiteSpace(identification.Element(Cbc + "ID")?.Value))
+        var idValue = identification?.Element(Cbc + "ID")?.Value;
+        if (string.IsNullOrWhiteSpace(idValue))
             errors.Add($"{label} VKN/TCKN (PartyIdentification/ID) zorunlu alan eksik.");
+        else if (idValue.Length is not (10 or 11) || !idValue.All(char.IsDigit))
+            errors.Add($"{label} VKN/TCKN '{idValue}' geçersiz — 10 (VKN) veya 11 (TCKN) haneli rakam olmalı.");
 
         var partyName = party.Element(Cac + "PartyName");
         if (partyName is null || string.IsNullOrWhiteSpace(partyName.Element(Cbc + "Name")?.Value))
