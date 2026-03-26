@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Fulfillment;
@@ -49,6 +49,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         IHttpClientFactory? httpClientFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(60);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _refreshToken = refreshToken ?? throw new ArgumentNullException(nameof(refreshToken));
         _clientId = clientId ?? throw new ArgumentNullException(nameof(clientId));

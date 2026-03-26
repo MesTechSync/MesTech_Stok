@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -32,6 +32,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
     public SendeoCargoAdapter(HttpClient httpClient, ILogger<SendeoCargoAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
@@ -138,6 +139,11 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex, scope =>
+            {
+                scope.SetTag("adapter", "sendeo");
+                scope.SetTag("operation", "health_check");
+            });
             _logger.LogWarning(ex, "[SendeoCargoAdapter] IsAvailableAsync health check failed");
             return false;
         }

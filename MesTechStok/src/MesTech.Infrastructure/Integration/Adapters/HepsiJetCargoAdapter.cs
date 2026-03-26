@@ -38,6 +38,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     public HepsiJetCargoAdapter(HttpClient httpClient, ILogger<HepsiJetCargoAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions

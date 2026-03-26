@@ -42,6 +42,7 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
     public PttKargoAdapter(HttpClient httpClient, ILogger<PttKargoAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _soapClient = new SimpleSoapClient(httpClient, logger);
 

@@ -41,6 +41,7 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
         IOptions<YurticiKargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new YurticiKargoOptions();
         _soapClient = new SimpleSoapClient(httpClient, logger);
