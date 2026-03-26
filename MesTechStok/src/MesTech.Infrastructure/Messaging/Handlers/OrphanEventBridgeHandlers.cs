@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Notifications.Commands.SendNotification;
+using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Events;
 using MesTech.Domain.Events.Calendar;
 using MesTech.Domain.Events.Crm;
@@ -732,6 +733,450 @@ public sealed class OnboardingCompletedBridgeHandler
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "OnboardingCompleted bildirim gönderilemedi — {TenantId}", e.TenantId);
+        }
+    }
+}
+
+#endregion
+
+#region Muhasebe — Accounting Orphan Events [ENT-DEV1]
+
+/// <summary>
+/// ExpenseCreatedEvent → Gider oluşturuldu loglama + bildirim.
+/// GL yevmiye kaydı ayrı handler'da yapılacak (ExpenseCreatedGLHandler).
+/// </summary>
+public sealed class ExpenseCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ExpenseCreatedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<ExpenseCreatedBridgeHandler> _logger;
+
+    public ExpenseCreatedBridgeHandler(IMediator mediator, ILogger<ExpenseCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<ExpenseCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ExpenseCreated — ExpenseId={ExpenseId}, Title={Title}, Amount={Amount}, Source={Source}",
+            e.ExpenseId, e.Title, e.Amount, e.Source);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "expense-created",
+                Content: $"Yeni gider kaydı oluşturuldu.\n" +
+                         $"Başlık: {e.Title}\n" +
+                         $"Tutar: {e.Amount:C}\n" +
+                         $"Kaynak: {e.Source}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ExpenseCreated bildirim gönderilemedi — {ExpenseId}", e.ExpenseId);
+        }
+    }
+}
+
+/// <summary>
+/// TaxWithholdingComputedEvent → Stopaj hesaplaması loglama + bildirim.
+/// GL kaydı: BORÇ 360 Ödenecek Vergi, ALACAK Nakit/Banka.
+/// </summary>
+public sealed class TaxWithholdingComputedBridgeHandler
+    : INotificationHandler<DomainEventNotification<TaxWithholdingComputedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<TaxWithholdingComputedBridgeHandler> _logger;
+
+    public TaxWithholdingComputedBridgeHandler(IMediator mediator, ILogger<TaxWithholdingComputedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<TaxWithholdingComputedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] TaxWithholdingComputed — Id={Id}, TaxType={TaxType}, Rate={Rate}%, Amount={Amount}, Withholding={Withholding}",
+            e.TaxWithholdingId, e.TaxType, e.Rate * 100, e.TaxExclusiveAmount, e.WithholdingAmount);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "tax-withholding-computed",
+                Content: $"Stopaj hesaplandı.\n" +
+                         $"Vergi tipi: {e.TaxType}\n" +
+                         $"Matrah: {e.TaxExclusiveAmount:C}\n" +
+                         $"Oran: %{e.Rate * 100:F1}\n" +
+                         $"Stopaj: {e.WithholdingAmount:C}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "TaxWithholdingComputed bildirim gönderilemedi — {Id}", e.TaxWithholdingId);
+        }
+    }
+}
+
+/// <summary>
+/// BankStatementImportedEvent → Banka ekstresi içe aktarıldı loglama + bildirim.
+/// Mutabakat iş akışını tetikler.
+/// </summary>
+public sealed class BankStatementImportedBridgeHandler
+    : INotificationHandler<DomainEventNotification<BankStatementImportedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<BankStatementImportedBridgeHandler> _logger;
+
+    public BankStatementImportedBridgeHandler(IMediator mediator, ILogger<BankStatementImportedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<BankStatementImportedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] BankStatementImported — BankAccountId={BankAccountId}, Transactions={Count}, Inflow={Inflow}, Outflow={Outflow}",
+            e.BankAccountId, e.TransactionCount, e.TotalInflow, e.TotalOutflow);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "bank-statement-imported",
+                Content: $"Banka ekstresi içe aktarıldı.\n" +
+                         $"İşlem sayısı: {e.TransactionCount}\n" +
+                         $"Giriş: {e.TotalInflow:C}\n" +
+                         $"Çıkış: {e.TotalOutflow:C}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "BankStatementImported bildirim gönderilemedi — {BankAccountId}", e.BankAccountId);
+        }
+    }
+}
+
+/// <summary>
+/// ReconciliationMatchedEvent → Mutabakat eşleştirmesi loglama.
+/// Düşük güven skoru → uyarı.
+/// </summary>
+public sealed class ReconciliationMatchedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ReconciliationMatchedEvent>>
+{
+    private readonly ILogger<ReconciliationMatchedBridgeHandler> _logger;
+
+    public ReconciliationMatchedBridgeHandler(ILogger<ReconciliationMatchedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<ReconciliationMatchedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        if (e.Confidence < 0.80m)
+        {
+            _logger.LogWarning(
+                "[Event] ReconciliationMatched — LOW CONFIDENCE — MatchId={MatchId}, Confidence={Confidence:P0}, Bank={BankTxId}, Settlement={SettlementId}",
+                e.ReconciliationMatchId, e.Confidence, e.BankTransactionId, e.SettlementBatchId);
+        }
+        else
+        {
+            _logger.LogInformation(
+                "[Event] ReconciliationMatched — MatchId={MatchId}, Confidence={Confidence:P0}, Bank={BankTxId}, Settlement={SettlementId}",
+                e.ReconciliationMatchId, e.Confidence, e.BankTransactionId, e.SettlementBatchId);
+        }
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// ReconciliationCompletedEvent → Mutabakat tamamlandı loglama + bildirim.
+/// </summary>
+public sealed class ReconciliationCompletedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ReconciliationCompletedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<ReconciliationCompletedBridgeHandler> _logger;
+
+    public ReconciliationCompletedBridgeHandler(IMediator mediator, ILogger<ReconciliationCompletedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<ReconciliationCompletedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ReconciliationCompleted — MatchId={MatchId}, Status={Status}, Confidence={Confidence:P0}, Settlement={SettlementId}, Bank={BankTxId}",
+            e.MatchId, e.FinalStatus, e.Confidence, e.SettlementBatchId, e.BankTransactionId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "reconciliation-completed",
+                Content: $"Mutabakat tamamlandı.\n" +
+                         $"Durum: {e.FinalStatus}\n" +
+                         $"Güven: %{e.Confidence * 100:F0}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ReconciliationCompleted bildirim gönderilemedi — {MatchId}", e.MatchId);
+        }
+    }
+}
+
+/// <summary>
+/// AnomalyDetectedEvent → Muhasebe anomalisi tespit loglama + UYARI bildirimi.
+/// P0 seviye — hemen dikkat gerektirir.
+/// </summary>
+public sealed class AnomalyDetectedBridgeHandler
+    : INotificationHandler<DomainEventNotification<AnomalyDetectedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<AnomalyDetectedBridgeHandler> _logger;
+
+    public AnomalyDetectedBridgeHandler(IMediator mediator, ILogger<AnomalyDetectedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<AnomalyDetectedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogWarning(
+            "[Event] AnomalyDetected — Type={AnomalyType}, Description={Description}, Expected={Expected}, Actual={Actual}, Entity={EntityType}:{EntityId}",
+            e.AnomalyType, e.Description, e.ExpectedAmount, e.ActualAmount, e.EntityType, e.EntityId);
+
+        try
+        {
+            var detail = string.Empty;
+            if (e.ExpectedAmount.HasValue) detail += $"Beklenen: {e.ExpectedAmount:C}\n";
+            if (e.ActualAmount.HasValue) detail += $"Gerçekleşen: {e.ActualAmount:C}";
+
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "anomaly-detected",
+                Content: $"Muhasebe anomalisi tespit edildi!\n" +
+                         $"Tip: {e.AnomalyType}\n" +
+                         $"Açıklama: {e.Description}\n" +
+                         detail), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AnomalyDetected bildirim gönderilemedi — {AnomalyType}", e.AnomalyType);
+        }
+    }
+}
+
+/// <summary>
+/// BaBsRecordCreatedEvent → Ba/Bs kaydı oluşturuldu loglama.
+/// Raporlama takvimi tetikleyici.
+/// </summary>
+public sealed class BaBsRecordCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<BaBsRecordCreatedEvent>>
+{
+    private readonly ILogger<BaBsRecordCreatedBridgeHandler> _logger;
+
+    public BaBsRecordCreatedBridgeHandler(ILogger<BaBsRecordCreatedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<BaBsRecordCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] BaBsRecordCreated — RecordId={RecordId}, Type={Type}, Period={Year}/{Month}, VKN={VKN}, Amount={Amount}",
+            e.BaBsRecordId, e.Type, e.Year, e.Month, e.CounterpartyVkn, e.TotalAmount);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// FixedAssetCreatedEvent → Sabit kıymet oluşturuldu loglama + bildirim.
+/// Amortisman takvimi başlatmak için tetikleyici.
+/// </summary>
+public sealed class FixedAssetCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<FixedAssetCreatedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<FixedAssetCreatedBridgeHandler> _logger;
+
+    public FixedAssetCreatedBridgeHandler(IMediator mediator, ILogger<FixedAssetCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<FixedAssetCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] FixedAssetCreated — AssetId={AssetId}, Name={Name}, Code={Code}, Cost={Cost}, Method={Method}",
+            e.FixedAssetId, e.AssetName, e.AssetCode, e.AcquisitionCost, e.Method);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "fixed-asset-created",
+                Content: $"Sabit kıymet kaydedildi.\n" +
+                         $"Varlık: {e.AssetName} ({e.AssetCode})\n" +
+                         $"Maliyet: {e.AcquisitionCost:C}\n" +
+                         $"Amortisman: {e.Method}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "FixedAssetCreated bildirim gönderilemedi — {AssetId}", e.FixedAssetId);
+        }
+    }
+}
+
+/// <summary>
+/// ProfitReportGeneratedEvent → Kar/zarar raporu oluşturuldu loglama.
+/// </summary>
+public sealed class ProfitReportGeneratedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ProfitReportGeneratedEvent>>
+{
+    private readonly ILogger<ProfitReportGeneratedBridgeHandler> _logger;
+
+    public ProfitReportGeneratedBridgeHandler(ILogger<ProfitReportGeneratedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<ProfitReportGeneratedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ProfitReportGenerated — ReportId={ReportId}, Period={Period}, Platform={Platform}, NetProfit={NetProfit}",
+            e.ReportId, e.Period, e.Platform ?? "ALL", e.NetProfit);
+        return Task.CompletedTask;
+    }
+}
+
+#endregion
+
+#region Platform & CRM Orphan Events [ENT-DEV1]
+
+/// <summary>
+/// PlatformNotificationFailedEvent → Platform kargo bildirimi başarısız loglama + bildirim.
+/// Hangfire retry tetikleyici.
+/// </summary>
+public sealed class PlatformNotificationFailedBridgeHandler
+    : INotificationHandler<DomainEventNotification<PlatformNotificationFailedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<PlatformNotificationFailedBridgeHandler> _logger;
+
+    public PlatformNotificationFailedBridgeHandler(IMediator mediator, ILogger<PlatformNotificationFailedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<PlatformNotificationFailedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogWarning(
+            "[Event] PlatformNotificationFailed — OrderId={OrderId}, Platform={Platform}, Tracking={Tracking}, Cargo={Cargo}, Error={Error}, Retry={Retry}",
+            e.OrderId, e.PlatformCode, e.TrackingNumber, e.CargoProvider, e.ErrorMessage, e.RetryCount);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "platform-notification-failed",
+                Content: $"Platform kargo bildirimi başarısız!\n" +
+                         $"Platform: {e.PlatformCode}\n" +
+                         $"Sipariş: {e.OrderId}\n" +
+                         $"Takip: {e.TrackingNumber}\n" +
+                         $"Hata: {e.ErrorMessage}\n" +
+                         $"Deneme: {e.RetryCount}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PlatformNotificationFailed bildirim gönderilemedi — {OrderId}", e.OrderId);
+        }
+    }
+}
+
+/// <summary>
+/// LeadScoredEvent → CRM lead puanlandı loglama.
+/// MESA AI tarafından tetiklenir.
+/// </summary>
+public sealed class LeadScoredBridgeHandler
+    : INotificationHandler<DomainEventNotification<LeadScoredEvent>>
+{
+    private readonly ILogger<LeadScoredBridgeHandler> _logger;
+
+    public LeadScoredBridgeHandler(ILogger<LeadScoredBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<LeadScoredEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] LeadScored — LeadId={LeadId}, Score={Score}, Reasoning={Reasoning}",
+            e.LeadId, e.Score, e.Reasoning);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// SubscriptionPlanChangedEvent → Abonelik planı değişti loglama + bildirim.
+/// Özellik limitleri ve kotaların güncellenmesini tetikler.
+/// </summary>
+public sealed class SubscriptionPlanChangedBridgeHandler
+    : INotificationHandler<DomainEventNotification<SubscriptionPlanChangedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<SubscriptionPlanChangedBridgeHandler> _logger;
+
+    public SubscriptionPlanChangedBridgeHandler(IMediator mediator, ILogger<SubscriptionPlanChangedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<SubscriptionPlanChangedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] SubscriptionPlanChanged — SubscriptionId={SubId}, PreviousPlan={PrevPlan}, NewPlan={NewPlan}",
+            e.SubscriptionId, e.PreviousPlanId, e.NewPlanId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "subscription-plan-changed",
+                Content: $"Abonelik planı değiştirildi.\n" +
+                         $"Önceki: {e.PreviousPlanId}\n" +
+                         $"Yeni: {e.NewPlanId}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "SubscriptionPlanChanged bildirim gönderilemedi — {SubId}", e.SubscriptionId);
         }
     }
 }
