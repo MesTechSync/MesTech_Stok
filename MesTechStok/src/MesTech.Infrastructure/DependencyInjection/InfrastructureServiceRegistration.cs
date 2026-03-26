@@ -95,6 +95,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
         services.AddScoped<IKvkkAuditLogRepository, KvkkAuditLogRepository>();
+        services.AddScoped<IWebhookDeadLetterRepository, WebhookDeadLetterRepository>();
 
         // DEV6-TUR12: Distributed lock — Redis in production, InProcess fallback for dev
         if (!string.IsNullOrEmpty(configuration?.GetConnectionString("Redis")))
@@ -219,7 +220,7 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Messaging.MassTransitMessagePublisher>();
 
         // Encryption
-        var encryptionKey = configuration["Security:EncryptionKey"]
+        var encryptionKey = configuration!["Security:EncryptionKey"]
             ?? AesGcmEncryptionService.GenerateKey();
         services.AddSingleton(new AesGcmEncryptionService(encryptionKey));
 
