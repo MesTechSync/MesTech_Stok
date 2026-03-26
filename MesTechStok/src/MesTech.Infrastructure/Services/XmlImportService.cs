@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
@@ -29,7 +30,9 @@ public sealed class XmlImportService : IXmlImportService
 
     private static XmlImportResult ParseXml(Stream stream, ImportMode mode)
     {
-        var doc = XDocument.Load(stream);
+        var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+        using var reader = XmlReader.Create(stream, readerSettings);
+        var doc = XDocument.Load(reader);
         var products = doc.Root?.Elements("Product") ?? Enumerable.Empty<XElement>();
 
         var errors = new List<XmlImportError>();
