@@ -147,6 +147,35 @@ public sealed class WebhookEventRouter
                     updatedProductId, updatedTenantId, updatedSku, now), ct);
                 break;
 
+            case "order.shipped":
+                var shippedOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
+                var shippedTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
+                var trackingNumber = ExtractStringField(payload, "trackingNumber")
+                    ?? ExtractStringField(payload, "tracking_number")
+                    ?? "unknown";
+                var carrierStr = ExtractStringField(payload, "carrier")
+                    ?? ExtractStringField(payload, "cargoProvider")
+                    ?? "Unknown";
+                var cargoProvider = Enum.TryParse<Domain.Enums.CargoProvider>(carrierStr, true, out var cp)
+                    ? cp : Domain.Enums.CargoProvider.None;
+
+                await PublishAsync(new OrderShippedEvent(
+                    shippedOrderId, shippedTenantId, trackingNumber, cargoProvider, now), ct);
+                break;
+
+            case "stock.updated":
+                var stockProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
+                var stockTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
+                var stockSku = ExtractStringField(payload, "sku") ?? "unknown";
+                var newQuantity = (int)(ExtractDecimalField(payload, "quantity")
+                    ?? ExtractDecimalField(payload, "available")
+                    ?? 0);
+
+                await PublishAsync(new StockChangedEvent(
+                    stockProductId, stockTenantId, stockSku, 0, newQuantity,
+                    StockMovementType.PlatformSync, now), ct);
+                break;
+
             case "return.created":
                 var returnId = ExtractGuidField(payload, "returnId") ?? Guid.NewGuid();
                 var returnTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
@@ -155,6 +184,19 @@ public sealed class WebhookEventRouter
 
                 await PublishAsync(new ReturnCreatedEvent(
                     returnId, returnTenantId, returnOrderId, returnPlatform, ReturnReason.Other, now), ct);
+                break;
+
+            case "invoice.created":
+                var invoiceId = ExtractGuidField(payload, "invoiceId") ?? Guid.NewGuid();
+                var invoiceOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
+                var invoiceTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
+                var grandTotal = ExtractDecimalField(payload, "grandTotal")
+                    ?? ExtractDecimalField(payload, "total")
+                    ?? 0m;
+
+                await PublishAsync(new InvoiceCreatedEvent(
+                    invoiceId, invoiceOrderId, invoiceTenantId,
+                    InvoiceType.EFatura, grandTotal, now), ct);
                 break;
 
             default:
