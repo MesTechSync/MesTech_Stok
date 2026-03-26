@@ -5,6 +5,16 @@ namespace MesTech.Application.DTOs;
 /// </summary>
 public sealed class InvoiceResult
 {
+    public InvoiceResult() { }
+
+    public InvoiceResult(bool success, string? gibInvoiceId, string? pdfUrl, string? errorMessage)
+    {
+        Success = success;
+        GibInvoiceId = gibInvoiceId;
+        PdfUrl = pdfUrl;
+        ErrorMessage = errorMessage;
+    }
+
     public bool Success { get; set; }
     public string? GibInvoiceId { get; set; }
     public string? GibEnvelopeId { get; set; }
