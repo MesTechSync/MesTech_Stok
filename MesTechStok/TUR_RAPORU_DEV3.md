@@ -875,4 +875,22 @@ ORG kapatılan: G018, ORG023, ORG025, ORG037.
 | Parasut faturaları sync olmuyor | 8 | 10 | 2 | 160 | FIX |
 | FBA stok güncellenmiyor | 7 | 10 | 3 | 210 | FIX |
 
-### KÜMÜLATİF DEV 3 (23 tur, 62 commit)
+---
+
+## TUR 24 — 2026-03-26 (DI Audit + PlatformType Gap)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| MassTransit consumers | 20 class / 20 AddConsumer ✅ |
+| DLQ services DI | Registered in MassTransitConfig.cs ✅ |
+| Orphan DI services | 0 ✅ |
+| PlatformType enum gap | **3 missing** (Shopify, WooCommerce, Zalando) |
+
+### CERRAH AMELİYAT
+Bu turda kod değişikliği yok — DI audit ve cross-DEV görev keşfi.
+
+### GOREV_HAVUZU
+- G028: DEV1 — PlatformType enum'a Shopify/WooCommerce/Zalando ekle
+
+### KÜMÜLATİF DEV 3 (24 tur, 65 commit)
