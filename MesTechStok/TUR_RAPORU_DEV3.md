@@ -844,4 +844,35 @@ Kalan borç: 0 (DEV 3 scope).
 ORG kapatılan: G018, ORG023, ORG025, ORG037.
 ===========================
 
-### KÜMÜLATİF DEV 3 FINAL (22 tur, 59 commit)
+---
+
+## TUR 23 — 2026-03-26 (Orphan Job Registration — KRİTİK)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| Hangfire registered | 34 |
+| Hangfire job files | 30 |
+| **Orphan (unregistered) jobs** | **2** (ParasutInvoiceSyncJob, FulfillmentStockSyncJob) |
+| DLQ completeness | 4 files (monitor, reprocess, endpoints, Mesa DLQ consumer) ✅ |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 47 | HangfireConfig | ParasutInvoiceSyncJob registration (*/15 cron) | c34eb119 |
+| 48 | HangfireConfig | FulfillmentStockSyncJob registration (*/30 cron) | 1a3d99e6 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Orphan Hangfire jobs | 2 | 0 | **-2** ✅ KRİTİK |
+| Parasut fatura sync | **çalışmıyordu** | */15 cron | ✅ |
+| Fulfillment stock sync | **çalışmıyordu** | */30 cron | ✅ |
+
+### FMEA
+| Failure Mode | Şiddet | Olasılık | Tespit | RPN | Durum |
+|-------------|--------|----------|--------|-----|-------|
+| Parasut faturaları sync olmuyor | 8 | 10 | 2 | 160 | FIX |
+| FBA stok güncellenmiyor | 7 | 10 | 3 | 210 | FIX |
+
+### KÜMÜLATİF DEV 3 (23 tur, 62 commit)
