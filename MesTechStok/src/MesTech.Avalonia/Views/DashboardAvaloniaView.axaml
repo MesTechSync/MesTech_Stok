@@ -2,13 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Premium Dashboard — 6 KPI + Tables + Platform Health + AI Insight -->
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 0: Header Bar                                           -->
@@ -108,9 +109,28 @@
         </Border>
 
         <!-- ════════════════════════════════════════════════════════════ -->
-        <!-- Row 2: Tables — Son Siparisler + Stok Uyarilari            -->
+        <!-- Row 2: LiveCharts2 — Son 7 Gün Platform Satış Grafiği     -->
+        <!-- WPF002: G053 gerçek veri bağlantısı DEV 1'e bırakıldı     -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,*"
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16" Margin="20,4,20,4"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Son 7 Gün — Platform Bazlı Satışlar"
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesDarkSlate}" />
+                <lvc:CartesianChart Series="{Binding SalesChartSeries}"
+                                    XAxes="{Binding SalesChartXAxes}"
+                                    YAxes="{Binding SalesChartYAxes}"
+                                    Height="280"
+                                    TooltipPosition="Top"
+                                    ZoomMode="X" />
+            </StackPanel>
+        </Border>
+
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- Row 3: Tables — Son Siparisler + Stok Uyarilari            -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*"
               Margin="20,8,20,8">
 
             <!-- Left: Son Siparisler -->
@@ -262,7 +282,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 3: Platform Saglik Durumu                               -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="3" Classes="mestech-card" Margin="20,4,20,8"
+        <Border Grid.Row="4" Classes="mestech-card" Margin="20,4,20,8"
                 Padding="16,12">
             <Grid RowDefinitions="Auto,Auto">
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8"
@@ -305,7 +325,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 4: AI Onerisi (MESA OS — Mor/Purple)                    -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="4" Margin="20,0,20,20"
+        <Border Grid.Row="5" Margin="20,0,20,20"
                 Background="{DynamicResource MesBgPurpleLight}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="20,16"
                 BorderBrush="{DynamicResource MesBorderPurple}" BorderThickness="1"
@@ -353,7 +373,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Loading Overlay                                             -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="5"
+        <Border Grid.Row="0" Grid.RowSpan="6"
                 Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -369,7 +389,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Empty State                                                 -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="5"
+        <Border Grid.Row="0" Grid.RowSpan="6"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -392,7 +412,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Error State                                                 -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="5"
+        <Border Grid.Row="0" Grid.RowSpan="6"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">

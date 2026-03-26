@@ -3,10 +3,14 @@ using System.Windows.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
 using MesTech.Application.DTOs.Dashboard;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Domain.Interfaces;
+using SkiaSharp;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -73,6 +77,11 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     // ── Critical stock badge count (int for badge binding) ────────────────
     [ObservableProperty] private int _criticalStockBadgeCount;
+
+    // ── LiveCharts2 — Son 7 Gün Platform Satış Grafiği (WPF002) ──────────
+    [ObservableProperty] private ISeries[] _salesChartSeries = Array.Empty<ISeries>();
+    [ObservableProperty] private Axis[] _salesChartXAxes = Array.Empty<Axis>();
+    [ObservableProperty] private Axis[] _salesChartYAxes = Array.Empty<Axis>();
 
     public ObservableCollection<RecentOrderDto> RecentOrders { get; } = [];
     public ObservableCollection<CriticalStockDto> CriticalStockItems { get; } = [];
@@ -211,6 +220,9 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
             IsEmpty = RecentOrders.Count == 0;
 
+            // ── Grafik verisi (mock — G053 gerçek veri için DEV 1'e) ──
+            BuildChartData();
+
             // ── Refresh timestamp ──
             _lastRefresh = DateTime.Now;
             LastUpdated = _lastRefresh.ToString("HH:mm:ss");
@@ -242,6 +254,59 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
     private void OpenAIInsight()
     {
         // Navigate to AI details or show dialog — placeholder for AI insight navigation
+    }
+
+    /// <summary>
+    /// WPF002: LiveCharts2 — Son 7 günün platform bazlı sipariş grafiği.
+    /// Mock data kullanır — GetSalesChartDataQuery (G053) DEV 1 tarafından implement edilecek.
+    /// </summary>
+    private void BuildChartData()
+    {
+        var days = Enumerable.Range(0, 7)
+            .Select(i => DateTime.Today.AddDays(-6 + i))
+            .ToArray();
+
+        SalesChartSeries = new ISeries[]
+        {
+            new LineSeries<double>
+            {
+                Name = "Trendyol",
+                Values = new double[] { 12, 15, 18, 14, 22, 19, 25 },
+                Stroke = new SolidColorPaint(SKColor.Parse("#F27A1A")) { StrokeThickness = 3 },
+                Fill = null,
+                GeometrySize = 8
+            },
+            new LineSeries<double>
+            {
+                Name = "Hepsiburada",
+                Values = new double[] { 8, 10, 7, 12, 9, 15, 11 },
+                Stroke = new SolidColorPaint(SKColor.Parse("#6B21A8")) { StrokeThickness = 3 },
+                Fill = null,
+                GeometrySize = 8
+            },
+            new LineSeries<double>
+            {
+                Name = "Amazon",
+                Values = new double[] { 5, 3, 6, 4, 8, 7, 10 },
+                Stroke = new SolidColorPaint(SKColor.Parse("#FF9900")) { StrokeThickness = 3 },
+                Fill = null,
+                GeometrySize = 8
+            }
+        };
+
+        SalesChartXAxes = new Axis[]
+        {
+            new Axis
+            {
+                Labels = days.Select(d => d.ToString("dd MMM")).ToArray(),
+                LabelsRotation = 0
+            }
+        };
+
+        SalesChartYAxes = new Axis[]
+        {
+            new Axis { Name = "Sipariş" }
+        };
     }
 
     protected override void OnDispose()

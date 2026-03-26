@@ -2,6 +2,7 @@ using System.Globalization;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 
 namespace MesTech.Infrastructure.AI.Accounting;
 

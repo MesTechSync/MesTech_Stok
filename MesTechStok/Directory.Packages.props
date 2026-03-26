@@ -7,6 +7,7 @@
     <PackageVersion Include="EPPlus" Version="7.5.2" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <!-- TODO: Upgrade to 2.0.0 stable when released. Latest as of 2026-03-18 is 2.0.0-rc6.1 (no stable exists yet). -->
+    <PackageVersion Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc6.1" />
     <PackageVersion Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc6.1" />
     <PackageVersion Include="MahApps.Metro" Version="2.4.11" />
     <PackageVersion Include="Mapster" Version="7.4.0" />

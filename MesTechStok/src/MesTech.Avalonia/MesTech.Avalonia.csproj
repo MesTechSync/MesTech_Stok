@@ -8,7 +8,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Avalonia Cross-Platform — Dalga 10 MVP -->
+    <!-- Avalonia Cross-Platform ï¿½ Dalga 10 MVP -->
     <RootNamespace>MesTech.Avalonia</RootNamespace>
   </PropertyGroup>
 
@@ -18,8 +18,9 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Controls.DataGrid" />
-    <!-- CommunityToolkit.Mvvm — same version as WPF Desktop ViewModels -->
+    <!-- CommunityToolkit.Mvvm ï¿½ same version as WPF Desktop ViewModels -->
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
@@ -32,7 +33,7 @@
     <PackageReference Include="Serilog.Sinks.Console" />
   </ItemGroup>
 
-  <!-- Reuse Domain + Application + Infrastructure layers — ZERO CHANGES -->
+  <!-- Reuse Domain + Application + Infrastructure layers ï¿½ ZERO CHANGES -->
   <ItemGroup>
     <ProjectReference Include="..\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\MesTech.Application\MesTech.Application.csproj" />
@@ -41,14 +42,13 @@
 
   <!--
     ViewModel Reuse Strategy:
-    ProfitLossViewModel has ZERO WPF dependencies — compile-linked directly (100% reuse).
-    LeadsViewModel and DealsViewModel use System.Windows.MessageBox — adapted with IDialogService.
+    ProfitLossViewModel has ZERO WPF dependencies ï¿½ compile-linked directly (100% reuse).
+    LeadsViewModel and DealsViewModel use System.Windows.MessageBox ï¿½ adapted with IDialogService.
     Full migration recommendation: extract ViewModels into MesTech.Presentation.Shared library
     and replace all System.Windows.MessageBox calls with IDialogService abstraction.
   -->
   <ItemGroup Label="Compile-linked ViewModels from WPF Desktop (zero-change reuse)">
-    <Compile Include="..\MesTechStok.Desktop\ViewModels\Finance\ProfitLossViewModel.cs"
-             Link="ViewModels\Finance\ProfitLossViewModel.cs" />
+    <Compile Include="..\MesTechStok.Desktop\ViewModels\Finance\ProfitLossViewModel.cs" Link="ViewModels\Finance\ProfitLossViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
