@@ -1,16 +1,21 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Monitoring;
 
 /// <summary>
-/// Gecikmiş sipariş monitoring ViewModel — Chain 11 UI.
-/// 48+ saat gönderilmemiş siparişleri listeler.
-/// DEV 1'in GetStaleOrdersQuery endpoint'ine bağlanacak.
+/// Gecikmiş sipariş monitoring ViewModel — wired to GetStaleOrdersQuery via MediatR.
+/// 48+ saat gönderilmemiş siparişleri listeler (Chain 11).
 /// </summary>
 public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private int totalCount;
 
@@ -20,20 +25,29 @@ public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
     public int Warning48hCount => StaleOrders.Count(o => o.ElapsedHours >= 48 && o.ElapsedHours < 72);
     public int Critical72hCount => StaleOrders.Count(o => o.ElapsedHours >= 72);
 
+    public StaleOrdersAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            await Task.Delay(200); // Simulate — will connect to GetStaleOrdersQuery
+            var result = await _mediator.Send(
+                new GetStaleOrdersQuery(_tenantProvider.GetCurrentTenantId()));
 
             StaleOrders.Clear();
-            // Demo data — gerçek API bağlantısında MediatR Send kullanılacak
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0891", "Trendyol", "Ahmet Yılmaz", DateTime.UtcNow.AddHours(-52)));
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0887", "Hepsiburada", "Mehmet Demir", DateTime.UtcNow.AddHours(-74)));
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0882", "N11", "Ayşe Kara", DateTime.UtcNow.AddHours(-96)));
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0879", "Çiçeksepeti", "Elif Şahin", DateTime.UtcNow.AddHours(-120)));
-            StaleOrders.Add(new StaleOrderItem("SIP-2026-0875", "Trendyol", "Hüseyin Öztürk", DateTime.UtcNow.AddHours(-168)));
+            foreach (var o in result)
+            {
+                StaleOrders.Add(new StaleOrderItem(
+                    o.OrderNumber,
+                    o.Platform?.ToString() ?? "-",
+                    o.CustomerName ?? "-",
+                    o.CreatedAt));
+            }
 
             OnPropertyChanged(nameof(TotalStaleCount));
             OnPropertyChanged(nameof(Warning48hCount));
