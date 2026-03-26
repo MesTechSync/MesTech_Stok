@@ -31,11 +31,15 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="360" Watermark="Siparis no, musteri adi ile arama..." AutomationProperties.Name="Siparis no, musteri adi ile arama..."
+                <TextBox Width="280" Watermark="Siparis no, musteri adi ile arama..." AutomationProperties.Name="Siparis no, musteri adi ile arama..."
                          Text="{Binding SearchText}"
                          FontSize="{StaticResource FontSizeBody}" Padding="10,8" />
-                <Button Content="Ara" Command="{Binding RefreshCommand}"
-                        ToolTip.Tip="Ara"
+                <ComboBox ItemsSource="{Binding PlatformOptions}" SelectedItem="{Binding SelectedPlatform}"
+                          AutomationProperties.Name="Platform filtresi" Width="150" />
+                <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}"
+                          AutomationProperties.Name="Durum filtresi" Width="150" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri yenile"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
