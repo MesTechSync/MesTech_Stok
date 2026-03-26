@@ -29,7 +29,10 @@ public sealed class AmazonSettlementParser : ISettlementParser
     }
 
     public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
-        => ParseAsync(Guid.Empty, rawData, format, ct);
+    {
+        _logger.LogWarning("[AmazonSettlementParser] ParseAsync called without TenantId — Guid.Empty will be used. Caller must set TenantId before persisting.");
+        return ParseAsync(Guid.Empty, rawData, format, ct);
+    }
 
     public async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
     {
