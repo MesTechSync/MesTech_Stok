@@ -13,6 +13,12 @@ public sealed class StockMovementRepository : IStockMovementRepository
     public async Task<StockMovement?> GetByIdAsync(Guid id)
         => await _context.StockMovements.FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<StockMovement>> GetByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
+        => await _context.StockMovements
+            .Where(m => productIds.Contains(m.ProductId))
+            .OrderBy(m => m.Date).ThenBy(m => m.CreatedAt)
+            .AsNoTracking().ToListAsync(ct);
+
     public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId)
         => await _context.StockMovements
             .Where(m => m.ProductId == productId)

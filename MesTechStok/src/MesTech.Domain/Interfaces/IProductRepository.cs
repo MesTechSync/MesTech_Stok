@@ -7,6 +7,7 @@ public interface IProductRepository
     Task<Product?> GetByIdAsync(Guid id);
     Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task<Product?> GetBySKUAsync(string sku);
+    Task<IReadOnlyList<Product>> GetBySKUsAsync(IEnumerable<string> skus, CancellationToken ct = default);
     Task<Product?> GetByBarcodeAsync(string barcode);
     Task<IReadOnlyList<Product>> GetAllAsync();
     Task<IReadOnlyList<Product>> GetLowStockAsync();

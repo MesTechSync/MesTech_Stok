@@ -21,6 +21,9 @@ public sealed class ProductRepository : IProductRepository
     public async Task<Product?> GetBySKUAsync(string sku)
         => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.SKU == sku).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Product>> GetBySKUsAsync(IEnumerable<string> skus, CancellationToken ct = default)
+        => await _context.Products.Where(p => skus.Contains(p.SKU)).ToListAsync(ct).ConfigureAwait(false);
+
     public async Task<Product?> GetByBarcodeAsync(string barcode)
         => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Barcode == barcode).ConfigureAwait(false);
 

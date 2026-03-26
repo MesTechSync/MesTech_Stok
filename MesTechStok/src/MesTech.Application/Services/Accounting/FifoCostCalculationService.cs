@@ -94,18 +94,19 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
         var products = await _productRepository.GetAllAsync();
         var tenantProducts = products.Where(p => p.TenantId == tenantId && !p.IsDeleted).ToList();
 
+        // Batch query — N+1 yerine tek SQL (100 ürün = 1 query instead of 100)
+        var productIds = tenantProducts.Select(p => p.Id).ToList();
+        var allMovements = await _movementRepository.GetByProductIdsAsync(productIds, ct);
+        var movementsByProduct = allMovements
+            .Where(m => m.TenantId == tenantId && !m.IsReversed)
+            .GroupBy(m => m.ProductId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(m => m.Date).ThenBy(m => m.CreatedAt).ToList());
+
         var results = new List<FifoCostResultDto>(tenantProducts.Count);
 
         foreach (var product in tenantProducts)
         {
-            var movements = await _movementRepository.GetByProductIdAsync(product.Id);
-
-            var sorted = movements
-                .Where(m => m.TenantId == tenantId && !m.IsReversed)
-                .OrderBy(m => m.Date)
-                .ThenBy(m => m.CreatedAt)
-                .ToList();
-
+            var sorted = movementsByProduct.TryGetValue(product.Id, out var list) ? list : new List<StockMovement>();
             results.Add(CalculateFifo(product, sorted));
         }
 

@@ -19,6 +19,11 @@ public sealed class BulkUpdatePriceHandler : IRequestHandler<BulkUpdatePriceComm
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        // Batch query — N+1 yerine tek SQL
+        var allSkus = request.Items.Select(i => i.Sku).Distinct().ToList();
+        var products = await _productRepository.GetBySKUsAsync(allSkus, cancellationToken).ConfigureAwait(false);
+        var productMap = products.ToDictionary(p => p.SKU, StringComparer.OrdinalIgnoreCase);
+
         var failures = new List<BulkUpdateFailure>();
         int successCount = 0;
 
@@ -34,8 +39,7 @@ public sealed class BulkUpdatePriceHandler : IRequestHandler<BulkUpdatePriceComm
                 continue;
             }
 
-            var product = await _productRepository.GetBySKUAsync(item.Sku).ConfigureAwait(false);
-            if (product is null)
+            if (!productMap.TryGetValue(item.Sku, out var product))
             {
                 failures.Add(new BulkUpdateFailure
                 {
