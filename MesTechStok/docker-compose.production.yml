@@ -98,6 +98,12 @@ services:
       RabbitMQ__Username: "${RABBITMQ_USER:?RABBITMQ_USER zorunlu}"
       RabbitMQ__Password: "${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu}"
       Seq__ServerUrl: "http://seq:5341"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
     restart: always
 
   blazor:
@@ -110,6 +116,12 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${PG_DATABASE:?PG_DATABASE zorunlu};Username=${POSTGRES_USER:?POSTGRES_USER zorunlu};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD zorunlu}"
       ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD zorunlu}"
       Seq__ServerUrl: "http://seq:5341"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3200/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     restart: always
 
   minio:
@@ -122,6 +134,11 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER zorunlu — .env dosyasini kontrol edin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD zorunlu — .env dosyasini kontrol edin}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: always
 
   nginx:
