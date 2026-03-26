@@ -23,10 +23,10 @@ public class GetDashboardSummaryHandlerTests
     {
         var dto = new DashboardSummaryDto
         {
-            TotalProducts = 150,
-            TotalOrders = 42,
-            LowStockCount = 8,
-            TodayRevenue = 12500m
+            ActiveProductCount = 150,
+            TodayOrderCount = 42,
+            CriticalStockCount = 8,
+            TodaySalesAmount = 12500m
         };
 
         _repoMock.Setup(r => r.GetSummaryAsync(_tenantId, It.IsAny<CancellationToken>()))
@@ -35,10 +35,10 @@ public class GetDashboardSummaryHandlerTests
         var query = new GetDashboardSummaryQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);
 
-        result.TotalProducts.Should().Be(150);
-        result.TotalOrders.Should().Be(42);
-        result.LowStockCount.Should().Be(8);
-        result.TodayRevenue.Should().Be(12500m);
+        result.ActiveProductCount.Should().Be(150);
+        result.TodayOrderCount.Should().Be(42);
+        result.CriticalStockCount.Should().Be(8);
+        result.TodaySalesAmount.Should().Be(12500m);
     }
 
     [Fact]
