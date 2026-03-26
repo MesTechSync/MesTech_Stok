@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Returns.Queries.GetReturnList;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -39,19 +40,20 @@ public partial class ReturnListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(150);
+            var result = await _mediator.Send(new GetReturnListQuery(Guid.Empty));
 
             _allItems.Clear();
-            _allItems.AddRange(
-            [
-                new() { IadeNo = "IAD-2001", SiparisNo = "SIP-1001", Musteri = "Ahmet Yilmaz", Platform = "Trendyol", Tutar = 249.90m, Sebep = "Hatali Urun", Durum = "Beklemede", Tarih = new DateTime(2026, 3, 18) },
-                new() { IadeNo = "IAD-2002", SiparisNo = "SIP-1005", Musteri = "Ali Ozturk", Platform = "Hepsiburada", Tutar = 129.00m, Sebep = "Yanlis Beden", Durum = "Onaylandi", Tarih = new DateTime(2026, 3, 17) },
-                new() { IadeNo = "IAD-2003", SiparisNo = "SIP-1008", Musteri = "Fatma Sahin", Platform = "N11", Tutar = 89.50m, Sebep = "Musteri Vazgecmesi", Durum = "Reddedildi", Tarih = new DateTime(2026, 3, 16) },
-                new() { IadeNo = "IAD-2004", SiparisNo = "SIP-1012", Musteri = "Mehmet Kaya", Platform = "Trendyol", Tutar = 449.00m, Sebep = "Kargoda Hasar", Durum = "Yolda", Tarih = new DateTime(2026, 3, 15) },
-                new() { IadeNo = "IAD-2005", SiparisNo = "SIP-1015", Musteri = "Zeynep Arslan", Platform = "Ciceksepeti", Tutar = 199.90m, Sebep = "Yanlis Renk", Durum = "Teslim Alindi", Tarih = new DateTime(2026, 3, 14) },
-                new() { IadeNo = "IAD-2006", SiparisNo = "SIP-1020", Musteri = "Hasan Ozturk", Platform = "Pazarama", Tutar = 75.00m, Sebep = "Aciklamaya Uymuyor", Durum = "Iade Edildi", Tarih = new DateTime(2026, 3, 13) },
-                new() { IadeNo = "IAD-2007", SiparisNo = "SIP-1022", Musteri = "Emine Yildiz", Platform = "Trendyol", Tutar = 320.00m, Sebep = "Eksik Parca", Durum = "Beklemede", Tarih = new DateTime(2026, 3, 12) },
-            ]);
+            _allItems.AddRange(result.Select(r => new ReturnListItemDto
+            {
+                IadeNo = r.Id.ToString("N")[..8].ToUpper(),
+                SiparisNo = r.OrderNumber ?? string.Empty,
+                Musteri = string.Empty,
+                Platform = string.Empty,
+                Tutar = r.RefundAmount,
+                Sebep = r.Reason ?? string.Empty,
+                Durum = r.Status,
+                Tarih = r.CreatedAt
+            }));
 
             ApplyFilter();
         }
