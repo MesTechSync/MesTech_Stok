@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
 using MesTech.Application.Features.Onboarding.Commands.RegisterTenant;
 using MesTech.Application.Features.Onboarding.Commands.StartOnboarding;
@@ -34,7 +35,7 @@ public static class OnboardingEndpoints
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/onboarding/progress", new { id });
+            return Results.Created($"/api/v1/onboarding/progress", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("StartOnboarding")
         .WithSummary("Kurulum sürecini başlat");

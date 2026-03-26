@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Billing.Commands.CancelSubscription;
 using MesTech.Application.Features.Billing.Commands.ChangeSubscriptionPlan;
 using MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
@@ -49,7 +50,7 @@ public static class BillingEndpoints
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/billing/subscription", new { id });
+            return Results.Created($"/api/v1/billing/subscription", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateSubscription")
         .WithSummary("Yeni abonelik başlat")
@@ -86,7 +87,7 @@ public static class BillingEndpoints
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/billing/invoices/{id}", new { id });
+            return Results.Created($"/api/v1/billing/invoices/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateBillingInvoice")
         .WithSummary("Fatura oluştur")
@@ -127,7 +128,7 @@ public static class BillingEndpoints
             var body = await reader.ReadToEndAsync(ct);
 
             if (string.IsNullOrWhiteSpace(body))
-                return Results.BadRequest(new { error = "Empty webhook body" });
+                return Results.BadRequest(ApiResponse<object>.Fail("Empty webhook body", "EMPTY_BODY"));
 
             var signature = httpContext.Request.Headers["Stripe-Signature"].FirstOrDefault()
                          ?? httpContext.Request.Headers["X-Webhook-Signature"].FirstOrDefault();
@@ -136,8 +137,8 @@ public static class BillingEndpoints
                 new ProcessPaymentWebhookCommand(provider, body, signature), ct);
 
             return result.Success
-                ? Results.Ok(new { status = "accepted", result.EventType, result.SubscriptionId })
-                : Results.UnprocessableEntity(new { status = "rejected", result.Error });
+                ? Results.Ok(ApiResponse<PaymentWebhookResult>.Ok(result))
+                : Results.UnprocessableEntity(ApiResponse<PaymentWebhookResult>.Fail(result.Error ?? "Webhook processing failed"));
         })
         .WithName("ProcessPaymentWebhook")
         .WithSummary("Payment provider webhook receiver (Stripe/Iyzico)")
