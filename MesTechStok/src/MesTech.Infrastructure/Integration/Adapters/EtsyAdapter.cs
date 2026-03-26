@@ -42,7 +42,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private string _accessToken = string.Empty;
     private bool _isConfigured;
 
-    private const string BaseUrl = "https://openapi.etsy.com/v3";
+    private readonly string BaseUrl;
 
     public EtsyAdapter(HttpClient httpClient, ILogger<EtsyAdapter> logger,
         IOptions<EtsyOptions>? options = null)
@@ -51,6 +51,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new EtsyOptions();
+        BaseUrl = _options.BaseUrl;
 
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.ShopId))
@@ -1124,4 +1125,7 @@ public sealed class EtsyOptions
 
     /// <summary>Whether the Etsy integration is enabled.</summary>
     public bool Enabled { get; set; }
+
+    /// <summary>Base URL for Etsy API v3.</summary>
+    public string BaseUrl { get; set; } = "https://openapi.etsy.com/v3";
 }
