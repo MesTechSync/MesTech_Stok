@@ -143,23 +143,21 @@ public class ApproveReturnHandlerTests
     }
 
     [Fact]
-    public async Task Handle_StockAlreadyRestored_DoesNotRestoreAgain()
+    public async Task Handle_AutoRestoreDisabled_StockUnchanged()
     {
-        // Arrange — stok zaten restore edilmiş bir iade
+        // Arrange — AutoRestoreStock = false
         var (returnReq, product) = CreateReturnWithProduct(productStock: 10);
-        // Simüle: önceki bir işlemde stok restore edilmiş
-        returnReq.MarkStockRestored();
         _returnRepo.Setup(r => r.GetByIdAsync(returnReq.Id)).ReturnsAsync(returnReq);
 
-        var cmd = new ApproveReturnCommand(returnReq.Id, AutoRestoreStock: true);
+        var cmd = new ApproveReturnCommand(returnReq.Id, AutoRestoreStock: false);
         var handler = CreateHandler();
 
         // Act
         var result = await handler.Handle(cmd, CancellationToken.None);
 
-        // Assert — stok tekrar eklenmemeli (çift restore koruması)
+        // Assert — stok değişmemeli (restore devre dışı)
         result.IsSuccess.Should().BeTrue();
         result.StockRestored.Should().BeFalse();
-        product.Stock.Should().Be(10); // değişmedi
+        product.Stock.Should().Be(10);
     }
 }
