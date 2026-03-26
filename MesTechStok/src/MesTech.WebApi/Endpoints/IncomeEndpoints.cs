@@ -6,6 +6,7 @@ using MesTech.Application.Queries.GetExpenses;
 using MesTech.Application.Queries.GetIncomeById;
 using MesTech.Application.Queries.GetIncomes;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,6 +27,7 @@ public static class IncomeEndpoints
                 new GetIncomesQuery(from, to, type, tenantId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetIncomes")
         .WithSummary("Gelir kayitlari listesi (tarih + tip filtresi)");
 
@@ -36,6 +38,7 @@ public static class IncomeEndpoints
             var result = await mediator.Send(new GetIncomeByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetIncomeById")
         .WithSummary("Tek gelir kaydi detayi");
 

@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Reporting.Commands.CreateSavedReport;
 using MesTech.Application.Features.Reporting.Commands.DeleteSavedReport;
 using MesTech.Application.Features.Reporting.Queries.GetSavedReports;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -33,6 +34,7 @@ public static class SavedReportEndpoints
                 new GetSavedReportsQuery(tenantId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSavedReports")
         .WithSummary("Tenant'a ait kaydedilmis raporlari listeler");
 

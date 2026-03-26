@@ -4,6 +4,7 @@ using MesTech.Application.Features.Stores.Commands.DeleteStoreCredential;
 using MesTech.Application.Features.Stores.Commands.SaveStoreCredential;
 using MesTech.Application.Features.Stores.Commands.TestStoreCredential;
 using MesTech.Application.Features.Stores.Queries.GetStoreCredential;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -61,6 +62,7 @@ public static class StoreCredentialEndpoints
                 ? Results.Ok(result)
                 : Results.NotFound(new { Message = $"No credentials found for store {storeId}" });
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetStoreCredentials")
         .WithSummary("Maskelenmis credential bilgisi (plaintext DONMEZ)");
 

@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Logging.Commands.CreateLogEntry;
 using MesTech.Application.Features.Logging.Queries.GetLogCount;
 using MesTech.Application.Features.Logging.Queries.GetLogs;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -37,6 +38,7 @@ public static class LogEndpoints
                 new GetLogsQuery(tenantId, page, pageSize, category, userId, productName, barcode, startDate, endDate), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetLogs")
         .WithSummary("Log listesi (sayfalanmış, kategori/tarih/kullanıcı filtresi)");
 
@@ -48,6 +50,7 @@ public static class LogEndpoints
             var count = await mediator.Send(new GetLogCountQuery(tenantId, category), ct);
             return Results.Ok(new { count });
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetLogCount")
         .WithSummary("Log kayıt sayısı (kategori filtresi)");
     }

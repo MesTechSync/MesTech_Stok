@@ -4,6 +4,7 @@ using MesTech.Application.Features.System.UserNotifications.Commands.MarkAllNoti
 using MesTech.Application.Features.System.UserNotifications.Commands.MarkNotificationRead;
 using MesTech.Application.Features.System.UserNotifications.Queries.GetUnreadNotificationCount;
 using MesTech.Application.Features.System.UserNotifications.Queries.GetUserNotifications;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -29,6 +30,7 @@ public static class UserNotificationEndpoints
                     unreadOnly ?? false), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetUserNotifications")
         .WithSummary("Kullanici ici bildirim listesi (sayfalama + okunmamis filtresi)");
 
@@ -65,6 +67,7 @@ public static class UserNotificationEndpoints
                 new GetUnreadNotificationCountQuery(tenantId, userId), ct);
             return Results.Ok(new { unreadCount = count });
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetUnreadUserNotificationCount")
         .WithSummary("Kullanicinin okunmamis bildirim sayisi");
     }

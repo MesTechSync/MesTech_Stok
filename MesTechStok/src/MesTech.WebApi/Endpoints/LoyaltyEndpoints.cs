@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Crm.Commands.EarnPoints;
 using MesTech.Application.Features.Crm.Commands.RedeemPoints;
 using MesTech.Application.Features.Crm.Queries.GetCustomerPoints;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -44,6 +45,7 @@ public static class LoyaltyEndpoints
             var result = await mediator.Send(new GetCustomerPointsQuery(tenantId, customerId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCustomerPoints")
         .WithSummary("Musteri puan bakiyesi");
     }

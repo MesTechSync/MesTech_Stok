@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Accounting.Commands.RecordTaxWithholding;
 using MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
 using MesTech.Application.Features.Accounting.Queries.ListTaxWithholdings;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -20,6 +21,7 @@ public static class TaxWithholdingEndpoints
             var result = await mediator.Send(new GetWithholdingRatesQuery(), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetWithholdingRates")
         .WithSummary("KDV tevkifat oranlari listesi (GiB resmi listesi)");
 
@@ -32,6 +34,7 @@ public static class TaxWithholdingEndpoints
                 new ListTaxWithholdingsQuery(tenantId, from, to), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("ListTaxWithholdings")
         .WithSummary("Tevkifat kayitlari listesi (tarih araligi filtresi)");
 

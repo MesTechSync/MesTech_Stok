@@ -8,6 +8,7 @@ using MesTech.Application.Queries.GetQuotationById;
 using MesTech.Application.Queries.ListQuotations;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -32,6 +33,7 @@ public static class QuotationEndpoints
             var result = await mediator.Send(new ListQuotationsQuery(parsedStatus), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("ListQuotations")
         .WithSummary("Teklif listesi (durum filtresi)");
 
@@ -41,6 +43,7 @@ public static class QuotationEndpoints
             var result = await mediator.Send(new GetQuotationByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetQuotationById")
         .WithSummary("Tekil teklif detayı");
 

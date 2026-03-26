@@ -5,6 +5,7 @@ using MesTech.Application.Features.Shipping.Commands.BatchShipOrders;
 using MesTech.Application.Features.Shipping.Queries.GetShipmentStatus;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -47,6 +48,7 @@ public static class ShippingEndpoints
                 new GetShipmentStatusQuery(tenantId, trackingNumber, provider), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetShipmentStatus")
         .WithSummary("Kargo takip numarasıyla gönderi durumu sorgula");
 
@@ -61,6 +63,7 @@ public static class ShippingEndpoints
                 new CargoPerformanceReportQuery(tenantId, startDate, endDate), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetShippingPerformanceComparison")
         .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)");
 
@@ -89,6 +92,7 @@ public static class ShippingEndpoints
 
             return Results.NotFound(new { error = $"Tracking number '{trackingNumber}' not found in any carrier" });
         })
+        .CacheOutput("Lookup60s")
         .WithName("TrackShipment")
         .WithSummary("Kargo takip numarasıyla gönderi ara (tüm sağlayıcıları dener)");
     }

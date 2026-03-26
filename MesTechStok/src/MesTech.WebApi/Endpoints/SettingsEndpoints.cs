@@ -4,6 +4,7 @@ using MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
 using MesTech.Application.Features.Settings.Queries.GetProfileSettings;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -25,6 +26,7 @@ public static class SettingsEndpoints
                 ? Results.Ok(result)
                 : Results.NotFound(new { error = "Profile settings not found" });
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSettingsProfile")
         .WithSummary("Kullanici profil ayarlari");
 
@@ -49,6 +51,7 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetCredentialsSettingsQuery(tenantId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSettingsCredentials")
         .WithSummary("API kimlik bilgileri listesi");
 
@@ -62,6 +65,7 @@ public static class SettingsEndpoints
                 ? Results.Ok(result)
                 : Results.NotFound(new { error = "General settings not found" });
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSettingsNotifications")
         .WithSummary("Bildirim tercihleri (general settings)");
     }

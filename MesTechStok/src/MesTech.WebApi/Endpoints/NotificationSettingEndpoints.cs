@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.Features.Notifications.Commands.UpdateNotificationSettings;
 using MesTech.Application.Features.Notifications.Queries.GetNotificationSettings;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -21,6 +22,7 @@ public static class NotificationSettingEndpoints
                 new GetNotificationSettingsQuery(tenantId, userId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetNotificationSettings")
         .WithSummary("Kullanici bildirim ayarlarini getirir");
 

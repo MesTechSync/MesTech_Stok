@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.CategoryMapping.Commands.MapCategory;
 using MesTech.Application.Features.CategoryMapping.Queries.GetCategoryMappings;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -23,6 +24,7 @@ public static class CategoryMappingEndpoint
                 new GetCategoryMappingsQuery(tenantId, platform), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCategoryMappings")
         .WithSummary("Platform bazlı kategori eşleştirme listesi");
 

@@ -4,6 +4,7 @@ using MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
 using MesTech.Application.Features.Accounting.Commands.UpdateFixedAsset;
 using MesTech.Application.Features.Accounting.Queries.CalculateDepreciation;
 using MesTech.Application.Features.Accounting.Queries.ListFixedAssets;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -24,6 +25,7 @@ public static class FixedAssetEndpoints
                 new ListFixedAssetsQuery(tenantId, isActive), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("ListFixedAssets")
         .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)");
 
@@ -35,6 +37,7 @@ public static class FixedAssetEndpoints
                 new CalculateDepreciationQuery(id), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("CalculateDepreciation")
         .WithSummary("Sabit kiymet amortisman tablosu hesapla (VUK md. 315)");
 

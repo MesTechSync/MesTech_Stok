@@ -4,6 +4,7 @@ using MesTech.Application.Features.Crm.Commands.CreateCampaign;
 using MesTech.Application.Features.Crm.Commands.DeactivateCampaign;
 using MesTech.Application.Features.Crm.Queries.ApplyCampaignDiscount;
 using MesTech.Application.Features.Crm.Queries.GetActiveCampaigns;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -34,6 +35,7 @@ public static class CampaignEndpoints
             var result = await mediator.Send(new GetActiveCampaignsQuery(tenantId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("ListCampaigns")
         .WithSummary("Aktif kampanya listesi");
 
@@ -46,6 +48,7 @@ public static class CampaignEndpoints
             var result = await mediator.Send(new ApplyCampaignDiscountQuery(productId, price), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("CalculateDiscount")
         .WithSummary("Urun icin kampanya indirimi hesapla");
 

@@ -6,6 +6,7 @@ using MesTech.Application.Commands.UpdateCariHesap;
 using MesTech.Application.Queries.GetCariHareketler;
 using MesTech.Application.Queries.GetCariHesaplar;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,6 +27,7 @@ public static class CariHesapEndpoints
                 new GetCariHesaplarQuery(type, tenantId), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCariHesaplar")
         .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)");
 
@@ -39,6 +41,7 @@ public static class CariHesapEndpoints
             var item = result.FirstOrDefault(c => c.Id == id);
             return item is not null ? Results.Ok(item) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCariHesapById")
         .WithSummary("Tek cari hesap detayi");
 
@@ -74,6 +77,7 @@ public static class CariHesapEndpoints
                 new GetCariHareketlerQuery(id, from, to), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCariHareketler")
         .WithSummary("Cari hesap hareketleri (tarih filtresi)");
 

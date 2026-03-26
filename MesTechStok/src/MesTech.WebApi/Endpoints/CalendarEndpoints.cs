@@ -6,6 +6,7 @@ using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 using MesTech.Application.Features.Calendar.Commands.UpdateCalendarEvent;
 using MesTech.Application.Features.Calendar.Queries.GetCalendarEventById;
 using MesTech.Application.Features.Calendar.Queries.GetCalendarEvents;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,6 +27,7 @@ public static class CalendarEndpoints
                 new GetCalendarEventsQuery(tenantId, from, to), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCalendarEvents")
         .WithSummary("Takvim etkinlik listesi (tarih filtresi)");
 
@@ -36,6 +38,7 @@ public static class CalendarEndpoints
             var result = await mediator.Send(new GetCalendarEventByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetCalendarEventById")
         .WithSummary("Tek takvim etkinligi detayi");
 

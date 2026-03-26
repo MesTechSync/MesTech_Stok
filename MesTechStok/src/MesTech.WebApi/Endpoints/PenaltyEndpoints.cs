@@ -5,6 +5,7 @@ using MesTech.Application.Features.Accounting.Commands.UpdatePenaltyRecord;
 using MesTech.Application.Features.Accounting.Queries.GetPenaltyRecordById;
 using MesTech.Application.Features.Accounting.Queries.GetPenaltyRecords;
 using MesTech.Domain.Accounting.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -25,6 +26,7 @@ public static class PenaltyEndpoints
                 new GetPenaltyRecordsQuery(tenantId, source), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecords")
         .WithSummary("Ceza kayitlari listesi (kaynak filtresi)");
 
@@ -35,6 +37,7 @@ public static class PenaltyEndpoints
             var result = await mediator.Send(new GetPenaltyRecordByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecordById")
         .WithSummary("Tek ceza kaydi detayi");
 

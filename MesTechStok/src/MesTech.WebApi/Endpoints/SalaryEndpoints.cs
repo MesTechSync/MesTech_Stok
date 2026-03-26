@@ -5,6 +5,7 @@ using MesTech.Application.Features.Accounting.Commands.UpdateSalaryRecord;
 using MesTech.Application.Features.Accounting.Queries.GetSalaryRecordById;
 using MesTech.Application.Features.Accounting.Queries.GetSalaryRecords;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -25,6 +26,7 @@ public static class SalaryEndpoints
                 new GetSalaryRecordsQuery(tenantId, year, month), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSalaryRecords")
         .WithSummary("Maas kayitlari listesi (yil + ay filtresi)");
 
@@ -35,6 +37,7 @@ public static class SalaryEndpoints
             var result = await mediator.Send(new GetSalaryRecordByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetSalaryRecordById")
         .WithSummary("Tek maas kaydi detayi");
 

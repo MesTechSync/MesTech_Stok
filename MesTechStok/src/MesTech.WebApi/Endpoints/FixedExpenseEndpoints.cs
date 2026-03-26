@@ -4,6 +4,7 @@ using MesTech.Application.Features.Accounting.Commands.DeleteFixedExpense;
 using MesTech.Application.Features.Accounting.Commands.UpdateFixedExpense;
 using MesTech.Application.Features.Accounting.Queries.GetFixedExpenseById;
 using MesTech.Application.Features.Accounting.Queries.GetFixedExpenses;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -24,6 +25,7 @@ public static class FixedExpenseEndpoints
                 new GetFixedExpensesQuery(tenantId, isActive), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenses")
         .WithSummary("Sabit gider listesi (aktif/pasif filtresi)");
 
@@ -34,6 +36,7 @@ public static class FixedExpenseEndpoints
             var result = await mediator.Send(new GetFixedExpenseByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenseById")
         .WithSummary("Tek sabit gider detayi");
 

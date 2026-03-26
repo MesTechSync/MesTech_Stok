@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -34,6 +35,7 @@ public static class PaymentEndpoints
             var result = await paymentProvider.GetTransactionStatusAsync(transactionId, ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetPaymentStatus")
         .WithSummary("İşlem ID ile ödeme durumunu sorgula");
 
@@ -62,6 +64,7 @@ public static class PaymentEndpoints
             var result = await paymentProvider.GetInstallmentOptionsAsync(amount, binNumber, ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetInstallmentOptions")
         .WithSummary("Tutar ve BIN numarasına göre taksit seçeneklerini getir");
     }

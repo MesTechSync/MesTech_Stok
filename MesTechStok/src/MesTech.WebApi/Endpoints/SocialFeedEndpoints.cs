@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -31,6 +32,7 @@ public static class SocialFeedEndpoints
             }
             return Results.Ok(results);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetAllFeedStatuses")
         .WithSummary("Tüm sosyal feed platform durumlarını listele");
 
@@ -72,6 +74,7 @@ public static class SocialFeedEndpoints
             var status = await adapter.GetFeedStatusAsync(ct);
             return Results.Ok(status);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetFeedStatus")
         .WithSummary("Belirtilen platform feed durumunu sorgula");
 

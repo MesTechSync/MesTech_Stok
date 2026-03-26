@@ -3,6 +3,7 @@ using MediatR;
 using MesTech.Application.Commands.CreateBarcodeScanLog;
 using MesTech.Application.Queries.GetBarcodeScanLogs;
 using MesTech.Application.Queries.GetProductByBarcode;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -25,6 +26,7 @@ public static class BarcodeEndpoints
                 ? Results.Ok(result)
                 : Results.NotFound(new { Message = $"Barkod '{code}' ile eşleşen ürün bulunamadı" });
         })
+        .CacheOutput("Lookup60s")
         .WithName("SearchByBarcode")
         .WithSummary("Barkod ile ürün ara");
 
@@ -50,6 +52,7 @@ public static class BarcodeEndpoints
                 new GetBarcodeScanLogsQuery(page, pageSize, barcode, source, isValid), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetBarcodeScanLogs")
         .WithSummary("Barkod tarama geçmişi (sayfalanmış)");
     }

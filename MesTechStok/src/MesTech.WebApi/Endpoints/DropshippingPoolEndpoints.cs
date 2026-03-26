@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
 using MesTech.Application.Interfaces;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -32,6 +33,7 @@ public static class DropshippingPoolEndpoints
                 new GetPoolProductsQuery(poolId, color, search, page <= 0 ? 1 : page, pageSize <= 0 ? 50 : pageSize), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetPoolProducts")
         .WithSummary("Dropshipping havuz ürünleri (güvenilirlik rengi + arama filtresi)");
 
@@ -41,6 +43,7 @@ public static class DropshippingPoolEndpoints
             var result = await mediator.Send(new GetPoolDashboardStatsQuery(), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetPoolStats")
         .WithSummary("Dropshipping havuzu özet istatistikleri");
 

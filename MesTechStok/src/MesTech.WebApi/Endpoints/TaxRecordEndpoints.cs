@@ -4,6 +4,7 @@ using MesTech.Application.Features.Accounting.Commands.DeleteTaxRecord;
 using MesTech.Application.Features.Accounting.Commands.UpdateTaxRecord;
 using MesTech.Application.Features.Accounting.Queries.GetTaxRecordById;
 using MesTech.Application.Features.Accounting.Queries.GetTaxRecords;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -24,6 +25,7 @@ public static class TaxRecordEndpoints
                 new GetTaxRecordsQuery(tenantId, taxType, year), ct);
             return Results.Ok(result);
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetTaxRecords")
         .WithSummary("Vergi kayitlari listesi (tip + yil filtresi)");
 
@@ -34,6 +36,7 @@ public static class TaxRecordEndpoints
             var result = await mediator.Send(new GetTaxRecordByIdQuery(id), ct);
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
+        .CacheOutput("Lookup60s")
         .WithName("GetTaxRecordById")
         .WithSummary("Tek vergi kaydi detayi");
 
