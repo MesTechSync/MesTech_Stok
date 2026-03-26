@@ -5,7 +5,7 @@
              x:DataType="vm:HealthAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
-    <!-- EMR-12: Sistem Sagligi — CPU, RAM, Disk, DB baglanti durumu -->
+    <!-- WPF008: Sistem Sagligi — servis kartlari, 30s oto-yenileme, hata log paneli -->
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -13,11 +13,15 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="Sistem Sagligi" Foreground="{DynamicResource MesBgPrimary}"
+                    <TextBlock Text="Sistem Sağlığı" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
                         <TextBlock Text="{Binding LastUpdated, StringFormat='Son: {0}'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="30s oto-yenileme" Foreground="{DynamicResource MesBgPrimary}"
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" Opacity="0.8" />
                     </Border>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
@@ -29,14 +33,14 @@
 
         <!-- Content -->
         <ScrollViewer Grid.Row="1" Padding="20">
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="20">
 
                 <!-- KPI Cards Row -->
                 <WrapPanel Orientation="Horizontal">
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="CPU Kullanimi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="CPU Kullanımı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding CpuUsage, StringFormat='{}{0}%'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="{StaticResource MesRadiusSm}" Height="6" Background="{DynamicResource MesBorderMedium}" Margin="0,4,0,0">
@@ -49,7 +53,7 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="RAM Kullanimi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="RAM Kullanımı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding RamUsage, StringFormat='{}{0}%'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="{StaticResource MesRadiusSm}" Height="6" Background="{DynamicResource MesBorderMedium}" Margin="0,4,0,0">
@@ -62,7 +66,7 @@
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20,16" Margin="0,0,12,12"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MinWidth="200">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Disk Kullanimi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Disk Kullanımı" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBlock Text="{Binding DiskUsage, StringFormat='{}{0}%'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                             <Border CornerRadius="{StaticResource MesRadiusSm}" Height="6" Background="{DynamicResource MesBorderMedium}" Margin="0,4,0,0">
@@ -73,42 +77,190 @@
                     </Border>
                 </WrapPanel>
 
-                <!-- Service Status Table -->
+                <!-- Service Cards Grid — 3-column WrapPanel -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel>
+                        <Border Padding="16,12"
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Servis Durumu" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                        </Border>
+
+                        <ItemsControl ItemsSource="{Binding ServiceCards}" Margin="16,16,16,12">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ServiceHealthItem">
+                                    <!-- Service Card -->
+                                    <Border Background="{DynamicResource MesBgSurface}"
+                                            CornerRadius="8"
+                                            BorderBrush="{DynamicResource MesBorderLight}"
+                                            BorderThickness="1"
+                                            Padding="14,12"
+                                            Margin="0,0,10,10"
+                                            MinWidth="200" MaxWidth="240">
+                                        <Grid RowDefinitions="Auto,Auto,Auto">
+                                            <!-- Service Name + Status Badge -->
+                                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0" Text="{Binding ServiceName}"
+                                                           FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource MesDarkSlate}"
+                                                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                                                <Border Grid.Column="1" Background="{Binding StatusColor}"
+                                                        CornerRadius="12" Padding="6,2" Margin="4,0,0,0">
+                                                    <TextBlock Text="{Binding StatusLabel}"
+                                                               Foreground="White" FontSize="10" FontWeight="SemiBold" />
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Category -->
+                                            <TextBlock Grid.Row="1" Text="{Binding Category}"
+                                                       FontSize="10" Foreground="{DynamicResource MesSlateGray}"
+                                                       Margin="0,4,0,0" Opacity="0.8" />
+
+                                            <!-- Response Time + Last Check -->
+                                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <TextBlock Text="Yanıt Süresi" FontSize="10"
+                                                               Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                                    <TextBlock Text="{Binding ResponseTime}"
+                                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource MesDarkSlate}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="2" HorizontalAlignment="Right">
+                                                    <TextBlock Text="Son Kontrol" FontSize="10"
+                                                               Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                                    <TextBlock Text="{Binding LastCheck}"
+                                                               FontSize="{StaticResource FontSizeSmall}"
+                                                               Foreground="{DynamicResource MesDarkSlate}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Empty state for service cards -->
+                        <TextBlock Text="Servis durumu bulunamadı"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,24,0,24"
+                                   Opacity="0.5"
+                                   FontSize="{StaticResource FontSizeSubtitle}"
+                                   IsVisible="{Binding !ServiceCards.Count}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Service Status Detail Table -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,12"
                                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Servis Durumu" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
+                            <TextBlock Text="Servis Detay Tablosu" FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MesDarkSlate}" />
                         </Border>
-                <Grid>
-                        <DataGrid Grid.Row="1"
-                                  ItemsSource="{Binding ServiceStatuses}"
-                                  AutoGenerateColumns="False"
-                                  CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
-                                  IsReadOnly="True"
-                                  GridLinesVisibility="Horizontal"
-                                  BorderThickness="0"
-                                  Background="{DynamicResource MesBgPrimary}"
-                                  MaxHeight="300">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Servis" Binding="{Binding ServiceName}" Width="200" />
-                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
-                                <DataGridTextColumn Header="Yanit Suresi" Binding="{Binding ResponseTime}" Width="120" />
-                                <DataGridTextColumn Header="Son Kontrol" Binding="{Binding LastCheck}" Width="160" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    <!-- Empty State -->
-                    <TextBlock Text="Servis durumu bulunamadi"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,40"
-                               Opacity="0.5"
-                               FontSize="{StaticResource FontSizeSubtitle}"
-                               IsVisible="{Binding !ServiceStatuses.Count}" />
-                </Grid>
+                        <Grid Grid.Row="1">
+                            <DataGrid ItemsSource="{Binding ServiceStatuses}"
+                                      AutoGenerateColumns="False"
+                                      CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal"
+                                      BorderThickness="0"
+                                      Background="{DynamicResource MesBgPrimary}"
+                                      MaxHeight="260">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Servis"       Binding="{Binding ServiceName}" Width="200" />
+                                    <DataGridTextColumn Header="Durum"        Binding="{Binding Status}"      Width="120" />
+                                    <DataGridTextColumn Header="Yanıt Süresi" Binding="{Binding ResponseTime}" Width="120" />
+                                    <DataGridTextColumn Header="Son Kontrol"  Binding="{Binding LastCheck}"   Width="160" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="Servis durumu bulunamadı"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,40"
+                                       Opacity="0.5"
+                                       FontSize="{StaticResource FontSizeSubtitle}"
+                                       IsVisible="{Binding !ServiceStatuses.Count}" />
+                        </Grid>
                     </Grid>
+                </Border>
+
+                <!-- Error Log Section — last 10 errors -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel>
+                        <Border Padding="16,12"
+                                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="Hata Günlüğü (Son 10)"
+                                           FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <Border Grid.Column="1" Background="{DynamicResource MesDanger}"
+                                        CornerRadius="10" Padding="8,2"
+                                        IsVisible="{Binding ErrorLogs.Count}">
+                                    <TextBlock Text="{Binding ErrorLogs.Count}"
+                                               Foreground="White" FontSize="11" FontWeight="Bold" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- No errors state -->
+                        <Border Padding="0,24" IsVisible="{Binding !ErrorLogs.Count}">
+                            <TextBlock Text="Hata bulunamadı — tüm servisler sağlıklı"
+                                       HorizontalAlignment="Center"
+                                       Opacity="0.5"
+                                       FontSize="{StaticResource FontSizeSubtitle}" />
+                        </Border>
+
+                        <!-- Error list -->
+                        <ItemsControl ItemsSource="{Binding ErrorLogs}"
+                                      IsVisible="{Binding ErrorLogs.Count}"
+                                      Margin="0,4,0,4">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HealthErrorLogItem">
+                                    <Border Padding="16,10"
+                                            BorderBrush="{DynamicResource MesBorderLight}"
+                                            BorderThickness="0,0,0,1">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                            <!-- Level Badge -->
+                                            <Border Grid.Column="0" Background="{Binding LevelColor}"
+                                                    CornerRadius="4" Padding="6,2" Margin="0,0,10,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Level}"
+                                                           Foreground="White" FontSize="10" FontWeight="Bold" />
+                                            </Border>
+                                            <!-- Timestamp -->
+                                            <TextBlock Grid.Column="1" Text="{Binding Timestamp}"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       Foreground="{DynamicResource MesSlateGray}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,12,0" />
+                                            <!-- Message -->
+                                            <TextBlock Grid.Column="2" Text="{Binding Message}"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       Foreground="{DynamicResource MesDarkSlate}"
+                                                       VerticalAlignment="Center"
+                                                       TextWrapping="Wrap" />
+                                            <!-- Service Name -->
+                                            <TextBlock Grid.Column="3" Text="{Binding ServiceName}"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       Foreground="{DynamicResource MesDanger}"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Margin="12,0,0,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </StackPanel>
                 </Border>
 
             </StackPanel>
