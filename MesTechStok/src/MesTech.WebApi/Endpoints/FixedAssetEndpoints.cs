@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateFixedAsset;
 using MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
@@ -47,7 +48,7 @@ public static class FixedAssetEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/fixed-assets/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/fixed-assets/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedAsset")
         .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)");

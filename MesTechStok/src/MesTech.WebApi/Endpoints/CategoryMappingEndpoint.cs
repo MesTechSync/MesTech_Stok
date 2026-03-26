@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.CategoryMapping.Commands.MapCategory;
 using MesTech.Application.Features.CategoryMapping.Queries.GetCategoryMappings;
@@ -34,7 +35,7 @@ public static class CategoryMappingEndpoint
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/category-mappings/{id}", new { id });
+            return Results.Created($"/api/v1/category-mappings/{id}", new CreatedResponse(id));
         })
         .WithName("MapCategory")
         .WithSummary("Yeni kategori eşleştirmesi oluştur");

@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.RecordTaxWithholding;
 using MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
@@ -44,7 +45,7 @@ public static class TaxWithholdingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/tax-withholdings/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/tax-withholdings/{id}", new CreatedResponse(id));
         })
         .WithName("RecordTaxWithholding")
         .WithSummary("Yeni KDV tevkifat kaydi olustur");

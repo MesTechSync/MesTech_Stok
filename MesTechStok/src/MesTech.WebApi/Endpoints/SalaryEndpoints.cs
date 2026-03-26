@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateSalaryRecord;
 using MesTech.Application.Features.Accounting.Commands.DeleteSalaryRecord;
@@ -47,7 +48,7 @@ public static class SalaryEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/salaries/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/salaries/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSalaryRecord")
         .WithSummary("Yeni maas kaydi olustur");

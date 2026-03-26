@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Reporting.Commands.CreateSavedReport;
 using MesTech.Application.Features.Reporting.Commands.DeleteSavedReport;
@@ -20,7 +21,7 @@ public static class SavedReportEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/reports/saved/{id}", new { id });
+            return Results.Created($"/api/v1/reports/saved/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSavedReport")
         .WithSummary("Yeni kaydedilmis rapor sablonu olusturur");

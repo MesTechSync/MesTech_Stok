@@ -38,7 +38,7 @@ public static class OrderEndpoints
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Created($"/api/v1/orders/{result.OrderId}", new { result.OrderId })
+                ? Results.Created($"/api/v1/orders/{result.OrderId}", new CreatedResponse(result.OrderId))
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("PlaceOrder")

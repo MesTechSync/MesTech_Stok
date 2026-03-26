@@ -37,7 +37,7 @@ public static class BarcodeEndpoints
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Created($"/api/v1/barcodes/scan-log/{result.LogId}", new { result.LogId })
+                ? Results.Created($"/api/v1/barcodes/scan-log/{result.LogId}", new CreatedResponse(result.LogId))
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateBarcodeScanLog")

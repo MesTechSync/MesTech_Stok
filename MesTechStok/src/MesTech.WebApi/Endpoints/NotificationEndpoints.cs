@@ -89,7 +89,7 @@ public static class NotificationEndpoints
                 request.Title, request.Message,
                 request.Category ?? "System", request.ActionUrl);
 
-            return Results.Created($"/api/v1/notifications/{id}", new { id, pushed = true });
+            return Results.Created($"/api/v1/notifications/{id}", new CreatedResponse(id));
         })
         .WithName("PushNotification")
         .WithSummary("Bildirim gönder + SignalR real-time push (V5)");

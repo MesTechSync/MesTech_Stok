@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateTaxRecord;
 using MesTech.Application.Features.Accounting.Commands.DeleteTaxRecord;
@@ -46,7 +47,7 @@ public static class TaxRecordEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/taxes/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/taxes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateTaxRecord")
         .WithSummary("Yeni vergi kaydi olustur");

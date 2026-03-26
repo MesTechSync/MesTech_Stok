@@ -39,7 +39,7 @@ public static class TenantEndpoints
         {
             var tenantId = await sender.Send(
                 new CreateTenantCommand(request.Name, request.TaxNumber), ct);
-            return Results.Created($"/api/v1/admin/tenants/{tenantId}", new { id = tenantId });
+            return Results.Created($"/api/v1/admin/tenants/{tenantId}", new CreatedResponse(tenantId));
         })
         .WithName("CreateTenant")
         .WithSummary("Yeni kiracı oluştur — admin only");

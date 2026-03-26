@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreatePenaltyRecord;
 using MesTech.Application.Features.Accounting.Commands.DeletePenaltyRecord;
@@ -47,7 +48,7 @@ public static class PenaltyEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/penalties/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/penalties/{id}", new CreatedResponse(id));
         })
         .WithName("CreatePenaltyRecord")
         .WithSummary("Yeni ceza kaydi olustur");

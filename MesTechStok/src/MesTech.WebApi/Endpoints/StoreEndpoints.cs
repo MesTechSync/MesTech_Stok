@@ -40,7 +40,7 @@ public static class StoreEndpoints
         {
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Created($"/api/v1/admin/stores/{result.StoreId}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(result.StoreId ?? Guid.Empty)))
+                ? Results.Created($"/api/v1/admin/stores/{result.StoreId}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(result.StoreId!.Value)))
                 : Results.BadRequest(ApiResponse<object>.Fail(result.ErrorMessage ?? "Mağaza oluşturulamadı"));
         })
         .WithName("CreateStore")

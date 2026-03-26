@@ -56,7 +56,7 @@ public static class WarehouseEndpoints
         {
             var result = await sender.Send(command, ct);
             return result.IsSuccess
-                ? Results.Created($"/api/v1/warehouses/{result.WarehouseId}", new { id = result.WarehouseId })
+                ? Results.Created($"/api/v1/warehouses/{result.WarehouseId}", new CreatedResponse(result.WarehouseId))
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("CreateWarehouse")

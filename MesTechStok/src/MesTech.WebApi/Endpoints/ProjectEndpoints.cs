@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Tasks.Commands.CreateProject;
 using MesTech.Application.Features.Tasks.Queries.GetProjects;
@@ -36,7 +37,7 @@ public static class ProjectEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/projects/{id}", new { id });
+            return Results.Created($"/api/v1/projects/{id}", new CreatedResponse(id));
         })
         .WithName("CreateProject")
         .WithSummary("Yeni proje oluştur");
@@ -60,7 +61,7 @@ public static class ProjectEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/projects/tasks/{id}", new { id });
+            return Results.Created($"/api/v1/projects/tasks/{id}", new CreatedResponse(id));
         })
         .WithName("CreateWorkTask")
         .WithSummary("Yeni iş görevi oluştur");

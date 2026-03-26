@@ -22,7 +22,7 @@ public static class CampaignEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(cmd, ct);
-            return Results.Created($"/api/v1/campaigns/{result}", new { id = result });
+            return Results.Created($"/api/v1/campaigns/{result}", new CreatedResponse(result));
         })
         .WithName("CreateCampaign")
         .WithSummary("Yeni kampanya olustur");

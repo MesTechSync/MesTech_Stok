@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateFixedExpense;
 using MesTech.Application.Features.Accounting.Commands.DeleteFixedExpense;
@@ -46,7 +47,7 @@ public static class FixedExpenseEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/fixed-expenses/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/fixed-expenses/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedExpense")
         .WithSummary("Yeni sabit gider olustur");

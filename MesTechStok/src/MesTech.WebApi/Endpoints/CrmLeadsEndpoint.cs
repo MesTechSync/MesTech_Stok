@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
@@ -44,7 +45,7 @@ public static class CrmLeadsEndpoint
             CancellationToken ct = default) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/crm/leads/{id}", new { id });
+            return Results.Created($"/api/v1/crm/leads/{id}", new CreatedResponse(id));
         })
         .WithName("CreateLeadFull")
         .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)");

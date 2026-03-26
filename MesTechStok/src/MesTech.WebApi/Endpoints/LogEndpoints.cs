@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Logging.Commands.CreateLogEntry;
 using MesTech.Application.Features.Logging.Queries.GetLogCount;
@@ -20,7 +21,7 @@ public static class LogEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var logId = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/logs/{logId}", new { id = logId });
+            return Results.Created($"/api/v1/logs/{logId}", new CreatedResponse(logId));
         })
         .WithName("CreateLogEntry")
         .WithSummary("Yeni log kaydı oluştur");

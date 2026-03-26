@@ -88,7 +88,7 @@ public static class CariHesapEndpoints
         {
             var updated = command with { CariHesapId = id };
             var result = await mediator.Send(updated, ct);
-            return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}/hareketler/{result}", new { id = result });
+            return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}/hareketler/{result}", new CreatedResponse(result));
         })
         .WithName("CreateCariHareket")
         .WithSummary("Yeni cari hareket oluştur (borç/alacak)");

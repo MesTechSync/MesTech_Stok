@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.CreateIncome;
 using MesTech.Application.Commands.DeleteIncome;
@@ -48,7 +49,7 @@ public static class IncomeEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/incomes/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/incomes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateIncome")
         .WithSummary("Yeni gelir kaydi olustur");
