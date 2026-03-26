@@ -799,4 +799,22 @@ TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari Delegat
 | ORG025 | ACIK | **KAPANDI** | ✅ |
 | Infinite hang risk | 5 services | 0 | **-5** ✅ |
 
-### KÜMÜLATİF DEV 3 (20 tur, 52 commit)
+---
+
+## TUR 21 — 2026-03-26 (ORG037+ORG038 Fix + 17 Adapter Timeout)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 44 | Bitrix24Adapter | HttpClient.Timeout 30s (ORG037) | c140906f |
+| 45 | 14 marketplace adapter | Explicit timeout (15-60s) | 00542803 |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Adapter explicit timeout | 2/16 | 16/16 | **+14** ✅ |
+| ORG037 | ACIK | **KAPANDI** | ✅ |
+| ORG038 | ACIK | Başka DEV uncommitted | DEP |
+| Infinite hang risk (adapters) | 14 | 0 | **-14** ✅ |
+
+### KÜMÜLATİF DEV 3 (21 tur, 56 commit)
