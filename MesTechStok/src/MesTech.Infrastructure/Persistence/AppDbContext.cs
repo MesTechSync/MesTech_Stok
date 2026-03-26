@@ -549,15 +549,7 @@ public class AppDbContext : DbContext
             e.HasIndex(a => a.TenantId).HasDatabaseName("IX_SupplierAccounts_TenantId");
         });
 
-        // PlatformCommission
-        modelBuilder.Entity<PlatformCommission>(e =>
-        {
-            e.HasIndex(c => new { c.TenantId, c.Platform, c.PlatformCategoryId })
-                .HasDatabaseName("IX_PlatformCommissions_Tenant_Platform_Category");
-            e.Property(c => c.Rate).HasPrecision(5, 2);
-            e.Property(c => c.MinAmount).HasPrecision(18, 2);
-            e.Property(c => c.MaxAmount).HasPrecision(18, 2);
-        });
+        // PlatformCommission — configuration in PlatformCommissionConfiguration.cs (canonical source)
 
         // PlatformPayment
         modelBuilder.Entity<PlatformPayment>(e =>
