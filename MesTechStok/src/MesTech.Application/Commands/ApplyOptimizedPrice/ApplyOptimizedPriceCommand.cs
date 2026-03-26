@@ -1,4 +1,6 @@
 using MediatR;
+using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Commands.ApplyOptimizedPrice;
 
@@ -17,9 +19,37 @@ public record ApplyOptimizedPriceCommand : IRequest
 
 public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedPriceCommand>
 {
-    public Task Handle(ApplyOptimizedPriceCommand request, CancellationToken cancellationToken)
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<ApplyOptimizedPriceHandler> _logger;
+
+    public ApplyOptimizedPriceHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, ILogger<ApplyOptimizedPriceHandler> logger)
     {
-        // Minimal handler — domain logic lives in consumer, to be migrated in future sprints
-        return Task.CompletedTask;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
+    }
+
+    public async Task Handle(ApplyOptimizedPriceCommand request, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        if (product is null)
+        {
+            _logger.LogWarning("ApplyOptimizedPrice: Product {ProductId} not found", request.ProductId);
+            return;
+        }
+
+        // Guard: only apply if confidence > 60% and price within bounds
+        if (request.Confidence < 0.6)
+        {
+            _logger.LogInformation("ApplyOptimizedPrice: Skipped {SKU} — confidence {Confidence:P0} too low", request.SKU, request.Confidence);
+            return;
+        }
+
+        var clampedPrice = Math.Clamp(request.RecommendedPrice, request.MinPrice, request.MaxPrice);
+        product.SalePrice = clampedPrice;
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        _logger.LogInformation("ApplyOptimizedPrice: {SKU} price → {Price:C} (confidence={Confidence:P0})", request.SKU, clampedPrice, request.Confidence);
     }
 }
