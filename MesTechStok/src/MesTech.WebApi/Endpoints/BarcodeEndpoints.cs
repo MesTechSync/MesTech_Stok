@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.CreateBarcodeScanLog;
 using MesTech.Application.Queries.GetBarcodeScanLogs;

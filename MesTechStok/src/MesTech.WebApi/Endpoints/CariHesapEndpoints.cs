@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.CreateCariHareket;
 using MesTech.Application.Commands.CreateCariHesap;
@@ -47,7 +48,7 @@ public static class CariHesapEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCariHesap")
         .WithSummary("Yeni cari hesap olustur");

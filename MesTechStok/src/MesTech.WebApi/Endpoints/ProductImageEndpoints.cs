@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.UpdateProductImage;
 using MesTech.Infrastructure.Storage;

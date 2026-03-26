@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Crm.Commands.CreateCampaign;
 using MesTech.Application.Features.Crm.Commands.DeactivateCampaign;

@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Calendar.Commands.CreateCalendarEvent;
 using MesTech.Application.Features.Calendar.Commands.DeleteCalendarEvent;
@@ -44,7 +45,7 @@ public static class CalendarEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/calendar/events/{id}", new { id });
+            return Results.Created($"/api/v1/calendar/events/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCalendarEvent")
         .WithSummary("Yeni takvim etkinligi olustur");

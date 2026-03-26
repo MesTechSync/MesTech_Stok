@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;

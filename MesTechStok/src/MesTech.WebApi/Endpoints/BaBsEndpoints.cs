@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateBaBsRecord;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
@@ -31,7 +32,7 @@ public static class BaBsEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/babs-records/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/babs-records/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateBaBsRecord")
         .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)");

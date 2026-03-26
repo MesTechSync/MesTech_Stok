@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
@@ -64,7 +65,7 @@ public static class SupplierFeedsEndpoints
         group.MapPost("/", async (CreateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/supplier-feeds/{id}", new { id });
+            return Results.Created($"/api/v1/supplier-feeds/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateSupplierFeed")
         .WithSummary("Yeni tedarikçi feed kaynağı oluştur");

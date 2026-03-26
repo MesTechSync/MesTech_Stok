@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.WebApi.Endpoints;
