@@ -42,6 +42,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
 
         _jsonOptions = new JsonSerializerOptions
         {
