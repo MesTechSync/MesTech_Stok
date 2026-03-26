@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -44,7 +45,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
         TransferStatus = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetStockTransfersQuery(Guid.Empty));
 
             Warehouses.Clear();
             Warehouses.Add("Ana Depo");
@@ -52,9 +53,18 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
             Warehouses.Add("Iade Depo");
 
             TransferHistory.Clear();
-            TransferHistory.Add(new TransferHistoryDto { Sku = "SKU-1001", ProductName = "Samsung Galaxy S24", Source = "Ana Depo", Target = "Yedek Depo", Quantity = 10, Date = DateTime.Now.AddDays(-2) });
-            TransferHistory.Add(new TransferHistoryDto { Sku = "SKU-1006", ProductName = "Anker PowerCore 20000", Source = "Ana Depo", Target = "Iade Depo", Quantity = 5, Date = DateTime.Now.AddDays(-1) });
-            TransferHistory.Add(new TransferHistoryDto { Sku = "SKU-1003", ProductName = "Sony WH-1000XM5 Kulaklik", Source = "Yedek Depo", Target = "Ana Depo", Quantity = 20, Date = DateTime.Now });
+            foreach (var item in result)
+            {
+                TransferHistory.Add(new TransferHistoryDto
+                {
+                    Sku = item.SKU,
+                    ProductName = item.ProductName,
+                    Source = item.MovementType,
+                    Target = item.Reference ?? string.Empty,
+                    Quantity = item.Quantity,
+                    Date = item.MovementDate
+                });
+            }
 
             IsEmpty = false;
         }
