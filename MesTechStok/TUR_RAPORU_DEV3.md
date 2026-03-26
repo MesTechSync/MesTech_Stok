@@ -996,4 +996,34 @@ gelecek dalga feature).
 | Settlement parsers | ✅ 8/8 | All with IMemoryCache + ParseAsync |
 | Orchestrator timeout | ✅ 30s | Aligned with adapter HttpClient.Timeout |
 
-### KÜMÜLATİF DEV 3 (29 tur, 76 commit)
+---
+
+## TUR 30-31 — 2026-03-26 (GOREV_HAVUZU Görev Tamamlama)
+
+### CERRAH AMELİYAT
+| # | Görev | İşlem | Commit |
+|---|-------|-------|--------|
+| 51 | G036 | WebhookRetryJob stub→full DLQ exponential backoff | e2752d0d |
+| 52 | G041 | **Iyzico+PayTR HMAC signature fix** (GÜVENLİK) | 089914ad |
+| 53 | G051 | EF Config: WebhookDeadLetter + KvkkAuditLog | ffb4370b |
+| 54 | WPF017 | /api/v1/admin/system/adapter-health endpoint + DI | 62b1499e |
+| 55 | G030 | **15 repo FindAsync→FirstOrDefaultAsync tenant isolation** | 5c413467 |
+
+### GOREV_HAVUZU DEV 3 — 6/6 KAPANDI
+| Görev | Öncelik | Durum |
+|-------|---------|-------|
+| G018 | P2 | KAPANDI ✅ |
+| G030 | P2 | KAPANDI ✅ (15 repo tenant fix) |
+| G036 | P1 | KAPANDI ✅ (DLQ retry impl) |
+| G041 | P1 | KAPANDI ✅ (Iyzico HMAC) |
+| G051 | P1 | KAPANDI ✅ (EF Config) |
+| WPF017 | P1 | KAPANDI ✅ (Health endpoint) |
+
+=== CHECKPOINT 2026-03-26 ===
+Son commit: 5c413467
+Açık görev: 0 (DEV 3 scope)
+Build: 0 error
+Toplam: 31 tur, 83+ commit
+===========================
+
+### KÜMÜLATİF DEV 3 (31 tur, 83+ commit)
