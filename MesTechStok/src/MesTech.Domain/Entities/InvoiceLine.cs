@@ -27,6 +27,8 @@ public sealed class InvoiceLine : BaseEntity, ITenantEntity
             throw new ArgumentException("Miktar pozitif olmalı.", nameof(quantity));
         if (unitPrice < 0)
             throw new ArgumentException("Birim fiyat negatif olamaz.", nameof(unitPrice));
+        if (TaxRate < 0 || TaxRate > 1)
+            throw new InvalidOperationException($"Vergi oranı 0 ile 1 arasında olmalı. Mevcut: {TaxRate}");
 
         Quantity = quantity;
         UnitPrice = unitPrice;
@@ -35,8 +37,12 @@ public sealed class InvoiceLine : BaseEntity, ITenantEntity
 
     public void CalculateLineTotal()
     {
-        var subtotal = UnitPrice * Quantity - (DiscountAmount ?? 0);
-        TaxAmount = subtotal * TaxRate;
-        LineTotal = subtotal + TaxAmount;
+        var discount = DiscountAmount ?? 0;
+        if (discount < 0)
+            throw new InvalidOperationException($"İndirim tutarı negatif olamaz. Mevcut: {discount}");
+
+        var subtotal = UnitPrice * Quantity - discount;
+        TaxAmount = Math.Round(subtotal * TaxRate, 2);
+        LineTotal = Math.Round(subtotal + TaxAmount, 2);
     }
 }

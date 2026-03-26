@@ -28,6 +28,8 @@ public sealed class OrderItem : BaseEntity, ITenantEntity
             throw new ArgumentException("Miktar pozitif olmalı.", nameof(quantity));
         if (unitPrice < 0)
             throw new ArgumentException("Birim fiyat negatif olamaz.", nameof(unitPrice));
+        if (TaxRate < 0 || TaxRate > 1)
+            throw new InvalidOperationException($"Vergi oranı 0 ile 1 arasında olmalı. Mevcut: {TaxRate}");
 
         Quantity = quantity;
         UnitPrice = unitPrice;
@@ -36,8 +38,8 @@ public sealed class OrderItem : BaseEntity, ITenantEntity
 
     public void CalculateAmounts()
     {
-        TotalPrice = Quantity * UnitPrice;
-        TaxAmount = TotalPrice * TaxRate;
+        TotalPrice = Math.Round(Quantity * UnitPrice, 2);
+        TaxAmount = Math.Round(TotalPrice * TaxRate, 2);
     }
 
     public override string ToString() => $"{ProductName} x{Quantity} = {TotalPrice:C}";
