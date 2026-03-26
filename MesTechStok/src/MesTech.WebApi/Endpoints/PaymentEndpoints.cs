@@ -24,7 +24,8 @@ public static class PaymentEndpoints
                 : Results.UnprocessableEntity(new { result.ErrorMessage });
         })
         .WithName("InitiatePayment")
-        .WithSummary("Yeni ödeme işlemi başlat (PayTR)");
+        .WithSummary("Yeni ödeme işlemi başlat (PayTR)")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/payments/{transactionId} — işlem durumu sorgula
         group.MapGet("/{transactionId}", async (
@@ -52,7 +53,8 @@ public static class PaymentEndpoints
                 : Results.UnprocessableEntity(new { result.ErrorMessage });
         })
         .WithName("RefundPayment")
-        .WithSummary("Ödeme iadesi başlat");
+        .WithSummary("Ödeme iadesi başlat")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/payments/installments — taksit seçenekleri sorgula
         group.MapGet("/installments", async (

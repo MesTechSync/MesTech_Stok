@@ -44,7 +44,8 @@ public static class OrderEndpoints
         .WithName("PlaceOrder")
         .WithSummary("Yeni sipariş oluştur")
         .Produces(201)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/orders/{id}/push-bitrix24 — siparişi Bitrix24 CRM'e gönder
         group.MapPost("/{id:guid}/push-bitrix24", async (

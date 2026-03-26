@@ -64,6 +64,7 @@ public static class ProductEndpoints
         .WithName("CreateProduct")
         .WithSummary("Yeni ürün oluştur")
         .AddEndpointFilter<ProductPlanLimitFilter>()
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces(201)
         .Produces(400)
         .Produces(403)

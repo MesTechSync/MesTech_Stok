@@ -39,7 +39,8 @@ public static class EInvoiceEndpoints
             return Results.Created($"/api/v1/e-invoices/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateEInvoice")
-        .WithSummary("Yeni e-fatura oluştur (UBL-TR 1.2)");
+        .WithSummary("Yeni e-fatura oluştur (UBL-TR 1.2)")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/e-invoices/{id} — e-fatura detayı
         group.MapGet("/{id:guid}", async (
@@ -68,7 +69,8 @@ public static class EInvoiceEndpoints
                 : Results.BadRequest(new { EInvoiceId = id, Message = "E-Fatura gönderilemedi" });
         })
         .WithName("SendEInvoice")
-        .WithSummary("E-faturayı GİB'e gönder");
+        .WithSummary("E-faturayı GİB'e gönder")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/e-invoices/{id}/cancel — e-fatura iptal
         group.MapPost("/{id:guid}/cancel", async (

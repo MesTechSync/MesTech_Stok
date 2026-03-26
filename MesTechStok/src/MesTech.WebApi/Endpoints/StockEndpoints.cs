@@ -53,7 +53,8 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AddStock")
-        .WithSummary("Ürüne stok girişi");
+        .WithSummary("Ürüne stok girişi")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/remove — remove stock from a product
         group.MapPost("/remove", async (RemoveStockCommand command, ISender mediator, CancellationToken ct) =>
