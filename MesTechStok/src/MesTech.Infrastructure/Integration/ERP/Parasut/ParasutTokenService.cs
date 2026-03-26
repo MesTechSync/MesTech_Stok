@@ -35,6 +35,7 @@ public sealed class ParasutTokenService
         IOptions<ParasutOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(15);
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new ParasutOptions();
