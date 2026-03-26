@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Crm.Commands.ReplyToMessage;
 using MesTech.Application.Features.Crm.Queries.GetPlatformMessages;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -33,7 +34,8 @@ public static class CrmMessagesEndpoint
             return Results.Ok(result);
         })
         .WithName("GetPlatformMessages")
-        .WithSummary("Platform mesaj kutusu — Trendyol, HB, N11 vb. (EMR-09)");
+        .WithSummary("Platform mesaj kutusu — Trendyol, HB, N11 vb. (EMR-09)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/messages/{id}/reply — reply to a platform message
         group.MapPost("/messages/{id:guid}/reply", async (

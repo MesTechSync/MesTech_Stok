@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Queries.GetSyncStatus;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -20,6 +21,7 @@ public static class SyncStatusEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSyncStatus")
-        .WithSummary("Platform senkronizasyon durumu");
+        .WithSummary("Platform senkronizasyon durumu")
+        .CacheOutput("Dashboard30s");
     }
 }

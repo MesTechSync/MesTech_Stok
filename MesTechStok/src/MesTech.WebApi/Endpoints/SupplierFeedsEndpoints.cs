@@ -2,6 +2,7 @@ using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,7 +27,8 @@ public static class SupplierFeedsEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSupplierFeeds")
-        .WithSummary("Tedarikçi feed kaynakları listesi");
+        .WithSummary("Tedarikçi feed kaynakları listesi")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/stats — dashboard istatistikleri
         group.MapGet("/stats", async (ISender mediator, CancellationToken ct) =>
@@ -35,7 +37,8 @@ public static class SupplierFeedsEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSupplierFeedStats")
-        .WithSummary("Havuz istatistikleri (toplam, renk dağılımı, son sync)");
+        .WithSummary("Havuz istatistikleri (toplam, renk dağılımı, son sync)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/supplier-feeds/{id} — tek feed kaynağı
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -44,7 +47,8 @@ public static class SupplierFeedsEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetSupplierFeedById")
-        .WithSummary("Tedarikçi feed kaynağını ID ile getir");
+        .WithSummary("Tedarikçi feed kaynağını ID ile getir")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/{id}/logs — import geçmişi
         group.MapGet("/{id:guid}/logs", async (
@@ -59,7 +63,8 @@ public static class SupplierFeedsEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFeedImportLogs")
-        .WithSummary("Feed import geçmişi ve log kayıtları");
+        .WithSummary("Feed import geçmişi ve log kayıtları")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/supplier-feeds — yeni feed kaynağı oluştur
         group.MapPost("/", async (CreateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>

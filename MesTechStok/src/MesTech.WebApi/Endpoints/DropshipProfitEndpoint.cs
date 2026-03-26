@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProfitability;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -21,6 +22,7 @@ public static class DropshipProfitEndpoint
             return Results.Ok(result);
         })
         .WithName("GetDropshipProfitability")
-        .WithSummary("Dropship kârlılık raporu");
+        .WithSummary("Dropship kârlılık raporu")
+        .CacheOutput("Report120s");
     }
 }

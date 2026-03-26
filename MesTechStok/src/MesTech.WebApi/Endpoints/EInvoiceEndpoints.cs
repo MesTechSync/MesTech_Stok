@@ -3,6 +3,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,7 +27,8 @@ public static class EInvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetEInvoices")
-        .WithSummary("E-fatura listesi (tarih, durum, sağlayıcı filtresi)");
+        .WithSummary("E-fatura listesi (tarih, durum, sağlayıcı filtresi)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/e-invoices — yeni e-fatura oluştur
         group.MapPost("/", async (
@@ -51,7 +53,8 @@ public static class EInvoiceEndpoints
                 : Results.NotFound(new { Message = $"E-Fatura {id} bulunamadı" });
         })
         .WithName("GetEInvoiceById")
-        .WithSummary("E-fatura detayı");
+        .WithSummary("E-fatura detayı")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/e-invoices/{id}/send — e-fatura gönder
         group.MapPost("/{id:guid}/send", async (
@@ -91,6 +94,7 @@ public static class EInvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("CheckVknMukellef")
-        .WithSummary("VKN ile e-fatura mükellefi sorgula");
+        .WithSummary("VKN ile e-fatura mükellefi sorgula")
+        .CacheOutput("Lookup60s");
     }
 }

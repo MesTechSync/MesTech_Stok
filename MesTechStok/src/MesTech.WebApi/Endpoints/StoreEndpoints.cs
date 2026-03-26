@@ -3,6 +3,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Queries.GetStoresByTenant;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -29,7 +30,8 @@ public static class StoreEndpoints
             return Results.Ok(result);
         })
         .WithName("GetStores")
-        .WithSummary("Kiracıya ait mağaza listesi");
+        .WithSummary("Kiracıya ait mağaza listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/admin/stores — yeni mağaza oluştur
         group.MapPost("/", async (

@@ -10,6 +10,7 @@ using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProducts;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 using MesTech.Application.Features.Dropshipping.Queries.GetSupplierPerformance;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -31,7 +32,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetDropshipSuppliers")
-        .WithSummary("Dropship tedarikçi listesi");
+        .WithSummary("Dropship tedarikçi listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/suppliers — yeni tedarikçi oluştur
         group.MapPost("/", async (
@@ -71,7 +73,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetDropshipProducts")
-        .WithSummary("Dropship ürün listesi (linked/unlinked filtresi)");
+        .WithSummary("Dropship ürün listesi (linked/unlinked filtresi)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/products/{id}/link — ürün eşleştir
         productsGroup.MapPost("/{id:guid}/link", async (
@@ -100,7 +103,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetDropshipOrders")
-        .WithSummary("Dropship sipariş listesi");
+        .WithSummary("Dropship sipariş listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/orders — yeni dropship siparişi oluştur
         ordersGroup.MapPost("/", async (
@@ -128,7 +132,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSupplierPerformance")
-        .WithSummary("Tedarikçi performans raporu (fulfillment, hız, rating)");
+        .WithSummary("Tedarikçi performans raporu (fulfillment, hız, rating)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/dropshipping/auto-order — düşük stoklu ürünler için otomatik sipariş
         lifecycleGroup.MapPost("/auto-order", async (

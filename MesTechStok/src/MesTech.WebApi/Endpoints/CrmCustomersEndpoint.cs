@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetCustomersCrm;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -31,6 +32,7 @@ public static class CrmCustomersEndpoint
             return Results.Ok(result);
         })
         .WithName("GetCrmCustomers")
-        .WithSummary("CRM müşteri listesi — arama ve segment filtresi (EMR-09)");
+        .WithSummary("CRM müşteri listesi — arama ve segment filtresi (EMR-09)")
+        .CacheOutput("Lookup60s");
     }
 }

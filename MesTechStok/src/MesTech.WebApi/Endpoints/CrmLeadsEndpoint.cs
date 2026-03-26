@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -33,7 +34,8 @@ public static class CrmLeadsEndpoint
             return Results.Ok(result);
         })
         .WithName("SearchLeads")
-        .WithSummary("Lead arama — durum, atanan kişi filtresi (EMR-09)");
+        .WithSummary("Lead arama — durum, atanan kişi filtresi (EMR-09)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/leads-new — create a new lead with full details
         group.MapPost("/leads-new", async (

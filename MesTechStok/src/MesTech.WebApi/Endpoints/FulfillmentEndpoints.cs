@@ -5,6 +5,7 @@ using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentInventory;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentDashboard;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentOrders;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -52,7 +53,8 @@ public static class FulfillmentEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentOrders")
-        .WithSummary("Fulfillment sipariş listesi");
+        .WithSummary("Fulfillment sipariş listesi")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/fulfillment/dashboard — fulfillment dashboard özeti
         group.MapGet("/dashboard", async (
@@ -63,7 +65,8 @@ public static class FulfillmentEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentDashboard")
-        .WithSummary("Fulfillment dashboard — envanter, sevkiyat, bekleyen özeti");
+        .WithSummary("Fulfillment dashboard — envanter, sevkiyat, bekleyen özeti")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/fulfillment/shipments — sevkiyat listesi
         group.MapGet("/shipments", async (
@@ -75,6 +78,7 @@ public static class FulfillmentEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentShipments")
-        .WithSummary("Fulfillment sevkiyat listesi (merkez + durum filtresi)");
+        .WithSummary("Fulfillment sevkiyat listesi (merkez + durum filtresi)")
+        .CacheOutput("Lookup60s");
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
@@ -26,7 +27,8 @@ public static class ProductEndpoints
         })
         .WithName("GetProductStatus")
         .WithSummary("Ürün DB bağlantı durumu ve sayılar")
-        .Produces(200);
+        .Produces(200)
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/low-stock — products below minimum stock
         group.MapGet("/low-stock", async (ISender mediator, CancellationToken ct) =>
@@ -36,7 +38,8 @@ public static class ProductEndpoints
         })
         .WithName("GetLowStockProducts")
         .WithSummary("Minimum stok altı ürünler")
-        .Produces(200);
+        .Produces(200)
+        .CacheOutput("Report120s");
 
         // GET /api/v1/products/{id} — get single product by ID
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -47,7 +50,8 @@ public static class ProductEndpoints
         .WithName("GetProductById")
         .WithSummary("Tekil ürün detayı")
         .Produces(200)
-        .Produces(404);
+        .Produces(404)
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -129,7 +133,8 @@ public static class ProductEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBuyboxPositions")
-        .WithSummary("Tüm ürünlerin buybox pozisyon listesi");
+        .WithSummary("Tüm ürünlerin buybox pozisyon listesi")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/products/buybox/lost — kaybedilen buybox'lar
         group.MapGet("/lost", async (
@@ -140,7 +145,8 @@ public static class ProductEndpoints
             return Results.Ok(result);
         })
         .WithName("GetLostBuyboxes")
-        .WithSummary("Buybox kaybedilen ürün listesi");
+        .WithSummary("Buybox kaybedilen ürün listesi")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/products/buybox/analyze/{sku} — tekil ürün rakip analizi
         group.MapGet("/analyze/{sku}", async (
@@ -151,6 +157,7 @@ public static class ProductEndpoints
             return Results.Ok(result);
         })
         .WithName("AnalyzeBuyboxCompetitors")
-        .WithSummary("Tekil ürün rakip fiyat analizi ve önerilen fiyat");
+        .WithSummary("Tekil ürün rakip fiyat analizi ve önerilen fiyat")
+        .CacheOutput("Report120s");
     }
 }

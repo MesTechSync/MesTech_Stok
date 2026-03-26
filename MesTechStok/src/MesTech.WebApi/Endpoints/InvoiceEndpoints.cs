@@ -4,6 +4,7 @@ using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Application.Features.Invoice.Queries;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -55,7 +56,8 @@ public static class InvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInvoices")
-        .WithSummary("Fatura listesi (tip, durum, platform, tarih filtresi)");
+        .WithSummary("Fatura listesi (tip, durum, platform, tarih filtresi)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/invoices/{id}/approve — fatura onayla
         group.MapPost("/{id:guid}/approve", async (
@@ -89,7 +91,8 @@ public static class InvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInvoiceProviders")
-        .WithSummary("Fatura sağlayıcı listesi ve durumları");
+        .WithSummary("Fatura sağlayıcı listesi ve durumları")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/invoices/report — fatura raporu
         group.MapGet("/report", async (
@@ -101,6 +104,7 @@ public static class InvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInvoiceReport")
-        .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)");
+        .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)")
+        .CacheOutput("Report120s");
     }
 }

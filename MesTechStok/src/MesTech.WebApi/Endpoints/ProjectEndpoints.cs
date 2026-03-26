@@ -5,6 +5,7 @@ using MesTech.Application.Features.Tasks.Commands.CompleteTask;
 using MesTech.Application.Features.Tasks.Commands.CreateWorkTask;
 using MesTech.Application.Features.Tasks.Queries.GetProjectTasks;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -26,7 +27,8 @@ public static class ProjectEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProjects")
-        .WithSummary("Proje listesi (tenant bazlı)");
+        .WithSummary("Proje listesi (tenant bazlı)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/projects — yeni proje oluştur
         group.MapPost("/", async (
@@ -49,7 +51,8 @@ public static class ProjectEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProjectTasks")
-        .WithSummary("Projeye ait görev listesi (durum + atanan filtresi)");
+        .WithSummary("Projeye ait görev listesi (durum + atanan filtresi)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/projects/tasks — yeni görev oluştur
         group.MapPost("/tasks", async (

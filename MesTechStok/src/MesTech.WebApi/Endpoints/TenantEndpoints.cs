@@ -4,6 +4,7 @@ using MesTech.Application.Features.Tenant.Commands.CreateTenant;
 using MesTech.Application.Features.Tenant.Commands.UpdateTenant;
 using MesTech.Application.Features.Tenant.Queries.GetTenant;
 using MesTech.Application.Features.Tenant.Queries.GetTenants;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -28,7 +29,8 @@ public static class TenantEndpoints
             return Results.Ok(result);
         })
         .WithName("GetTenants")
-        .WithSummary("Kiracı listesi — admin only");
+        .WithSummary("Kiracı listesi — admin only")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/admin/tenants — yeni kiracı oluştur
         group.MapPost("/", async (
@@ -53,7 +55,8 @@ public static class TenantEndpoints
                 : Results.NotFound(new { error = $"Tenant {id} not found" });
         })
         .WithName("GetTenantById")
-        .WithSummary("Kiracı detayı — admin only");
+        .WithSummary("Kiracı detayı — admin only")
+        .CacheOutput("Lookup60s");
 
         // PUT /api/v1/admin/tenants/{id} — kiracı güncelle
         group.MapPut("/{id:guid}", async (

@@ -5,6 +5,7 @@ using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -31,7 +32,8 @@ public static class ErpEndpoints
             return Results.Ok(ApiResponse<object>.Ok(new { providers, count = providers.Count }));
         })
         .WithName("GetErpProviders")
-        .WithSummary("Kayıtlı ERP sağlayıcı listesi");
+        .WithSummary("Kayıtlı ERP sağlayıcı listesi")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/erp/status — ping all registered ERP adapters
         group.MapGet("/status", async (IErpAdapterFactory factory, ILoggerFactory loggerFactory, CancellationToken ct) =>
@@ -68,7 +70,8 @@ public static class ErpEndpoints
             return Results.Ok(ApiResponse<object>.Ok(new { statuses, timestamp = DateTime.UtcNow }));
         })
         .WithName("GetErpStatus")
-        .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu");
+        .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu")
+        .CacheOutput("Dashboard30s");
 
         // POST /api/v1/erp/test-connection — test connection to a specific ERP provider
         group.MapPost("/test-connection", async (
@@ -231,7 +234,8 @@ public static class ErpEndpoints
             return Results.Ok(result);
         })
         .WithName("GetErpSyncHistory")
-        .WithSummary("ERP senkronizasyon geçmişi");
+        .WithSummary("ERP senkronizasyon geçmişi")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/erp/dashboard — ERP dashboard özeti
         group.MapGet("/dashboard", async (
@@ -242,7 +246,8 @@ public static class ErpEndpoints
             return Results.Ok(result);
         })
         .WithName("GetErpDashboard")
-        .WithSummary("ERP dashboard — bağlantı durumu, son sync, özet");
+        .WithSummary("ERP dashboard — bağlantı durumu, son sync, özet")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/erp/sync/logs — ERP sync log listesi
         group.MapGet("/sync/logs", async (
@@ -254,7 +259,8 @@ public static class ErpEndpoints
             return Results.Ok(result);
         })
         .WithName("GetErpSyncLogs")
-        .WithSummary("ERP senkronizasyon log listesi");
+        .WithSummary("ERP senkronizasyon log listesi")
+        .CacheOutput("Report120s");
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────

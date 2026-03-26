@@ -11,6 +11,7 @@ using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -36,7 +37,8 @@ public static class CrmEndpoints
             return Results.Ok(result);
         })
         .WithName("GetLeads")
-        .WithSummary("Potansiyel müşteri listesi");
+        .WithSummary("Potansiyel müşteri listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/leads
         group.MapPost("/leads", async (
@@ -119,7 +121,8 @@ public static class CrmEndpoints
             return Results.Ok(result);
         })
         .WithName("GetDeals")
-        .WithSummary("Fırsat listesi (pipeline + durum + atanan filtresi)");
+        .WithSummary("Fırsat listesi (pipeline + durum + atanan filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/pipelines/{pipelineId}/kanban — kanban görünümü
         group.MapGet("/pipelines/{pipelineId:guid}/kanban", async (
@@ -131,7 +134,8 @@ public static class CrmEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPipelineKanban")
-        .WithSummary("Pipeline kanban board görünümü");
+        .WithSummary("Pipeline kanban board görünümü")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/crm/suppliers — tedarikçi listesi
         group.MapGet("/suppliers", async (
@@ -144,7 +148,8 @@ public static class CrmEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSuppliersCrm")
-        .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)");
+        .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/bitrix24/sync-contacts — Bitrix24 contact senkronizasyonu
         group.MapPost("/bitrix24/sync-contacts", async (

@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.Features.Hr.Commands.ApproveLeave;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -22,7 +23,8 @@ public static class HrEndpoints
             return Results.Ok(result);
         })
         .WithName("GetEmployees")
-        .WithSummary("Çalışan listesi");
+        .WithSummary("Çalışan listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/hr/leaves/{leaveId}/approve — approve leave request
         group.MapPost("/leaves/{leaveId:guid}/approve", async (
