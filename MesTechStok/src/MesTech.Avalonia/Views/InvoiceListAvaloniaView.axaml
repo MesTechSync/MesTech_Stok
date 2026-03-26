@@ -23,10 +23,16 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yeni Fatura"
-                        ToolTip.Tip="Yeni Fatura"
-                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Yeni Fatura" ToolTip.Tip="Yeni fatura olustur"
+                            Command="{Binding CreateInvoiceCommand}"
+                            Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+                    <Button Content="Iptal Et" ToolTip.Tip="Secili faturayi iptal et"
+                            Command="{Binding CancelInvoiceCommand}"
+                            Background="{DynamicResource StatusDangerBrush}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -54,6 +60,7 @@
         <!-- Row 2: DataGrid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Invoices}"
+                  SelectedItem="{Binding SelectedInvoice}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"

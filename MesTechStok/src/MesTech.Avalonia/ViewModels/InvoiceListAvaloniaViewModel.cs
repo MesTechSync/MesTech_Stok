@@ -1,6 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.EInvoice.Commands;
+using MesTech.Application.Features.EInvoice.Queries;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -10,7 +14,17 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly IDialogService _dialog;
+
     [ObservableProperty] private string searchText = string.Empty;
+    [ObservableProperty] private InvoiceListItemDto? selectedInvoice;
+
+    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    {
+        _mediator = mediator;
+        _dialog = dialog;
+    }
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private string selectedPlatform = "Tumu";
@@ -46,17 +60,28 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300);
+            var result = await _mediator.Send(new GetEInvoicesQuery(
+                From: DateTime.UtcNow.AddMonths(-3),
+                To: DateTime.UtcNow,
+                Status: null,
+                ProviderId: null,
+                Page: CurrentPage,
+                PageSize: PageSize));
 
-            _allInvoices =
-            [
-                new() { InvoiceNumber = "MES2026000001", RecipientName = "Yilmaz Elektronik Ltd. Sti.", Type = "e-Fatura", Status = "Onayli", Amount = 24850.00m, Platform = "Trendyol", Date = new DateTime(2026, 3, 17) },
-                new() { InvoiceNumber = "MES2026000002", RecipientName = "Demir Bilisim A.S.", Type = "e-Fatura", Status = "Gonderildi", Amount = 18320.50m, Platform = "Hepsiburada", Date = new DateTime(2026, 3, 16) },
-                new() { InvoiceNumber = "MES2026000003", RecipientName = "Kaya Ticaret ve Sanayi", Type = "e-Arsiv", Status = "Onayli", Amount = 9750.00m, Platform = "N11", Date = new DateTime(2026, 3, 15) },
-                new() { InvoiceNumber = "MES2026000004", RecipientName = "Arslan Mobilya", Type = "e-Fatura", Status = "Reddedildi", Amount = 35400.75m, Platform = "Trendyol", Date = new DateTime(2026, 3, 14) },
-                new() { InvoiceNumber = "MES2026000005", RecipientName = "Celik Otomotiv San.", Type = "e-Ihracat", Status = "Taslak", Amount = 67200.00m, Platform = "Amazon", Date = new DateTime(2026, 3, 13) },
-            ];
+            _allInvoices = result.Items.Select(inv => new InvoiceListItemDto
+            {
+                Id = inv.Id,
+                InvoiceNumber = inv.EttnNo,
+                RecipientName = inv.BuyerTitle,
+                Type = inv.Scenario.ToString().Replace("EFATURA", "e-Fatura").Replace("EARSIVFATURA", "e-Arsiv").Replace("EIHRACAT", "e-Ihracat"),
+                Status = inv.Status.ToString(),
+                Amount = inv.PayableAmount,
+                Platform = inv.ProviderId,
+                Date = inv.IssueDate
+            }).ToList();
 
+            TotalCount = result.TotalCount;
+            TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
             ApplyFilters();
         }
         catch (Exception ex)
@@ -125,6 +150,33 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task CreateInvoice()
+    {
+        // G013: Fatura oluşturma — InvoiceCreateAvaloniaView'a yönlendir
+        await _dialog.ShowInfoAsync("Fatura olusturma ekranina yonlendiriliyorsunuz...", "Yeni Fatura");
+    }
+
+    [RelayCommand]
+    private async Task CancelInvoice()
+    {
+        if (SelectedInvoice == null)
+        {
+            await _dialog.ShowInfoAsync("Lutfen iptal edilecek faturayı secin.", "Fatura Iptal");
+            return;
+        }
+
+        if (SelectedInvoice.Status == "Taslak" || SelectedInvoice.Status == "Draft")
+        {
+            await _mediator.Send(new CancelEInvoiceCommand(SelectedInvoice.Id, "Kullanici tarafindan iptal edildi"));
+            await LoadAsync();
+        }
+        else
+        {
+            await _dialog.ShowInfoAsync("Sadece Taslak durumundaki faturalar iptal edilebilir.", "Fatura Iptal");
+        }
+    }
+
     partial void OnSearchTextChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
     partial void OnSelectedTypeChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
     partial void OnSelectedStatusChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
@@ -133,6 +185,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 
 public class InvoiceListItemDto
 {
+    public Guid Id { get; set; }
     public string InvoiceNumber { get; set; } = string.Empty;
     public string RecipientName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
