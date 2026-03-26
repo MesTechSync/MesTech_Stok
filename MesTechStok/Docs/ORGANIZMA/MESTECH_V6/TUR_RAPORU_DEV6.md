@@ -568,3 +568,34 @@ Borç 0, tüm GOREV kapatıldı. Production readiness keşfi başladı.
 | Yeni typed DTO | **4** (ApiResponse, Created, Paged, Status) |
 | Tracing enrichment | **3** (TraceId, SpanId, CorrelationId) |
 | Cross-DEV görev | **22** (+G033 P2, +G034 P2, +G035 P3) |
+
+---
+
+## TUR: 14 (2026-03-26) — WEBHOOK DEAD LETTER QUEUE
+
+### Production'da para/sipariş kaybı önlendi
+| Önceki | Sonraki |
+|--------|---------|
+| Failed webhook → 422 + kayıp | Failed → DLQ'ya persist + exponential retry |
+| 0 admin visibility | DLQ list + manual resolve endpoint |
+| 0 retry mechanism | 5 attempt, backoff: 1m→5m→15m→60m→120m |
+
+### COMMIT
+- `a3ed4728` feat(webhooks): dead letter queue — persistence + retry + admin API
+
+### Yeni Yapı
+```
+WebhookDeadLetter entity (Status: Pending/Resolved/Failed/ManuallyResolved)
+IWebhookDeadLetterRepository + EF implementation
+WebhookEndpoints enhanced:
+  POST /api/webhooks/{platform} — failed → DLQ persist
+  GET /api/webhooks/dead-letters — admin list (paged)
+  POST /api/webhooks/dead-letters/{id}/resolve — manual resolve
+```
+
+### DEV 6 — 14 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **42** |
+| Yeni endpoint | **14** (+3 DLQ) |
+| Cross-DEV görev | **24** (+G036 retry job, +G037 DLQ test) |
