@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateStockForecast;
 
@@ -18,9 +19,21 @@ public record UpdateStockForecastCommand : IRequest
 
 public sealed class UpdateStockForecastHandler : IRequestHandler<UpdateStockForecastCommand>
 {
-    public Task Handle(UpdateStockForecastCommand request, CancellationToken cancellationToken)
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateStockForecastHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
     {
-        // Minimal handler — domain logic lives in consumer, to be migrated in future sprints
-        return Task.CompletedTask;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(UpdateStockForecastCommand request, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        if (product is null) return;
+
+        product.UpdateAiStockSnapshot(request.PredictedDemand7d, request.DaysUntilStockout);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
