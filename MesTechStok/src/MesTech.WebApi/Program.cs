@@ -521,7 +521,9 @@ FeedPreviewEndpoint.Map(app);
 ProductFetchEndpoint.Map(app);
 SystemHealthEndpoints.Map(app);
 EInvoiceEndpoints.Map(app);
-SandboxEndpoints.Map(app);
+// G049-DEV6: Sandbox endpoint'ler production'da KAPALI — test verisi sızma riski
+if (!app.Environment.IsProduction())
+    SandboxEndpoints.Map(app);
 DashboardWidgetEndpoints.Map(app);
 ReportEndpoints.Map(app);
 SavedReportEndpoints.Map(app);
