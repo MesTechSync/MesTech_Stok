@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetWarehouseSummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -29,27 +30,22 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Will be replaced with GetWarehouseSummaryQuery via MediatR
+            var result = await _mediator.Send(new GetWarehouseSummaryQuery(Guid.Empty));
 
             WarehouseCards.Clear();
-            WarehouseCards.Add(new WarehouseSummaryCardDto
+            foreach (var w in result)
             {
-                Name = "Ana Depo", Location = "Istanbul, Ikitelli",
-                ProductCount = 2450, Capacity = 3200,
-                OutOfStockCount = 3, CriticalCount = 8, NormalCount = 2439
-            });
-            WarehouseCards.Add(new WarehouseSummaryCardDto
-            {
-                Name = "Yedek Depo", Location = "Istanbul, Tuzla",
-                ProductCount = 850, Capacity = 2500,
-                OutOfStockCount = 0, CriticalCount = 1, NormalCount = 849
-            });
-            WarehouseCards.Add(new WarehouseSummaryCardDto
-            {
-                Name = "Iade Depo", Location = "Istanbul, Kartal",
-                ProductCount = 320, Capacity = 2500,
-                OutOfStockCount = 0, CriticalCount = 0, NormalCount = 320
-            });
+                WarehouseCards.Add(new WarehouseSummaryCardDto
+                {
+                    Name = w.Name,
+                    Location = w.Location ?? string.Empty,
+                    ProductCount = w.ProductCount,
+                    Capacity = (int)(w.MaxCapacity ?? 0),
+                    OutOfStockCount = w.OutOfStockCount,
+                    CriticalCount = w.CriticalStockCount,
+                    NormalCount = w.NormalStockCount
+                });
+            }
 
             TotalWarehouses = WarehouseCards.Count;
         }
