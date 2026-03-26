@@ -817,4 +817,31 @@ TUR 16'da eklenen in-adapter pipeline'lar dead code'du — doğru mimari Delegat
 | ORG038 | ACIK | Başka DEV uncommitted | DEP |
 | Infinite hang risk (adapters) | 14 | 0 | **-14** ✅ |
 
-### KÜMÜLATİF DEV 3 (21 tur, 56 commit)
+---
+
+## TUR 22 — 2026-03-26 (Kargo+FBA Timeout + Final 360° Sweep)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 46 | 6 kargo + AmazonFBA | HttpClient.Timeout (30s/60s) | deff5818 |
+
+### 360° FİNAL SWEEP
+| Metrik | Değer |
+|--------|-------|
+| NotImpl | 0 ✅ |
+| Empty catch | 3 (best-effort, intentional) ✅ |
+| TODO/FIXME | 0 ✅ |
+| new HttpClient() | 0 ✅ |
+| PII leak | 0 (7 false positive — masked) ✅ |
+| Timeout files | 29 ✅ |
+| async void | 0 ✅ |
+
+=== CHECKPOINT 2026-03-26 ===
+Son commit: deff5818
+ALL 30 HTTP adapters have explicit timeout.
+Kalan borç: 0 (DEV 3 scope).
+ORG kapatılan: G018, ORG023, ORG025, ORG037.
+===========================
+
+### KÜMÜLATİF DEV 3 FINAL (22 tur, 59 commit)
