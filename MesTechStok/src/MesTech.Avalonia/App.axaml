@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:MesTech.Avalonia.Converters"
              x:Class="MesTech.Avalonia.App"
              RequestedThemeVariant="Light">
     <Application.Resources>
@@ -9,6 +10,10 @@
                 <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDesignTokens.axaml"/>
                 <!-- MesTechComponentStyles is a Styles resource, included via Application.Styles -->
             </ResourceDictionary.MergedDictionaries>
+            <!-- G041: Converters for OnboardingWizard and conditional views -->
+            <converters:EqualConverter x:Key="EqualConverter" />
+            <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
+            <converters:BetweenConverter x:Key="BetweenConverter" />
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>

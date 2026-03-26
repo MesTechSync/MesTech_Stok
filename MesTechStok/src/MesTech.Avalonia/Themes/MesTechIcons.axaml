@@ -63,5 +63,9 @@
     <StreamGeometry x:Key="IconTrendDown">M7,10L12,15L17,10H7Z</StreamGeometry>
     <StreamGeometry x:Key="IconTrendFlat">M4,12H20</StreamGeometry>
 
+    <!-- G041: Missing icons used by MainWindow sidebar -->
+    <StreamGeometry x:Key="IconDocument">M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z</StreamGeometry>
+    <StreamGeometry x:Key="IconStar">M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z</StreamGeometry>
+
   </Styles.Resources>
 </Styles>

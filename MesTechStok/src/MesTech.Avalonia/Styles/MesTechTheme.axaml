@@ -253,6 +253,8 @@
   <x:Double x:Key="FontSizeDisplay">32</x:Double>
   <x:Double x:Key="FontSizeXL">36</x:Double>
   <x:Double x:Key="FontSizeHero">48</x:Double>
+  <!-- G041 aliases -->
+  <x:Double x:Key="FontSizeH4">16</x:Double>
 
   <!-- ============================================================ -->
   <!-- Dimensions                                                    -->
