@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -10,9 +11,18 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class CargoAvaloniaViewModel : ViewModelBase
 {
+    private readonly IDialogService _dialog;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedCompany = "Tumu";
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private CargoItemDto? selectedCargo;
+    [ObservableProperty] private bool isCreating;
+
+    public CargoAvaloniaViewModel(IDialogService dialog)
+    {
+        _dialog = dialog;
+    }
 
     public ObservableCollection<CargoItemDto> Cargos { get; } = [];
 
@@ -87,6 +97,36 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    [RelayCommand]
+    private async Task CreateShipment()
+    {
+        // G016: Kargo oluştur — MediatR CreateShipmentCommand kullanılacak
+        await _dialog.ShowInfoAsync("Kargo olusturma ekrani hazirlaniyor...", "Kargo Olustur");
+    }
+
+    [RelayCommand]
+    private async Task PrintLabel()
+    {
+        if (SelectedCargo == null)
+        {
+            await _dialog.ShowInfoAsync("Lutfen bir kargo secin.", "Etiket Yazdir");
+            return;
+        }
+        // G016: Etiket yazdır — label preview açılacak
+        await _dialog.ShowInfoAsync($"Etiket hazirlaniyor: {SelectedCargo.TrackingNo}", "Etiket Yazdir");
+    }
+
+    [RelayCommand]
+    private async Task TrackShipment()
+    {
+        if (SelectedCargo == null)
+        {
+            await _dialog.ShowInfoAsync("Lutfen bir kargo secin.", "Kargo Takip");
+            return;
+        }
+        await _dialog.ShowInfoAsync($"Kargo takip: {SelectedCargo.TrackingNo} — {SelectedCargo.Status}", "Kargo Takip");
+    }
 
     partial void OnSearchTextChanged(string value)
     {
