@@ -280,4 +280,6 @@ public class ProductItemDto
     public bool HasDiscount => SalePrice < Price;
     public string OriginalPriceDisplay => HasDiscount ? $"\u20BA{Price:N2}" : string.Empty;
     public string PlatformBadge => Platform;
+    // WPF014: Row background for stock level coloring
+    public string RowBackground => Stock == 0 ? "#FFEBEE" : Stock < MinimumStock ? "#FFF8E1" : "Transparent";
 }

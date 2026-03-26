@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:converters="using:MesTech.Avalonia.Converters"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
@@ -172,6 +173,15 @@
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
                   IsVisible="{Binding IsListView}">
+            <!-- WPF014: Row background by stock level (Red=out, Yellow=low, Transparent=ok) -->
+            <DataGrid.Styles>
+                <Style Selector="DataGridRow" x:DataType="vm:ProductItemDto">
+                    <Setter Property="Background"
+                            Value="{Binding RowBackground,
+                                Converter={StaticResource StockLevelToBrushConverter},
+                                FallbackValue=Transparent}" />
+                </Style>
+            </DataGrid.Styles>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
                 <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
