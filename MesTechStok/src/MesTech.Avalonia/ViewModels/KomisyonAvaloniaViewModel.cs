@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class KomisyonAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -32,9 +34,10 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Categories { get; } =
         ["Tumu", "Giyim", "Elektronik", "Ev & Yasam", "Kozmetik", "Gida", "Diger"];
 
-    public KomisyonAvaloniaViewModel(IMediator mediator)
+    public KomisyonAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -46,7 +49,7 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new GetCommissionSummaryQuery(
-                Guid.Empty, DateTime.UtcNow.AddMonths(-3), DateTime.UtcNow));
+                _currentUser.TenantId, DateTime.UtcNow.AddMonths(-3), DateTime.UtcNow));
 
             _allItems = result.ByPlatform.Select(p => new CommissionItemDto
             {

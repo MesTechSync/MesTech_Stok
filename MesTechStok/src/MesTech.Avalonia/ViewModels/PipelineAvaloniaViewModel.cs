@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class PipelineAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private int totalCount;
@@ -16,9 +18,10 @@ public partial class PipelineAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<PipelineStageVm> Stages { get; } = [];
 
-    public PipelineAvaloniaViewModel(IMediator mediator)
+    public PipelineAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -29,7 +32,7 @@ public partial class PipelineAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var board = await _mediator.Send(new GetPipelineKanbanQuery(Guid.Empty, Guid.Empty));
+            var board = await _mediator.Send(new GetPipelineKanbanQuery(_currentUser.TenantId, Guid.Empty));
 
             Stages.Clear();
             decimal grandTotal = board.Stages.SelectMany(s => s.Deals).Sum(d => d.Amount);

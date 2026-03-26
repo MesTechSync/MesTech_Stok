@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class OrderListAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -26,9 +28,10 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
     public string[] PlatformOptions { get; } = ["Tumu", "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama"];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Hazirlaniyor", "Kargoda", "Teslim Edildi", "Iptal", "Iade"];
 
-    public OrderListAvaloniaViewModel(IMediator mediator)
+    public OrderListAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -39,7 +42,7 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetOrderListQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId));
 
             _allOrders = result.Select(item => new OrderListItemDto
             {

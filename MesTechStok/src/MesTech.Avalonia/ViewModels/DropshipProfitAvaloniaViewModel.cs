@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProfitability;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +13,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -28,9 +30,10 @@ public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<DropshipProfitItemDto> Items { get; } = [];
 
-    public DropshipProfitAvaloniaViewModel(IMediator mediator)
+    public DropshipProfitAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -41,7 +44,7 @@ public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDropshipProfitabilityQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetDropshipProfitabilityQuery(_currentUser.TenantId));
 
             Items.Clear();
             foreach (var dto in result)

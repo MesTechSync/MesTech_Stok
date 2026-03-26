@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class HealthAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI metrics
@@ -23,9 +25,10 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ServiceStatusDto> ServiceStatuses { get; } = [];
 
-    public HealthAvaloniaViewModel(IMediator mediator)
+    public HealthAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -36,7 +39,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformHealthQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetPlatformHealthQuery(_currentUser.TenantId));
 
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 

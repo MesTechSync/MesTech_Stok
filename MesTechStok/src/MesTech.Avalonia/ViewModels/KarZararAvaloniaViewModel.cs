@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Queries.GetKarZarar;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class KarZararAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI
@@ -22,9 +24,10 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<KarZararLineItemDto> LineItems { get; } = [];
 
-    public KarZararAvaloniaViewModel(IMediator mediator)
+    public KarZararAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         UpdatePeriodLabel();
     }
 
@@ -46,7 +49,7 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
             var from = new DateTime(_currentPeriod.Year, _currentPeriod.Month, 1);
             var to = from.AddMonths(1).AddDays(-1);
 
-            var dto = await _mediator.Send(new GetKarZararQuery(from, to, Guid.Empty));
+            var dto = await _mediator.Send(new GetKarZararQuery(from, to, _currentUser.TenantId));
 
             var margin = dto.ToplamGelir > 0 ? dto.NetKar / dto.ToplamGelir * 100 : 0;
 
