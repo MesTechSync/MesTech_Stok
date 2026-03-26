@@ -16,6 +16,10 @@ namespace MesTechStok.Core.Data.Models
         [MaxLength(200)]
         public string CompanyName { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(50)]
+        public string Code { get; set; } = string.Empty;
+
         [MaxLength(50)]
         public string? TaxNumber { get; set; }
 

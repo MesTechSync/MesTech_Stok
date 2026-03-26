@@ -29,6 +29,25 @@ namespace MesTechStok.Core.Data.Models
         public string Direction { get; set; } = "Out";
 
         /// <summary>
+        /// CRUD operasyon tipi: Create, Update, Delete
+        /// </summary>
+        [Required]
+        [MaxLength(50)]
+        public string Operation { get; set; } = string.Empty;
+
+        /// <summary>
+        /// JSON içerik (idempotent tekrarlar için gerekli alanlarla birlikte)
+        /// </summary>
+        [Required]
+        public string DataJson { get; set; } = string.Empty;
+
+        [MaxLength(50)]
+        public string? TableName { get; set; }
+
+        [MaxLength(50)]
+        public string? RecordId { get; set; }
+
+        /// <summary>
         /// JSON içerik (idempotent tekrarlar için gerekli alanlarla birlikte)
         /// </summary>
         public string? Payload { get; set; }
@@ -43,6 +62,10 @@ namespace MesTechStok.Core.Data.Models
         public int RetryCount { get; set; } = 0;
 
         public DateTime? NextAttemptAt { get; set; }
+
+        public bool IsProcessed { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
