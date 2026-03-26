@@ -1,81 +1,96 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
-/// Basarisiz webhook'lari artan araliklarla tekrar dener.
-/// Retry araliklari: 1m, 5m, 30m (max 3 retry).
-/// Hangfire recurring job olarak calisir.
+/// WebhookDeadLetter retry job — DLQ'daki pending webhook'ları exponential backoff ile retry eder.
+/// Her 5 dakika çalışır. NextRetryAt &lt; now olan kayıtları çeker, IWebhookProcessor ile tekrar işler.
+/// Entity: WebhookDeadLetter (RecordRetry ile backoff hesaplar).
+/// Max 5 attempt — sonra Failed status'e geçer.
 /// </summary>
-[AutomaticRetry(Attempts = 3)]
+[AutomaticRetry(Attempts = 2)]
 public sealed class WebhookRetryJob : ISyncJob
 {
-    public string JobId => "webhook-retry";
-    public string CronExpression => "* * * * *"; // Her dakika kontrol
+    public string JobId => "webhook-dlq-retry";
+    public string CronExpression => "*/5 * * * *"; // Her 5 dakika
 
     private readonly IWebhookProcessor _processor;
+    private readonly IWebhookDeadLetterRepository _dlqRepo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<WebhookRetryJob> _logger;
-
-    /// <summary>
-    /// Retry araliklari (dakika). Her retry icin minimum bekleme suresi.
-    /// RetryCount 0 → 1 dakika sonra, 1 → 5 dakika sonra, 2 → 30 dakika sonra.
-    /// </summary>
-    private static readonly int[] RetryDelayMinutes = [1, 5, 30];
-    private const int MaxRetryCount = 3;
+    private const int BatchSize = 20;
 
     public WebhookRetryJob(
         IWebhookProcessor processor,
+        IWebhookDeadLetterRepository dlqRepo,
+        IUnitOfWork unitOfWork,
         ILogger<WebhookRetryJob> logger)
     {
         _processor = processor;
+        _dlqRepo = dlqRepo;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Webhook retry job basladi...", JobId);
+        _logger.LogInformation("[{JobId}] Webhook DLQ retry başladı...", JobId);
 
         try
         {
-            // Future: AppDbContext'e WebhookLog DbSet eklenince:
-            // 1. IsValid=false && RetryCount < MaxRetryCount kayitlarini cek
-            // 2. Her kayit icin retry delay'i kontrol et:
-            //    - RetryCount < RetryDelayMinutes.Length → RetryDelayMinutes[RetryCount] dakika bekle
-            //    - ReceivedAt + delay < DateTime.UtcNow ise retry yap
-            // 3. IWebhookProcessor.ProcessAsync ile tekrar isle
-            // 4. Basarili ise WebhookLog.MarkProcessed(), basarisiz ise IncrementRetry(error)
-            //
-            // Ornek:
-            // var failedLogs = await _dbContext.WebhookLogs
-            //     .Where(w => !w.IsValid && w.RetryCount < MaxRetryCount)
-            //     .OrderBy(w => w.ReceivedAt)
-            //     .Take(50)
-            //     .ToListAsync(ct);
-            //
-            // foreach (var log in failedLogs)
-            // {
-            //     var delayIndex = Math.Min(log.RetryCount, RetryDelayMinutes.Length - 1);
-            //     var minDelay = TimeSpan.FromMinutes(RetryDelayMinutes[delayIndex]);
-            //     if (DateTime.UtcNow - log.ReceivedAt < minDelay) continue;
-            //
-            //     var result = await _processor.ProcessAsync(
-            //         log.Platform, log.Payload, log.Signature, ct);
-            //
-            //     if (result.Success)
-            //         log.MarkProcessed();
-            //     else
-            //         log.IncrementRetry(result.Error);
-            //
-            //     await _dbContext.SaveChangesAsync(ct);
-            // }
+            var pendingItems = await _dlqRepo.GetPendingRetryAsync(DateTime.UtcNow, ct)
+                .ConfigureAwait(false);
 
-            _logger.LogInformation("[{JobId}] Webhook retry tamamlandi.", JobId);
+            if (pendingItems.Count == 0)
+            {
+                _logger.LogDebug("[{JobId}] DLQ'da retry bekleyen kayıt yok.", JobId);
+                return;
+            }
+
+            _logger.LogInformation("[{JobId}] {Count} webhook retry edilecek", JobId, pendingItems.Count);
+
+            var retried = 0;
+            var succeeded = 0;
+
+            foreach (var item in pendingItems.Take(BatchSize))
+            {
+                try
+                {
+                    var result = await _processor.ProcessAsync(
+                        item.Platform, item.RawBody, item.Signature, ct).ConfigureAwait(false);
+
+                    item.RecordRetry(result.Success, result.Success ? null : result.Error);
+                    retried++;
+                    if (result.Success) succeeded++;
+
+                    _logger.LogInformation(
+                        "[{JobId}] Retry {Status}: Platform={Platform}, Attempt={Attempt}/{Max}",
+                        JobId, result.Success ? "OK" : "FAIL",
+                        item.Platform, item.AttemptCount, item.MaxAttempts);
+                }
+                catch (Exception ex)
+                {
+                    item.RecordRetry(false, ex.Message);
+                    retried++;
+
+                    _logger.LogWarning(ex,
+                        "[{JobId}] Retry exception: Platform={Platform}, Attempt={Attempt}",
+                        JobId, item.Platform, item.AttemptCount);
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+            _logger.LogInformation(
+                "[{JobId}] DLQ retry tamamlandı: {Retried} işlendi, {Succeeded} başarılı",
+                JobId, retried, succeeded);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[{JobId}] Webhook retry HATA", JobId);
+            _logger.LogError(ex, "[{JobId}] Webhook DLQ retry HATA", JobId);
             throw;
         }
     }
