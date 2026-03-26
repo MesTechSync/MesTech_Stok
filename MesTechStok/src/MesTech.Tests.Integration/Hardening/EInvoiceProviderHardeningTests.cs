@@ -194,7 +194,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(JsonTaxpayerNotFound())
         );
 
-        var httpClient = CreateConfiguredHttpClient();
+        var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var ublBuilder = new UblTrXmlBuilder();
         var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
         provider.Configure("test-api-key", _baseUrl);
@@ -237,7 +237,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(pdfBytes)
         );
 
-        var httpClient = CreateConfiguredHttpClient();
+        var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var ublBuilder = new UblTrXmlBuilder();
         var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
         provider.Configure("test-api-key", _baseUrl);
@@ -271,7 +271,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 }))
         );
 
-        var httpClient = CreateConfiguredHttpClient();
+        var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var options = Options.Create(new GibPortalEInvoiceOptions
         {
             BaseUrl = _baseUrl,
@@ -330,7 +330,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(CreateFakePdf())
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = _httpClientFactory.CreateClient();
         var options = Options.Create(new GibPortalEInvoiceOptions
         {
             BaseUrl = _baseUrl,
@@ -365,7 +365,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(JsonTaxpayerNotFound())
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = _httpClientFactory.CreateClient();
         var provider = new BirFaturaProvider(httpClient, NullLogger<BirFaturaProvider>.Instance);
         provider.Configure("test-api-key", _baseUrl);
 
@@ -406,7 +406,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(pdfBytes)
         );
 
-        var httpClient = new HttpClient();
+        var httpClient = _httpClientFactory.CreateClient();
         var provider = new BirFaturaProvider(httpClient, NullLogger<BirFaturaProvider>.Instance);
         provider.Configure("test-api-key", _baseUrl);
 

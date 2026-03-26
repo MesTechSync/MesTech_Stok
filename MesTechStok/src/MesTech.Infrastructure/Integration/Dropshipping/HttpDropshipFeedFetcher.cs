@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Dropshipping;
 using Microsoft.Extensions.Logging;
@@ -63,7 +63,7 @@ public sealed class HttpDropshipFeedFetcher : IDropshipFeedFetcher
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.LogWarning(ex,
                 "HttpDropshipFeedFetcher — Failed to fetch feed from {Endpoint}", endpoint);
             return [];
         }

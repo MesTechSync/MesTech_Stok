@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System;
@@ -344,7 +344,7 @@ namespace MesTechStok.Desktop.Data
             base.OnModelCreating(modelBuilder);
 
             // Product Configuration
-            modelBuilder.Entity<Product>(entity =>
+            modelBuilder.Entity<Product>(entity =>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.SKU).IsUnique();
@@ -358,7 +358,7 @@ namespace MesTechStok.Desktop.Data
             });
 
             // Category Configuration
-            modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<Category>(entity =>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Name);
@@ -371,7 +371,7 @@ namespace MesTechStok.Desktop.Data
             });
 
             // StockMovement Configuration
-            modelBuilder.Entity<StockMovement>(entity =>
+            modelBuilder.Entity<StockMovement>(entity =>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => new { e.ProductId, e.Date });

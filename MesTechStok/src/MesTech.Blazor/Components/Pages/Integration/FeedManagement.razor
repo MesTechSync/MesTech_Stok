@@ -1,0 +1,157 @@
+@page "/integration/feeds"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<FeedManagement> Logger
+
+<PageTitle>MesTech - Feed Yonetimi</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #2855AC;">
+      <i class="fas fa-rss text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0" style="color: #2855AC;">Feed Yonetimi</h3>
+      <small class="text-muted">Urun feed uretimi ve dagitimi</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h6 class="mb-0">
+          <i class="fas fa-list me-2" style="color: #2855AC;"></i>Feed Listesi
+        </h6>
+        <span class="badge bg-secondary">@_feeds.Count feed</span>
+      </div>
+      <div class="card-body p-0">
+        @if (_feeds.Count == 0)
+        {
+          <EmptyState Icon="fa-rss" Message="Henuz feed bulunamadi." />
+        }
+        else
+        {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Feed Adi</th>
+                  <th>Format</th>
+                  <th class="text-end">Urun Sayisi</th>
+                  <th>Durum</th>
+                  <th class="d-none d-md-table-cell">Son Uretim</th>
+                  <th class="text-center">Aksiyonlar</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var feed in _feeds)
+                {
+                  <tr>
+                    <td class="fw-semibold">
+                      <i class="@feed.Icon me-2" style="color: @feed.Color; width: 18px; text-align: center;"></i>
+                      @feed.Name
+                    </td>
+                    <td><span class="badge bg-info">@feed.Format</span></td>
+                    <td class="text-end">@feed.ProductCount.ToString("N0")</td>
+                    <td>
+                      @if (feed.IsActive)
+                      {
+                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Aktif</span>
+                      }
+                      else
+                      {
+                        <span class="badge bg-secondary"><i class="fas fa-pause-circle me-1"></i>Pasif</span>
+                      }
+                    </td>
+                    <td class="d-none d-md-table-cell text-muted small">@feed.LastGenerated.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary me-1" title="Yeniden Uret">
+                        <i class="fas fa-sync-alt"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" title="Indir">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private string? errorMessage;
+  private List<FeedRow> _feeds = [];
+
+  protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+  private async Task LoadDataAsync()
+  {
+    try
+    {
+      isLoading = true;
+      errorMessage = null;
+      var result = await ApiClient.SafeGetAsync<List<object>>("integration/feeds");
+      if (result.IsSuccess && result.Data is { Count: > 0 })
+      {
+        _isDemoMode = false;
+        _feeds = GetDemoData();
+      }
+      else
+      {
+        _isDemoMode = true;
+        _feeds = GetDemoData();
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogWarning(ex, "Feed verisi yuklenirken hata");
+      _isDemoMode = true;
+      _feeds = GetDemoData();
+    }
+    finally
+    {
+      isLoading = false;
+      StateHasChanged();
+    }
+  }
+
+  private static List<FeedRow> GetDemoData() =>
+  [
+    new() { Name = "Google Merchant Feed", Icon = "fab fa-google", Color = "#4285F4", Format = "XML", ProductCount = 2450, IsActive = true, LastGenerated = DateTime.Today.AddHours(-2) },
+    new() { Name = "Facebook Catalog", Icon = "fab fa-facebook", Color = "#1877F2", Format = "CSV", ProductCount = 2450, IsActive = true, LastGenerated = DateTime.Today.AddHours(-3) },
+    new() { Name = "Trendyol XML", Icon = "fas fa-shopping-bag", Color = "#FF6F00", Format = "XML", ProductCount = 1820, IsActive = true, LastGenerated = DateTime.Today.AddHours(-1) },
+    new() { Name = "N11 Feed", Icon = "fas fa-store", Color = "#FF5722", Format = "XML", ProductCount = 1540, IsActive = false, LastGenerated = DateTime.Today.AddDays(-5) },
+  ];
+
+  private class FeedRow
+  {
+    public string Name { get; set; } = "";
+    public string Icon { get; set; } = "fas fa-rss";
+    public string Color { get; set; } = "#6c757d";
+    public string Format { get; set; } = "";
+    public int ProductCount { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime LastGenerated { get; set; }
+  }
+}

@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text.Json;
 using FluentAssertions;
 using MesTech.Domain.Entities;
@@ -39,11 +39,11 @@ public class PazaramaAdapterContractTests : IClassFixture<WireMockFixture>, IDis
 
     private PazaramaAdapter CreateAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         var mockFactory = new Moq.Mock<IHttpClientFactory>();
         mockFactory
             .Setup(f => f.CreateClient(Moq.It.IsAny<string>()))
-            .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) });
+            .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) });
         return new PazaramaAdapter(httpClient, _logger, mockFactory.Object);
     }
 

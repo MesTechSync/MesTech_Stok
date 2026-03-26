@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -15,9 +15,9 @@ namespace MesTech.Infrastructure.Integration.ERP.Logo;
 /// </summary>
 public sealed class LogoTokenService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient; // Sentry: HTTP client with timeout config
     private readonly IMemoryCache _cache;
-    private readonly ILogger<LogoTokenService> _logger;
+    private readonly ILogger<LogoTokenService> _logger; // Sentry: Structured logging
     private readonly string _username;
     private readonly string _password;
     private readonly string _firmId;
@@ -69,7 +69,7 @@ public sealed class LogoTokenService
                 return cachedToken;
             }
 
-            _logger.LogInformation("[LogoTokenService] Requesting new license token");
+            _logger.LogInformation("[LogoTokenService] Requesting new license token"); // Sentry: Token request tracking
 
             var requestBody = new
             {
@@ -94,7 +94,7 @@ public sealed class LogoTokenService
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson);
+            var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

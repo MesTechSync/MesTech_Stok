@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
 using MediatR;
 using Moq;
@@ -15,7 +15,7 @@ public class DropshipOrdersAvaloniaViewModelTests
     public DropshipOrdersAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new DropshipOrdersAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new DropshipOrdersAvaloniaViewModel(_mediatorMock.Object, null);
     }
 
     [Fact]

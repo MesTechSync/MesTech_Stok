@@ -81,6 +81,9 @@ public partial class App : global::Avalonia.Application
                 // === Avalonia-specific services ===
                 services.AddSingleton<IDialogService, AvaloniaDialogService>();
                 services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+                services.AddSingleton<IThemeService, ThemeService>();
+                services.AddSingleton<IFeatureGateService, FeatureGateService>();
+                services.AddSingleton<INotificationService, NotificationService>();
 
                 // Views — registered for DI resolution
                 services.AddTransient<MainWindow>();
@@ -260,6 +263,9 @@ public partial class App : global::Avalonia.Application
             .Build();
 
         ServiceProvider = _host.Services;
+
+        // Load persisted theme on startup
+        _host.Services.GetRequiredService<IThemeService>().LoadSavedTheme();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

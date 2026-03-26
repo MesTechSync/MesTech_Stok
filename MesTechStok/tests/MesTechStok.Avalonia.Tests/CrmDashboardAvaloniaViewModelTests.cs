@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.DTOs.Crm;
 using MesTech.Application.Features.Crm.Queries.GetCrmDashboard;
 using MesTech.Avalonia.ViewModels;
@@ -17,7 +17,7 @@ public class CrmDashboardAvaloniaViewModelTests
     public CrmDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new CrmDashboardAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new CrmDashboardAvaloniaViewModel();
     }
 
     private CrmDashboardDto CreateTestDto() => new()

@@ -1,4 +1,4 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 
 namespace MesTech.Tests.Unit.Domain;
@@ -8,7 +8,7 @@ namespace MesTech.Tests.Unit.Domain;
 /// </summary>
 public class ProductVariantTests
 {
-    private static Guid ValidProductId => Guid.NewGuid();
+    private static readonly Guid ValidProductId = Guid.NewGuid();
     private const string ValidSku = "VAR-001";
 
     // ── Create ──

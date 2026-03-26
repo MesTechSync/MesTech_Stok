@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Avalonia.ViewModels;
@@ -17,7 +17,7 @@ public class AccountingDashboardAvaloniaViewModelTests
     public AccountingDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new AccountingDashboardAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new AccountingDashboardAvaloniaViewModel(_mediatorMock.Object, new Mock<Microsoft.Extensions.Logging.ILogger<AccountingDashboardAvaloniaViewModel>>().Object);
     }
 
     [Fact]

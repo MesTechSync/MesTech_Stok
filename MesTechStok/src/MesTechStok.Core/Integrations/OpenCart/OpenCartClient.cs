@@ -38,15 +38,17 @@ namespace MesTechStok.Core.Integrations.OpenCart
         {
             _baseUrl = baseUrl?.TrimEnd('/') ?? throw new ArgumentNullException(nameof(baseUrl));
             _apiToken = apiToken ?? throw new ArgumentNullException(nameof(apiToken));
-            _httpClient = new HttpClient(handler ?? throw new ArgumentNullException(nameof(handler)));
+            _httpClient = handler != null ? new HttpClient(handler) : throw new ArgumentNullException(nameof(handler));
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "MesTechStok/1.0");
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
             _telemetry = telemetry ?? Telemetry.NoopResilienceTelemetry.Instance;
 
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = false
+                WriteIndented = false,
+                MaxDepth = 32
             };
 
             // Sync state persistence (AppData/MesTechStok/sync-state.json)

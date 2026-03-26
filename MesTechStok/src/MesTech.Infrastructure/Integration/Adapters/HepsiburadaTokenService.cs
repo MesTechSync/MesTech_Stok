@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -115,7 +115,8 @@ public sealed class HepsiburadaTokenService
             }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var tokenResponse = JsonSerializer.Deserialize<HbTokenResponse>(json);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var tokenResponse = JsonSerializer.Deserialize<HbTokenResponse>(json, options);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

@@ -7,6 +7,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// MainWindow ViewModel — sidebar navigation between views.
 /// Uses IViewModelFactory (proper DI) instead of raw IServiceProvider (ServiceLocator).
+/// FeatureGateService controls sidebar item visibility per subscription tier.
 /// </summary>
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -17,10 +18,49 @@ public partial class MainWindowViewModel : ViewModelBase
     private string currentViewTitle = "Dashboard";
 
     private readonly IViewModelFactory _viewModelFactory;
+    private readonly IFeatureGateService _featureGate;
 
-    public MainWindowViewModel(IViewModelFactory viewModelFactory)
+    // ── Sidebar visibility helpers (bound by MainWindow sidebar ItemsControl) ──
+    public bool ShowReports        => _featureGate.IsEnabled("Reports");
+    public bool ShowAnalytics      => _featureGate.IsEnabled("Analytics");
+    public bool ShowCrm            => _featureGate.IsEnabled("CRM");
+    public bool ShowCargo          => _featureGate.IsEnabled("Cargo");
+    public bool ShowInvoice        => _featureGate.IsEnabled("Invoice");
+    public bool ShowExport         => _featureGate.IsEnabled("Export");
+    public bool ShowMultiPlatform  => _featureGate.IsEnabled("MultiPlatform");
+    public bool ShowAiInsight      => _featureGate.IsEnabled("AIInsight");
+    public bool ShowMesaBridge     => _featureGate.IsEnabled("MesaBridge");
+    public bool ShowAutomation     => _featureGate.IsEnabled("Automation");
+    public bool ShowWebhook        => _featureGate.IsEnabled("Webhook");
+    public bool ShowApiAccess      => _featureGate.IsEnabled("ApiAccess");
+    public bool ShowLogViewer      => _featureGate.IsEnabled("LogViewer");
+    public bool ShowHealthMonitor  => _featureGate.IsEnabled("HealthMonitor");
+
+    public MainWindowViewModel(IViewModelFactory viewModelFactory, IFeatureGateService featureGate)
     {
         _viewModelFactory = viewModelFactory;
+        _featureGate      = featureGate;
+
+        // Re-evaluate sidebar visibility when tier changes
+        _featureGate.TierChanged += (_, _) => RefreshSidebarVisibility();
+    }
+
+    private void RefreshSidebarVisibility()
+    {
+        OnPropertyChanged(nameof(ShowReports));
+        OnPropertyChanged(nameof(ShowAnalytics));
+        OnPropertyChanged(nameof(ShowCrm));
+        OnPropertyChanged(nameof(ShowCargo));
+        OnPropertyChanged(nameof(ShowInvoice));
+        OnPropertyChanged(nameof(ShowExport));
+        OnPropertyChanged(nameof(ShowMultiPlatform));
+        OnPropertyChanged(nameof(ShowAiInsight));
+        OnPropertyChanged(nameof(ShowMesaBridge));
+        OnPropertyChanged(nameof(ShowAutomation));
+        OnPropertyChanged(nameof(ShowWebhook));
+        OnPropertyChanged(nameof(ShowApiAccess));
+        OnPropertyChanged(nameof(ShowLogViewer));
+        OnPropertyChanged(nameof(ShowHealthMonitor));
     }
 
     [RelayCommand]

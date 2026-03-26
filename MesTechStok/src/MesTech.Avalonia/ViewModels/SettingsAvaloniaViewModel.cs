@@ -14,6 +14,7 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
+    private readonly IThemeService _themeService;
 
     [ObservableProperty] private string appVersion = "MesTech Stok v10.0 — Avalonia";
 
@@ -33,16 +34,25 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool isSmsEnabled;
     [ObservableProperty] private bool isPushEnabled = true;
 
-    // Theme settings
+    // Theme settings — backed by IThemeService
     [ObservableProperty] private string selectedTheme = "Light";
 
     // Save state
     [ObservableProperty] private bool isSaved;
 
-    public SettingsAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    public SettingsAvaloniaViewModel(IMediator mediator, IDialogService dialog, IThemeService themeService)
     {
         _mediator = mediator;
         _dialog = dialog;
+        _themeService = themeService;
+
+        // Sync initial value from service
+        SelectedTheme = _themeService.CurrentTheme;
+    }
+
+    partial void OnSelectedThemeChanged(string value)
+    {
+        _themeService.SetTheme(value);
     }
 
     public override async Task LoadAsync()

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -36,7 +36,7 @@ public sealed class DlqReprocessService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"http://{rabbitHost}:{managementPort}";
+        var baseUrl = $"https://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =
@@ -150,7 +150,7 @@ public sealed class DlqReprocessService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"http://{rabbitHost}:{managementPort}";
+        var baseUrl = $"https://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -60,7 +60,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
             })
             .Build();
 
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         return new PayTRDirectAdapter(
             httpClient,
             config,
@@ -141,7 +141,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ════ 1. ProcessPayment_Success_ReturnsTransactionId ════
 
     [Fact]
-    public async Task ProcessPayment_Success_ReturnsTransactionId()
+    public async Task ProcessPayment_ValidRequest_ReturnsSuccessWithTransactionId()
     {
         // Arrange
         SetupTokenSuccess("TOKEN_SUCCESS_001");
@@ -161,7 +161,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ════ 2. ProcessPayment_InvalidCard_ReturnsError ════
 
     [Fact]
-    public async Task ProcessPayment_InvalidCard_ReturnsError()
+    public async Task ProcessPayment_InvalidCard_ReturnsFailureWithErrorMessage()
     {
         // Arrange
         SetupTokenFailure("invalid-card");
@@ -180,7 +180,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ════ 3. ProcessPayment_3DSecure_ReturnsRedirectUrl ════
 
     [Fact]
-    public async Task ProcessPayment_3DSecure_ReturnsRedirectUrl()
+    public async Task ProcessPayment_3DSecureRequired_ReturnsSuccessWithRedirectUrl()
     {
         // Arrange
         SetupTokenSuccess("3D_TOKEN_XYZ");
@@ -414,7 +414,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ════ 14. HmacSignature_KnownInput_ProducesExpectedHash ════
 
     [Fact]
-    public void HmacSignature_KnownInput_ProducesExpectedHash()
+    public void ComputeHmac_KnownInput_ProducesExpectedHash()
     {
         // Arrange — compute HMAC manually and compare
         const string data = "TEST_MERCHANT_001192.168.1.100ORDER001customer@mestech.app1000base64basket001000TRY1TEST_SALT_VALUE_XYZ";

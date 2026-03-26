@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -11,7 +11,7 @@ public class CargoAvaloniaViewModelTests
 
     public CargoAvaloniaViewModelTests()
     {
-        _sut = new CargoAvaloniaViewModel();
+        _sut = new CargoAvaloniaViewModel(null);
     }
 
     [Fact]

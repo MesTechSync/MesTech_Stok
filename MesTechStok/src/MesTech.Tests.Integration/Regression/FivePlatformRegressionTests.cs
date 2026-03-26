@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text.Json;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
@@ -61,7 +61,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
 
     private OpenCartAdapter CreateOpenCartAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         return new OpenCartAdapter(httpClient,
             NullLoggerFactory.Instance.CreateLogger<OpenCartAdapter>());
     }
@@ -74,7 +74,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
 
     private CiceksepetiAdapter CreateCiceksepetiAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         return new CiceksepetiAdapter(httpClient,
             NullLoggerFactory.Instance.CreateLogger<CiceksepetiAdapter>());
     }
@@ -87,7 +87,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
 
     private HepsiburadaAdapter CreateHepsiburadaAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         return new HepsiburadaAdapter(httpClient,
             NullLoggerFactory.Instance.CreateLogger<HepsiburadaAdapter>());
     }
@@ -101,7 +101,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
 
     private PazaramaAdapter CreatePazaramaAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
         return new PazaramaAdapter(httpClient,
             NullLoggerFactory.Instance.CreateLogger<PazaramaAdapter>());
     }
@@ -162,7 +162,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     // ════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task Trendyol_TestConnection_ReturnsSuccess()
+    public async Task TestConnection_WithValidTrendyolCredentials_ReturnsSuccess()
     {
         _fixture.Reset();
 
@@ -184,7 +184,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     }
 
     [Fact]
-    public async Task Trendyol_PullProducts_ReturnsNonNullList()
+    public async Task PullProducts_FromTrendyolWithValidData_ReturnsNonNullList()
     {
         _fixture.Reset();
 
@@ -220,7 +220,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     }
 
     [Fact]
-    public async Task Trendyol_PushStockUpdate_ReturnsTrue()
+    public async Task PushStockUpdate_ToTrendyolWithValidStock_ReturnsTrue()
     {
         _fixture.Reset();
 
@@ -253,7 +253,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     }
 
     [Fact]
-    public void Trendyol_PlatformCode_IsCorrect()
+    public void GetPlatformCode_ForTrendyolAdapter_ReturnsCorrect()
     {
         var adapter = CreateTrendyolAdapter();
         adapter.PlatformCode.Should().Be("Trendyol");
@@ -353,7 +353,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     }
 
     [Fact]
-    public void OpenCart_PlatformCode_IsCorrect()
+    public void GetPlatformCode_ForOpenCartAdapter_ReturnsCorrect()
     {
         var adapter = CreateOpenCartAdapter();
         adapter.PlatformCode.Should().Be("OpenCart");
@@ -456,7 +456,7 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     }
 
     [Fact]
-    public void Ciceksepeti_PlatformCode_IsCorrect()
+    public void GetPlatformCode_ForCiceksepetiAdapter_ReturnsCorrect()
     {
         var adapter = CreateCiceksepetiAdapter();
         adapter.PlatformCode.Should().Be("Ciceksepeti");

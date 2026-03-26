@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Fulfillment;
@@ -36,6 +36,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         string apiKey)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         ArgumentException.ThrowIfNullOrWhiteSpace(merchantId, nameof(merchantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey, nameof(apiKey));
@@ -69,6 +70,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                     .Handle<TaskCanceledException>(),
                 OnRetry = args =>
                 {
+                    SentrySdk.AddBreadcrumb("Hepsilojistik API retry", "adapter.hepsilojistik");
                     _logger.LogWarning(
                         "[Hepsilojistik] API retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);

@@ -29,7 +29,7 @@ public class HepsiburadaAdapterEndpointTests
     public HepsiburadaAdapterEndpointTests()
     {
         _mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
-        _httpClient = new HttpClient(_mockHandler.Object);
+        _httpClient = new HttpClient(_mockHandler.Object) { Timeout = TimeSpan.FromSeconds(30) };
         _httpClient.BaseAddress = new Uri("https://api.hepsiburada.com/");
         _logger = NullLogger<HepsiburadaAdapter>.Instance;
         _sut = new HepsiburadaAdapter(_httpClient, _logger);

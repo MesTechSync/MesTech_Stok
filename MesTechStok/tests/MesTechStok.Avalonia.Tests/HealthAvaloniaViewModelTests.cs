@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MediatR;
 using MesTech.Avalonia.ViewModels;
 using Moq;
@@ -11,7 +11,7 @@ public class HealthAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private HealthAvaloniaViewModel CreateSut() => new(_mediatorMock.Object);
+    private HealthAvaloniaViewModel CreateSut() => new();
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

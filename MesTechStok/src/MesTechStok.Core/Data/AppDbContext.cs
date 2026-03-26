@@ -82,10 +82,10 @@ public class AppDbContext : DbContext
 
         // Company Settings - single row constraint via unique index hack
         ConfigureCompanySettings(modelBuilder);
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(200);
-        });
+        
+        
+        
+        
 
         // AI Configuration Models - A++++ Enterprise Integration
         ConfigureAIModels(modelBuilder);
@@ -95,29 +95,29 @@ public class AppDbContext : DbContext
 
         // OfflineQueue
         ConfigureOfflineQueueItem(modelBuilder);
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Channel).IsRequired().HasMaxLength(32);
-            entity.Property(e => e.Direction).IsRequired().HasMaxLength(16);
-            entity.Property(e => e.Status).IsRequired().HasMaxLength(16);
-            entity.Property(e => e.Payload).HasColumnType("text");
-            entity.Property(e => e.LastError).HasMaxLength(4000);
-            entity.Property(e => e.CorrelationId).HasMaxLength(64);
-            entity.HasIndex(e => new { e.Status, e.NextAttemptAt });
-            entity.HasIndex(e => e.CreatedDate);
-        });
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         // ApiCallLog (Telemetry persistence)
         ConfigureApiCallLog(modelBuilder);
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Endpoint).IsRequired().HasMaxLength(256);
-            entity.Property(e => e.Method).IsRequired().HasMaxLength(10);
-            entity.Property(e => e.Category).HasMaxLength(32);
-            entity.Property(e => e.CorrelationId).HasMaxLength(64);
-            entity.HasIndex(e => e.TimestampUtc);
-            entity.HasIndex(e => new { e.Endpoint, e.TimestampUtc });
-        });
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         // CircuitStateLog (Circuit breaker state transitions)
         modelBuilder.Entity<CircuitStateLog>(entity =>

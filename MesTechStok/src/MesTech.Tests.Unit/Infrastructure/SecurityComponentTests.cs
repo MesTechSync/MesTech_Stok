@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -176,6 +176,7 @@ public class OAuth2AuthProviderTests
 {
     private readonly Mock<ITokenCacheProvider> _tokenCache = new();
     private readonly Mock<ILogger<OAuth2AuthProvider>> _logger = new();
+    private readonly Mock<IHttpClientFactory> _httpClientFactory = new();
 
     [Fact]
     public async Task GetToken_CachedAndValid_ShouldReturnCachedToken()
@@ -184,8 +185,9 @@ public class OAuth2AuthProviderTests
         _tokenCache.Setup(c => c.GetAsync("oauth2:amazon", It.IsAny<CancellationToken>()))
             .ReturnsAsync(cachedToken);
 
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
         var provider = new OAuth2AuthProvider(
-            "amazon", new HttpClient(), _tokenCache.Object,
+            "amazon", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "client_id", "client_secret", "https://token.example.com", null, _logger.Object);
 
         var result = await provider.GetTokenAsync();
@@ -197,8 +199,9 @@ public class OAuth2AuthProviderTests
     [Fact]
     public void IsTokenExpired_FreshToken_ShouldReturnFalse()
     {
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
         var provider = new OAuth2AuthProvider(
-            "test", new HttpClient(), _tokenCache.Object,
+            "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);
 
         var freshToken = new AuthToken("access", null, DateTime.UtcNow.AddHours(1));
@@ -208,8 +211,9 @@ public class OAuth2AuthProviderTests
     [Fact]
     public void IsTokenExpired_NearExpiry_ShouldReturnTrue()
     {
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
         var provider = new OAuth2AuthProvider(
-            "test", new HttpClient(), _tokenCache.Object,
+            "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);
 
         var nearExpiryToken = new AuthToken("access", null, DateTime.UtcNow.AddMinutes(3));

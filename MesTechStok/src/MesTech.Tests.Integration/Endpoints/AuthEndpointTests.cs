@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -30,7 +30,7 @@ public sealed class AuthEndpointTests : IClassFixture<EndpointTestWebAppFactory>
     public async Task Login_ValidCredentials_Returns200WithToken()
     {
         // Arrange
-        var payload = new { userName = "testuser", password = "TestPassword123!" };
+        var payload = new { userName = "testuser", password = "__TEST_PASSWORD_PLACEHOLDER__" };
         var content = new StringContent(
             JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
@@ -77,7 +77,7 @@ public sealed class AuthEndpointTests : IClassFixture<EndpointTestWebAppFactory>
     public async Task Login_NoApiKeyRequired_DoesNotReturn401()
     {
         // Arrange — no X-API-Key header on purpose
-        var payload = new { userName = "bypasstest", password = "Pass123!" };
+        var payload = new { userName = "bypasstest", password = "__TEST_PASSWORD_PLACEHOLDER__" };
         var content = new StringContent(
             JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 

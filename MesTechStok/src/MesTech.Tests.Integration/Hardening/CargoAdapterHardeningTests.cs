@@ -194,11 +194,11 @@ public class CargoAdapterHardeningTests : IDisposable
     }
 
     // Configure adapters
-    private ArasKargoAdapter CreateArasAdapter(HttpClient httpClient)
+    private ArasKargoAdapter CreateArasAdapter(IHttpClientFactory httpClientFactory)
     {
         var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(30);
-        var adapter = new SendeoCargoAdapter(httpClient, NullLogger<SendeoCargoAdapter>.Instance);w ArasKargoAdapter(httpClient, NullLogger<ArasKargoAdapter>.Instance);
+        var adapter = new ArasKargoAdapter(httpClient, NullLogger<ArasKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
         {
             ["UserName"] = "test",
@@ -209,8 +209,10 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private SuratKargoAdapter CreateSuratAdapter(HttpClient httpClient)
+    private SuratKargoAdapter CreateSuratAdapter(IHttpClientFactory httpClientFactory)
     {
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new SuratKargoAdapter(httpClient, NullLogger<SuratKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
         {
@@ -222,8 +224,10 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private MngKargoAdapter CreateMngAdapter(HttpClient httpClient)
+    private MngKargoAdapter CreateMngAdapter(IHttpClientFactory httpClientFactory)
     {
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new MngKargoAdapter(httpClient, NullLogger<MngKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
         {
@@ -235,7 +239,7 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private HepsiJetCargoAdapter CreateHepsiJetAdapter(HttpClient httpClient)
+    private HepsiJetCargoAdapter CreateHepsiJetAdapter(IHttpClientFactory httpClientFactory)
     {
         // HepsiJet needs a token endpoint for EnsureTokenAsync
         _server.Given(

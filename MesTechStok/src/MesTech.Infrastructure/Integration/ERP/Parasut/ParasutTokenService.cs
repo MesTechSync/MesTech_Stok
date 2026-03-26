@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using MesTech.Infrastructure.Monitoring;
@@ -101,7 +101,7 @@ public sealed class ParasutTokenService
             }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json);
+            var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json, new JsonSerializerOptions { MaxDepth = 32 });
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

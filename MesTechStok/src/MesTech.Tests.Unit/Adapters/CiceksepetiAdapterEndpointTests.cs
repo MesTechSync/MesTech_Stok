@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -29,7 +29,7 @@ public class CiceksepetiAdapterEndpointTests
     public CiceksepetiAdapterEndpointTests()
     {
         _mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
-        _httpClient = new HttpClient(_mockHandler.Object)
+        _httpClient = CreateHttpClient(_mockHandler.Object)
         {
             BaseAddress = new Uri("https://apis.ciceksepeti.com/")
         };

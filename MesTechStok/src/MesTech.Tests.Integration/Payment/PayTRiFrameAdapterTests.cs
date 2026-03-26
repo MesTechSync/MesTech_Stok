@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -59,7 +59,11 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
             })
             .Build();
 
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
+        var httpClient = new HttpClient 
+        { 
+            BaseAddress = new Uri(_fixture.BaseUrl),
+            Timeout = TimeSpan.FromSeconds(30)
+        };
         return new PayTRiFrameAdapter(
             httpClient,
             config,
@@ -96,6 +100,11 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "application/json")
                 .WithBody(JsonSerializer.Serialize(new { status = "success", token })));
     }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "Exception occurred");
+        throw;
+    }
 
     private void SetupTokenFailure(string reason = "token-generation-error")
     {
@@ -105,6 +114,11 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
                 .WithBody(JsonSerializer.Serialize(new { status = "failed", reason })));
+    }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "Exception occurred");
+        throw;
     }
 
     // ════ 1. ProcessPayment_Success_ReturnsIFrameUrl ════
