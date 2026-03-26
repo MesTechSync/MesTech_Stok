@@ -135,8 +135,9 @@ public static class IntegrationHttpClientRegistry
 
     /// <summary>
     /// Default timeout for named HttpClients.
+    /// Marketplace adapters use 30s inline; this ensures invoice/ERP/payment clients are consistent.
     /// </summary>
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
     private const string ParasutApiBaseUrl = "https://api.parasut.com/v4/";
 
@@ -154,7 +155,10 @@ public static class IntegrationHttpClientRegistry
 
     private static void RegisterDefault(IServiceCollection services, string name)
     {
-        services.AddHttpClient(name)
+        services.AddHttpClient(name, client =>
+            {
+                client.Timeout = DefaultTimeout;
+            })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
                 PooledConnectionLifetime = DnsRefreshTimeout,
