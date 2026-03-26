@@ -22,44 +22,30 @@ public sealed class UnitOfWork : IUnitOfWork
     }
 
     /// <summary>
-    /// SaveChanges with automatic concurrency exception retry (DEV6-TUR12).
-    /// DbUpdateConcurrencyException → reload stale entries → retry (max 3 attempts).
-    /// Prevents silent lost-update bugs on RowVersion-protected entities.
+    /// SaveChanges + domain event dispatch.
+    ///
+    /// DEV6-TUR18 FIX (G039 P0): Retry loop KALDIRILDI.
+    /// NEDEN: ReloadAsync handler'ın domain mutation'ını (AdjustStock, Renew vb.) geri alır.
+    /// Retry sonrası SaveChanges boş diff kaydeder → veri KAYBI.
+    ///
+    /// Concurrency conflict → DbUpdateConcurrencyException fırlatılır.
+    /// Handler seviyesinde retry gerekiyorsa handler kendisi tekrar çağrılmalı
+    /// (tam mutation cycle: load → mutate → save).
+    ///
+    /// RowVersion koruması + Distributed Lock (TUR 12) birlikte çalışır:
+    /// Lock → aynı anda sadece 1 handler çalışır → concurrency exception nadir.
+    /// Lock alınamazsa handler zaten çalışmaz (stock deduction guard).
     /// </summary>
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var events = _context.GetDomainEvents();
 
-        for (var attempt = 1; attempt <= MaxConcurrencyRetries; attempt++)
-        {
-            try
-            {
-                var result = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var result = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                if (events.Count > 0)
-                    await _dispatcher.DispatchAsync(events, cancellationToken).ConfigureAwait(false);
-
-                return result;
-            }
-            catch (DbUpdateConcurrencyException ex) when (attempt < MaxConcurrencyRetries)
-            {
-                _logger.LogWarning(
-                    "Concurrency conflict detected (attempt {Attempt}/{Max}): {Message}. Reloading stale entries...",
-                    attempt, MaxConcurrencyRetries, ex.Message);
-
-                // Reload all stale entries from database
-                foreach (var entry in ex.Entries)
-                {
-                    await entry.ReloadAsync(cancellationToken).ConfigureAwait(false);
-                }
-            }
-        }
-
-        // Final attempt — let exception propagate if still conflicting
-        var finalResult = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         if (events.Count > 0)
             await _dispatcher.DispatchAsync(events, cancellationToken).ConfigureAwait(false);
-        return finalResult;
+
+        return result;
     }
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
