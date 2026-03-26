@@ -86,20 +86,25 @@ public class ConcurrentStockDeductionTests
     }
 
     [Fact]
-    public async Task Handle_LockTimeout_SkipsDeduction()
+    public async Task Handle_LockTimeout_SkipsProductDeduction()
     {
-        // Arrange — lock ALINAMADI (başka process tutuyor)
+        // Arrange — product-based lock timeout
+        var product = new Product { Name = "Locked", SKU = "LCK-001", Stock = 10, CategoryId = Guid.NewGuid() };
+        var order = CreateOrderWithItems(product.Id, 3);
+
         _lockService.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IAsyncDisposable?)null); // lock timeout
+            .ReturnsAsync((IAsyncDisposable?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(order.Id)).ReturnsAsync(order);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var handler = CreateHandler();
 
-        // Act — handler erken dönmeli
-        await handler.HandleAsync(Guid.NewGuid(), "ORD-LOCKED", CancellationToken.None);
+        // Act — handler order yükler ama product lock alamaz
+        await handler.HandleAsync(order.Id, order.OrderNumber, CancellationToken.None);
 
-        // Assert — stok düşürme yapılmamalı
-        _orderRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Assert — stok DEĞİŞMEMELİ (lock timeout)
+        product.Stock.Should().Be(10);
     }
 
     [Fact]
@@ -176,21 +181,25 @@ public class ConcurrentStockDeductionTests
     }
 
     [Fact]
-    public async Task Handle_LockKey_ContainsOrderId()
+    public async Task Handle_LockKey_ContainsProductId()
     {
-        // Arrange — lock key'in orderId içerdiğini doğrula
-        var orderId = Guid.NewGuid();
+        // Arrange — lock key'in productId içerdiğini doğrula (product-based lock)
+        var product = new Product { Name = "KeyTest", SKU = "KEY-001", Stock = 10, CategoryId = Guid.NewGuid() };
+        var order = CreateOrderWithItems(product.Id, 1);
         string? capturedKey = null;
 
         _lockService.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .Callback<string, TimeSpan, TimeSpan, CancellationToken>((key, _, _, _) => capturedKey = key)
-            .ReturnsAsync((IAsyncDisposable?)null);
+            .ReturnsAsync(new FakeLockHandle());
+        _orderRepo.Setup(r => r.GetByIdAsync(order.Id)).ReturnsAsync(order);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var handler = CreateHandler();
-        await handler.HandleAsync(orderId, "ORD-KEY-TEST", CancellationToken.None);
+        await handler.HandleAsync(order.Id, order.OrderNumber, CancellationToken.None);
 
-        // Assert — lock key orderId içermeli
+        // Assert — lock key productId içermeli
         capturedKey.Should().NotBeNull();
-        capturedKey.Should().Contain(orderId.ToString());
+        capturedKey.Should().Contain(product.Id.ToString());
     }
 }
