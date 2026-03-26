@@ -942,4 +942,27 @@ gelecek dalga feature).
 |-------------|--------|----------|--------|-----|-------|
 | 10 platform webhook'u imzasız kabul | 9 | 8 | 1 | 72 | **FIX** |
 
-### KÜMÜLATİF DEV 3 (26 tur, 69 commit)
+---
+
+## TUR 27 — 2026-03-26 (Webhook Router — 3 Missing Event Routes)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| WebhookProcessor chain | Endpoint→Processor→Validator→Router ✅ |
+| Signature validation wiring | İmza null ise accept (log warning) — design decision |
+| **EventRouter: aliases without handlers** | **3** (order.shipped, stock.updated, invoice.created) |
+| ResolvePlatformType: Shopify→OpenCart | BUG — G028 bağımlı |
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 50 | WebhookEventRouter | 3 missing event routes (shipped/stock/invoice) | 9ff55a6d |
+
+### MÜHENDİS DELTA
+| Metrik | ÖNCE | SONRA | DELTA |
+|--------|------|-------|-------|
+| Webhook event routes | 5/8 | 8/8 | **+3** ✅ |
+| Silently dropped events | 3 types | 0 | **-3** ✅ |
+
+### KÜMÜLATİF DEV 3 (27 tur, 71 commit)
