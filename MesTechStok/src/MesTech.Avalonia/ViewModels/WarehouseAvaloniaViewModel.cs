@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetWarehouses;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -40,29 +41,19 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetWarehousesQuery());
 
-            _allItems =
-            [
-                new()
-                {
-                    Name = "Ana Depo", Location = "Istanbul, Ikitelli",
-                    ProductCount = 156, TotalStock = 4520, AlarmCount = 12,
-                    Capacity = 10000, UsedCapacity = 4520, ShelfCount = 24
-                },
-                new()
-                {
-                    Name = "Yedek Depo", Location = "Istanbul, Tuzla",
-                    ProductCount = 89, TotalStock = 2180, AlarmCount = 5,
-                    Capacity = 5000, UsedCapacity = 2180, ShelfCount = 12
-                },
-                new()
-                {
-                    Name = "Iade Depo", Location = "Istanbul, Kartal",
-                    ProductCount = 34, TotalStock = 410, AlarmCount = 0,
-                    Capacity = 2000, UsedCapacity = 410, ShelfCount = 6
-                },
-            ];
+            _allItems = result.Select(w => new WarehouseCardDto
+            {
+                Name = w.Name,
+                Location = string.IsNullOrWhiteSpace(w.City) ? (w.Address ?? string.Empty) : w.City,
+                ProductCount = 0,
+                TotalStock = 0,
+                AlarmCount = 0,
+                Capacity = 0,
+                UsedCapacity = 0,
+                ShelfCount = 0
+            }).ToList();
 
             ApplyFilters();
         }
