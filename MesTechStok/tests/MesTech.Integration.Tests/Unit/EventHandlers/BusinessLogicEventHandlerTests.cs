@@ -234,7 +234,7 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new OrderShippedCostHandler(uow.Object, Mock.Of<ILogger<OrderShippedCostHandler>>());
+        var handler = new OrderShippedCostHandler(uow.Object, new Mock<IJournalEntryRepository>().Object, Mock.Of<ILogger<OrderShippedCostHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, "TR123", CargoProvider.YurticiKargo, 45.50m, CancellationToken.None);
 
@@ -244,7 +244,7 @@ public class BusinessLogicEventHandlerTests
     [Fact]
     public async Task ShippedCost_ZeroCost_SkipsGLEntry()
     {
-        var handler = new OrderShippedCostHandler(_uow.Object, Mock.Of<ILogger<OrderShippedCostHandler>>());
+        var handler = new OrderShippedCostHandler(_uow.Object, new Mock<IJournalEntryRepository>().Object, Mock.Of<ILogger<OrderShippedCostHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, "TR000", CargoProvider.ArasKargo, 0m, CancellationToken.None);
 

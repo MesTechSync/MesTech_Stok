@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
+using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -21,15 +22,18 @@ namespace MesTech.Integration.Tests.Unit.Accounting;
 public class InvoiceCancelledReversalHandlerTests
 {
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly Mock<IJournalEntryRepository> _journalRepo = new();
     private readonly Mock<ILogger<InvoiceCancelledReversalHandler>> _logger = new();
 
     public InvoiceCancelledReversalHandlerTests()
     {
         _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _journalRepo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     private InvoiceCancelledReversalHandler CreateHandler() =>
-        new(_uow.Object, _logger.Object);
+        new(_uow.Object, _journalRepo.Object, _logger.Object);
 
     [Fact]
     public async Task HandleAsync_ValidCancel_CreatesReversalAndSaves()
