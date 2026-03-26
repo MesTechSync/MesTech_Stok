@@ -397,20 +397,22 @@ public class SpecialCommandTests
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    // ═══════ ReturnApprovedHandler ═══════
+    // ═══════ ReturnApprovedStockRestorationHandler ═══════
 
     [Fact]
     public async Task ReturnApproved_EmptyLines_CompletesWithoutError()
     {
         var productRepo = new Mock<IProductRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var logger = new Mock<ILogger<MesTech.Application.EventHandlers.ReturnApprovedHandler>>();
+        var logger = new Mock<ILogger<MesTech.Application.EventHandlers.ReturnApprovedStockRestorationHandler>>();
+        productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
-        var sut = new MesTech.Application.EventHandlers.ReturnApprovedHandler(
+        var sut = new MesTech.Application.EventHandlers.ReturnApprovedStockRestorationHandler(
             productRepo.Object, uow.Object, logger.Object);
 
         await sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), _tenantId,
+            Guid.NewGuid(), _tenantId,
             Array.Empty<MesTech.Domain.Events.ReturnLineInfoEvent>(),
             CancellationToken.None);
 
@@ -422,10 +424,11 @@ public class SpecialCommandTests
     {
         var productRepo = new Mock<IProductRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var logger = new Mock<ILogger<MesTech.Application.EventHandlers.ReturnApprovedHandler>>();
-        productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        var logger = new Mock<ILogger<MesTech.Application.EventHandlers.ReturnApprovedStockRestorationHandler>>();
+        productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
-        var sut = new MesTech.Application.EventHandlers.ReturnApprovedHandler(
+        var sut = new MesTech.Application.EventHandlers.ReturnApprovedStockRestorationHandler(
             productRepo.Object, uow.Object, logger.Object);
 
         var lines = new List<MesTech.Domain.Events.ReturnLineInfoEvent>
@@ -434,7 +437,7 @@ public class SpecialCommandTests
         };
 
         await sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), _tenantId, lines, CancellationToken.None);
+            Guid.NewGuid(), _tenantId, lines, CancellationToken.None);
 
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -329,7 +329,7 @@ public class PlatformEventHandlerTests
             Status: status,
             OccurredAt: DateTime.UtcNow);
 
-        var act = () => sut.HandleAsync(evt, CancellationToken.None);
+        Func<Task> act = () => sut.HandleAsync(evt, CancellationToken.None);
         await act.Should().NotThrowAsync();
     }
 
