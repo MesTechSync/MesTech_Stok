@@ -10,7 +10,7 @@ public sealed class SalaryRecordRepository : ISalaryRecordRepository
     public SalaryRecordRepository(AppDbContext context) => _context = context;
 
     public async Task<SalaryRecord?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.SalaryRecords.FindAsync([id], ct);
+        => await _context.SalaryRecords.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<SalaryRecord>> GetAllAsync(Guid tenantId, int? year = null, int? month = null, CancellationToken ct = default)
     {

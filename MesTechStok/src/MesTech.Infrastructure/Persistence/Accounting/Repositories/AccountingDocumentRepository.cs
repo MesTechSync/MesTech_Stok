@@ -11,7 +11,7 @@ public sealed class AccountingDocumentRepository : IAccountingDocumentRepository
     public AccountingDocumentRepository(AppDbContext context) => _context = context;
 
     public async Task<AccountingDocument?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.AccountingDocuments.FindAsync([id], ct);
+        => await _context.AccountingDocuments.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<AccountingDocument>> GetByTypeAsync(Guid tenantId, DocumentType type, CancellationToken ct = default)
         => await _context.AccountingDocuments

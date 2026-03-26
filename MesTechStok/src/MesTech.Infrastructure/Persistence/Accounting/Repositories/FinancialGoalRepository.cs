@@ -10,7 +10,7 @@ public sealed class FinancialGoalRepository : IFinancialGoalRepository
     public FinancialGoalRepository(AppDbContext context) => _context = context;
 
     public async Task<FinancialGoal?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.FinancialGoals.FindAsync([id], ct);
+        => await _context.FinancialGoals.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<FinancialGoal>> GetActiveAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.FinancialGoals

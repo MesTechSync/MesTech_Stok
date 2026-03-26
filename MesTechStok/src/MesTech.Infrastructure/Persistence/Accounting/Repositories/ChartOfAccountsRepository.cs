@@ -10,7 +10,7 @@ public sealed class ChartOfAccountsRepository : IChartOfAccountsRepository
     public ChartOfAccountsRepository(AppDbContext context) => _context = context;
 
     public async Task<ChartOfAccounts?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.ChartOfAccounts.FindAsync([id], ct);
+        => await _context.ChartOfAccounts.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<ChartOfAccounts?> GetByCodeAsync(Guid tenantId, string code, CancellationToken ct = default)
         => await _context.ChartOfAccounts

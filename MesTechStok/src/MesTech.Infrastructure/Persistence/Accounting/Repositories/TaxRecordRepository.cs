@@ -10,7 +10,7 @@ public sealed class TaxRecordRepository : ITaxRecordRepository
     public TaxRecordRepository(AppDbContext context) => _context = context;
 
     public async Task<TaxRecord?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.TaxRecords.FindAsync([id], ct);
+        => await _context.TaxRecords.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<TaxRecord>> GetByPeriodAsync(Guid tenantId, string period, CancellationToken ct = default)
         => await _context.TaxRecords

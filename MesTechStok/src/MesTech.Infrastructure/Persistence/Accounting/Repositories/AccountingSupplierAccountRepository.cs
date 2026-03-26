@@ -10,7 +10,7 @@ public sealed class AccountingSupplierAccountRepository : IAccountingSupplierAcc
     public AccountingSupplierAccountRepository(AppDbContext context) => _context = context;
 
     public async Task<AccountingSupplierAccount?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.AccountingSupplierAccounts.FindAsync([id], ct);
+        => await _context.AccountingSupplierAccounts.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<AccountingSupplierAccount?> GetBySupplierIdAsync(Guid tenantId, Guid supplierId, CancellationToken ct = default)
         => await _context.AccountingSupplierAccounts

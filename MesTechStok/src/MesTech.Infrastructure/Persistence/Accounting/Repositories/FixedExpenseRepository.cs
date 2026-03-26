@@ -10,7 +10,7 @@ public sealed class FixedExpenseRepository : IFixedExpenseRepository
     public FixedExpenseRepository(AppDbContext context) => _context = context;
 
     public async Task<FixedExpense?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.FixedExpenses.FindAsync([id], ct);
+        => await _context.FixedExpenses.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<FixedExpense>> GetAllAsync(Guid tenantId, bool? isActive = null, CancellationToken ct = default)
     {

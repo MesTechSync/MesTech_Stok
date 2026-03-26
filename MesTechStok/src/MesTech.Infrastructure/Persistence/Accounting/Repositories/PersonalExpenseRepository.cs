@@ -11,7 +11,7 @@ public sealed class PersonalExpenseRepository : IPersonalExpenseRepository
     public PersonalExpenseRepository(AppDbContext context) => _context = context;
 
     public async Task<PersonalExpense?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.PersonalExpenses.FindAsync([id], ct);
+        => await _context.PersonalExpenses.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<PersonalExpense>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, ExpenseSource? source = null, CancellationToken ct = default)
     {

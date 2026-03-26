@@ -10,7 +10,7 @@ public sealed class BankTransactionRepository : IBankTransactionRepository
     public BankTransactionRepository(AppDbContext context) => _context = context;
 
     public async Task<BankTransaction?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.AccountingBankTransactions.FindAsync([id], ct);
+        => await _context.AccountingBankTransactions.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<BankTransaction?> GetByIdempotencyKeyAsync(Guid tenantId, string idempotencyKey, CancellationToken ct = default)
         => await _context.AccountingBankTransactions

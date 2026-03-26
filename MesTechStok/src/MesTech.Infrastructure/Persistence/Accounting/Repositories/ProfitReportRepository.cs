@@ -10,7 +10,7 @@ public sealed class ProfitReportRepository : IProfitReportRepository
     public ProfitReportRepository(AppDbContext context) => _context = context;
 
     public async Task<ProfitReport?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.ProfitReports.FindAsync([id], ct);
+        => await _context.ProfitReports.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<ProfitReport>> GetByPeriodAsync(Guid tenantId, string period, string? platform = null, CancellationToken ct = default)
     {

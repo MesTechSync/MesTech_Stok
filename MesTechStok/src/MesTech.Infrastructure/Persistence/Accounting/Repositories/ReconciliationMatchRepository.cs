@@ -11,7 +11,7 @@ public sealed class ReconciliationMatchRepository : IReconciliationMatchReposito
     public ReconciliationMatchRepository(AppDbContext context) => _context = context;
 
     public async Task<ReconciliationMatch?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.ReconciliationMatches.FindAsync([id], ct);
+        => await _context.ReconciliationMatches.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<ReconciliationMatch>> GetByStatusAsync(Guid tenantId, ReconciliationStatus status, CancellationToken ct = default)
         => await _context.ReconciliationMatches

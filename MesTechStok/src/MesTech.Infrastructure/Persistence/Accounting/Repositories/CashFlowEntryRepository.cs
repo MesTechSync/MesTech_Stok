@@ -11,7 +11,7 @@ public sealed class CashFlowEntryRepository : ICashFlowEntryRepository
     public CashFlowEntryRepository(AppDbContext context) => _context = context;
 
     public async Task<CashFlowEntry?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.CashFlowEntries.FindAsync([id], ct);
+        => await _context.CashFlowEntries.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<CashFlowEntry>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CashFlowDirection? direction = null, CancellationToken ct = default)
     {

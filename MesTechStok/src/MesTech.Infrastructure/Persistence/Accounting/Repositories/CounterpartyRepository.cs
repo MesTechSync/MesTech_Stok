@@ -11,7 +11,7 @@ public sealed class CounterpartyRepository : ICounterpartyRepository
     public CounterpartyRepository(AppDbContext context) => _context = context;
 
     public async Task<Counterparty?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Counterparties.FindAsync([id], ct);
+        => await _context.Counterparties.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<Counterparty>> GetAllAsync(Guid tenantId, CounterpartyType? type = null, bool? isActive = null, CancellationToken ct = default)
     {

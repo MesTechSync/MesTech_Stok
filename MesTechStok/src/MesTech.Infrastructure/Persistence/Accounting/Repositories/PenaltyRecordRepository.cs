@@ -11,7 +11,7 @@ public sealed class PenaltyRecordRepository : IPenaltyRecordRepository
     public PenaltyRecordRepository(AppDbContext context) => _context = context;
 
     public async Task<PenaltyRecord?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.PenaltyRecords.FindAsync([id], ct);
+        => await _context.PenaltyRecords.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<PenaltyRecord>> GetAllAsync(Guid tenantId, PenaltySource? source = null, CancellationToken ct = default)
     {
