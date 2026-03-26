@@ -1,257 +1,442 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              x:Class="MesTech.Avalonia.Views.ReportDashboardAvaloniaView"
              x:DataType="vm:ReportDashboardAvaloniaViewModel">
-<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
 
-    <!-- Rapor Paneli — İ-11 Görev 4B -->
-    <!-- Quick reports, parameters, scheduled & recent reports -->
+    <!-- WPF019: Raporlar — LiveCharts2 grafik + TreeView + filtreler [ENT-DEV2] -->
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
-        <!-- Header -->
+        <!-- ═══ HEADER ═══════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Rapor Paneli"
-                           Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Raporlar"
+                           Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
+                <Button Grid.Column="1" Content="Excel Aktar" ToolTip.Tip="Raporu Excel olarak dışa aktar"
+                        Command="{Binding ExportExcelCommand}"
+                        Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="SemiBold" Padding="16,8"
+                        CornerRadius="{StaticResource MesRadiusBase}"
+                        Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        FontWeight="SemiBold" Padding="16,8"
+                        CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
 
-        <!-- Content -->
-        <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel Spacing="24" MaxWidth="900">
+        <!-- ═══ MAIN CONTENT ══════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" ColumnDefinitions="260,*">
 
-                <!-- Generating Overlay -->
-                <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
-                        BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
-                        IsVisible="{Binding IsGenerating}">
-                    <StackPanel Spacing="8">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <ProgressBar IsIndeterminate="True" Width="120" Height="4"
-                                         VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding GeneratingMessage}" FontSize="{StaticResource FontSizeBody}"
-                                       Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
-                                     Height="6" CornerRadius="3" />
-                    </StackPanel>
-                </Border>
+            <!-- ── LEFT PANEL: Report Type TreeView ───────────────────────── -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource MesBgPrimary}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,1,0"
+                    Padding="0">
+                <Grid RowDefinitions="Auto,*">
 
-                <!-- Quick Report Buttons -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Hizli Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                    <!-- Panel header -->
+                    <Border Grid.Row="0" Padding="16,12"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Rapor Tipi"
+                                   FontSize="{StaticResource FontSizeBodyLg}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MesDarkSlate}" />
-                        <WrapPanel Orientation="Horizontal">
-                            <Button Content="Stok Degerleme"
-                                    ToolTip.Tip="Stok Degerleme"
-                                    Command="{Binding GenerateQuickReportCommand}"
-                                    CommandParameter="Stok Degerleme"
-                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
-                            <Button Content="Platform Performans"
-                                    ToolTip.Tip="Platform Performans"
-                                    Command="{Binding GenerateQuickReportCommand}"
-                                    CommandParameter="Platform Performans"
-                                    Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
-                            <Button Content="Musteri Yasam Boyu"
-                                    ToolTip.Tip="Musteri Yasam Boyu"
-                                    Command="{Binding GenerateQuickReportCommand}"
-                                    CommandParameter="CLV Analizi"
-                                    Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
-                            <Button Content="Gonderim Raporu"
-                                    ToolTip.Tip="Gonderim Raporu"
-                                    Command="{Binding GenerateQuickReportCommand}"
-                                    CommandParameter="Gonderim Raporu"
-                                    Background="{DynamicResource MesWarning}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
-                            <Button Content="Vergi Ozeti"
-                                    ToolTip.Tip="Vergi Ozeti"
-                                    Command="{Binding GenerateQuickReportCommand}"
-                                    CommandParameter="Vergi Ozeti"
-                                    Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                    Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,8" />
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- Report Parameters -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-                    <StackPanel Spacing="16">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Rapor Parametreleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="Ozel rapor olusturmak icin parametreleri ayarlayin"
-                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                    <!-- Category + children list -->
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding ReportCategories}" Padding="8,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ReportCategoryItem">
+                                    <StackPanel Spacing="2" Margin="0,0,0,8">
+                                        <!-- Category header -->
+                                        <Border Padding="10,8" CornerRadius="{StaticResource MesRadiusBase}"
+                                                Background="{DynamicResource MesBgSurface}">
+                                            <TextBlock Text="{Binding CategoryName}"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource MesSlateGray}" />
+                                        </Border>
+                                        <!-- Child items -->
+                                        <ItemsControl ItemsSource="{Binding Children}" Margin="8,2,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Button Content="{Binding}"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Left"
+                                                            Padding="10,7"
+                                                            CornerRadius="{StaticResource MesRadiusBase}"
+                                                            Background="Transparent"
+                                                            Foreground="{DynamicResource MesDarkSlate}"
+                                                            FontSize="{StaticResource FontSizeBody}"
+                                                            Margin="0,1" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- ── RIGHT PANEL: Filters + Chart + Table ───────────────────── -->
+            <ScrollViewer Grid.Column="1" Padding="16">
+                <StackPanel Spacing="16">
+
+                    <!-- Generating progress overlay -->
+                    <Border Background="{DynamicResource MesBgSurface}"
+                            CornerRadius="{StaticResource MesRadiusMd}" Padding="16"
+                            BorderBrush="{DynamicResource MesBorderAmberLight}" BorderThickness="1"
+                            IsVisible="{Binding IsGenerating}">
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <ProgressBar IsIndeterminate="True" Width="120" Height="4"
+                                             VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding GeneratingMessage}"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           Foreground="{DynamicResource MesAmber}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                         Height="6" CornerRadius="3" />
                         </StackPanel>
+                    </Border>
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4">
-                            <!-- Report Type -->
-                            <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
-                                <TextBlock Text="Rapor Turu" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <ComboBox ItemsSource="{Binding ReportTypes}"
-                                          SelectedItem="{Binding SelectedReportType}"
-                                          HorizontalAlignment="Stretch"  AutomationProperties.Name="Rapor Turu"/>
-                            </StackPanel>
+                    <!-- ── FILTER BAR ──────────────────────────────────────── -->
+                    <Border Background="{DynamicResource MesBgPrimary}"
+                            CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Filtreler"
+                                       FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                            <WrapPanel Orientation="Horizontal">
 
-                            <!-- Platform Filter -->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
-                                <TextBlock Text="Platform" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <ComboBox ItemsSource="{Binding Platforms}"
-                                          SelectedItem="{Binding SelectedPlatform}"
-                                          HorizontalAlignment="Stretch"  AutomationProperties.Name="Platform"/>
-                            </StackPanel>
-
-                            <!-- Start Date -->
-                            <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,12">
-                                <TextBlock Text="Baslangic Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch"  AutomationProperties.Name="Baslangic Tarihi" />
-                            </StackPanel>
-
-                            <!-- End Date -->
-                            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="8,0,0,12">
-                                <TextBlock Text="Bitis Tarihi" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <DatePicker SelectedDate="{Binding EndDate}" HorizontalAlignment="Stretch"  AutomationProperties.Name="Bitis Tarihi" />
-                            </StackPanel>
-
-                            <!-- Export Format -->
-                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,0,0,12">
-                                <TextBlock Text="Disari Aktarma Formati" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <RadioButton GroupName="ExportFmt" Content="Excel"
-                                                 IsChecked="{Binding SelectedExportFormat,
-                                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                                 FontSize="{StaticResource FontSizeBody}" />
-                                    <RadioButton GroupName="ExportFmt" Content="PDF" FontSize="{StaticResource FontSizeBody}" />
-                                    <RadioButton GroupName="ExportFmt" Content="CSV" FontSize="{StaticResource FontSizeBody}" />
+                                <!-- DateFrom -->
+                                <StackPanel Spacing="4" Margin="0,0,16,8">
+                                    <TextBlock Text="Başlangıç"
+                                               FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesSlateGray}" />
+                                    <DatePicker SelectedDate="{Binding DateFrom}"
+                                                Width="160"
+                                                AutomationProperties.Name="Başlangıç Tarihi" />
                                 </StackPanel>
-                            </StackPanel>
 
-                            <!-- Generate Button -->
-                            <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
-                                <Button Content="Rapor Olustur" ToolTip.Tip="Rapor olustur ve indir"
-                                        Command="{Binding GenerateReportCommand}"
-                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                                        Padding="24,12" CornerRadius="{StaticResource MesRadiusBase}"
-                                        HorizontalAlignment="Left" />
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                                <!-- DateTo -->
+                                <StackPanel Spacing="4" Margin="0,0,16,8">
+                                    <TextBlock Text="Bitiş"
+                                               FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesSlateGray}" />
+                                    <DatePicker SelectedDate="{Binding DateTo}"
+                                                Width="160"
+                                                AutomationProperties.Name="Bitiş Tarihi" />
+                                </StackPanel>
 
-                <!-- Scheduled Reports -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-                    <StackPanel Spacing="12">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Zamanlanmis Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="Otomatik olarak olusturulan periyodik raporlar"
-                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                                <!-- Platform -->
+                                <StackPanel Spacing="4" Margin="0,0,16,8">
+                                    <TextBlock Text="Platform"
+                                               FontSize="{StaticResource FontSizeCaption}"
+                                               Foreground="{DynamicResource MesSlateGray}" />
+                                    <ComboBox ItemsSource="{Binding Platforms}"
+                                              SelectedItem="{Binding SelectedPlatform}"
+                                              Width="160"
+                                              AutomationProperties.Name="Platform Seçimi" />
+                                </StackPanel>
+
+                                <!-- Raporu Getir -->
+                                <StackPanel Spacing="4" Margin="0,0,0,8">
+                                    <TextBlock Text=" " FontSize="{StaticResource FontSizeCaption}" />
+                                    <Button Content="Raporu Getir"
+                                            ToolTip.Tip="Seçilen filtrelere göre raporu oluştur"
+                                            Command="{Binding GenerateReportCommand}"
+                                            Background="{DynamicResource MesPrimaryBlue}"
+                                            Foreground="{DynamicResource MesBgPrimary}"
+                                            FontWeight="SemiBold"
+                                            Padding="20,10"
+                                            CornerRadius="{StaticResource MesRadiusBase}" />
+                                </StackPanel>
+                            </WrapPanel>
                         </StackPanel>
+                    </Border>
 
-                        <DataGrid ItemsSource="{Binding ScheduledReports}"
-                                  AutoGenerateColumns="False"
-                                  CanUserResizeColumns="True" CanUserReorderColumns="True"
-                                  CanUserSortColumns="True"
-                                  IsReadOnly="True"
-                                  GridLinesVisibility="Horizontal"
-                                  BorderThickness="0"
-                                  MaxHeight="250">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Rapor Adi" Binding="{Binding Name}" Width="200" />
-                                <DataGridTextColumn Header="Periyot" Binding="{Binding Period}" Width="100" />
-                                <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="80" />
-                                <DataGridTextColumn Header="Son Calisma" Binding="{Binding LastRun}" Width="120" />
-                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <!-- Empty State -->
-                        <TextBlock Text="Kayit bulunamadi"
-                                   FontSize="{StaticResource FontSizeTitle}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource MesMutedGray}"
-                                   IsVisible="{Binding !ScheduledReports.Count}"
-                                   Opacity="0.5" />
-                    </StackPanel>
-                </Border>
+                    <!-- ── KPI SUMMARY CARDS ───────────────────────────────── -->
+                    <Grid ColumnDefinitions="*,*,*">
+                        <!-- Satış -->
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource MesBgPrimary}"
+                                CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                                Margin="0,0,6,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Toplam Satış"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding TotalSales}"
+                                           FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesPrimaryBlue}" />
+                                <TextBlock Text="{Binding TotalOrders, StringFormat='{}{0} sipariş'}"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                            </StackPanel>
+                        </Border>
 
-                <!-- Recent Reports -->
-                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-                    <StackPanel Spacing="12">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Son Raporlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MesDarkSlate}" />
-                            <TextBlock Text="En son olusturulan raporlar"
-                                       FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                        <!-- Stok -->
+                        <Border Grid.Column="1"
+                                Background="{DynamicResource MesBgPrimary}"
+                                CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                                Margin="3,0,3,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Toplam Ürün"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding TotalProducts}"
+                                           FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesGreen}" />
+                                <TextBlock Text="{Binding LowStockCount, StringFormat='{}{0} düşük stok'}"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesAmber}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Karlılık -->
+                        <Border Grid.Column="2"
+                                Background="{DynamicResource MesBgPrimary}"
+                                CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                                Margin="6,0,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Net Kâr"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBlock Text="{Binding NetProfit}"
+                                           FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesTeal}" />
+                                <TextBlock Text="{Binding TotalExpenses, StringFormat='Gider: {0}'}"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- ── LIVECHARTS2 CHART ───────────────────────────────── -->
+                    <Border Background="{DynamicResource MesBgPrimary}"
+                            CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Satış &amp; Sipariş Trendi"
+                                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Son 7 gün — ColumnSeries: Satış (TL) · LineSeries: Sipariş adedi"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                            </StackPanel>
+                            <lvc:CartesianChart Series="{Binding ChartSeries}"
+                                               XAxes="{Binding XAxes}"
+                                               YAxes="{Binding YAxes}"
+                                               Height="280"
+                                               LegendPosition="Bottom" />
                         </StackPanel>
+                    </Border>
 
-                        <DataGrid ItemsSource="{Binding RecentReports}"
-                                  AutoGenerateColumns="False"
-                                  CanUserResizeColumns="True" CanUserReorderColumns="True"
-                                  CanUserSortColumns="True"
-                                  IsReadOnly="True"
-                                  GridLinesVisibility="Horizontal"
-                                  BorderThickness="0"
-                                  MaxHeight="300">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="120" />
-                                <DataGridTextColumn Header="Rapor Adi" Binding="{Binding ReportName}" Width="220" />
-                                <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="80" />
-                                <DataGridTextColumn Header="Boyut" Binding="{Binding Size}" Width="100" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <!-- Empty State -->
-                        <TextBlock Text="Kayit bulunamadi"
-                                   FontSize="{StaticResource FontSizeTitle}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource MesMutedGray}"
-                                   IsVisible="{Binding !RecentReports.Count}"
-                                   Opacity="0.5" />
-                    </StackPanel>
-                </Border>
+                    <!-- ── SUMMARY TABLE ───────────────────────────────────── -->
+                    <Border Background="{DynamicResource MesBgPrimary}"
+                            CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="Rapor Detayı"
+                                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Content="Excel Aktar"
+                                        ToolTip.Tip="Tabloyu Excel olarak dışa aktar"
+                                        Command="{Binding ExportExcelCommand}"
+                                        Background="{DynamicResource MesGreen}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,8"
+                                        CornerRadius="{StaticResource MesRadiusBase}" />
+                            </Grid>
 
-            </StackPanel>
-        </ScrollViewer>
+                            <DataGrid ItemsSource="{Binding ReportRows}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal"
+                                      BorderThickness="0"
+                                      CanUserSortColumns="True"
+                                      CanUserResizeColumns="True"
+                                      CanUserReorderColumns="True"
+                                      MaxHeight="320">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tarih"
+                                                        Binding="{Binding Tarih}"
+                                                        Width="110" />
+                                    <DataGridTextColumn Header="Platform"
+                                                        Binding="{Binding Platform}"
+                                                        Width="130" />
+                                    <DataGridTextColumn Header="Dönem"
+                                                        Binding="{Binding DonemTipi}"
+                                                        Width="100" />
+                                    <DataGridTextColumn Header="Sipariş"
+                                                        Binding="{Binding SiparisSayisi}"
+                                                        Width="90" />
+                                    <DataGridTextColumn Header="Satış (TL)"
+                                                        Binding="{Binding SatisTL}"
+                                                        Width="130" />
+                                    <DataGridTextColumn Header="Kâr (TL)"
+                                                        Binding="{Binding KarTL}"
+                                                        Width="130" />
+                                    <DataGridTextColumn Header="Marjin %"
+                                                        Binding="{Binding MarjinYuzde}"
+                                                        Width="90" />
+                                </DataGrid.Columns>
+                            </DataGrid>
 
-        <!-- Loading Overlay -->
+                            <!-- Empty State -->
+                            <TextBlock Text="Henüz rapor oluşturulmadı — yukarıdan filtre seçip 'Raporu Getir'e tıklayın."
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,24"
+                                       Opacity="0.55"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       IsVisible="{Binding !ReportRows.Count}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── QUICK REPORTS ───────────────────────────────────── -->
+                    <Border Background="{DynamicResource MesBgPrimary}"
+                            CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Hızlı Raporlar"
+                                       FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" />
+                            <WrapPanel Orientation="Horizontal">
+                                <Button Content="Stok Değerleme"
+                                        ToolTip.Tip="Stok Değerleme"
+                                        Command="{Binding GenerateQuickReportCommand}"
+                                        CommandParameter="Stok Değerleme"
+                                        Background="{DynamicResource MesPrimaryBlue}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,9"
+                                        CornerRadius="{StaticResource MesRadiusBase}"
+                                        Margin="0,0,8,8" />
+                                <Button Content="Platform Performans"
+                                        ToolTip.Tip="Platform Performans"
+                                        Command="{Binding GenerateQuickReportCommand}"
+                                        CommandParameter="Platform Performans"
+                                        Background="{DynamicResource MesGreen}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,9"
+                                        CornerRadius="{StaticResource MesRadiusBase}"
+                                        Margin="0,0,8,8" />
+                                <Button Content="Ürün Karlılığı"
+                                        ToolTip.Tip="Ürün Karlılığı"
+                                        Command="{Binding GenerateQuickReportCommand}"
+                                        CommandParameter="Ürün Karlılığı"
+                                        Background="{DynamicResource MesPurple}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,9"
+                                        CornerRadius="{StaticResource MesRadiusBase}"
+                                        Margin="0,0,8,8" />
+                                <Button Content="Gönderim Raporu"
+                                        ToolTip.Tip="Gönderim Raporu"
+                                        Command="{Binding GenerateQuickReportCommand}"
+                                        CommandParameter="Gönderim Raporu"
+                                        Background="{DynamicResource MesWarning}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,9"
+                                        CornerRadius="{StaticResource MesRadiusBase}"
+                                        Margin="0,0,8,8" />
+                                <Button Content="Vergi Özeti"
+                                        ToolTip.Tip="Vergi Özeti"
+                                        Command="{Binding GenerateQuickReportCommand}"
+                                        CommandParameter="Vergi Özeti"
+                                        Background="{DynamicResource MesRedAlert}"
+                                        Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="14,9"
+                                        CornerRadius="{StaticResource MesRadiusBase}"
+                                        Margin="0,0,0,8" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── RECENT REPORTS ──────────────────────────────────── -->
+                    <Border Background="{DynamicResource MesBgPrimary}"
+                            CornerRadius="{StaticResource MesRadiusLg}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Son Raporlar"
+                                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="En son oluşturulan raporlar"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesMutedGray}" />
+                            </StackPanel>
+                            <DataGrid ItemsSource="{Binding RecentReports}"
+                                      AutoGenerateColumns="False"
+                                      CanUserResizeColumns="True"
+                                      CanUserReorderColumns="True"
+                                      CanUserSortColumns="True"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal"
+                                      BorderThickness="0"
+                                      MaxHeight="220">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tarih"
+                                                        Binding="{Binding Date}"
+                                                        Width="120" />
+                                    <DataGridTextColumn Header="Rapor Adı"
+                                                        Binding="{Binding ReportName}"
+                                                        Width="*" />
+                                    <DataGridTextColumn Header="Format"
+                                                        Binding="{Binding Format}"
+                                                        Width="90" />
+                                    <DataGridTextColumn Header="Boyut"
+                                                        Binding="{Binding Size}"
+                                                        Width="90" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="Kayıt bulunamadı"
+                                       FontSize="{StaticResource FontSizeTitle}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource MesMutedGray}"
+                                       IsVisible="{Binding !RecentReports.Count}"
+                                       Opacity="0.5" />
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ═══ LOADING OVERLAY ═══════════════════════════════════════════════ -->
         <Border Grid.Row="0" Grid.RowSpan="2"
                 Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Rapor paneli yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Rapor paneli yükleniyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
 
-<!-- Empty state -->
-        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
-          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-            <TextBlock Text="Rapor bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
-            <TextBlock Text="Henuz rapor bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
-          </StackPanel>
-        </Border>
-
-        <!-- Error State -->
+        <!-- ═══ ERROR STATE ════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Grid.RowSpan="2"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding HasError}"
@@ -264,10 +449,11 @@
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                <Button Content="Tekrar Dene" ToolTip.Tip="İşlemi tekrar dene"
                         Command="{Binding RefreshCommand}"
                         Padding="16,6" />
             </StackPanel>
         </Border>
+
     </Grid>
 </UserControl>
