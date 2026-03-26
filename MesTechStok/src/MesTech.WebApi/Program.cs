@@ -278,19 +278,35 @@ app.UseHttpsRedirection();
 // Response compression — before static files and routing (KEŞİF-DEV6)
 app.UseResponseCompression();
 
-// Correlation ID — propagate or generate X-Correlation-ID for distributed tracing (KEŞİF-DEV6)
+// Distributed tracing — W3C Trace-Context + X-Correlation-ID + Activity (DEV6-TUR13)
 app.Use(async (context, next) =>
 {
-    const string header = "X-Correlation-ID";
-    var correlationId = context.Request.Headers[header].FirstOrDefault()
+    // 1. W3C traceparent header propagation (standard)
+    var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString();
+
+    // 2. X-Correlation-ID fallback (legacy clients)
+    const string correlationHeader = "X-Correlation-ID";
+    var correlationId = context.Request.Headers[correlationHeader].FirstOrDefault()
+        ?? traceId
         ?? Guid.NewGuid().ToString("N");
+
     context.Items["CorrelationId"] = correlationId;
+    context.Items["TraceId"] = traceId ?? correlationId;
+
+    // 3. Response headers — both W3C and custom for backward compat
     context.Response.OnStarting(() =>
     {
-        context.Response.Headers[header] = correlationId;
+        context.Response.Headers[correlationHeader] = correlationId;
+        if (traceId is not null)
+            context.Response.Headers["X-Trace-Id"] = traceId;
         return Task.CompletedTask;
     });
+
+    // 4. Serilog enrichment — trace context in every log line
     using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
+    using (Serilog.Context.LogContext.PushProperty("TraceId", traceId ?? correlationId))
+    using (Serilog.Context.LogContext.PushProperty("SpanId",
+        System.Diagnostics.Activity.Current?.SpanId.ToString() ?? "0000000000000000"))
     {
         await next();
     }
