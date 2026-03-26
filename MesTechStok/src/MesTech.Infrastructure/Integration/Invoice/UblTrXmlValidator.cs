@@ -1,3 +1,4 @@
+using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces;
 
@@ -20,7 +21,9 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         try
         {
             using var ms = new MemoryStream(xmlBytes);
-            doc = XDocument.Load(ms);
+            var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+            using var reader = XmlReader.Create(ms, readerSettings);
+            doc = XDocument.Load(reader);
         }
         catch (Exception ex)
         {
