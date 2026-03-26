@@ -17,5 +17,8 @@ public enum PlatformType
     eBay = 9,
     Etsy = 10,
     Bitrix24 = 11,
-    AmazonEu = 12
+    AmazonEu = 12,
+    Shopify = 13,
+    WooCommerce = 14,
+    Zalando = 15
 }
