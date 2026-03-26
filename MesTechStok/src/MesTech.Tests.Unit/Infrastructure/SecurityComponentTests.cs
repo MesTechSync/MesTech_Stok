@@ -185,7 +185,8 @@ public class OAuth2AuthProviderTests
         _tokenCache.Setup(c => c.GetAsync("oauth2:amazon", It.IsAny<CancellationToken>()))
             .ReturnsAsync(cachedToken);
 
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
+        var httpClient = new HttpClient();
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
             "amazon", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "client_id", "client_secret", "https://token.example.com", null, _logger.Object);
@@ -199,7 +200,8 @@ public class OAuth2AuthProviderTests
     [Fact]
     public void IsTokenExpired_FreshToken_ShouldReturnFalse()
     {
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
+        var httpClient = new HttpClient();
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
             "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);
@@ -211,7 +213,8 @@ public class OAuth2AuthProviderTests
     [Fact]
     public void IsTokenExpired_NearExpiry_ShouldReturnTrue()
     {
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(new HttpClient());
+        var httpClient = new HttpClient();
+        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
             "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);

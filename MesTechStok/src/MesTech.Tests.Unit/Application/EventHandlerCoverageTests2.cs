@@ -1,4 +1,4 @@
-using MesTech.Application.EventHandlers;
+﻿using MesTech.Application.EventHandlers;
 using MesTech.Domain.Events;
 using MesTech.Domain.Events.Crm;
 using MesTech.Domain.Events.Finance;
@@ -16,12 +16,12 @@ public class EventHandlerCoverageTests2
 
     [Fact]
     public async Task DealWonEventHandler_Completes() =>
-        await new DealWonEventHandler(Mock.Of<ILogger<DealWonEventHandler>>())
+        await new DealWonEventHandler(Mock.Of<ILogger<DealWonEventHandler>>()))
             .HandleAsync(new DealWonEvent(Guid.NewGuid(), _t, Guid.NewGuid(), 1500m, DateTime.UtcNow), default);
 
     [Fact]
     public async Task DealLostEventHandler_Completes() =>
-        await new DealLostEventHandler(Mock.Of<ILogger<DealLostEventHandler>>())
+        await new DealLostEventHandler(Mock.Of<ILogger<DealLostEventHandler>>()))
             .HandleAsync(new DealLostEvent(Guid.NewGuid(), _t, "Price", DateTime.UtcNow), default);
 
     [Fact]

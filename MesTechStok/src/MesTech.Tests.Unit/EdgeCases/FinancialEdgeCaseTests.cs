@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.EventHandlers;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
@@ -32,10 +32,10 @@ public class FinancialEdgeCaseTests
     public async Task CreateJournalEntry_ExactlyBalanced_ReturnsEntryId()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(Task.CompletedTask);
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
@@ -142,7 +142,7 @@ public class FinancialEdgeCaseTests
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger);
+        var handler = new CommissionChargedGLHandler(uow.Object, logger, Mock.Of<IMesTech.Application.Interfaces.Accounting.IAccountRepository>());
 
         // Act
         await handler.HandleAsync(

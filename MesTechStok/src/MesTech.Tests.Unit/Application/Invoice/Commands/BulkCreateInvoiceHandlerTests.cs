@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -14,7 +14,7 @@ public class BulkCreateInvoiceHandlerTests
     private readonly Mock<ILogger<BulkCreateInvoiceHandler>> _logger = new();
 
     private BulkCreateInvoiceHandler CreateHandler() =>
-        new(_repository.Object, _logger.Object);
+        new BulkCreateInvoiceHandler(_repository.Object, _logger.Object);
 
     [Fact]
     public async Task Handle_MultipleOrderIds_ShouldReturnSuccessForAll()

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetAccountBalance;
 using MesTech.Application.Features.Accounting.Queries.GetAccountingExpenses;
@@ -38,7 +38,7 @@ public class AccountingQueryTests2
     {
         var sut = new GetAccountBalanceHandler(
             new Mock<IChartOfAccountsRepository>().Object,
-            new Mock<IJournalEntryRepository>().Object);
+            new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CT));
@@ -51,7 +51,7 @@ public class AccountingQueryTests2
         accountRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), CT))
             .ReturnsAsync((MesTech.Domain.Accounting.Entities.ChartOfAccounts?)null);
 
-        var sut = new GetAccountBalanceHandler(accountRepo.Object, new Mock<IJournalEntryRepository>().Object);
+        var sut = new GetAccountBalanceHandler(accountRepo.Object, new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object);
         var result = await sut.Handle(new GetAccountBalanceQuery(TenantId, Guid.NewGuid()), CT);
 
         result.Should().BeNull();
@@ -108,7 +108,7 @@ public class AccountingQueryTests2
     {
         var sut = new GetBalanceSheetHandler(
             new Mock<IChartOfAccountsRepository>().Object,
-            new Mock<IJournalEntryRepository>().Object);
+            new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CT));
