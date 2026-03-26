@@ -9,6 +9,10 @@
         xmlns:acctviews="using:MesTech.Avalonia.Views.Accounting"
         xmlns:monviews="using:MesTech.Avalonia.Views.Monitoring"
         xmlns:ordviews="using:MesTech.Avalonia.Views.Orders"
+        xmlns:erpvm="using:MesTech.Avalonia.ViewModels.Erp"
+        xmlns:erpviews="using:MesTech.Avalonia.Views.Erp"
+        xmlns:fulfillviews="using:MesTech.Avalonia.Views.Fulfillment"
+        xmlns:rptviews="using:MesTech.Avalonia.Views.Reports"
         x:Class="MesTech.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="MesTech Entegratör"
@@ -1024,6 +1028,285 @@
                         </DataTemplate>
                         <DataTemplate DataType="ordvm:OrderKanbanViewModel">
                             <ordviews:OrderKanbanView />
+                        </DataTemplate>
+                        <!-- Missing DataTemplates — vm: namespace (root ViewModels) -->
+                        <DataTemplate DataType="vm:AboutAvaloniaViewModel">
+                            <views:AboutAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:AccountingDashboardAvaloniaViewModel">
+                            <views:AccountingDashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ActivityAvaloniaViewModel">
+                            <views:ActivityAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:AmazonAvaloniaViewModel">
+                            <views:AmazonAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:AmazonEuAvaloniaViewModel">
+                            <views:AmazonEuAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:AuditLogAvaloniaViewModel">
+                            <views:AuditLogAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BackupAvaloniaViewModel">
+                            <views:BackupAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BarcodeAvaloniaViewModel">
+                            <views:BarcodeAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BarcodeScannerViewModel">
+                            <views:BarcodeScannerView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BordroAvaloniaViewModel">
+                            <views:BordroAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BudgetAvaloniaViewModel">
+                            <views:BudgetAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BulkProductAvaloniaViewModel">
+                            <views:BulkProductAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CalendarAvaloniaViewModel">
+                            <views:CalendarAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CargoAvaloniaViewModel">
+                            <views:CargoAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CargoSettingsAvaloniaViewModel">
+                            <views:CargoSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CariAvaloniaViewModel">
+                            <views:CariAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CashFlowReportViewModel">
+                            <rptviews:CashFlowReportView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CiceksepetiAvaloniaViewModel">
+                            <views:CiceksepetiAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ContactAvaloniaViewModel">
+                            <views:ContactAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CrmDashboardAvaloniaViewModel">
+                            <views:CrmDashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CrmSettingsAvaloniaViewModel">
+                            <views:CrmSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DealsAvaloniaViewModel">
+                            <views:DealsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DepartmentAvaloniaViewModel">
+                            <views:DepartmentAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DocumentFolderAvaloniaViewModel">
+                            <views:DocumentFolderAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DocumentManagerAvaloniaViewModel">
+                            <views:DocumentManagerAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:EbayAvaloniaViewModel">
+                            <views:EbayAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:EInvoiceAvaloniaViewModel">
+                            <views:EInvoiceAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FulfillmentDashboardViewModel">
+                            <fulfillviews:FulfillmentDashboardView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FulfillmentInboundViewModel">
+                            <fulfillviews:FulfillmentInboundView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FulfillmentInventoryViewModel">
+                            <fulfillviews:FulfillmentInventoryView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FulfillmentSettingsViewModel">
+                            <fulfillviews:FulfillmentSettingsView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:GelirGiderAvaloniaViewModel">
+                            <views:GelirGiderAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:GLTransactionAvaloniaViewModel">
+                            <views:GLTransactionAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:HealthAvaloniaViewModel">
+                            <views:HealthAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:HepsiburadaAvaloniaViewModel">
+                            <views:HepsiburadaAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ImportProductsAvaloniaViewModel">
+                            <views:ImportProductsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceSettingsAvaloniaViewModel">
+                            <views:InvoiceSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KanbanBoardAvaloniaViewModel">
+                            <views:KanbanBoardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KarlilikAnaliziAvaloniaViewModel">
+                            <views:KarlilikAnaliziAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KarZararAvaloniaViewModel">
+                            <views:KarZararAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KdvRaporAvaloniaViewModel">
+                            <views:KdvRaporAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:KomisyonAvaloniaViewModel">
+                            <views:KomisyonAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:MesaAvaloniaViewModel">
+                            <views:MesaAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:MultiTenantAvaloniaViewModel">
+                            <views:MultiTenantAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:MutabakatAvaloniaViewModel">
+                            <views:MutabakatAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:N11AvaloniaViewModel">
+                            <views:N11AvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:NakitAkisAvaloniaViewModel">
+                            <views:NakitAkisAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:NotificationAvaloniaViewModel">
+                            <views:NotificationAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:NotificationSettingsAvaloniaViewModel">
+                            <views:NotificationSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OnboardingWizardAvaloniaViewModel">
+                            <views:OnboardingWizardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OpenCartAvaloniaViewModel">
+                            <views:OpenCartAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OrderDetailAvaloniaViewModel">
+                            <views:OrderDetailAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OrderListAvaloniaViewModel">
+                            <views:OrderListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:OzonAvaloniaViewModel">
+                            <views:OzonAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PazaramaAvaloniaViewModel">
+                            <views:PazaramaAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PipelineAvaloniaViewModel">
+                            <views:PipelineAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PlatformMessagesAvaloniaViewModel">
+                            <views:PlatformMessagesAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PlatformSyncAvaloniaViewModel">
+                            <views:PlatformSyncAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProductVariantMatrixViewModel">
+                            <views:ProductVariantMatrixView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProfitLossAvaloniaViewModel">
+                            <views:ProfitLossAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProjectsAvaloniaViewModel">
+                            <views:ProjectsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PttAvmAvaloniaViewModel">
+                            <views:PttAvmAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ReportAvaloniaViewModel">
+                            <views:ReportAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ReportDashboardAvaloniaViewModel">
+                            <views:ReportDashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SabitGiderlerAvaloniaViewModel">
+                            <views:SabitGiderlerAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SalesAnalyticsViewModel">
+                            <rptviews:SalesAnalyticsView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ShipmentAvaloniaViewModel">
+                            <views:ShipmentAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockAlertAvaloniaViewModel">
+                            <views:StockAlertAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockLotAvaloniaViewModel">
+                            <views:StockLotAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockPlacementAvaloniaViewModel">
+                            <views:StockPlacementAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockTimelineAvaloniaViewModel">
+                            <views:StockTimelineAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockTransferAvaloniaViewModel">
+                            <views:StockTransferAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockUpdateAvaloniaViewModel">
+                            <views:StockUpdateAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StockValueReportViewModel">
+                            <rptviews:StockValueReportView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StoreManagementAvaloniaViewModel">
+                            <views:StoreManagementAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SupplierAvaloniaViewModel">
+                            <views:SupplierAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:TenantAvaloniaViewModel">
+                            <views:TenantAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:TimeEntryAvaloniaViewModel">
+                            <views:TimeEntryAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:TransferWizardAvaloniaViewModel">
+                            <views:TransferWizardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:TrendyolAvaloniaViewModel">
+                            <views:TrendyolAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:UserManagementAvaloniaViewModel">
+                            <views:UserManagementAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:VergiTakvimiAvaloniaViewModel">
+                            <views:VergiTakvimiAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WarehouseAvaloniaViewModel">
+                            <views:WarehouseAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WarehouseSummaryAvaloniaViewModel">
+                            <views:WarehouseSummaryAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WelcomeAvaloniaViewModel">
+                            <views:WelcomeAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WorkScheduleAvaloniaViewModel">
+                            <views:WorkScheduleAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WorkTaskAvaloniaViewModel">
+                            <views:WorkTaskAvaloniaView />
+                        </DataTemplate>
+                        <!-- Missing DataTemplates — acctvm: namespace (Accounting) -->
+                        <DataTemplate DataType="acctvm:IncomeExpenseDashboardViewModel">
+                            <acctviews:IncomeExpenseDashboardView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:IncomeExpenseListViewModel">
+                            <acctviews:IncomeExpenseListView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:ProfitabilityReportViewModel">
+                            <acctviews:ProfitabilityReportView />
+                        </DataTemplate>
+                        <!-- Missing DataTemplates — erpvm: namespace (ERP) -->
+                        <DataTemplate DataType="erpvm:ErpAccountMappingViewModel">
+                            <erpviews:ErpAccountMappingView />
+                        </DataTemplate>
+                        <DataTemplate DataType="erpvm:ErpDashboardViewModel">
+                            <erpviews:ErpDashboardView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
