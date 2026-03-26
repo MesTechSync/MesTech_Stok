@@ -353,6 +353,7 @@ public static class InfrastructureServiceRegistration
 
         // Barcode Generation (S06f — Code128 + EAN-13)
         services.AddSingleton<IBarcodeGenerationService, BarcodeGenerationService>();
+        services.AddScoped<IBarcodeInputService, BarcodeInputService>();
 
         // XML Import / Export
         services.AddScoped<IXmlImportService, XmlImportService>();
