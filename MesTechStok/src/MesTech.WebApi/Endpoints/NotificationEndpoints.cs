@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Notifications.Commands.MarkNotificationRead;
 using MesTech.Application.Features.Notifications.Commands.SendNotification;
 using MesTech.Application.Features.Notifications.Queries.GetNotifications;
@@ -49,7 +50,7 @@ public static class NotificationEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/notifications/{id}", new { id });
+            return Results.Created($"/api/v1/notifications/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("SendNotification")
         .WithSummary("Bildirim gönder (kanal + şablon bazlı)");

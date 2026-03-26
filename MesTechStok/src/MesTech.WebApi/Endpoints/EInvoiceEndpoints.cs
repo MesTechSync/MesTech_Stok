@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Domain.Enums;
@@ -33,7 +34,7 @@ public static class EInvoiceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/e-invoices/{id}", new { id });
+            return Results.Created($"/api/v1/e-invoices/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateEInvoice")
         .WithSummary("Yeni e-fatura oluştur (UBL-TR 1.2)");

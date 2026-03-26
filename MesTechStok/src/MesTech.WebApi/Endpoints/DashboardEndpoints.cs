@@ -87,7 +87,7 @@ public static class DashboardEndpoints
                 color = PlatformColors.GetValueOrDefault(platform, "#888888")
             }).ToArray();
 
-            return Results.Ok(new { labels = labelStrings, datasets });
+            return Results.Ok(ApiResponse<object>.Ok(new { labels = labelStrings, datasets }));
         })
         .WithName("GetSalesTrend")
         .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)");

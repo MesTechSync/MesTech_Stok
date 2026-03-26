@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Dropshipping.Commands.CreateAutoOrder;
 using MesTech.Application.Features.Dropshipping.Commands.CreateDropshipSupplier;
 using MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct;
@@ -38,7 +39,7 @@ public static class DropshippingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/dropshipping/suppliers/{id}", new { id });
+            return Results.Created($"/api/v1/dropshipping/suppliers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateDropshipSupplier")
         .WithSummary("Yeni dropship tedarikçi oluştur");
@@ -107,7 +108,7 @@ public static class DropshippingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/dropshipping/orders/{id}", new { id });
+            return Results.Created($"/api/v1/dropshipping/orders/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("PlaceDropshipOrder")
         .WithSummary("Dropship sipariş kaydı oluştur");

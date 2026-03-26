@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
 using MesTech.Application.Features.Finance.Commands.ApproveExpense;
@@ -117,7 +118,7 @@ public static class FinanceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/finance/cash-registers/{id}", new { id });
+            return Results.Created($"/api/v1/finance/cash-registers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCashRegister")
         .WithSummary("Yeni kasa tanımla");
@@ -128,7 +129,7 @@ public static class FinanceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/finance/expenses/{id}", new { id });
+            return Results.Created($"/api/v1/finance/expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateExpense")
         .WithSummary("Yeni masraf kaydı oluştur");
@@ -139,7 +140,7 @@ public static class FinanceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/finance/cash-transactions/{id}", new { id });
+            return Results.Created($"/api/v1/finance/cash-transactions/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCashTransaction")
         .WithSummary("Kasa hareketi kaydet (giriş/çıkış)");
