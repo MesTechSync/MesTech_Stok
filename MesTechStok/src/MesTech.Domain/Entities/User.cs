@@ -5,9 +5,9 @@ namespace MesTech.Domain.Entities;
 /// <summary>
 /// Kullanıcı entity'si.
 /// Tenant hiyerarşisi: Tenant → Store → User.
-/// ITenantEntity implement etmez — kullanıcı sorguları tenant-filtered değildir.
+/// ITenantEntity — multi-tenant query filter ile korunur.
 /// </summary>
-public sealed class User : BaseEntity
+public sealed class User : BaseEntity, ITenantEntity
 {
     public string Username { get; set; } = string.Empty;
     public string? Email { get; set; }
@@ -19,8 +19,8 @@ public sealed class User : BaseEntity
     public bool IsEmailConfirmed { get; set; }
     public DateTime? LastLoginDate { get; set; }
 
-    // Tenant ilişkisi (nullable — mevcut veri default tenant'a migrate edilecek)
-    public Guid? TenantId { get; set; }
+    // Tenant ilişkisi — ITenantEntity zorunlu. Global query filter otomatik uygulanır.
+    public Guid TenantId { get; set; }
     public Tenant? Tenant { get; set; }
 
     public string? FullName => string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
