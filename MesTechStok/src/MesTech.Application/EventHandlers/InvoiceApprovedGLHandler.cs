@@ -20,13 +20,16 @@ public interface IInvoiceApprovedGLHandler
 public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJournalEntryRepository _journalRepo;
     private readonly ILogger<InvoiceApprovedGLHandler> _logger;
 
     public InvoiceApprovedGLHandler(
         IUnitOfWork unitOfWork,
+        IJournalEntryRepository journalRepo,
         ILogger<InvoiceApprovedGLHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _journalRepo = journalRepo;
         _logger = logger;
     }
 
@@ -38,6 +41,13 @@ public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
         if (grandTotal <= 0)
         {
             _logger.LogDebug("Fatura tutarı 0 — GL kaydi atlanıyor. InvoiceId={InvoiceId}", invoiceId);
+            return;
+        }
+
+        // Idempotency guard — MassTransit retry'da çift yevmiye önle
+        if (await _journalRepo.ExistsByReferenceAsync(tenantId, invoiceNumber, ct))
+        {
+            _logger.LogWarning("Duplicate GL entry — ref {Ref} zaten var, atlanıyor", invoiceNumber);
             return;
         }
 

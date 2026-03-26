@@ -21,13 +21,16 @@ public interface IReturnJournalReversalHandler
 public sealed class ReturnJournalReversalHandler : IReturnJournalReversalHandler
 {
     private readonly IUnitOfWork _uow;
+    private readonly IJournalEntryRepository _journalRepo;
     private readonly ILogger<ReturnJournalReversalHandler> _logger;
 
     public ReturnJournalReversalHandler(
         IUnitOfWork uow,
+        IJournalEntryRepository journalRepo,
         ILogger<ReturnJournalReversalHandler> logger)
     {
         _uow = uow;
+        _journalRepo = journalRepo;
         _logger = logger;
     }
 
@@ -39,6 +42,13 @@ public sealed class ReturnJournalReversalHandler : IReturnJournalReversalHandler
         if (totalRefundAmount <= 0)
         {
             _logger.LogDebug("İade tutarı 0 — GL ters kayıt atlanıyor. ReturnId={ReturnId}", returnRequestId);
+            return;
+        }
+
+        var refNumber = $"RET-{returnRequestId.ToString()[..8]}";
+        if (await _journalRepo.ExistsByReferenceAsync(tenantId, refNumber, ct))
+        {
+            _logger.LogWarning("Duplicate iade GL — ref {Ref} zaten var, atlanıyor", refNumber);
             return;
         }
 

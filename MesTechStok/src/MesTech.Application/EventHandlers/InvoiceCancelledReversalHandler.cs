@@ -20,13 +20,16 @@ public interface IInvoiceCancelledReversalHandler
 public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalHandler
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJournalEntryRepository _journalRepo;
     private readonly ILogger<InvoiceCancelledReversalHandler> _logger;
 
     public InvoiceCancelledReversalHandler(
         IUnitOfWork unitOfWork,
+        IJournalEntryRepository journalRepo,
         ILogger<InvoiceCancelledReversalHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _journalRepo = journalRepo;
         _logger = logger;
     }
 
@@ -38,6 +41,13 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
         if (grandTotal <= 0)
         {
             _logger.LogDebug("Fatura tutarı 0 — ters GL kaydi atlanıyor. InvoiceId={InvoiceId}", invoiceId);
+            return;
+        }
+
+        var refNumber = $"CANCEL-{invoiceNumber}";
+        if (await _journalRepo.ExistsByReferenceAsync(tenantId, refNumber, ct))
+        {
+            _logger.LogWarning("Duplicate iptal GL — ref {Ref} zaten var, atlanıyor", refNumber);
             return;
         }
 

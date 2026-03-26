@@ -21,13 +21,16 @@ public interface ICommissionChargedGLHandler
 public sealed class CommissionChargedGLHandler : ICommissionChargedGLHandler
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJournalEntryRepository _journalRepo;
     private readonly ILogger<CommissionChargedGLHandler> _logger;
 
     public CommissionChargedGLHandler(
         IUnitOfWork unitOfWork,
+        IJournalEntryRepository journalRepo,
         ILogger<CommissionChargedGLHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _journalRepo = journalRepo;
         _logger = logger;
     }
 
@@ -39,6 +42,13 @@ public sealed class CommissionChargedGLHandler : ICommissionChargedGLHandler
         if (commissionAmount <= 0)
         {
             _logger.LogDebug("Komisyon tutari 0 — GL kaydi atlanıyor. OrderId={OrderId}", orderId);
+            return;
+        }
+
+        var refNumber = $"COM-{orderId.ToString()[..8]}";
+        if (await _journalRepo.ExistsByReferenceAsync(tenantId, refNumber, ct))
+        {
+            _logger.LogWarning("Duplicate komisyon GL — ref {Ref} zaten var, atlanıyor", refNumber);
             return;
         }
 

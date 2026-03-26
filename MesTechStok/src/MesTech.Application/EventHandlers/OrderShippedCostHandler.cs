@@ -22,13 +22,16 @@ public interface IOrderShippedCostHandler
 public sealed class OrderShippedCostHandler : IOrderShippedCostHandler
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJournalEntryRepository _journalRepo;
     private readonly ILogger<OrderShippedCostHandler> _logger;
 
     public OrderShippedCostHandler(
         IUnitOfWork unitOfWork,
+        IJournalEntryRepository journalRepo,
         ILogger<OrderShippedCostHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _journalRepo = journalRepo;
         _logger = logger;
     }
 
@@ -40,6 +43,12 @@ public sealed class OrderShippedCostHandler : IOrderShippedCostHandler
         if (shippingCost <= 0)
         {
             _logger.LogDebug("Kargo ucreti 0 — GL kaydi atlanıyor. OrderId={OrderId}", orderId);
+            return;
+        }
+
+        if (await _journalRepo.ExistsByReferenceAsync(tenantId, trackingNumber, ct))
+        {
+            _logger.LogWarning("Duplicate kargo GL — ref {Ref} zaten var, atlanıyor", trackingNumber);
             return;
         }
 
