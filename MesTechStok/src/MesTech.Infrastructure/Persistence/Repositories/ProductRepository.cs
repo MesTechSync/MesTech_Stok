@@ -148,4 +148,9 @@ public sealed class ProductRepository : IProductRepository
             await _context.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
+
+    public async Task AddPlatformMappingAsync(ProductPlatformMapping mapping, CancellationToken ct = default)
+    {
+        await _context.ProductPlatformMappings.AddAsync(mapping, ct).ConfigureAwait(false);
+    }
 }
