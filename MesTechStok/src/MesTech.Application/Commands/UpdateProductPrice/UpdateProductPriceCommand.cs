@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Commands.UpdateProductPrice;
 
@@ -15,9 +16,21 @@ public record UpdateProductPriceCommand : IRequest
 
 public sealed class UpdateProductPriceHandler : IRequestHandler<UpdateProductPriceCommand>
 {
-    public Task Handle(UpdateProductPriceCommand request, CancellationToken cancellationToken)
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateProductPriceHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
     {
-        // Minimal handler — domain logic lives in consumer, to be migrated in future sprints
-        return Task.CompletedTask;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(UpdateProductPriceCommand request, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        if (product is null) return;
+
+        product.SalePrice = request.RecommendedPrice;
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

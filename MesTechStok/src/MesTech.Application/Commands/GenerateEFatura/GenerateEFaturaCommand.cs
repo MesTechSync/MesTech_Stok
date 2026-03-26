@@ -1,4 +1,8 @@
 using MediatR;
+using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Commands.GenerateEFatura;
 
@@ -12,9 +16,46 @@ public record GenerateEFaturaCommand : IRequest
 
 public sealed class GenerateEFaturaHandler : IRequestHandler<GenerateEFaturaCommand>
 {
-    public Task Handle(GenerateEFaturaCommand request, CancellationToken cancellationToken)
+    private readonly IOrderRepository _orderRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<GenerateEFaturaHandler> _logger;
+
+    public GenerateEFaturaHandler(
+        IOrderRepository orderRepository,
+        IInvoiceRepository invoiceRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<GenerateEFaturaHandler> logger)
     {
-        // Minimal handler — domain logic lives in consumer, to be migrated in future sprints
-        return Task.CompletedTask;
+        _orderRepository = orderRepository;
+        _invoiceRepository = invoiceRepository;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
+    }
+
+    public async Task Handle(GenerateEFaturaCommand request, CancellationToken cancellationToken)
+    {
+        if (request.OrderId is null)
+        {
+            _logger.LogWarning("GenerateEFatura: OrderId is null, skipping");
+            return;
+        }
+
+        var order = await _orderRepository.GetByIdAsync(request.OrderId.Value).ConfigureAwait(false);
+        if (order is null)
+        {
+            _logger.LogWarning("GenerateEFatura: Order {OrderId} not found", request.OrderId);
+            return;
+        }
+
+        var invoiceType = !string.IsNullOrEmpty(request.BuyerVkn) ? InvoiceType.EFatura : InvoiceType.EArsiv;
+        var invoiceNumber = $"EF-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
+
+        var invoice = Invoice.CreateForOrder(order, invoiceType, invoiceNumber);
+        await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        _logger.LogInformation("GenerateEFatura: {InvoiceNumber} ({Type}) created for Order {OrderId}",
+            invoiceNumber, invoiceType, request.OrderId);
     }
 }
