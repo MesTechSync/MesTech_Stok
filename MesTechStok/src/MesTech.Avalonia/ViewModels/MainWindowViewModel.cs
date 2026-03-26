@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Avalonia.Services;
 
+// ReSharper disable once RedundantUsingDirective — SubscriptionTier needed for TierChanged event signature
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
@@ -41,9 +42,11 @@ public partial class MainWindowViewModel : ViewModelBase
         _viewModelFactory = viewModelFactory;
         _featureGate      = featureGate;
 
-        // Re-evaluate sidebar visibility when tier changes
-        _featureGate.TierChanged += (_, _) => RefreshSidebarVisibility();
+        // Re-evaluate sidebar visibility when tier changes (named handler — unsubscribe possible [EL-02])
+        _featureGate.TierChanged += OnTierChanged;
     }
+
+    private void OnTierChanged(object? sender, SubscriptionTier e) => RefreshSidebarVisibility();
 
     private void RefreshSidebarVisibility()
     {
