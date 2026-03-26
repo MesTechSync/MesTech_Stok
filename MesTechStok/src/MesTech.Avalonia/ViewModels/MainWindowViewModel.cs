@@ -24,11 +24,19 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void NavigateTo(string viewName)
+    private async Task NavigateTo(string viewName)
     {
         var resolved = _viewModelFactory.Create(viewName);
         if (resolved is not null)
+        {
             CurrentView = resolved;
+            // G040 FIX: Trigger data loading for the new view
+            if (resolved is ViewModelBase vmBase)
+            {
+                try { await vmBase.LoadAsync(); }
+                catch { /* View handles its own error state via HasError */ }
+            }
+        }
 
         CurrentViewTitle = viewName switch
         {
