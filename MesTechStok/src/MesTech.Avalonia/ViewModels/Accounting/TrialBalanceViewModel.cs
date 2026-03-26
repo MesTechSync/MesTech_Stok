@@ -1,15 +1,21 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 /// <summary>
-/// Mizan Raporu ViewModel — Chain 14 denge kontrolü.
-/// DEV 1'in GLAccount + JournalEntry sistemine bağlanacak.
+/// Mizan Raporu ViewModel — wired to GetTrialBalanceQuery via MediatR.
+/// Chain 14 denge kontrolü: Borc = Alacak doğrulaması.
 /// </summary>
 public partial class TrialBalanceViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     [ObservableProperty] private DateTimeOffset? asOfDate = DateTimeOffset.Now;
     [ObservableProperty] private string balanceStatusText = string.Empty;
     [ObservableProperty] private bool isBalanced;
@@ -19,24 +25,35 @@ public partial class TrialBalanceViewModel : ViewModelBase
 
     public ObservableCollection<TrialBalanceLineItem> TrialBalanceLines { get; } = [];
 
+    public TrialBalanceViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     public override async Task LoadAsync()
     {
         await SafeExecuteAsync(async () =>
         {
             TrialBalanceLines.Clear();
-            await Task.Delay(200);
 
-            TrialBalanceLines.Add(new("100", "Kasa", 45_000m, 38_500m));
-            TrialBalanceLines.Add(new("102", "Bankalar", 128_750m, 95_200m));
-            TrialBalanceLines.Add(new("120", "Alıcılar", 67_300m, 52_100m));
-            TrialBalanceLines.Add(new("153", "Ticari Mallar", 89_400m, 71_600m));
-            TrialBalanceLines.Add(new("320", "Satıcılar", 42_800m, 56_300m));
-            TrialBalanceLines.Add(new("600", "Yurtiçi Satışlar", 0m, 185_750m));
-            TrialBalanceLines.Add(new("621", "SMM", 142_100m, 0m));
-            TrialBalanceLines.Add(new("770", "Genel Yönetim Gid.", 15_200m, 0m));
+            var endDate = AsOfDate?.DateTime ?? DateTime.Now;
+            var startDate = new DateTime(endDate.Year, 1, 1);
 
-            var totalDebit = TrialBalanceLines.Sum(l => l.TotalDebit);
-            var totalCredit = TrialBalanceLines.Sum(l => l.TotalCredit);
+            var result = await _mediator.Send(
+                new GetTrialBalanceQuery(_tenantProvider.GetCurrentTenantId(), startDate, endDate));
+
+            foreach (var line in result.Lines)
+            {
+                TrialBalanceLines.Add(new(
+                    line.AccountCode,
+                    line.AccountName,
+                    line.ClosingDebit,
+                    line.ClosingCredit));
+            }
+
+            var totalDebit = result.GrandTotalClosingDebit;
+            var totalCredit = result.GrandTotalClosingCredit;
             var diff = totalDebit - totalCredit;
 
             TotalDebitSumText = totalDebit.ToString("N2");
