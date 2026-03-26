@@ -33,6 +33,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(100, 100);
+    private volatile int _totalRequests;
+    private volatile int _throttledRequests;
+    private DateTime _lastThrottleAt;
 
     // Credential key'leri — StoreCredential tablosundaki Key alanlari
     private string? _supplierId;
@@ -76,6 +79,8 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                     .HandleResult(r => r.StatusCode == HttpStatusCode.TooManyRequests),
                 OnRetry = args =>
                 {
+                    Interlocked.Increment(ref _throttledRequests);
+                    _lastThrottleAt = DateTime.UtcNow;
                     _logger.LogWarning(
                         "Trendyol API rate limited (429). Retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
@@ -120,6 +125,14 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     }
 
     public string PlatformCode => nameof(PlatformType.Trendyol);
+
+    /// <summary>Rate limit telemetry for connection test panel.</summary>
+    public RateLimitInfo GetRateLimitInfo() => new(
+        ConcurrentSlots: _rateLimitSemaphore.CurrentCount,
+        MaxConcurrentSlots: 100,
+        TotalRequests: _totalRequests,
+        ThrottledRequests: _throttledRequests,
+        LastThrottleAt: _lastThrottleAt == default ? null : _lastThrottleAt);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;
@@ -287,14 +300,21 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
     }
 
-    public async Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
+    /// <summary>Pulls products with optional limit (for connection test panel).</summary>
+    public Task<IReadOnlyList<Product>> PullProductsAsync(int limit, CancellationToken ct = default)
+        => PullProductsInternalAsync(limit, ct);
+
+    public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
+        => PullProductsInternalAsync(null, ct);
+
+    private async Task<IReadOnlyList<Product>> PullProductsInternalAsync(int? limit, CancellationToken ct)
     {
         EnsureConfigured();
-        _logger.LogInformation("TrendyolAdapter.PullProductsAsync called");
+        _logger.LogInformation("TrendyolAdapter.PullProductsAsync called (limit={Limit})", limit?.ToString() ?? "all");
 
         var products = new List<Product>();
         var page = 0;
-        const int pageSize = 50;
+        var pageSize = limit.HasValue ? Math.Min(limit.Value, 50) : 50;
 
         try
         {
@@ -337,6 +357,13 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
                 page++;
                 hasMore = page < totalPages;
+
+                // Limit support for connection test panel
+                if (limit.HasValue && products.Count >= limit.Value)
+                {
+                    products = products.Take(limit.Value).ToList();
+                    break;
+                }
             }
 
             _logger.LogInformation("Trendyol PullProducts: {Count} products retrieved", products.Count);
@@ -1916,7 +1943,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            // Mevcut TrendyolApiClient'tan alinan rate limiting mantigi
+            Interlocked.Increment(ref _totalRequests);
             await Task.Delay(10, ct).ConfigureAwait(false); // min 10ms between requests
         }
         finally
