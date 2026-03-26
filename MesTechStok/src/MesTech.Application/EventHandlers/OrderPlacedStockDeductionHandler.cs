@@ -76,55 +76,53 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 
             // Lock'lar alındı — ürünleri yeniden yükle (stale data önleme)
             var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct);
-        var productMap = products.ToDictionary(p => p.Id);
+            var productMap = products.ToDictionary(p => p.Id);
 
-        var failures = new List<string>();
+            var failures = new List<string>();
 
-        foreach (var item in order.OrderItems)
-        {
-            // Safety net: one failed item must not block remaining items in the order
-#pragma warning disable CA1031 // Intentional broad catch — per-item resilience in order processing loop
-            try
+            foreach (var item in order.OrderItems)
             {
-                if (!productMap.TryGetValue(item.ProductId, out var product))
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
+                try
                 {
-                    _logger.LogWarning("Product {ProductId} bulunamadı — SKU={SKU}",
-                        item.ProductId, item.ProductSKU);
-                    failures.Add($"{item.ProductSKU}: ürün bulunamadı");
-                    continue;
-                }
+                    if (!productMap.TryGetValue(item.ProductId, out var product))
+                    {
+                        _logger.LogWarning("Product {ProductId} bulunamadı — SKU={SKU}",
+                            item.ProductId, item.ProductSKU);
+                        failures.Add($"{item.ProductSKU}: ürün bulunamadı");
+                        continue;
+                    }
 
-                if (product.Stock < item.Quantity)
+                    if (product.Stock < item.Quantity)
+                    {
+                        _logger.LogWarning(
+                            "OVERSELLING! SKU={SKU}, Mevcut={Stock}, İstenen={Qty}, Order={OrderNumber}",
+                            item.ProductSKU, product.Stock, item.Quantity, orderNumber);
+                    }
+
+                    product.AdjustStock(-item.Quantity, StockMovementType.Sale,
+                        $"Sipariş #{orderNumber}");
+
+                    _logger.LogInformation(
+                        "Stok düşürüldü — SKU={SKU}, Önceki={Prev}, Yeni={New}",
+                        item.ProductSKU, product.Stock + item.Quantity, product.Stock);
+                }
+                catch (Exception ex)
                 {
-                    _logger.LogWarning(
-                        "OVERSELLING! SKU={SKU}, Mevcut={Stock}, İstenen={Qty}, Order={OrderNumber}",
-                        item.ProductSKU, product.Stock, item.Quantity, orderNumber);
+                    _logger.LogError(ex, "Stok düşürme BAŞARISIZ — SKU={SKU}", item.ProductSKU);
+                    failures.Add($"{item.ProductSKU}: {ex.Message}");
                 }
-
-                // Domain method — StockChangedEvent + LowStockDetectedEvent otomatik fırlatılır
-                product.AdjustStock(-item.Quantity, StockMovementType.Sale,
-                    $"Sipariş #{orderNumber}");
-
-                _logger.LogInformation(
-                    "Stok düşürüldü — SKU={SKU}, Önceki={Prev}, Yeni={New}",
-                    item.ProductSKU, product.Stock + item.Quantity, product.Stock);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Stok düşürme BAŞARISIZ — SKU={SKU}", item.ProductSKU);
-                failures.Add($"{item.ProductSKU}: {ex.Message}");
-            }
 #pragma warning restore CA1031
-        }
+            }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
-        if (failures.Count > 0)
-        {
-            _logger.LogWarning(
-                "Sipariş {OrderNumber} — {FailCount}/{TotalCount} kalemde stok düşürme başarısız",
-                orderNumber, failures.Count, order.OrderItems.Count);
-        }
+            if (failures.Count > 0)
+            {
+                _logger.LogWarning(
+                    "Sipariş {OrderNumber} — {FailCount}/{TotalCount} kalemde stok düşürme başarısız",
+                    orderNumber, failures.Count, order.OrderItems.Count);
+            }
         }
         finally
         {
