@@ -10,8 +10,10 @@ public sealed class PricingService
     /// </summary>
     public decimal CalculateProfitMargin(decimal purchasePrice, decimal salePrice)
     {
+        if (purchasePrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(purchasePrice), "Purchase price cannot be negative.");
         if (salePrice <= 0) return 0;
-        return ((salePrice - purchasePrice) / salePrice) * 100;
+        return Math.Round((salePrice - purchasePrice) / salePrice * 100, 2);
     }
 
     /// <summary>
@@ -19,8 +21,11 @@ public sealed class PricingService
     /// </summary>
     public decimal ApplyDiscount(decimal price, decimal discountRate)
     {
-        if (discountRate < 0 || discountRate > 100) return price;
-        return price * (1 - discountRate / 100);
+        if (price < 0)
+            throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
+        if (discountRate < 0 || discountRate > 100)
+            throw new ArgumentOutOfRangeException(nameof(discountRate), "Discount rate must be between 0 and 100.");
+        return Math.Round(price * (1 - discountRate / 100), 2);
     }
 
     /// <summary>
@@ -28,7 +33,11 @@ public sealed class PricingService
     /// </summary>
     public decimal CalculatePriceWithTax(decimal price, decimal taxRate)
     {
-        return price * (1 + taxRate);
+        if (price < 0)
+            throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
+        if (taxRate < 0 || taxRate > 1)
+            throw new ArgumentOutOfRangeException(nameof(taxRate), "Tax rate must be between 0 and 1.");
+        return Math.Round(price * (1 + taxRate), 2);
     }
 
     /// <summary>
@@ -36,7 +45,10 @@ public sealed class PricingService
     /// </summary>
     public decimal CalculatePriceWithoutTax(decimal priceWithTax, decimal taxRate)
     {
-        if (taxRate <= -1) return priceWithTax;
-        return priceWithTax / (1 + taxRate);
+        if (priceWithTax < 0)
+            throw new ArgumentOutOfRangeException(nameof(priceWithTax), "Price cannot be negative.");
+        if (taxRate < 0 || taxRate > 1)
+            throw new ArgumentOutOfRangeException(nameof(taxRate), "Tax rate must be between 0 and 1.");
+        return Math.Round(priceWithTax / (1 + taxRate), 2);
     }
 }
