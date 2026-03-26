@@ -535,3 +535,36 @@ Borç 0, tüm GOREV kapatıldı. Production readiness keşfi başladı.
 | GO-LIVE fix | **6** (FindAsync×15, JWT guard, rate limit, lock DI, SaveChanges retry, stock lock) |
 | Cross-DEV görev | **19** (+G031 P0, +G032 P1) |
 | RPN azaltma | **-1477** (TUR 11: -477 + TUR 12: -1000) |
+
+---
+
+## TUR: 13 (2026-03-26) — API STANDARDIZATION + DISTRIBUTED TRACING
+
+### 2 ALAN KÖKÜNE İNİLDİ
+
+**1. API Response Standardization:**
+- ApiResponse<T> generic wrapper oluşturuldu (success/data/error/timestamp)
+- CreatedResponse, PagedResponse<T>, StatusResponse typed DTO'lar
+- BillingEndpoints + OnboardingEndpoints migrate edildi (8 anonymous → typed)
+- 99 kalan anonymous object → cross-DEV görev (G034+G035)
+
+**2. Distributed Tracing:**
+- W3C Trace-Context Activity.Current propagation
+- Serilog enriched: TraceId + SpanId + CorrelationId per request
+- X-Trace-Id response header eklendi
+- X-Correlation-ID backward compat korundu
+- OTel SDK package → DEV 4'e atandı (G033)
+- MesaMetrics + AccountingMetrics orphan bulgusu → DEV 4'e atandı
+
+### COMMIT
+- `ad405a14` feat(api): add ApiResponse<T> standard wrapper + migrate billing/onboarding
+- `4b2a5066` feat(tracing): W3C Trace-Context + Serilog TraceId/SpanId enrichment
+
+### DEV 6 — 13 TUR TOPLAM
+| Metrik | Toplam |
+|--------|--------|
+| Commit | **39** |
+| GO-LIVE fix | **6** |
+| Yeni typed DTO | **4** (ApiResponse, Created, Paged, Status) |
+| Tracing enrichment | **3** (TraceId, SpanId, CorrelationId) |
+| Cross-DEV görev | **22** (+G033 P2, +G034 P2, +G035 P3) |
