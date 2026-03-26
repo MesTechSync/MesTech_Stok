@@ -10,6 +10,7 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public sealed class WebhookDeadLetter : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Platform { get; private set; } = string.Empty;
     public string EventType { get; private set; } = string.Empty;
     public string RawBody { get; private set; } = string.Empty;
