@@ -240,6 +240,12 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Daily(3));
 
+        // Her 15 dakika — Parasut fatura sync (feature flag: Parasut.InvoiceSyncEnabled)
+        RecurringJob.AddOrUpdate<ParasutInvoiceSyncJob>(
+            "parasut-invoice-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/15 * * * *");
+
         // === I-11 GOREV 3 — Zamanlanmis Rapor Uretimi ===
 
         // Her gun 06:00 — gunluk satis raporu
