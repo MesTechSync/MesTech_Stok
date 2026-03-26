@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Commands.RecordCargoExpense;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
+using ICargoExpenseRepository = MesTech.Application.Interfaces.Accounting.ICargoExpenseRepository;
 using Moq;
 using Xunit;
 

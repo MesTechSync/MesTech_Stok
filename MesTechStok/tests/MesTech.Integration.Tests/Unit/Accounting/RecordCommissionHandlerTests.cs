@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Commands.RecordCommission;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
+using ICommissionRecordRepository = MesTech.Application.Interfaces.Accounting.ICommissionRecordRepository;
 using Moq;
 using Xunit;
 
