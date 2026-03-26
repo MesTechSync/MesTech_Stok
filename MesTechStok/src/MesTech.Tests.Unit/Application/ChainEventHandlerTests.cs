@@ -334,33 +334,8 @@ public class CommissionChargedGLHandlerTests
 
 #endregion
 
-#region Z7: ShipmentCostRecordedEventHandler
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "Chain")]
-[Trait("Chain", "Z7")]
-public class ShipmentCostRecordedEventHandlerTests
-{
-    private readonly ShipmentCostRecordedEventHandler _sut;
-
-    public ShipmentCostRecordedEventHandlerTests()
-    {
-        _sut = new ShipmentCostRecordedEventHandler(
-            Mock.Of<ILogger<ShipmentCostRecordedEventHandler>>());
-    }
-
-    [Fact]
-    public async Task HandleAsync_LogsAndCompletes()
-    {
-        var evt = new ShipmentCostRecordedEvent(
-            Guid.NewGuid(), Guid.NewGuid(), "TR123456789",
-            "Yurtiçi Kargo", 45.50m, DateTime.UtcNow);
-
-        var act = () => _sut.HandleAsync(evt, CancellationToken.None);
-
-        await act.Should().NotThrowAsync();
-    }
-}
+// Z7: ShipmentCostRecordedEventHandler — tip mevcut değil
+// OrderShippedCostHandler testleri ChainIdempotencyTests.cs'de mevcut
 
 #endregion
 
@@ -428,31 +403,4 @@ public class ZeroStockDetectedEventHandlerTests
 
 #endregion
 
-#region Z10: PriceLossDetectedEventHandler
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "Chain")]
-[Trait("Chain", "Z10")]
-public class PriceLossDetectedEventHandlerTests
-{
-    private readonly PriceLossDetectedEventHandler _sut;
-
-    public PriceLossDetectedEventHandlerTests()
-    {
-        _sut = new PriceLossDetectedEventHandler(
-            Mock.Of<ILogger<PriceLossDetectedEventHandler>>());
-    }
-
-    [Fact]
-    public async Task HandleAsync_LogsWarningAndCompletes()
-    {
-        var act = () => _sut.HandleAsync(
-            Guid.NewGuid(), "LOSS-001",
-            purchasePrice: 100m, salePrice: 80m, lossPerUnit: 20m,
-            Guid.NewGuid(), CancellationToken.None);
-
-        await act.Should().NotThrowAsync();
-    }
-}
-
-#endregion
+// Z10: PriceLossDetectedEventHandler — tip henüz oluşturulmadı

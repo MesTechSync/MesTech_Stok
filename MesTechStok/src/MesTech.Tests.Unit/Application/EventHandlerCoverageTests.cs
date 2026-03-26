@@ -324,44 +324,6 @@ public class OrderShippedCostHandlerTests
 
 #endregion
 
-#region ReturnApprovedHandler (repo-based — birleşik Z5)
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "Chain")]
-public class ReturnApprovedHandlerTests
-{
-    private readonly Mock<IProductRepository> _productRepoMock = new();
-    private readonly Mock<IUnitOfWork> _uowMock = new();
-    private readonly ReturnApprovedHandler _sut;
-
-    public ReturnApprovedHandlerTests()
-    {
-        _sut = new ReturnApprovedHandler(
-            _productRepoMock.Object, _uowMock.Object,
-            Mock.Of<ILogger<ReturnApprovedHandler>>());
-    }
-
-    [Fact]
-    public async Task HandleAsync_ValidReturn_RestoresStockAndCreatesGL()
-    {
-        var productId = Guid.NewGuid();
-        var product = new Product
-        {
-            Name = "İade Ürün", SKU = "RET-100", Stock = 20,
-            MinimumStock = 5, SalePrice = 150m, IsActive = true
-        };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
-
-        var lines = new List<ReturnLineInfoEvent>
-        {
-            new(productId, "RET-100", 5, 150m)
-        };
-
-        await _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), lines, CancellationToken.None);
-
-        product.Stock.Should().Be(25, "20 + 5 = 25");
-        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-}
-
-#endregion
+// ReturnApprovedHandler birleşik Z5 — tip ayrıştırıldı:
+// ReturnApprovedStockRestorationHandler + ReturnJournalReversalHandler
+// Testler ChainEventHandlerTests.cs ve ChainIdempotencyTests.cs'de mevcut
