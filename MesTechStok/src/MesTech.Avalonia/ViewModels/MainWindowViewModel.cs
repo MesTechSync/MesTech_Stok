@@ -156,6 +156,17 @@ public partial class MainWindowViewModel : ViewModelBase
             "CommissionRates" => "Komisyon Oranlari",
             "StaleOrders" => "Gecikmis Siparisler",
             "OrderKanban" => "Siparis Kanban",
+            // G042 — 10 missing title entries
+            "BulkProduct" => "Toplu Urun Islemleri",
+            "Cargo" => "Kargo",
+            "Cari" => "Cari",
+            "EInvoice" => "e-Fatura",
+            "Onboarding" => "Baslangic Sihirbazi",
+            "PlatformSync" => "Platform Senkronizasyon",
+            "StockAlert" => "Stok Uyarilari",
+            "StockUpdate" => "Stok Guncelleme",
+            "TransferWizard" => "Transfer Sihirbazi",
+            "WarehouseSummary" => "Depo Ozeti",
             _ => CurrentViewTitle
         };
     }

@@ -176,6 +176,17 @@ public sealed class ViewModelFactory : IViewModelFactory
             "CommissionRates" => _provider.GetService<AcctVm.CommissionRatesViewModel>(),
             "StaleOrders" => _provider.GetService<MonVm.StaleOrdersAvaloniaViewModel>(),
             "OrderKanban" => _provider.GetService<OrdVm.OrderKanbanViewModel>(),
+            // G042 — 10 missing factory keys
+            "BulkProduct" => _provider.GetService<BulkProductAvaloniaViewModel>(),
+            "Cargo" => _provider.GetService<CargoAvaloniaViewModel>(),
+            "Cari" => _provider.GetService<CariAvaloniaViewModel>(),
+            "EInvoice" => _provider.GetService<EInvoiceAvaloniaViewModel>(),
+            "Onboarding" => _provider.GetService<OnboardingWizardAvaloniaViewModel>(),
+            "PlatformSync" => _provider.GetService<PlatformSyncAvaloniaViewModel>(),
+            "StockAlert" => _provider.GetService<StockAlertAvaloniaViewModel>(),
+            "StockUpdate" => _provider.GetService<StockUpdateAvaloniaViewModel>(),
+            "TransferWizard" => _provider.GetService<TransferWizardAvaloniaViewModel>(),
+            "WarehouseSummary" => _provider.GetService<WarehouseSummaryAvaloniaViewModel>(),
             _ => null
         };
     }
