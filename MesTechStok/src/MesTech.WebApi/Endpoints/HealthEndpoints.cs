@@ -1,9 +1,14 @@
-using System.Text.Json;
+using MesTech.Application.DTOs;
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Prometheus;
 
 namespace MesTech.WebApi.Endpoints;
 
+/// <summary>
+/// Health + Metrics endpoints.
+/// G054-DEV6: Genişletilmiş health — infra + adapter ping + MESA status.
+/// </summary>
 public static class HealthEndpoints
 {
     public static void Map(WebApplication app)
@@ -34,6 +39,95 @@ public static class HealthEndpoints
         .WithSummary("Sistem sağlık durumu — PostgreSQL, Redis, RabbitMQ, MinIO")
         .WithTags("Health");
 
+        // GET /health/deep — infra + adapter ping + MESA (G054)
+        app.MapGet("/health/deep", async (
+            HealthCheckService healthCheckService,
+            IAdapterFactory adapterFactory,
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.HealthDeep");
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            // 1. Infrastructure health (PG, Redis, RabbitMQ, MinIO)
+            var infraReport = await healthCheckService.CheckHealthAsync(ct);
+            var infraChecks = infraReport.Entries.Select(e => new HealthCheckItem(
+                e.Key, e.Value.Status == HealthStatus.Healthy, e.Value.Duration.TotalMilliseconds,
+                e.Value.Exception?.Message));
+
+            // 2. Platform adapter ping (parallel)
+            var adapterChecks = new List<HealthCheckItem>();
+            var adapters = adapterFactory.GetAll();
+            var pingTasks = adapters.Select(async adapter =>
+            {
+                var name = $"adapter:{adapter.PlatformCode}";
+                var adapterSw = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    if (adapter is IPingableAdapter pingable)
+                    {
+                        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                        cts.CancelAfter(TimeSpan.FromSeconds(5));
+                        var ok = await pingable.PingAsync(cts.Token);
+                        adapterSw.Stop();
+                        return new HealthCheckItem(name, ok, adapterSw.Elapsed.TotalMilliseconds, ok ? null : "Ping failed");
+                    }
+                    adapterSw.Stop();
+                    return new HealthCheckItem(name, true, adapterSw.Elapsed.TotalMilliseconds, "No IPingableAdapter");
+                }
+                catch (Exception ex)
+                {
+                    adapterSw.Stop();
+                    return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, ex.Message);
+                }
+            });
+            adapterChecks.AddRange(await Task.WhenAll(pingTasks));
+
+            // 3. MESA OS status
+            HealthCheckItem mesaCheck;
+            var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://localhost:3105";
+            try
+            {
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+                var mesaSw = System.Diagnostics.Stopwatch.StartNew();
+                var resp = await http.GetAsync($"{mesaUrl}/api/mesa/status", ct);
+                mesaSw.Stop();
+                mesaCheck = new HealthCheckItem("mesa-os", resp.IsSuccessStatusCode, mesaSw.Elapsed.TotalMilliseconds,
+                    resp.IsSuccessStatusCode ? null : $"HTTP {(int)resp.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                mesaCheck = new HealthCheckItem("mesa-os", false, 0, ex.Message);
+            }
+
+            sw.Stop();
+
+            var allChecks = infraChecks.Concat(adapterChecks).Append(mesaCheck).ToList();
+            var allHealthy = allChecks.All(c => c.IsHealthy);
+
+            var result = new
+            {
+                status = allHealthy ? "healthy" : "degraded",
+                timestamp = DateTime.UtcNow,
+                totalDurationMs = sw.Elapsed.TotalMilliseconds,
+                infrastructure = infraChecks,
+                adapters = adapterChecks,
+                mesa = mesaCheck,
+                summary = new
+                {
+                    total = allChecks.Count,
+                    healthy = allChecks.Count(c => c.IsHealthy),
+                    unhealthy = allChecks.Count(c => !c.IsHealthy)
+                }
+            };
+
+            return Results.Json(result, statusCode: allHealthy ? 200 : 503);
+        })
+        .WithName("DeepHealthCheck")
+        .WithSummary("Derin sağlık kontrolü — infra + platform adapter ping + MESA OS (G054)")
+        .WithTags("Health");
+
         // GET /metrics — Prometheus text format (no auth — bypass path)
         app.MapGet("/metrics", async (CancellationToken ct) =>
         {
@@ -46,4 +140,6 @@ public static class HealthEndpoints
         .WithSummary("Prometheus metrikleri — text/plain format")
         .WithTags("Health");
     }
+
+    private sealed record HealthCheckItem(string Name, bool IsHealthy, double DurationMs, string? Error);
 }
