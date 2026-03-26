@@ -27,14 +27,29 @@ public sealed class TenantFilterBehavior<TRequest, TResponse> : IPipelineBehavio
 
         ArgumentNullException.ThrowIfNull(next);
 
-        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var currentTenantId = _tenantProvider.GetCurrentTenantId();
 
-        if (tenantId == Guid.Empty)
+        if (currentTenantId == Guid.Empty)
         {
             _logger.LogWarning("TenantId is not set for request {RequestType}. Using default tenant.", typeof(TRequest).Name);
         }
 
-        _logger.LogDebug("Processing request {RequestType} for TenantId: {TenantId}", typeof(TRequest).Name, tenantId);
+        // Tenant ID spoofing koruması — request'teki TenantId ile oturumdaki TenantId karşılaştır
+        var tenantIdProperty = typeof(TRequest).GetProperty("TenantId");
+        if (tenantIdProperty is not null && currentTenantId != Guid.Empty)
+        {
+            var requestTenantId = tenantIdProperty.GetValue(request);
+            if (requestTenantId is Guid requestGuid && requestGuid != Guid.Empty && requestGuid != currentTenantId)
+            {
+                _logger.LogCritical(
+                    "TENANT SPOOFING DETECTED! Request {RequestType} has TenantId={RequestTenant} but current user is TenantId={CurrentTenant}",
+                    typeof(TRequest).Name, requestGuid, currentTenantId);
+                throw new UnauthorizedAccessException(
+                    $"Tenant isolation violation: request TenantId does not match authenticated tenant.");
+            }
+        }
+
+        _logger.LogDebug("Processing request {RequestType} for TenantId: {TenantId}", typeof(TRequest).Name, currentTenantId);
 
         return await next().ConfigureAwait(false);
     }
