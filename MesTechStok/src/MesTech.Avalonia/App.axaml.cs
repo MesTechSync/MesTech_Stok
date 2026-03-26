@@ -79,7 +79,7 @@ public partial class App : global::Avalonia.Application
                         typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
                 // === Avalonia-specific services ===
-                services.AddSingleton<IDialogService, ConsoleDialogService>();
+                services.AddSingleton<IDialogService, AvaloniaDialogService>();
                 services.AddSingleton<IViewModelFactory, ViewModelFactory>();
 
                 // Views — registered for DI resolution
