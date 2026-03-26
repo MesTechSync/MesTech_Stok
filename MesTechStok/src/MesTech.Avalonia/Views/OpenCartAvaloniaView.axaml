@@ -23,6 +23,14 @@
                         <TextBlock Text="Bagli Degil" Foreground="{DynamicResource MesRedBright}" FontSize="{StaticResource FontSizeSmall}"
                                    VerticalAlignment="Center" />
                     </Border>
+                    <!-- Store Selector -->
+                    <ComboBox ItemsSource="{Binding Stores}"
+                              SelectedItem="{Binding SelectedStore}"
+                              MinWidth="160"
+                              VerticalAlignment="Center"
+                              Background="{DynamicResource MesOverlayLight}"
+                              Foreground="{DynamicResource MesBgPrimary}"
+                              BorderThickness="0" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et" Command="{Binding SyncCommand}"
@@ -95,49 +103,167 @@
             </Border>
         </Grid>
 
-        <!-- Recent Orders DataGrid -->
+        <!-- TabControl -->
         <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,0,22,22"
                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-            <Grid RowDefinitions="Auto,*">
-                <Border Grid.Row="0" Padding="20,14"
-                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Text="Son Siparisler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MesDarkSlate}" />
-                        <TextBlock Grid.Column="1"
-                                   Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
-                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
+            <TabControl SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent" Padding="0">
+
+                <!-- Tab 1: Ürünler -->
+                <TabItem Header="Ürünler" Padding="16,10">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,10"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="OpenCart Ürünleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
+                            </Grid>
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Products}"
+                                  AutoGenerateColumns="False"
+                                  CanUserReorderColumns="True"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="{DynamicResource MesBgPrimary}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120" />
+                                <DataGridTextColumn Header="Ürün Adı" Binding="{Binding Name}" Width="*" />
+                                <DataGridTextColumn Header="Fiyat" Binding="{Binding Price, StringFormat='₺{0:N2}'}" Width="130" />
+                                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
+                                <DataGridTextColumn Header="MesTech'te Var mı?" Binding="{Binding InMesTechDisplay}" Width="140" />
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
-                </Border>
-                <Grid>
-                <DataGrid Grid.Row="1"
-                          ItemsSource="{Binding RecentOrders}"
-                          AutoGenerateColumns="False"
-                          CanUserReorderColumns="True"
-                          CanUserResizeColumns="True"
-                          CanUserSortColumns="True"
-                          IsReadOnly="True"
-                          GridLinesVisibility="Horizontal"
-                          BorderThickness="0"
-                          Background="{DynamicResource MesBgPrimary}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="160" />
-                        <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
-                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="200" />
-                        <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount}" Width="150" />
-                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
-                    </DataGrid.Columns>
-                </DataGrid>
-                    <!-- Empty State -->
-                    <TextBlock Text="Kayıt bulunamadı"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,40"
-                               Opacity="0.5"
-                               FontSize="{StaticResource FontSizeSubtitle}"
-                               IsVisible="{Binding !RecentOrders.Count}" />
-                </Grid>
-            </Grid>
+                </TabItem>
+
+                <!-- Tab 2: Siparişler -->
+                <TabItem Header="Siparişler" Padding="16,10">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,10"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="OpenCart Siparişleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
+                            </Grid>
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Orders}"
+                                  AutoGenerateColumns="False"
+                                  CanUserReorderColumns="True"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="{DynamicResource MesBgPrimary}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="200" />
+                                <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
+                                <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="*" />
+                                <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount}" Width="150" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 3: Kategoriler -->
+                <TabItem Header="Kategoriler" Padding="16,10">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Padding="16,10"
+                                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Platform ↔ MesTech Kategori Eşleme" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
+                                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
+                            </Grid>
+                        </Border>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding CategoryMappings}"
+                                  AutoGenerateColumns="False"
+                                  CanUserReorderColumns="True"
+                                  CanUserResizeColumns="True"
+                                  CanUserSortColumns="True"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="0"
+                                  Background="{DynamicResource MesBgPrimary}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Platform Kategorisi" Binding="{Binding PlatformCategory}" Width="*" />
+                                <DataGridTextColumn Header="MesTech Kategorisi" Binding="{Binding MesTechCategory}" Width="*" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding MappedDisplay}" Width="140" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 4: Ayarlar -->
+                <TabItem Header="Ayarlar" Padding="16,10">
+                    <ScrollViewer>
+                        <StackPanel Margin="24" Spacing="16" MaxWidth="560">
+                            <TextBlock Text="Bağlantı Ayarları" FontSize="{StaticResource FontSizeSubtitle}"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+
+                            <!-- URL -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Mağaza URL" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesCoolGray}" />
+                                <TextBox Text="{Binding StoreUrl}"
+                                         Watermark="https://mymağaza.com"
+                                         Padding="12,8"
+                                         CornerRadius="{StaticResource MesRadiusBase}" />
+                            </StackPanel>
+
+                            <!-- API Key (masked) -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="API Key" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{DynamicResource MesCoolGray}" />
+                                <TextBox Text="{Binding ApiKey}"
+                                         PasswordChar="*"
+                                         Watermark="OpenCart API anahtarını girin"
+                                         Padding="12,8"
+                                         CornerRadius="{StaticResource MesRadiusBase}" />
+                            </StackPanel>
+
+                            <!-- Test Connection -->
+                            <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
+                                    Padding="16,9" CornerRadius="{StaticResource MesRadiusBase}"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="SemiBold" HorizontalAlignment="Left" />
+
+                            <!-- Result badge -->
+                            <Border IsVisible="{Binding ConnectionTestRan}"
+                                    CornerRadius="{StaticResource MesRadiusBase}" Padding="12,8"
+                                    Background="{DynamicResource MesEmerald}"
+                                    IsEnabled="{Binding ConnectionTestSuccess}">
+                                <Border.Styles>
+                                    <Style Selector="Border">
+                                        <Setter Property="Background" Value="{DynamicResource MesBgDangerLight}" />
+                                    </Style>
+                                    <Style Selector="Border[IsEnabled=True]">
+                                        <Setter Property="Background" Value="{DynamicResource MesBgSuccessLight}" />
+                                    </Style>
+                                </Border.Styles>
+                                <TextBlock Text="{Binding ConnectionTestResult}"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+            </TabControl>
         </Border>
 
         <!-- Loading Overlay -->
