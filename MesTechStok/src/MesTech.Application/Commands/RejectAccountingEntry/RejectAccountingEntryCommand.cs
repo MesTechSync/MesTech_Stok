@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Commands.RejectAccountingEntry;
 
@@ -13,9 +14,19 @@ public record RejectAccountingEntryCommand : IRequest
 
 public sealed class RejectAccountingEntryHandler : IRequestHandler<RejectAccountingEntryCommand>
 {
+    private readonly ILogger<RejectAccountingEntryHandler> _logger;
+
+    public RejectAccountingEntryHandler(ILogger<RejectAccountingEntryHandler> logger)
+    {
+        _logger = logger;
+    }
+
     public Task Handle(RejectAccountingEntryCommand request, CancellationToken cancellationToken)
     {
-        // Minimal handler — domain logic lives in consumer, to be migrated in future sprints
+        _logger.LogWarning(
+            "RejectAccountingEntry: Document {DocumentId} rejected by {RejectedBy} via {Source}. Reason: {Reason}",
+            request.DocumentId, request.RejectedBy, request.RejectionSource, request.Reason ?? "belirtilmedi");
+
         return Task.CompletedTask;
     }
 }
