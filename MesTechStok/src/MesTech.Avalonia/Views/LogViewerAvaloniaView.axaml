@@ -1,0 +1,152 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.LogViewerAvaloniaView"
+             x:DataType="vm:LogViewerAvaloniaViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <!-- Uygulama Logları — WPF010 -->
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Uygulama Logları"
+                           Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Logları yenile (F5)"
+                        Command="{Binding RefreshCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+
+                <!-- Level ComboBox -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Seviye" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesSlateGray}" />
+                    <ComboBox Width="140"
+                              ItemsSource="{Binding Levels}"
+                              SelectedItem="{Binding SelectedLevel}"
+                              AutomationProperties.Name="Log Seviyesi" />
+                </StackPanel>
+
+                <!-- Search TextBox -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Arama" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBox Width="260"
+                             Text="{Binding SearchText}"
+                             Watermark="Mesaj veya kaynak ara..."
+                             AutomationProperties.Name="Log Arama" />
+                </StackPanel>
+
+                <!-- AutoRefresh Toggle -->
+                <StackPanel Spacing="4" VerticalAlignment="Bottom">
+                    <TextBlock Text="Otomatik Yenile" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{DynamicResource MesSlateGray}" />
+                    <ToggleSwitch IsChecked="{Binding AutoRefresh}"
+                                  OffContent="Kapalı" OnContent="Açık"
+                                  AutomationProperties.Name="Otomatik Yenile" />
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding LogEntries}"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserReorderColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}"
+                  IsVisible="{Binding !IsLoading}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Zaman"
+                                    Binding="{Binding Timestamp}"
+                                    Width="160" />
+                <!-- Seviye — renkli badge via template -->
+                <DataGridTemplateColumn Header="Seviye" Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:LogEntryItem">
+                            <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="4,2"
+                                    Background="{Binding LevelColor, Converter={x:Static StringConverters.IsNullOrEmpty}, FallbackValue=Transparent}">
+                                <TextBlock Text="{Binding Level}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{Binding LevelColor}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Kaynak"
+                                    Binding="{Binding Source}"
+                                    Width="200" />
+                <DataGridTextColumn Header="Mesaj"
+                                    Binding="{Binding Message}"
+                                    Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Log kayıtları yükleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Log bulunamadı" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="Seçili filtrelere uygun kayıt bulunamadı"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
+                           Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}"
+                        Padding="16,6" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>
