@@ -965,4 +965,22 @@ gelecek dalga feature).
 | Webhook event routes | 5/8 | 8/8 | **+3** ✅ |
 | Silently dropped events | 3 types | 0 | **-3** ✅ |
 
-### KÜMÜLATİF DEV 3 (27 tur, 71 commit)
+---
+
+## TUR 28 — 2026-03-26 (Wiring Audit — Full Chain Verification)
+
+### BİLİM ADAMI TARAMA
+| Metrik | Değer |
+|--------|-------|
+| AdapterFactory resolve | Dictionary<PlatformCode,Adapter> OrdinalIgnoreCase ✅ |
+| BackgroundService lifecycle | 3/3 proper Start/Stop/CT ✅ |
+| MassTransit queue naming | 15 message types configured ✅ |
+| Webhook chain (URL→Header→Validator→Processor→Router) | **TAM ZİNCİR DOĞRULANDI** ✅ |
+| Hangfire dashboard auth | **YOK** — G029 açıldı (DEV 4) |
+| PlatformCode consistency | 12 nameof + 4 string literal (G028) |
+
+### GOREV_HAVUZU
+- G028 güncellendi: +Etsy (4 total)
+- G029: NEW — Hangfire dashboard production auth
+
+### KÜMÜLATİF DEV 3 (28 tur, 73 commit)
