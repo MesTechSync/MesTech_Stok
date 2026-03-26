@@ -12,7 +12,7 @@ public sealed class StockPredictionRepository : IStockPredictionRepository
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<StockPrediction?> GetByIdAsync(Guid id)
-        => await _context.StockPredictions.FindAsync(id).ConfigureAwait(false);
+        => await _context.StockPredictions.FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<StockPrediction>> GetByProductIdAsync(Guid productId)
         => await _context.StockPredictions

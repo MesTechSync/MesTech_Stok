@@ -11,7 +11,7 @@ public sealed class WarehouseRepository : IWarehouseRepository
     public WarehouseRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<Warehouse?> GetByIdAsync(Guid id)
-        => await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
+        => await _context.Warehouses.FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Warehouse>> GetAllAsync()
         => await _context.Warehouses.AsNoTracking().ToListAsync().ConfigureAwait(false);
@@ -30,7 +30,7 @@ public sealed class WarehouseRepository : IWarehouseRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var wh = await _context.Warehouses.FindAsync(id).ConfigureAwait(false);
+        var wh = await _context.Warehouses.FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
         if (wh != null) _context.Warehouses.Remove(wh);
     }
 }

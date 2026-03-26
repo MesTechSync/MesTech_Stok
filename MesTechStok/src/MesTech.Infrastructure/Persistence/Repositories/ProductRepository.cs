@@ -52,7 +52,7 @@ public sealed class ProductRepository : IProductRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var product = await _context.Products.FindAsync(id).ConfigureAwait(false);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
         if (product != null) _context.Products.Remove(product);
     }
 

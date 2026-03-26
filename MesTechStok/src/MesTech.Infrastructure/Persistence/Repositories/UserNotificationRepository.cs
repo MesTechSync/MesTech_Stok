@@ -11,7 +11,7 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
     public UserNotificationRepository(AppDbContext db) => _db = db;
 
     public async Task<UserNotification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => await _db.UserNotifications.FindAsync(new object[] { id }, cancellationToken);
+        => await _db.UserNotifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
 
     public async Task<(IReadOnlyList<UserNotification> Items, int TotalCount)> GetPagedAsync(
         Guid tenantId, Guid userId, int page, int pageSize, bool unreadOnly = false,

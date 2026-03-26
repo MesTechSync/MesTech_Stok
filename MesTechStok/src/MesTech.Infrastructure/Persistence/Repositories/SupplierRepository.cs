@@ -15,7 +15,7 @@ public sealed class SupplierRepository : ISupplierRepository
 
     public async Task<Supplier?> GetByIdAsync(Guid id)
     {
-        return await _context.Suppliers.FindAsync(id);
+        return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
     }
 
     public async Task<IReadOnlyList<Supplier>> GetAllAsync()
@@ -46,7 +46,7 @@ public sealed class SupplierRepository : ISupplierRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _context.Suppliers.FindAsync(id);
+        var entity = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
         if (entity != null)
         {
             entity.IsDeleted = true;

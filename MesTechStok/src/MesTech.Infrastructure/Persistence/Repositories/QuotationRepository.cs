@@ -12,7 +12,7 @@ public sealed class QuotationRepository : IQuotationRepository
     public QuotationRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<Quotation?> GetByIdAsync(Guid id)
-        => await _context.Quotations.FindAsync(id).ConfigureAwait(false);
+        => await _context.Quotations.FirstOrDefaultAsync(q => q.Id == id).ConfigureAwait(false);
 
     public async Task<Quotation?> GetByIdWithLinesAsync(Guid id)
         => await _context.Quotations
@@ -41,7 +41,7 @@ public sealed class QuotationRepository : IQuotationRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var quotation = await _context.Quotations.FindAsync(id).ConfigureAwait(false);
+        var quotation = await _context.Quotations.FirstOrDefaultAsync(q => q.Id == id).ConfigureAwait(false);
         if (quotation != null) _context.Quotations.Remove(quotation);
     }
 }

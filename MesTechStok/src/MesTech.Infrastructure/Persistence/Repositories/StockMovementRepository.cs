@@ -11,7 +11,7 @@ public sealed class StockMovementRepository : IStockMovementRepository
     public StockMovementRepository(AppDbContext context) => _context = context;
 
     public async Task<StockMovement?> GetByIdAsync(Guid id)
-        => await _context.StockMovements.FindAsync(id);
+        => await _context.StockMovements.FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId)
         => await _context.StockMovements
