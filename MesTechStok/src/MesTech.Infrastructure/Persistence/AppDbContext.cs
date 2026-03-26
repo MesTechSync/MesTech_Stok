@@ -280,6 +280,8 @@ public class AppDbContext : DbContext
     public DbSet<StockAlert> StockAlerts => Set<StockAlert>();
     public DbSet<PriceHistory> PriceHistories => Set<PriceHistory>();
     public DbSet<ProcessedDomainEvent> ProcessedDomainEvents => Set<ProcessedDomainEvent>();
+    public DbSet<KvkkAuditLog> KvkkAuditLogs => Set<KvkkAuditLog>();
+    public DbSet<UserConsent> UserConsents => Set<UserConsent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
