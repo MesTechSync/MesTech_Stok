@@ -1,5 +1,6 @@
 using MesTech.Application.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
@@ -40,7 +41,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProfitLossReport")
-        .WithSummary("Aylik kar/zarar raporu");
+        .WithSummary("Aylik kar/zarar raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/monthly-summary/{year}/{month} — aylik ozet rapor
         group.MapGet("/monthly-summary/{year:int}/{month:int}", async (
@@ -57,7 +59,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetMonthlySummary")
-        .WithSummary("Aylik ozet raporu (satis, komisyon, gider, vergi metrikleri)");
+        .WithSummary("Aylik ozet raporu (satis, komisyon, gider, vergi metrikleri)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/kdv/{year}/{month} — KDV raporu
         group.MapGet("/kdv/{year:int}/{month:int}", async (
@@ -74,7 +77,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetKdvReport")
-        .WithSummary("KDV raporu (hesaplanan, indirilecek, odenecek KDV)");
+        .WithSummary("KDV raporu (hesaplanan, indirilecek, odenecek KDV)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/reports/generate-tax-calendar/{year} — vergi takvimi olustur (legacy compat)
         // Primary endpoint: POST /api/v1/calendar/generate-tax-calendar/{year}
@@ -102,7 +106,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPlatformComparison")
-        .WithSummary("Platform bazli satis karsilastirma raporu (tarih araligi + platform filtresi)");
+        .WithSummary("Platform bazli satis karsilastirma raporu (tarih araligi + platform filtresi)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/profitability — karlilik raporu (Net Kar formulu)
         group.MapGet("/profitability", async (
@@ -114,7 +119,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProfitabilityReport")
-        .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV");
+        .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV")
+        .CacheOutput("Report120s");
 
         // ─── DEFTER KAPATMA: 7 eksik rapor endpoint [ENT-DEV6] ───
 
@@ -128,7 +134,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCargoPerformanceReport")
-        .WithSummary("Kargo performans raporu (firma bazlı teslimat süresi + maliyet)");
+        .WithSummary("Kargo performans raporu (firma bazlı teslimat süresi + maliyet)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-lifetime-value — müşteri yaşam boyu değeri
         group.MapGet("/customer-lifetime-value", async (
@@ -140,7 +147,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCustomerLifetimeValueReport")
-        .WithSummary("Müşteri yaşam boyu değeri raporu (CLV)");
+        .WithSummary("Müşteri yaşam boyu değeri raporu (CLV)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-segments — müşteri segment raporu
         group.MapGet("/customer-segments", async (
@@ -152,7 +160,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCustomerSegmentReport")
-        .WithSummary("Müşteri segment analizi (RFM bazlı)");
+        .WithSummary("Müşteri segment analizi (RFM bazlı)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/inventory-valuation — envanter değerleme raporu
         group.MapGet("/inventory-valuation", async (
@@ -164,7 +173,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInventoryValuationReport")
-        .WithSummary("Envanter değerleme raporu (kategori filtresi)");
+        .WithSummary("Envanter değerleme raporu (kategori filtresi)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/order-fulfillment — sipariş karşılama raporu
         group.MapGet("/order-fulfillment", async (
@@ -176,7 +186,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetOrderFulfillmentReport")
-        .WithSummary("Sipariş karşılama performans raporu");
+        .WithSummary("Sipariş karşılama performans raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/stock-turnover — stok devir hızı raporu
         group.MapGet("/stock-turnover", async (
@@ -188,7 +199,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetStockTurnoverReport")
-        .WithSummary("Stok devir hızı raporu (kategori filtresi)");
+        .WithSummary("Stok devir hızı raporu (kategori filtresi)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/tax-summary — vergi özet raporu
         group.MapGet("/tax-summary", async (
@@ -200,7 +212,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetTaxSummaryReport")
-        .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)");
+        .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)")
+        .CacheOutput("Report120s");
 
         // ─── V5 YENİ RAPOR ENDPOINT'LERİ [ENT-DEV6] ───
 
@@ -215,7 +228,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCommissionReport")
-        .WithSummary("Platform bazlı komisyon raporu — dönem karşılaştırmalı");
+        .WithSummary("Platform bazlı komisyon raporu — dönem karşılaştırmalı")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/fulfillment-cost — fulfillment maliyet raporu
         group.MapGet("/fulfillment-cost", async (
@@ -231,7 +245,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentCostReport")
-        .WithSummary("FBA + Hepsilojistik maliyet analizi raporu");
+        .WithSummary("FBA + Hepsilojistik maliyet analizi raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/erp-reconciliation — ERP cari mutabakat raporu
         group.MapGet("/erp-reconciliation", async (
@@ -243,7 +258,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetErpReconciliationReport")
-        .WithSummary("ERP cari hesap mutabakat raporu (MesTech vs ERP eşleştirme)");
+        .WithSummary("ERP cari hesap mutabakat raporu (MesTech vs ERP eşleştirme)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/reports/platform-performance — platform performans raporu
         group.MapGet("/platform-performance", async (
@@ -255,7 +271,8 @@ public static class ReportEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPlatformPerformanceReport")
-        .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor");
+        .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor")
+        .CacheOutput("Report120s");
 
         // ─── V5 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
 

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
 
 namespace MesTech.WebApi.Endpoints;
@@ -21,6 +22,7 @@ public static class DropshipDashboardEndpoint
             return Results.Ok(result);
         })
         .WithName("GetDropshipDashboard")
-        .WithSummary("Dropship özet panosu (aktif tedarikçi, ürün, sipariş)");
+        .WithSummary("Dropship özet panosu (aktif tedarikçi, ürün, sipariş)")
+        .CacheOutput("Dashboard30s");
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Commands.DeleteExpense;
 using MesTech.Application.Commands.UpdateExpense;
@@ -68,7 +69,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetTrialBalance")
-        .WithSummary("Mizan raporu (belirli tarih aralığı)");
+        .WithSummary("Mizan raporu (belirli tarih aralığı)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/balance-sheet — bilanço raporu
         group.MapGet("/balance-sheet", async (
@@ -80,7 +82,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBalanceSheet")
-        .WithSummary("Bilanço raporu (belirli tarih itibariyle)");
+        .WithSummary("Bilanço raporu (belirli tarih itibariyle)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/profit-report — kâr raporu
         group.MapGet("/profit-report", async (
@@ -92,7 +95,8 @@ public static class AccountingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetProfitReport")
-        .WithSummary("Kâr raporu (dönem ve platform bazlı)");
+        .WithSummary("Kâr raporu (dönem ve platform bazlı)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/journal-entries — yevmiye kayıtları listesi
         group.MapGet("/journal-entries", async (
@@ -104,7 +108,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetJournalEntries")
-        .WithSummary("Yevmiye kayıtları listesi (tarih aralığı)");
+        .WithSummary("Yevmiye kayıtları listesi (tarih aralığı)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/journal-entries — yeni yevmiye kaydı oluştur
         group.MapPost("/journal-entries", async (
@@ -127,7 +132,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetAccountingExpenses")
-        .WithSummary("Masraf listesi (tarih aralığı + kaynak filtresi)");
+        .WithSummary("Masraf listesi (tarih aralığı + kaynak filtresi)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/expenses — yeni masraf kaydı oluştur
         group.MapPost("/expenses", async (
@@ -182,7 +188,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSettlementBatches")
-        .WithSummary("Hakediş partileri (tarih + platform filtresi)");
+        .WithSummary("Hakediş partileri (tarih + platform filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/reconciliation/dashboard — mutabakat özet panosu
         group.MapGet("/reconciliation/dashboard", async (
@@ -194,7 +201,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetReconciliationDashboard")
-        .WithSummary("Mutabakat dashboard — eşleştirme durum özeti");
+        .WithSummary("Mutabakat dashboard — eşleştirme durum özeti")
+        .CacheOutput("Dashboard30s");
 
         // POST /api/v1/accounting/reconciliation/run — otomatik mutabakat çalıştır
         group.MapPost("/reconciliation/run", async (
@@ -217,7 +225,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBankTransactions")
-        .WithSummary("Banka hareketleri (hesap + tarih filtresi)");
+        .WithSummary("Banka hareketleri (hesap + tarih filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/chart-of-accounts — hesap planı listesi
         group.MapGet("/chart-of-accounts", async (
@@ -229,7 +238,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetChartOfAccounts")
-        .WithSummary("Hesap planı listesi (aktif/pasif filtresi)");
+        .WithSummary("Hesap planı listesi (aktif/pasif filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/commission-rates — platform komisyon oranları
         group.MapGet("/commission-rates", async (
@@ -241,7 +251,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPlatformCommissionRates")
-        .WithSummary("Platform komisyon oranları listesi (platform + aktif filtresi)");
+        .WithSummary("Platform komisyon oranları listesi (platform + aktif filtresi)")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/commission-rates — yeni komisyon oranı oluştur (Dalga 14 M2)
         group.MapPost("/commission-rates", async (
@@ -278,7 +289,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetShipmentCosts")
-        .WithSummary("Kargo maliyet listesi");
+        .WithSummary("Kargo maliyet listesi")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/periods — muhasebe dönemleri
         group.MapGet("/periods", async (
@@ -292,7 +304,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetAccountingPeriods")
-        .WithSummary("Muhasebe dönemleri listesi");
+        .WithSummary("Muhasebe dönemleri listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/periods/close — dönem kapat
         group.MapPost("/periods/close", async (
@@ -339,7 +352,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetReconciliationMatches")
-        .WithSummary("Mutabakat eşleşme listesi (durum filtresi)");
+        .WithSummary("Mutabakat eşleşme listesi (durum filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/reconciliation/pending-reviews — bekleyen incelemeler
         group.MapGet("/reconciliation/pending-reviews", async (
@@ -351,7 +365,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPendingReviews")
-        .WithSummary("Bekleyen mutabakat incelemeleri");
+        .WithSummary("Bekleyen mutabakat incelemeleri")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/bank-accounts — banka hesabı oluştur
         group.MapPost("/bank-accounts", async (
@@ -374,7 +389,8 @@ public static class AccountingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetAccountBalance")
-        .WithSummary("Hesap bakiyesi sorgula");
+        .WithSummary("Hesap bakiyesi sorgula")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/financial-goals — mali hedef oluştur
         group.MapPost("/financial-goals", async (
@@ -452,7 +468,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCashFlowReport")
-        .WithSummary("Nakit akış raporu (tarih aralığı)");
+        .WithSummary("Nakit akış raporu (tarih aralığı)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/commission-summary — komisyon özet raporu
         group.MapGet("/commission-summary", async (
@@ -464,7 +481,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCommissionSummary")
-        .WithSummary("Komisyon özet raporu (tarih aralığı)");
+        .WithSummary("Komisyon özet raporu (tarih aralığı)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/counterparties — cari hesap listesi (detaylı)
         group.MapGet("/counterparties", async (
@@ -478,7 +496,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCounterparties")
-        .WithSummary("Cari hesap listesi (tip + aktif filtresi)");
+        .WithSummary("Cari hesap listesi (tip + aktif filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/fifo-cogs — FIFO maliyet hesabı
         group.MapGet("/fifo-cogs", async (
@@ -490,7 +509,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFifoCOGS")
-        .WithSummary("FIFO satılan malın maliyeti hesabı");
+        .WithSummary("FIFO satılan malın maliyeti hesabı")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/kdv-declaration-draft — KDV beyanname taslağı
         group.MapGet("/kdv-declaration-draft", async (
@@ -502,7 +522,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetKdvDeclarationDraft")
-        .WithSummary("KDV beyannamesi taslağı (dönem: 2026-03 formatında)");
+        .WithSummary("KDV beyannamesi taslağı (dönem: 2026-03 formatında)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/tax-summary — vergi özet raporu
         group.MapGet("/tax-summary", async (
@@ -514,7 +535,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetTaxSummary")
-        .WithSummary("Vergi özet raporu (dönem bazlı)");
+        .WithSummary("Vergi özet raporu (dönem bazlı)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/cargo-comparison — kargo karşılaştırma
         group.MapPost("/cargo-comparison", async (
@@ -537,7 +559,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("ValidateBalanceSheet")
-        .WithSummary("Bilanço doğrulama (aktif = pasif kontrolü)");
+        .WithSummary("Bilanço doğrulama (aktif = pasif kontrolü)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/chart-of-accounts — hesap planı oluştur
         group.MapPost("/chart-of-accounts", async (
@@ -583,7 +606,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCashFlowTrend")
-        .WithSummary("Nakit akış trendi (aylık gelir/gider/net)");
+        .WithSummary("Nakit akış trendi (aylık gelir/gider/net)")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/validate-trial-balance — mizan doğrulama
         group.MapGet("/validate-trial-balance", async (
@@ -595,7 +619,8 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("ValidateTrialBalance")
-        .WithSummary("Mizan doğrulama (borç = alacak kontrolü)");
+        .WithSummary("Mizan doğrulama (borç = alacak kontrolü)")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/counterparties — yeni karşı taraf oluştur
         group.MapPost("/counterparties", async (

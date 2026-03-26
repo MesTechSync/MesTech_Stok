@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
@@ -35,7 +36,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetProfitLoss")
-        .WithSummary("Aylık kâr/zarar raporu");
+        .WithSummary("Aylık kâr/zarar raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/finance/cash-flow — aylık nakit akışı raporu
         group.MapGet("/cash-flow", async (
@@ -47,7 +49,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCashFlow")
-        .WithSummary("Aylık nakit akışı raporu");
+        .WithSummary("Aylık nakit akışı raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/finance/budget-summary — bütçe özet raporu
         group.MapGet("/budget-summary", async (
@@ -59,7 +62,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBudgetSummary")
-        .WithSummary("Bütçe özet raporu");
+        .WithSummary("Bütçe özet raporu")
+        .CacheOutput("Report120s");
 
         // POST /api/v1/finance/expenses/{id}/approve
         group.MapPost("/expenses/{id:guid}/approve", async (
@@ -110,7 +114,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCashRegisters")
-        .WithSummary("Kasa listesi");
+        .WithSummary("Kasa listesi")
+        .CacheOutput("Lookup60s");
 
         // POST /api/v1/finance/cash-registers — yeni kasa oluştur
         group.MapPost("/cash-registers", async (
@@ -159,7 +164,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetExpenses")
-        .WithSummary("Masraf listesi (tarih + tip filtresi)");
+        .WithSummary("Masraf listesi (tarih + tip filtresi)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expenses — gelir/gider listesi
         group.MapGet("/income-expenses", async (
@@ -171,7 +177,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetIncomeExpenseList")
-        .WithSummary("Gelir/gider listesi (sayfalanmış)");
+        .WithSummary("Gelir/gider listesi (sayfalanmış)")
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expense-summary — gelir/gider özeti
         group.MapGet("/income-expense-summary", async (
@@ -183,7 +190,8 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetIncomeExpenseSummary")
-        .WithSummary("Gelir/gider özet raporu");
+        .WithSummary("Gelir/gider özet raporu")
+        .CacheOutput("Report120s");
 
         // GET /api/v1/finance/kar-zarar — kâr/zarar raporu
         group.MapGet("/kar-zarar", async (
@@ -195,6 +203,7 @@ public static class FinanceEndpoints
             return Results.Ok(result);
         })
         .WithName("GetKarZarar")
-        .WithSummary("Kâr/zarar raporu (tarih aralığı)");
+        .WithSummary("Kâr/zarar raporu (tarih aralığı)")
+        .CacheOutput("Report120s");
     }
 }

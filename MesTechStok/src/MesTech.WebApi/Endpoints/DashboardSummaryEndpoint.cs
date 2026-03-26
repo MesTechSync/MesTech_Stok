@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 
 namespace MesTech.WebApi.Endpoints;
@@ -23,6 +24,7 @@ public static class DashboardSummaryEndpoint
         .RequireRateLimiting("PerApiKey")
         .WithTags("Dashboard")
         .WithName("GetDashboardSummary")
-        .WithSummary("Unified dashboard özeti — 12 KPI, 7 günlük satış grafiği, platform dağılımı, son siparişler, kritik stok");
+        .WithSummary("Unified dashboard özeti — 12 KPI, 7 günlük satış grafiği, platform dağılımı, son siparişler, kritik stok")
+        .CacheOutput("Dashboard30s");
     }
 }

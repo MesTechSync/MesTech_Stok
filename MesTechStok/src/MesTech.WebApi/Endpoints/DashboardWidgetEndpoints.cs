@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Dashboard.Queries.GetOrdersPending;
 using MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
 using MesTech.Application.Features.Dashboard.Queries.GetRevenueChart;
@@ -26,7 +27,8 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSalesToday")
-        .WithSummary("Bugunku satis ozeti (bugun vs dun karsilastirmali)");
+        .WithSummary("Bugunku satis ozeti (bugun vs dun karsilastirmali)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/orders-pending — bekleyen siparis sayisi
         group.MapGet("/orders-pending", async (
@@ -38,7 +40,8 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetOrdersPending")
-        .WithSummary("Bekleyen siparis sayisi (Pending + Confirmed)");
+        .WithSummary("Bekleyen siparis sayisi (Pending + Confirmed)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/stock-alerts — dusuk stok uyarilari
         group.MapGet("/stock-alerts", async (
@@ -50,7 +53,8 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetStockAlerts")
-        .WithSummary("Dusuk stok uyarilari (stok <= minThreshold)");
+        .WithSummary("Dusuk stok uyarilari (stok <= minThreshold)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/platform-health — platform saglik durumu
         group.MapGet("/platform-health", async (
@@ -62,7 +66,8 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetPlatformHealth")
-        .WithSummary("Platform saglik durumu (son sync + 24h hata sayisi)");
+        .WithSummary("Platform saglik durumu (son sync + 24h hata sayisi)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/revenue-chart — gelir grafigi
         group.MapGet("/revenue-chart", async (
@@ -76,7 +81,8 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetRevenueChart")
-        .WithSummary("Gelir grafigi (gun bazinda siparis tutari + sayisi)");
+        .WithSummary("Gelir grafigi (gun bazinda siparis tutari + sayisi)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/top-products — en cok satan urunler
         group.MapGet("/top-products", async (
@@ -90,6 +96,7 @@ public static class DashboardWidgetEndpoints
             return Results.Ok(result);
         })
         .WithName("GetTopProducts")
-        .WithSummary("En cok satan urunler (gelire gore siralanmis)");
+        .WithSummary("En cok satan urunler (gelire gore siralanmis)")
+        .CacheOutput("Dashboard30s");
     }
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using MediatR;
+using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
@@ -44,7 +45,8 @@ public static class DashboardEndpoints
             });
         })
         .WithName("GetDashboardKpi")
-        .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)");
+        .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/sales-trend?days=7 — daily order counts per platform (Chart.js format)
         group.MapGet("/sales-trend", async (int? days, ISender mediator, CancellationToken ct) =>
@@ -90,7 +92,8 @@ public static class DashboardEndpoints
             return Results.Ok(new { labels = labelStrings, datasets });
         })
         .WithName("GetSalesTrend")
-        .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)");
+        .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/inventory-stats — full inventory statistics
         group.MapGet("/inventory-stats", async (ISender mediator, CancellationToken ct) =>
@@ -99,7 +102,8 @@ public static class DashboardEndpoints
             return Results.Ok(result);
         })
         .WithName("GetInventoryStats")
-        .WithSummary("Envanter istatistikleri");
+        .WithSummary("Envanter istatistikleri")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/recent-orders — orders from last 7 days
         group.MapGet("/recent-orders", async (ISender mediator, CancellationToken ct) =>
@@ -109,7 +113,8 @@ public static class DashboardEndpoints
             return Results.Ok(result);
         })
         .WithName("GetRecentOrders")
-        .WithSummary("Son 7 gün siparişleri");
+        .WithSummary("Son 7 gün siparişleri")
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/accounting-kpi — muhasebe KPI (gelir, gider, kar, siparis metrikleri)
         group.MapGet("/accounting-kpi", async (
@@ -135,6 +140,7 @@ public static class DashboardEndpoints
             });
         })
         .WithName("GetAccountingKpi")
-        .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri");
+        .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri")
+        .CacheOutput("Dashboard30s");
     }
 }
