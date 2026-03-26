@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Commands.CreateExpense;
 using MesTech.Application.Commands.CreateIncome;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
@@ -223,7 +223,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_BalancedLines_CreatesSuccessfully()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         JournalEntry? captured = null;
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
@@ -260,7 +260,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_ImbalancedLines_ThrowsException()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         var handler = new CreateJournalEntryHandler(repo.Object, uow.Object);
 
