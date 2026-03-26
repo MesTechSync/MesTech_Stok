@@ -1067,4 +1067,47 @@ CREATE INDEX IF NOT EXISTS ""IX_BarcodeScanLogs_Format_TimestampUtc"" ON ""Barco
         // EMERGENCY FIX: Method intentionally left empty
         // All warehouse location entities configuration disabled to prevent build errors
     }
+    private void ConfigureCompanySettings(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CompanySettings>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.TaxNumber).HasMaxLength(20);
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.HasIndex(e => e.Code).IsUnique();
+        });
+    }
+
+    private void ConfigureOfflineQueueItem(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<OfflineQueueItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Operation).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.DataJson).IsRequired();
+            entity.Property(e => e.TableName).HasMaxLength(50);
+            entity.Property(e => e.RecordId).HasMaxLength(50);
+            entity.HasIndex(e => new { e.IsProcessed, e.CreatedAt });
+        });
+    }
+
+    private void ConfigureApiCallLog(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApiCallLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Endpoint).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Method).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.RequestBody).HasMaxLength(2000);
+            entity.Property(e => e.ResponseBody).HasMaxLength(2000);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(500);
+            entity.Property(e => e.CorrelationId).HasMaxLength(64);
+            entity.HasIndex(e => e.TimestampUtc);
+            entity.HasIndex(e => new { e.IsSuccess, e.TimestampUtc });
+        });
+    }
 }  // AppDbContext class

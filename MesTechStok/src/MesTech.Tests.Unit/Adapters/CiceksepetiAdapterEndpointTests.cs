@@ -29,10 +29,8 @@ public class CiceksepetiAdapterEndpointTests
     public CiceksepetiAdapterEndpointTests()
     {
         _mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
-        _httpClient = CreateHttpClient(_mockHandler.Object)
-        {
-            BaseAddress = new Uri("https://apis.ciceksepeti.com/")
-        };
+        _httpClient = CreateHttpClient(_mockHandler.Object);
+        _httpClient.BaseAddress = new Uri("https://apis.ciceksepeti.com/");
         _logger = NullLogger<CiceksepetiAdapter>.Instance;
         _sut = new CiceksepetiAdapter(_httpClient, _logger);
 
