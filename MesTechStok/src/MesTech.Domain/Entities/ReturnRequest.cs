@@ -99,11 +99,17 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
 
     public void MarkStockRestored()
     {
+        if (Status is not (ReturnStatus.Approved or ReturnStatus.Received or ReturnStatus.Refunded))
+            throw new InvalidOperationException($"Stok geri yükleme sadece onay/teslim/iade durumunda yapılabilir. Mevcut: {Status}");
+        if (StockRestored)
+            throw new InvalidOperationException("Stok zaten geri yüklenmiş — çift geri yükleme engellendi.");
         StockRestored = true;
     }
 
     public void SetCargoInfo(string trackingNumber, CargoProvider provider)
     {
+        if (Status != ReturnStatus.Approved)
+            throw new InvalidOperationException($"Kargo bilgisi sadece onaylanmış iadeye eklenebilir. Mevcut durum: {Status}");
         ArgumentException.ThrowIfNullOrWhiteSpace(trackingNumber);
         TrackingNumber = trackingNumber;
         CargoProvider = provider;
