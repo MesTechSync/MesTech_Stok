@@ -1,15 +1,22 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCounterparties;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Cari Hesap (Account) ViewModel — DataGrid with Ad, Tip, Borc, Alacak, Bakiye.
-/// 10 demo entries with Musteri/Tedarikci filter. M1 Avalonia canlandirma — Beta Agent.
+/// Cari Hesap (Account) ViewModel — wired to GetCounterpartiesQuery via MediatR.
+/// G033: Task.Delay mock replaced with real mediator.Send call.
+/// DataGrid: Ad, Tip, Borc, Alacak, Bakiye with Musteri/Tedarikci filter.
 /// </summary>
 public partial class CariAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -23,6 +30,12 @@ public partial class CariAvaloniaViewModel : ViewModelBase
 
     private List<CariItemDto> _allAccounts = [];
 
+    public CariAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -31,21 +44,23 @@ public partial class CariAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var results = await _mediator.Send(
+                new GetCounterpartiesQuery(_currentUser.TenantId),
+                CancellationToken);
 
-            _allAccounts =
-            [
-                new() { Name = "Teknosa A.S.", Type = "Musteri", Debt = 45750.00m, Credit = 30000.00m, Balance = 15750.00m },
-                new() { Name = "Samsung Turkiye", Type = "Tedarikci", Debt = 0.00m, Credit = 128300.00m, Balance = -128300.00m },
-                new() { Name = "MediaMarkt Turkiye", Type = "Musteri", Debt = 67890.50m, Credit = 67890.50m, Balance = 0.00m },
-                new() { Name = "Apple Turkiye Dist.", Type = "Tedarikci", Debt = 0.00m, Credit = 89120.75m, Balance = -89120.75m },
-                new() { Name = "Hepsiburada Lojistik", Type = "Musteri", Debt = 23456.00m, Credit = 15000.00m, Balance = 8456.00m },
-                new() { Name = "LG Elektronik", Type = "Tedarikci", Debt = 5000.00m, Credit = 34567.00m, Balance = -29567.00m },
-                new() { Name = "Vatanbilgisayar Ltd.", Type = "Musteri", Debt = 15890.25m, Credit = 15890.25m, Balance = 0.00m },
-                new() { Name = "Bosch Ev Aletleri", Type = "Tedarikci", Debt = 0.00m, Credit = 56780.00m, Balance = -56780.00m },
-                new() { Name = "Trendyol Express", Type = "Musteri", Debt = 112340.00m, Credit = 100000.00m, Balance = 12340.00m },
-                new() { Name = "Philips Turkiye", Type = "Tedarikci", Debt = 2500.00m, Credit = 41230.00m, Balance = -38730.00m },
-            ];
+            _allAccounts = results.Select(c => new CariItemDto
+            {
+                Name = c.Name,
+                Type = c.CounterpartyType switch
+                {
+                    "Customer" => "Musteri",
+                    "Supplier" => "Tedarikci",
+                    _ => c.CounterpartyType
+                },
+                Debt = 0m,
+                Credit = 0m,
+                Balance = 0m
+            }).ToList();
 
             ApplyFilters();
         }

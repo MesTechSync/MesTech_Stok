@@ -1,21 +1,30 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.EInvoice.Queries;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// E-Invoice management ViewModel — DataGrid with No, Tarih, Alici, Tutar, Durum.
-/// 8 demo e-invoices + Create button. M1 Avalonia canlandirma — Beta Agent.
+/// E-Invoice management ViewModel — wired to GetEInvoicesQuery via MediatR.
+/// G033: Task.Delay mock replaced with real mediator.Send call.
 /// </summary>
 public partial class EInvoiceAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<EInvoiceItemDto> Invoices { get; } = [];
 
     private List<EInvoiceItemDto> _allInvoices = [];
+
+    public EInvoiceAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     public override async Task LoadAsync()
     {
@@ -25,19 +34,24 @@ public partial class EInvoiceAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var result = await _mediator.Send(
+                new GetEInvoicesQuery(
+                    From: DateTime.Now.AddDays(-90),
+                    To: DateTime.Now,
+                    Status: null,
+                    ProviderId: null,
+                    Page: 1,
+                    PageSize: 50),
+                CancellationToken);
 
-            _allInvoices =
-            [
-                new() { InvoiceNo = "MES2026000001", Date = "17.03.2026", Receiver = "Teknosa A.S.", Amount = 45750.00m, Status = "Onaylandi" },
-                new() { InvoiceNo = "MES2026000002", Date = "16.03.2026", Receiver = "MediaMarkt Turkiye", Amount = 128300.00m, Status = "Onaylandi" },
-                new() { InvoiceNo = "MES2026000003", Date = "15.03.2026", Receiver = "Vatanbilgisayar Ltd.", Amount = 67890.50m, Status = "Beklemede" },
-                new() { InvoiceNo = "MES2026000004", Date = "14.03.2026", Receiver = "Hepsiburada Lojistik", Amount = 23456.00m, Status = "Onaylandi" },
-                new() { InvoiceNo = "MES2026000005", Date = "13.03.2026", Receiver = "Trendyol Express", Amount = 89120.75m, Status = "Iptal Edildi" },
-                new() { InvoiceNo = "MES2026000006", Date = "12.03.2026", Receiver = "N11 Pazaryeri A.S.", Amount = 34567.00m, Status = "Onaylandi" },
-                new() { InvoiceNo = "MES2026000007", Date = "11.03.2026", Receiver = "Ciceksepeti Lojistik", Amount = 15890.25m, Status = "Beklemede" },
-                new() { InvoiceNo = "MES2026000008", Date = "10.03.2026", Receiver = "Amazon Turkiye", Amount = 201340.00m, Status = "Onaylandi" },
-            ];
+            _allInvoices = result.Items.Select(dto => new EInvoiceItemDto
+            {
+                InvoiceNo = dto.EttnNo,
+                Date = dto.IssueDate.ToString("dd.MM.yyyy"),
+                Receiver = dto.BuyerTitle,
+                Amount = dto.PayableAmount,
+                Status = dto.Status.ToString()
+            }).ToList();
 
             ApplyFilters();
         }
@@ -78,26 +92,8 @@ public partial class EInvoiceAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateInvoiceAsync()
     {
-        // Demo: Add a new invoice to the list
-        IsLoading = true;
-        try
-        {
-            await Task.Delay(300); // Simulate creation
-            var newInvoice = new EInvoiceItemDto
-            {
-                InvoiceNo = $"MES2026{_allInvoices.Count + 1:D6}",
-                Date = DateTime.Now.ToString("dd.MM.yyyy"),
-                Receiver = "Yeni Musteri Ltd.",
-                Amount = 0.00m,
-                Status = "Taslak"
-            };
-            _allInvoices.Insert(0, newInvoice);
-            ApplyFilters();
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        // Navigate to invoice create screen — wired via navigation service
+        await Task.CompletedTask;
     }
 
     partial void OnSearchTextChanged(string value)

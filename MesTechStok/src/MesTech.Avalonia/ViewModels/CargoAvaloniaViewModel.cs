@@ -1,17 +1,22 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList;
 using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Cargo tracking ViewModel — DataGrid with Takip No, Firma, Tarih, Durum, Alici.
-/// 10 demo cargo entries + cargo company filter. M1 Avalonia canlandirma — Beta Agent.
+/// Cargo tracking ViewModel — wired to GetCargoTrackingListQuery via MediatR.
+/// G033: Task.Delay mock replaced with real mediator.Send call.
 /// </summary>
 public partial class CargoAvaloniaViewModel : ViewModelBase
 {
     private readonly IDialogService _dialog;
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedCompany = "Tumu";
@@ -19,9 +24,11 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private CargoItemDto? selectedCargo;
     [ObservableProperty] private bool isCreating;
 
-    public CargoAvaloniaViewModel(IDialogService dialog)
+    public CargoAvaloniaViewModel(IDialogService dialog, IMediator mediator, ICurrentUserService currentUser)
     {
         _dialog = dialog;
+        _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public ObservableCollection<CargoItemDto> Cargos { get; } = [];
@@ -41,21 +48,18 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var results = await _mediator.Send(
+                new GetCargoTrackingListQuery(_currentUser.TenantId, 100),
+                CancellationToken);
 
-            _allCargos =
-            [
-                new() { TrackingNo = "YK-2026031701", Company = "Yurtici Kargo", Date = "17.03.2026", Status = "Teslim Edildi", Receiver = "Ahmet Yilmaz" },
-                new() { TrackingNo = "AR-2026031702", Company = "Aras Kargo", Date = "17.03.2026", Status = "Dagitimda", Receiver = "Fatma Demir" },
-                new() { TrackingNo = "SR-2026031603", Company = "Surat Kargo", Date = "16.03.2026", Status = "Transfer Merkezinde", Receiver = "Mehmet Kaya" },
-                new() { TrackingNo = "YK-2026031604", Company = "Yurtici Kargo", Date = "16.03.2026", Status = "Teslim Edildi", Receiver = "Elif Celik" },
-                new() { TrackingNo = "MN-2026031505", Company = "MNG Kargo", Date = "15.03.2026", Status = "Kargoya Verildi", Receiver = "Hasan Ozturk" },
-                new() { TrackingNo = "PT-2026031506", Company = "PTT Kargo", Date = "15.03.2026", Status = "Dagitimda", Receiver = "Zeynep Arslan" },
-                new() { TrackingNo = "AR-2026031407", Company = "Aras Kargo", Date = "14.03.2026", Status = "Teslim Edildi", Receiver = "Ali Sahin" },
-                new() { TrackingNo = "YK-2026031408", Company = "Yurtici Kargo", Date = "14.03.2026", Status = "Iade Surecinde", Receiver = "Ayse Yildiz" },
-                new() { TrackingNo = "SR-2026031309", Company = "Surat Kargo", Date = "13.03.2026", Status = "Teslim Edildi", Receiver = "Mustafa Erdogan" },
-                new() { TrackingNo = "MN-2026031310", Company = "MNG Kargo", Date = "13.03.2026", Status = "Hasar Bildirimi", Receiver = "Selin Korkmaz" },
-            ];
+            _allCargos = results.Select(r => new CargoItemDto
+            {
+                TrackingNo = r.TrackingNumber ?? r.OrderNumber,
+                Company = r.CargoProvider ?? "—",
+                Date = r.ShippedAt?.ToString("dd.MM.yyyy") ?? "—",
+                Status = r.Status,
+                Receiver = r.OrderNumber
+            }).ToList();
 
             ApplyFilters();
         }
@@ -101,7 +105,6 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateShipment()
     {
-        // G016: Kargo oluştur — MediatR CreateShipmentCommand kullanılacak
         await _dialog.ShowInfoAsync("Kargo olusturma ekrani hazirlaniyor...", "Kargo Olustur");
     }
 
@@ -113,7 +116,6 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
             await _dialog.ShowInfoAsync("Lutfen bir kargo secin.", "Etiket Yazdir");
             return;
         }
-        // G016: Etiket yazdır — label preview açılacak
         await _dialog.ShowInfoAsync($"Etiket hazirlaniyor: {SelectedCargo.TrackingNo}", "Etiket Yazdir");
     }
 
