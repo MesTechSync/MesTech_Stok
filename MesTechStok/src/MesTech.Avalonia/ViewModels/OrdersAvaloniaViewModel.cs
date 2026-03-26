@@ -1,15 +1,21 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Orders management ViewModel — DataGrid with 15 demo orders.
+/// Orders management ViewModel — wired to GetOrderListQuery via MediatR.
 /// Includes Status ComboBox filter + search text.
 /// </summary>
 public partial class OrdersAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -23,6 +29,12 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
     private List<OrderItemDto> _allOrders = [];
 
+    public OrdersAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -31,26 +43,19 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var result = await _mediator.Send(
+                new GetOrderListQuery(_tenantProvider.GetCurrentTenantId(), 100));
 
-            _allOrders =
-            [
-                new() { OrderNo = "SIP-2026-0041", Date = "17.03.2026", Customer = "Ahmet Yılmaz", Amount = "2,450.00 TL", Status = "Yeni", Platform = "Trendyol", StockDeducted = false },
-                new() { OrderNo = "SIP-2026-0040", Date = "17.03.2026", Customer = "Fatma Demir", Amount = "1,890.50 TL", Status = "Hazırlanıyor", Platform = "Hepsiburada", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0039", Date = "16.03.2026", Customer = "Mehmet Kaya", Amount = "5,200.00 TL", Status = "Kargoda", Platform = "Trendyol", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0038", Date = "16.03.2026", Customer = "Ayşe Çelik", Amount = "890.00 TL", Status = "Teslim Edildi", Platform = "N11", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0037", Date = "16.03.2026", Customer = "Ali Öztürk", Amount = "3,150.75 TL", Status = "Yeni", Platform = "Trendyol", StockDeducted = false },
-                new() { OrderNo = "SIP-2026-0036", Date = "15.03.2026", Customer = "Zeynep Arslan", Amount = "4,720.00 TL", Status = "Hazırlanıyor", Platform = "Çiçeksepeti", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0035", Date = "15.03.2026", Customer = "Hasan Doğan", Amount = "1,340.25 TL", Status = "Kargoda", Platform = "Hepsiburada", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0034", Date = "15.03.2026", Customer = "Elif Şahin", Amount = "6,890.00 TL", Status = "Teslim Edildi", Platform = "Trendyol", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0033", Date = "14.03.2026", Customer = "Burak Yıldız", Amount = "2,100.00 TL", Status = "Teslim Edildi", Platform = "N11", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0032", Date = "14.03.2026", Customer = "Selin Korkmaz", Amount = "7,450.50 TL", Status = "Kargoda", Platform = "Trendyol", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0031", Date = "14.03.2026", Customer = "Emre Aksoy", Amount = "1,675.00 TL", Status = "Yeni", Platform = "Pazarama", StockDeducted = false },
-                new() { OrderNo = "SIP-2026-0030", Date = "13.03.2026", Customer = "Deniz Polat", Amount = "3,890.00 TL", Status = "Hazırlanıyor", Platform = "Hepsiburada", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0029", Date = "13.03.2026", Customer = "Gül Erdem", Amount = "12,350.00 TL", Status = "Teslim Edildi", Platform = "Trendyol", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0028", Date = "12.03.2026", Customer = "Cem Aydın", Amount = "4,200.75 TL", Status = "Kargoda", Platform = "Çiçeksepeti", StockDeducted = true },
-                new() { OrderNo = "SIP-2026-0027", Date = "12.03.2026", Customer = "Neşe Karaca", Amount = "8,900.00 TL", Status = "Yeni", Platform = "N11", StockDeducted = false },
-            ];
+            _allOrders = result.Select(o => new OrderItemDto
+            {
+                OrderNo = o.OrderNumber,
+                Date = o.OrderDate.ToString("dd.MM.yyyy"),
+                Customer = o.CustomerName ?? "-",
+                Amount = $"{o.TotalAmount:N2} TL",
+                Status = o.Status,
+                Platform = o.SourcePlatform ?? "-",
+                StockDeducted = o.Status is "Kargoda" or "Teslim Edildi"
+            }).ToList();
 
             ApplyFilters();
         }
