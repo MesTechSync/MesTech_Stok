@@ -530,6 +530,7 @@ DropshipProfitEndpoint.Map(app);
 FeedPreviewEndpoint.Map(app);
 ProductFetchEndpoint.Map(app);
 SystemHealthEndpoints.Map(app);
+KvkkEndpoints.Map(app);
 EInvoiceEndpoints.Map(app);
 // G049-DEV6: Sandbox endpoint'ler production'da KAPALI — test verisi sızma riski
 if (!app.Environment.IsProduction())
