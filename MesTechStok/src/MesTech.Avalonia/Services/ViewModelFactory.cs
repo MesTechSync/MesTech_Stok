@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using MesTech.Avalonia.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using AcctVm = MesTech.Avalonia.ViewModels.Accounting;
+using ErpVm = MesTech.Avalonia.ViewModels.Erp;
 using MonVm = MesTech.Avalonia.ViewModels.Monitoring;
 using OrdVm = MesTech.Avalonia.ViewModels.Orders;
 
@@ -156,6 +157,19 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Backup" => _provider.GetService<BackupAvaloniaViewModel>(),
             // FIX-18 Gorev #13: Buybox Analizi
             "Buybox" => _provider.GetService<BuyboxAvaloniaViewModel>(),
+            // Missing Fulfillment, ERP, Accounting nav views
+            "FulfillmentDashboard" => _provider.GetService<FulfillmentDashboardViewModel>(),
+            "FulfillmentInbound" => _provider.GetService<FulfillmentInboundViewModel>(),
+            "FulfillmentInventory" => _provider.GetService<FulfillmentInventoryViewModel>(),
+            "FulfillmentSettings" => _provider.GetService<FulfillmentSettingsViewModel>(),
+            "ErpDashboard" => _provider.GetService<ErpVm.ErpDashboardViewModel>(),
+            "ErpAccountMapping" => _provider.GetService<ErpVm.ErpAccountMappingViewModel>(),
+            "IncomeExpenseDashboard" => _provider.GetService<AcctVm.IncomeExpenseDashboardViewModel>(),
+            "IncomeExpenseList" => _provider.GetService<AcctVm.IncomeExpenseListViewModel>(),
+            "ProfitabilityReport" => _provider.GetService<AcctVm.ProfitabilityReportViewModel>(),
+            "CashFlowReport" => _provider.GetService<CashFlowReportViewModel>(),
+            "SalesAnalytics" => _provider.GetService<SalesAnalyticsViewModel>(),
+            "StockValueReport" => _provider.GetService<StockValueReportViewModel>(),
             // V4 — Muhasebe + İzleme + Kanban
             "JournalEntries" => _provider.GetService<AcctVm.JournalEntryListViewModel>(),
             "TrialBalance" => _provider.GetService<AcctVm.TrialBalanceViewModel>(),

@@ -4,6 +4,8 @@ using Avalonia.Markup.Xaml;
 using MediatR;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.ViewModels.Accounting;
+using MesTech.Avalonia.ViewModels.Erp;
 using MesTech.Avalonia.Views;
 using global::MesTech.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +51,8 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        try
+        {
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((ctx, config) =>
             {
@@ -217,6 +221,30 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<BackupAvaloniaViewModel>();
                 // FIX-18 Gorev #13: Buybox Analizi
                 services.AddTransient<BuyboxAvaloniaViewModel>();
+                // Missing Fulfillment, ERP, Accounting DI registrations
+                services.AddTransient<BarcodeScannerViewModel>();
+                services.AddTransient<BulkProductAvaloniaViewModel>();
+                services.AddTransient<CariAvaloniaViewModel>();
+                services.AddTransient<CargoAvaloniaViewModel>();
+                services.AddTransient<CashFlowReportViewModel>();
+                services.AddTransient<EInvoiceAvaloniaViewModel>();
+                services.AddTransient<ErpAccountMappingViewModel>();
+                services.AddTransient<ErpDashboardViewModel>();
+                services.AddTransient<FulfillmentDashboardViewModel>();
+                services.AddTransient<FulfillmentInboundViewModel>();
+                services.AddTransient<FulfillmentInventoryViewModel>();
+                services.AddTransient<FulfillmentSettingsViewModel>();
+                services.AddTransient<IncomeExpenseDashboardViewModel>();
+                services.AddTransient<IncomeExpenseListViewModel>();
+                services.AddTransient<OnboardingWizardAvaloniaViewModel>();
+                services.AddTransient<PlatformSyncAvaloniaViewModel>();
+                services.AddTransient<ProfitabilityReportViewModel>();
+                services.AddTransient<SalesAnalyticsViewModel>();
+                services.AddTransient<StockAlertAvaloniaViewModel>();
+                services.AddTransient<StockUpdateAvaloniaViewModel>();
+                services.AddTransient<StockValueReportViewModel>();
+                services.AddTransient<TransferWizardAvaloniaViewModel>();
+                services.AddTransient<WarehouseSummaryAvaloniaViewModel>();
                 // V4 — Muhasebe + İzleme + Kanban
                 services.AddTransient<ViewModels.Accounting.JournalEntryListViewModel>();
                 services.AddTransient<ViewModels.Accounting.TrialBalanceViewModel>();
@@ -234,6 +262,29 @@ public partial class App : global::Avalonia.Application
             // WelcomeWindow → LoginWindow → MainWindow (DI) akisi
             desktop.MainWindow = new WelcomeWindow();
             desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnLastWindowClose;
+        }
+
+        }
+        catch (Exception ex)
+        {
+            System.IO.File.WriteAllText(
+                System.IO.Path.Combine(AppContext.BaseDirectory, "startup_error.log"),
+                $"[{DateTime.Now}] STARTUP CRASH:\n{ex}\n");
+
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop2)
+            {
+                desktop2.MainWindow = new global::Avalonia.Controls.Window
+                {
+                    Title = "MesTech — Başlatma Hatası",
+                    Width = 600, Height = 300,
+                    Content = new global::Avalonia.Controls.TextBlock
+                    {
+                        Text = $"Uygulama başlatılamadı:\n\n{ex.Message}\n\nDetay: startup_error.log",
+                        Margin = new global::Avalonia.Thickness(20),
+                        TextWrapping = global::Avalonia.Media.TextWrapping.Wrap
+                    }
+                };
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
