@@ -120,7 +120,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IEInvoiceDocumentRepository, EInvoiceDocumentRepository>();
         services.AddScoped<IBitrix24DealRepository, Bitrix24DealRepository>();
         services.AddScoped<IBitrix24ContactRepository, Bitrix24ContactRepository>();
-        services.AddScoped<ISyncLogRepository, SyncLogRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.ISyncLogRepository, SyncLogRepository>();
         services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
 
         // CRM Repositories (Dalga 8)
