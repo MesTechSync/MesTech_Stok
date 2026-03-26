@@ -158,7 +158,8 @@ public class TrendyolRuntimeTests
                 stockEvent.ProductId,
                 "HANDLER-TEST-SKU",
                 15,
-                It.Is<string>(s => s == nameof(StockMovementType.StockOut))),
+                It.Is<string>(s => s == nameof(StockMovementType.StockOut)),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

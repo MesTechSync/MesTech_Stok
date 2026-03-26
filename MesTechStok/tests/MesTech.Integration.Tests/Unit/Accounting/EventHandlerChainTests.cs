@@ -50,7 +50,7 @@ public class EventHandlerChainTests
 
         // Assert — PublishOrderReceivedAsync cagrildimi?
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId, "Trendyol", "TY-2026-001", 5_000m), Times.Once);
+            orderId, "Trendyol", "TY-2026-001", 5_000m, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -73,7 +73,7 @@ public class EventHandlerChainTests
 
         // Assert — Platform kodu dogru mu?
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId, "Hepsiburada", It.IsAny<string>(), It.IsAny<decimal>()), Times.Once);
+            orderId, "Hepsiburada", It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -97,7 +97,7 @@ public class EventHandlerChainTests
 
         // Assert — Tutar dogru iletildi mi?
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId, "N11", "N11-2026-099", totalAmount), Times.Once);
+            orderId, "N11", "N11-2026-099", totalAmount, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -122,9 +122,9 @@ public class EventHandlerChainTests
 
         // Assert — Her iki siparis icin ayri publish cagrisi
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId1, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>()), Times.Once);
+            orderId1, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Once);
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId2, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>()), Times.Once);
+            orderId2, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -149,7 +149,7 @@ public class EventHandlerChainTests
 
         // Assert — Handler her cagriyi publisher'a iletir (dedup publisher/consumer sorumlulugu)
         _publisherMock.Verify(p => p.PublishOrderReceivedAsync(
-            orderId, "Trendyol", "TY-DUP-001", 1_500m), Times.Exactly(2));
+            orderId, "Trendyol", "TY-DUP-001", 1_500m, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -173,7 +173,7 @@ public class EventHandlerChainTests
 
         // Assert — PublishInvoiceCreatedAsync cagrildimi?
         _publisherMock.Verify(p => p.PublishInvoiceCreatedAsync(
-            invoiceId, orderId, It.IsAny<string>(), 12_000m), Times.Once);
+            invoiceId, orderId, It.IsAny<string>(), 12_000m, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -197,7 +197,7 @@ public class EventHandlerChainTests
 
         // Assert — Handler tum fatura tiplerini yayinlar (filtreleme consumer'da)
         _publisherMock.Verify(p => p.PublishInvoiceCreatedAsync(
-            invoiceId, orderId, It.IsAny<string>(), 8_500m), Times.Once);
+            invoiceId, orderId, It.IsAny<string>(), 8_500m, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -222,7 +222,7 @@ public class EventHandlerChainTests
 
         // Assert — Tutar dogru iletildi
         _publisherMock.Verify(p => p.PublishInvoiceCreatedAsync(
-            invoiceId, orderId, It.IsAny<string>(), grandTotal), Times.Once);
+            invoiceId, orderId, It.IsAny<string>(), grandTotal, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════════════════════════════════════════════════════════════════
