@@ -53,7 +53,7 @@ public static class UserNotificationEndpoints
         {
             var count = await mediator.Send(
                 new MarkAllUserNotificationsReadCommand(tenantId, userId), ct);
-            return Results.Ok(new { markedAsRead = count });
+            return Results.Ok(new StatusResponse("Ok", $"{count}"));
         })
         .WithName("MarkAllUserNotificationsRead")
         .WithSummary("Kullanicinin tum bildirimlerini okundu olarak isaretler");
@@ -65,7 +65,7 @@ public static class UserNotificationEndpoints
         {
             var count = await mediator.Send(
                 new GetUnreadNotificationCountQuery(tenantId, userId), ct);
-            return Results.Ok(new { unreadCount = count });
+            return Results.Ok(new StatusResponse("Ok", $"{count}"));
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUnreadUserNotificationCount")

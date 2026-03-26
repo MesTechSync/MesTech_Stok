@@ -49,7 +49,7 @@ public static class LogEndpoints
             ISender mediator = default!, CancellationToken ct = default) =>
         {
             var count = await mediator.Send(new GetLogCountQuery(tenantId, category), ct);
-            return Results.Ok(new { count });
+            return Results.Ok(new StatusResponse("Ok", $"{count}"));
         })
         .CacheOutput("Lookup60s")
         .WithName("GetLogCount")

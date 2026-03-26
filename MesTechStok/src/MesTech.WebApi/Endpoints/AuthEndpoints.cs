@@ -264,7 +264,7 @@ public static class AuthEndpoints
             var storedToken = await refreshTokenRepo.GetByTokenHashAsync(tokenHash, ct);
 
             if (storedToken is null)
-                return Results.Ok(new { revoked = true });
+                return Results.Ok(new StatusResponse("Revoked"));
 
             if (!storedToken.IsRevoked)
             {
@@ -276,7 +276,7 @@ public static class AuthEndpoints
                 "Refresh token revoked for User={UserId} via logout",
                 storedToken.UserId);
 
-            return Results.Ok(new { revoked = true });
+            return Results.Ok(new StatusResponse("Revoked"));
         })
         .WithName("RevokeToken")
         .WithSummary("Refresh token iptal — logout");

@@ -64,7 +64,7 @@ public static class NotificationEndpoints
         {
             var result = await mediator.Send(
                 new GetNotificationsQuery(tenantId, Page: 1, PageSize: 1, UnreadOnly: true), ct);
-            return Results.Ok(new { unreadCount = result.TotalCount });
+            return Results.Ok(new StatusResponse("Ok", $"{result.TotalCount}"));
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUnreadNotificationCount")

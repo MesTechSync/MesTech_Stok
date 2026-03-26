@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Features.Notifications.Commands.UpdateNotificationSettings;
 using MesTech.Application.Features.Notifications.Queries.GetNotificationSettings;
@@ -32,7 +33,7 @@ public static class NotificationSettingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Ok(new { id });
+            return Results.Ok(new CreatedResponse(id));
         })
         .WithName("UpdateNotificationSettings")
         .WithSummary("Kullanici bildirim ayarlarini gunceller (upsert)");

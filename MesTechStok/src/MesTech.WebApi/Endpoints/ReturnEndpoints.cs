@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.ApproveReturn;
 using MesTech.Application.Commands.RejectReturn;
@@ -35,7 +36,7 @@ public static class ReturnEndpoints
             CancellationToken ct) =>
         {
             await mediator.Send(new RejectReturnCommand(id, body.Reason), ct);
-            return Results.Ok(new { message = "Iade reddedildi", reason = body.Reason });
+            return Results.Ok(new StatusResponse("Rejected", body.Reason));
         })
         .WithName("RejectReturn")
         .WithSummary("Iade red — sebep zorunlu");
