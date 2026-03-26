@@ -59,6 +59,8 @@ builder.Services.AddMediatR(cfg =>
         typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
     cfg.RegisterServicesFromAssembly(
         typeof(MesTech.Infrastructure.Integration.Orchestration.StockChangedEventHandler).Assembly);
+    // DEV6-TUR15: TracingBehavior — automatic Activity span per handler
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TracingBehavior<,>));
 });
 
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
