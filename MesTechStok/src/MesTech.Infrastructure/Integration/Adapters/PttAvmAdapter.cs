@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
@@ -52,6 +52,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         IOptions<PttAvmOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var opts = options?.Value;
@@ -165,7 +166,8 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
         request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        var response = await ThrottledExecuteAsync(async cancellationToken => 
+            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false), ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(

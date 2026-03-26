@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
@@ -49,6 +49,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         IOptions<WooCommerceOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new WooCommerceOptions();
 
@@ -88,7 +89,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     .HandleResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests),
                 OnRetry = args =>
                 {
-                    _logger.LogWarning("[WooCommerceAdapter] Rate limited (429). Retry {Attempt} after {Delay}ms",
+                    _logger.LogWarning("WooCommerce rate limited. Retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
                     return default;
                 }
@@ -105,7 +106,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     .Handle<TaskCanceledException>(),
                 OnRetry = args =>
                 {
-                    _logger.LogWarning("[WooCommerceAdapter] API retry {Attempt} after {Delay}ms",
+                    _logger.LogWarning("WooCommerce API retry {Attempt} after {Delay}ms",
                         args.AttemptNumber, args.RetryDelay.TotalMilliseconds);
                     return default;
                 }
@@ -121,7 +122,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     .Handle<HttpRequestException>(),
                 OnOpened = args =>
                 {
-                    _logger.LogWarning("[WooCommerceAdapter] Circuit breaker OPENED for {Duration}s",
+                    _logger.LogWarning("WooCommerce circuit breaker opened for {Duration}s",
                         args.BreakDuration.TotalSeconds);
                     return default;
                 }
