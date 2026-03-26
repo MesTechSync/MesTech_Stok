@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class ReportAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private bool hasReportResult;
 
@@ -36,9 +38,10 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ReportItemDto> ReportItems { get; } = [];
 
-    public ReportAvaloniaViewModel(IMediator mediator)
+    public ReportAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         SelectedReportType = ReportTypes[0];
     }
 
@@ -79,7 +82,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
             var from = StartDate?.UtcDateTime ?? DateTime.UtcNow.AddMonths(-1);
             var to = EndDate?.UtcDateTime ?? DateTime.UtcNow;
 
-            var report = await _mediator.Send(new GetCashFlowReportQuery(Guid.Empty, from, to));
+            var report = await _mediator.Send(new GetCashFlowReportQuery(_currentUser.TenantId, from, to));
 
             ReportItems.Clear();
             foreach (var entry in report.Entries)

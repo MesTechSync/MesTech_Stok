@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Reporting.Queries.GetSavedReports;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,10 +13,12 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
+    private readonly ICurrentUserService _currentUser;
 
-    public ReportDashboardAvaloniaViewModel(ISender mediator)
+    public ReportDashboardAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [ObservableProperty] private bool isGenerating;
@@ -55,8 +58,7 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // GetSavedReportsQuery requires TenantId — use default for now
-            var savedReports = await _mediator.Send(new GetSavedReportsQuery(Guid.Empty));
+            var savedReports = await _mediator.Send(new GetSavedReportsQuery(_currentUser.TenantId));
 
             ScheduledReports.Clear();
             RecentReports.Clear();

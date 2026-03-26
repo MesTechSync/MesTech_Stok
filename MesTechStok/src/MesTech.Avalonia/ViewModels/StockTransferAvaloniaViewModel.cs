@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StockTransferAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string transferStatus = string.Empty;
 
@@ -31,9 +33,10 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
 
     private List<TransferProductDto> _allSourceProducts = [];
 
-    public StockTransferAvaloniaViewModel(IMediator mediator)
+    public StockTransferAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -45,7 +48,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
         TransferStatus = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetStockTransfersQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId));
 
             Warehouses.Clear();
             Warehouses.Add("Ana Depo");

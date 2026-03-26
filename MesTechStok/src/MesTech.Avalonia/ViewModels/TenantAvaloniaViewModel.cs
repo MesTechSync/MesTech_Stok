@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,7 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class TenantAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string tenantName = "MesTech Ana";
     [ObservableProperty] private string tenantCode = "MESTECH-001";
@@ -22,9 +23,10 @@ public partial class TenantAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int maxUsers = 50;
     [ObservableProperty] private double storageUsed = 12.4;
 
-    public TenantAvaloniaViewModel(IMediator mediator)
+    public TenantAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -35,7 +37,7 @@ public partial class TenantAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(Guid.Empty));
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
             if (subscription is not null)
             {
                 TenantPlan = subscription.PlanName;

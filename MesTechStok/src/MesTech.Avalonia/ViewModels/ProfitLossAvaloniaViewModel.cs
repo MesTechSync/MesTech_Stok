@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class ProfitLossAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // KPI
@@ -22,9 +24,10 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ProfitLossLineItemDto> LineItems { get; } = [];
 
-    public ProfitLossAvaloniaViewModel(IMediator mediator)
+    public ProfitLossAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         UpdatePeriodLabel();
     }
 
@@ -43,7 +46,7 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
         try
         {
             var period = _currentPeriod.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
-            var result = await _mediator.Send(new GetProfitReportQuery(Guid.Empty, period));
+            var result = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, period));
 
             if (result is not null)
             {

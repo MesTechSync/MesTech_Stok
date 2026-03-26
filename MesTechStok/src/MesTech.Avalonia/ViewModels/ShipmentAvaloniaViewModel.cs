@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetShipmentCosts;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ShipmentAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -23,9 +25,10 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ShipmentItemDto> Shipments { get; } = [];
 
-    public ShipmentAvaloniaViewModel(IMediator mediator)
+    public ShipmentAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -36,7 +39,7 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetShipmentCostsQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetShipmentCostsQuery(_currentUser.TenantId));
 
             Shipments.Clear();
             foreach (var s in result)

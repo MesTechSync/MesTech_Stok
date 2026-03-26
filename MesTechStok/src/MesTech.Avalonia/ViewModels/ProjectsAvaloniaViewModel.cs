@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Tasks.Queries.GetProjects;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class ProjectsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -18,9 +20,10 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<ProjectItemVm> Projects { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Planlandi", "Devam Ediyor", "Tamamlandi", "Beklemede"];
 
-    public ProjectsAvaloniaViewModel(IMediator mediator)
+    public ProjectsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -31,7 +34,7 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetProjectsQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetProjectsQuery(_currentUser.TenantId));
 
             Projects.Clear();
             foreach (var dto in result)

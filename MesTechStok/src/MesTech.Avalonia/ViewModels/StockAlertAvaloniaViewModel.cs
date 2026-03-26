@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StockAlertAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string currentFilter = "All";
 
@@ -30,9 +32,10 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
         }
     }
 
-    public StockAlertAvaloniaViewModel(IMediator mediator)
+    public StockAlertAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -43,7 +46,7 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var alerts = await _mediator.Send(new GetStockAlertsQuery(Guid.Empty));
+            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId));
 
             _allAlerts = alerts.Select(a => new StockAlertItemDto
             {
