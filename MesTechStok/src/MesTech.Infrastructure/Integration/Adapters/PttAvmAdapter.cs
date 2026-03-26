@@ -255,11 +255,52 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     // IIntegratorAdapter — Products
     // ═══════════════════════════════════════════
 
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    /// <summary>
+    /// Creates a product listing on PTT AVM.
+    /// POST /api/product/create with JSON payload.
+    /// Returns true on 2xx, false otherwise.
+    /// </summary>
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // POST /api/product/create — full listing creation requires category mapping
-        _logger.LogWarning("PttAvmAdapter.PushProductAsync — full listing creation not yet implemented");
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("PttAvmAdapter.PushProductAsync: SKU={SKU} Name={Name}",
+            product.SKU, product.Name);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                barcode = product.SKU ?? string.Empty,
+                productName = product.Name ?? string.Empty,
+                stockQuantity = product.Stock,
+                salePrice = product.SalePrice,
+                description = product.Description ?? product.Name ?? string.Empty,
+                currencyType = "TRY"
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = $"{_baseUrl}/api/product/create";
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("PttAVM PushProduct failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("PttAVM PushProduct success: SKU={SKU}", product.SKU);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "PttAVM PushProduct exception: SKU={SKU}", product.SKU);
+            return false;
+        }
     }
 
     /// <summary>
