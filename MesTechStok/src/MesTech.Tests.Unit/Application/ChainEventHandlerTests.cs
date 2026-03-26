@@ -337,8 +337,6 @@ public class CommissionChargedGLHandlerTests
 // Z7: ShipmentCostRecordedEventHandler — tip mevcut değil
 // OrderShippedCostHandler testleri ChainIdempotencyTests.cs'de mevcut
 
-#endregion
-
 #region Z8: ZeroStockDetectedEventHandler
 
 [Trait("Category", "Unit")]
