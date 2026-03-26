@@ -108,7 +108,7 @@
     try
     {
       // Call WebApi /api/v1/auth/login for JWT token
-      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:5100";
+      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
       using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
 
       var response = await httpClient.PostAsJsonAsync("/api/v1/auth/login", new
