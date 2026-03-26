@@ -1044,4 +1044,22 @@ Toplam: 31 tur, 83+ commit
 | Sensitive data in logs | 0 ✅ |
 | Endpoint auth | Group-level RequireRateLimiting ✅ |
 
-### KÜMÜLATİF DEV 3 (33 tur, 85 commit)
+---
+
+## TUR 34-35 — 2026-03-26 (New File Scan + Email Timeout)
+
+### CERRAH AMELİYAT
+| # | Dosya | İşlem | Commit |
+|---|-------|-------|--------|
+| 57 | MailKitEmailService | SmtpClient.Timeout 30s (SMTP hang prevention) | fdae55db |
+
+### YENİ DOSYA TARAMASI
+| Dosya | Satır | Durum |
+|-------|-------|-------|
+| AuthService.cs | 65 | Clean ✅ |
+| CsvStatementParser.cs | 358 | Clean (catch+UTF8) ✅ |
+| MailKitEmailService.cs | 196 | **Timeout eklendi** ✅ |
+| MinioHealthCheck.cs | 31 | Clean (framework CT) ✅ |
+| RabbitMqHealthCheck.cs | 47 | Clean (framework CT) ✅ |
+
+### KÜMÜLATİF DEV 3 (35 tur, 87 commit)
