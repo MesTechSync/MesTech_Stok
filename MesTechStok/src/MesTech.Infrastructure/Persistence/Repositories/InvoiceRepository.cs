@@ -16,6 +16,13 @@ public sealed class InvoiceRepository : IInvoiceRepository
     public async Task<Invoice?> GetByOrderIdAsync(Guid orderId)
         => await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.OrderId == orderId).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Invoice>> GetFailedAsync(int maxCount, CancellationToken ct = default)
+        => await _context.Invoices
+            .Where(i => i.Status == Domain.Enums.InvoiceStatus.Error || i.ParasutSyncStatus == Domain.Enums.SyncStatus.Failed)
+            .OrderBy(i => i.CreatedAt)
+            .Take(maxCount)
+            .ToListAsync(ct).ConfigureAwait(false);
+
     public async Task AddAsync(Invoice invoice)
         => await _context.Invoices.AddAsync(invoice).ConfigureAwait(false);
 
