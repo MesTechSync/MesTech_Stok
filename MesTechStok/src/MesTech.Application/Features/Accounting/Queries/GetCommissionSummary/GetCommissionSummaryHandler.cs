@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
 
@@ -15,7 +16,7 @@ public sealed class GetCommissionSummaryHandler : IRequestHandler<GetCommissionS
     {
         ArgumentNullException.ThrowIfNull(request);
         // Get records for all platforms in the period
-        var platforms = new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama" };
+        var platforms = Enum.GetValues<PlatformType>().Select(p => p.ToString()).ToArray();
         var byPlatform = new List<PlatformCommissionDto>();
         decimal totalCommission = 0;
         decimal totalServiceFee = 0;
