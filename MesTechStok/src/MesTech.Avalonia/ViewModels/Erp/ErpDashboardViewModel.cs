@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
+using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Erp;
 
@@ -15,19 +19,26 @@ namespace MesTech.Avalonia.ViewModels.Erp;
 public partial class ErpDashboardViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+    private static readonly CultureInfo TrCulture = new("tr-TR");
 
     [ObservableProperty] private bool isLoading;
     [ObservableProperty] private bool hasError;
     [ObservableProperty] private string errorMessage = string.Empty;
     [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int connectedCount;
+    [ObservableProperty] private int totalSyncToday;
+    [ObservableProperty] private int failedSyncToday;
+    [ObservableProperty] private int pendingRetries;
+    [ObservableProperty] private string lastSyncAt = "—";
 
     public ObservableCollection<ErpProviderCardItem> Providers { get; } = [];
     public ObservableCollection<ErpSyncLogItem> SyncLogs { get; } = [];
 
-    public ErpDashboardViewModel(IMediator mediator)
+    public ErpDashboardViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public async Task LoadAsync()
@@ -38,16 +49,26 @@ public partial class ErpDashboardViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            // Load ERP dashboard stats via GetErpDashboardQuery
+            var dashboard = await _mediator.Send(new GetErpDashboardQuery(_currentUser.TenantId));
 
+            ConnectedCount = dashboard.ConnectedProviders;
+            TotalSyncToday = dashboard.TotalSyncToday;
+            FailedSyncToday = dashboard.FailedSyncToday;
+            PendingRetries = dashboard.PendingRetries;
+            LastSyncAt = dashboard.LastSyncAt.HasValue
+                ? dashboard.LastSyncAt.Value.ToString("dd.MM.yyyy HH:mm", TrCulture)
+                : "—";
+
+            // Populate static provider cards (provider list is config-driven, not from query)
             Providers.Clear();
             Providers.Add(new ErpProviderCardItem
             {
                 Name = "Parasut",
-                IsConnected = true,
-                StatusText = "Bagli",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#22C55E")),
-                LastSyncDisplay = "Son sync: 24.03.2026 10:30"
+                IsConnected = false,
+                StatusText = "Bagli Degil",
+                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
             {
@@ -60,10 +81,10 @@ public partial class ErpDashboardViewModel : ObservableObject
             Providers.Add(new ErpProviderCardItem
             {
                 Name = "Logo",
-                IsConnected = true,
-                StatusText = "Bagli",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#22C55E")),
-                LastSyncDisplay = "Son sync: 23.03.2026 16:45"
+                IsConnected = false,
+                StatusText = "Bagli Degil",
+                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
             {
@@ -82,50 +103,20 @@ public partial class ErpDashboardViewModel : ObservableObject
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
 
-            ConnectedCount = Providers.Count(p => p.IsConnected);
-
-            // Demo sync logs
+            // Load sync logs via GetErpSyncLogsQuery
+            var logs = await _mediator.Send(new GetErpSyncLogsQuery(_currentUser.TenantId, Page: 1, PageSize: 20));
             SyncLogs.Clear();
-            SyncLogs.Add(new ErpSyncLogItem
+            foreach (var log in logs)
             {
-                SyncTime = "24.03.2026 10:30",
-                Provider = "Parasut",
-                Direction = "MesTech -> ERP",
-                RecordCount = 245,
-                Status = "Basarili"
-            });
-            SyncLogs.Add(new ErpSyncLogItem
-            {
-                SyncTime = "24.03.2026 09:15",
-                Provider = "Logo",
-                Direction = "ERP -> MesTech",
-                RecordCount = 128,
-                Status = "Basarili"
-            });
-            SyncLogs.Add(new ErpSyncLogItem
-            {
-                SyncTime = "23.03.2026 16:45",
-                Provider = "Logo",
-                Direction = "MesTech -> ERP",
-                RecordCount = 312,
-                Status = "Basarili"
-            });
-            SyncLogs.Add(new ErpSyncLogItem
-            {
-                SyncTime = "23.03.2026 14:00",
-                Provider = "Parasut",
-                Direction = "MesTech -> ERP",
-                RecordCount = 0,
-                Status = "Hata: Zaman asimi"
-            });
-            SyncLogs.Add(new ErpSyncLogItem
-            {
-                SyncTime = "23.03.2026 12:30",
-                Provider = "Parasut",
-                Direction = "ERP -> MesTech",
-                RecordCount = 56,
-                Status = "Basarili"
-            });
+                SyncLogs.Add(new ErpSyncLogItem
+                {
+                    SyncTime = log.AttemptedAt.ToString("dd.MM.yyyy HH:mm", TrCulture),
+                    Provider = log.Provider.ToString(),
+                    Direction = "MesTech -> ERP",
+                    RecordCount = log.SuccessCount + log.FailCount,
+                    Status = log.Success ? "Basarili" : $"Hata: {log.ErrorMessage}"
+                });
+            }
 
             IsEmpty = Providers.Count == 0;
         }
