@@ -1,5 +1,7 @@
 using MediatR;
 using MesTech.Application.Features.Invoice.DTOs;
+using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -7,12 +9,20 @@ namespace MesTech.Application.Features.Invoice.Commands;
 
 public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoiceCommand, BulkInvoiceResultDto>
 {
-    private readonly IInvoiceRepository _repository;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<BulkCreateInvoiceHandler> _logger;
 
-    public BulkCreateInvoiceHandler(IInvoiceRepository repository, ILogger<BulkCreateInvoiceHandler> logger)
+    public BulkCreateInvoiceHandler(
+        IInvoiceRepository invoiceRepository,
+        IOrderRepository orderRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<BulkCreateInvoiceHandler> logger)
     {
-        _repository = repository;
+        _invoiceRepository = invoiceRepository;
+        _orderRepository = orderRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -27,39 +37,52 @@ public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoice
         {
             try
             {
-                // Load Order from IOrderRepository by orderId
-                // Create Invoice using Invoice.CreateForOrder(order, invoiceType, invoiceNumber)
-                // invoice.Provider = request.Provider;
-                // invoice.DetermineInvoiceType();
-                // await _repository.AddAsync(invoice);
+                var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+                if (order is null)
+                {
+                    failCount++;
+                    results.Add(new BulkInvoiceItemResultDto(
+                        OrderId: orderId,
+                        OrderNumber: string.Empty,
+                        Success: false,
+                        InvoiceNumber: string.Empty,
+                        ErrorMessage: $"Siparis bulunamadi: {orderId}"));
+                    continue;
+                }
 
                 var invoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
+                var invoice = Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EArsiv, invoiceNumber);
+                invoice.Provider = request.Provider;
+
+                await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);
 
                 results.Add(new BulkInvoiceItemResultDto(
                     OrderId: orderId,
-                    OrderNumber: $"ORD-{orderId.ToString("N")[..8]}",
+                    OrderNumber: order.OrderNumber ?? $"ORD-{orderId.ToString("N")[..8]}",
                     Success: true,
                     InvoiceNumber: invoiceNumber,
                     ErrorMessage: null));
 
                 successCount++;
-                _logger.LogInformation("BulkCreate: Invoice {Number} olusturuldu (OrderId={OrderId}).", invoiceNumber, orderId);
+                _logger.LogInformation("BulkCreate: Invoice {Number} for Order {OrderNumber} (OrderId={OrderId})",
+                    invoiceNumber, order.OrderNumber, orderId);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 failCount++;
                 results.Add(new BulkInvoiceItemResultDto(
                     OrderId: orderId,
-                    OrderNumber: $"ORD-{orderId.ToString("N")[..8]}",
+                    OrderNumber: string.Empty,
                     Success: false,
-                    InvoiceNumber: null,
+                    InvoiceNumber: string.Empty,
                     ErrorMessage: ex.Message));
 
-                _logger.LogError(ex, "BulkCreate: OrderId={OrderId} icin fatura olusturulamadi.", orderId);
+                _logger.LogError(ex, "BulkCreate failed for OrderId={OrderId}", orderId);
             }
         }
 
-        await Task.CompletedTask;
+        if (successCount > 0)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new BulkInvoiceResultDto(
             TotalRequested: request.OrderIds.Count,
