@@ -38,7 +38,11 @@ else if (errorMessage is not null)
         <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
     </div>
 }
-else if (invoice is not null)
+else if (invoice is null)
+{
+    <EmptyState Icon="fa-file-invoice" Message="Fatura detayi bulunamadi." />
+}
+else
 {
     <!-- Status & Action Bar -->
     @if (actionMessage is not null)

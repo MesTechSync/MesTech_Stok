@@ -21,6 +21,10 @@
 {
   <LoadingSpinner />
 }
+else if (string.IsNullOrEmpty(tenant.FirmaAdi))
+{
+  <EmptyState Icon="fa-building" Message="Tenant bilgisi bulunamadi." />
+}
 else
 {
   @if (!string.IsNullOrEmpty(errorMessage))
