@@ -73,7 +73,10 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             var feedXml = BuildFeedDocument(items, request);
             _ = SerializeXml(feedXml);
 
+            // Feed URL should point to object storage (MinIO/S3) where the XML is uploaded.
+            // Currently returns a placeholder URL — integration with MinIO upload pending.
             var feedUrl = $"https://feeds.mestech.app/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
+            _logger.LogWarning("[{Platform}Feed] Using placeholder feed URL — MinIO/S3 upload not yet integrated. URL: {FeedUrl}", Platform, feedUrl);
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
