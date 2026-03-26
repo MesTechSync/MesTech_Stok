@@ -1,0 +1,171 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.BarcodeReaderView"
+             x:DataType="vm:BarcodeReaderViewModel">
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding ScanBarcodeCommand}" />
+    </UserControl.KeyBindings>
+
+    <!-- WPF005: Barkod Okuyucu — Sayım/Giriş/Çıkış/Transfer modlu sayım görünümü -->
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPurple}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Barkod Okuyucu" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Temizle" Command="{Binding ClearCommand}"
+                        ToolTip.Tip="Listeyi temizle"
+                        Background="{DynamicResource MesBadgeOverlay}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="SemiBold" Padding="12,8" CornerRadius="{StaticResource MesRadiusBase}"
+                        Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Kaydet" Command="{Binding SaveCountCommand}"
+                        ToolTip.Tip="Sayımı kaydet"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPurple}"
+                        FontWeight="Bold" Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Mode Selector (4 RadioButtons) -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Text="Mod:" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesTextSlate}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                <RadioButton Content="Sayım"
+                             IsChecked="{Binding ScanMode, Converter={x:Static StringConverters.IsNotNullOrEmpty}, Mode=OneWay}"
+                             GroupName="ScanMode"
+                             Command="{Binding $parent[UserControl].((vm:BarcodeReaderViewModel)DataContext).ClearCommand}"
+                             Padding="12,6" />
+                <RadioButton Content="Giriş"
+                             GroupName="ScanMode"
+                             Padding="12,6" />
+                <RadioButton Content="Çıkış"
+                             GroupName="ScanMode"
+                             Padding="12,6" />
+                <RadioButton Content="Transfer"
+                             GroupName="ScanMode"
+                             Padding="12,6" />
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Barcode Input (auto-focus, Enter triggers scan) -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="Barkod:" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesTextSlate}" Margin="0,0,12,0" />
+                <TextBox Grid.Column="1"
+                         Name="BarcodeInputBox"
+                         Text="{Binding BarcodeInput}"
+                         Watermark="Barkod okutun veya girin... (Enter ile tara)"
+                         AutomationProperties.Name="Barkod okutun veya girin"
+                         FontSize="{StaticResource FontSizeSubtitle}" Padding="12,10">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Return" Command="{Binding ScanBarcodeCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+                <Button Grid.Column="2" Content="Tara" Command="{Binding ScanBarcodeCommand}"
+                        ToolTip.Tip="Barkod tara"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
+                        Margin="12,0,0,0" />
+            </Grid>
+        </Border>
+
+        <!-- Row 3: Count DataGrid — Barkod | Ürün | Beklenen | Sayılan | Fark -->
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding ScannedItems}"
+                  AutoGenerateColumns="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}"
+                  IsVisible="{Binding !IsEmpty}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Barkod"   Binding="{Binding Barcode}"      Width="180" />
+                <DataGridTextColumn Header="Ürün"     Binding="{Binding ProductName}"  Width="*" />
+                <DataGridTextColumn Header="Beklenen" Binding="{Binding Expected}"     Width="110" />
+                <DataGridTextColumn Header="Sayılan"  Binding="{Binding Counted}"      Width="110" />
+                <DataGridTemplateColumn Header="Fark" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:BarcodeReadItem">
+                            <TextBlock Text="{Binding DifferenceDisplay}"
+                                       Foreground="{Binding DifferenceColor}"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3" IsVisible="{Binding IsEmpty}" ZIndex="10">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Barkod Okutun" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
+                <TextBlock Text="Barkod okuyucu veya klavye ile giriş yapın, Enter ile onaylayın."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Row 4: Bottom Action Bar -->
+        <Border Grid.Row="4" Background="{DynamicResource MesBgMist}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button Content="Temizle" Command="{Binding ClearCommand}"
+                        ToolTip.Tip="Listeyi temizle"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}"
+                        Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesSlateGray}" />
+                <Button Content="Kaydet" Command="{Binding SaveCountCommand}"
+                        ToolTip.Tip="Sayımı kaydet"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="Bold" Padding="20,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="5" Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="İşleniyor..." FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="5" IsVisible="{Binding HasError}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
+            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
+                <TextBlock Text="Hata oluştu" FontSize="{StaticResource FontSizeTitle}"
+                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
+                           TextWrapping="Wrap" />
+                <Button Content="Tekrar Dene" Command="{Binding ScanBarcodeCommand}"
+                        ToolTip.Tip="Tekrar dene"
+                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>
