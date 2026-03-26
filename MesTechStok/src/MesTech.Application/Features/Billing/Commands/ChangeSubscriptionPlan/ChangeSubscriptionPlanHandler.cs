@@ -54,7 +54,9 @@ public sealed class ChangeSubscriptionPlanHandler
 
         var currentDaily = GetDailyRate(currentPlan, subscription.Period);
         var newDaily = GetDailyRate(newPlan, period);
-        var proratedAmount = Math.Max(0, (newDaily - currentDaily) * daysRemaining);
+        // FIX-ÖZ-DENETİM: Downgrade'de negatif prorate = müşteri kredisi (iade)
+        // Math.Max(0,...) kredinI yutuyordu — şimdi negatif değer "credit" anlamına gelir
+        var proratedAmount = (newDaily - currentDaily) * daysRemaining;
 
         subscription.ChangePlan(request.NewPlanId, period);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

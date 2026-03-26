@@ -60,8 +60,10 @@ public sealed class RegisterTenantHandler
         await _tenantRepo.AddAsync(tenant, cancellationToken).ConfigureAwait(false);
 
         // 3. Admin kullanıcı oluştur (BCrypt hash)
+        // FIX-DEV6-ÖZ-DENETİM: TenantId atanmıyordu → user hangi tenant'a ait bilinmiyordu
         var adminUser = new User
         {
+            TenantId = tenant.Id,
             Username = request.AdminUsername,
             Email = request.AdminEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.AdminPassword),

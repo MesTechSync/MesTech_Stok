@@ -39,16 +39,6 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 
     public async Task HandleAsync(Guid orderId, string orderNumber, CancellationToken ct)
     {
-        // DEV6-TUR12: Distributed lock — sipariş bazlı lock ile overselling önle
-        var lockKey = $"stock-deduction:order:{orderId}";
-        await using var lockHandle = await _lockService.AcquireLockAsync(
-            lockKey, expiry: TimeSpan.FromSeconds(30), waitTimeout: TimeSpan.FromSeconds(10), ct)
-            .ConfigureAwait(false);
-        if (lockHandle is null)
-        {
-            _logger.LogWarning("Distributed lock alınamadı — stok düşürme ertelendi. OrderId={OrderId}", orderId);
-            return;
-        }
         _logger.LogInformation(
             "OrderPlaced → stok düşürme başlıyor. OrderId={OrderId}, OrderNumber={OrderNumber}",
             orderId, orderNumber);
@@ -62,7 +52,30 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 
         // Batch query — N+1 yerine tek SQL (WHERE Id IN (...))
         var productIds = order.OrderItems.Select(i => i.ProductId).Distinct().ToList();
-        var products = await _productRepo.GetByIdsAsync(productIds, ct);
+
+        // FIX-ÖZ-DENETİM: Lock product bazlı olmalı, order bazlı değil.
+        // Sorted lock acquisition → deadlock önleme (consistent ordering).
+        var sortedProductIds = productIds.OrderBy(id => id).ToList();
+        var lockHandles = new List<IAsyncDisposable>();
+        try
+        {
+            foreach (var pid in sortedProductIds)
+            {
+                var lockHandle = await _lockService.AcquireLockAsync(
+                    $"stock:product:{pid}", expiry: TimeSpan.FromSeconds(30),
+                    waitTimeout: TimeSpan.FromSeconds(10), ct).ConfigureAwait(false);
+                if (lockHandle is null)
+                {
+                    _logger.LogWarning("Product lock alınamadı — SKU düşürme atlandı. ProductId={ProductId}", pid);
+                    // Alınan lock'ları release et
+                    foreach (var h in lockHandles) await h.DisposeAsync().ConfigureAwait(false);
+                    return;
+                }
+                lockHandles.Add(lockHandle);
+            }
+
+            // Lock'lar alındı — ürünleri yeniden yükle (stale data önleme)
+            var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct);
         var productMap = products.ToDictionary(p => p.Id);
 
         var failures = new List<string>();
@@ -111,6 +124,13 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             _logger.LogWarning(
                 "Sipariş {OrderNumber} — {FailCount}/{TotalCount} kalemde stok düşürme başarısız",
                 orderNumber, failures.Count, order.OrderItems.Count);
+        }
+        }
+        finally
+        {
+            // Product lock'ları release et (ters sırada — deadlock safety)
+            for (var i = lockHandles.Count - 1; i >= 0; i--)
+                await lockHandles[i].DisposeAsync().ConfigureAwait(false);
         }
     }
 }

@@ -1,3 +1,4 @@
+using MesTech.Application.DTOs;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.WebApi.Filters;
@@ -33,14 +34,14 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
         {
             logger.LogWarning("Plan limit: no active subscription for tenant {TenantId}", tenantId);
             return Results.Json(
-                new { error = "Aktif abonelik bulunamadi. Lutfen bir plan secin.", upgradeUrl = "/billing/plans" },
+                ApiResponse<object>.Fail("Aktif abonelik bulunamadi. Lutfen bir plan secin.", "NO_SUBSCRIPTION"),
                 statusCode: 403);
         }
 
         if (subscription.IsExpired)
         {
             return Results.Json(
-                new { error = "Deneme suresiniz doldu. Lutfen bir plan satin alin.", upgradeUrl = "/billing/plans" },
+                ApiResponse<object>.Fail("Deneme suresiniz doldu. Lutfen bir plan satin alin.", "TRIAL_EXPIRED"),
                 statusCode: 403);
         }
 
@@ -71,13 +72,9 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
             logger.LogWarning("Plan limit exceeded: tenant {TenantId}, {Resource} {Current}/{Limit}",
                 tenantId, resource, currentCount, limit);
             return Results.Json(
-                new
-                {
-                    error = $"{resource} limiti asildi ({currentCount}/{limit}). Planınızı yükseltin.",
-                    currentUsage = currentCount,
-                    limit,
-                    upgradeUrl = "/billing/plans"
-                },
+                ApiResponse<object>.Fail(
+                    $"{resource} limiti asildi ({currentCount}/{limit}). Planınızı yükseltin.",
+                    "PLAN_LIMIT_EXCEEDED"),
                 statusCode: 403);
         }
 
