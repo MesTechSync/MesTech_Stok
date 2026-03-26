@@ -2,16 +2,21 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Queries.GetCariHesaplar;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// ViewModel for Cari Hesaplar (Accounts Receivable/Payable) screen.
-/// Displays customer/supplier accounts with debit, credit and balance info.
-/// Will be wired to GetCariAccountsPagedQuery via MediatR when full migration starts.
+/// Wired to GetCariHesaplarQuery via MediatR.
 /// </summary>
 public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
     [ObservableProperty] private int totalCount;
 
     [ObservableProperty] private string selectedType = "Tumu";
@@ -25,6 +30,12 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 
     private readonly List<CariHesapItemDto> _allItems = [];
 
+    public CariHesaplarAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -33,26 +44,18 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(80); // Simulate async load
+            var result = await _mediator.Send(
+                new GetCariHesaplarQuery(TenantId: _tenantProvider.GetCurrentTenantId()));
 
             _allItems.Clear();
-            _allItems.AddRange(new[]
+            _allItems.AddRange(result.Select(c => new CariHesapItemDto
             {
-                new CariHesapItemDto { HesapAdi = "Anadolu Elektronik Ltd. Sti.", Tip = "Musteri", Borc = 45_250.00m, Alacak = 30_000.00m },
-                new CariHesapItemDto { HesapAdi = "Yildiz Teknoloji A.S.", Tip = "Tedarikci", Borc = 12_800.00m, Alacak = 55_600.00m },
-                new CariHesapItemDto { HesapAdi = "Bosphorus Ticaret Ltd. Sti.", Tip = "Musteri", Borc = 78_900.00m, Alacak = 78_900.00m },
-                new CariHesapItemDto { HesapAdi = "Kuzey Bilisim A.S.", Tip = "Tedarikci", Borc = 5_400.00m, Alacak = 23_750.00m },
-                new CariHesapItemDto { HesapAdi = "Marmara Lojistik Ltd. Sti.", Tip = "Musteri", Borc = 34_100.00m, Alacak = 20_000.00m },
-                new CariHesapItemDto { HesapAdi = "Ege Pazarlama A.S.", Tip = "Musteri", Borc = 62_300.00m, Alacak = 45_000.00m },
-                new CariHesapItemDto { HesapAdi = "Karadeniz Tedarik Ltd. Sti.", Tip = "Tedarikci", Borc = 8_900.00m, Alacak = 42_100.00m },
-                new CariHesapItemDto { HesapAdi = "Istanbul Depo Hizmetleri A.S.", Tip = "Tedarikci", Borc = 15_600.00m, Alacak = 28_400.00m },
-                new CariHesapItemDto { HesapAdi = "Ankara Dijital Cozumler Ltd. Sti.", Tip = "Musteri", Borc = 91_200.00m, Alacak = 60_000.00m },
-                new CariHesapItemDto { HesapAdi = "Trakya Endustri A.S.", Tip = "Tedarikci", Borc = 3_200.00m, Alacak = 18_500.00m },
-            });
-
-            // Calculate bakiye for each
-            foreach (var item in _allItems)
-                item.Bakiye = item.Borc - item.Alacak;
+                HesapAdi = c.Name,
+                Tip = c.Type.ToString() == "Customer" ? "Musteri" : "Tedarikci",
+                Borc = 0m,
+                Alacak = 0m,
+                Bakiye = 0m
+            }));
 
             ApplyFilter();
         }
