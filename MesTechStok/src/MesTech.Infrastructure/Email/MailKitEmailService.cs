@@ -173,6 +173,7 @@ public sealed class MailKitEmailService : IEmailService
         }
 
         using var client = new SmtpClient();
+        client.Timeout = 30_000; // 30s — prevent indefinite SMTP hang
 
         try
         {
