@@ -39,6 +39,12 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
     private const string DefaultPostalCode = "34000";
     private const string DefaultCountryCode = "TR";
 
+    // Configurable warehouse address — set via ConfigureWarehouseAddress()
+    private string _warehouseAddressLine = string.Empty;
+    private string _warehouseCity = "Istanbul";
+    private string _warehouseStateOrProvince = "Istanbul";
+    private string _warehousePostalCode = DefaultPostalCode;
+
     public AmazonFBAAdapter(
         HttpClient httpClient,
         ILogger<AmazonFBAAdapter> logger,
@@ -108,6 +114,19 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
 
     public FulfillmentCenter Center => FulfillmentCenter.AmazonFBA;
 
+    /// <summary>
+    /// Configure warehouse source address for FBA inbound shipments.
+    /// Must be called before CreateInboundShipmentAsync — otherwise address defaults to empty.
+    /// </summary>
+    public void ConfigureWarehouseAddress(string addressLine, string city, string stateOrProvince, string postalCode)
+    {
+        _warehouseAddressLine = addressLine ?? throw new ArgumentNullException(nameof(addressLine));
+        _warehouseCity = city ?? throw new ArgumentNullException(nameof(city));
+        _warehouseStateOrProvince = stateOrProvince ?? throw new ArgumentNullException(nameof(stateOrProvince));
+        _warehousePostalCode = postalCode ?? throw new ArgumentNullException(nameof(postalCode));
+        _logger.LogInformation("[AmazonFBA] Warehouse address configured: {City}, {PostalCode}", city, postalCode);
+    }
+
     // ═══════════════════════════════════════════
     // LWA OAuth2 Token Management
     // (SP-API: shared with AmazonTrAdapter pattern)
@@ -172,10 +191,12 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                 sourceAddress = new
                 {
                     name = _sellerId,
-                    addressLine1 = "TBD",
-                    city = "Istanbul",
-                    stateOrProvinceCode = "Istanbul",
-                    postalCode = DefaultPostalCode,
+                    addressLine1 = string.IsNullOrWhiteSpace(_warehouseAddressLine)
+                        ? throw new InvalidOperationException("Warehouse address not configured. Call ConfigureWarehouseAddress() before creating inbound shipments.")
+                        : _warehouseAddressLine,
+                    city = _warehouseCity,
+                    stateOrProvinceCode = _warehouseStateOrProvince,
+                    postalCode = _warehousePostalCode,
                     countryCode = DefaultCountryCode
                 },
                 destinationMarketplaces = new[] { TurkeyMarketplaceId },
