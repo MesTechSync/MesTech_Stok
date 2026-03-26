@@ -59,7 +59,7 @@ public sealed class AuthService : IAuthService
 
         return AuthResult.Success(
             user.Id,
-            user.TenantId,
+            user.TenantId ?? Guid.Empty,
             user.FullName ?? user.Username);
     }
 }
