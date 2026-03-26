@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -67,6 +68,26 @@ public sealed class JwtTokenService : IJwtTokenService
     }
 
     public (bool Valid, Guid UserId, Guid TenantId) ValidateToken(string token)
+        => ValidateTokenInternal(token, validateLifetime: true);
+
+    public (bool Valid, Guid UserId, Guid TenantId) ValidateTokenIgnoreExpiry(string token)
+        => ValidateTokenInternal(token, validateLifetime: false);
+
+    public string GenerateRefreshToken()
+    {
+        var randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes);
+    }
+
+    public string HashToken(string token)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(bytes);
+    }
+
+    private (bool Valid, Guid UserId, Guid TenantId) ValidateTokenInternal(string token, bool validateLifetime)
     {
         try
         {
@@ -81,7 +102,7 @@ public sealed class JwtTokenService : IJwtTokenService
                 ValidAudience = _options.Audience,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
-                ValidateLifetime = true,
+                ValidateLifetime = validateLifetime,
                 ClockSkew = TimeSpan.FromMinutes(2)
             };
 

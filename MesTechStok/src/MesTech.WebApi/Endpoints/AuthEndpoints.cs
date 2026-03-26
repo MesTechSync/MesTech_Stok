@@ -1,5 +1,6 @@
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Options;
@@ -19,10 +20,12 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/api/v1/auth").WithTags("Auth").RequireRateLimiting("AuthRateLimit");
 
-        // POST /api/v1/auth/login — authenticate user and return JWT
+        // POST /api/v1/auth/login — authenticate user and return JWT + refresh token
         group.MapPost("/login", async (
             LoginRequest request,
             IJwtTokenService jwtService,
+            IRefreshTokenRepository refreshTokenRepo,
+            IUnitOfWork unitOfWork,
             BruteForceProtectionService bruteForce,
             IOptions<JwtTokenOptions> jwtOptions,
             ILoggerFactory loggerFactory,
@@ -35,6 +38,7 @@ public static class AuthEndpoints
                 return Results.BadRequest(new LoginResponse(
                     Success: false,
                     Token: null,
+                    RefreshToken: null,
                     ExpiresAt: null,
                     Error: "UserName and Password are required.",
                     AttemptsRemaining: null,
@@ -48,7 +52,7 @@ public static class AuthEndpoints
             if (check.IsIpRateLimited)
             {
                 return Results.Json(new LoginResponse(
-                    Success: false, Token: null, ExpiresAt: null,
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
                     Error: "Çok fazla istek. Lütfen bir dakika bekleyin.",
                     AttemptsRemaining: 0, LockedUntilUtc: null),
                     statusCode: StatusCodes.Status429TooManyRequests);
@@ -58,7 +62,7 @@ public static class AuthEndpoints
             if (check.IsLocked)
             {
                 return Results.Json(new LoginResponse(
-                    Success: false, Token: null, ExpiresAt: null,
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
                     Error: "Çok fazla başarısız deneme. Hesabınız kilitlendi.",
                     AttemptsRemaining: 0,
                     LockedUntilUtc: check.LockedUntil?.UtcDateTime),
@@ -73,14 +77,27 @@ public static class AuthEndpoints
 
             try
             {
+                var options = jwtOptions.Value;
                 var token = jwtService.GenerateToken(userId, tenantId, request.UserName, roles);
-                var expiresAt = DateTime.UtcNow.AddMinutes(jwtOptions.Value.ExpiryMinutes);
+                var expiresAt = DateTime.UtcNow.AddMinutes(
+                    options.AccessTokenExpiryMinutes > 0 ? options.AccessTokenExpiryMinutes : options.ExpiryMinutes);
+
+                // Generate refresh token and persist
+                var refreshTokenString = jwtService.GenerateRefreshToken();
+                var tokenHash = jwtService.HashToken(refreshTokenString);
+                var ua = httpContext.Request.Headers.UserAgent.ToString();
+
+                var refreshToken = Domain.Entities.RefreshToken.Create(
+                    userId, tenantId, tokenHash, options.RefreshTokenExpiryDays, ip, ua);
+                await refreshTokenRepo.AddAsync(refreshToken, ct);
+                await unitOfWork.SaveChangesAsync(ct);
 
                 await bruteForce.RecordSuccessAsync(request.UserName, ip);
 
                 return Results.Ok(new LoginResponse(
                     Success: true,
                     Token: token,
+                    RefreshToken: refreshTokenString,
                     ExpiresAt: expiresAt,
                     Error: null,
                     AttemptsRemaining: null,
@@ -94,7 +111,7 @@ public static class AuthEndpoints
                 if (failure.IsNowLocked)
                 {
                     return Results.Json(new LoginResponse(
-                        Success: false, Token: null, ExpiresAt: null,
+                        Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
                         Error: "Çok fazla başarısız deneme. Hesabınız 15 dakika kilitlendi.",
                         AttemptsRemaining: 0,
                         LockedUntilUtc: DateTime.UtcNow.Add(failure.LockoutDuration ?? TimeSpan.FromMinutes(15))),
@@ -102,7 +119,7 @@ public static class AuthEndpoints
                 }
 
                 return Results.Json(new LoginResponse(
-                    Success: false, Token: null, ExpiresAt: null,
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
                     Error: $"Giriş bilgileri hatalı. {failure.AttemptsRemaining} deneme hakkınız kaldı.",
                     AttemptsRemaining: failure.AttemptsRemaining,
                     LockedUntilUtc: null),
@@ -110,7 +127,7 @@ public static class AuthEndpoints
             }
         })
         .WithName("Login")
-        .WithSummary("JWT token ile kimlik doğrulama — brute force korumalı")
+        .WithSummary("JWT token + refresh token ile kimlik doğrulama — brute force korumalı")
         .AllowAnonymous();
 
         // POST /api/v1/auth/validate — validate an existing JWT token
@@ -130,6 +147,139 @@ public static class AuthEndpoints
         })
         .WithName("ValidateToken")
         .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId");
+
+        // POST /api/v1/auth/refresh — rotate refresh token (OWASP ASVS V3.3)
+        group.MapPost("/refresh", async (
+            RefreshTokenRequest request,
+            IJwtTokenService jwtService,
+            IRefreshTokenRepository refreshTokenRepo,
+            IUserRepository userRepo,
+            IUnitOfWork unitOfWork,
+            IOptions<JwtTokenOptions> jwtOptions,
+            ILoggerFactory loggerFactory,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
+
+            if (string.IsNullOrWhiteSpace(request.AccessToken) || string.IsNullOrWhiteSpace(request.RefreshToken))
+                return Results.BadRequest(new RefreshTokenResponse(
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                    Error: "AccessToken and RefreshToken are required."));
+
+            // Validate expired access token to extract claims
+            var (valid, userId, tenantId) = jwtService.ValidateTokenIgnoreExpiry(request.AccessToken);
+            if (!valid)
+                return Results.Json(new RefreshTokenResponse(
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                    Error: "Invalid access token."),
+                    statusCode: StatusCodes.Status401Unauthorized);
+
+            // Find refresh token by hash
+            var tokenHash = jwtService.HashToken(request.RefreshToken);
+            var storedToken = await refreshTokenRepo.GetByTokenHashAsync(tokenHash, ct);
+
+            if (storedToken is null || !storedToken.IsActive || storedToken.UserId != userId)
+            {
+                if (storedToken is not null && storedToken.IsRevoked)
+                {
+                    // Possible token reuse attack — revoke entire family
+                    logger.LogWarning(
+                        "Refresh token reuse detected for User={UserId} — revoking all tokens",
+                        userId);
+                    await refreshTokenRepo.RevokeAllByUserAsync(userId, "Token reuse detected", ct);
+                    await unitOfWork.SaveChangesAsync(ct);
+                }
+
+                return Results.Json(new RefreshTokenResponse(
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                    Error: "Invalid or expired refresh token."),
+                    statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            // Verify user still exists and is active
+            var user = await userRepo.GetByIdAsync(userId);
+            if (user is null || !user.IsActive)
+                return Results.Json(new RefreshTokenResponse(
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                    Error: "User account is inactive."),
+                    statusCode: StatusCodes.Status401Unauthorized);
+
+            // Rotate: revoke old, create new
+            var newRefreshTokenString = jwtService.GenerateRefreshToken();
+            var newTokenHash = jwtService.HashToken(newRefreshTokenString);
+
+            storedToken.Revoke("Rotated", newTokenHash);
+
+            var ip = httpContext.Connection.RemoteIpAddress?.ToString();
+            var ua = httpContext.Request.Headers.UserAgent.ToString();
+            var options = jwtOptions.Value;
+
+            var newRefreshToken = Domain.Entities.RefreshToken.Create(
+                userId, tenantId, newTokenHash,
+                options.RefreshTokenExpiryDays, ip, ua);
+            await refreshTokenRepo.AddAsync(newRefreshToken, ct);
+
+            // Generate new access token — UserRole has no Role navigation, use default
+            var roles = new[] { "User" };
+
+            var newAccessToken = jwtService.GenerateToken(userId, tenantId, user.Username, roles);
+            var expiresAt = DateTime.UtcNow.AddMinutes(options.AccessTokenExpiryMinutes > 0
+                ? options.AccessTokenExpiryMinutes
+                : options.ExpiryMinutes);
+
+            await unitOfWork.SaveChangesAsync(ct);
+
+            logger.LogInformation(
+                "Refresh token rotated for User={UserId} Tenant={TenantId}",
+                userId, tenantId);
+
+            return Results.Ok(new RefreshTokenResponse(
+                Success: true,
+                Token: newAccessToken,
+                RefreshToken: newRefreshTokenString,
+                ExpiresAt: expiresAt,
+                Error: null));
+        })
+        .WithName("RefreshToken")
+        .WithSummary("JWT refresh token rotation — OWASP ASVS V3.3")
+        .AllowAnonymous();
+
+        // POST /api/v1/auth/revoke — revoke refresh token (logout)
+        group.MapPost("/revoke", async (
+            RevokeTokenRequest request,
+            IJwtTokenService jwtService,
+            IRefreshTokenRepository refreshTokenRepo,
+            IUnitOfWork unitOfWork,
+            ILoggerFactory loggerFactory,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
+
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+                return Results.BadRequest(new { error = "RefreshToken is required." });
+
+            var tokenHash = jwtService.HashToken(request.RefreshToken);
+            var storedToken = await refreshTokenRepo.GetByTokenHashAsync(tokenHash, ct);
+
+            if (storedToken is null)
+                return Results.Ok(new { revoked = true });
+
+            if (!storedToken.IsRevoked)
+            {
+                storedToken.Revoke("User logout");
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+
+            logger.LogInformation(
+                "Refresh token revoked for User={UserId} via logout",
+                storedToken.UserId);
+
+            return Results.Ok(new { revoked = true });
+        })
+        .WithName("RevokeToken")
+        .WithSummary("Refresh token iptal — logout");
     }
 
     // ── Request / Response Records ──
@@ -137,8 +287,15 @@ public static class AuthEndpoints
     public record LoginRequest(string UserName, string Password);
 
     public record LoginResponse(
-        bool Success, string? Token, DateTime? ExpiresAt, string? Error,
+        bool Success, string? Token, string? RefreshToken, DateTime? ExpiresAt, string? Error,
         int? AttemptsRemaining, DateTime? LockedUntilUtc);
 
     public record ValidateTokenRequest(string Token);
+
+    public record RefreshTokenRequest(string AccessToken, string RefreshToken);
+
+    public record RefreshTokenResponse(
+        bool Success, string? Token, string? RefreshToken, DateTime? ExpiresAt, string? Error);
+
+    public record RevokeTokenRequest(string RefreshToken);
 }

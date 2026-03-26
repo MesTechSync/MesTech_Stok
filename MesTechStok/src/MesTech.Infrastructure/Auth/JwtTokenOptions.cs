@@ -12,4 +12,6 @@ public sealed class JwtTokenOptions
     public int ExpiryMinutes { get; set; } = 480;
     public string Issuer { get; set; } = "mestech";
     public string Audience { get; set; } = "mestech-clients";
+    public int AccessTokenExpiryMinutes { get; set; } = 15;
+    public int RefreshTokenExpiryDays { get; set; } = 7;
 }
