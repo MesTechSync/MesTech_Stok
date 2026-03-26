@@ -144,6 +144,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
     {
         var client = _httpClientFactory.CreateClient("Iyzico");
         client.BaseAddress = new Uri(_options.BaseUrl);
+        client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization = null;
         client.DefaultRequestHeaders.Add("Authorization", $"IYZWS {_options.ApiKey}");
         return client;
