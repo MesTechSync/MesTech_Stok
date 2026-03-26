@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Commands.DeleteExpense;
 using MesTech.Application.Commands.UpdateExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateAccountingExpense;
@@ -111,7 +112,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/journal-entries/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/journal-entries/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateJournalEntry")
         .WithSummary("Yeni yevmiye kaydı oluştur");
@@ -134,7 +135,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/expenses/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateAccountingExpense")
         .WithSummary("Yeni masraf kaydı oluştur");
@@ -299,7 +300,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Ok(new { id, closed = true });
+            return Results.Ok(ApiResponse<StatusResponse>.Ok(new StatusResponse("closed")));
         })
         .WithName("CloseAccountingPeriod")
         .WithSummary("Muhasebe dönemini kapat");
@@ -358,7 +359,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/bank-accounts/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/bank-accounts/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateAccountingBankAccount")
         .WithSummary("Yeni banka hesabı tanımla");
@@ -381,7 +382,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/financial-goals/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/financial-goals/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateFinancialGoal")
         .WithSummary("Mali hedef oluştur");
@@ -392,7 +393,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var count = await mediator.Send(command, ct);
-            return Results.Ok(new { importedCount = count });
+            return Results.Ok(ApiResponse<object>.Ok(new { importedCount = count }));
         })
         .WithName("ImportBankStatement")
         .WithSummary("Banka ekstresi içe aktar");
@@ -403,7 +404,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/settlements/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/settlements/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("ImportSettlement")
         .WithSummary("Hakediş dosyası içe aktar");
@@ -414,7 +415,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/cargo-expenses/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/cargo-expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCargoExpense")
         .WithSummary("Kargo gideri kaydı oluştur");
@@ -425,7 +426,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/commissions/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/commissions/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCommission")
         .WithSummary("Platform komisyon kaydı oluştur");
@@ -436,7 +437,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/documents/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/documents/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("UploadAccountingDocument")
         .WithSummary("Muhasebe belgesi yükle");
@@ -544,7 +545,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/chart-of-accounts/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/chart-of-accounts/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateChartOfAccount")
         .WithSummary("Yeni hesap planı kalemi oluştur");
@@ -602,7 +603,7 @@ public static class AccountingEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var id = await mediator.Send(command, ct);
-            return Results.Created($"/api/v1/accounting/counterparties/{id}", new { id });
+            return Results.Created($"/api/v1/accounting/counterparties/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCounterparty")
         .WithSummary("Yeni karşı taraf (müşteri/tedarikçi) oluştur");
