@@ -85,7 +85,55 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Section 2: Bildirimler -->
+                <!-- Section 2: Platform Kimlik Bilgileri (G017) -->
+                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Platform API Anahtarlari" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MesDarkSlate}" />
+                                <TextBlock Text="Pazaryeri entegrasyon kimlik bilgileri"
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Content="Platform Ekle" ToolTip.Tip="Yeni platform ekle"
+                                        Command="{Binding AddPlatformCommand}"
+                                        Background="{DynamicResource StatusSuccessBrush}" Foreground="{DynamicResource MesBgPrimary}"
+                                        FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <DataGrid ItemsSource="{Binding PlatformCredentials}"
+                                  SelectedItem="{Binding SelectedCredential}"
+                                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                                  IsReadOnly="True" GridLinesVisibility="Horizontal"
+                                  BorderThickness="0" MinHeight="180"
+                                  Background="{DynamicResource MesBgPrimary}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="160" />
+                                <DataGridTextColumn Header="API Key" Binding="{Binding ApiKey}" Width="200" />
+                                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="160" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Duzenle" ToolTip.Tip="Secili platform ayarlarini duzenle"
+                                    Command="{Binding EditCredentialCommand}"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
+                            <Button Content="Test Et" ToolTip.Tip="API baglanti testi"
+                                    Command="{Binding TestPlatformConnectionCommand}"
+                                    Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
+                            <Button Content="Kaldir" ToolTip.Tip="Platformu kaldir"
+                                    Command="{Binding RemoveCredentialCommand}"
+                                    Foreground="{DynamicResource StatusDangerBrush}"
+                                    Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Section 3: Bildirimler -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                     <StackPanel Spacing="16">

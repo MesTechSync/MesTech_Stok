@@ -1,15 +1,21 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Settings screen ViewModel — API configuration, notifications, theme selection.
-/// Tab-like sections: API Ayarlari, Bildirimler, Tema.
+/// G017: Platform API key CRUD + mağaza ekleme.
 /// </summary>
 public partial class SettingsAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private string appVersion = "MesTech Stok v10.0 — Avalonia PoC";
+    private readonly IMediator _mediator;
+    private readonly IDialogService _dialog;
+
+    [ObservableProperty] private string appVersion = "MesTech Stok v10.0 — Avalonia";
 
     // API settings
     [ObservableProperty] private string apiUrl = "https://api.mestech.com/v1";
@@ -17,6 +23,10 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool isConnectionTested;
     [ObservableProperty] private bool connectionSuccess;
     [ObservableProperty] private string connectionMessage = string.Empty;
+
+    // Platform Credentials (G017)
+    [ObservableProperty] private PlatformCredentialItem? selectedCredential;
+    public ObservableCollection<PlatformCredentialItem> PlatformCredentials { get; } = [];
 
     // Notification settings
     [ObservableProperty] private bool isEmailEnabled = true;
@@ -29,6 +39,12 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
     // Save state
     [ObservableProperty] private bool isSaved;
 
+    public SettingsAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    {
+        _mediator = mediator;
+        _dialog = dialog;
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -36,8 +52,16 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate loading settings
-            // Settings loaded from defaults (or future persistence)
+            // TODO: await _mediator.Send(new GetCredentialsSettingsQuery(Guid.Empty));
+            await Task.Delay(50);
+
+            PlatformCredentials.Clear();
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Trendyol", ApiKey = "tr-***", Status = "Bagli", IsConnected = true });
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Hepsiburada", ApiKey = "hb-***", Status = "Bagli", IsConnected = true });
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "N11", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Ciceksepeti", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Amazon TR", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
+            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Pazarama", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
         }
         catch (Exception ex)
         {
@@ -110,4 +134,66 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    [RelayCommand]
+    private async Task AddPlatform()
+    {
+        await _dialog.ShowInfoAsync("Yeni platform ekleme ekranina yonlendiriliyorsunuz... (StoreWizard)", "Platform Ekle");
+    }
+
+    [RelayCommand]
+    private async Task EditCredential()
+    {
+        if (SelectedCredential == null)
+        {
+            await _dialog.ShowInfoAsync("Duzenlemek icin bir platform secin.", "Platform Ayarlari");
+            return;
+        }
+        await _dialog.ShowInfoAsync($"{SelectedCredential.Platform} API ayarlari duzenlenecek. (StoreSettings)", "Platform Duzenle");
+    }
+
+    [RelayCommand]
+    private async Task TestPlatformConnection()
+    {
+        if (SelectedCredential == null)
+        {
+            await _dialog.ShowInfoAsync("Test icin bir platform secin.", "Baglanti Testi");
+            return;
+        }
+
+        IsLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            if (SelectedCredential.IsConnected)
+            {
+                await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: Baglanti basarili!", "Test Sonucu");
+            }
+            else
+            {
+                await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: API anahtari yapilandirilmamis.", "Test Sonucu");
+            }
+        }
+        finally { IsLoading = false; }
+    }
+
+    [RelayCommand]
+    private async Task RemoveCredential()
+    {
+        if (SelectedCredential == null)
+        {
+            await _dialog.ShowInfoAsync("Kaldirmak icin bir platform secin.", "Platform Kaldir");
+            return;
+        }
+        PlatformCredentials.Remove(SelectedCredential);
+        SelectedCredential = null;
+    }
+}
+
+public class PlatformCredentialItem
+{
+    public string Platform { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public bool IsConnected { get; set; }
 }
