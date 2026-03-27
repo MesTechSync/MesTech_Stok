@@ -209,14 +209,28 @@
                                        FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" />
                         </StackPanel>
 
-                        <StackPanel Spacing="12">
-                            <RadioButton GroupName="Theme"
-                                         IsChecked="{Binding SelectedTheme,
-                                             Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                         Content="Acik Tema (Light)" FontSize="{StaticResource FontSizeBody}" />
-                            <RadioButton GroupName="Theme"
-                                         Content="Koyu Tema (Dark)" FontSize="{StaticResource FontSizeBody}" />
+                        <!-- G116: Theme switcher with 3 options + visual indicator -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="☀ Acik" Padding="16,10" CornerRadius="12"
+                                    FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
+                                    Command="{Binding SetThemeCommand}" CommandParameter="Light"
+                                    Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}" />
+                            <Button Content="🌙 Koyu" Padding="16,10" CornerRadius="12"
+                                    FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
+                                    Command="{Binding SetThemeCommand}" CommandParameter="Dark"
+                                    Background="#1E293B" Foreground="White" />
+                            <Button Content="💻 Sistem" Padding="16,10" CornerRadius="12"
+                                    FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
+                                    Command="{Binding SetThemeCommand}" CommandParameter="System"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="White" />
                         </StackPanel>
+                        <TextBlock FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesTextTertiary}">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}Secili tema: {0}">
+                                    <Binding Path="SelectedTheme" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
                     </StackPanel>
                 </Border>
 

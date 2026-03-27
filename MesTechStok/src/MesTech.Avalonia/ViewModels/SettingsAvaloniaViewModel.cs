@@ -55,6 +55,10 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         _themeService.SetTheme(value);
     }
 
+    // G116: Command for theme button clicks
+    [RelayCommand]
+    private void SetTheme(string theme) => SelectedTheme = theme;
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
