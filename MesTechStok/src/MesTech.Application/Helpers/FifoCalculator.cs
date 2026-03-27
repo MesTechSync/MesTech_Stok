@@ -26,11 +26,11 @@ public static class FifoCalculator
             if (remaining <= 0) break;
 
             int fromThisLot = Math.Min(remaining, lot.Quantity);
-            totalCost += fromThisLot * lot.UnitCost;
+            totalCost += Math.Round(fromThisLot * lot.UnitCost, 2, MidpointRounding.AwayFromZero);
             remaining -= fromThisLot;
         }
 
-        return totalCost;
+        return Math.Round(totalCost, 2, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public static class FifoCalculator
                 lot.LotNumber,
                 fromThisLot,
                 lot.UnitCost,
-                fromThisLot * lot.UnitCost));
+                Math.Round(fromThisLot * lot.UnitCost, 2, MidpointRounding.AwayFromZero)));
             remaining -= fromThisLot;
         }
 
