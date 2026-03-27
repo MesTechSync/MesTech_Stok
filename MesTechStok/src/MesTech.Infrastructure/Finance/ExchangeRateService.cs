@@ -1,3 +1,4 @@
+using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
@@ -137,7 +138,10 @@ public sealed class ExchangeRateService : IExchangeRateService
             _logger.LogDebug("TCMB XML API'den kur cekilecek: {Url}", TcmbUrl);
 
             var response = await _httpClient.GetStringAsync(TcmbUrl, ct);
-            var doc = XDocument.Parse(response);
+            var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+            using var stringReader = new System.IO.StringReader(response);
+            using var xmlReader = XmlReader.Create(stringReader, readerSettings);
+            var doc = XDocument.Load(xmlReader);
 
             var rates = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
 

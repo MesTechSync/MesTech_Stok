@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
@@ -320,7 +321,10 @@ public sealed class GibPortalProvider : IInvoiceProvider
             throw new HttpRequestException($"SOAP request failed: {response.StatusCode}");
         }
 
-        var doc = XDocument.Parse(content);
+        var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+        using var stringReader = new System.IO.StringReader(content);
+        using var xmlReader = XmlReader.Create(stringReader, readerSettings);
+        var doc = XDocument.Load(xmlReader);
 
         var bodyEl = doc.Descendants(SoapEnv + "Body").FirstOrDefault()
                      ?? throw new InvalidOperationException("SOAP response has no Body element");
