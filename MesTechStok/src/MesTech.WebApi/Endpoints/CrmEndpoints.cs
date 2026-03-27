@@ -38,6 +38,7 @@ public static class CrmEndpoints
         })
         .WithName("GetLeads")
         .WithSummary("Potansiyel müşteri listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/leads
@@ -50,7 +51,8 @@ public static class CrmEndpoints
             return Results.Created($"/api/v1/crm/leads/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateLead")
-        .WithSummary("Yeni potansiyel müşteri oluştur");
+        .WithSummary("Yeni potansiyel müşteri oluştur")
+        .Produces(201).Produces(400);
 
         // POST /api/v1/crm/deals
         group.MapPost("/deals", async (
@@ -62,7 +64,8 @@ public static class CrmEndpoints
             return Results.Created($"/api/v1/crm/deals/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateDeal")
-        .WithSummary("Yeni fırsat oluştur");
+        .WithSummary("Yeni fırsat oluştur")
+        .Produces(201).Produces(400);
 
         // POST /api/v1/crm/deals/{dealId}/win-and-create-order
         group.MapPost("/deals/{dealId:guid}/win-and-create-order",
@@ -72,7 +75,8 @@ public static class CrmEndpoints
                 return Results.Ok(ApiResponse<object>.Ok(new { dealId, orderId }));
             })
             .WithName("WinDealAndCreateOrder")
-            .WithSummary("Deal kazanildi — Order baglantisi olustur (H27-3.4)");
+            .WithSummary("Deal kazanildi — Order baglantisi olustur (H27-3.4)")
+            .Produces(200).Produces(400);
 
         // POST /api/v1/crm/orders/{orderId}/create-lead
         group.MapPost("/orders/{orderId:guid}/create-lead",
@@ -84,7 +88,8 @@ public static class CrmEndpoints
                     : Results.Ok(ApiResponse<StatusResponse>.Ok(new StatusResponse("exists", "Lead zaten mevcut")));
             })
             .WithName("CreateLeadFromOrder")
-            .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)");
+            .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)")
+            .Produces(201).Produces(200);
 
         // POST /api/v1/crm/deals/{id}/win — Deal kazanıldı (H29-3.3)
         group.MapPost("/deals/{id:guid}/win", async (
@@ -95,7 +100,8 @@ public static class CrmEndpoints
             return Results.NoContent();
         })
         .WithName("WinDeal")
-        .WithSummary("Deal kazanıldı olarak işaretle");
+        .WithSummary("Deal kazanıldı olarak işaretle")
+        .Produces(204).Produces(400);
 
         // POST /api/v1/crm/deals/{id}/lose — Deal kaybedildi (H29-3.3)
         group.MapPost("/deals/{id:guid}/lose", async (
@@ -106,7 +112,8 @@ public static class CrmEndpoints
             return Results.NoContent();
         })
         .WithName("LoseDeal")
-        .WithSummary("Deal kaybedildi olarak işaretle");
+        .WithSummary("Deal kaybedildi olarak işaretle")
+        .Produces(204).Produces(400);
 
         // GET /api/v1/crm/deals — fırsat listesi
         group.MapGet("/deals", async (
@@ -122,6 +129,7 @@ public static class CrmEndpoints
         })
         .WithName("GetDeals")
         .WithSummary("Fırsat listesi (pipeline + durum + atanan filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/pipelines/{pipelineId}/kanban — kanban görünümü
@@ -135,6 +143,7 @@ public static class CrmEndpoints
         })
         .WithName("GetPipelineKanban")
         .WithSummary("Pipeline kanban board görünümü")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/crm/suppliers — tedarikçi listesi
@@ -149,6 +158,7 @@ public static class CrmEndpoints
         })
         .WithName("GetSuppliersCrm")
         .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/bitrix24/sync-contacts — Bitrix24 contact senkronizasyonu
@@ -161,6 +171,7 @@ public static class CrmEndpoints
                 : Results.UnprocessableEntity(result);
         })
         .WithName("SyncBitrix24Contacts")
-        .WithSummary("Bitrix24 CRM contact senkronizasyonu başlat");
+        .WithSummary("Bitrix24 CRM contact senkronizasyonu başlat")
+        .Produces(200).Produces(422);
     }
 }

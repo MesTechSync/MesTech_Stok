@@ -32,6 +32,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockMovements")
         .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value — total inventory value
@@ -42,6 +43,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryValue")
         .WithSummary("Toplam envanter değeri")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/add — add stock to a product
@@ -54,6 +56,7 @@ public static class StockEndpoints
         })
         .WithName("AddStock")
         .WithSummary("Ürüne stok girişi")
+        .Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/remove — remove stock from a product
@@ -65,7 +68,8 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("RemoveStock")
-        .WithSummary("Üründen stok çıkışı");
+        .WithSummary("Üründen stok çıkışı")
+        .Produces(200).Produces(400);
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
         group.MapGet("/inventory", async (
@@ -88,6 +92,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryPaged")
         .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
@@ -98,6 +103,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryStatistics")
         .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
@@ -111,7 +117,8 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("TransferStock")
-        .WithSummary("Depolar arası stok transferi");
+        .WithSummary("Depolar arası stok transferi")
+        .Produces(200).Produces(400);
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
         group.MapPost("/adjust", async (
@@ -124,7 +131,8 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AdjustStock")
-        .WithSummary("Stok düzeltme / sayım farkı girişi");
+        .WithSummary("Stok düzeltme / sayım farkı girişi")
+        .Produces(200).Produces(400);
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
         group.MapPost("/lot", async (
@@ -137,6 +145,7 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AddStockLot")
-        .WithSummary("Lot/parti bazlı stok girişi");
+        .WithSummary("Lot/parti bazlı stok girişi")
+        .Produces(200).Produces(400);
     }
 }
