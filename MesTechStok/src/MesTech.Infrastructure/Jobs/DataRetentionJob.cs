@@ -63,9 +63,9 @@ public sealed class DataRetentionJob : ISyncJob
         if (expiredAuditCount > 0)
             _logger.LogInformation("[KVKK] {Count} audit log kayıt yaşlandı (2+ yıl) — immutable, arşivlenecek", expiredAuditCount);
 
-        // 3. WebhookLog — payload anonimleştir (Set<T>() ile erişim — DbSet property yok)
+        // 3. WebhookLog — payload anonimleştir
         var webhookCutoff = DateTime.UtcNow.AddDays(-WebhookLogRetentionDays);
-        var expiredWebhooks = await _context.Set<MesTech.Domain.Entities.WebhookLog>()
+        var expiredWebhooks = await _context.WebhookLogs
             .Where(w => w.ReceivedAt < webhookCutoff && w.Payload != "ANONYMIZED")
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);

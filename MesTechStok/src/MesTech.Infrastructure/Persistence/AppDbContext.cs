@@ -283,6 +283,8 @@ public class AppDbContext : DbContext
     public DbSet<KvkkAuditLog> KvkkAuditLogs => Set<KvkkAuditLog>();
     public DbSet<UserConsent> UserConsents => Set<UserConsent>();
     public DbSet<PersonalDataRetentionPolicy> PersonalDataRetentionPolicies => Set<PersonalDataRetentionPolicy>();
+    public DbSet<WebhookLog> WebhookLogs => Set<WebhookLog>();
+    public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
