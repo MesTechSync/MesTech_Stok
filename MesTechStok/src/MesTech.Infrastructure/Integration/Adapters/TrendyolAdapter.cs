@@ -1306,13 +1306,20 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        using var doc = JsonDocument.Parse(payload);
-        var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
-        var orderId = doc.RootElement.TryGetProperty("orderNumber", out var on) ? on.GetString() : null;
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+            var orderId = doc.RootElement.TryGetProperty("orderNumber", out var on) ? on.GetString() : null;
 
-        _logger.LogInformation(
-            "TrendyolAdapter webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
-            eventType, orderId, payload.Length);
+            _logger.LogInformation(
+                "TrendyolAdapter webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
+                eventType, orderId, payload.Length);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "[TrendyolAdapter] Malformed webhook payload (length={Length})", payload?.Length ?? 0);
+        }
 
         return Task.CompletedTask;
     }

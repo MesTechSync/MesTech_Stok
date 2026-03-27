@@ -1331,15 +1331,22 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        using var doc = JsonDocument.Parse(payload);
-        var notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
-            && meta.TryGetProperty("topic", out var topic)
-                ? topic.GetString()
-                : "unknown";
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            var notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
+                && meta.TryGetProperty("topic", out var topic)
+                    ? topic.GetString()
+                    : "unknown";
 
-        _logger.LogInformation(
-            "EbayAdapter webhook processed: NotificationType={NotificationType} PayloadLength={Length}",
-            notificationType, payload.Length);
+            _logger.LogInformation(
+                "EbayAdapter webhook processed: NotificationType={NotificationType} PayloadLength={Length}",
+                notificationType, payload.Length);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "[EbayAdapter] Malformed webhook payload (length={Length})", payload?.Length ?? 0);
+        }
 
         return Task.CompletedTask;
     }
