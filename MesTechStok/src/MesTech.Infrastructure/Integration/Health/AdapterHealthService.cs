@@ -1,31 +1,37 @@
 using MesTech.Application.Interfaces;
+using MesTech.Application.Interfaces.Accounting;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Health;
 
 /// <summary>
-/// Tüm platform adapter'larının bağlantı durumunu kontrol eder.
+/// Tüm platform adapter + ERP adapter sağlık durumunu kontrol eder.
 /// /health/adapters endpoint'i bu servisi kullanır.
-/// Her adapter'a GetCategoriesAsync ile hafif bir ping atar.
+/// Platform: IPingableAdapter.PingAsync veya GetCategoriesAsync ile hafif ping.
+/// ERP: IERPAdapter.TestConnectionAsync ile bağlantı testi.
 /// 10sn timeout — yavaş adapter'lar "Timeout" olarak raporlanır.
 /// </summary>
 public sealed class AdapterHealthService
 {
     private readonly IEnumerable<IIntegratorAdapter> _adapters;
+    private readonly IEnumerable<IERPAdapter> _erpAdapters;
     private readonly ILogger<AdapterHealthService> _logger;
 
     public AdapterHealthService(
         IEnumerable<IIntegratorAdapter> adapters,
+        IEnumerable<IERPAdapter> erpAdapters,
         ILogger<AdapterHealthService> logger)
     {
         _adapters = adapters;
+        _erpAdapters = erpAdapters;
         _logger = logger;
     }
 
     public async Task<AdapterHealthReport> CheckAllAdaptersAsync(CancellationToken ct = default)
     {
-        var tasks = _adapters.Select(a => CheckSingleAdapterAsync(a, ct));
-        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        var platformTasks = _adapters.Select(a => CheckSingleAdapterAsync(a, ct));
+        var erpTasks = _erpAdapters.Select(a => CheckSingleErpAsync(a, ct));
+        var results = await Task.WhenAll(platformTasks.Concat(erpTasks)).ConfigureAwait(false);
 
         return new AdapterHealthReport
         {
@@ -78,6 +84,34 @@ public sealed class AdapterHealthService
             return new AdapterHealthResult(
                 adapter.PlatformCode, false, sw.ElapsedMilliseconds,
                 $"Error: {ex.Message}");
+        }
+    }
+
+    private async Task<AdapterHealthResult> CheckSingleErpAsync(
+        IERPAdapter erp, CancellationToken ct)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(10));
+
+            var isHealthy = await erp.TestConnectionAsync(cts.Token).ConfigureAwait(false);
+            sw.Stop();
+            return new AdapterHealthResult(
+                $"ERP:{erp.ERPName}", isHealthy, sw.ElapsedMilliseconds,
+                isHealthy ? "OK — connected" : "Unreachable");
+        }
+        catch (OperationCanceledException)
+        {
+            sw.Stop();
+            return new AdapterHealthResult($"ERP:{erp.ERPName}", false, sw.ElapsedMilliseconds, "Timeout (10s)");
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            _logger.LogWarning(ex, "ERP health check failed: {ERP}", erp.ERPName);
+            return new AdapterHealthResult($"ERP:{erp.ERPName}", false, sw.ElapsedMilliseconds, $"Error: {ex.Message}");
         }
     }
 }
