@@ -49,3 +49,9 @@ public sealed record SyncResponse(Guid Id, int SyncedCount);
 
 /// <summary>Calendar generation response — { year: int, eventsCreated: int }.</summary>
 public sealed record CalendarGenerationResponse(int Year, int EventsCreated);
+
+/// <summary>Chart.js compatible dataset — { labels: string[], datasets: ChartDataset[] }.</summary>
+public sealed record ChartResponse(string[] Labels, IReadOnlyList<ChartDataset> Datasets);
+
+/// <summary>Single Chart.js dataset — { label: string, data: int[], color: string }.</summary>
+public sealed record ChartDataset(string Label, int[] Data, string Color);

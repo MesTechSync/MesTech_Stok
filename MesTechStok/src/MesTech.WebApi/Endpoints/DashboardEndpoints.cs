@@ -1,4 +1,5 @@
 using System.Globalization;
+using MesTech.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
@@ -80,16 +81,15 @@ public static class DashboardEndpoints
                 .OrderBy(p => p)
                 .ToList();
 
-            var datasets = activePlatforms.Select(platform => new
-            {
-                label = platform.ToString(),
-                data = labels.Select(d =>
+            var datasets = activePlatforms.Select(platform => new ChartDataset(
+                Label: platform.ToString(),
+                Data: labels.Select(d =>
                     grouped.TryGetValue(new { Date = d, Platform = platform }, out var count) ? count : 0
                 ).ToArray(),
-                color = PlatformColors.GetValueOrDefault(platform, "#888888")
-            }).ToArray();
+                Color: PlatformColors.GetValueOrDefault(platform, "#888888")
+            )).ToList();
 
-            return Results.Ok(new { labels = labelStrings, datasets });
+            return Results.Ok(new ChartResponse(labelStrings, datasets));
         })
         .WithName("GetSalesTrend")
         .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)")
