@@ -30,4 +30,17 @@ public class DeleteSavedReportHandlerTests
         var act = () => _sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
+
+    [Fact]
+    public async Task Handle_NonExistentReport_ReturnsFalse()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((MesTech.Domain.Entities.Reporting.SavedReport?)null);
+
+        var cmd = new DeleteSavedReportCommand(Guid.NewGuid(), Guid.NewGuid());
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.Should().BeFalse();
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

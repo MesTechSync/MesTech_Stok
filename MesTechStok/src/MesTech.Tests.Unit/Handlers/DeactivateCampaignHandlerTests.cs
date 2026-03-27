@@ -37,4 +37,19 @@ public class DeactivateCampaignHandlerTests
         var act = () => _sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
+
+    [Fact]
+    public async Task Handle_ExistingCampaign_CallsSaveChanges()
+    {
+        var campaignId = Guid.NewGuid();
+        var campaign = Campaign.Create(Guid.NewGuid(), "Test Campaign",
+            DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 10m);
+        _campaignRepoMock.Setup(r => r.GetByIdAsync(campaignId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(campaign);
+
+        var cmd = new DeactivateCampaignCommand(campaignId);
+        await _sut.Handle(cmd, CancellationToken.None);
+
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

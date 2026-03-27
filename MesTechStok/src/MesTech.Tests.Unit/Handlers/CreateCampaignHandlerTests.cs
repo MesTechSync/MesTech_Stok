@@ -24,4 +24,19 @@ public class CreateCampaignHandlerTests
         var act = () => _sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
+
+    [Fact]
+    public async Task Handle_ValidCommand_CreatesCampaignAndReturnsGuid()
+    {
+        var cmd = new CreateCampaignCommand(
+            Guid.NewGuid(), "Yaz Kampanyası",
+            DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(30), 15m);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.Should().NotBe(Guid.Empty);
+        _campaignRepoMock.Verify(r => r.AddAsync(It.Is<Campaign>(c =>
+            c.Name == "Yaz Kampanyası"), It.IsAny<CancellationToken>()), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

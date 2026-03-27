@@ -30,4 +30,17 @@ public class CompleteTaskHandlerTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not found*");
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task Handle_ExistingTask_CallsSaveChanges()
+    {
+        var taskId = Guid.NewGuid();
+        var task = WorkTask.Create(Guid.NewGuid(), "Test Task", MesTech.Domain.Enums.TaskPriority.Normal);
+        _taskRepoMock.Setup(r => r.GetByIdAsync(taskId, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+
+        var cmd = new CompleteTaskCommand(taskId, Guid.NewGuid());
+        await _sut.Handle(cmd, CancellationToken.None);
+
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 }
