@@ -195,6 +195,7 @@ public static class IntegrationServiceRegistration
 
         // Adapter health check — parallel PingAsync for all adapters
         services.AddSingleton<Integration.Health.AdapterHealthService>();
+        services.AddSingleton<Integration.Health.PlatformHealthHistory>();
 
         // Cargo factory + selector + auto-shipment — Scoped (depends on scoped cargo adapters)
         services.AddScoped<ICargoProviderFactory, CargoProviderFactory>();
