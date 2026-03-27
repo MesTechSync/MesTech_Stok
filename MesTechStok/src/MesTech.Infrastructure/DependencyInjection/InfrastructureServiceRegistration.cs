@@ -234,6 +234,7 @@ public static class InfrastructureServiceRegistration
 
         // User Authentication Service (BCrypt — Avalonia + Blazor login)
         services.AddScoped<IAuthService, MesTech.Infrastructure.Auth.AuthService>();
+        services.AddScoped<IPermissionService, MesTech.Infrastructure.Auth.PermissionService>();
 
         // === FAZ 1: ALTYAPI AKTIFLESTIRME ===
 
