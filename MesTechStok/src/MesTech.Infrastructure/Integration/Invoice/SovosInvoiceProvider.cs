@@ -21,6 +21,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
     private readonly IUblTrXmlBuilder _ublBuilder;
+    private readonly IUblTrXmlValidator? _xmlValidator;
     private string? _apiKey;
     private string? _baseUrl;
     private bool _isConfigured;
@@ -34,11 +35,13 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     public SovosInvoiceProvider(
         HttpClient httpClient,
         ILogger<SovosInvoiceProvider> logger,
-        IUblTrXmlBuilder ublBuilder)
+        IUblTrXmlBuilder ublBuilder,
+        IUblTrXmlValidator? xmlValidator = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ublBuilder = ublBuilder ?? throw new ArgumentNullException(nameof(ublBuilder));
+        _xmlValidator = xmlValidator;
     }
 
     /// <summary>
@@ -487,6 +490,19 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var xmlBytes = await _ublBuilder.BuildAsync(document, ct).ConfigureAwait(false);
+
+            // UBL-TR validation — GİB zorunlu alan kontrolü (STD008)
+            if (_xmlValidator is not null)
+            {
+                var validationErrors = await _xmlValidator.ValidateAsync(xmlBytes, ct).ConfigureAwait(false);
+                if (validationErrors.Count > 0)
+                {
+                    var errorMsg = string.Join("; ", validationErrors);
+                    _logger.LogWarning("[Sovos] UBL-TR doğrulama hatası: {Errors}", errorMsg);
+                    return new EInvoiceSendResult(false, null, $"UBL-TR doğrulama hatası: {errorMsg}", 0);
+                }
+            }
+
             var xmlBase64 = Convert.ToBase64String(xmlBytes);
 
             var payload = new
