@@ -106,13 +106,16 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
 
     /// <summary>
     /// Configure rate limit concurrency at runtime (Enterprise=50, Free=2).
-    /// Thread-safe: uses Interlocked.Exchange to avoid leak of waiters on old semaphore.
+    /// Thread-safe: uses Interlocked.Exchange. Old semaphore is NOT disposed immediately
+    /// to avoid ObjectDisposedException on threads still holding a reference.
+    /// GC/finalizer will reclaim the old instance after all waiters complete.
     /// </summary>
     public static void ConfigureRateLimit(int maxConcurrency)
     {
-        var oldSemaphore = Interlocked.Exchange(
+        // Do NOT dispose the old semaphore — concurrent threads may still hold a reference
+        // from ApplyRateLimitAsync. Disposing it causes ObjectDisposedException (TOCTOU race).
+        _ = Interlocked.Exchange(
             ref _rateLimitSemaphore, new SemaphoreSlim(maxConcurrency, maxConcurrency));
-        oldSemaphore.Dispose();
     }
 
     #region IIntegratorAdapter — Core Methods
