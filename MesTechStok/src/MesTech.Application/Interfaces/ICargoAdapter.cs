@@ -17,6 +17,8 @@ public interface ICargoAdapter
     Task<bool> CancelShipmentAsync(string shipmentId, CancellationToken ct = default);
     Task<LabelResult> GetShipmentLabelAsync(string shipmentId, CancellationToken ct = default);
     Task<bool> IsAvailableAsync(CancellationToken ct = default);
+    /// <summary>AdapterHealthService ping — IsAvailableAsync wrapper.</summary>
+    Task<bool> PingAsync(CancellationToken ct = default) => IsAvailableAsync(ct);
 
     bool SupportsCancellation { get; }
     bool SupportsLabelGeneration { get; }

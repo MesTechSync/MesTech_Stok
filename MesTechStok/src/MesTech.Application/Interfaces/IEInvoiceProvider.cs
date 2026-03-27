@@ -15,6 +15,9 @@ public interface IEInvoiceProvider
     Task<bool> CancelAsync(string providerRef, string reason, CancellationToken ct = default);
     Task<VknMukellefResult> CheckVknMukellefAsync(string vkn, CancellationToken ct = default);
     Task<int> GetCreditBalanceAsync(CancellationToken ct = default);
+
+    /// <summary>Provider baglanti kontrolu — AdapterHealthService icin.</summary>
+    Task<bool> PingAsync(CancellationToken ct = default) => Task.FromResult(true);
 }
 
 public record EInvoiceSendResult(
