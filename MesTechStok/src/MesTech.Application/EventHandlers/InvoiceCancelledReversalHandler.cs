@@ -21,15 +21,18 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJournalEntryRepository _journalRepo;
+    private readonly IInvoiceRepository _invoiceRepo;
     private readonly ILogger<InvoiceCancelledReversalHandler> _logger;
 
     public InvoiceCancelledReversalHandler(
         IUnitOfWork unitOfWork,
         IJournalEntryRepository journalRepo,
+        IInvoiceRepository invoiceRepo,
         ILogger<InvoiceCancelledReversalHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _journalRepo = journalRepo;
+        _invoiceRepo = invoiceRepo;
         _logger = logger;
     }
 
@@ -62,10 +65,10 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
             $"IPTAL: Fatura #{invoiceNumber} — {reason ?? "Sebep belirtilmedi"}",
             $"REV-{invoiceNumber}");
 
-        // KDV oranı varsayılan %20 — gerçek oran fatura entity'den alınmalı
-        var taxRate = 0.20m;
-        var netAmount = grandTotal / (1 + taxRate);
-        var taxAmount = grandTotal - netAmount;
+        // G137 FIX: Gerçek KDV tutarını faturadan çek — hardcoded %20 MALİ HATA (G137)
+        var invoice = await _invoiceRepo.GetByIdAsync(invoiceId);
+        var taxAmount = invoice?.TaxTotal ?? Math.Round(grandTotal * 0.20m / 1.20m, 2);
+        var netAmount = grandTotal - taxAmount;
 
         // TERS: BORC 600 Satislar (gelir iptali)
         entry.AddLine(AccountingConstants.Account600DomesticSales, netAmount, 0, $"600 Satislar — IPTAL #{invoiceNumber}");
