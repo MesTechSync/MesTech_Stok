@@ -188,6 +188,18 @@
                     <ScrollViewer>
                         <StackPanel Margin="0,4" Spacing="1">
 
+                            <!-- 0. APP HUB — G169 fix -->
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="AppHub"
+                                    AutomationProperties.Name="Ana Sayfa Hub">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconHome}" Width="16" Height="16"/>
+                                    <TextBlock Text="Ana Sayfa" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- 1. DASHBOARD -->
                             <TextBlock Classes="sidebar-section" Text="DASHBOARD"/>
                             <Button Classes="sidebar-btn"
