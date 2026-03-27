@@ -29,6 +29,7 @@ public sealed class ViewModelFactory : IViewModelFactory
         {
             // Core views (Dalga 10)
             "AppHub" => _provider.GetService<AppHubViewModel>(),
+            "MfaSetup" => _provider.GetService<MfaSetupViewModel>(),
             "Dashboard" => _provider.GetService<DashboardAvaloniaViewModel>(),
             "Leads" => _provider.GetService<LeadsAvaloniaViewModel>(),
             "Kanban" => _provider.GetService<KanbanAvaloniaViewModel>(),
