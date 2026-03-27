@@ -1401,5 +1401,26 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     // ── IWebhookCapableAdapter (Amazon SNS) ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] RegisterWebhook (SNS) {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] ProcessWebhook (SNS) {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(payload);
+            var root = doc.RootElement;
+            var notificationType = root.TryGetProperty("NotificationType", out var nt) ? nt.GetString()
+                                 : root.TryGetProperty("Type", out var tp) ? tp.GetString()
+                                 : "unknown";
+            var topicArn = root.TryGetProperty("TopicArn", out var ta) ? ta.GetString() : null;
+            var messageId = root.TryGetProperty("MessageId", out var mid) ? mid.GetString() : null;
+            _logger.LogInformation(
+                "AmazonEU webhook processed: NotificationType={NotificationType} TopicArn={TopicArn} MessageId={MessageId} PayloadLength={Len}",
+                notificationType, topicArn, messageId, payload.Length);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            _logger.LogWarning(ex, "[AmazonEu] SNS webhook payload parse failed ({Len}b)", payload.Length);
+        }
+        return Task.CompletedTask;
+    }
 }

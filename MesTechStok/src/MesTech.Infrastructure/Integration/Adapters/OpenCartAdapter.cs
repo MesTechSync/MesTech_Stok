@@ -1369,7 +1369,27 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     // ── IWebhookCapableAdapter ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] ProcessWebhook {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(payload);
+            var root = doc.RootElement;
+            var eventType = root.TryGetProperty("event", out var ev) ? ev.GetString()
+                          : root.TryGetProperty("action", out var act) ? act.GetString()
+                          : "unknown";
+            var orderId = root.TryGetProperty("order_id", out var oid) ? oid.GetString() : null;
+            _logger.LogInformation(
+                "OpenCart webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Len}",
+                eventType, orderId, payload.Length);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            _logger.LogWarning(ex, "[OpenCart] Webhook payload parse failed ({Len}b)", payload.Length);
+        }
+        return Task.CompletedTask;
+    }
 
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)

@@ -1258,7 +1258,26 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     // ── IWebhookCapableAdapter ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] ProcessWebhook {Len}b", payload?.Length ?? 0); return Task.CompletedTask; }
+    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(payload);
+            var root = doc.RootElement;
+            var orderId = root.TryGetProperty("id", out var oid) ? oid.ToString() : null;
+            var status = root.TryGetProperty("status", out var st) ? st.GetString() : null;
+            var topic = root.TryGetProperty("topic", out var tp) ? tp.GetString() : "unknown";
+            _logger.LogInformation(
+                "WooCommerce webhook processed: Topic={Topic} OrderId={OrderId} Status={Status} PayloadLength={Len}",
+                topic, orderId, status, payload.Length);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            _logger.LogWarning(ex, "[WooCommerce] Webhook payload parse failed ({Len}b)", payload.Length);
+        }
+        return Task.CompletedTask;
+    }
 
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)
