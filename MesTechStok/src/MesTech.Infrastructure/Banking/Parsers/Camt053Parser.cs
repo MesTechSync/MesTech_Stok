@@ -76,9 +76,10 @@ public sealed class Camt053Parser : IBankStatementParser
         }
 
         var amountStr = amtElement.Value.Trim();
-        if (!decimal.TryParse(amountStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+        if (!decimal.TryParse(amountStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount)
+            || amount < 0 || amount > 999_999_999m)
         {
-            _logger.LogWarning("[Camt053Parser] Tutar parse edilemedi: {AmountStr}", amountStr);
+            _logger.LogWarning("[Camt053Parser] Tutar geçersiz (negatif, overflow veya parse hatası): {AmountStr}", amountStr);
             return null;
         }
 
