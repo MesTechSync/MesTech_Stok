@@ -521,6 +521,7 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<ERPNext.ERPNextRestAdapter>>(),
                 sp.GetRequiredService<IOptions<ERPNext.ERPNextOptions>>()));
         services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ERPNext.ERPNextRestAdapter>());
+        services.AddScoped<Application.Interfaces.IErpBridgeService>(sp => sp.GetRequiredService<ERPNext.ERPNextRestAdapter>());
 
         // MUH-02 + Dalga 12: ERP adapter factory — Scoped (depends on scoped IERPAdapter + IErpAdapter instances)
         // Implements both IERPAdapterFactory (legacy) and IErpAdapterFactory (Dalga 11)

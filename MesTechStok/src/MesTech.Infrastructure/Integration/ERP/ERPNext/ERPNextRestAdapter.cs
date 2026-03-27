@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.ERP.ERPNext;
 ///            GET /api/method/erpnext.accounts.utils.get_balance_on — GL balance.
 /// Implements IERPAdapter for compatibility with ERPAdapterFactory.
 /// </summary>
-public sealed class ERPNextRestAdapter : IERPAdapter
+public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interfaces.IErpBridgeService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ERPNextRestAdapter> _logger;
@@ -226,6 +226,66 @@ public sealed class ERPNextRestAdapter : IERPAdapter
             _logger.LogError(ex, "[ERPNext] GetBalance failed for account {Account}", accountCode);
             return 0m;
         }
+    }
+
+    // ── IErpBridgeService — Event-driven push methods ─────────────────────
+
+    public async Task PushSalesInvoiceAsync(Guid tenantId, Guid orderId, string orderNumber,
+        decimal totalAmount, string? customerName, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var payload = new
+        {
+            doctype = "Sales Invoice",
+            company = _options.Company,
+            customer = customerName ?? "Walk-in Customer",
+            posting_date = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            currency = "TRY",
+            items = new[] { new { item_code = orderNumber, description = $"Order {orderNumber}", qty = 1, rate = totalAmount } },
+            custom_mestech_order_id = orderId.ToString()
+        };
+        await PostResourceAsync("Sales Invoice", payload, ct).ConfigureAwait(false);
+        _logger.LogInformation("[ERPNext] PushSalesInvoice: order={OrderNumber} amount={Amount}", orderNumber, totalAmount);
+    }
+
+    public async Task PushStockEntryAsync(Guid tenantId, Guid productId, string sku,
+        string entryType, int quantity, string reason, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var purposeMap = entryType switch
+        {
+            "Receipt" or "receipt" => "Material Receipt",
+            "Issue" or "issue" => "Material Issue",
+            _ => "Material Transfer"
+        };
+        var payload = new
+        {
+            doctype = "Stock Entry",
+            company = _options.Company,
+            stock_entry_type = purposeMap,
+            items = new[] { new { item_code = sku, qty = Math.Abs(quantity), t_warehouse = _options.DefaultWarehouse } },
+            custom_reason = reason
+        };
+        await PostResourceAsync("Stock Entry", payload, ct).ConfigureAwait(false);
+        _logger.LogInformation("[ERPNext] PushStockEntry: sku={Sku} type={Type} qty={Qty}", sku, purposeMap, quantity);
+    }
+
+    public async Task PushCustomerAsync(Guid tenantId, Guid customerId, string customerName,
+        string? email, string? phone, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var payload = new
+        {
+            doctype = "Customer",
+            customer_name = customerName,
+            customer_type = "Individual",
+            customer_group = "All Customer Groups",
+            territory = "Turkey",
+            email_id = email,
+            mobile_no = phone
+        };
+        await PostResourceAsync("Customer", payload, ct).ConfigureAwait(false);
+        _logger.LogInformation("[ERPNext] PushCustomer: name={Name}", customerName);
     }
 
     // ── Frappe REST helpers ─────────────────────────────────────────────────
