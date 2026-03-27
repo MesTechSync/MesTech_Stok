@@ -17,6 +17,8 @@ public sealed class JournalEntry : BaseEntity, ITenantEntity
     public bool IsPosted { get; private set; }
     public DateTime? PostedAt { get; private set; }
 
+    // Optimistic concurrency — concurrent GL update koruması (G170)
+    public byte[]? RowVersion { get; set; }
     private readonly List<JournalLine> _lines = new();
     public IReadOnlyList<JournalLine> Lines => _lines.AsReadOnly();
 
