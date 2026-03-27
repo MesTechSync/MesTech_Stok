@@ -23,6 +23,7 @@ using MesTech.Infrastructure.Integration.ERP.BizimHesap;
 using MesTech.Infrastructure.Integration.ERP.Logo;
 using MesTech.Infrastructure.Integration.ERP.Netsis;
 using MesTech.Infrastructure.Integration.ERP.Nebim;
+using ERPNext = MesTech.Infrastructure.Integration.ERP.ERPNext;
 using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Infrastructure.Integration.Settlement;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;

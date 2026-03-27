@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -91,17 +91,17 @@ public sealed class ERPNextRestAdapter : IERPAdapter
                 {
                     doctype = "Sales Invoice",
                     company = _options.Company,
-                    customer = invoice.BuyerName ?? "Walk-in Customer",
-                    posting_date = invoice.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    due_date = invoice.DueDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    currency = invoice.CurrencyCode ?? "TRY",
-                    items = invoice.Lines.Select(line => new
+                    customer = invoice.CustomerName ?? "Walk-in Customer",
+                    posting_date = invoice.CreatedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    due_date = invoice.CreatedAt.AddDays(30).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    currency = "TRY",
+                    items = invoice.Lines.Select(item => new
                     {
-                        item_code = line.ProductSku ?? line.Description?[..Math.Min(line.Description.Length, 50)],
-                        description = line.Description,
-                        qty = line.Quantity,
-                        rate = line.UnitPrice,
-                        amount = line.LineTotal
+                        item_code = item.SKU ?? item.ProductName ?? "MISC",
+                        description = item.ProductName,
+                        qty = item.Quantity,
+                        rate = item.UnitPrice,
+                        amount = item.LineTotal
                     }).ToArray(),
                     custom_mestech_invoice_id = invoice.Id.ToString()
                 };
