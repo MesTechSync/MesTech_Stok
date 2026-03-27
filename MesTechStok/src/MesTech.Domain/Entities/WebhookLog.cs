@@ -66,4 +66,11 @@ public sealed class WebhookLog : ITenantEntity
         RetryCount++;
         Error = error;
     }
+
+    /// <summary>KVKK data retention — payload'u anonimlestirir.</summary>
+    public void AnonymizePayload()
+    {
+        Payload = "ANONYMIZED";
+        Signature = null;
+    }
 }

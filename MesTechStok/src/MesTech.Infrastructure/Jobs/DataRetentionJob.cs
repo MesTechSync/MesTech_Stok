@@ -58,8 +58,10 @@ public sealed class DataRetentionJob : ISyncJob
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
 
-        // AuditLog private setter'lar nedeniyle doğrudan set edilemez — skip (KVKK audit kayıtları immutable)
-        totalAnonymized += expiredAudits.Count;
+        // AuditLog immutable (KVKK denetim kayıtları değiştirilemez) — sadece sayı raporu
+        var expiredAuditCount = expiredAudits.Count;
+        if (expiredAuditCount > 0)
+            _logger.LogInformation("[KVKK] {Count} audit log kayıt yaşlandı (2+ yıl) — immutable, arşivlenecek", expiredAuditCount);
 
         // 3. WebhookLog — payload anonimleştir (Set<T>() ile erişim — DbSet property yok)
         var webhookCutoff = DateTime.UtcNow.AddDays(-WebhookLogRetentionDays);
@@ -68,8 +70,11 @@ public sealed class DataRetentionJob : ISyncJob
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
 
-        // WebhookLog private setter'lar nedeniyle doğrudan set edilemez — IncrementRetry ile hata kaydı yapılabilir
-        totalAnonymized += expiredWebhooks.Count;
+        foreach (var webhook in expiredWebhooks)
+        {
+            webhook.AnonymizePayload();
+            totalAnonymized++;
+        }
 
         // 4. SyncLog — eski kayıtları sil (kişisel veri yok, temizlik)
         var syncCutoff = DateTime.UtcNow.AddDays(-SyncLogRetentionDays);
