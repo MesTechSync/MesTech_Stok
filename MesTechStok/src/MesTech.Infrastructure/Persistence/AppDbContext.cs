@@ -1141,6 +1141,27 @@ public class AppDbContext : DbContext
         // KVKK — HASSAS ALAN SIFRELEME (MUH-02)
         // ═══════════════════════════════════════
         ConfigureEncryption(modelBuilder);
+        // G174+G175: Bulk performance indexes — IsDeleted + TenantId
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+            // IsDeleted index (soft-delete global filter performansı)
+            if (clrType.IsSubclassOf(typeof(MesTech.Domain.Common.BaseEntity)))
+            {
+                modelBuilder.Entity(clrType)
+                    .HasIndex("IsDeleted")
+                    .HasFilter(null)
+                    .HasDatabaseName($"IX_{entityType.GetTableName()}_IsDeleted");
+            }
+            // TenantId index (multi-tenant global filter performansı)
+            if (typeof(MesTech.Domain.Common.ITenantEntity).IsAssignableFrom(clrType))
+            {
+                modelBuilder.Entity(clrType)
+                    .HasIndex("TenantId")
+                    .HasFilter(null)
+                    .HasDatabaseName($"IX_{entityType.GetTableName()}_TenantId");
+            }
+        }
     }
 
     /// <summary>
