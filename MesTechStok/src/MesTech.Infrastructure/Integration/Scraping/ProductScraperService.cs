@@ -155,7 +155,7 @@ public sealed class ProductScraperService : IProductScraperService
     {
         // HB pattern: /product-name-p-HBCV000001
         var pIdx = path.LastIndexOf("-p-", StringComparison.Ordinal);
-        if (pIdx < 0) return null;
+        if (pIdx < 0 || path.Length <= pIdx + 3) return null;
         return path[(pIdx + 3)..];
     }
 
