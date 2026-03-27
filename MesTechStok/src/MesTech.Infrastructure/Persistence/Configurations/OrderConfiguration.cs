@@ -32,7 +32,10 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.PlatformOrderNumber).HasMaxLength(100);
         builder.Property(o => o.CustomerName).HasMaxLength(200);
         builder.Property(o => o.CustomerEmail).HasMaxLength(200);
+        builder.Property(o => o.RecipientPhone).HasMaxLength(20);
+        builder.Property(o => o.ShippingAddress).HasMaxLength(500);
         builder.Property(o => o.TrackingNumber).HasMaxLength(100);
+        builder.Property(o => o.CargoBarcode).HasMaxLength(100);
         builder.Property(o => o.Notes).HasMaxLength(2000);
 
         // Decimal precision
