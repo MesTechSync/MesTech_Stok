@@ -7,6 +7,7 @@ public record InvoiceCancelledEvent(
     Guid TenantId,
     Guid OrderId,
     string InvoiceNumber,
+    decimal GrandTotal,
     string? Reason,
     DateTime OccurredAt
 ) : IDomainEvent;

@@ -196,5 +196,4 @@ public sealed class ZeroStockApplicationBridge
     }
 }
 
-// G020: PriceLossBridge, StaleOrderBridge, OrderCancelledApplicationBridge, ShipmentCostBridge
-// kaldırıldı — log-only handler'lar silindi, OrphanBridge loglama + notification üstleniyor.
+// InvoiceApprovedGLBridge + InvoiceCancelledReversalBridge → AccountingEventBridgeHandlers.cs (canonical)

@@ -154,7 +154,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
         Status = InvoiceStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
-        RaiseDomainEvent(new InvoiceCancelledEvent(Id, TenantId, OrderId, InvoiceNumber, reason, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceCancelledEvent(Id, TenantId, OrderId, InvoiceNumber, GrandTotal, reason, DateTime.UtcNow));
     }
 
     public void MarkAsPlatformSent(string platformInvoiceUrl)
@@ -234,7 +234,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
             throw new BusinessRuleException("InvoiceRule","Fatura tutari sifirdan buyuk olmali.");
 
         Status = InvoiceStatus.Queued;
-        RaiseDomainEvent(new InvoiceApprovedEvent(Id, TenantId, InvoiceNumber, GrandTotal, Type, DateTime.UtcNow));
+        RaiseDomainEvent(new InvoiceApprovedEvent(Id, TenantId, InvoiceNumber, GrandTotal, TaxTotal, GrandTotal - TaxTotal, Type, DateTime.UtcNow));
         RaiseDomainEvent(new InvoiceGeneratedForERPEvent(Id, TenantId, InvoiceNumber, GrandTotal, "Default", DateTime.UtcNow));
     }
 

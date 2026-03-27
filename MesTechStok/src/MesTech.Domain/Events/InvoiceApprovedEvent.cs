@@ -12,5 +12,7 @@ public record InvoiceApprovedEvent(
     Guid TenantId,
     string InvoiceNumber,
     decimal GrandTotal,
+    decimal TaxAmount,
+    decimal NetAmount,
     InvoiceType Type,
     DateTime OccurredAt) : IDomainEvent;
