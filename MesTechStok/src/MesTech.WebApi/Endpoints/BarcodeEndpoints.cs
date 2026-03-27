@@ -49,7 +49,8 @@ public static class BarcodeEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetBarcodeScanLogsQuery(page, pageSize, barcode, source, isValid), ct);
+                new GetBarcodeScanLogsQuery(
+                    Math.Max(1, page), Math.Clamp(pageSize, 1, 200), barcode, source, isValid), ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")
