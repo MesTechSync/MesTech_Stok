@@ -28,6 +28,7 @@ public static class ErpResiliencePolicies
         public const string BizimHesap = "ErpBizimHesap";
         public const string Netsis = "ErpNetsis";
         public const string Nebim = "ErpNebim";
+        public const string ERPNext = "ErpERPNext";
     }
 
     /// <summary>
@@ -41,6 +42,7 @@ public static class ErpResiliencePolicies
         RegisterResilientClient(services, ClientNames.BizimHesap);
         RegisterResilientClient(services, ClientNames.Netsis);
         RegisterResilientClient(services, ClientNames.Nebim);
+        RegisterResilientClient(services, ClientNames.ERPNext);
 
         // Token service clients — retry only (no circuit breaker, token calls are rare)
         RegisterTokenClient(services, ClientNames.ParasutToken);

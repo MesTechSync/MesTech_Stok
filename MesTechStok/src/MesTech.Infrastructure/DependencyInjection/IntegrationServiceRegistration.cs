@@ -511,6 +511,16 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<NebimERPAdapter>>()));
         services.AddScoped<IErpAdapter>(sp => sp.GetRequiredService<NebimERPAdapter>());
 
+        // G128: ERPNext REST adapter — Frappe API, token auth
+        if (configuration is not null)
+            services.Configure<ERPNext.ERPNextOptions>(configuration.GetSection(ERPNext.ERPNextOptions.Section));
+        services.AddScoped<ERPNext.ERPNextRestAdapter>(sp =>
+            new ERPNext.ERPNextRestAdapter(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(ErpResiliencePolicies.ClientNames.ERPNext),
+                sp.GetRequiredService<ILogger<ERPNext.ERPNextRestAdapter>>(),
+                sp.GetRequiredService<IOptions<ERPNext.ERPNextOptions>>()));
+        services.AddScoped<IERPAdapter>(sp => sp.GetRequiredService<ERPNext.ERPNextRestAdapter>());
+
         // MUH-02 + Dalga 12: ERP adapter factory — Scoped (depends on scoped IERPAdapter + IErpAdapter instances)
         // Implements both IERPAdapterFactory (legacy) and IErpAdapterFactory (Dalga 11)
         services.AddScoped<ERPAdapterFactory>();
