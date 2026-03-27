@@ -61,5 +61,18 @@ public static class OrderEndpoints
         .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder")
         .Produces(200)
         .Produces(400);
+
+        // GET /api/v1/orders/stale — gecikmiş sipariş listesi (menu #27 StaleOrders)
+        group.MapGet("/stale", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStaleOrdersQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStaleOrders")
+        .WithSummary("Gecikmiş siparişler — platform bazlı SLA aşımı")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
     }
 }

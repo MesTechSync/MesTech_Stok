@@ -2,6 +2,8 @@ using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.ApproveReturn;
 using MesTech.Application.Commands.RejectReturn;
+using MesTech.Application.Features.Returns.Queries.GetReturnList;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -12,6 +14,19 @@ public static class ReturnEndpoints
         var group = app.MapGroup("/api/v1/returns")
             .WithTags("Returns")
             .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/returns — iade listesi (G-TUR31 menu mapping)
+        group.MapGet("/", async (
+            Guid tenantId, int count = 100,
+            ISender mediator = default!, CancellationToken ct = default) =>
+        {
+            var result = await mediator.Send(new GetReturnListQuery(tenantId, Math.Clamp(count, 1, 200)), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetReturnList")
+        .WithSummary("İade listesi — durum, tutar, tarih bilgisiyle")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
 
         group.MapPost("/{id:guid}/approve", async (
             Guid id,
