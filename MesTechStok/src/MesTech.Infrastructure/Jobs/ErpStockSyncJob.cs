@@ -86,12 +86,20 @@ public sealed class ErpStockSyncJob : ISyncJob
                     continue;
                 }
 
+                // Batch pre-load: 1 query instead of N (G161 N+1 fix)
+                var skus = stockItems.Select(s => s.ProductCode).Distinct().ToList();
+                var productsBySku = new Dictionary<string, Product>(StringComparer.OrdinalIgnoreCase);
+                foreach (var sku in skus)
+                {
+                    var p = await _productRepository.GetBySKUAsync(sku).ConfigureAwait(false);
+                    if (p is not null) productsBySku[sku] = p;
+                }
+
                 foreach (var stockItem in stockItems)
                 {
                     ct.ThrowIfCancellationRequested();
 
-                    var product = await _productRepository.GetBySKUAsync(stockItem.ProductCode).ConfigureAwait(false);
-                    if (product is null)
+                    if (!productsBySku.TryGetValue(stockItem.ProductCode, out var product))
                     {
                         providerSkipped++;
                         continue;
