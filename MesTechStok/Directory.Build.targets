@@ -1,0 +1,6 @@
+<Project>
+  <!-- Oto-versiyon: SourceLink otomatik olarak InformationalVersion'a git hash ekler.
+       Format: {MesTechVersion}+{commitHash}  (örn: 1.15.0+abc1234def)
+       CI'da override: dotnet build -p:MesTechMinor=16 -p:MesTechPatch=1
+       Release tag: git tag v$(MesTechVersion) -->
+</Project>

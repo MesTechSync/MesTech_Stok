@@ -3,8 +3,17 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Dalga 13: v1.0.0 FINAL -->
-    <MesTechVersion>1.0.0</MesTechVersion>
+    <!-- Oto-versiyon: Major.Minor.Patch+BuildMeta
+         Major = mimari değişim, Minor = dalga numarası, Patch = hotfix
+         BuildMeta (InformationalVersion) = git commit count + short hash
+         CI override: dotnet build -p:VersionSuffix=... -->
+    <MesTechMajor>1</MesTechMajor>
+    <MesTechMinor>15</MesTechMinor>
+    <MesTechPatch>0</MesTechPatch>
+    <MesTechVersion>$(MesTechMajor).$(MesTechMinor).$(MesTechPatch)</MesTechVersion>
+    <Version>$(MesTechVersion)</Version>
+    <AssemblyVersion>$(MesTechMajor).$(MesTechMinor).0.0</AssemblyVersion>
+    <FileVersion>$(MesTechVersion).0</FileVersion>
     <InformationalVersion>$(MesTechVersion)</InformationalVersion>
     <IsQualityGuardedProject>false</IsQualityGuardedProject>
     <!-- H30 DEV4 T4.1: suppress pre-existing warnings

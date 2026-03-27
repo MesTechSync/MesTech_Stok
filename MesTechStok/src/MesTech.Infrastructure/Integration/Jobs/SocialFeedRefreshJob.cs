@@ -40,6 +40,8 @@ public sealed class SocialFeedRefreshJob
 
         var configs = await _dbContext.Set<SocialFeedConfiguration>()
             .Where(c => c.IsActive)
+            .OrderBy(c => c.Id)
+            .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
 
         if (configs.Count == 0)
