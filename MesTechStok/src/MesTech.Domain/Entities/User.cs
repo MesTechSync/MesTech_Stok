@@ -23,6 +23,11 @@ public sealed class User : BaseEntity, ITenantEntity
     public Guid TenantId { get; set; }
     public Tenant? Tenant { get; set; }
 
+    // MFA — OWASP ASVS V2.8
+    public bool IsMfaEnabled { get; set; }
+    public string? TotpSecret { get; set; }
+    public DateTime? MfaEnabledAt { get; set; }
+
     public string? FullName => string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
         ? Username
         : $"{FirstName} {LastName}".Trim();
