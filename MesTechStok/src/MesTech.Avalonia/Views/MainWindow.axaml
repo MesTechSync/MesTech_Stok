@@ -188,7 +188,8 @@
                     <ScrollViewer>
                         <StackPanel Margin="0,4" Spacing="1">
 
-                            <!-- 0. APP HUB — G169 fix -->
+                            <!-- 0. ANA SAYFA -->
+                            <TextBlock Classes="sidebar-section" Text="ANA SAYFA"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
                                     Command="{Binding NavigateToCommand}"
@@ -840,7 +841,7 @@
 
                             <!-- Pazaryeri Detay -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Trendyol"/></StackPanel>
@@ -866,7 +867,7 @@
 
                             <!-- Kampanya & Araçlar -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Text="ARACLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="ARAÇLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -882,7 +883,7 @@
 
                             <!-- Sistem Yönetimi -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Text="SISTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="SİSTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi"
                                     IsVisible="{Binding ShowHealthMonitor}">
