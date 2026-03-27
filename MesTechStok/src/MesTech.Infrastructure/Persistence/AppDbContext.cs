@@ -282,6 +282,7 @@ public class AppDbContext : DbContext
     public DbSet<ProcessedDomainEvent> ProcessedDomainEvents => Set<ProcessedDomainEvent>();
     public DbSet<KvkkAuditLog> KvkkAuditLogs => Set<KvkkAuditLog>();
     public DbSet<UserConsent> UserConsents => Set<UserConsent>();
+    public DbSet<PersonalDataRetentionPolicy> PersonalDataRetentionPolicies => Set<PersonalDataRetentionPolicy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
