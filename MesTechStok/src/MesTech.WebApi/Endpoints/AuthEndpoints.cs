@@ -128,6 +128,10 @@ public static class AuthEndpoints
         })
         .WithName("Login")
         .WithSummary("JWT token + refresh token ile kimlik doğrulama — brute force korumalı")
+        .Produces<LoginResponse>(StatusCodes.Status200OK)
+        .Produces<LoginResponse>(StatusCodes.Status401Unauthorized)
+        .Produces<LoginResponse>(StatusCodes.Status423Locked)
+        .Produces<LoginResponse>(StatusCodes.Status429TooManyRequests)
         .AllowAnonymous();
 
         // POST /api/v1/auth/validate — validate an existing JWT token
@@ -146,7 +150,9 @@ public static class AuthEndpoints
             });
         })
         .WithName("ValidateToken")
-        .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId");
+        .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
 
         // POST /api/v1/auth/refresh — rotate refresh token (OWASP ASVS V3.3)
         group.MapPost("/refresh", async (
@@ -243,6 +249,8 @@ public static class AuthEndpoints
         })
         .WithName("RefreshToken")
         .WithSummary("JWT refresh token rotation — OWASP ASVS V3.3")
+        .Produces<RefreshTokenResponse>(StatusCodes.Status200OK)
+        .Produces<RefreshTokenResponse>(StatusCodes.Status401Unauthorized)
         .AllowAnonymous();
 
         // POST /api/v1/auth/revoke — revoke refresh token (logout)
@@ -279,7 +287,8 @@ public static class AuthEndpoints
             return Results.Ok(new StatusResponse("Revoked"));
         })
         .WithName("RevokeToken")
-        .WithSummary("Refresh token iptal — logout");
+        .WithSummary("Refresh token iptal — logout")
+        .Produces<StatusResponse>(StatusCodes.Status200OK);
     }
 
     // ── Request / Response Records ──
