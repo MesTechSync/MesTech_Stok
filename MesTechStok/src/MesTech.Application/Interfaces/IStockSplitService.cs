@@ -23,4 +23,9 @@ public interface IStockSplitService
     /// Belirtilen fulfillment merkezindeki urun stogunu gunceller.
     /// </summary>
     Task UpdateFulfillmentStockAsync(Guid productId, FulfillmentCenter center, int quantity, CancellationToken ct = default);
+
+    /// <summary>
+    /// Birden fazla urunun toplam kullanilabilir stok miktarini tek sorguda getirir (N+1 onleme).
+    /// </summary>
+    Task<Dictionary<Guid, int>> GetTotalAvailableBulkAsync(IEnumerable<Guid> productIds, CancellationToken ct = default);
 }

@@ -132,33 +132,42 @@ public sealed class FulfillmentStockSyncJob
                 .Where(p => !string.IsNullOrWhiteSpace(p.SKU))
                 .ToDictionary(p => p.SKU!, p => p, StringComparer.OrdinalIgnoreCase);
 
-            foreach (var stock in inventory.Stocks)
+            // Resolve matched products — filter unmatched SKUs upfront
+            var matchedStocks = inventory.Stocks
+                .Where(s => skuToProduct.ContainsKey(s.SKU))
+                .Select(s => (Stock: s, Product: skuToProduct[s.SKU]))
+                .ToList();
+
+            if (matchedStocks.Count == 0)
+            {
+                _logger.LogDebug("[FulfillmentStockSync] No SKU matches for {Center}", provider.Center);
+                return;
+            }
+
+            var matchedProductIds = matchedStocks.Select(m => m.Product.Id).Distinct().ToList();
+
+            // BULK pre-fetch: single GROUP BY query instead of N queries (G088 fix)
+            var previousTotals = await _stockSplitService
+                .GetTotalAvailableBulkAsync(matchedProductIds, ct).ConfigureAwait(false);
+
+            // Update each fulfillment center stock (still sequential — UpdateFulfillmentStockAsync does SaveChanges)
+            foreach (var (stock, product) in matchedStocks)
             {
                 ct.ThrowIfCancellationRequested();
-
-                if (!skuToProduct.TryGetValue(stock.SKU, out var product))
-                {
-                    _logger.LogDebug("[FulfillmentStockSync] SKU '{SKU}' not found in local product catalog — skipping",
-                        stock.SKU);
-                    continue;
-                }
-
-                // Read previous total stock for this product across all warehouses
-                var previousTotal = await _stockSplitService
-                    .GetTotalAvailableAsync(product.Id, ct).ConfigureAwait(false);
-
-                // Update fulfillment center stock
                 await _stockSplitService.UpdateFulfillmentStockAsync(
-                    product.Id,
-                    provider.Center,
-                    stock.AvailableQuantity,
-                    ct).ConfigureAwait(false);
+                    product.Id, provider.Center, stock.AvailableQuantity, ct).ConfigureAwait(false);
+            }
 
-                // Re-read total after update
-                var newTotal = await _stockSplitService
-                    .GetTotalAvailableAsync(product.Id, ct).ConfigureAwait(false);
+            // BULK post-fetch: single GROUP BY query instead of N queries
+            var newTotals = await _stockSplitService
+                .GetTotalAvailableBulkAsync(matchedProductIds, ct).ConfigureAwait(false);
 
-                // Fire StockChangedEvent only if total changed
+            // Fire StockChangedEvent only where total changed
+            foreach (var (stock, product) in matchedStocks)
+            {
+                previousTotals.TryGetValue(product.Id, out var previousTotal);
+                newTotals.TryGetValue(product.Id, out var newTotal);
+
                 if (newTotal != previousTotal)
                 {
                     _logger.LogInformation(

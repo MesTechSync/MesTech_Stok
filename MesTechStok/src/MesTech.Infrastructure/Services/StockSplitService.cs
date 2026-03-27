@@ -48,4 +48,19 @@ public sealed class StockSplitService : IStockSplitService
 
         await _context.SaveChangesAsync(ct).ConfigureAwait(false);
     }
+
+    public async Task<Dictionary<Guid, int>> GetTotalAvailableBulkAsync(
+        IEnumerable<Guid> productIds, CancellationToken ct = default)
+    {
+        var ids = productIds.ToList();
+        if (ids.Count == 0)
+            return new Dictionary<Guid, int>();
+
+        return await _context.ProductWarehouseStocks
+            .Where(s => ids.Contains(s.ProductId))
+            .GroupBy(s => s.ProductId)
+            .Select(g => new { ProductId = g.Key, Total = g.Sum(s => s.AvailableQuantity) })
+            .ToDictionaryAsync(x => x.ProductId, x => x.Total, ct)
+            .ConfigureAwait(false);
+    }
 }
