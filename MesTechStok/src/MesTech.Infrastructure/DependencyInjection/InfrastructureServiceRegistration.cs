@@ -70,8 +70,13 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<TenantContextInterceptor>();
 
         // DbContext â€” PostgreSQL
-        var connectionString = configuration.GetConnectionString("PostgreSQL")
+        var rawConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
+
+        // G176: Pool exhaustion korumasý — Hangfire+Web+SignalR concurrent connections
+        var connectionString = rawConnectionString?.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) == true
+            ? rawConnectionString
+            : rawConnectionString + ";MaxPoolSize=50;MinPoolSize=10;Connection Idle Lifetime=300";
 
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
