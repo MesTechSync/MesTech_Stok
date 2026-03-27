@@ -78,6 +78,15 @@ public partial class App : global::Avalonia.Application
                     cfg.RegisterServicesFromAssembly(
                         typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
+                // === WebApi HTTP Client (G072) ===
+                var apiBaseUrl = configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
+                services.AddHttpClient<IMesTechApiClient, MesTechApiClient>(client =>
+                {
+                    client.BaseAddress = new Uri(apiBaseUrl);
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                });
+
                 // === Avalonia-specific services ===
                 services.AddSingleton<IDialogService, AvaloniaDialogService>();
                 services.AddSingleton<IFilePickerService, AvaloniaFilePickerService>();
