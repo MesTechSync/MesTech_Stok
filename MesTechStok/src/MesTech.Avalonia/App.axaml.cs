@@ -102,6 +102,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<MainWindowViewModel>();
                 services.AddTransient<AppHubViewModel>();  // G098: Ana Ekran Hub
                 services.AddTransient<MfaSetupViewModel>();  // STD006: MFA Setup UI
+                services.AddTransient<Bitrix24AvaloniaViewModel>();  // G096: CRM Kanban
                 services.AddTransient<DashboardAvaloniaViewModel>();
                 services.AddTransient<LeadsAvaloniaViewModel>();
                 services.AddTransient<KanbanAvaloniaViewModel>();
