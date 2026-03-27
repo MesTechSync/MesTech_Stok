@@ -8,6 +8,9 @@ namespace MesTech.Avalonia.Services;
 /// <summary>
 /// Spotlight image discovery and rotation service.
 /// Scans Resources/Spotlights/ and %LOCALAPPDATA%/MesTech/Spotlights/ for background images.
+///
+/// KORUMALI: Klasör tarama mantığı ve thread-safety değiştirilemez.
+/// İZİN: Yeni format (.avif, .svg), metadata zenginleştirme, cache stratejisi.
 /// Thread-safe index tracking for crossfade rotation.
 /// </summary>
 public sealed class SpotlightService

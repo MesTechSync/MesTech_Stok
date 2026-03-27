@@ -10,6 +10,14 @@ namespace MesTech.Avalonia.Views;
 /// Bing Spotlight-inspired WelcomeWindow with integrated login.
 /// Full-screen background image rotation, top thumbnail bar, bottom-left branding,
 /// bottom-right login card. Crossfade transitions every 8 seconds.
+///
+/// ╔═══════════════════════════════════════════════════════════╗
+/// ║ KORUMALI DOSYA — Spotlight Welcome Code-Behind            ║
+/// ║ Sahip: DEV2 | Timer + crossfade + keyboard logic          ║
+/// ║ Kural: Timer interval, crossfade süresi, keyboard map     ║
+/// ║ değiştirilebilir. Akış sırası (Open→Timer→Login→Close)    ║
+/// ║ DEĞİŞTİRİLEMEZ. Yeni event → mevcut yapıya ekle.        ║
+/// ╚═══════════════════════════════════════════════════════════╝
 /// </summary>
 public partial class WelcomeWindow : Window
 {

@@ -9,6 +9,11 @@
 # ║ DK-12: git stash YASAK. Commit et veya discard et.           ║
 # ║ DK-13: git add . YASAK. Dosya dosya ekle.                   ║
 # ║ DK-14: Soru sorma. Karar ver. Uygula.                       ║
+# ║ DK-15: Spotlight WelcomeWindow KORUMALI TASARIM.            ║
+# ║        Katman yapısı (Layer 0-5) değiştirilemez.            ║
+# ║        Login güvenlik akışı (brute-force, audit) dokunulmaz.║
+# ║        İyileştirme = zarifleştirme, kolaya kaçma YASAK.     ║
+# ║        Köklü layout değişikliği = ÖNCE tasarım onayı.      ║
 # ╚═══════════════════════════════════════════════════════════════╝
 # MesTechStok — Claude Code Instructions
 

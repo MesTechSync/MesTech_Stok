@@ -10,9 +10,22 @@
         Topmost="True"
         CanResize="False">
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- BING SPOTLIGHT INSPIRED WELCOME + LOGIN SCREEN -->
-  <!-- Layered Panel: BG Image → Overlays → Content   -->
+  <!-- ╔═══════════════════════════════════════════════════════════════════╗ -->
+  <!-- ║ KORUMALI TASARIM — SPOTLIGHT WELCOME SCREEN                     ║ -->
+  <!-- ║ Sahip: DEV2 (Frontend & UI/UX)                                  ║ -->
+  <!-- ║ Versiyon: v1.0.0 — 2026-03-27                                  ║ -->
+  <!-- ╠═══════════════════════════════════════════════════════════════════╣ -->
+  <!-- ║ KURALLAR:                                                       ║ -->
+  <!-- ║ 1. Katman yapısı (Layer 0-5) DEĞİŞTİRİLEMEZ — sadece İÇERİK  ║ -->
+  <!-- ║ 2. Renk/font/spacing değişiklikleri → DesignTokens üzerinden   ║ -->
+  <!-- ║ 3. Yeni özellik → mevcut yapıya UYUMLU ekleme, kırma YASAK    ║ -->
+  <!-- ║ 4. Köklü layout değişikliği → ÖNCE tasarım onayı al           ║ -->
+  <!-- ║ 5. İyileştirme = zarifleştirme. Basitleştirme = kalite kaybı  ║ -->
+  <!-- ║ 6. macOS/Bitrix24 kalite hedefi — kolaya kaçma YASAK           ║ -->
+  <!-- ╚═══════════════════════════════════════════════════════════════════╝ -->
+  <!--                                                                     -->
+  <!-- BING SPOTLIGHT INSPIRED WELCOME + LOGIN SCREEN                      -->
+  <!-- Layered Panel: BG Image → Overlays → Content                        -->
   <!-- ═══════════════════════════════════════════════ -->
 
   <Panel>

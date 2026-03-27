@@ -18,6 +18,15 @@ namespace MesTech.Avalonia.ViewModels;
 /// Bing Spotlight-inspired unified Welcome + Login ViewModel.
 /// Full-screen background image rotation, top thumbnail bar, integrated login card.
 /// Preserves all security: brute-force lockout, audit log, offline fallback.
+///
+/// ╔═══════════════════════════════════════════════════════════╗
+/// ║ KORUMALI DOSYA — SpotlightWelcomeViewModel                ║
+/// ║ Sahip: DEV2 | GÜVENLİK mantığı DEV4 onayı gerektirir    ║
+/// ║ İZİN VERİLEN: Thumbnail ekleme, görsel iyileştirme,      ║
+/// ║   animasyon parametresi değişikliği, yeni command ekleme  ║
+/// ║ YASAK: Login akışı değişikliği, brute-force kaldırma,    ║
+/// ║   offline fallback silme, audit log bypass                ║
+/// ╚═══════════════════════════════════════════════════════════╝
 /// </summary>
 public partial class SpotlightWelcomeViewModel : ViewModelBase
 {
