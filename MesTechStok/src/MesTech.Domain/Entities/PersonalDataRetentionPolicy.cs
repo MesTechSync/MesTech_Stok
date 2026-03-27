@@ -1,4 +1,5 @@
-using MesTech.Domain.Common;
+﻿using MesTech.Domain.Common;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Domain.Entities;
 
@@ -7,8 +8,9 @@ namespace MesTech.Domain.Entities;
 /// Her entity tipi icin saklama suresi (gun), anonimlesme stratejisi tanimlanir.
 /// DataRetentionJob bu tabloyu okuyarak policy-driven calisir.
 /// </summary>
-public sealed class PersonalDataRetentionPolicy : BaseEntity
+public sealed class PersonalDataRetentionPolicy : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string EntityTypeName { get; private set; } = string.Empty;
     public int RetentionDays { get; private set; }
     public string AnonymizationStrategy { get; private set; } = "Hash";
