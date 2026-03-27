@@ -66,6 +66,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Amazon" => _provider.GetService<AmazonAvaloniaViewModel>(),
             "AmazonEu" => _provider.GetService<AmazonEuAvaloniaViewModel>(),
             "Barcode" => _provider.GetService<BarcodeAvaloniaViewModel>(),
+            "BarcodeScanner" => _provider.GetService<BarcodeScannerViewModel>(),
             "Calendar" => _provider.GetService<CalendarAvaloniaViewModel>(),
             "CargoSettings" => _provider.GetService<CargoSettingsAvaloniaViewModel>(),
             "Ciceksepeti" => _provider.GetService<CiceksepetiAvaloniaViewModel>(),
