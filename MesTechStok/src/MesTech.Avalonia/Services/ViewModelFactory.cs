@@ -28,6 +28,7 @@ public sealed class ViewModelFactory : IViewModelFactory
         return viewName switch
         {
             // Core views (Dalga 10)
+            "AppHub" => _provider.GetService<AppHubViewModel>(),
             "Dashboard" => _provider.GetService<DashboardAvaloniaViewModel>(),
             "Leads" => _provider.GetService<LeadsAvaloniaViewModel>(),
             "Kanban" => _provider.GetService<KanbanAvaloniaViewModel>(),

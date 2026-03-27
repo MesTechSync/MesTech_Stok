@@ -45,7 +45,7 @@ public partial class App : global::Avalonia.Application
         var mainVm = _host!.Services.GetRequiredService<MainWindowViewModel>();
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.DataContext = mainVm;
-        mainVm.NavigateToCommand.Execute("Dashboard");
+        mainVm.NavigateToCommand.Execute("AppHub");  // G098: Login → AppHub (ana karşılama)
         return mainWindow;
     }
 
@@ -100,6 +100,7 @@ public partial class App : global::Avalonia.Application
 
                 // ViewModels — Core (Dalga 10)
                 services.AddTransient<MainWindowViewModel>();
+                services.AddTransient<AppHubViewModel>();  // G098: Ana Ekran Hub
                 services.AddTransient<DashboardAvaloniaViewModel>();
                 services.AddTransient<LeadsAvaloniaViewModel>();
                 services.AddTransient<KanbanAvaloniaViewModel>();
