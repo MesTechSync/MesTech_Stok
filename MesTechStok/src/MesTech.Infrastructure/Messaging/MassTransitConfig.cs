@@ -190,12 +190,22 @@ public static class MassTransitConfig
                 cfg.Message<FinanceTaxPrepReadyEvent>(x =>
                     x.SetEntityName("mestech.mesa.finance.tax-prep.ready.v1"));
 
+                // Prefetch count — prevent overwhelming consumers under high load (G177)
+                cfg.PrefetchCount = 16;
+
                 // Exponential backoff retry policy — tüm consumer'lara uygulanır
+                // After 3 retries, message moves to {queue}_error (MassTransit default DLQ)
                 cfg.UseMessageRetry(r => r.Exponential(
                     retryLimit: 3,
                     minInterval: TimeSpan.FromSeconds(1),
                     maxInterval: TimeSpan.FromSeconds(30),
                     intervalDelta: TimeSpan.FromSeconds(2)));
+
+                // Redelivery: delayed re-attempt after retry exhaustion (before DLQ)
+                cfg.UseDelayedRedelivery(r => r.Intervals(
+                    TimeSpan.FromMinutes(1),
+                    TimeSpan.FromMinutes(5),
+                    TimeSpan.FromMinutes(15)));
 
                 // İ-13: Idempotency filter — tüm consumer'lara otomatik uygulanır
                 cfg.UseConsumeFilter(typeof(IdempotencyFilter<>), context);
