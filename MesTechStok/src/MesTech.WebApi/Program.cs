@@ -515,6 +515,7 @@ CargoEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
 SeedEndpoints.Map(app);
+DemoEndpoints.Map(app);
 WarehouseEndpoints.Map(app);
 CalendarEndpoints.Map(app);
 ProjectEndpoints.Map(app);

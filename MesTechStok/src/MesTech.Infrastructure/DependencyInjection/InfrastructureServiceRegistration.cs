@@ -320,6 +320,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<DataSeeder>();
         services.AddScoped<DemoDataSeeder>();
         services.AddScoped<AhmetBeyDemoSeeder>();
+        services.AddScoped<Services.DemoModeService>();
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
