@@ -30,14 +30,14 @@
         </StackPanel>
 
         <!-- Status: MFA Already Enabled -->
-        <Border IsVisible="{Binding IsMfaEnabled}" Background="#E8F5E9" CornerRadius="{StaticResource MesRadiusLg}"
+        <Border IsVisible="{Binding IsMfaEnabled}" Background="{DynamicResource MesBgSuccessLight}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="20">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="✅" FontSize="24" VerticalAlignment="Center" />
                 <StackPanel Spacing="4">
-                    <TextBlock Text="MFA Aktif" FontWeight="Bold" FontSize="16" Foreground="#2E7D32" />
+                    <TextBlock Text="MFA Aktif" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource MesGreenSuccess}" />
                     <TextBlock Text="Hesabiniz iki faktorlu kimlik dogrulama ile korunuyor."
-                               FontSize="{StaticResource FontSizeSmall}" Foreground="#388E3C" />
+                               FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesGreenSuccess}" />
                 </StackPanel>
             </StackPanel>
         </Border>

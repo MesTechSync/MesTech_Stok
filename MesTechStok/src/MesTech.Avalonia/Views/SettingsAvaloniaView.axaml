@@ -218,7 +218,7 @@
                             <Button Content="🌙 Koyu" Padding="16,10" CornerRadius="12"
                                     FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
                                     Command="{Binding SetThemeCommand}" CommandParameter="Dark"
-                                    Background="#1E293B" Foreground="White" />
+                                    Background="{DynamicResource MesDarkSlate}" Foreground="{DynamicResource MesBgPrimary}" />
                             <Button Content="💻 Sistem" Padding="16,10" CornerRadius="12"
                                     FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
                                     Command="{Binding SetThemeCommand}" CommandParameter="System"
