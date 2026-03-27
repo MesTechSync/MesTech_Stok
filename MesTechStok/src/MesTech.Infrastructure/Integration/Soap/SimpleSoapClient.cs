@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -83,7 +84,10 @@ public sealed class SimpleSoapClient
             throw new HttpRequestException($"SOAP request failed: {response.StatusCode}");
         }
 
-        var responseDoc = XDocument.Parse(responseContent);
+        var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+        using var stringReader = new System.IO.StringReader(responseContent);
+        using var xmlReader = XmlReader.Create(stringReader, readerSettings);
+        var responseDoc = XDocument.Load(xmlReader);
         var responseBody = responseDoc.Descendants(SoapEnv + "Body").FirstOrDefault();
 
         if (responseBody is null)
