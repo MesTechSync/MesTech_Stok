@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MesTech.Avalonia.Controls.PlanBadgeControl">
+
+    <!-- G091: Plan Badge — sağ üst köşede tier göstergesi -->
+    <!-- Light=gri, Pro=mavi gradient, Ultra=altın gradient -->
+
+    <Border x:Name="BadgeBorder" CornerRadius="16" Padding="12,6" Margin="4"
+            HorizontalAlignment="Right" VerticalAlignment="Center" Cursor="Hand"
+            ToolTip.Tip="Plan bilgisi — tıklayarak değiştirebilirsiniz">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock x:Name="BadgeIcon" FontSize="14" VerticalAlignment="Center" />
+            <TextBlock x:Name="BadgeText" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" />
+        </StackPanel>
+    </Border>
+</UserControl>
