@@ -134,7 +134,7 @@ public sealed class SupplierFeedSyncJob
                 try
                 {
                     var (product, wasUpdated, wasDeactivated) = await ProcessParsedProductAsync(
-                        feed, parsedProduct, ct).ConfigureAwait(false);
+                        feed, parsedProduct, existingBySku, ct).ConfigureAwait(false);
 
                     if (wasUpdated)
                     {
@@ -183,13 +183,13 @@ public sealed class SupplierFeedSyncJob
     }
 
     private async Task<(Product product, bool wasUpdated, bool wasDeactivated)> ProcessParsedProductAsync(
-        SupplierFeed feed, ParsedProduct parsed, CancellationToken ct)
+        SupplierFeed feed, ParsedProduct parsed, Dictionary<string, Product> preloadedBySku, CancellationToken ct)
     {
-        // Try to find existing product by SKU or Barcode
+        // Use pre-loaded dictionary first (G162 N+1 fix), fallback to DB for barcode-only matches
         Product? existing = null;
 
         if (!string.IsNullOrWhiteSpace(parsed.SKU))
-            existing = await _productRepository.GetBySKUAsync(parsed.SKU).ConfigureAwait(false);
+            preloadedBySku.TryGetValue(parsed.SKU, out existing);
 
         if (existing == null && !string.IsNullOrWhiteSpace(parsed.Barcode))
             existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode).ConfigureAwait(false);
