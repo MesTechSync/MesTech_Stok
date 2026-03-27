@@ -23,6 +23,12 @@ public sealed class DeleteCategoryHandler : IRequestHandler<DeleteCategoryComman
         if (category == null)
             return new CategoryCommandResult { IsSuccess = false, ErrorMessage = $"Category {request.Id} not found." };
 
+        // G173: FK dependency check — child record varsa silme
+        if (category.Products.Count > 0)
+            return new CategoryCommandResult { IsSuccess = false, ErrorMessage = $"Category has {category.Products.Count} products — move or delete them first." };
+        if (category.SubCategories.Count > 0)
+            return new CategoryCommandResult { IsSuccess = false, ErrorMessage = $"Category has {category.SubCategories.Count} subcategories — reassign them first." };
+
         await _categoryRepository.DeleteAsync(request.Id).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
