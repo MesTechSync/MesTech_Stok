@@ -11,6 +11,7 @@ public sealed class GetPlatformSyncStatusHandler
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IAdapterFactory _adapterFactory;
+    private readonly IPlatformHealthProvider? _healthProvider;
 
     private static readonly Dictionary<PlatformType, string> PlatformNames = new()
     {
@@ -31,10 +32,12 @@ public sealed class GetPlatformSyncStatusHandler
 
     public GetPlatformSyncStatusHandler(
         IStoreRepository storeRepository,
-        IAdapterFactory adapterFactory)
+        IAdapterFactory adapterFactory,
+        IPlatformHealthProvider? healthProvider = null)
     {
         _storeRepository = storeRepository;
         _adapterFactory = adapterFactory;
+        _healthProvider = healthProvider;
     }
 
     public async Task<List<PlatformSyncStatusDto>> Handle(
@@ -73,15 +76,30 @@ public sealed class GetPlatformSyncStatusHandler
                 healthColor = "#ffc107";
             }
 
+            // Enrich with real health data from PlatformHealthHistory (if available)
+            var health = _healthProvider?.GetHealthSummary(platformName.ToLowerInvariant())
+                      ?? _healthProvider?.GetHealthSummary(platform.ToString().ToLowerInvariant());
+            if (health is not null)
+            {
+                healthStatus = health.UptimePercent24h >= 95 ? "Healthy"
+                    : health.UptimePercent24h >= 70 ? "Warning" : "Error";
+                healthColor = healthStatus switch
+                {
+                    "Healthy" => "#28a745",
+                    "Warning" => "#ffc107",
+                    _ => "#dc3545"
+                };
+            }
+
             result.Add(new PlatformSyncStatusDto
             {
                 Platform = platform,
                 PlatformName = platformName,
                 StoreCount = stores.Count,
-                LastSyncAt = null, // Requires sync log — placeholder
-                LastSuccessAt = null,
-                LastError = null,
-                ErrorCountToday = 0,
+                LastSyncAt = health?.LastCheckUtc,
+                LastSuccessAt = health is { FailedChecks24h: 0 } ? health.LastCheckUtc : null,
+                LastError = health is { FailedChecks24h: > 0 } ? $"{health.FailedChecks24h} hata (24s)" : null,
+                ErrorCountToday = health?.FailedChecks24h ?? 0,
                 HealthStatus = healthStatus,
                 HealthColor = healthColor
             });
