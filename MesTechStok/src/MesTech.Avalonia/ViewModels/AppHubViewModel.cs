@@ -7,6 +7,7 @@ using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
+using MesTech.Avalonia.Services;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -22,6 +23,7 @@ public partial class AppHubViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<AppHubViewModel> _logger;
+    private readonly IMesTechApiClient? _apiClient;
 
     // === Günlük Özet KPI ===
     [ObservableProperty] private int todayOrderCount;
@@ -39,10 +41,11 @@ public partial class AppHubViewModel : ViewModelBase
     // === Sağ Panel: Servis Durumu ===
     public ObservableCollection<ServiceStatusItem> ServiceStatuses { get; } = [];
 
-    public AppHubViewModel(IMediator mediator, ILogger<AppHubViewModel> logger)
+    public AppHubViewModel(IMediator mediator, ILogger<AppHubViewModel> logger, IMesTechApiClient? apiClient = null)
     {
         _mediator = mediator;
         _logger = logger;
+        _apiClient = apiClient;
     }
 
     public override async Task LoadAsync()
@@ -173,6 +176,52 @@ public partial class AppHubViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    // === Quick Actions (G107: DEV6 API methods) ===
+
+    [ObservableProperty] private string quickActionStatus = string.Empty;
+
+    [RelayCommand]
+    private async Task SyncAllPlatformsAsync()
+    {
+        QuickActionStatus = "Senkronizasyon baslatiliyor...";
+        try
+        {
+            if (_apiClient != null)
+            {
+                var ok = await _apiClient.TriggerPlatformSyncAsync(Guid.Empty, "all");
+                QuickActionStatus = ok ? "Senkronizasyon basarili!" : "Senkronizasyon basarisiz.";
+            }
+            else
+                QuickActionStatus = "API baglantisi yok.";
+        }
+        catch (Exception ex)
+        {
+            QuickActionStatus = $"Hata: {ex.Message}";
+            _logger.LogWarning(ex, "Platform sync failed");
+        }
+    }
+
+    [RelayCommand]
+    private async Task CreateQuickInvoiceAsync()
+    {
+        QuickActionStatus = "Fatura olusturuluyor...";
+        try
+        {
+            if (_apiClient != null)
+            {
+                var ok = await _apiClient.CreateQuickInvoiceAsync(Guid.Empty, Guid.Empty);
+                QuickActionStatus = ok ? "Fatura olusturuldu!" : "Fatura olusturulamadi.";
+            }
+            else
+                QuickActionStatus = "API baglantisi yok.";
+        }
+        catch (Exception ex)
+        {
+            QuickActionStatus = $"Hata: {ex.Message}";
+            _logger.LogWarning(ex, "Quick invoice failed");
+        }
+    }
 }
 
 // === DTO Records ===

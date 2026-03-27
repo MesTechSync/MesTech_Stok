@@ -261,7 +261,8 @@
                 </Button>
                 <Button Padding="16,10" CornerRadius="{StaticResource MesRadiusMd}"
                         Background="{DynamicResource MesPurpleAccent}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" ToolTip.Tip="E-fatura olustur">
+                        FontWeight="SemiBold" ToolTip.Tip="E-fatura olustur"
+                        Command="{Binding CreateQuickInvoiceCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="🧾" FontSize="16" />
                         <TextBlock Text="Fatura Kes" VerticalAlignment="Center" />
@@ -269,13 +270,18 @@
                 </Button>
                 <Button Padding="16,10" CornerRadius="{StaticResource MesRadiusMd}"
                         Background="{DynamicResource MesAmberDark}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" ToolTip.Tip="Tum platformlari senkronize et">
+                        FontWeight="SemiBold" ToolTip.Tip="Tum platformlari senkronize et"
+                        Command="{Binding SyncAllPlatformsCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="🔄" FontSize="16" />
                         <TextBlock Text="Senkron Et" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </StackPanel>
+            <!-- Quick action status -->
+            <TextBlock Text="{Binding QuickActionStatus}" FontSize="{StaticResource FontSizeCaption}"
+                       Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center"
+                       Margin="0,8,0,0" IsVisible="{Binding QuickActionStatus.Length}" />
         </Border>
 
     </Grid>
