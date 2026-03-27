@@ -824,6 +824,72 @@
                                 </StackPanel>
                             </Button>
 
+                            <!-- ═══ G149: Eksik sidebar navigasyonları ═══ -->
+
+                            <!-- Pazaryeri Detay -->
+                            <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
+                            <TextBlock Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                                       Margin="20,8,0,4" />
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Trendyol"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Hepsiburada"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="N11"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ciceksepeti"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Amazon TR"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="OpenCart"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
+                            </Button>
+
+                            <!-- Kampanya & Araçlar -->
+                            <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
+                            <TextBlock Text="ARACLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                                       Margin="20,8,0,4" />
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar"
+                                    IsVisible="{Binding ShowMultiPlatform}">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="Kampanyalar"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Export" ToolTip.Tip="Dışa Aktar"
+                                    IsVisible="{Binding ShowExport}">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Disa Aktar"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
+                            </Button>
+
+                            <!-- Sistem Yönetimi -->
+                            <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
+                            <TextBlock Text="SISTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                                       Margin="20,8,0,4" />
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi"
+                                    IsVisible="{Binding ShowHealthMonitor}">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="LogViewer" ToolTip.Tip="Log Izleyici"
+                                    IsVisible="{Binding ShowLogViewer}">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Log Izleyici"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Denetim Kaydi"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="MFA Ayarlari"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Yedekleme"/></StackPanel>
+                            </Button>
+
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
                             <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Cikis">
