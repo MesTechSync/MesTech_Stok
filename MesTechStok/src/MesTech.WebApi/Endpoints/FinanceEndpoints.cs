@@ -37,6 +37,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetProfitLoss")
         .WithSummary("Aylık kâr/zarar raporu")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/cash-flow — aylık nakit akışı raporu
@@ -50,6 +51,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetCashFlow")
         .WithSummary("Aylık nakit akışı raporu")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/budget-summary — bütçe özet raporu
@@ -63,6 +65,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetBudgetSummary")
         .WithSummary("Bütçe özet raporu")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/finance/expenses/{id}/approve
@@ -74,7 +77,7 @@ public static class FinanceEndpoints
             return Results.NoContent();
         })
         .WithName("ApproveExpense")
-        .WithSummary("Masrafı onayla");
+        .WithSummary("Masrafı onayla").Produces(200).Produces(400);
 
         // POST /api/v1/finance/expenses/{id}/pay
         group.MapPost("/expenses/{id:guid}/pay", async (
@@ -85,7 +88,7 @@ public static class FinanceEndpoints
             return Results.NoContent();
         })
         .WithName("MarkExpensePaid")
-        .WithSummary("Masrafı ödenmiş olarak işaretle");
+        .WithSummary("Masrafı ödenmiş olarak işaretle").Produces(200).Produces(400);
 
         // POST /api/v1/finance/cash-registers/{id}/close — gün sonu kasa kapama
         group.MapPost("/cash-registers/{id:guid}/close", async (
@@ -100,7 +103,7 @@ public static class FinanceEndpoints
             });
         })
         .WithName("CloseCashRegister")
-        .WithSummary("Kasa gun sonu — bakiye dogrulama + rapor");
+        .WithSummary("Kasa gun sonu — bakiye dogrulama + rapor").Produces(200).Produces(400);
 
         // ─── DEFTER KAPATMA: 4 eksik finance endpoint [ENT-DEV6] ───
 
@@ -115,6 +118,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetCashRegisters")
         .WithSummary("Kasa listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/finance/cash-registers — yeni kasa oluştur
@@ -126,7 +130,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/cash-registers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCashRegister")
-        .WithSummary("Yeni kasa tanımla");
+        .WithSummary("Yeni kasa tanımla").Produces(200).Produces(400);
 
         // POST /api/v1/finance/expenses — yeni masraf kaydı
         group.MapPost("/expenses", async (
@@ -137,7 +141,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateExpense")
-        .WithSummary("Yeni masraf kaydı oluştur");
+        .WithSummary("Yeni masraf kaydı oluştur").Produces(200).Produces(400);
 
         // POST /api/v1/finance/cash-transactions — kasa hareketi kaydet
         group.MapPost("/cash-transactions", async (
@@ -148,7 +152,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/cash-transactions/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCashTransaction")
-        .WithSummary("Kasa hareketi kaydet (giriş/çıkış)");
+        .WithSummary("Kasa hareketi kaydet (giriş/çıkış)").Produces(200).Produces(400);
 
         // ─── GELIR/GIDER ENDPOINT'LERI [ENT-DEV6] ───
 
@@ -165,6 +169,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetExpenses")
         .WithSummary("Masraf listesi (tarih + tip filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expenses — gelir/gider listesi
@@ -178,6 +183,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetIncomeExpenseList")
         .WithSummary("Gelir/gider listesi (sayfalanmış)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expense-summary — gelir/gider özeti
@@ -191,6 +197,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetIncomeExpenseSummary")
         .WithSummary("Gelir/gider özet raporu")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/kar-zarar — kâr/zarar raporu
@@ -204,6 +211,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetKarZarar")
         .WithSummary("Kâr/zarar raporu (tarih aralığı)")
+        .Produces(200)
         .CacheOutput("Report120s");
     }
 }
