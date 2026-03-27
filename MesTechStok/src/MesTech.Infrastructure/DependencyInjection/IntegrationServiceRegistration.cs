@@ -227,8 +227,7 @@ public static class IntegrationServiceRegistration
             new SovosInvoiceProvider(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Sovos),
                 sp.GetRequiredService<ILogger<SovosInvoiceProvider>>(),
-                sp.GetRequiredService<IUblTrXmlBuilder>(),
-                sp.GetRequiredService<IUblTrXmlValidator>()));
+                sp.GetRequiredService<IUblTrXmlBuilder>()));
         services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
         services.AddScoped<IEInvoiceProvider>(sp => sp.GetRequiredService<SovosInvoiceProvider>());
         services.AddScoped<ParasutInvoiceProvider>(sp =>
