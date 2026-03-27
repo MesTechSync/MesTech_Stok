@@ -18,11 +18,15 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Kestrel request size limits — prevent resource exhaustion (KEŞİF-DEV6)
+// Kestrel request + connection limits — prevent resource exhaustion (KEŞİF-DEV6 + DEV4-TUR25)
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = 50 * 1024 * 1024; // 50 MB (bulk import + file upload)
     options.Limits.MaxRequestHeadersTotalSize = 16 * 1024; // 16 KB headers
+    options.Limits.MaxConcurrentConnections = 500;          // Slowloris protection
+    options.Limits.MaxConcurrentUpgradedConnections = 100;  // WebSocket/SignalR limit
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(30);
 });
 
 // Development: skip DI validation (some repos not yet implemented)
@@ -193,7 +197,14 @@ builder.Services.AddOutputCache(options =>
 });
 
 // SignalR real-time bildirim hub'i (G-02)
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 64 * 1024; // 64KB (dashboard JSON payloads)
+    options.KeepAliveInterval = TimeSpan.FromSeconds(30);
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+    options.MaximumParallelInvocationsPerClient = 4;
+    options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+});
 
 // JWT SignalR auth — query string token support
 builder.Services.AddAuthentication().AddJwtBearer(options =>
@@ -422,6 +433,22 @@ app.UseRateLimiter();
 
 // Request timeout middleware — cancels long-running requests (KEŞİF-DEV6-T7)
 app.UseRequestTimeouts();
+
+// PageSize guard — clamp all pageSize query params to [1, 200] (G163 — DEV6-TUR30)
+app.Use(async (context, next) =>
+{
+    if (context.Request.Query.ContainsKey("pageSize"))
+    {
+        var qs = context.Request.Query.ToDictionary(q => q.Key, q => q.Value);
+        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && ps > 200)
+        {
+            qs["pageSize"] = new Microsoft.Extensions.Primitives.StringValues(
+                Math.Clamp(ps, 1, 200).ToString());
+            context.Request.QueryString = QueryString.Create(qs!);
+        }
+    }
+    await next();
+});
 
 // Output cache middleware — after auth, before endpoints (KEŞİF-DEV6-T7)
 app.UseOutputCache();
