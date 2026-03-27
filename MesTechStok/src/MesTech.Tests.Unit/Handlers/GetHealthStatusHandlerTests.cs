@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Features.Health.Queries.GetHealthStatus;
-using MesTech.Application.Interfaces.Services;
+using MesTech.Application.Interfaces;
 using Moq;
 
 namespace MesTech.Tests.Unit.Handlers;

@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Features.Crm.Queries.GetBitrix24Pipeline;
-using MesTech.Application.Interfaces.Crm;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Features.Accounting.Queries.GetCargoComparison;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Accounting.Queries.GetFixedExpenseById;

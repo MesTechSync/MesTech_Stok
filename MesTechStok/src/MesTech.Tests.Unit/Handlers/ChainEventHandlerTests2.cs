@@ -96,44 +96,7 @@ public class InvoiceApprovedGLHandlerTests
 
 #endregion
 
-#region InvoiceCancelledReversalHandler
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "Chain")]
-public class InvoiceCancelledReversalHandlerTests
-{
-    private readonly Mock<IUnitOfWork> _uowMock = new();
-    private readonly InvoiceCancelledReversalHandler _sut;
-
-    public InvoiceCancelledReversalHandlerTests()
-    {
-        _sut = new InvoiceCancelledReversalHandler(
-            _uowMock.Object, Mock.Of<ILogger<InvoiceCancelledReversalHandler>>());
-    }
-
-    [Fact]
-    public async Task HandleAsync_ValidCancellation_CreatesReversalEntry()
-    {
-        await _sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), "INV-003",
-            "Müşteri iadesi", Guid.NewGuid(), 2400m, CancellationToken.None);
-
-        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task HandleAsync_NullReason_StillCreatesEntry()
-    {
-        var act = () => _sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), "INV-004",
-            null, Guid.NewGuid(), 1000m, CancellationToken.None);
-
-        await act.Should().NotThrowAsync();
-        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-}
-
-#endregion
+// InvoiceCancelledReversalHandlerTests → canonical: Handlers/InvoiceCancelledReversalHandlerTests.cs
 
 #region ReturnApprovedStockRestorationHandler
 
