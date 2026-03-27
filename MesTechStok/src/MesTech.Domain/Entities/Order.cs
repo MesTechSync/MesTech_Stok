@@ -31,6 +31,8 @@ public sealed class Order : BaseEntity, ITenantEntity
     // Müşteri snapshot
     public string? CustomerName { get; set; }
     public string? CustomerEmail { get; set; }
+    public string? RecipientPhone { get; set; }
+    public string? ShippingAddress { get; set; }
 
     // Platform kaynagi
     public PlatformType? SourcePlatform { get; set; }
