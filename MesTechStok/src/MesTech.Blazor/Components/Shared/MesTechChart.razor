@@ -27,14 +27,25 @@
   public async Task RefreshAsync(object newData)
   {
     Data = newData;
-    if (_rendered)
+    try
     {
-      await JS.InvokeVoidAsync("updateChart", _canvasId, Data);
+      if (_rendered)
+      {
+        await JS.InvokeVoidAsync("updateChart", _canvasId, Data);
+      }
+      else
+      {
+        await RenderChart();
+        _rendered = true;
+      }
     }
-    else
+    catch (JSDisconnectedException)
     {
-      await RenderChart();
-      _rendered = true;
+      // Circuit disconnected during navigation — safe to ignore
+    }
+    catch (ObjectDisposedException)
+    {
+      // Component disposed during async operation
     }
   }
 

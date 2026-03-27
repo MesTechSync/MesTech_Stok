@@ -57,12 +57,18 @@
 </div>
 
 @code {
+  private bool _disposed;
+
   protected override void OnInitialized()
   {
     NotificationService.OnChange += HandleChange;
   }
 
-  private void HandleChange() => InvokeAsync(StateHasChanged);
+  private void HandleChange()
+  {
+    if (_disposed) return;
+    InvokeAsync(StateHasChanged);
+  }
 
   private void MarkRead() => NotificationService.MarkAllRead();
 
@@ -87,6 +93,7 @@
 
   public void Dispose()
   {
+    _disposed = true;
     NotificationService.OnChange -= HandleChange;
   }
 }
