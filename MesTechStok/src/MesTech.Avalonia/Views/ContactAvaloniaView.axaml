@@ -4,6 +4,10 @@
              x:Class="MesTech.Avalonia.Views.ContactAvaloniaView"
              x:DataType="vm:ContactAvaloniaViewModel">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->

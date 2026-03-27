@@ -4,6 +4,10 @@
              x:Class="MesTech.Avalonia.Views.ProductFetchAvaloniaView"
              x:DataType="vm:ProductFetchAvaloniaViewModel">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <!-- Urun Cekme — URL'den urun bilgisi cekme ve kaydetme -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">

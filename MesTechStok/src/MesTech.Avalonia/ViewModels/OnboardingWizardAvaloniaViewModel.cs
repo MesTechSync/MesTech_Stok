@@ -78,6 +78,9 @@ public partial class OnboardingWizardAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task RefreshAsync() => LoadAsync();
+
+    [RelayCommand]
     private async Task RegisterAsync()
     {
         if (string.IsNullOrWhiteSpace(CompanyName) || string.IsNullOrWhiteSpace(AdminUsername)

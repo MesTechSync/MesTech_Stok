@@ -4,6 +4,10 @@
              x:Class="MesTech.Avalonia.Views.ExportAvaloniaView"
              x:DataType="vm:ExportAvaloniaViewModel">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <!-- Dışa Aktar — WPF011 -->
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">

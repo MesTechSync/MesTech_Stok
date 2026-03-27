@@ -4,6 +4,10 @@
              x:Class="MesTech.Avalonia.Views.FeedCreateAvaloniaView"
              x:DataType="vm:FeedCreateAvaloniaViewModel">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <!-- Feed Olusturma — URL, format, sync araligi, fiyat markup, kolon eslestirme -->
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">

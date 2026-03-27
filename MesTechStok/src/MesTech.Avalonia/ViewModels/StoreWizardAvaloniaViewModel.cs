@@ -102,6 +102,9 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task RefreshAsync() => LoadAsync();
+
+    [RelayCommand]
     private void SelectPlatform(WizardPlatformDto? platform)
     {
         if (platform is null) return;

@@ -71,6 +71,9 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task RefreshAsync() => LoadAsync();
+
+    [RelayCommand]
     private async Task SaveFeedAsync()
     {
         if (string.IsNullOrWhiteSpace(FeedName) || string.IsNullOrWhiteSpace(FeedUrl))

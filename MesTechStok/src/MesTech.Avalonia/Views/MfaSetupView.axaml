@@ -5,6 +5,10 @@
              x:DataType="vm:MfaSetupViewModel"
              AutomationProperties.Name="MFA Iki Faktorlu Kimlik Dogrulama Ayarlari">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <!-- STD006: MFA Setup — QR kod + TOTP doğrulama -->
 
     <Panel>

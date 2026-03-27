@@ -35,6 +35,9 @@ public partial class ExportAvaloniaViewModel : ViewModelBase
     public override Task LoadAsync() => Task.CompletedTask;
 
     [RelayCommand]
+    private Task RefreshAsync() => LoadAsync();
+
+    [RelayCommand]
     private async Task ExportAsync()
     {
         var selected = new List<string>();

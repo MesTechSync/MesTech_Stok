@@ -65,6 +65,9 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task RefreshAsync() => LoadAsync();
+
+    [RelayCommand]
     private async Task FetchProductAsync()
     {
         if (string.IsNullOrWhiteSpace(ProductUrl)) return;

@@ -4,6 +4,10 @@
              x:Class="MesTech.Avalonia.Views.StoreWizardAvaloniaView"
              x:DataType="vm:StoreWizardAvaloniaViewModel">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
     <!-- Magaza Ekleme Sihirbazi — 3 adim: Platform Sec → Kimlik → Test + Kaydet -->
 
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
