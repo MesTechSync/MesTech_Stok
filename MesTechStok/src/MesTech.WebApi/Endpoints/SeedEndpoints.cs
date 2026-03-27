@@ -54,7 +54,7 @@ public static class SeedEndpoints
             }
         })
         .WithName("SeedDemoData")
-        .WithSummary("Demo tenant + örnek veri oluştur (sadece Development)");
+        .WithSummary("Demo tenant + örnek veri oluştur (sadece Development)").Produces(200).Produces(400);
 
         // POST /api/seed/ahmet-bey — 14-step realistic end-to-end demo scenario (A-M3-03)
         group.MapPost("/seed/ahmet-bey", async (
@@ -92,7 +92,7 @@ public static class SeedEndpoints
             }
         })
         .WithName("SeedAhmetBeyDemo")
-        .WithSummary("Ahmet Bey 14 adımlı gerçekçi demo senaryosu (sadece Development)");
+        .WithSummary("Ahmet Bey 14 adımlı gerçekçi demo senaryosu (sadece Development)").Produces(200).Produces(400);
     }
 
     // ── Response Records ──

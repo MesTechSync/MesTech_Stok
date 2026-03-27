@@ -26,6 +26,7 @@ public static class BaBsEndpoints
         })
         .WithName("GenerateBaBsReport")
         .WithSummary("Ba/Bs beyanname raporu (VUK 396 — 5.000 TL ustu alis/satis)")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/babs-records — yeni Ba/Bs kaydi olustur
@@ -37,7 +38,7 @@ public static class BaBsEndpoints
             return Results.Created($"/api/v1/accounting/babs-records/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateBaBsRecord")
-        .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)");
+        .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)").Produces(200).Produces(400);
 
         // ─── V5 YENİ BA/BS ENDPOINT'LERİ [ENT-DEV6] ───
 
@@ -67,7 +68,7 @@ public static class BaBsEndpoints
             return Results.File(xmlBytes, "application/xml", fileName);
         })
         .WithName("ExportBaBsXml")
-        .WithSummary("Ba/Bs GİB XML dosyası export — VUK 396 formatında");
+        .WithSummary("Ba/Bs GİB XML dosyası export — VUK 396 formatında").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/babs-report/deadline — sonraki beyanname son tarihi
         group.MapGet("/deadline", (int? year, int? month) =>
@@ -96,6 +97,7 @@ public static class BaBsEndpoints
         })
         .WithName("GetBaBsDeadline")
         .WithSummary("Ba/Bs beyanname son tarihi hesapla (VUK 396)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 }

@@ -28,6 +28,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("GetEInvoices")
         .WithSummary("E-fatura listesi (tarih, durum, sağlayıcı filtresi)")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/e-invoices — yeni e-fatura oluştur
@@ -55,6 +56,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("GetEInvoiceById")
         .WithSummary("E-fatura detayı")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/e-invoices/{id}/send — e-fatura gönder
@@ -84,7 +86,7 @@ public static class EInvoiceEndpoints
                 : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura iptal edilemedi"));
         })
         .WithName("CancelEInvoice")
-        .WithSummary("E-fatura iptal et");
+        .WithSummary("E-fatura iptal et").Produces(200).Produces(400);
 
         // GET /api/v1/e-invoices/check-vkn/{vkn} — VKN mükellef sorgusu
         group.MapGet("/check-vkn/{vkn}", async (
@@ -97,6 +99,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("CheckVknMukellef")
         .WithSummary("VKN ile e-fatura mükellefi sorgula")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 }

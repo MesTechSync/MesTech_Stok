@@ -28,7 +28,7 @@ public static class FixedExpenseEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenses")
-        .WithSummary("Sabit gider listesi (aktif/pasif filtresi)");
+        .WithSummary("Sabit gider listesi (aktif/pasif filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/fixed-expenses/{id} — tek sabit gider
         group.MapGet("/{id:guid}", async (
@@ -39,7 +39,7 @@ public static class FixedExpenseEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenseById")
-        .WithSummary("Tek sabit gider detayi");
+        .WithSummary("Tek sabit gider detayi").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/fixed-expenses — yeni sabit gider olustur
         group.MapPost("/", async (
@@ -50,7 +50,7 @@ public static class FixedExpenseEndpoints
             return Results.Created($"/api/v1/accounting/fixed-expenses/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedExpense")
-        .WithSummary("Yeni sabit gider olustur");
+        .WithSummary("Yeni sabit gider olustur").Produces(200).Produces(400);
 
         // PUT /api/v1/accounting/fixed-expenses/{id} — sabit gider guncelle
         group.MapPut("/{id:guid}", async (
@@ -62,7 +62,7 @@ public static class FixedExpenseEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateFixedExpense")
-        .WithSummary("Sabit gider guncelle (tutar / aktiflik)");
+        .WithSummary("Sabit gider guncelle (tutar / aktiflik)").Produces(200).Produces(400);
 
         // DELETE /api/v1/accounting/fixed-expenses/{id} — sabit gider sil (soft delete)
         group.MapDelete("/{id:guid}", async (
@@ -72,6 +72,6 @@ public static class FixedExpenseEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteFixedExpense")
-        .WithSummary("Sabit gideri sil (soft delete)");
+        .WithSummary("Sabit gideri sil (soft delete)").Produces(200).Produces(400);
     }
 }

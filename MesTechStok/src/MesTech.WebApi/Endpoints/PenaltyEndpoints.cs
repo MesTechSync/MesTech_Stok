@@ -29,7 +29,7 @@ public static class PenaltyEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecords")
-        .WithSummary("Ceza kayitlari listesi (kaynak filtresi)");
+        .WithSummary("Ceza kayitlari listesi (kaynak filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/penalties/{id} — tek ceza kaydi
         group.MapGet("/{id:guid}", async (
@@ -40,7 +40,7 @@ public static class PenaltyEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecordById")
-        .WithSummary("Tek ceza kaydi detayi");
+        .WithSummary("Tek ceza kaydi detayi").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/penalties — yeni ceza kaydi olustur
         group.MapPost("/", async (
@@ -51,7 +51,7 @@ public static class PenaltyEndpoints
             return Results.Created($"/api/v1/accounting/penalties/{id}", new CreatedResponse(id));
         })
         .WithName("CreatePenaltyRecord")
-        .WithSummary("Yeni ceza kaydi olustur");
+        .WithSummary("Yeni ceza kaydi olustur").Produces(200).Produces(400);
 
         // PUT /api/v1/accounting/penalties/{id} — ceza kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -63,7 +63,7 @@ public static class PenaltyEndpoints
             return Results.NoContent();
         })
         .WithName("UpdatePenaltyRecord")
-        .WithSummary("Ceza kaydi odeme durumunu guncelle");
+        .WithSummary("Ceza kaydi odeme durumunu guncelle").Produces(200).Produces(400);
 
         // DELETE /api/v1/accounting/penalties/{id} — ceza kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (
@@ -73,6 +73,6 @@ public static class PenaltyEndpoints
             return Results.NoContent();
         })
         .WithName("DeletePenaltyRecord")
-        .WithSummary("Ceza kaydini sil (soft delete)");
+        .WithSummary("Ceza kaydini sil (soft delete)").Produces(200).Produces(400);
     }
 }

@@ -23,6 +23,7 @@ public static class PlatformListEndpoint
         })
         .WithName("GetPlatformList")
         .WithSummary("Kiracıya ait platform kartları listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 }

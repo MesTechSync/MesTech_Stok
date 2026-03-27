@@ -23,7 +23,7 @@ public static class LoyaltyEndpoints
             return Results.Ok(result);
         })
         .WithName("EarnPoints")
-        .WithSummary("Musteriye puan kazan");
+        .WithSummary("Musteriye puan kazan").Produces(200).Produces(400);
 
         group.MapPost("/redeem", async (
             RedeemPointsCommand cmd,
@@ -34,7 +34,7 @@ public static class LoyaltyEndpoints
             return Results.Ok(result);
         })
         .WithName("RedeemPoints")
-        .WithSummary("Musteri puani kullan");
+        .WithSummary("Musteri puani kullan").Produces(200).Produces(400);
 
         group.MapGet("/{tenantId:guid}/{customerId:guid}", async (
             Guid tenantId,
@@ -47,6 +47,6 @@ public static class LoyaltyEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCustomerPoints")
-        .WithSummary("Musteri puan bakiyesi");
+        .WithSummary("Musteri puan bakiyesi").Produces(200).Produces(400);
     }
 }

@@ -22,7 +22,7 @@ public static class FeedPreviewEndpoint
             return Results.Ok(result);
         })
         .WithName("PreviewFeed")
-        .WithSummary("Feed kaynağını ön izle (ilk N ürün)");
+        .WithSummary("Feed kaynağını ön izle (ilk N ürün)").Produces(200).Produces(400);
 
         // POST /api/v1/feeds/{id}/import — feed'den ürün içe aktar
         group.MapPost("/{id:guid}/import", async (
@@ -35,7 +35,7 @@ public static class FeedPreviewEndpoint
             return Results.Ok(result);
         })
         .WithName("ImportFromFeed")
-        .WithSummary("Feed'den seçili ürünleri içe aktar");
+        .WithSummary("Feed'den seçili ürünleri içe aktar").Produces(200).Produces(400);
     }
 
     /// <summary>

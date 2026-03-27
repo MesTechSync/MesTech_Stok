@@ -28,7 +28,7 @@ public static class BarcodeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("SearchByBarcode")
-        .WithSummary("Barkod ile ürün ara");
+        .WithSummary("Barkod ile ürün ara").Produces(200).Produces(400);
 
         // POST /api/v1/barcodes/scan-log — barkod tarama kaydı oluştur
         group.MapPost("/scan-log", async (
@@ -41,7 +41,7 @@ public static class BarcodeEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateBarcodeScanLog")
-        .WithSummary("Barkod tarama olayı kaydet");
+        .WithSummary("Barkod tarama olayı kaydet").Produces(200).Produces(400);
 
         // GET /api/v1/barcodes/scan-logs — barkod tarama geçmişi
         group.MapGet("/scan-logs", async (
@@ -54,6 +54,6 @@ public static class BarcodeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetBarcodeScanLogs")
-        .WithSummary("Barkod tarama geçmişi (sayfalanmış)");
+        .WithSummary("Barkod tarama geçmişi (sayfalanmış)").Produces(200).Produces(400);
     }
 }

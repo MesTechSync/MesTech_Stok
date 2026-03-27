@@ -27,7 +27,7 @@ public static class ReturnEndpoints
             });
         })
         .WithName("ApproveReturn")
-        .WithSummary("Iade onay — stok geri + muhasebe ters kayit");
+        .WithSummary("Iade onay — stok geri + muhasebe ters kayit").Produces(200).Produces(400);
 
         group.MapPost("/{id:guid}/reject", async (
             Guid id,
@@ -39,7 +39,7 @@ public static class ReturnEndpoints
             return Results.Ok(new StatusResponse("Rejected", body.Reason));
         })
         .WithName("RejectReturn")
-        .WithSummary("Iade red — sebep zorunlu");
+        .WithSummary("Iade red — sebep zorunlu").Produces(200).Produces(400);
     }
 
     public record RejectReturnBody(string Reason);

@@ -36,6 +36,7 @@ public static class CrmLeadsEndpoint
         })
         .WithName("SearchLeads")
         .WithSummary("Lead arama — durum, atanan kişi filtresi (EMR-09)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/leads-new — create a new lead with full details
@@ -48,6 +49,6 @@ public static class CrmLeadsEndpoint
             return Results.Created($"/api/v1/crm/leads/{id}", new CreatedResponse(id));
         })
         .WithName("CreateLeadFull")
-        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)");
+        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)").Produces(200).Produces(400);
     }
 }

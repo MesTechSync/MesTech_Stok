@@ -33,6 +33,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipSuppliers")
         .WithSummary("Dropship tedarikçi listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/suppliers — yeni tedarikçi oluştur
@@ -44,7 +45,7 @@ public static class DropshippingEndpoints
             return Results.Created($"/api/v1/dropshipping/suppliers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateDropshipSupplier")
-        .WithSummary("Yeni dropship tedarikçi oluştur");
+        .WithSummary("Yeni dropship tedarikçi oluştur").Produces(200).Produces(400);
 
         // POST /api/v1/dropshipping/suppliers/{id}/sync — ürün senkronizasyonu tetikle
         group.MapPost("/{id:guid}/sync", async (
@@ -56,7 +57,7 @@ public static class DropshippingEndpoints
             return Results.Ok(new SyncResponse(id, syncedCount));
         })
         .WithName("SyncDropshipProducts")
-        .WithSummary("Tedarikçi ürün senkronizasyonu başlat");
+        .WithSummary("Tedarikçi ürün senkronizasyonu başlat").Produces(200).Produces(400);
 
         // ---- Product-level endpoints under /api/v1/dropshipping ----
         var productsGroup = app.MapGroup("/api/v1/dropshipping/products")
@@ -74,6 +75,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipProducts")
         .WithSummary("Dropship ürün listesi (linked/unlinked filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/products/{id}/link — ürün eşleştir
@@ -86,7 +88,7 @@ public static class DropshippingEndpoints
             return Results.NoContent();
         })
         .WithName("LinkDropshipProduct")
-        .WithSummary("Dropship ürününü MesTech ürünüyle eşleştir");
+        .WithSummary("Dropship ürününü MesTech ürünüyle eşleştir").Produces(200).Produces(400);
 
         // ---- Order-level endpoints under /api/v1/dropshipping ----
         var ordersGroup = app.MapGroup("/api/v1/dropshipping/orders")
@@ -104,6 +106,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipOrders")
         .WithSummary("Dropship sipariş listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/orders — yeni dropship siparişi oluştur
@@ -115,7 +118,7 @@ public static class DropshippingEndpoints
             return Results.Created($"/api/v1/dropshipping/orders/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("PlaceDropshipOrder")
-        .WithSummary("Dropship sipariş kaydı oluştur");
+        .WithSummary("Dropship sipariş kaydı oluştur").Produces(200).Produces(400);
 
         // ---- Lifecycle endpoints under /api/v1/dropshipping ----
         var lifecycleGroup = app.MapGroup("/api/v1/dropshipping")
@@ -133,6 +136,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetSupplierPerformance")
         .WithSummary("Tedarikçi performans raporu (fulfillment, hız, rating)")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/dropshipping/auto-order — düşük stoklu ürünler için otomatik sipariş
@@ -144,7 +148,7 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("CreateAutoOrder")
-        .WithSummary("Minimum stok altındaki ürünler için otomatik dropship sipariş oluştur");
+        .WithSummary("Minimum stok altındaki ürünler için otomatik dropship sipariş oluştur").Produces(200).Produces(400);
 
         // POST /api/v1/dropshipping/price-sync — tedarikçi fiyat senkronizasyonu
         lifecycleGroup.MapPost("/price-sync", async (
@@ -155,7 +159,7 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("SyncSupplierPrices")
-        .WithSummary("Tedarikçi feed'inden fiyat senkronizasyonu başlat");
+        .WithSummary("Tedarikçi feed'inden fiyat senkronizasyonu başlat").Produces(200).Produces(400);
     }
 
     /// <summary>

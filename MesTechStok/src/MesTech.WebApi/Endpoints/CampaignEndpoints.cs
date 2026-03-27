@@ -25,7 +25,7 @@ public static class CampaignEndpoints
             return Results.Created($"/api/v1/campaigns/{result}", new CreatedResponse(result));
         })
         .WithName("CreateCampaign")
-        .WithSummary("Yeni kampanya olustur");
+        .WithSummary("Yeni kampanya olustur").Produces(200).Produces(400);
 
         group.MapGet("/", async (
             Guid tenantId,
@@ -37,7 +37,7 @@ public static class CampaignEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("ListCampaigns")
-        .WithSummary("Aktif kampanya listesi");
+        .WithSummary("Aktif kampanya listesi").Produces(200).Produces(400);
 
         group.MapGet("/discount", async (
             Guid productId,
@@ -50,7 +50,7 @@ public static class CampaignEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("CalculateDiscount")
-        .WithSummary("Urun icin kampanya indirimi hesapla");
+        .WithSummary("Urun icin kampanya indirimi hesapla").Produces(200).Produces(400);
 
         group.MapDelete("/{id:guid}", async (
             Guid id,
@@ -61,6 +61,6 @@ public static class CampaignEndpoints
             return Results.NoContent();
         })
         .WithName("DeactivateCampaign")
-        .WithSummary("Kampanyayi pasife al");
+        .WithSummary("Kampanyayi pasife al").Produces(200).Produces(400);
     }
 }

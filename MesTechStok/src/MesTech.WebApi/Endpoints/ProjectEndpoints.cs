@@ -29,6 +29,7 @@ public static class ProjectEndpoints
         })
         .WithName("GetProjects")
         .WithSummary("Proje listesi (tenant bazlı)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/projects — yeni proje oluştur
@@ -40,7 +41,7 @@ public static class ProjectEndpoints
             return Results.Created($"/api/v1/projects/{id}", new CreatedResponse(id));
         })
         .WithName("CreateProject")
-        .WithSummary("Yeni proje oluştur");
+        .WithSummary("Yeni proje oluştur").Produces(200).Produces(400);
 
         // GET /api/v1/projects/{id}/tasks — projeye ait görev listesi
         group.MapGet("/{id:guid}/tasks", async (
@@ -53,6 +54,7 @@ public static class ProjectEndpoints
         })
         .WithName("GetProjectTasks")
         .WithSummary("Projeye ait görev listesi (durum + atanan filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/projects/tasks — yeni görev oluştur
@@ -64,7 +66,7 @@ public static class ProjectEndpoints
             return Results.Created($"/api/v1/projects/tasks/{id}", new CreatedResponse(id));
         })
         .WithName("CreateWorkTask")
-        .WithSummary("Yeni iş görevi oluştur");
+        .WithSummary("Yeni iş görevi oluştur").Produces(200).Produces(400);
 
         // POST /api/v1/projects/tasks/{taskId}/complete — görevi tamamla
         group.MapPost("/tasks/{taskId:guid}/complete", async (
@@ -75,6 +77,6 @@ public static class ProjectEndpoints
             return Results.NoContent();
         })
         .WithName("CompleteTask")
-        .WithSummary("Görevi tamamlandı olarak işaretle");
+        .WithSummary("Görevi tamamlandı olarak işaretle").Produces(200).Produces(400);
     }
 }

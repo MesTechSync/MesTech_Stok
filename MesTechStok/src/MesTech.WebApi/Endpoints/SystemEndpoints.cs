@@ -28,7 +28,7 @@ public static class SystemEndpoints
             return Results.Ok(result);
         })
         .WithName("GetAuditLogs")
-        .WithSummary("Erişim ve denetim logları (tarih/kullanıcı/aksiyon filtresi)");
+        .WithSummary("Erişim ve denetim logları (tarih/kullanıcı/aksiyon filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/system/backups — yedek geçmişi
         group.MapGet("/backups", async (
@@ -39,7 +39,7 @@ public static class SystemEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBackupHistory")
-        .WithSummary("Yedekleme geçmişi (son N kayıt)");
+        .WithSummary("Yedekleme geçmişi (son N kayıt)").Produces(200).Produces(400);
 
         // GET /api/v1/system/rate-limit-status — API kota durumu
         group.MapGet("/rate-limit-status", (HttpContext httpContext) =>
@@ -56,7 +56,7 @@ public static class SystemEndpoints
             });
         })
         .WithName("GetRateLimitStatus")
-        .WithSummary("API rate limit kota bilgisi");
+        .WithSummary("API rate limit kota bilgisi").Produces(200).Produces(400);
 
         // ── N8N / Automation Webhook Endpoints (G130) ──
 
@@ -125,6 +125,6 @@ public static class SystemEndpoints
             }));
         })
         .WithName("GetAutomationStatus")
-        .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi");
+        .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi").Produces(200).Produces(400);
     }
 }

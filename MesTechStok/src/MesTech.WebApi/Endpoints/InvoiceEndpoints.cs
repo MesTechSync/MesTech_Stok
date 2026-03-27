@@ -58,6 +58,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoices")
         .WithSummary("Fatura listesi (tip, durum, platform, tarih filtresi)")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/invoices/{id}/approve — fatura onayla
@@ -71,7 +72,7 @@ public static class InvoiceEndpoints
                 : Results.BadRequest(new EntityActionResponse(id, "Failed", "Fatura onaylanamadı"));
         })
         .WithName("ApproveInvoice")
-        .WithSummary("Fatura onayla");
+        .WithSummary("Fatura onayla").Produces(200).Produces(400);
 
         // POST /api/v1/invoices/bulk — toplu fatura oluştur
         group.MapPost("/bulk", async (
@@ -82,7 +83,7 @@ public static class InvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("BulkCreateInvoice")
-        .WithSummary("Toplu fatura oluştur (sipariş ID listesi)");
+        .WithSummary("Toplu fatura oluştur (sipariş ID listesi)").Produces(200).Produces(400);
 
         // GET /api/v1/invoices/providers — fatura sağlayıcı durumları
         group.MapGet("/providers", async (
@@ -93,6 +94,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceProviders")
         .WithSummary("Fatura sağlayıcı listesi ve durumları")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/invoices/report — fatura raporu
@@ -106,6 +108,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceReport")
         .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)")
+        .Produces(200)
         .CacheOutput("Report120s");
     }
 }

@@ -27,7 +27,7 @@ public static class CategoryMappingEndpoint
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCategoryMappings")
-        .WithSummary("Platform bazlı kategori eşleştirme listesi");
+        .WithSummary("Platform bazlı kategori eşleştirme listesi").Produces(200).Produces(400);
 
         // POST /api/v1/category-mappings — yeni kategori eşleştirmesi oluştur
         group.MapPost("/", async (
@@ -38,6 +38,6 @@ public static class CategoryMappingEndpoint
             return Results.Created($"/api/v1/category-mappings/{id}", new CreatedResponse(id));
         })
         .WithName("MapCategory")
-        .WithSummary("Yeni kategori eşleştirmesi oluştur");
+        .WithSummary("Yeni kategori eşleştirmesi oluştur").Produces(200).Produces(400);
     }
 }

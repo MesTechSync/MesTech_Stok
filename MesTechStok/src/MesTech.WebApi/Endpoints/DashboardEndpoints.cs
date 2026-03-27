@@ -47,6 +47,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetDashboardKpi")
         .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/sales-trend?days=7 — daily order counts per platform (Chart.js format)
@@ -93,6 +94,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetSalesTrend")
         .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/inventory-stats — full inventory statistics
@@ -103,6 +105,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetInventoryStats")
         .WithSummary("Envanter istatistikleri")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/recent-orders — orders from last 7 days
@@ -114,6 +117,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetRecentOrders")
         .WithSummary("Son 7 gün siparişleri")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/accounting-kpi — muhasebe KPI (gelir, gider, kar, siparis metrikleri)
@@ -141,6 +145,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetAccountingKpi")
         .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
     }
 }

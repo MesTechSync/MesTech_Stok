@@ -28,7 +28,7 @@ public static class SettingsEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsProfile")
-        .WithSummary("Kullanici profil ayarlari");
+        .WithSummary("Kullanici profil ayarlari").Produces(200).Produces(400);
 
         // PUT /api/v1/settings/profile
         group.MapPut("/profile", async (
@@ -41,7 +41,7 @@ public static class SettingsEndpoints
                 : Results.NotFound(new { error = "Tenant not found" });
         })
         .WithName("UpdateSettingsProfile")
-        .WithSummary("Kullanici profil ayarlarini guncelle");
+        .WithSummary("Kullanici profil ayarlarini guncelle").Produces(200).Produces(400);
 
         // GET /api/v1/settings/credentials
         group.MapGet("/credentials", async (
@@ -53,7 +53,7 @@ public static class SettingsEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsCredentials")
-        .WithSummary("API kimlik bilgileri listesi");
+        .WithSummary("API kimlik bilgileri listesi").Produces(200).Produces(400);
 
         // GET /api/v1/settings/notifications
         group.MapGet("/notifications", async (
@@ -67,6 +67,6 @@ public static class SettingsEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsNotifications")
-        .WithSummary("Bildirim tercihleri (general settings)");
+        .WithSummary("Bildirim tercihleri (general settings)").Produces(200).Produces(400);
     }
 }

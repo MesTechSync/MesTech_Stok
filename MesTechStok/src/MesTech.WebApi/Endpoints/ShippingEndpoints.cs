@@ -26,7 +26,7 @@ public static class ShippingEndpoints
             return Results.Ok(result);
         })
         .WithName("AutoShipOrder")
-        .WithSummary("Siparişi otomatik kargola (kargo firması seçimi dahil)");
+        .WithSummary("Siparişi otomatik kargola (kargo firması seçimi dahil)").Produces(200).Produces(400);
 
         // POST /api/v1/shipping/batch-ship — toplu kargolama
         group.MapPost("/batch-ship", async (
@@ -37,7 +37,7 @@ public static class ShippingEndpoints
             return Results.Ok(result);
         })
         .WithName("BatchShipOrders")
-        .WithSummary("Birden fazla siparişi toplu kargola");
+        .WithSummary("Birden fazla siparişi toplu kargola").Produces(200).Produces(400);
 
         // GET /api/v1/shipping/{trackingNumber}/status — kargo takip durumu
         group.MapGet("/{trackingNumber}/status", async (
@@ -50,7 +50,7 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetShipmentStatus")
-        .WithSummary("Kargo takip numarasıyla gönderi durumu sorgula");
+        .WithSummary("Kargo takip numarasıyla gönderi durumu sorgula").Produces(200).Produces(400);
 
         // GET /api/v1/shipping/comparison — kargo firma karşılaştırma (son 90 gün)
         group.MapGet("/comparison", async (
@@ -65,7 +65,7 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetShippingPerformanceComparison")
-        .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)");
+        .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)").Produces(200).Produces(400);
 
         // GET /api/v1/shipping/track/{trackingNumber} — basit kargo takip (tüm sağlayıcıları dener)
         group.MapGet("/track/{trackingNumber}", async (
@@ -94,6 +94,6 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("TrackShipment")
-        .WithSummary("Kargo takip numarasıyla gönderi ara (tüm sağlayıcıları dener)");
+        .WithSummary("Kargo takip numarasıyla gönderi ara (tüm sağlayıcıları dener)").Produces(200).Produces(400);
     }
 }

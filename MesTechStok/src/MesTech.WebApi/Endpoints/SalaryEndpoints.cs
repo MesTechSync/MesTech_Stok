@@ -29,7 +29,7 @@ public static class SalaryEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSalaryRecords")
-        .WithSummary("Maas kayitlari listesi (yil + ay filtresi)");
+        .WithSummary("Maas kayitlari listesi (yil + ay filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/salaries/{id} — tek maas kaydi
         group.MapGet("/{id:guid}", async (
@@ -40,7 +40,7 @@ public static class SalaryEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSalaryRecordById")
-        .WithSummary("Tek maas kaydi detayi");
+        .WithSummary("Tek maas kaydi detayi").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/salaries — yeni maas kaydi olustur
         group.MapPost("/", async (
@@ -51,7 +51,7 @@ public static class SalaryEndpoints
             return Results.Created($"/api/v1/accounting/salaries/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSalaryRecord")
-        .WithSummary("Yeni maas kaydi olustur");
+        .WithSummary("Yeni maas kaydi olustur").Produces(200).Produces(400);
 
         // PUT /api/v1/accounting/salaries/{id} — maas kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -63,7 +63,7 @@ public static class SalaryEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateSalaryRecord")
-        .WithSummary("Maas kaydi odeme durumunu guncelle");
+        .WithSummary("Maas kaydi odeme durumunu guncelle").Produces(200).Produces(400);
 
         // DELETE /api/v1/accounting/salaries/{id} — maas kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (
@@ -73,6 +73,6 @@ public static class SalaryEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteSalaryRecord")
-        .WithSummary("Maas kaydini sil (soft delete)");
+        .WithSummary("Maas kaydini sil (soft delete)").Produces(200).Produces(400);
     }
 }

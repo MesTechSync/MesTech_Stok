@@ -33,6 +33,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpProviders")
         .WithSummary("Kayıtlı ERP sağlayıcı listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/erp/status — ping all registered ERP adapters
@@ -71,6 +72,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpStatus")
         .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // POST /api/v1/erp/test-connection — test connection to a specific ERP provider
@@ -118,7 +120,7 @@ public static class ErpEndpoints
 #pragma warning restore CA1031
         })
         .WithName("TestErpConnection")
-        .WithSummary("Belirli ERP sağlayıcısına bağlantı testi");
+        .WithSummary("Belirli ERP sağlayıcısına bağlantı testi").Produces(200).Produces(400);
 
         // POST /api/v1/erp/sync/stock — trigger manual ERP stock sync
         group.MapPost("/sync/stock", async (
@@ -175,7 +177,7 @@ public static class ErpEndpoints
             return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
         })
         .WithName("SyncErpStock")
-        .WithSummary("Manuel ERP stok senkronizasyonu tetikle");
+        .WithSummary("Manuel ERP stok senkronizasyonu tetikle").Produces(200).Produces(400);
 
         // POST /api/v1/erp/sync/accounts — trigger manual ERP account sync
         group.MapPost("/sync/accounts", async (
@@ -220,7 +222,7 @@ public static class ErpEndpoints
             return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
         })
         .WithName("SyncErpAccounts")
-        .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle");
+        .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle").Produces(200).Produces(400);
 
         // GET /api/v1/erp/sync/history — ERP senkronizasyon geçmişi
         group.MapGet("/sync/history", async (
@@ -235,6 +237,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpSyncHistory")
         .WithSummary("ERP senkronizasyon geçmişi")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/erp/dashboard — ERP dashboard özeti
@@ -247,6 +250,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpDashboard")
         .WithSummary("ERP dashboard — bağlantı durumu, son sync, özet")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/erp/sync/logs — ERP sync log listesi
@@ -260,6 +264,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpSyncLogs")
         .WithSummary("ERP senkronizasyon log listesi")
+        .Produces(200)
         .CacheOutput("Report120s");
     }
 

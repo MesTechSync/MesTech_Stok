@@ -80,6 +80,6 @@ public static class ProductImageEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteProductImage")
-        .WithSummary("Ürün resmini storage'dan ve üründen sil");
+        .WithSummary("Ürün resmini storage'dan ve üründen sil").Produces(200).Produces(400);
     }
 }

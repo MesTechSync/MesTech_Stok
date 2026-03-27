@@ -20,6 +20,6 @@ public static class ProductFetchEndpoint
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("FetchProductFromUrl")
-        .WithSummary("URL'den ürün bilgisi çek (scrape/API)");
+        .WithSummary("URL'den ürün bilgisi çek (scrape/API)").Produces(200).Produces(400);
     }
 }

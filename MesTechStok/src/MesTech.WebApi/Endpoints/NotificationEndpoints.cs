@@ -32,7 +32,7 @@ public static class NotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetNotifications")
-        .WithSummary("Bildirim listesi (sayfalama + okunmamış filtresi)");
+        .WithSummary("Bildirim listesi (sayfalama + okunmamış filtresi)").Produces(200).Produces(400);
 
         // POST /api/v1/notifications/{id}/read — bildirimi okundu olarak işaretle
         group.MapPost("/{id:guid}/read", async (
@@ -44,7 +44,7 @@ public static class NotificationEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("MarkNotificationRead")
-        .WithSummary("Bildirimi okundu olarak işaretle");
+        .WithSummary("Bildirimi okundu olarak işaretle").Produces(200).Produces(400);
 
         // POST /api/v1/notifications/send — bildirim gönder
         group.MapPost("/send", async (
@@ -55,7 +55,7 @@ public static class NotificationEndpoints
             return Results.Created($"/api/v1/notifications/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("SendNotification")
-        .WithSummary("Bildirim gönder (kanal + şablon bazlı)");
+        .WithSummary("Bildirim gönder (kanal + şablon bazlı)").Produces(200).Produces(400);
 
         // GET /api/v1/notifications/unread-count — okunmamış bildirim sayısı
         group.MapGet("/unread-count", async (
@@ -68,7 +68,7 @@ public static class NotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUnreadNotificationCount")
-        .WithSummary("Okunmamış bildirim sayısı");
+        .WithSummary("Okunmamış bildirim sayısı").Produces(200).Produces(400);
 
         // POST /api/v1/notifications/push — bildirim gönder + SignalR real-time broadcast
         group.MapPost("/push", async (
@@ -92,7 +92,7 @@ public static class NotificationEndpoints
             return Results.Created($"/api/v1/notifications/{id}", new CreatedResponse(id));
         })
         .WithName("PushNotification")
-        .WithSummary("Bildirim gönder + SignalR real-time push (V5)");
+        .WithSummary("Bildirim gönder + SignalR real-time push (V5)").Produces(200).Produces(400);
     }
 
     internal record PushNotificationRequest(

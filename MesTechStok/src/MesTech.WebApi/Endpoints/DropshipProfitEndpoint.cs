@@ -23,6 +23,7 @@ public static class DropshipProfitEndpoint
         })
         .WithName("GetDropshipProfitability")
         .WithSummary("Dropship kârlılık raporu")
+        .Produces(200)
         .CacheOutput("Report120s");
     }
 }

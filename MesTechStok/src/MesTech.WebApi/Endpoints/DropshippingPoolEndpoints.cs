@@ -35,7 +35,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPoolProducts")
-        .WithSummary("Dropshipping havuz ürünleri (güvenilirlik rengi + arama filtresi)");
+        .WithSummary("Dropshipping havuz ürünleri (güvenilirlik rengi + arama filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/dropshipping/pool/stats — havuz özet istatistikleri
         group.MapGet("/pool/stats", async (ISender mediator, CancellationToken ct) =>
@@ -45,7 +45,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPoolStats")
-        .WithSummary("Dropshipping havuzu özet istatistikleri");
+        .WithSummary("Dropshipping havuzu özet istatistikleri").Produces(200).Produces(400);
 
         // POST /api/v1/dropshipping/pool/export — havuz ürünleri platforma export et
         group.MapPost("/pool/export", async (
@@ -55,7 +55,7 @@ public static class DropshippingPoolEndpoints
             return Results.Ok(result);
         })
         .WithName("ExportPoolToPlatform")
-        .WithSummary("Seçili havuz ürünlerini platforma aktar (Trendyol, Hepsiburada, vb.)");
+        .WithSummary("Seçili havuz ürünlerini platforma aktar (Trendyol, Hepsiburada, vb.)").Produces(200).Produces(400);
 
         // POST /api/v1/dropshipping/pool/export/xml — XML feed olarak dışa aktar
         group.MapPost("/pool/export/xml", async (
@@ -66,6 +66,6 @@ public static class DropshippingPoolEndpoints
             return Results.File(bytes, "application/xml", filename);
         })
         .WithName("ExportPoolToXml")
-        .WithSummary("Seçili havuz ürünlerini XML feed olarak indir");
+        .WithSummary("Seçili havuz ürünlerini XML feed olarak indir").Produces(200).Produces(400);
     }
 }

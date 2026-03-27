@@ -25,7 +25,7 @@ public static class NotificationSettingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetNotificationSettings")
-        .WithSummary("Kullanici bildirim ayarlarini getirir");
+        .WithSummary("Kullanici bildirim ayarlarini getirir").Produces(200).Produces(400);
 
         // PUT /api/v1/system/notification-settings — bildirim ayarlari guncelle
         group.MapPut("/", async (
@@ -36,6 +36,6 @@ public static class NotificationSettingEndpoints
             return Results.Ok(new CreatedResponse(id));
         })
         .WithName("UpdateNotificationSettings")
-        .WithSummary("Kullanici bildirim ayarlarini gunceller (upsert)");
+        .WithSummary("Kullanici bildirim ayarlarini gunceller (upsert)").Produces(200).Produces(400);
     }
 }

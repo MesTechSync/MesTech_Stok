@@ -32,7 +32,7 @@ public static class UserNotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUserNotifications")
-        .WithSummary("Kullanici ici bildirim listesi (sayfalama + okunmamis filtresi)");
+        .WithSummary("Kullanici ici bildirim listesi (sayfalama + okunmamis filtresi)").Produces(200).Produces(400);
 
         // PUT /api/v1/system/notifications/{id}/read — bildirimi okundu isaretle
         group.MapPut("/{id:guid}/read", async (
@@ -44,7 +44,7 @@ public static class UserNotificationEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("MarkUserNotificationRead")
-        .WithSummary("Kullanici ici bildirimi okundu olarak isaretler");
+        .WithSummary("Kullanici ici bildirimi okundu olarak isaretler").Produces(200).Produces(400);
 
         // PUT /api/v1/system/notifications/read-all?userId= — tum bildirimleri okundu isaretle
         group.MapPut("/read-all", async (
@@ -56,7 +56,7 @@ public static class UserNotificationEndpoints
             return Results.Ok(new StatusResponse("Ok", $"{count}"));
         })
         .WithName("MarkAllUserNotificationsRead")
-        .WithSummary("Kullanicinin tum bildirimlerini okundu olarak isaretler");
+        .WithSummary("Kullanicinin tum bildirimlerini okundu olarak isaretler").Produces(200).Produces(400);
 
         // GET /api/v1/system/notifications/unread-count?userId= — okunmamis bildirim sayisi
         group.MapGet("/unread-count", async (
@@ -69,6 +69,6 @@ public static class UserNotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUnreadUserNotificationCount")
-        .WithSummary("Kullanicinin okunmamis bildirim sayisi");
+        .WithSummary("Kullanicinin okunmamis bildirim sayisi").Produces(200).Produces(400);
     }
 }

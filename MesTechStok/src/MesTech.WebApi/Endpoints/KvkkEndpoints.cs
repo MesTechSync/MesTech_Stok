@@ -43,7 +43,7 @@ public static class KvkkEndpoints
             return Results.Ok(result);
         })
         .WithName("KvkkDeletePersonalData")
-        .WithSummary("KVKK madde 7 — kişisel veri silme (anonimizasyon) talebi");
+        .WithSummary("KVKK madde 7 — kişisel veri silme (anonimizasyon) talebi").Produces(200).Produces(400);
 
         // GET /api/v1/kvkk/export — kişisel veri dışa aktarma (KVKK madde 11/c)
         group.MapGet("/export", async (
@@ -70,7 +70,7 @@ public static class KvkkEndpoints
             return Results.Ok(result);
         })
         .WithName("KvkkExportPersonalData")
-        .WithSummary("KVKK madde 11/c — kişisel veri dışa aktarma (JSON)");
+        .WithSummary("KVKK madde 11/c — kişisel veri dışa aktarma (JSON)").Produces(200).Produces(400);
 
         // GET /api/v1/kvkk/export/download — veri dışa aktarma dosya indirme
         group.MapGet("/export/download", async (
@@ -87,7 +87,7 @@ public static class KvkkEndpoints
                 $"kvkk_export_{tenantId:N}_{DateTime.UtcNow:yyyyMMdd}.json");
         })
         .WithName("KvkkExportDownload")
-        .WithSummary("KVKK — kişisel veri export dosyası indirme (JSON)");
+        .WithSummary("KVKK — kişisel veri export dosyası indirme (JSON)").Produces(200).Produces(400);
 
         // GET /api/v1/kvkk/audit-logs — KVKK denetim kayıtları
         group.MapGet("/audit-logs", async (
@@ -99,7 +99,7 @@ public static class KvkkEndpoints
             return Results.Ok(result);
         })
         .WithName("KvkkGetAuditLogs")
-        .WithSummary("KVKK madde 12 — denetim kayıtları (yasal saklama 10 yıl)");
+        .WithSummary("KVKK madde 12 — denetim kayıtları (yasal saklama 10 yıl)").Produces(200).Produces(400);
 
         // GET /api/v1/kvkk/rights — KVKK hakları bilgi endpoint'i
         group.MapGet("/rights", () =>
@@ -140,7 +140,7 @@ public static class KvkkEndpoints
             });
         })
         .WithName("KvkkRights")
-        .WithSummary("KVKK hakları bilgilendirme — madde 10 aydınlatma yükümlülüğü");
+        .WithSummary("KVKK hakları bilgilendirme — madde 10 aydınlatma yükümlülüğü").Produces(200).Produces(400);
 
         // GET /api/v1/kvkk/processors — veri işleyen üçüncü taraf listesi
         group.MapGet("/processors", () =>
@@ -165,6 +165,6 @@ public static class KvkkEndpoints
             });
         })
         .WithName("KvkkProcessors")
-        .WithSummary("KVKK — veri işleyen üçüncü taraf listesi (madde 11/c)");
+        .WithSummary("KVKK — veri işleyen üçüncü taraf listesi (madde 11/c)").Produces(200).Produces(400);
     }
 }

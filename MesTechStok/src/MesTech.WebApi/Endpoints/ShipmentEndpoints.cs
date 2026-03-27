@@ -22,6 +22,6 @@ public static class ShipmentEndpoints
                 : Results.BadRequest(new { error = result.ErrorMessage });
         })
         .WithName("CreateShipment")
-        .WithSummary("Yeni gönderi oluştur (otomatik kargo sağlayıcı seçimi)");
+        .WithSummary("Yeni gönderi oluştur (otomatik kargo sağlayıcı seçimi)").Produces(200).Produces(400);
     }
 }

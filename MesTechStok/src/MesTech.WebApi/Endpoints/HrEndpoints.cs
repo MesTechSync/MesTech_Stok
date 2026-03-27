@@ -24,6 +24,7 @@ public static class HrEndpoints
         })
         .WithName("GetEmployees")
         .WithSummary("Çalışan listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/hr/leaves/{leaveId}/approve — approve leave request
@@ -37,6 +38,6 @@ public static class HrEndpoints
             return Results.NoContent();
         })
         .WithName("ApproveLeave")
-        .WithSummary("İzin talebini onayla");
+        .WithSummary("İzin talebini onayla").Produces(200).Produces(400);
     }
 }

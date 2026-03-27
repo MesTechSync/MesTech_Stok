@@ -27,6 +27,7 @@ public static class CrmDashboardEndpoint
         })
         .WithName("GetCrmDashboard")
         .WithSummary("CRM dashboard — lead/deal/pipeline metrikleri (EMR-09)")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
     }
 }

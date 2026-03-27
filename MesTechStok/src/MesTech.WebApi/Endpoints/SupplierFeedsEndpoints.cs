@@ -28,6 +28,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeeds")
         .WithSummary("Tedarikçi feed kaynakları listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/stats — dashboard istatistikleri
@@ -38,6 +39,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeedStats")
         .WithSummary("Havuz istatistikleri (toplam, renk dağılımı, son sync)")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/supplier-feeds/{id} — tek feed kaynağı
@@ -48,6 +50,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeedById")
         .WithSummary("Tedarikçi feed kaynağını ID ile getir")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/{id}/logs — import geçmişi
@@ -64,6 +67,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetFeedImportLogs")
         .WithSummary("Feed import geçmişi ve log kayıtları")
+        .Produces(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/supplier-feeds — yeni feed kaynağı oluştur
@@ -73,7 +77,7 @@ public static class SupplierFeedsEndpoints
             return Results.Created($"/api/v1/supplier-feeds/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateSupplierFeed")
-        .WithSummary("Yeni tedarikçi feed kaynağı oluştur");
+        .WithSummary("Yeni tedarikçi feed kaynağı oluştur").Produces(200).Produces(400);
 
         // PUT /api/v1/supplier-feeds/{id} — feed kaynağını güncelle
         group.MapPut("/{id:guid}", async (Guid id, UpdateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>
@@ -85,7 +89,7 @@ public static class SupplierFeedsEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateSupplierFeed")
-        .WithSummary("Tedarikçi feed kaynağını güncelle");
+        .WithSummary("Tedarikçi feed kaynağını güncelle").Produces(200).Produces(400);
 
         // DELETE /api/v1/supplier-feeds/{id} — feed kaynağını sil (soft-delete)
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -94,7 +98,7 @@ public static class SupplierFeedsEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteSupplierFeed")
-        .WithSummary("Tedarikçi feed kaynağını sil (soft-delete)");
+        .WithSummary("Tedarikçi feed kaynağını sil (soft-delete)").Produces(200).Produces(400);
 
         // POST /api/v1/supplier-feeds/{id}/sync — feed sync tetikle
         group.MapPost("/{id:guid}/sync", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -104,6 +108,6 @@ public static class SupplierFeedsEndpoints
                 new { jobId, message = "Sync kuyruğa alındı." });
         })
         .WithName("TriggerFeedSync")
-        .WithSummary("Feed import işlemini arka planda tetikle");
+        .WithSummary("Feed import işlemini arka planda tetikle").Produces(200).Produces(400);
     }
 }

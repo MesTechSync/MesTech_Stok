@@ -25,6 +25,7 @@ public static class DashboardSummaryEndpoint
         .WithTags("Dashboard")
         .WithName("GetDashboardSummary")
         .WithSummary("Unified dashboard özeti — 12 KPI, 7 günlük satış grafiği, platform dağılımı, son siparişler, kritik stok")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
     }
 }

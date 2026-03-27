@@ -29,7 +29,7 @@ public static class BillingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSubscriptionPlans")
-        .WithSummary("Abonelik planları listesi");
+        .WithSummary("Abonelik planları listesi").Produces(200).Produces(400);
 
         // GET /api/v1/billing/subscription — current tenant subscription
         group.MapGet("/subscription", async (
@@ -41,7 +41,7 @@ public static class BillingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetTenantSubscription")
-        .WithSummary("Mevcut tenant abonelik bilgisi");
+        .WithSummary("Mevcut tenant abonelik bilgisi").Produces(200).Produces(400);
 
         // POST /api/v1/billing/subscription — create subscription
         group.MapPost("/subscription", async (
@@ -66,7 +66,7 @@ public static class BillingEndpoints
             return Results.NoContent();
         })
         .WithName("CancelSubscription")
-        .WithSummary("Abonelik iptal et");
+        .WithSummary("Abonelik iptal et").Produces(200).Produces(400);
 
         // GET /api/v1/billing/invoices — billing invoices
         group.MapGet("/invoices", async (
@@ -78,7 +78,7 @@ public static class BillingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBillingInvoices")
-        .WithSummary("Faturalama geçmişi");
+        .WithSummary("Faturalama geçmişi").Produces(200).Produces(400);
 
         // POST /api/v1/billing/invoices — create billing invoice
         group.MapPost("/invoices", async (
@@ -103,7 +103,7 @@ public static class BillingEndpoints
             return Results.Ok(result);
         })
         .WithName("ChangeSubscriptionPlan")
-        .WithSummary("Abonelik planını değiştir (upgrade/downgrade)");
+        .WithSummary("Abonelik planını değiştir (upgrade/downgrade)").Produces(200).Produces(400);
 
         // GET /api/v1/billing/usage — plan kullanım durumu
         group.MapGet("/usage", async (
@@ -115,7 +115,7 @@ public static class BillingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetSubscriptionUsage")
-        .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)");
+        .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)").Produces(200).Produces(400);
 
         // POST /api/v1/billing/webhooks/{provider} — payment webhook receiver
         group.MapPost("/webhooks/{provider}", async (

@@ -35,7 +35,7 @@ public static class StoreCredentialEndpoints
                 new { id, storeId });
         })
         .WithName("SaveStoreCredential")
-        .WithSummary("Magaza credential'larini kaydet/guncelle (upsert, AES-256-GCM sifreleme)");
+        .WithSummary("Magaza credential'larini kaydet/guncelle (upsert, AES-256-GCM sifreleme)").Produces(200).Produces(400);
 
         // POST /api/v1/stores/{storeId}/credentials/test — baglanti testi
         group.MapPost("/test", async (
@@ -49,7 +49,7 @@ public static class StoreCredentialEndpoints
                 : Results.UnprocessableEntity(result);
         })
         .WithName("TestStoreCredential")
-        .WithSummary("Kaydedilmis credential'lar ile platform baglanti testi");
+        .WithSummary("Kaydedilmis credential'lar ile platform baglanti testi").Produces(200).Produces(400);
 
         // GET /api/v1/stores/{storeId}/credentials — maskelenmis credential bilgisi
         group.MapGet("/", async (
@@ -64,7 +64,7 @@ public static class StoreCredentialEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetStoreCredentials")
-        .WithSummary("Maskelenmis credential bilgisi (plaintext DONMEZ)");
+        .WithSummary("Maskelenmis credential bilgisi (plaintext DONMEZ)").Produces(200).Produces(400);
 
         // DELETE /api/v1/stores/{storeId}/credentials — soft-delete
         group.MapDelete("/", async (
@@ -78,6 +78,6 @@ public static class StoreCredentialEndpoints
                 : Results.NotFound(new { Message = $"No credentials found for store {storeId}" });
         })
         .WithName("DeleteStoreCredential")
-        .WithSummary("Magaza credential'larini soft-delete et");
+        .WithSummary("Magaza credential'larini soft-delete et").Produces(200).Produces(400);
     }
 }

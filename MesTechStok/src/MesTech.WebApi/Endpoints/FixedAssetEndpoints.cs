@@ -28,7 +28,7 @@ public static class FixedAssetEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("ListFixedAssets")
-        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)");
+        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/fixed-assets/{id}/schedule — amortisman tablosu
         group.MapGet("/{id:guid}/schedule", async (
@@ -40,7 +40,7 @@ public static class FixedAssetEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("CalculateDepreciation")
-        .WithSummary("Sabit kiymet amortisman tablosu hesapla (VUK md. 315)");
+        .WithSummary("Sabit kiymet amortisman tablosu hesapla (VUK md. 315)").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/fixed-assets — yeni sabit kiymet olustur
         group.MapPost("/", async (
@@ -51,7 +51,7 @@ public static class FixedAssetEndpoints
             return Results.Created($"/api/v1/accounting/fixed-assets/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedAsset")
-        .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)");
+        .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)").Produces(200).Produces(400);
 
         // PUT /api/v1/accounting/fixed-assets/{id} — sabit kiymet guncelle
         group.MapPut("/{id:guid}", async (
@@ -64,7 +64,7 @@ public static class FixedAssetEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateFixedAsset")
-        .WithSummary("Sabit kiymet bilgilerini guncelle");
+        .WithSummary("Sabit kiymet bilgilerini guncelle").Produces(200).Produces(400);
 
         // DELETE /api/v1/accounting/fixed-assets/{id} — sabit kiymet pasife al (soft delete)
         group.MapDelete("/{id:guid}", async (
@@ -75,6 +75,6 @@ public static class FixedAssetEndpoints
             return Results.NoContent();
         })
         .WithName("DeactivateFixedAsset")
-        .WithSummary("Sabit kiymeti pasife al — soft delete");
+        .WithSummary("Sabit kiymeti pasife al — soft delete").Produces(200).Produces(400);
     }
 }

@@ -22,6 +22,7 @@ public static class CategoryEndpoints
         })
         .WithName("GetCategories")
         .WithSummary("Kategori listesi (aktif/tümü filtresi)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 }

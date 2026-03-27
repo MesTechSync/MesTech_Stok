@@ -30,6 +30,7 @@ public static class TenantEndpoints
         })
         .WithName("GetTenants")
         .WithSummary("Kiracı listesi — admin only")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/admin/tenants — yeni kiracı oluştur
@@ -42,7 +43,7 @@ public static class TenantEndpoints
             return Results.Created($"/api/v1/admin/tenants/{tenantId}", new CreatedResponse(tenantId));
         })
         .WithName("CreateTenant")
-        .WithSummary("Yeni kiracı oluştur — admin only");
+        .WithSummary("Yeni kiracı oluştur — admin only").Produces(200).Produces(400);
 
         // GET /api/v1/admin/tenants/{id} — kiracı detayı
         group.MapGet("/{id:guid}", async (
@@ -56,6 +57,7 @@ public static class TenantEndpoints
         })
         .WithName("GetTenantById")
         .WithSummary("Kiracı detayı — admin only")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // PUT /api/v1/admin/tenants/{id} — kiracı güncelle
@@ -68,7 +70,7 @@ public static class TenantEndpoints
             return success ? Results.NoContent() : Results.NotFound(new { error = $"Tenant {id} not found" });
         })
         .WithName("UpdateTenant")
-        .WithSummary("Kiracı bilgilerini güncelle — admin only");
+        .WithSummary("Kiracı bilgilerini güncelle — admin only").Produces(200).Produces(400);
     }
 
     private record CreateTenantRequest(string Name, string? TaxNumber);

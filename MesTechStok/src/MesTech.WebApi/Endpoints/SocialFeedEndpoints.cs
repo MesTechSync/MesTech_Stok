@@ -34,7 +34,7 @@ public static class SocialFeedEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetAllFeedStatuses")
-        .WithSummary("Tüm sosyal feed platform durumlarını listele");
+        .WithSummary("Tüm sosyal feed platform durumlarını listele").Produces(200).Produces(400);
 
         // POST /api/v1/social-feeds/{platform}/generate — feed üretimini tetikle
         group.MapPost("/{platform}/generate", async (
@@ -56,7 +56,7 @@ public static class SocialFeedEndpoints
                 : Results.UnprocessableEntity(new { result.Errors });
         })
         .WithName("GenerateFeed")
-        .WithSummary("Belirtilen platform için feed üretimini tetikle");
+        .WithSummary("Belirtilen platform için feed üretimini tetikle").Produces(200).Produces(400);
 
         // GET /api/v1/social-feeds/{platform}/status — platform feed durumu
         group.MapGet("/{platform}/status", async (
@@ -76,7 +76,7 @@ public static class SocialFeedEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFeedStatus")
-        .WithSummary("Belirtilen platform feed durumunu sorgula");
+        .WithSummary("Belirtilen platform feed durumunu sorgula").Produces(200).Produces(400);
 
         // POST /api/v1/social-feeds/{platform}/validate — feed URL doğrula
         group.MapPost("/{platform}/validate", async (
@@ -96,7 +96,7 @@ public static class SocialFeedEndpoints
             return Results.Ok(result);
         })
         .WithName("ValidateFeed")
-        .WithSummary("Feed URL'ini platform validator üzerinden doğrula");
+        .WithSummary("Feed URL'ini platform validator üzerinden doğrula").Produces(200).Produces(400);
 
         // POST /api/v1/social-feeds/{platform}/schedule — otomatik yenileme zamanla
         group.MapPost("/{platform}/schedule", async (
@@ -116,7 +116,7 @@ public static class SocialFeedEndpoints
             return Results.NoContent();
         })
         .WithName("ScheduleFeedRefresh")
-        .WithSummary("Platform feed otomatik yenileme aralığını ayarla");
+        .WithSummary("Platform feed otomatik yenileme aralığını ayarla").Produces(200).Produces(400);
     }
 
     /// <summary>Feed URL doğrulama istek gövdesi.</summary>

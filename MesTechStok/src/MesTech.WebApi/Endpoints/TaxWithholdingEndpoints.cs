@@ -24,7 +24,7 @@ public static class TaxWithholdingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetWithholdingRates")
-        .WithSummary("KDV tevkifat oranlari listesi (GiB resmi listesi)");
+        .WithSummary("KDV tevkifat oranlari listesi (GiB resmi listesi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/tax-withholdings — tevkifat kayitlari listesi
         group.MapGet("/tax-withholdings", async (
@@ -37,7 +37,7 @@ public static class TaxWithholdingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("ListTaxWithholdings")
-        .WithSummary("Tevkifat kayitlari listesi (tarih araligi filtresi)");
+        .WithSummary("Tevkifat kayitlari listesi (tarih araligi filtresi)").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/tax-withholdings — yeni tevkifat kaydi olustur
         group.MapPost("/tax-withholdings", async (
@@ -48,6 +48,6 @@ public static class TaxWithholdingEndpoints
             return Results.Created($"/api/v1/accounting/tax-withholdings/{id}", new CreatedResponse(id));
         })
         .WithName("RecordTaxWithholding")
-        .WithSummary("Yeni KDV tevkifat kaydi olustur");
+        .WithSummary("Yeni KDV tevkifat kaydi olustur").Produces(200).Produces(400);
     }
 }

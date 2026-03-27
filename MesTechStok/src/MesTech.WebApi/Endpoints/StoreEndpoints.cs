@@ -31,6 +31,7 @@ public static class StoreEndpoints
         })
         .WithName("GetStores")
         .WithSummary("Kiracıya ait mağaza listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/admin/stores — yeni mağaza oluştur
@@ -58,6 +59,6 @@ public static class StoreEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("TestStoreConnection")
-        .WithSummary("Mağaza API bağlantı testi");
+        .WithSummary("Mağaza API bağlantı testi").Produces(200).Produces(400);
     }
 }

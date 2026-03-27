@@ -35,6 +35,7 @@ public static class CrmMessagesEndpoint
         })
         .WithName("GetPlatformMessages")
         .WithSummary("Platform mesaj kutusu — Trendyol, HB, N11 vb. (EMR-09)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/messages/{id}/reply — reply to a platform message
@@ -49,7 +50,7 @@ public static class CrmMessagesEndpoint
             return Results.NoContent();
         })
         .WithName("ReplyToMessage")
-        .WithSummary("Platform mesajına yanıt gönder (EMR-09)");
+        .WithSummary("Platform mesajına yanıt gönder (EMR-09)").Produces(200).Produces(400);
     }
 
     /// <summary>Request DTO for message reply.</summary>

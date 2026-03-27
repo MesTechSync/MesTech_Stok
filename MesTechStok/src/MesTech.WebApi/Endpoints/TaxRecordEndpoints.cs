@@ -28,7 +28,7 @@ public static class TaxRecordEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetTaxRecords")
-        .WithSummary("Vergi kayitlari listesi (tip + yil filtresi)");
+        .WithSummary("Vergi kayitlari listesi (tip + yil filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/accounting/taxes/{id} — tek vergi kaydi
         group.MapGet("/{id:guid}", async (
@@ -39,7 +39,7 @@ public static class TaxRecordEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetTaxRecordById")
-        .WithSummary("Tek vergi kaydi detayi");
+        .WithSummary("Tek vergi kaydi detayi").Produces(200).Produces(400);
 
         // POST /api/v1/accounting/taxes — yeni vergi kaydi olustur
         group.MapPost("/", async (
@@ -50,7 +50,7 @@ public static class TaxRecordEndpoints
             return Results.Created($"/api/v1/accounting/taxes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateTaxRecord")
-        .WithSummary("Yeni vergi kaydi olustur");
+        .WithSummary("Yeni vergi kaydi olustur").Produces(200).Produces(400);
 
         // PUT /api/v1/accounting/taxes/{id} — vergi kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -62,7 +62,7 @@ public static class TaxRecordEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateTaxRecord")
-        .WithSummary("Vergi kaydi odeme durumunu guncelle");
+        .WithSummary("Vergi kaydi odeme durumunu guncelle").Produces(200).Produces(400);
 
         // DELETE /api/v1/accounting/taxes/{id} — vergi kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (
@@ -72,6 +72,6 @@ public static class TaxRecordEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteTaxRecord")
-        .WithSummary("Vergi kaydini sil (soft delete)");
+        .WithSummary("Vergi kaydini sil (soft delete)").Produces(200).Produces(400);
     }
 }

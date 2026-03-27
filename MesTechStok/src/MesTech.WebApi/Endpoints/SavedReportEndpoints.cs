@@ -24,7 +24,7 @@ public static class SavedReportEndpoints
             return Results.Created($"/api/v1/reports/saved/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSavedReport")
-        .WithSummary("Yeni kaydedilmis rapor sablonu olusturur");
+        .WithSummary("Yeni kaydedilmis rapor sablonu olusturur").Produces(200).Produces(400);
 
         // GET /api/v1/reports/saved — tenant'a ait raporlari listele
         group.MapGet("/", async (
@@ -37,7 +37,7 @@ public static class SavedReportEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSavedReports")
-        .WithSummary("Tenant'a ait kaydedilmis raporlari listeler");
+        .WithSummary("Tenant'a ait kaydedilmis raporlari listeler").Produces(200).Produces(400);
 
         // DELETE /api/v1/reports/saved/{id} — kaydedilmis raporu sil
         group.MapDelete("/{id:guid}", async (
@@ -49,6 +49,6 @@ public static class SavedReportEndpoints
             return deleted ? Results.NoContent() : Results.NotFound();
         })
         .WithName("DeleteSavedReport")
-        .WithSummary("Kaydedilmis raporu siler");
+        .WithSummary("Kaydedilmis raporu siler").Produces(200).Produces(400);
     }
 }

@@ -26,7 +26,7 @@ public static class OnboardingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetOnboardingProgress")
-        .WithSummary("Kurulum ilerleme durumu");
+        .WithSummary("Kurulum ilerleme durumu").Produces(200).Produces(400);
 
         // POST /api/v1/onboarding/start — start onboarding
         group.MapPost("/start", async (
@@ -38,7 +38,7 @@ public static class OnboardingEndpoints
             return Results.Created($"/api/v1/onboarding/progress", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("StartOnboarding")
-        .WithSummary("Kurulum sürecini başlat");
+        .WithSummary("Kurulum sürecini başlat").Produces(200).Produces(400);
 
         // POST /api/v1/onboarding/complete-step — complete onboarding step
         group.MapPost("/complete-step", async (
@@ -50,7 +50,7 @@ public static class OnboardingEndpoints
             return Results.NoContent();
         })
         .WithName("CompleteOnboardingStep")
-        .WithSummary("Kurulum adımını tamamla");
+        .WithSummary("Kurulum adımını tamamla").Produces(200).Produces(400);
 
         // GET /api/v1/onboarding/v5-readiness — V5 özellik hazırlık kontrolü
         group.MapGet("/v5-readiness", async (
@@ -62,7 +62,7 @@ public static class OnboardingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetV5ReadinessCheck")
-        .WithSummary("V5 özellik hazırlık kontrolü — ERP, Fulfillment, Komisyon, Cari, Raporlama");
+        .WithSummary("V5 özellik hazırlık kontrolü — ERP, Fulfillment, Komisyon, Cari, Raporlama").Produces(200).Produces(400);
 
         // POST /api/v1/onboarding/register — tam kayıt (tenant + admin + trial + onboarding)
         group.MapPost("/register", async (

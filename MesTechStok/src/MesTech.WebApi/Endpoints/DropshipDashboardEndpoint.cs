@@ -23,6 +23,7 @@ public static class DropshipDashboardEndpoint
         })
         .WithName("GetDropshipDashboard")
         .WithSummary("Dropship özet panosu (aktif tedarikçi, ürün, sipariş)")
+        .Produces(200)
         .CacheOutput("Dashboard30s");
     }
 }

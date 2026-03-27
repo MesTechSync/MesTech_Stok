@@ -38,7 +38,7 @@ public static class PaymentEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPaymentStatus")
-        .WithSummary("İşlem ID ile ödeme durumunu sorgula");
+        .WithSummary("İşlem ID ile ödeme durumunu sorgula").Produces(200).Produces(400);
 
         // POST /api/v1/payments/{transactionId}/refund — iade işlemi
         group.MapPost("/{transactionId}/refund", async (
@@ -68,7 +68,7 @@ public static class PaymentEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetInstallmentOptions")
-        .WithSummary("Tutar ve BIN numarasına göre taksit seçeneklerini getir");
+        .WithSummary("Tutar ve BIN numarasına göre taksit seçeneklerini getir").Produces(200).Produces(400);
     }
 
     /// <summary>İade istek gövdesi — iade miktarı.</summary>

@@ -125,7 +125,7 @@ public static class BulkProductEndpoints
             return Results.File(bytes, "text/csv", filename);
         })
         .WithName("ExportProducts")
-        .WithSummary("Ürünleri CSV dosyası olarak dışa aktar");
+        .WithSummary("Ürünleri CSV dosyası olarak dışa aktar").Produces(200).Produces(400);
 
         // POST /api/v1/products/bulk/update — Toplu stok/fiyat güncelleme
         group.MapPost("/update", async (
@@ -178,7 +178,7 @@ public static class BulkProductEndpoints
             });
         })
         .WithName("BulkUpdateProducts")
-        .WithSummary("Toplu ürün stok ve fiyat güncellemesi");
+        .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400);
     }
 
     /// <summary>

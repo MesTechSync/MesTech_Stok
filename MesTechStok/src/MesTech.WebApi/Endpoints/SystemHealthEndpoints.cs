@@ -58,7 +58,7 @@ public static class SystemHealthEndpoints
             });
         })
         .WithName("GetSystemStatus")
-        .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)");
+        .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/jobs — arka plan iş listesi
         // DEV4-DEPENDENCY: Hangfire entegrasyonu henüz yok
@@ -70,7 +70,7 @@ public static class SystemHealthEndpoints
                 Status = "not_implemented"
             }))
         .WithName("GetBackgroundJobs")
-        .WithSummary("Arka plan iş listesi — Hangfire (DEV4-DEPENDENCY)");
+        .WithSummary("Arka plan iş listesi — Hangfire (DEV4-DEPENDENCY)").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/launch-readiness — canliya cikis hazirlik raporu
         group.MapGet("/launch-readiness", async (
@@ -83,7 +83,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetLaunchReadiness")
-        .WithSummary("Production launch hazirlik raporu — 26 kriter");
+        .WithSummary("Production launch hazirlik raporu — 26 kriter").Produces(200).Produces(400);
 
         // ─── DEFTER KAPATMA: KVKK + Users endpoint [ENT-DEV6] ───
 
@@ -96,7 +96,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("DeletePersonalData")
-        .WithSummary("KVKK — kişisel veri silme talebi");
+        .WithSummary("KVKK — kişisel veri silme talebi").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/kvkk/export — kişisel veri dışa aktarma (KVKK hakkı)
         group.MapGet("/kvkk/export", async (
@@ -108,7 +108,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("ExportPersonalData")
-        .WithSummary("KVKK — kişisel veri dışa aktarma");
+        .WithSummary("KVKK — kişisel veri dışa aktarma").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/kvkk/audit-logs — KVKK denetim kayıtları
         group.MapGet("/kvkk/audit-logs", async (
@@ -120,7 +120,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetKvkkAuditLogs")
-        .WithSummary("KVKK — denetim kayıtları (yasal saklama 10 yıl)");
+        .WithSummary("KVKK — denetim kayıtları (yasal saklama 10 yıl)").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/users — kullanıcı listesi
         group.MapGet("/users", async (
@@ -132,7 +132,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetUsers")
-        .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)");
+        .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/adapter-health — platform adapter ping durumu
         group.MapGet("/adapter-health", async (
@@ -143,6 +143,6 @@ public static class SystemHealthEndpoints
             return Results.Ok(report);
         })
         .WithName("GetAdapterHealth")
-        .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)");
+        .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)").Produces(200).Produces(400);
     }
 }

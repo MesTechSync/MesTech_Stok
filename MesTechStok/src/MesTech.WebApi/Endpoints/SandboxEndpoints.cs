@@ -35,7 +35,7 @@ public static class SandboxEndpoints
             });
         })
         .WithName("TestAllSandboxAdapters")
-        .WithSummary("Test all registered adapters against sandbox endpoints");
+        .WithSummary("Test all registered adapters against sandbox endpoints").Produces(200).Produces(400);
 
         // GET /api/v1/admin/sandbox-test/{platform} — test a single adapter
         group.MapGet("/{platform}", async (string platform, ISandboxTestRunner runner, CancellationToken ct) =>
@@ -53,6 +53,6 @@ public static class SandboxEndpoints
             });
         })
         .WithName("TestSandboxAdapter")
-        .WithSummary("Test a single adapter against its sandbox endpoint");
+        .WithSummary("Test a single adapter against its sandbox endpoint").Produces(200).Produces(400);
     }
 }

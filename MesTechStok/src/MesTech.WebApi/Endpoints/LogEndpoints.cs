@@ -24,7 +24,7 @@ public static class LogEndpoints
             return Results.Created($"/api/v1/logs/{logId}", new CreatedResponse(logId));
         })
         .WithName("CreateLogEntry")
-        .WithSummary("Yeni log kaydı oluştur");
+        .WithSummary("Yeni log kaydı oluştur").Produces(200).Produces(400);
 
         // GET /api/v1/logs — log listesi (sayfalanmış, filtreli)
         group.MapGet("/", async (
@@ -41,7 +41,7 @@ public static class LogEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetLogs")
-        .WithSummary("Log listesi (sayfalanmış, kategori/tarih/kullanıcı filtresi)");
+        .WithSummary("Log listesi (sayfalanmış, kategori/tarih/kullanıcı filtresi)").Produces(200).Produces(400);
 
         // GET /api/v1/logs/count — log sayısı
         group.MapGet("/count", async (
@@ -53,6 +53,6 @@ public static class LogEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetLogCount")
-        .WithSummary("Log kayıt sayısı (kategori filtresi)");
+        .WithSummary("Log kayıt sayısı (kategori filtresi)").Produces(200).Produces(400);
     }
 }

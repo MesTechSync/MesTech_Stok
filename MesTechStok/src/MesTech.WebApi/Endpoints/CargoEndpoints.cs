@@ -29,6 +29,7 @@ public static class CargoEndpoints
         })
         .WithName("GetCargoProviders")
         .WithSummary("Desteklenen kargo sağlayıcı listesi")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 

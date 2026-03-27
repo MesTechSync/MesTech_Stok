@@ -33,6 +33,7 @@ public static class CrmCustomersEndpoint
         })
         .WithName("GetCrmCustomers")
         .WithSummary("CRM müşteri listesi — arama ve segment filtresi (EMR-09)")
+        .Produces(200)
         .CacheOutput("Lookup60s");
     }
 }
