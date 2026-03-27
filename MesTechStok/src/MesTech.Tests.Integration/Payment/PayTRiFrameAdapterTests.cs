@@ -100,11 +100,10 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "application/json")
                 .WithBody(JsonSerializer.Serialize(new { status = "success", token })));
     }
-    catch (Exception ex)
-    {
-        _logger.LogWarning(ex, "Exception occurred");
-        throw;
-    }
+
+
+
+
 
     private void SetupTokenFailure(string reason = "token-generation-error")
     {
@@ -115,11 +114,10 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "application/json")
                 .WithBody(JsonSerializer.Serialize(new { status = "failed", reason })));
     }
-    catch (Exception ex)
-    {
-        _logger.LogWarning(ex, "Exception occurred");
-        throw;
-    }
+
+
+
+
 
     // ════ 1. ProcessPayment_Success_ReturnsIFrameUrl ════
 

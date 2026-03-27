@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Queries.GetSuppliersPaged;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -42,9 +42,9 @@ public class GetSuppliersPagedHandlerTests
     {
         var suppliers = new List<Supplier>
         {
-            new() { Id = Guid.NewGuid(), Name = "ABC Tedarik", Code = "ABC-001" },
-            new() { Id = Guid.NewGuid(), Name = "XYZ Üretim", Code = "XYZ-001" },
-            new() { Id = Guid.NewGuid(), Name = "ABC Lojistik", Code = "ABC-002" }
+            new Supplier { Id = Guid.NewGuid(), Name = "ABC Tedarik", Code = "ABC-001" },
+            new Supplier { Id = Guid.NewGuid(), Name = "XYZ Üretim", Code = "XYZ-001" },
+            new Supplier { Id = Guid.NewGuid(), Name = "ABC Lojistik", Code = "ABC-002" }
         };
 
         _supplierRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(suppliers.AsReadOnly());

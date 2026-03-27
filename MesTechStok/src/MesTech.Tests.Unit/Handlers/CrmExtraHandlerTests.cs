@@ -188,83 +188,8 @@ public class LoseDealHandlerTests
 
 #endregion
 
-#region GetCrmDashboardHandler
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "CRM")]
-public class GetCrmDashboardHandlerTests
-{
-    private readonly Mock<ICrmDashboardQueryService> _queryServiceMock = new();
-    private readonly GetCrmDashboardHandler _sut;
-
-    public GetCrmDashboardHandlerTests()
-    {
-        _sut = new GetCrmDashboardHandler(_queryServiceMock.Object);
-    }
-
-    [Fact]
-    public async Task Handle_ValidQuery_ReturnsDashboardDto()
-    {
-        var expected = new CrmDashboardDto();
-        _queryServiceMock.Setup(s => s.GetDashboardAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expected);
-
-        var query = new GetCrmDashboardQuery(Guid.NewGuid());
-        var result = await _sut.Handle(query, CancellationToken.None);
-
-        result.Should().BeSameAs(expected);
-    }
-
-    [Fact]
-    public async Task Handle_NullQuery_ThrowsArgumentNullException()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => _sut.Handle(null!, CancellationToken.None));
-    }
-}
-
-#endregion
-
-#region GetCustomersCrmHandler
-
-[Trait("Category", "Unit")]
-[Trait("Feature", "CRM")]
-public class GetCustomersCrmHandlerTests
-{
-    private readonly Mock<ICrmDashboardQueryService> _queryServiceMock = new();
-    private readonly GetCustomersCrmHandler _sut;
-
-    public GetCustomersCrmHandlerTests()
-    {
-        _sut = new GetCustomersCrmHandler(_queryServiceMock.Object);
-    }
-
-    [Fact]
-    public async Task Handle_ValidQuery_ReturnsCustomersResult()
-    {
-        var items = new List<CustomerCrmDto>().AsReadOnly();
-        _queryServiceMock.Setup(s => s.GetCustomersPagedAsync(
-                It.IsAny<Guid>(), It.IsAny<bool?>(), It.IsAny<bool?>(),
-                It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((items, 0));
-
-        var query = new GetCustomersCrmQuery(Guid.NewGuid());
-        var result = await _sut.Handle(query, CancellationToken.None);
-
-        result.Should().NotBeNull();
-        result.TotalCount.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task Handle_NullQuery_ThrowsArgumentNullException()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => _sut.Handle(null!, CancellationToken.None));
-    }
-}
-
-#endregion
+// GetCrmDashboardHandlerTests — moved to standalone file
+// GetCustomersCrmHandlerTests — moved to standalone file
 
 #region GetSuppliersCrmHandler
 
