@@ -45,6 +45,7 @@ public static class HealthEndpoints
             HealthCheckService healthCheckService,
             IAdapterFactory adapterFactory,
             IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
             ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
@@ -80,7 +81,7 @@ public static class HealthEndpoints
                 catch (Exception ex)
                 {
                     adapterSw.Stop();
-                    return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, ex.Message);
+                    return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, "Connection failed");
                 }
             });
             adapterChecks.AddRange(await Task.WhenAll(pingTasks));
@@ -90,7 +91,8 @@ public static class HealthEndpoints
             var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://localhost:3105";
             try
             {
-                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+                using var http = httpClientFactory.CreateClient("MesaHealth");
+                http.Timeout = TimeSpan.FromSeconds(3);
                 var mesaSw = System.Diagnostics.Stopwatch.StartNew();
                 var resp = await http.GetAsync($"{mesaUrl}/api/mesa/status", ct);
                 mesaSw.Stop();
@@ -99,7 +101,7 @@ public static class HealthEndpoints
             }
             catch (Exception ex)
             {
-                mesaCheck = new HealthCheckItem("mesa-os", false, 0, ex.Message);
+                mesaCheck = new HealthCheckItem("mesa-os", false, 0, "Connection failed");
             }
 
             sw.Stop();
