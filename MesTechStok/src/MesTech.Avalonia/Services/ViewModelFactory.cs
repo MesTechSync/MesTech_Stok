@@ -31,6 +31,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "AppHub" => _provider.GetService<AppHubViewModel>(),
             "MfaSetup" => _provider.GetService<MfaSetupViewModel>(),
             "Bitrix24" => _provider.GetService<Bitrix24AvaloniaViewModel>(),
+            "Campaign" => _provider.GetService<CampaignAvaloniaViewModel>(),
             "Dashboard" => _provider.GetService<DashboardAvaloniaViewModel>(),
             "Leads" => _provider.GetService<LeadsAvaloniaViewModel>(),
             "Kanban" => _provider.GetService<KanbanAvaloniaViewModel>(),

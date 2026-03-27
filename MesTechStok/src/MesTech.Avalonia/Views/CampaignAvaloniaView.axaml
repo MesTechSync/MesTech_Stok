@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:dto="using:MesTech.Application.DTOs.Crm"
+             x:Class="MesTech.Avalonia.Views.CampaignAvaloniaView"
+             x:DataType="vm:CampaignAvaloniaViewModel">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <!-- G105: Kampanya Yönetim Ekranı -->
+    <Panel>
+    <Border IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="12" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="200" />
+            <TextBlock Text="Kampanyalar yukleniyor..." Foreground="{DynamicResource MesTextSecondary}" HorizontalAlignment="Center" />
+        </StackPanel>
+    </Border>
+
+    <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="24,16">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Kampanya Yonetimi" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextSecondary}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} aktif kampanya">
+                                <Binding Path="ActiveCampaignCount" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} urun kampanyada">
+                                <Binding Path="TotalProductsInCampaign" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+            <Button Grid.Column="1" Content="↻ Yenile" Command="{Binding RefreshCommand}"
+                    Padding="12,8" Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
+                    FontWeight="SemiBold" CornerRadius="{StaticResource MesRadiusMd}" />
+        </Grid>
+
+        <!-- Yeni Kampanya Formu -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
+                Padding="20" Margin="0,0,0,16" BoxShadow="{DynamicResource MesElevation1}">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Yeni Kampanya Olustur" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" />
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" RowDefinitions="Auto" HorizontalAlignment="Stretch">
+                    <TextBox Grid.Column="0" Text="{Binding NewCampaignName}" Watermark="Kampanya adi..."
+                             Margin="0,0,8,0" CornerRadius="{StaticResource MesRadiusMd}" />
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
+                              Width="140" Margin="0,0,8,0" />
+                    <NumericUpDown Grid.Column="2" Value="{Binding DiscountPercent}" Minimum="1" Maximum="90"
+                                   FormatString="N0" Width="100" Margin="0,0,8,0" Watermark="% indirim" />
+                    <Button Grid.Column="4" Content="+ Olustur" Command="{Binding CreateCampaignCommand}"
+                            Padding="16,8" Background="{DynamicResource MesGreenSuccess}" Foreground="White"
+                            FontWeight="Bold" CornerRadius="{StaticResource MesRadiusMd}" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Kampanyalar DataGrid -->
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Campaigns}"
+                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                  IsReadOnly="True" GridLinesVisibility="Horizontal"
+                  BorderThickness="0" Background="{DynamicResource MesBgPrimary}"
+                  IsVisible="{Binding Campaigns.Count}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Kampanya Adi" Binding="{Binding Name}" Width="200" />
+                <DataGridTextColumn Header="Baslangic" Binding="{Binding StartDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110" />
+                <DataGridTextColumn Header="Bitis" Binding="{Binding EndDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="110" />
+                <DataGridTextColumn Header="Indirim %" Binding="{Binding DiscountPercent, StringFormat='{}{0:N0}%'}" Width="90" />
+                <DataGridTextColumn Header="Urun" Binding="{Binding ProductCount}" Width="80" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding IsActive}" Width="80" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty state -->
+        <Border Grid.Row="3" IsVisible="{Binding !Campaigns.Count}"
+                Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusLg}"
+                Padding="40" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="8" HorizontalAlignment="Center">
+                <TextBlock Text="📢" FontSize="40" HorizontalAlignment="Center" />
+                <TextBlock Text="Henuz kampanya yok" FontSize="16" Foreground="{DynamicResource MesTextSecondary}" HorizontalAlignment="Center" />
+                <TextBlock Text="Yukaridaki formu kullanarak ilk kampanyanizi olusturun." FontSize="12"
+                           Foreground="{DynamicResource MesTextTertiary}" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error -->
+        <Border Grid.Row="2" IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
+                CornerRadius="{StaticResource MesRadiusMd}" Padding="12" Margin="0,0,0,8">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
+        </Border>
+
+    </Grid>
+    </ScrollViewer>
+    </Panel>
+</UserControl>
