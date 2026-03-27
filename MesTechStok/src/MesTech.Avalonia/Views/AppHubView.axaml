@@ -242,6 +242,7 @@
         <!-- Row 3: Quick Action Bar -->
         <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="20,14" BoxShadow="{DynamicResource MesElevation1}">
+          <StackPanel Spacing="4">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <Button Padding="16,10" CornerRadius="{StaticResource MesRadiusMd}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
@@ -282,6 +283,7 @@
             <TextBlock Text="{Binding QuickActionStatus}" FontSize="{StaticResource FontSizeCaption}"
                        Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center"
                        Margin="0,8,0,0" IsVisible="{Binding QuickActionStatus.Length}" />
+          </StackPanel>
         </Border>
 
     </Grid>
