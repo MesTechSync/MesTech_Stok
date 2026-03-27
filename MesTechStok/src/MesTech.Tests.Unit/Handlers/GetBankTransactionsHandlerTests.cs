@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetBankTransactions;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -24,8 +24,8 @@ public class GetBankTransactionsHandlerTests
     {
         var transactions = new List<BankTransaction>
         {
-            new() { Id = Guid.NewGuid(), BankAccountId = _bankAccountId, Amount = 1500m, Description = "Trendyol havale", TransactionDate = DateTime.UtcNow, IsReconciled = false },
-            new() { Id = Guid.NewGuid(), BankAccountId = _bankAccountId, Amount = -300m, Description = "Kargo ödemesi", TransactionDate = DateTime.UtcNow, IsReconciled = true }
+            new(Guid.NewGuid(), _bankAccountId, 1500m, "Trendyol havale", DateTime.UtcNow) { IsReconciled = false },
+            new(Guid.NewGuid(), _bankAccountId, -300m, "Kargo ödemesi", DateTime.UtcNow) { IsReconciled = true }
         };
         _repoMock.Setup(r => r.GetByBankAccountAsync(_tenantId, _bankAccountId, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(transactions.AsReadOnly());

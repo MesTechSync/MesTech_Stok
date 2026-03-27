@@ -12,7 +12,7 @@ public class DealsAvaloniaViewModelTests
     private static DealsAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new DealsAvaloniaViewModel(mediatorMock.Object);
+        return new DealsAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

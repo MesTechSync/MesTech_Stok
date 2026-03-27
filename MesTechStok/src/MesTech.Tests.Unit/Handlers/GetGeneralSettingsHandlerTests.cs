@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -36,7 +36,7 @@ public class GetGeneralSettingsHandlerTests
     public async Task Handle_NonExistentTenant_ReturnsNull()
     {
         var tenantId = Guid.NewGuid();
-        _tenantRepoMock.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((Tenant?)null);
+        _tenantRepoMock.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(default(Tenant));
 
         var query = new GetGeneralSettingsQuery(tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);

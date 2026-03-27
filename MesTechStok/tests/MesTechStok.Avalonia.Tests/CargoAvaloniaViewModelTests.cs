@@ -1,5 +1,9 @@
 ﻿using FluentAssertions;
+using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -11,7 +15,7 @@ public class CargoAvaloniaViewModelTests
 
     public CargoAvaloniaViewModelTests()
     {
-        _sut = new CargoAvaloniaViewModel(null);
+        _sut = new CargoAvaloniaViewModel(Mock.Of<IDialogService>(), Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

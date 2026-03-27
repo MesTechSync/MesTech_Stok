@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -24,8 +24,8 @@ public class GetOrderListHandlerTests
     {
         var orders = new List<Order>
         {
-            new() { Id = Guid.NewGuid(), OrderNumber = "ORD-001", CustomerName = "Müşteri A", Status = OrderStatus.Pending, TotalAmount = 100m, OrderDate = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), OrderNumber = "ORD-002", CustomerName = "Müşteri B", Status = OrderStatus.Confirmed, TotalAmount = 250m, OrderDate = DateTime.UtcNow.AddDays(-1) }
+            new Order { Id = Guid.NewGuid(), OrderNumber = "ORD-001", CustomerName = "Müşteri A", Status = OrderStatus.Pending, OrderDate = DateTime.UtcNow },
+            new Order { Id = Guid.NewGuid(), OrderNumber = "ORD-002", CustomerName = "Müşteri B", Status = OrderStatus.Confirmed, OrderDate = DateTime.UtcNow.AddDays(-1) }
         };
 
         _orderRepoMock.Setup(r => r.GetRecentAsync(_tenantId, 100, It.IsAny<CancellationToken>()))

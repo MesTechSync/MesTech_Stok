@@ -1,3 +1,9 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
@@ -44,7 +50,7 @@ public class ExportOrdersHandlerTests
         var to = DateTime.UtcNow;
         var orders = new List<Order>
         {
-            new() { OrderNumber = "ORD-001", CustomerName = "Test", OrderDate = DateTime.UtcNow, TotalAmount = 100m }
+            new Order("ORD-001", "Test", DateTime.UtcNow, 100m)
         };
         _orderRepoMock.Setup(r => r.GetByDateRangeAsync(_tenantId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders.AsReadOnly());

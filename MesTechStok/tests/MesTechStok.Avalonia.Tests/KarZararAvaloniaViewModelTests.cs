@@ -15,7 +15,7 @@ public class KarZararAvaloniaViewModelTests
     public KarZararAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new KarZararAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new KarZararAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

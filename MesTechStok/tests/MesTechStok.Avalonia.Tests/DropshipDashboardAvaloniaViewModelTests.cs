@@ -15,7 +15,7 @@ public class DropshipDashboardAvaloniaViewModelTests
     public DropshipDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new DropshipDashboardAvaloniaViewModel();
+        _sut = new DropshipDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

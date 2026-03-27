@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.Invoice.Commands;
@@ -56,7 +56,7 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object);
+        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object, Mock.Of<IUnitOfWork>());
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -67,7 +67,7 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object);
+        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object, Mock.Of<IUnitOfWork>());
         var cmd = new BulkCreateInvoiceCommand(new List<Guid>(), InvoiceProvider.Sovos);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -82,7 +82,7 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object);
+        var sut = new BulkCreateInvoiceHandler(repo.Object, logger.Object, Mock.Of<IUnitOfWork>());
         var orderIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
         var cmd = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
 

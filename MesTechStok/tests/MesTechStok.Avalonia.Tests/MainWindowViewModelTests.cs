@@ -16,7 +16,7 @@ public class MainWindowViewModelTests
     public MainWindowViewModelTests()
     {
         _factoryMock = new Mock<IViewModelFactory>();
-        _sut = new MainWindowViewModel(_factoryMock.Object);
+        _sut = new MainWindowViewModel(_factoryMock.Object, Mock.Of<MesTech.Avalonia.Services.IFeatureGateService>());
     }
 
     [Fact]

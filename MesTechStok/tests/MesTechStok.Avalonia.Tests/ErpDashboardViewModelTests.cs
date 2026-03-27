@@ -15,7 +15,7 @@ public class ErpDashboardViewModelTests
     public ErpDashboardViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new ErpDashboardViewModel(_mediatorMock.Object);
+        _sut = new ErpDashboardViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public class ErpDashboardViewModelTests
 
         // Verify that the error message format is correct if it were set
         // Simulate what would happen: manually set and verify the pattern
-        var vm = new ErpDashboardViewModel(_mediatorMock.Object);
+        var vm = new ErpDashboardViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
         // Verify error properties are observable and settable
         vm.HasError = true;
         vm.ErrorMessage = "ERP verileri yuklenemedi: Test error";

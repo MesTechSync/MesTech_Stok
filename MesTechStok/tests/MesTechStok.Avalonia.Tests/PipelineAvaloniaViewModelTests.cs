@@ -12,7 +12,7 @@ public class PipelineAvaloniaViewModelTests
     private static PipelineAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new PipelineAvaloniaViewModel(mediatorMock.Object);
+        return new PipelineAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

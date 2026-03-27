@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -11,7 +11,7 @@ public class EInvoiceAvaloniaViewModelTests
 
     public EInvoiceAvaloniaViewModelTests()
     {
-        _sut = new EInvoiceAvaloniaViewModel();
+        _sut = new EInvoiceAvaloniaViewModel(null);
     }
 
     [Fact]

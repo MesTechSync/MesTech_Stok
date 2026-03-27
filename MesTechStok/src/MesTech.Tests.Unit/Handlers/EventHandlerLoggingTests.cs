@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Accounting.Events;
@@ -31,7 +31,7 @@ public class EventHandlerLoggingTests
             TotalAmount = 5000m
         };
 
-        var act = () => sut.HandleAsync(evt, CancellationToken.None);
+        var act = async () => await sut.HandleAsync(evt, CancellationToken.None);
         await act.Should().NotThrowAsync();
     }
 
@@ -47,7 +47,7 @@ public class EventHandlerLoggingTests
             TotalOutflow = 3000m
         };
 
-        var act = () => sut.HandleAsync(evt, CancellationToken.None);
+        var act = async () => await sut.HandleAsync(evt, CancellationToken.None);
         await act.Should().NotThrowAsync();
     }
 
@@ -56,7 +56,7 @@ public class EventHandlerLoggingTests
     {
         var sut = new EInvoiceCreatedEventHandler(NullLogger<EInvoiceCreatedEventHandler>.Instance);
 
-        var act = () => sut.HandleAsync(Guid.NewGuid(), "ETTN-001", MesTech.Domain.Enums.EInvoiceType.SATIS, CancellationToken.None);
+        var act = async () => await sut.HandleAsync(Guid.NewGuid(), "ETTN-001", MesTech.Domain.Enums.EInvoiceType.SATIS, CancellationToken.None);
         await act.Should().NotThrowAsync();
     }
 
@@ -65,7 +65,7 @@ public class EventHandlerLoggingTests
     {
         var sut = new EInvoiceCancelledEventHandler(NullLogger<EInvoiceCancelledEventHandler>.Instance);
 
-        var act = () => sut.HandleAsync(Guid.NewGuid(), "ETTN-002", "Musteri iade", CancellationToken.None);
+        var act = async () => await sut.HandleAsync(Guid.NewGuid(), "ETTN-002", "Musteri iade", CancellationToken.None);
         await act.Should().NotThrowAsync();
     }
 

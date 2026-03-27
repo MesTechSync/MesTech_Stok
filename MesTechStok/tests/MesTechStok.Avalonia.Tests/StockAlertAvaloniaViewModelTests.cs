@@ -12,7 +12,7 @@ public class StockAlertAvaloniaViewModelTests
     private static StockAlertAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new StockAlertAvaloniaViewModel(mediatorMock.Object);
+        return new StockAlertAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

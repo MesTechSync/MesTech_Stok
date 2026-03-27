@@ -11,7 +11,7 @@ public class PlatformSyncStatusAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private PlatformSyncStatusAvaloniaViewModel CreateSut() => new(_mediatorMock.Object);
+    private PlatformSyncStatusAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

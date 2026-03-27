@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -7,7 +7,7 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class OrdersAvaloniaViewModelTests
 {
-    private static OrdersAvaloniaViewModel CreateSut() => new();
+    private static OrdersAvaloniaViewModel CreateSut() => new(null, null);
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

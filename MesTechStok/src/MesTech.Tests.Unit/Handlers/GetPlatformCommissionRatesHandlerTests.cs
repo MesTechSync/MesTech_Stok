@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -24,7 +24,7 @@ public class GetPlatformCommissionRatesHandlerTests
     {
         var commissions = new List<PlatformCommission>
         {
-            new() { Id = Guid.NewGuid(), Platform = PlatformType.Trendyol, Rate = 12.5m, IsActive = true, Currency = "TRY" }
+            new PlatformCommission { Id = Guid.NewGuid(), Platform = PlatformType.Trendyol, Rate = 12.5m, IsActive = true, Currency = "TRY" }
         };
         _repoMock.Setup(r => r.GetByPlatformAsync(_tenantId, PlatformType.Trendyol, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(commissions.AsReadOnly());

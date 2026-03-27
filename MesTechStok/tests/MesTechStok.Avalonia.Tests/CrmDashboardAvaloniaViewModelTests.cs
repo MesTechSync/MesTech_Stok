@@ -17,7 +17,7 @@ public class CrmDashboardAvaloniaViewModelTests
     public CrmDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new CrmDashboardAvaloniaViewModel();
+        _sut = new CrmDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     private CrmDashboardDto CreateTestDto() => new()

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -22,8 +22,8 @@ public class GetLowStockProductsHandlerTests
     {
         var products = new List<Product>
         {
-            new() { Id = Guid.NewGuid(), Name = "Düşük Stok A", Stock = 2, MinimumStock = 10 },
-            new() { Id = Guid.NewGuid(), Name = "Düşük Stok B", Stock = 0, MinimumStock = 5 }
+            new Product { Id = Guid.NewGuid(), Name = "Düşük Stok A", Stock = 2, MinimumStock = 10 },
+            new Product { Id = Guid.NewGuid(), Name = "Düşük Stok B", Stock = 0, MinimumStock = 5 }
         };
         _productRepoMock.Setup(r => r.GetLowStockAsync()).ReturnsAsync(products.AsReadOnly());
 

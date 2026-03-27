@@ -1,5 +1,7 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -9,7 +11,7 @@ public class CategoryAvaloniaViewModelTests
 {
     private static CategoryAvaloniaViewModel CreateSut()
     {
-        return new CategoryAvaloniaViewModel();
+        return new CategoryAvaloniaViewModel(Mock.Of<IMediator>());
     }
 
     // ── 3-State: Default ──

@@ -1,5 +1,8 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -11,7 +14,7 @@ public class CargoTrackingAvaloniaViewModelTests
 
     public CargoTrackingAvaloniaViewModelTests()
     {
-        _sut = new CargoTrackingAvaloniaViewModel();
+        _sut = new CargoTrackingAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>());
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Commands.AddStockLot;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -23,7 +23,7 @@ public class AddStockLotHandlerTests
     public async Task Handle_ValidCommand_CreatesLotAndReturnsSuccess()
     {
         var productId = Guid.NewGuid();
-        var product = new Product { Id = productId, Name = "Test", Stock = 10 };
+        var product = new Product(productId, "Test", "DESC", 10);
         _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10.5m);

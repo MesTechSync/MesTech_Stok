@@ -142,7 +142,7 @@ public class FinancialEdgeCaseTests
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger, Mock.Of<IMesTech.Application.Interfaces.Accounting.IAccountRepository>());
+        var handler = new CommissionChargedGLHandler(uow.Object, logger);
 
         // Act
         await handler.HandleAsync(

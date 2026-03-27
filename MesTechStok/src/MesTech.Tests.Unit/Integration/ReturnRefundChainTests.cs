@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Commands.ApproveReturn;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Entities;
@@ -199,7 +199,7 @@ public class ReturnRefundChainTests
     public async Task Chain_ReturnNotFound_FailsEarly_NoDownstreamEffects()
     {
         var missingId = Guid.NewGuid();
-        _returnRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((ReturnRequest?)null);
+        _returnRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((ReturnRequest?)null);eturnsAsync((ReturnRequest?)null);
 
         var result = await _approveHandler.Handle(
             new ApproveReturnCommand(missingId), CancellationToken.None);

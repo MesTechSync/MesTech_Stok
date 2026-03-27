@@ -255,6 +255,8 @@ public class CargoAdapterHardeningTests : IDisposable
                 }))
         );
 
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new HepsiJetCargoAdapter(httpClient, NullLogger<HepsiJetCargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
         {

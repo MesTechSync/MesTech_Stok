@@ -15,7 +15,7 @@ public class IncomeExpenseListViewModelTests
     public IncomeExpenseListViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new IncomeExpenseListViewModel(_mediatorMock.Object);
+        _sut = new IncomeExpenseListViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

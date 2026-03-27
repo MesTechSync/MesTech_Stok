@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -6,6 +6,7 @@ using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Persistence;
 using MesTech.Tests.Integration._Shared;
 using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Tests.Integration.Persistence;
 
@@ -24,7 +25,7 @@ public class UnitOfWorkTests : IntegrationTestBase
     private UnitOfWork CreateUnitOfWork(Mock<IDomainEventDispatcher>? dispatcherMock = null)
     {
         var dispatcher = dispatcherMock ?? new Mock<IDomainEventDispatcher>();
-        return new UnitOfWork(Context, dispatcher.Object);
+        return new UnitOfWork(Context, dispatcher.Object, new Mock<ILogger<UnitOfWork>>().Object);
     }
 
     [Fact]
@@ -122,7 +123,7 @@ public class UnitOfWorkTests : IntegrationTestBase
     {
         var dispatcher = new Mock<IDomainEventDispatcher>();
 
-        var act = () => new UnitOfWork(null!, dispatcher.Object);
+        var act = () => new UnitOfWork(null!, dispatcher.Object, new Mock<ILogger<UnitOfWork>>().Object);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("context");
     }
@@ -130,7 +131,7 @@ public class UnitOfWorkTests : IntegrationTestBase
     [Fact]
     public void Constructor_NullDispatcher_ShouldThrow()
     {
-        var act = () => new UnitOfWork(Context, null!);
+        var act = () => new UnitOfWork(Context, null!, new Mock<ILogger<UnitOfWork>>().Object);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("dispatcher");
     }

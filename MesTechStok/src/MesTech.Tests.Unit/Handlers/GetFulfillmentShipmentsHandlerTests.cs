@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -11,7 +11,8 @@ public class GetFulfillmentShipmentsHandlerTests
     [Fact]
     public async Task Handle_NullRequest_Throws()
     {
-        var sut = new GetFulfillmentShipmentsHandler(Mock.Of<IOrderRepository>());
+        var mockRepository = new Mock<IOrderRepository>();
+        var sut = new GetFulfillmentShipmentsHandler(mockRepository.Object);
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

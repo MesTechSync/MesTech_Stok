@@ -12,7 +12,7 @@ public class StockTransferAvaloniaViewModelTests
     private static StockTransferAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new StockTransferAvaloniaViewModel(mediatorMock.Object);
+        return new StockTransferAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     // ── 3-State: Default ──

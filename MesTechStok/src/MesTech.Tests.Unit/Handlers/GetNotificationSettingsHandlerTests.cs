@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Notifications.Queries.GetNotificationSettings;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -24,8 +24,8 @@ public class GetNotificationSettingsHandlerTests
         var userId = Guid.NewGuid();
         var settings = new List<NotificationSetting>
         {
-            new() { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.Email, IsEnabled = true },
-            new() { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.InApp, IsEnabled = false }
+            new NotificationSetting { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.Email, IsEnabled = true },
+            new NotificationSetting { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.InApp, IsEnabled = false }
         };
         _repoMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(settings.AsReadOnly());

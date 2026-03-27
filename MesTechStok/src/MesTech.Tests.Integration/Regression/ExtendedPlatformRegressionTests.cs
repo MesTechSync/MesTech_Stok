@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Reflection;
 using FluentAssertions;
 using MesTech.Application.Interfaces;
@@ -43,7 +43,7 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
     [Fact]
     public void N11_PlatformCode_IsCorrect()
     {
-        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>());
+        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), new HttpClient());
         adapter.PlatformCode.Should().Be("N11");
     }
 
@@ -67,7 +67,7 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildN11GetCategoryListResponse(3)));
 
-        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>());
+        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), new HttpClient());
         var credentials = new Dictionary<string, string>
         {
             ["N11AppKey"] = "test-n11-key",

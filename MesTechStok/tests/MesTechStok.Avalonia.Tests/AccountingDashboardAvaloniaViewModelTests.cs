@@ -17,7 +17,7 @@ public class AccountingDashboardAvaloniaViewModelTests
     public AccountingDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new AccountingDashboardAvaloniaViewModel(_mediatorMock.Object, new Mock<Microsoft.Extensions.Logging.ILogger<AccountingDashboardAvaloniaViewModel>>().Object);
+        _sut = new AccountingDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

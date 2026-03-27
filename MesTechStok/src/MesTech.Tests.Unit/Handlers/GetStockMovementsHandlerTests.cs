@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Queries.GetStockMovements;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -23,8 +23,8 @@ public class GetStockMovementsHandlerTests
         var productId = Guid.NewGuid();
         var movements = new List<StockMovement>
         {
-            new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = 10 },
-            new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = -5 }
+            new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = 10, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = -5, CreatedAt = DateTime.UtcNow }
         };
         _movementRepoMock.Setup(r => r.GetByProductIdAsync(productId)).ReturnsAsync(movements.AsReadOnly());
 
@@ -39,7 +39,7 @@ public class GetStockMovementsHandlerTests
     {
         var from = DateTime.UtcNow.AddDays(-7);
         var to = DateTime.UtcNow;
-        var movements = new List<StockMovement> { new() { Id = Guid.NewGuid(), Quantity = 10 } };
+        var movements = new List<StockMovement> { new() { Id = Guid.NewGuid(), Quantity = 10, CreatedAt = DateTime.UtcNow } };
         _movementRepoMock.Setup(r => r.GetByDateRangeAsync(from, to)).ReturnsAsync(movements.AsReadOnly());
 
         var query = new GetStockMovementsQuery(From: from, To: to);

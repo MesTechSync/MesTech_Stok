@@ -15,7 +15,7 @@ public class ReturnListAvaloniaViewModelTests
     public ReturnListAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new ReturnListAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new ReturnListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

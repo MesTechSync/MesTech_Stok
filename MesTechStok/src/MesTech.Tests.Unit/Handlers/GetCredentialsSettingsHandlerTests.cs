@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -24,9 +24,9 @@ public class GetCredentialsSettingsHandlerTests
     {
         var stores = new List<Store>
         {
-            new() { Id = Guid.NewGuid(), PlatformType = PlatformType.Trendyol, IsActive = true },
-            new() { Id = Guid.NewGuid(), PlatformType = PlatformType.Hepsiburada, IsActive = true },
-            new() { Id = Guid.NewGuid(), PlatformType = PlatformType.N11, IsActive = false }
+            new Store { Id = Guid.NewGuid(), PlatformType = PlatformType.Trendyol, IsActive = true },
+            new Store { Id = Guid.NewGuid(), PlatformType = PlatformType.Hepsiburada, IsActive = true },
+            new Store { Id = Guid.NewGuid(), PlatformType = PlatformType.N11, IsActive = false }
         };
         _storeRepoMock.Setup(r => r.GetByTenantIdAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(stores.AsReadOnly());

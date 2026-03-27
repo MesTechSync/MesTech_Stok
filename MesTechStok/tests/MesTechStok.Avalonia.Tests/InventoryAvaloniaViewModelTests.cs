@@ -1,5 +1,6 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -7,7 +8,7 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class InventoryAvaloniaViewModelTests
 {
-    private static InventoryAvaloniaViewModel CreateSut() => new();
+    private static InventoryAvaloniaViewModel CreateSut() => new(Mock.Of<MediatR.IMediator>());
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

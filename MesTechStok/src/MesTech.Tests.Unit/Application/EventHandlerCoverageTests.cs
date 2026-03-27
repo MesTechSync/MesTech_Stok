@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Accounting.Events;

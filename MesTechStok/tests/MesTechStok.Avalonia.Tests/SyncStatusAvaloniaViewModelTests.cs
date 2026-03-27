@@ -1,5 +1,8 @@
-using FluentAssertions;
+﻿using FluentAssertions;
+using MediatR;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -11,7 +14,7 @@ public class SyncStatusAvaloniaViewModelTests
 
     public SyncStatusAvaloniaViewModelTests()
     {
-        _sut = new SyncStatusAvaloniaViewModel();
+        _sut = new SyncStatusAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
@@ -55,14 +58,14 @@ public class SyncStatusAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task SyncPlatformCommand_ShouldUpdateStatusToBasarili()
+    public async Task SyncNowCommand_ShouldUpdateStatusToBasarili()
     {
         // Arrange
         await _sut.LoadAsync();
         var hatalıPlatform = _sut.Items.First(i => i.Durum == "Hatali");
 
         // Act
-        await _sut.SyncPlatformCommand.ExecuteAsync(hatalıPlatform);
+        await _sut.SyncNowCommand.ExecuteAsync(hatalıPlatform);
 
         // Assert
         hatalıPlatform.Durum.Should().Be("Basarili");

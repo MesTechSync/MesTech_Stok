@@ -15,7 +15,7 @@ public class KomisyonAvaloniaViewModelTests
     public KomisyonAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new KomisyonAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new KomisyonAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

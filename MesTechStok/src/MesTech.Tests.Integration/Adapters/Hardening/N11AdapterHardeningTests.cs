@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -44,7 +44,7 @@ public class N11AdapterHardeningTests : IClassFixture<WireMockFixture>, IDisposa
         {
             Timeout = timeout ?? TimeSpan.FromSeconds(5)
         };
-        var adapter = new N11Adapter(_logger);
+        var adapter = CreateAdapter(TimeSpan.FromSeconds(3));
         adapter.Configure("test-app-key", "test-app-secret", _fixture.BaseUrl, httpClient);
         return adapter;
     }
@@ -206,7 +206,7 @@ public class N11AdapterHardeningTests : IClassFixture<WireMockFixture>, IDisposa
         {
             Timeout = TimeSpan.FromSeconds(5)
         };
-        var adapter = new N11Adapter(_logger);
+        var adapter = CreateAdapter();
         adapter.Configure("test-key", "test-secret", "http://127.0.0.1:1", httpClient);
 
         var creds = new Dictionary<string, string>

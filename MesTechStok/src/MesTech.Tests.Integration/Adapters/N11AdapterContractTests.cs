@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Infrastructure.Integration.Adapters;
@@ -37,7 +37,7 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
     private N11Adapter CreateConfiguredAdapter()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
-        var adapter = new N11Adapter(_logger);
+        var adapter = CreateConfiguredAdapter();
         adapter.Configure(TestAppKey, TestAppSecret, _fixture.BaseUrl, httpClient);
         return adapter;
     }
@@ -73,7 +73,7 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildN11GetCategoryListResponse(3)));
 
-        var adapter = new N11Adapter(_logger);
+        var adapter = CreateConfiguredAdapter();
         var result = await adapter.TestConnectionAsync(GetValidCredentials());
 
         result.IsSuccess.Should().BeTrue();

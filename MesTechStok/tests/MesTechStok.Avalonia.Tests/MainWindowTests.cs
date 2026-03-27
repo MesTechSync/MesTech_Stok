@@ -66,7 +66,7 @@ public class MainWindowTests
     {
         // Arrange
         var mockFactory = new Mock<MesTech.Avalonia.Services.IViewModelFactory>();
-        var vm = new MainWindowViewModel(mockFactory.Object);
+        var vm = new MainWindowViewModel(mockFactory.Object, Mock.Of<MesTech.Avalonia.Services.IFeatureGateService>());
 
         var window = new MainWindow
         {

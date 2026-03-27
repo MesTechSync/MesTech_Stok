@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Commands.DeleteCategory;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -22,7 +22,7 @@ public class DeleteCategoryHandlerTests
     public async Task Handle_ExistingCategory_DeletesAndReturnsSuccess()
     {
         var categoryId = Guid.NewGuid();
-        var category = new Category { Id = categoryId, Name = "Test", Code = "TST" };
+        var category = Category.Create("Test", "TST");
         _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId)).ReturnsAsync(category);
 
         var cmd = new DeleteCategoryCommand(categoryId);

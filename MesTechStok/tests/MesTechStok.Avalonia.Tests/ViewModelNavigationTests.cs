@@ -21,7 +21,7 @@ public class ViewModelNavigationTests
     public ViewModelNavigationTests()
     {
         _mockFactory = new Mock<MesTech.Avalonia.Services.IViewModelFactory>();
-        _sut = new MainWindowViewModel(_mockFactory.Object);
+        _sut = new MainWindowViewModel(_mockFactory.Object, Mock.Of<MesTech.Avalonia.Services.IFeatureGateService>());
     }
 
     [Fact]

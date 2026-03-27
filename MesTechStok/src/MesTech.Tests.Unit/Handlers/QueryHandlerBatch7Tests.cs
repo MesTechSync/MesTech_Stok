@@ -1,5 +1,6 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Crm.Queries.GetBitrix24Pipeline;
+using MesTech.Application.Interfaces.Crm;
 using MesTech.Application.Features.Accounting.Queries.GetCargoComparison;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Accounting.Queries.GetFixedExpenseById;
@@ -27,7 +28,7 @@ public class QueryHandlerBatch7Tests
     [Fact]
     public async Task GetBitrix24Pipeline_NullRequest_Throws()
     {
-        var sut = new GetBitrix24PipelineHandler(Mock.Of<IBitrix24Repository>());
+        var sut = new GetBitrix24PipelineHandler(Mock.Of<IBitrix24Repository>(), Mock.Of<Microsoft.Extensions.Logging.ILogger<GetBitrix24PipelineHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

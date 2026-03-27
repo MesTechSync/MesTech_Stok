@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ public class N11SoapContractTests : IDisposable
     {
         _server = WireMockServer.Start();
         _baseUrl = _server.Url!;
-        _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object);
+        _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object, new HttpClient());
         _adapter.Configure("test-app-key", "test-app-secret", _baseUrl);
     }
 

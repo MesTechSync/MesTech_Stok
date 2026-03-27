@@ -1,5 +1,8 @@
 ﻿using FluentAssertions;
+using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -11,7 +14,7 @@ public class InvoiceListAvaloniaViewModelTests
 
     public InvoiceListAvaloniaViewModelTests()
     {
-        _sut = new InvoiceListAvaloniaViewModel(null);
+        _sut = new InvoiceListAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<IDialogService>());
     }
 
     [Fact]

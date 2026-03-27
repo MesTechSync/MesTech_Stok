@@ -1,5 +1,8 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -9,7 +12,7 @@ public class CustomerAvaloniaViewModelTests
 {
     private static CustomerAvaloniaViewModel CreateSut()
     {
-        return new CustomerAvaloniaViewModel();
+        return new CustomerAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

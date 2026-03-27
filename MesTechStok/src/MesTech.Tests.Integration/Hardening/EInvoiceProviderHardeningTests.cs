@@ -196,7 +196,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
 
         var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var ublBuilder = new UblTrXmlBuilder();
-        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
+        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);ttpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
         provider.Configure("test-api-key", _baseUrl);
 
         // Act

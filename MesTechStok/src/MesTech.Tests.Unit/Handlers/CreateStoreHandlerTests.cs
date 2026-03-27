@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
@@ -29,7 +29,7 @@ public class CreateStoreHandlerTests
             Mock.Of<ICredentialEncryptionService>(), Mock.Of<IAdapterFactory>(),
             Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<CreateStoreHandler>>());
 
-        var cmd = new CreateStoreCommand(Guid.NewGuid(), "", MesTech.Domain.Enums.PlatformType.Trendyol, null, null, null);
+        var cmd = new CreateStoreCommand { StoreId = Guid.NewGuid(), StoreName = "", PlatformType = MesTech.Domain.Enums.PlatformType.Trendyol };
         var result = await sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();

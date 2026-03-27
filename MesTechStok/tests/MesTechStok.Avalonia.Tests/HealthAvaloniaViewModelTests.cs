@@ -11,7 +11,7 @@ public class HealthAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private HealthAvaloniaViewModel CreateSut() => new();
+    private HealthAvaloniaViewModel CreateSut() => new(Mock.Of<IMediator>(), Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

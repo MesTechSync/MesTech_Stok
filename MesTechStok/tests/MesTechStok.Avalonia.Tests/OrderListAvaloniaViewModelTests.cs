@@ -15,7 +15,7 @@ public class OrderListAvaloniaViewModelTests
     public OrderListAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

@@ -15,7 +15,7 @@ public class ProfitLossAvaloniaViewModelTests
     public ProfitLossAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new ProfitLossAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new ProfitLossAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Reports.InventoryValuationReport;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -23,9 +23,9 @@ public class GetStockValueReportHandlerTests
     {
         var products = new List<Product>
         {
-            new() { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", Stock = 10, PurchasePrice = 50m, SalePrice = 100m },
-            new() { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 5, PurchasePrice = 30m, SalePrice = 60m },
-            new() { Id = Guid.NewGuid(), Name = "Stoksuz", SKU = "SKU-C", Stock = 0, PurchasePrice = 20m, SalePrice = 40m }
+            new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", Stock = 10, PurchasePrice = 50m, SalePrice = 100m },
+            new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 5, PurchasePrice = 30m, SalePrice = 60m },
+            new Product { Id = Guid.NewGuid(), Name = "Stoksuz", SKU = "SKU-C", Stock = 0, PurchasePrice = 20m, SalePrice = 40m }
         };
         _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
 
