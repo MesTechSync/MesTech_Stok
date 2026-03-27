@@ -38,6 +38,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    // Shopify leaky bucket: 40 req/s burst, 2 req/s sustained. 4 concurrency prevents 429 storm.
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(4, 4);
 
     // Runtime credential state — set via TestConnectionAsync

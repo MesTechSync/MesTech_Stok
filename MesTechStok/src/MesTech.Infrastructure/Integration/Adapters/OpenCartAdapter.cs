@@ -34,7 +34,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public OpenCartAdapter(HttpClient httpClient, ILogger<OpenCartAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(60);
+        _httpClient.Timeout = TimeSpan.FromSeconds(60); // OpenCart self-hosted — slow servers common, 60s prevents false timeout
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions

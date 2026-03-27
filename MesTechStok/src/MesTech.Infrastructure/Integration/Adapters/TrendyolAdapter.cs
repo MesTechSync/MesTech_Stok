@@ -32,6 +32,8 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
+    // Trendyol API: 50 req/10s limit — 100 concurrency allows burst queueing with 5-attempt 429 retry.
+    // Higher than other adapters (10-20) due to batch product sync volume (10K+ SKU).
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(100, 100);
     private volatile int _totalRequests;
     private volatile int _throttledRequests;
@@ -45,7 +47,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         IOptions<TrendyolOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(15);
+        _httpClient.Timeout = TimeSpan.FromSeconds(15); // Trendyol API responds fast — 15s fast-fail strategy
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new TrendyolOptions();
 
