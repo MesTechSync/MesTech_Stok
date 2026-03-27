@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Hangfire.Dashboard;
 
 namespace MesTech.WebApi.Filters;
@@ -40,7 +42,12 @@ public sealed class HangfireDashboardAuthFilter : IDashboardAuthorizationFilter
 
         var providedKey = headerKey ?? queryKey;
 
-        return !string.IsNullOrEmpty(providedKey)
-            && string.Equals(providedKey, _allowedApiKey, StringComparison.Ordinal);
+        if (string.IsNullOrEmpty(providedKey))
+            return false;
+
+        // Constant-time comparison to prevent timing-based side-channel attacks
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(providedKey),
+            Encoding.UTF8.GetBytes(_allowedApiKey));
     }
 }

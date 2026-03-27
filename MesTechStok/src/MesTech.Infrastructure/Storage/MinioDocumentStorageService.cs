@@ -47,6 +47,10 @@ public sealed class MinioDocumentStorageService : IDocumentStorageService
         return storagePath;
     }
 
+    /// <summary>
+    /// Downloads file from MinIO. Caller MUST dispose the returned stream.
+    /// Usage: await using var stream = await DownloadAsync(path, ct);
+    /// </summary>
     public async Task<Stream> DownloadAsync(
         string storagePath,
         CancellationToken cancellationToken = default)
@@ -54,15 +58,23 @@ public sealed class MinioDocumentStorageService : IDocumentStorageService
         var (bucket, obj) = ParsePath(storagePath);
         var ms = new MemoryStream();
 
-        await _minio.GetObjectAsync(new GetObjectArgs()
-            .WithBucket(bucket)
-            .WithObject(obj)
-            .WithCallbackStream(s => s.CopyTo(ms)), cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            await _minio.GetObjectAsync(new GetObjectArgs()
+                .WithBucket(bucket)
+                .WithObject(obj)
+                .WithCallbackStream(s => s.CopyTo(ms)), cancellationToken)
+                .ConfigureAwait(false);
 
-        ms.Position = 0;
-        _logger.LogInformation("MinIO download: {Path}", storagePath);
-        return ms;
+            ms.Position = 0;
+            _logger.LogInformation("MinIO download: {Path}", storagePath);
+            return ms;
+        }
+        catch
+        {
+            await ms.DisposeAsync().ConfigureAwait(false);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(
