@@ -33,6 +33,7 @@
                    FontSize="{StaticResource FontSizeSmall}"
                    Foreground="{DynamicResource TextSecondaryBrush}"/>
         <TextBox x:Name="UsernameBox"
+                 Text="admin"
                  Watermark="Kullanıcı adınızı girin" AutomationProperties.Name="Kullanıcı adınızı girin"
                  FontSize="{StaticResource FontSizeBody}"/>
       </StackPanel>
@@ -108,6 +109,13 @@
                      FontSize="{StaticResource FontSizeCaption}"/>
         </StackPanel>
       </Border>
+
+      <!-- Demo giriş bilgisi (WPF ile aynı) -->
+      <TextBlock Text="Demo Giriş: admin / Admin123!"
+                 FontSize="{StaticResource FontSizeCaption}"
+                 Foreground="{DynamicResource TextSecondaryBrush}"
+                 HorizontalAlignment="Center"
+                 Opacity="0.7"/>
 
     </StackPanel>
   </Border>
