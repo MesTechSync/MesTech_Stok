@@ -37,9 +37,24 @@ public partial class WelcomeWindow : Window
         };
         _blinkTimer.Start();
 
-        // Tiklama veya klavye → Login'e gec
-        PointerPressed += OnInteraction;
-        KeyDown += OnInteraction;
+        // G090: Buton click handler'ları
+        if (LoginButton != null)
+            LoginButton.Click += (_, _) => NavigateToLogin();
+        if (DemoButton != null)
+            DemoButton.Click += (_, _) => NavigateToDemo();
+        if (RegisterButton != null)
+            RegisterButton.Click += (_, _) => NavigateToLogin(); // Kayıt akışı → Login (şimdilik)
+
+        // Esc ile cikis, herhangi tuş → Login
+        KeyDown += OnKeyHandler;
+    }
+
+    private void OnKeyHandler(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+            Close();
+        else
+            NavigateToLogin();
     }
 
     private void UpdateClock()
@@ -54,12 +69,22 @@ public partial class WelcomeWindow : Window
         }
     }
 
-    private void OnInteraction(object? sender, EventArgs e)
+    private void NavigateToLogin()
     {
         _clockTimer.Stop();
         _blinkTimer.Stop();
 
-        // Login bypass — doğrudan MainWindow'a geç
+        var loginWindow = new LoginWindow();
+        loginWindow.Show();
+        Close();
+    }
+
+    private void NavigateToDemo()
+    {
+        _clockTimer.Stop();
+        _blinkTimer.Stop();
+
+        // Demo: doğrudan MainWindow'a geç (login bypass)
         var app = (App)global::Avalonia.Application.Current!;
         var mainWindow = app.CreateMainWindow();
         mainWindow.Show();
@@ -71,8 +96,7 @@ public partial class WelcomeWindow : Window
     {
         _clockTimer.Stop();
         _blinkTimer.Stop();
-        PointerPressed -= OnInteraction;
-        KeyDown -= OnInteraction;
+        KeyDown -= OnKeyHandler;
         base.OnClosed(e);
     }
 }

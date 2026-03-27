@@ -21,40 +21,86 @@
       </Border.Background>
     </Border>
 
-    <!-- Icerik -->
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+    <!-- G090: Glassmorphism cam efektli karşılama paneli -->
+    <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+            Width="460" Padding="48,40"
+            CornerRadius="24"
+            BoxShadow="0 8 32 0 #40000000">
+      <Border.Background>
+        <SolidColorBrush Color="#DDFFFFFF" />
+      </Border.Background>
 
-      <!-- Logo -->
-      <TextBlock Text="MesTech"
-                 FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
-                 Foreground="{DynamicResource MesBgPrimary}"
-                 HorizontalAlignment="Center"/>
+      <StackPanel Spacing="20" HorizontalAlignment="Center">
 
-      <TextBlock Text="Entegratör"
-                 FontSize="{StaticResource FontSizeHeader}" FontWeight="Light"
-                 Foreground="{DynamicResource MesMutedGray}"
-                 HorizontalAlignment="Center"
-                 Margin="0,-12,0,0"/>
+        <!-- Logo -->
+        <TextBlock Text="MesTech"
+                   FontSize="52" FontWeight="Bold"
+                   Foreground="#1A2332"
+                   HorizontalAlignment="Center"/>
 
-      <!-- Alt baslik -->
-      <TextBlock Text="Çoklu Pazaryeri Yönetim Platformu"
-                 FontSize="{StaticResource FontSizeSubtitle}"
-                 Foreground="{DynamicResource MesSlateGray}"
-                 HorizontalAlignment="Center"
-                 Margin="0,8,0,0"/>
+        <TextBlock Text="Entegratör"
+                   FontSize="22" FontWeight="Light"
+                   Foreground="#64748B"
+                   HorizontalAlignment="Center"
+                   Margin="0,-12,0,0"/>
 
-      <!-- Ayirici cizgi -->
-      <Border Height="1" Width="200" Background="{DynamicResource MesDarkSlate}" Margin="0,16"/>
+        <!-- Alt baslik -->
+        <TextBlock Text="Coklu Pazaryeri Yonetim Platformu"
+                   FontSize="14"
+                   Foreground="#94A3B8"
+                   HorizontalAlignment="Center"
+                   Margin="0,4,0,0"/>
 
-      <!-- Baslama mesaji (yanip sonen animasyon) -->
-      <TextBlock x:Name="StartHintText"
-                 Text="Başlamak için tıklayın veya herhangi bir tuşa basın"
-                 FontSize="{StaticResource FontSizeBody}"
-                 Foreground="{DynamicResource MesTextSlate}"
-                 HorizontalAlignment="Center"
-                 Opacity="1"/>
+        <!-- Ayirici cizgi -->
+        <Border Height="1" Width="200" Background="#E2E8F0" Margin="0,8"/>
 
-    </StackPanel>
+        <!-- Aksiyon butonlari -->
+        <StackPanel Spacing="12">
+          <!-- Giriş Yap -->
+          <Button x:Name="LoginButton" HorizontalAlignment="Stretch" Padding="0,14"
+                  CornerRadius="12" HorizontalContentAlignment="Center"
+                  FontSize="16" FontWeight="Bold"
+                  Background="#2563EB" Foreground="White">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="🔐" FontSize="18" VerticalAlignment="Center" />
+              <TextBlock Text="Giris Yap" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+
+          <!-- Demo Mod -->
+          <Button x:Name="DemoButton" HorizontalAlignment="Stretch" Padding="0,12"
+                  CornerRadius="12" HorizontalContentAlignment="Center"
+                  FontSize="14" FontWeight="SemiBold"
+                  Background="#F1F5F9" Foreground="#475569">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="🎮" FontSize="16" VerticalAlignment="Center" />
+              <TextBlock Text="Demo ile Kesfet" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+
+          <!-- Kayıt Ol -->
+          <Button x:Name="RegisterButton" HorizontalAlignment="Stretch" Padding="0,12"
+                  CornerRadius="12" HorizontalContentAlignment="Center"
+                  FontSize="14" FontWeight="SemiBold"
+                  Background="Transparent" Foreground="#2563EB"
+                  BorderBrush="#2563EB" BorderThickness="1.5">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="✨" FontSize="16" VerticalAlignment="Center" />
+              <TextBlock Text="Yeni Hesap Olustur" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <!-- Hint -->
+        <TextBlock x:Name="StartHintText"
+                   Text="Esc ile cikis"
+                   FontSize="12"
+                   Foreground="#94A3B8"
+                   HorizontalAlignment="Center"
+                   Opacity="0.7"/>
+
+      </StackPanel>
+    </Border>
 
     <!-- Saat + Tarih (sag alt) -->
     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
