@@ -260,7 +260,7 @@ public class MesaBridgeHandlerTests
             new Mock<ILogger<InvoiceCancelledBridgeHandler>>().Object);
 
         var domainEvent = new InvoiceCancelledEvent(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "FTR-2026-001", "Musteri talebi", DateTime.UtcNow);
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "FTR-2026-001", 5000m, "Musteri talebi", DateTime.UtcNow);
 
         await handler.Handle(
             new DomainEventNotification<InvoiceCancelledEvent>(domainEvent),

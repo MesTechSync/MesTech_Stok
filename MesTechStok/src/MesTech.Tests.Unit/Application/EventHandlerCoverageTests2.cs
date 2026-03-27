@@ -107,5 +107,5 @@ public class EventHandlerCoverageTests2
     [Fact]
     public async Task InvoiceApprovedEventHandler_Completes() =>
         await new InvoiceApprovedEventHandler(Mock.Of<ILogger<InvoiceApprovedEventHandler>>())
-            .HandleAsync(new InvoiceApprovedEvent(Guid.NewGuid(), _t, "INV-001", 5000m, InvoiceType.EFatura, DateTime.UtcNow), default);
+            .HandleAsync(new InvoiceApprovedEvent(Guid.NewGuid(), _t, "INV-001", 5000m, 900m, 4100m, InvoiceType.EFatura, DateTime.UtcNow), default);
 }

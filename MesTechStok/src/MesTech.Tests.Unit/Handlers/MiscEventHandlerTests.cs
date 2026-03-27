@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Enums;
@@ -30,6 +30,8 @@ public class MiscEventHandlerTests
             TenantId: Guid.NewGuid(),
             InvoiceNumber: "INV-2026-001",
             GrandTotal: 5000m,
+            TaxAmount: 900m,
+            NetAmount: 4100m,
             Type: InvoiceType.EFatura,
             OccurredAt: DateTime.UtcNow);
 
@@ -51,6 +53,8 @@ public class MiscEventHandlerTests
             TenantId: Guid.NewGuid(),
             InvoiceNumber: $"INV-{type}",
             GrandTotal: 1000m,
+            TaxAmount: 180m,
+            NetAmount: 820m,
             Type: type,
             OccurredAt: DateTime.UtcNow);
 
