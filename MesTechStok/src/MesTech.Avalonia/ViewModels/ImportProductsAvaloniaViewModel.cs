@@ -103,6 +103,28 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         await base.InitializeAsync();
     }
 
+    public override async Task LoadAsync()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        try
+        {
+            await Task.Delay(100); // Simulate init
+            // Reset wizard to step 1 clean state
+            ResetWizard();
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     // ─── Commands ────────────────────────────────────────────────────────────
 
     /// <summary>Opens Avalonia file picker for .xlsx and .csv files.</summary>

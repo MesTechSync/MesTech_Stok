@@ -29,6 +29,36 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
+    public override async Task LoadAsync()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        try
+        {
+            await Task.Delay(100); // Simulate init
+            // Set initial state — user will enter URL and click Preview
+            FeedUrl = string.Empty;
+            FeedFormat = "XML";
+            PreviewLoaded = false;
+            TotalProducts = 0;
+            ValidProducts = 0;
+            ErrorCount = 0;
+            PreviewItems.Clear();
+            ValidationErrors.Clear();
+            IsEmpty = true;
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task PreviewFeedAsync()
     {

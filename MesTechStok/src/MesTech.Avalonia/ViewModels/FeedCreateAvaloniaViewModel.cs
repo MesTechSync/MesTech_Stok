@@ -40,6 +40,36 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "kategori", TargetField = "Category" });
     }
 
+    public override async Task LoadAsync()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        try
+        {
+            await Task.Delay(100); // Simulate init
+            // Reset form to clean initial state
+            FeedName = string.Empty;
+            FeedUrl = string.Empty;
+            SelectedFormat = "XML";
+            SyncIntervalMinutes = 60;
+            PriceMarkupPercent = 15.0m;
+            MinimumMarginPercent = 5.0m;
+            SaveCompleted = false;
+            ColumnMappings.Clear();
+            InitDefaultMappings();
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task SaveFeedAsync()
     {

@@ -32,6 +32,38 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
+    public override async Task LoadAsync()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        try
+        {
+            await Task.Delay(100); // Simulate init
+            // Set initial clean state — user will enter URL and click Fetch
+            ProductUrl = string.Empty;
+            ProductLoaded = false;
+            SaveCompleted = false;
+            FetchedName = string.Empty;
+            FetchedPrice = 0;
+            FetchedDescription = string.Empty;
+            FetchedCategory = string.Empty;
+            FetchedSKU = string.Empty;
+            FetchedStock = 0;
+            FetchedImageUrl = string.Empty;
+            FetchedPlatform = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task FetchProductAsync()
     {

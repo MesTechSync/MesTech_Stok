@@ -63,6 +63,44 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         AvailablePlatforms.Add(new WizardPlatformDto { Name = "Etsy", Color = "#F1641E" });
     }
 
+    public override async Task LoadAsync()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        try
+        {
+            await Task.Delay(100); // Simulate init
+            // Reset wizard to step 1 with clean state
+            CurrentStep = 1;
+            IsStep1Visible = true;
+            IsStep2Visible = false;
+            IsStep3Visible = false;
+            SelectedPlatform = string.Empty;
+            StoreName = string.Empty;
+            Field1Value = string.Empty;
+            Field2Value = string.Empty;
+            Field3Value = string.Empty;
+            TestPassed = false;
+            TestFailed = false;
+            TestResultMessage = string.Empty;
+            SaveCompleted = false;
+
+            // Ensure platforms are loaded
+            if (AvailablePlatforms.Count == 0)
+                InitPlatforms();
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private void SelectPlatform(WizardPlatformDto? platform)
     {
