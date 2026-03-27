@@ -3,6 +3,10 @@ namespace MesTech.Domain.Enums;
 /// <summary>Stok alarm seviyesi.</summary>
 public enum StockAlertLevel
 {
+    /// <summary>Stok normal seviyede</summary>
+    Normal,
+    /// <summary>Stok uyarı eşiğinde</summary>
+    Warning,
     /// <summary>Stok &lt;= MinimumStock × 2</summary>
     Low,
     /// <summary>Stok &lt;= MinimumStock</summary>
