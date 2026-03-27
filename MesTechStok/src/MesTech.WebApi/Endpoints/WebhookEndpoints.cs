@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
@@ -107,6 +108,83 @@ public static class WebhookEndpoints
         .WithSummary("Webhook dead letter queue — başarısız webhook listesi (admin)")
         .RequireRateLimiting("PerApiKey");
 
+        // ── Webhook Test Console (G108 — DEV6-TUR10) ──
+        // Sandbox only — production'da çalışmaz
+
+        // GET /api/webhooks/test/platforms — test edilebilir platformlar + event tipleri
+        group.MapGet("/test/platforms", (IWebhookProcessor processor) =>
+        {
+            var platforms = SignatureHeaders.Keys.Select(p => new
+            {
+                platform = p,
+                signatureHeader = SignatureHeaders[p],
+                sampleEvents = GetSampleEventTypes(p)
+            }).ToList();
+
+            return Results.Ok(ApiResponse<object>.Ok(platforms));
+        })
+        .WithName("GetWebhookTestPlatforms")
+        .WithSummary("Webhook test konsolu — platform listesi ve event tipleri")
+        .RequireRateLimiting("PerApiKey");
+
+        // GET /api/webhooks/test/sample/{platform}/{eventType} — örnek payload
+        group.MapGet("/test/sample/{platform}/{eventType}", (string platform, string eventType) =>
+        {
+            var payload = GenerateSamplePayload(platform.ToLowerInvariant(), eventType.ToLowerInvariant());
+            return payload is not null
+                ? Results.Ok(ApiResponse<object>.Ok(new { platform, eventType, payload }))
+                : Results.NotFound(ApiResponse<object>.Fail(
+                    $"Sample payload not found for {platform}/{eventType}", "NOT_FOUND"));
+        })
+        .WithName("GetWebhookSamplePayload")
+        .WithSummary("Platform + event tipi için örnek webhook payload")
+        .RequireRateLimiting("PerApiKey");
+
+        // POST /api/webhooks/test — test webhook gönder ve sonucu göster
+        group.MapPost("/test", async (
+            WebhookTestRequest request,
+            IWebhookProcessor processor,
+            ILoggerFactory loggerFactory,
+            IWebHostEnvironment env,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.WebhookEndpoints");
+
+            // Production guard
+            if (env.IsProduction())
+                return Results.Json(
+                    ApiResponse<object>.Fail("Webhook test konsolu production ortamında devre dışıdır.", "PRODUCTION_BLOCKED"),
+                    statusCode: 403);
+
+            if (string.IsNullOrWhiteSpace(request.Platform) || string.IsNullOrWhiteSpace(request.Payload))
+                return Results.BadRequest(ApiResponse<object>.Fail("Platform and Payload are required.", "VALIDATION"));
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = await processor.ProcessAsync(
+                request.Platform.ToLowerInvariant(),
+                request.Payload,
+                request.Signature,
+                ct);
+            sw.Stop();
+
+            logger.LogInformation(
+                "Webhook test: Platform={Platform} Event={Event} Success={Success} Duration={Ms}ms",
+                request.Platform, result.EventType, result.Success, sw.ElapsedMilliseconds);
+
+            return Results.Ok(ApiResponse<object>.Ok(new
+            {
+                platform = request.Platform,
+                eventType = result.EventType ?? "unknown",
+                success = result.Success,
+                error = result.Error,
+                durationMs = sw.ElapsedMilliseconds,
+                timestamp = DateTime.UtcNow
+            }));
+        })
+        .WithName("TestWebhook")
+        .WithSummary("Webhook test konsolu — payload gönder, sonucu gör (sandbox only)")
+        .RequireRateLimiting("PerApiKey");
+
         // POST /api/webhooks/dead-letters/{id}/resolve — manual resolve
         group.MapPost("/dead-letters/{id:guid}/resolve", async (
             Guid id,
@@ -125,5 +203,77 @@ public static class WebhookEndpoints
         .WithName("ResolveWebhookDeadLetter")
         .WithSummary("Dead letter webhook'u manuel çözüldü olarak işaretle")
         .RequireRateLimiting("PerApiKey");
+    }
+
+    // ── Request Records ──
+
+    internal record WebhookTestRequest(string Platform, string Payload, string? Signature = null);
+
+    // ── Helper Methods ──
+
+    private static string[] GetSampleEventTypes(string platform) => platform.ToLowerInvariant() switch
+    {
+        "trendyol" => new[] { "order.created", "order.shipped", "order.cancelled", "product.updated" },
+        "hepsiburada" => new[] { "order.new", "order.shipped", "return.created" },
+        "amazon" => new[] { "ORDER_CHANGE", "LISTINGS_ITEM_MFN_QUANTITY_CHANGE", "RETURN_CREATED" },
+        "shopify" => new[] { "orders/create", "orders/fulfilled", "products/update", "refunds/create" },
+        "woocommerce" => new[] { "order.created", "order.updated", "product.updated" },
+        "ebay" => new[] { "MARKETPLACE_ACCOUNT_DELETION", "ITEM_SOLD" },
+        "n11" => new[] { "order.new", "order.shipped" },
+        "ciceksepeti" => new[] { "order.created", "order.shipped" },
+        "ozon" => new[] { "ORDER_NEW", "ORDER_DELIVERED" },
+        _ => new[] { "order.created", "order.updated" }
+    };
+
+    private static string? GenerateSamplePayload(string platform, string eventType)
+    {
+        var orderId = Guid.NewGuid().ToString("N")[..12].ToUpperInvariant();
+        var timestamp = DateTime.UtcNow.ToString("o");
+
+        return platform switch
+        {
+            "trendyol" when eventType.Contains("order") => JsonSerializer.Serialize(new
+            {
+                orderNumber = $"TY-{orderId}",
+                status = "Created",
+                lines = new[] { new { sku = "SAMPLE-SKU-001", quantity = 1, amount = 149.90m } },
+                customerFirstName = "Test",
+                customerLastName = "User",
+                orderDate = timestamp
+            }),
+            "shopify" when eventType.Contains("order") => JsonSerializer.Serialize(new
+            {
+                id = Random.Shared.NextInt64(1_000_000, 9_999_999),
+                order_number = $"#SH-{orderId}",
+                financial_status = "paid",
+                line_items = new[] { new { sku = "SAMPLE-SKU-001", quantity = 1, price = "149.90" } },
+                created_at = timestamp
+            }),
+            "amazon" when eventType.Contains("ORDER") => JsonSerializer.Serialize(new
+            {
+                NotificationType = eventType,
+                Payload = new
+                {
+                    AmazonOrderId = $"111-{orderId}-{Random.Shared.Next(1000, 9999)}",
+                    OrderStatus = "Unshipped",
+                    PurchaseDate = timestamp
+                }
+            }),
+            "hepsiburada" when eventType.Contains("order") => JsonSerializer.Serialize(new
+            {
+                orderId = $"HB-{orderId}",
+                status = "New",
+                items = new[] { new { merchantSku = "SAMPLE-SKU-001", quantity = 1, unitPrice = 149.90m } },
+                createdDate = timestamp
+            }),
+            _ => JsonSerializer.Serialize(new
+            {
+                platform,
+                eventType,
+                orderId = $"TEST-{orderId}",
+                timestamp,
+                testData = true
+            })
+        };
     }
 }
