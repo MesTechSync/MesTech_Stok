@@ -190,7 +190,10 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Sendeo),
                 sp.GetRequiredService<ILogger<SendeoCargoAdapter>>()));
 
-        // Factory — receives IEnumerable<IIntegratorAdapter>
+        // Decorator: wrap all IIntegratorAdapter registrations with Prometheus instrumentation
+        services.DecorateAllIntegratorAdapters();
+
+        // Factory — receives IEnumerable<IIntegratorAdapter> (now instrumented)
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
 
         // Adapter health check — parallel PingAsync for all adapters
