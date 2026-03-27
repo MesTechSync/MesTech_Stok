@@ -63,6 +63,11 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
                 currentCount = await storeRepo.CountByTenantAsync(tenantId).ConfigureAwait(false);
                 limit = plan.MaxStores;
                 break;
+            case "users":
+                var userRepo = services.GetRequiredService<IUserRepository>();
+                currentCount = await userRepo.CountByTenantAsync(tenantId).ConfigureAwait(false);
+                limit = plan.MaxUsers;
+                break;
             default:
                 return null;
         }
@@ -89,5 +94,79 @@ public sealed class StorePlanLimitFilter : IEndpointFilter
     {
         var result = await ProductPlanLimitFilter.CheckLimitAsync(context, "stores").ConfigureAwait(false);
         return result ?? await next(context).ConfigureAwait(false);
+    }
+}
+
+/// <summary>User oluşturma limit filtresi — MaxUsers plan limiti.</summary>
+public sealed class UserPlanLimitFilter : IEndpointFilter
+{
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    {
+        var result = await ProductPlanLimitFilter.CheckLimitAsync(context, "users").ConfigureAwait(false);
+        return result ?? await next(context).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Feature gate middleware — plan FeaturesJson'a göre endpoint erişim kontrolü.
+/// Kilitli özelliğe erişim → 402 Payment Required + plan önerisi.
+/// Endpoint'e .AddEndpointFilter(new FeatureGateFilter("feature_name")) şeklinde uygulanır.
+/// </summary>
+public sealed class FeatureGateFilter : IEndpointFilter
+{
+    private readonly string _requiredFeature;
+
+    public FeatureGateFilter(string requiredFeature)
+        => _requiredFeature = requiredFeature;
+
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    {
+        var services = context.HttpContext.RequestServices;
+        var logger = services.GetRequiredService<ILogger<FeatureGateFilter>>();
+
+        var tenantIdStr = context.HttpContext.Request.Query["tenantId"].FirstOrDefault()
+            ?? context.HttpContext.Request.RouteValues["tenantId"]?.ToString();
+
+        if (!Guid.TryParse(tenantIdStr, out var tenantId))
+            return await next(context).ConfigureAwait(false);
+
+        var subscriptionRepo = services.GetRequiredService<ITenantSubscriptionRepository>();
+        var planRepo = services.GetRequiredService<ISubscriptionPlanRepository>();
+
+        var subscription = await subscriptionRepo.GetActiveByTenantIdAsync(tenantId).ConfigureAwait(false);
+        if (subscription is null)
+        {
+            return Results.Json(
+                ApiResponse<object>.Fail(
+                    "Bu ozellik icin aktif abonelik gerekli.",
+                    "SUBSCRIPTION_REQUIRED"),
+                statusCode: 402);
+        }
+
+        var plan = await planRepo.GetByIdAsync(subscription.PlanId).ConfigureAwait(false);
+        if (plan is null)
+            return await next(context).ConfigureAwait(false);
+
+        // Check FeaturesJson for the required feature
+        if (!string.IsNullOrWhiteSpace(plan.FeaturesJson))
+        {
+            var featuresLower = plan.FeaturesJson.ToLowerInvariant();
+            if (featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\"")
+                || featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\": true")
+                || featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\":true"))
+            {
+                return await next(context).ConfigureAwait(false);
+            }
+        }
+
+        logger.LogInformation(
+            "Feature gate blocked: Tenant={TenantId} Feature={Feature} Plan={Plan}",
+            tenantId, _requiredFeature, plan.Name);
+
+        return Results.Json(
+            ApiResponse<object>.Fail(
+                $"'{_requiredFeature}' ozelligi mevcut planinizda bulunmuyor. Planınızı yükseltin.",
+                "FEATURE_NOT_AVAILABLE"),
+            statusCode: 402);
     }
 }
