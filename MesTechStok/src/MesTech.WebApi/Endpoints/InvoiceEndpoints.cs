@@ -77,7 +77,8 @@ public static class InvoiceEndpoints
                 : Results.BadRequest(new EntityActionResponse(id, "Failed", "Fatura onaylanamadı"));
         })
         .WithName("ApproveInvoice")
-        .WithSummary("Fatura onayla").Produces(200).Produces(400);
+        .WithSummary("Fatura onayla").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/invoices/bulk — toplu fatura oluştur
         group.MapPost("/bulk", async (
@@ -88,7 +89,8 @@ public static class InvoiceEndpoints
             return Results.Ok(result);
         })
         .WithName("BulkCreateInvoice")
-        .WithSummary("Toplu fatura oluştur (sipariş ID listesi)").Produces(200).Produces(400);
+        .WithSummary("Toplu fatura oluştur (sipariş ID listesi)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/invoices/providers — fatura sağlayıcı durumları
         group.MapGet("/providers", async (

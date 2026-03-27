@@ -45,7 +45,8 @@ public static class DropshippingEndpoints
             return Results.Created($"/api/v1/dropshipping/suppliers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateDropshipSupplier")
-        .WithSummary("Yeni dropship tedarikçi oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni dropship tedarikçi oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/dropshipping/suppliers/{id}/sync — ürün senkronizasyonu tetikle
         group.MapPost("/{id:guid}/sync", async (
@@ -57,7 +58,8 @@ public static class DropshippingEndpoints
             return Results.Ok(new SyncResponse(id, syncedCount));
         })
         .WithName("SyncDropshipProducts")
-        .WithSummary("Tedarikçi ürün senkronizasyonu başlat").Produces(200).Produces(400);
+        .WithSummary("Tedarikçi ürün senkronizasyonu başlat").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ---- Product-level endpoints under /api/v1/dropshipping ----
         var productsGroup = app.MapGroup("/api/v1/dropshipping/products")
@@ -88,7 +90,8 @@ public static class DropshippingEndpoints
             return Results.NoContent();
         })
         .WithName("LinkDropshipProduct")
-        .WithSummary("Dropship ürününü MesTech ürünüyle eşleştir").Produces(200).Produces(400);
+        .WithSummary("Dropship ürününü MesTech ürünüyle eşleştir").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ---- Order-level endpoints under /api/v1/dropshipping ----
         var ordersGroup = app.MapGroup("/api/v1/dropshipping/orders")
@@ -118,7 +121,8 @@ public static class DropshippingEndpoints
             return Results.Created($"/api/v1/dropshipping/orders/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("PlaceDropshipOrder")
-        .WithSummary("Dropship sipariş kaydı oluştur").Produces(200).Produces(400);
+        .WithSummary("Dropship sipariş kaydı oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ---- Lifecycle endpoints under /api/v1/dropshipping ----
         var lifecycleGroup = app.MapGroup("/api/v1/dropshipping")
@@ -148,7 +152,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("CreateAutoOrder")
-        .WithSummary("Minimum stok altındaki ürünler için otomatik dropship sipariş oluştur").Produces(200).Produces(400);
+        .WithSummary("Minimum stok altındaki ürünler için otomatik dropship sipariş oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/dropshipping/price-sync — tedarikçi fiyat senkronizasyonu
         lifecycleGroup.MapPost("/price-sync", async (
@@ -159,7 +164,8 @@ public static class DropshippingEndpoints
             return Results.Ok(result);
         })
         .WithName("SyncSupplierPrices")
-        .WithSummary("Tedarikçi feed'inden fiyat senkronizasyonu başlat").Produces(200).Produces(400);
+        .WithSummary("Tedarikçi feed'inden fiyat senkronizasyonu başlat").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     /// <summary>

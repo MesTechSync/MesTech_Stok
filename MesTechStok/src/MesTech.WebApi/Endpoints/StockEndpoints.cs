@@ -69,7 +69,8 @@ public static class StockEndpoints
         })
         .WithName("RemoveStock")
         .WithSummary("Üründen stok çıkışı")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
         group.MapGet("/inventory", async (
@@ -118,7 +119,8 @@ public static class StockEndpoints
         })
         .WithName("TransferStock")
         .WithSummary("Depolar arası stok transferi")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
         group.MapPost("/adjust", async (
@@ -132,7 +134,8 @@ public static class StockEndpoints
         })
         .WithName("AdjustStock")
         .WithSummary("Stok düzeltme / sayım farkı girişi")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
         group.MapPost("/lot", async (
@@ -146,6 +149,7 @@ public static class StockEndpoints
         })
         .WithName("AddStockLot")
         .WithSummary("Lot/parti bazlı stok girişi")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

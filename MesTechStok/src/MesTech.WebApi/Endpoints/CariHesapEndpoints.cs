@@ -29,7 +29,8 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesaplar")
-        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces(200).Produces(400);
+        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cari-hesaplar/{id} — tek cari hesap
         group.MapGet("/{id:guid}", async (
@@ -43,7 +44,8 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesapById")
-        .WithSummary("Tek cari hesap detayi").Produces(200).Produces(400);
+        .WithSummary("Tek cari hesap detayi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar — yeni cari hesap olustur
         group.MapPost("/", async (
@@ -54,7 +56,8 @@ public static class CariHesapEndpoints
             return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCariHesap")
-        .WithSummary("Yeni cari hesap olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni cari hesap olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/cari-hesaplar/{id} — cari hesap guncelle
         group.MapPut("/{id:guid}", async (
@@ -66,7 +69,8 @@ public static class CariHesapEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateCariHesap")
-        .WithSummary("Cari hesap bilgilerini guncelle").Produces(200).Produces(400);
+        .WithSummary("Cari hesap bilgilerini guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hesap hareketleri
         group.MapGet("/{id:guid}/hareketler", async (
@@ -79,7 +83,8 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHareketler")
-        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces(200).Produces(400);
+        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hareket oluştur
         group.MapPost("/{id:guid}/hareketler", async (
@@ -91,6 +96,7 @@ public static class CariHesapEndpoints
             return Results.Created($"/api/v1/accounting/cari-hesaplar/{id}/hareketler/{result}", new CreatedResponse(result));
         })
         .WithName("CreateCariHareket")
-        .WithSummary("Yeni cari hareket oluştur (borç/alacak)").Produces(200).Produces(400);
+        .WithSummary("Yeni cari hareket oluştur (borç/alacak)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

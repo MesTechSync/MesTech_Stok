@@ -86,7 +86,8 @@ public static class EInvoiceEndpoints
                 : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura iptal edilemedi"));
         })
         .WithName("CancelEInvoice")
-        .WithSummary("E-fatura iptal et").Produces(200).Produces(400);
+        .WithSummary("E-fatura iptal et").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/e-invoices/check-vkn/{vkn} — VKN mükellef sorgusu
         group.MapGet("/check-vkn/{vkn}", async (
