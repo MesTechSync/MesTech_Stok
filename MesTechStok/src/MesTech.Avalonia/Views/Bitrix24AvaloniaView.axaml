@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.Bitrix24AvaloniaView"
-             x:DataType="vm:Bitrix24AvaloniaViewModel">
+             x:DataType="vm:Bitrix24AvaloniaViewModel"
+             AutomationProperties.Name="Bitrix24 CRM Pipeline Yonetimi">
 <UserControl.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
 </UserControl.KeyBindings>
@@ -60,7 +61,9 @@
             <Button Grid.Column="1" Content="↻ Yenile" Command="{Binding RefreshCommand}"
                     Padding="12,8" Background="{DynamicResource MesPrimaryBlue}"
                     Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
-                    CornerRadius="{StaticResource MesRadiusMd}" />
+                    CornerRadius="{StaticResource MesRadiusMd}"
+                    ToolTip.Tip="Pipeline verilerini yenile (F5)"
+                    AutomationProperties.Name="Pipeline yenile butonu" />
         </Grid>
 
         <!-- Row 1: Stage filter chips -->

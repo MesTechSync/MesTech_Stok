@@ -3,7 +3,8 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:dto="using:MesTech.Application.DTOs.Crm"
              x:Class="MesTech.Avalonia.Views.CampaignAvaloniaView"
-             x:DataType="vm:CampaignAvaloniaViewModel">
+             x:DataType="vm:CampaignAvaloniaViewModel"
+             AutomationProperties.Name="Kampanya Yonetim Ekrani">
 <UserControl.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
 </UserControl.KeyBindings>
@@ -43,7 +44,9 @@
             </StackPanel>
             <Button Grid.Column="1" Content="↻ Yenile" Command="{Binding RefreshCommand}"
                     Padding="12,8" Background="{DynamicResource MesPrimaryBlue}" Foreground="White"
-                    FontWeight="SemiBold" CornerRadius="{StaticResource MesRadiusMd}" />
+                    FontWeight="SemiBold" CornerRadius="{StaticResource MesRadiusMd}"
+                    ToolTip.Tip="Kampanya listesini yenile (F5)"
+                    AutomationProperties.Name="Kampanya yenile butonu" />
         </Grid>
 
         <!-- Yeni Kampanya Formu -->
