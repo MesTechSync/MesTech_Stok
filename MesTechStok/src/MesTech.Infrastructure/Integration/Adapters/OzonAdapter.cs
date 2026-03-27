@@ -965,13 +965,19 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        using var doc = JsonDocument.Parse(payload);
-        var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
 
-        _logger.LogInformation(
-            "OzonAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
-            eventType, payload.Length);
-
+            _logger.LogInformation(
+                "OzonAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
+                eventType, payload.Length);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "[Ozon] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
+        }
         return Task.CompletedTask;
     }
 

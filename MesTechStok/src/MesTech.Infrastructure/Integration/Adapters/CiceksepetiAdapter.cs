@@ -445,9 +445,16 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        var webhook = JsonSerializer.Deserialize<CsWebhookPayload>(payload, _jsonOptions);
-        _logger.LogInformation("Ciceksepeti webhook received: {EventType} Order={OrderId} Sub={SubOrderId}",
-            webhook?.EventType, webhook?.OrderId, webhook?.SubOrderId);
+        try
+        {
+            var webhook = JsonSerializer.Deserialize<CsWebhookPayload>(payload, _jsonOptions);
+            _logger.LogInformation("Ciceksepeti webhook received: {EventType} Order={OrderId} Sub={SubOrderId}",
+                webhook?.EventType, webhook?.OrderId, webhook?.SubOrderId);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "[Ciceksepeti] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
+        }
         return Task.CompletedTask;
     }
 

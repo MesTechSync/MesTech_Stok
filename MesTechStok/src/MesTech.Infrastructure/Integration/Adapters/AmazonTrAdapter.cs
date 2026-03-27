@@ -1463,16 +1463,22 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     /// </remarks>
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        using var doc = JsonDocument.Parse(payload);
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
 
-        var topic = doc.RootElement.TryGetProperty("TopicArn", out var topicEl) ? topicEl.GetString() :
-                    doc.RootElement.TryGetProperty("notificationType", out var ntEl) ? ntEl.GetString() : "unknown";
-        var messageId = doc.RootElement.TryGetProperty("MessageId", out var midEl) ? midEl.GetString() : null;
+            var topic = doc.RootElement.TryGetProperty("TopicArn", out var topicEl) ? topicEl.GetString() :
+                        doc.RootElement.TryGetProperty("notificationType", out var ntEl) ? ntEl.GetString() : "unknown";
+            var messageId = doc.RootElement.TryGetProperty("MessageId", out var midEl) ? midEl.GetString() : null;
 
-        _logger.LogInformation(
-            "AmazonTrAdapter SNS webhook processed: Topic={Topic} MessageId={MessageId} PayloadLength={Length}",
-            topic, messageId, payload.Length);
-
+            _logger.LogInformation(
+                "AmazonTrAdapter SNS webhook processed: Topic={Topic} MessageId={MessageId} PayloadLength={Length}",
+                topic, messageId, payload.Length);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "[AmazonTr] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
+        }
         return Task.CompletedTask;
     }
 }
