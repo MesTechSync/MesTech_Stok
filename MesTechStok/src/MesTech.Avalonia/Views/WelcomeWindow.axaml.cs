@@ -1,102 +1,138 @@
 using System;
-using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
+using MesTech.Avalonia.ViewModels;
 
 namespace MesTech.Avalonia.Views;
 
 /// <summary>
-/// WelcomeWindow — ekran koruyucu. WPF ile ayni akis:
-/// gradient arka plan, canli saat (tr-TR), yanip sonen basla mesaji.
-/// Tiklama veya klavye → LoginWindow gecisi.
+/// Bing Spotlight-inspired WelcomeWindow with integrated login.
+/// Full-screen background image rotation, top thumbnail bar, bottom-left branding,
+/// bottom-right login card. Crossfade transitions every 8 seconds.
 /// </summary>
 public partial class WelcomeWindow : Window
 {
-    private readonly DispatcherTimer _clockTimer;
-    private readonly DispatcherTimer _blinkTimer;
-    private bool _blinkState = true;
+    private DispatcherTimer? _clockTimer;
+    private DispatcherTimer? _imageTimer;
+    private DispatcherTimer? _transitionTimer;
+    private SpotlightWelcomeViewModel? _vm;
 
     public WelcomeWindow()
     {
         InitializeComponent();
 
-        // Saat guncelleme (her saniye)
-        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _clockTimer.Tick += (_, _) => UpdateClock();
-        _clockTimer.Start();
-        UpdateClock();
-
-        // Baslama mesaji yanip sonme (her 1.5 saniye)
-        _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
-        _blinkTimer.Tick += (_, _) =>
-        {
-            _blinkState = !_blinkState;
-            if (StartHintText != null)
-                StartHintText.Opacity = _blinkState ? 1.0 : 0.3;
-        };
-        _blinkTimer.Start();
-
-        // G090: Buton click handler'ları
-        if (LoginButton != null)
-            LoginButton.Click += (_, _) => NavigateToLogin();
-        if (DemoButton != null)
-            DemoButton.Click += (_, _) => NavigateToDemo();
-        if (RegisterButton != null)
-            RegisterButton.Click += (_, _) => NavigateToLogin(); // Kayıt akışı → Login (şimdilik)
-
-        // Esc ile cikis, herhangi tuş → Login
+        Opened += OnWindowOpened;
         KeyDown += OnKeyHandler;
+    }
+
+    private void OnWindowOpened(object? sender, EventArgs e)
+    {
+        _vm = DataContext as SpotlightWelcomeViewModel;
+        if (_vm == null) return;
+
+        // Subscribe to ViewModel events
+        _vm.LoginCompleted += OnLoginCompleted;
+        _vm.DemoLoginRequested += OnDemoLogin;
+        _vm.CloseRequested += () => Close();
+
+        // Clock timer — every second
+        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _clockTimer.Tick += (_, _) => _vm.UpdateClock();
+        _clockTimer.Start();
+
+        // Image rotation timer — every 8 seconds
+        _imageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+        _imageTimer.Tick += OnImageTimerTick;
+        _imageTimer.Start();
+
+        // Focus username box
+        if (UsernameBox != null)
+        {
+            if (string.IsNullOrEmpty(UsernameBox.Text))
+                UsernameBox.Focus();
+            else
+                PasswordBox?.Focus();
+        }
+    }
+
+    private void OnImageTimerTick(object? sender, EventArgs e)
+    {
+        if (_vm == null) return;
+
+        bool started = _vm.StartNextImageTransition();
+        if (!started) return;
+
+        // After 800ms crossfade completes, swap buffers
+        _transitionTimer?.Stop();
+        _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(850) };
+        _transitionTimer.Tick += (_, _) =>
+        {
+            _transitionTimer?.Stop();
+            _vm.CompleteTransition();
+        };
+        _transitionTimer.Start();
     }
 
     private void OnKeyHandler(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)
-            Close();
-        else
-            NavigateToLogin();
-    }
-
-    private void UpdateClock()
-    {
-        var now = DateTime.Now;
-        if (ClockText != null)
-            ClockText.Text = now.ToString("HH:mm");
-        if (DateText != null)
         {
-            var culture = new CultureInfo("tr-TR");
-            DateText.Text = now.ToString("dd MMMM yyyy, dddd", culture);
+            Close();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Enter)
+        {
+            // Trigger login
+            _vm?.LoginCommand.Execute(null);
+            e.Handled = true;
         }
     }
 
-    private void NavigateToLogin()
+    private void OnLoginCompleted(bool success)
     {
-        _clockTimer.Stop();
-        _blinkTimer.Stop();
+        if (!success) return;
 
-        var loginWindow = new LoginWindow();
-        loginWindow.Show();
+        StopTimers();
+
+        var app = (App)global::Avalonia.Application.Current!;
+        var mainWindow = app.CreateMainWindow(_vm?.PendingNavigation);
+        mainWindow.Show();
         Close();
     }
 
-    private void NavigateToDemo()
+    private void OnDemoLogin()
     {
-        _clockTimer.Stop();
-        _blinkTimer.Stop();
+        StopTimers();
 
-        // Demo: doğrudan MainWindow'a geç (login bypass)
         var app = (App)global::Avalonia.Application.Current!;
         var mainWindow = app.CreateMainWindow();
         mainWindow.Show();
         Close();
     }
 
-    /// <summary>Window kapanırken event + timer temizliği [EL-01]</summary>
+    private void StopTimers()
+    {
+        _clockTimer?.Stop();
+        _imageTimer?.Stop();
+        _transitionTimer?.Stop();
+    }
+
+    /// <summary>Window kapanırken timer + event temizliği [EL-01]</summary>
     protected override void OnClosed(EventArgs e)
     {
-        _clockTimer.Stop();
-        _blinkTimer.Stop();
+        StopTimers();
+
+        if (_vm != null)
+        {
+            _vm.LoginCompleted -= OnLoginCompleted;
+            _vm.DemoLoginRequested -= OnDemoLogin;
+            _vm.Cleanup();
+        }
+
+        Opened -= OnWindowOpened;
         KeyDown -= OnKeyHandler;
+
         base.OnClosed(e);
     }
 }

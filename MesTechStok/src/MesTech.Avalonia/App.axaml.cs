@@ -8,6 +8,7 @@ using MesTech.Avalonia.ViewModels.Accounting;
 using MesTech.Avalonia.ViewModels.Erp;
 using MesTech.Avalonia.Views;
 using global::MesTech.Infrastructure.DependencyInjection;
+using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,12 +41,12 @@ public partial class App : global::Avalonia.Application
     /// Creates a DI-resolved MainWindow with ViewModel and auto-navigates to Dashboard.
     /// Called by LoginWindow after successful authentication.
     /// </summary>
-    public MainWindow CreateMainWindow()
+    public MainWindow CreateMainWindow(string? initialView = null)
     {
         var mainVm = _host!.Services.GetRequiredService<MainWindowViewModel>();
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.DataContext = mainVm;
-        mainVm.NavigateToCommand.Execute("AppHub");  // G098: Login → AppHub (ana karşılama)
+        mainVm.NavigateToCommand.Execute(initialView ?? "AppHub");  // G098: Login → AppHub (ana karşılama)
         return mainWindow;
     }
 
@@ -86,6 +87,12 @@ public partial class App : global::Avalonia.Application
                     client.Timeout = TimeSpan.FromSeconds(30);
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
                 });
+
+                // === Spotlight + Security services ===
+                services.AddSingleton<SpotlightService>();
+                services.AddSingleton<LoginAttemptTracker>();
+                services.AddSingleton<LoginAuditLogger>();
+                services.AddTransient<SpotlightWelcomeViewModel>();
 
                 // === Avalonia-specific services ===
                 services.AddSingleton<IDialogService, AvaloniaDialogService>();
@@ -283,9 +290,10 @@ public partial class App : global::Avalonia.Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // EMR-02: Baslangic → WelcomeWindow (ekran koruyucu)
-            // WelcomeWindow → LoginWindow → MainWindow (DI) akisi
-            desktop.MainWindow = new WelcomeWindow();
+            // EMR-02: Spotlight WelcomeWindow (Bing-inspired) + integrated login
+            var welcomeVm = _host.Services.GetRequiredService<SpotlightWelcomeViewModel>();
+            var welcomeWindow = new WelcomeWindow { DataContext = welcomeVm };
+            desktop.MainWindow = welcomeWindow;
             desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnLastWindowClose;
         }
 

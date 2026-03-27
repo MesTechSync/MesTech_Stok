@@ -57,4 +57,11 @@
     </Content>
   </ItemGroup>
 
+  <!-- Spotlight background images — user adds images to this folder -->
+  <ItemGroup>
+    <Content Include="Resources\Spotlights\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

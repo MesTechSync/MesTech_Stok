@@ -1,127 +1,348 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MesTech.Avalonia.ViewModels"
         x:Class="MesTech.Avalonia.Views.WelcomeWindow"
-        Title="MesTech"
-        WindowStartupLocation="CenterScreen"
+        x:DataType="vm:SpotlightWelcomeViewModel"
+        Title="MesTech — Hoş Geldiniz"
         WindowState="Maximized"
         SystemDecorations="None"
         Background="Transparent"
         Topmost="True"
         CanResize="False">
 
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BING SPOTLIGHT INSPIRED WELCOME + LOGIN SCREEN -->
+  <!-- Layered Panel: BG Image → Overlays → Content   -->
+  <!-- ═══════════════════════════════════════════════ -->
+
   <Panel>
-    <!-- Gradient arka plan — WPF ile ayni renk paleti -->
-    <Border>
+
+    <!-- ═══ LAYER 0: Gradient fallback (no images) ═══ -->
+    <Border IsVisible="{Binding !HasSpotlightImages}">
       <Border.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-          <GradientStop Color="{DynamicResource MesGradientDark}" Offset="0"/>
-          <GradientStop Color="{DynamicResource MesGradientMid}" Offset="0.5"/>
-          <GradientStop Color="{DynamicResource MesPrimaryBlue}" Offset="1"/>
+          <GradientStop Color="#0D1B2A" Offset="0"/>
+          <GradientStop Color="#1B2838" Offset="0.4"/>
+          <GradientStop Color="#0F2847" Offset="0.7"/>
+          <GradientStop Color="#0078D4" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
     </Border>
 
-    <!-- G090: Glassmorphism cam efektli karşılama paneli -->
-    <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-            Width="460" Padding="48,40"
-            CornerRadius="24"
-            BoxShadow="0 8 32 0 #40000000">
+    <!-- ═══ LAYER 1: Current background image ═══ -->
+    <Image x:Name="CurrentBgImage"
+           Source="{Binding CurrentBackgroundImage}"
+           Stretch="UniformToFill"
+           Opacity="{Binding CurrentImageOpacity}">
+      <Image.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.8" Easing="CubicEaseInOut"/>
+        </Transitions>
+      </Image.Transitions>
+    </Image>
+
+    <!-- ═══ LAYER 2: Next background image (crossfade) ═══ -->
+    <Image x:Name="NextBgImage"
+           Source="{Binding NextBackgroundImage}"
+           Stretch="UniformToFill"
+           Opacity="{Binding NextImageOpacity}">
+      <Image.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.8" Easing="CubicEaseInOut"/>
+        </Transitions>
+      </Image.Transitions>
+    </Image>
+
+    <!-- ═══ LAYER 3: Top gradient overlay ═══ -->
+    <Border VerticalAlignment="Top" Height="160" IsHitTestVisible="False">
       <Border.Background>
-        <SolidColorBrush Color="#DDFFFFFF" />
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Color="#99000000" Offset="0"/>
+          <GradientStop Color="#33000000" Offset="0.5"/>
+          <GradientStop Color="#00000000" Offset="1"/>
+        </LinearGradientBrush>
       </Border.Background>
-
-      <StackPanel Spacing="20" HorizontalAlignment="Center">
-
-        <!-- Logo -->
-        <TextBlock Text="MesTech"
-                   FontSize="52" FontWeight="Bold"
-                   Foreground="#1A2332"
-                   HorizontalAlignment="Center"/>
-
-        <TextBlock Text="Entegratör"
-                   FontSize="22" FontWeight="Light"
-                   Foreground="#64748B"
-                   HorizontalAlignment="Center"
-                   Margin="0,-12,0,0"/>
-
-        <!-- Alt baslik -->
-        <TextBlock Text="Coklu Pazaryeri Yonetim Platformu"
-                   FontSize="14"
-                   Foreground="#94A3B8"
-                   HorizontalAlignment="Center"
-                   Margin="0,4,0,0"/>
-
-        <!-- Ayirici cizgi -->
-        <Border Height="1" Width="200" Background="#E2E8F0" Margin="0,8"/>
-
-        <!-- Aksiyon butonlari -->
-        <StackPanel Spacing="12">
-          <!-- Giriş Yap -->
-          <Button x:Name="LoginButton" HorizontalAlignment="Stretch" Padding="0,14"
-                  CornerRadius="12" HorizontalContentAlignment="Center"
-                  FontSize="16" FontWeight="Bold"
-                  Background="#2563EB" Foreground="White">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="🔐" FontSize="18" VerticalAlignment="Center" />
-              <TextBlock Text="Giris Yap" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-
-          <!-- Demo Mod -->
-          <Button x:Name="DemoButton" HorizontalAlignment="Stretch" Padding="0,12"
-                  CornerRadius="12" HorizontalContentAlignment="Center"
-                  FontSize="14" FontWeight="SemiBold"
-                  Background="#F1F5F9" Foreground="#475569">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="🎮" FontSize="16" VerticalAlignment="Center" />
-              <TextBlock Text="Demo ile Kesfet" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-
-          <!-- Kayıt Ol -->
-          <Button x:Name="RegisterButton" HorizontalAlignment="Stretch" Padding="0,12"
-                  CornerRadius="12" HorizontalContentAlignment="Center"
-                  FontSize="14" FontWeight="SemiBold"
-                  Background="Transparent" Foreground="#2563EB"
-                  BorderBrush="#2563EB" BorderThickness="1.5">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="✨" FontSize="16" VerticalAlignment="Center" />
-              <TextBlock Text="Yeni Hesap Olustur" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-        </StackPanel>
-
-        <!-- Hint -->
-        <TextBlock x:Name="StartHintText"
-                   Text="Esc ile cikis"
-                   FontSize="12"
-                   Foreground="#94A3B8"
-                   HorizontalAlignment="Center"
-                   Opacity="0.7"/>
-
-      </StackPanel>
     </Border>
 
-    <!-- Saat + Tarih (sag alt) -->
-    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Margin="0,0,32,24" Spacing="4">
-      <TextBlock x:Name="ClockText"
-                 Text="00:00"
-                 FontSize="{StaticResource FontSizeXL}" FontWeight="Light"
-                 Foreground="{DynamicResource MesBgPrimary}"
-                 HorizontalAlignment="Right"/>
-      <TextBlock x:Name="DateText"
-                 Text=""
-                 FontSize="{StaticResource FontSizeBody}"
-                 Foreground="{DynamicResource MesSlateGray}"
-                 HorizontalAlignment="Right"/>
-    </StackPanel>
+    <!-- ═══ LAYER 4: Bottom gradient overlay ═══ -->
+    <Border VerticalAlignment="Bottom" Height="420" IsHitTestVisible="False">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Color="#00000000" Offset="0"/>
+          <GradientStop Color="#55000000" Offset="0.25"/>
+          <GradientStop Color="#AA000000" Offset="0.6"/>
+          <GradientStop Color="#DD000000" Offset="1"/>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
 
-    <!-- Versiyon (sol alt) -->
-    <TextBlock Text="v1.0.0"
-               FontSize="{StaticResource FontSizeSmall}"
-               Foreground="{DynamicResource MesTextTertiary}"
-               HorizontalAlignment="Left" VerticalAlignment="Bottom"
-               Margin="24,0,0,24"/>
+    <!-- ═══ LAYER 5: Content grid ═══ -->
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- ═════════════════════════════════════════ -->
+      <!-- ROW 0: Top thumbnail bar                 -->
+      <!-- ═════════════════════════════════════════ -->
+      <Border Grid.Row="0" Margin="24,20,24,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding Thumbnails}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="10"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:SpotlightThumbnailItem">
+                <Button Command="{Binding $parent[Window].((vm:SpotlightWelcomeViewModel)DataContext).SelectThumbnailCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="0" BorderThickness="0" Background="Transparent"
+                        Cursor="Hand"
+                        CornerRadius="10">
+                  <Border Width="130" Height="80" CornerRadius="10"
+                          ClipToBounds="True"
+                          Background="#55000000"
+                          BorderBrush="#33FFFFFF" BorderThickness="1">
+                    <Border.Transitions>
+                      <Transitions>
+                        <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                        <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                      </Transitions>
+                    </Border.Transitions>
+                    <StackPanel VerticalAlignment="Center"
+                                HorizontalAlignment="Center" Spacing="4">
+                      <TextBlock Text="{Binding Icon}" FontSize="22"
+                                 HorizontalAlignment="Center"/>
+                      <TextBlock Text="{Binding Name}" FontSize="11"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 HorizontalAlignment="Center"
+                                 Opacity="0.9"/>
+                    </StackPanel>
+                  </Border>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
+
+      <!-- ═════════════════════════════════════════ -->
+      <!-- ROW 2: Bottom area                       -->
+      <!-- ═════════════════════════════════════════ -->
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="40,0,40,36">
+
+        <!-- ─── BOTTOM-LEFT: Branding + Info + Actions + Clock ─── -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Bottom" Spacing="8"
+                    MaxWidth="600">
+
+          <!-- Brand name -->
+          <TextBlock Text="MesTech" FontSize="46" FontWeight="Bold"
+                     Foreground="White" Opacity="0.95">
+            <TextBlock.Effect>
+              <DropShadowEffect Color="Black" BlurRadius="12" OffsetX="0" OffsetY="2" Opacity="0.5"/>
+            </TextBlock.Effect>
+          </TextBlock>
+
+          <!-- Subtitle -->
+          <TextBlock Text="Entegratör  |  Çoklu Pazaryeri Yönetim Platformu"
+                     FontSize="15" Foreground="#CCFFFFFF" Margin="2,0,0,0">
+            <TextBlock.Effect>
+              <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.4"/>
+            </TextBlock.Effect>
+          </TextBlock>
+
+          <!-- Quick stats row -->
+          <StackPanel Orientation="Horizontal" Spacing="20" Margin="2,8,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Text="{Binding ModuleCount}" FontSize="18" FontWeight="Bold"
+                         Foreground="#64B5F6"/>
+              <TextBlock Text="Modül" FontSize="13" Foreground="#AAFFFFFF"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Text="{Binding PlatformCount}" FontSize="18" FontWeight="Bold"
+                         Foreground="#81C784"/>
+              <TextBlock Text="Platform" FontSize="13" Foreground="#AAFFFFFF"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="{Binding VersionText}" FontSize="13"
+                       Foreground="#77FFFFFF" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <!-- Action links -->
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="2,6,0,0">
+            <Button Content="🔐  Giriş Yap"
+                    Command="{Binding ToggleLoginModeCommand}"
+                    Background="Transparent" Foreground="White"
+                    FontSize="13" FontWeight="SemiBold"
+                    Padding="8,4" BorderThickness="0" Cursor="Hand"
+                    Opacity="0.9"/>
+            <TextBlock Text="│" Foreground="#44FFFFFF" VerticalAlignment="Center" FontSize="14"/>
+            <Button Content="🎮  Demo ile Keşfet"
+                    Command="{Binding DemoLoginCommand}"
+                    Background="Transparent" Foreground="White"
+                    FontSize="13" FontWeight="SemiBold"
+                    Padding="8,4" BorderThickness="0" Cursor="Hand"
+                    Opacity="0.9"/>
+            <TextBlock Text="│" Foreground="#44FFFFFF" VerticalAlignment="Center" FontSize="14"/>
+            <Button Content="Esc ile Çıkış"
+                    Command="{Binding CloseCommand}"
+                    Background="Transparent" Foreground="#88FFFFFF"
+                    FontSize="12" Padding="8,4" BorderThickness="0" Cursor="Hand"/>
+          </StackPanel>
+
+          <!-- Image name (like Bing "Keşfedin: Zhangjiajie") -->
+          <TextBlock Text="{Binding CurrentImageName, StringFormat='Keşfedin: {0}'}"
+                     FontSize="13" Foreground="#99FFFFFF" Margin="2,4,0,0"
+                     IsVisible="{Binding HasSpotlightImages}"
+                     FontStyle="Italic"/>
+
+          <!-- Clock + Date -->
+          <StackPanel Spacing="0" Margin="0,12,0,0">
+            <TextBlock x:Name="ClockDisplay" Text="{Binding ClockText}"
+                       FontSize="52" FontWeight="Light"
+                       Foreground="White" Opacity="0.92">
+              <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="16" OffsetX="0" OffsetY="2" Opacity="0.4"/>
+              </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock x:Name="DateDisplay" Text="{Binding DateText}"
+                       FontSize="15" Foreground="#BBFFFFFF" Margin="2,-2,0,0">
+              <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.3"/>
+              </TextBlock.Effect>
+            </TextBlock>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- ─── BOTTOM-RIGHT: Login card ─── -->
+        <Border Grid.Column="1" VerticalAlignment="Bottom"
+                Width="360" CornerRadius="16"
+                IsVisible="{Binding IsLoginMode}"
+                BoxShadow="0 8 32 0 #50000000"
+                ClipToBounds="True"
+                Background="#CC0D1B2A">
+          <Border.Transitions>
+            <Transitions>
+              <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+            </Transitions>
+          </Border.Transitions>
+
+          <!-- Glass overlay -->
+          <Border CornerRadius="16"
+                  BorderBrush="#22FFFFFF" BorderThickness="1"
+                  Background="#18FFFFFF">
+            <StackPanel Margin="28,24" Spacing="14">
+
+              <!-- Card header -->
+              <StackPanel Spacing="2" Margin="0,0,0,4">
+                <TextBlock Text="Giriş Yap" FontSize="22" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="MesTech hesabınızla devam edin"
+                           FontSize="12" Foreground="#88FFFFFF"
+                           HorizontalAlignment="Center"/>
+              </StackPanel>
+
+              <!-- Username -->
+              <StackPanel Spacing="4">
+                <TextBlock Text="Kullanıcı Adı" FontSize="12" Foreground="#AAFFFFFF"/>
+                <TextBox x:Name="UsernameBox"
+                         Text="{Binding Username, Mode=TwoWay}"
+                         Watermark="Kullanıcı adınızı girin"
+                         FontSize="14"
+                         Padding="12,10"
+                         CornerRadius="8"
+                         Background="#22FFFFFF"
+                         Foreground="White"
+                         BorderBrush="#33FFFFFF"
+                         BorderThickness="1"/>
+              </StackPanel>
+
+              <!-- Password -->
+              <StackPanel Spacing="4">
+                <TextBlock Text="Şifre" FontSize="12" Foreground="#AAFFFFFF"/>
+                <Grid>
+                  <TextBox x:Name="PasswordBox"
+                           Text="{Binding Password, Mode=TwoWay}"
+                           PasswordChar="●"
+                           Watermark="Şifrenizi girin"
+                           FontSize="14"
+                           Padding="12,10"
+                           CornerRadius="8"
+                           Background="#22FFFFFF"
+                           Foreground="White"
+                           BorderBrush="#33FFFFFF"
+                           BorderThickness="1"/>
+                  <Button HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          Margin="0,0,8,0"
+                          Background="Transparent"
+                          Padding="6"
+                          Cursor="Hand"
+                          Command="{Binding TogglePasswordVisibilityCommand}">
+                    <TextBlock x:Name="PasswordToggleIcon" Text="👁"
+                               FontSize="14" Foreground="#88FFFFFF"/>
+                  </Button>
+                </Grid>
+              </StackPanel>
+
+              <!-- Remember me -->
+              <CheckBox x:Name="RememberMeCheck"
+                        Content="Beni Hatırla"
+                        IsChecked="{Binding RememberMe}"
+                        Foreground="#BBFFFFFF" FontSize="12"/>
+
+              <!-- Login button -->
+              <Button x:Name="LoginButton"
+                      HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Center"
+                      Height="44" CornerRadius="10"
+                      FontSize="14" FontWeight="SemiBold"
+                      Background="#2563EB"
+                      Foreground="White"
+                      Command="{Binding LoginCommand}"
+                      IsEnabled="{Binding !IsLoginLoading}"
+                      Cursor="Hand">
+                <Button.Transitions>
+                  <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                  </Transitions>
+                </Button.Transitions>
+                <Panel>
+                  <TextBlock Text="GİRİŞ YAP" HorizontalAlignment="Center"
+                             IsVisible="{Binding !IsLoginLoading}"/>
+                  <TextBlock Text="Doğrulanıyor..." HorizontalAlignment="Center"
+                             IsVisible="{Binding IsLoginLoading}" Opacity="0.7"/>
+                </Panel>
+              </Button>
+
+              <!-- Error panel -->
+              <Border IsVisible="{Binding ShowLoginError}"
+                      Background="#33FF3B30" CornerRadius="8"
+                      Padding="12,8">
+                <TextBlock Text="{Binding LoginErrorMessage}"
+                           Foreground="#FF6B6B" FontSize="12"
+                           TextWrapping="Wrap"/>
+              </Border>
+
+              <!-- Lockout panel -->
+              <Border IsVisible="{Binding ShowLockout}"
+                      Background="#33F59E0B" CornerRadius="8"
+                      Padding="12,8">
+                <TextBlock Text="{Binding LockoutMessage}"
+                           Foreground="#FFBE4D" FontSize="12"/>
+              </Border>
+
+              <!-- Demo hint -->
+              <TextBlock Text="Demo Giriş: admin / Admin123!"
+                         FontSize="11" Foreground="#55FFFFFF"
+                         HorizontalAlignment="Center" Margin="0,2,0,0"/>
+            </StackPanel>
+          </Border>
+        </Border>
+
+      </Grid>
+    </Grid>
+
   </Panel>
 </Window>
