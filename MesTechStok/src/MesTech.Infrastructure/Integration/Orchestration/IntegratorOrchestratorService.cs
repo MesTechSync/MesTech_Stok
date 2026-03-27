@@ -8,6 +8,19 @@ namespace MesTech.Infrastructure.Integration.Orchestration;
 /// <summary>
 /// Coklu platform orkestrasyon servisi.
 /// Paralel sync, per-adapter timeout, event-driven push.
+///
+/// ARCHITECTURE NOTE (G058): Platform adapter'lar dedicated REST endpoint KULLANMAZ.
+/// Akış modeli:
+///   1. Hangfire Jobs (15dk/1dk cron) → adapter.PullOrdersAsync / PushStockAsync
+///   2. MassTransit Consumers → StockChangedEvent → adapter.PushStockUpdateAsync
+///   3. PlatformSyncEndpoint (generic) → POST /api/platform/sync/{platformCode} → this orchestrator
+///   4. AdapterHealthService → /api/health/adapters → tüm adapter'lara PingAsync
+///
+/// Neden dedicated endpoint yok:
+///   - Platform sync'leri scheduler-driven (Hangfire), user-initiated değil
+///   - Stok/fiyat değişiklikleri event-driven (MassTransit), REST push değil
+///   - Manuel tetikleme PlatformSyncEndpoint generic dispatcher üzerinden yapılır
+///   - Her adapter IIntegratorAdapter implement eder, orchestrator polimorfik dispatch yapar
 /// </summary>
 public sealed class IntegratorOrchestratorService : IIntegratorOrchestrator
 {
