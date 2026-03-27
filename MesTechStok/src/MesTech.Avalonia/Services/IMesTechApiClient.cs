@@ -12,7 +12,12 @@ public interface IMesTechApiClient
     Task<T?> GetAsync<T>(string relativeUrl, CancellationToken ct = default);
     Task<TResponse?> PostAsync<TRequest, TResponse>(string relativeUrl, TRequest body, CancellationToken ct = default);
     Task<bool> PostAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default);
+    Task<bool> PutAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default);
     Task<bool> IsHealthyAsync(CancellationToken ct = default);
+
+    // ── Quick Actions (AppHub butonları — G107) ──
+    Task<bool> TriggerPlatformSyncAsync(Guid tenantId, string platformCode, CancellationToken ct = default);
+    Task<bool> CreateQuickInvoiceAsync(Guid tenantId, Guid orderId, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -63,6 +68,16 @@ public sealed class MesTechApiClient : IMesTechApiClient
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<bool> PutAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default)
+    {
+        var content = new StringContent(
+            JsonSerializer.Serialize(body, _jsonOptions),
+            System.Text.Encoding.UTF8,
+            "application/json");
+        var response = await _client.PutAsync(relativeUrl, content, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     public async Task<bool> IsHealthyAsync(CancellationToken ct = default)
     {
         try
@@ -75,4 +90,12 @@ public sealed class MesTechApiClient : IMesTechApiClient
             return false;
         }
     }
+
+    // ── Quick Actions (G107) ──
+
+    public async Task<bool> TriggerPlatformSyncAsync(Guid tenantId, string platformCode, CancellationToken ct = default)
+        => await PostAsync($"/api/v1/platforms/{platformCode}/sync?tenantId={tenantId}", new { }, ct);
+
+    public async Task<bool> CreateQuickInvoiceAsync(Guid tenantId, Guid orderId, CancellationToken ct = default)
+        => await PostAsync($"/api/v1/invoices?tenantId={tenantId}", new { orderId }, ct);
 }
