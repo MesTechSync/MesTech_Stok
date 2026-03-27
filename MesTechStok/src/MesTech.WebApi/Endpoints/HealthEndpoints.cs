@@ -88,7 +88,7 @@ public static class HealthEndpoints
 
             // 3. MESA OS status
             HealthCheckItem mesaCheck;
-            var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://localhost:3105";
+            var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://mestech-mesa:3105";
             try
             {
                 using var http = httpClientFactory.CreateClient("MesaHealth");
