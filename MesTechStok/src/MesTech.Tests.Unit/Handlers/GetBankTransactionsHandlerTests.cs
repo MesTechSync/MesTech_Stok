@@ -36,6 +36,7 @@ public class GetBankTransactionsHandlerTests
         result.Should().HaveCount(2);
         result[0].Amount.Should().Be(1500m);
         result[1].IsReconciled.Should().BeTrue();
+        _repoMock.Verify(r => r.GetByBankAccountAsync(_tenantId, _bankAccountId, null, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

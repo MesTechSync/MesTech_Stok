@@ -31,6 +31,8 @@ public class ConvertQuotationToInvoiceHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
+        _invoiceRepoMock.Verify(r => r.AddAsync(It.IsAny<Invoice>()), Times.Never);
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

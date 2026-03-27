@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
@@ -33,5 +34,31 @@ public class ExportOrdersHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("bulunamadı");
+        _excelServiceMock.Verify(s => s.ExportOrdersAsync(It.IsAny<IEnumerable<OrderExportDto>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WithOrders_CallsExcelService()
+    {
+        var from = DateTime.UtcNow.AddDays(-7);
+        var to = DateTime.UtcNow;
+        var orders = new List<Order>
+        {
+            new() { OrderNumber = "ORD-001", CustomerName = "Test", OrderDate = DateTime.UtcNow, TotalAmount = 100m }
+        };
+        _orderRepoMock.Setup(r => r.GetByDateRangeAsync(_tenantId, from, to, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(orders.AsReadOnly());
+
+        var ms = new MemoryStream(new byte[] { 0x50, 0x4B }); // fake xlsx header
+        _excelServiceMock.Setup(s => s.ExportOrdersAsync(It.IsAny<IEnumerable<OrderExportDto>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ms);
+
+        var cmd = new ExportOrdersCommand(_tenantId, from, to);
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.ExportedCount.Should().Be(1);
+        result.FileName.Should().Contain("siparisler_");
+        _excelServiceMock.Verify(s => s.ExportOrdersAsync(It.IsAny<IEnumerable<OrderExportDto>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

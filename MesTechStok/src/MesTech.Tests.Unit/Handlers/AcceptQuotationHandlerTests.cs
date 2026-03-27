@@ -29,6 +29,8 @@ public class AcceptQuotationHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
+        _quotationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Quotation>()), Times.Never);
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
