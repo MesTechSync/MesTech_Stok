@@ -42,7 +42,12 @@ public static class RlsPolicySetup
 
         foreach (var table in tables)
         {
-            var policyName = $"tenant_isolation_{table.Replace("\"", "").ToLowerInvariant()}";
+            // Defensive: validate table name contains only safe characters (letters, digits, underscore, quotes)
+            var rawName = table.Replace("\"", "");
+            if (!rawName.All(c => char.IsLetterOrDigit(c) || c == '_'))
+                throw new InvalidOperationException($"RLS table name contains unsafe characters: {table}");
+
+            var policyName = $"tenant_isolation_{rawName.ToLowerInvariant()}";
 
             var sql = $"""
                 -- Enable RLS on table (idempotent)
