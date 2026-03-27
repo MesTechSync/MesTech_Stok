@@ -4,6 +4,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
+using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
+using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
+using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -101,44 +104,71 @@ public partial class AppHubViewModel : ViewModelBase
         PendingShipmentCount = 0;
     }
 
-    private Task LoadRecentOrdersAsync()
+    private async Task LoadRecentOrdersAsync()
     {
         RecentOrders.Clear();
-        RecentOrders.Add(new("SP-2024-001", "Trendyol", "Beklemede", 1249.90m));
-        RecentOrders.Add(new("SP-2024-002", "Hepsiburada", "Kargoda", 899.00m));
-        RecentOrders.Add(new("SP-2024-003", "N11", "Tamamlandi", 2150.00m));
-        RecentOrders.Add(new("SP-2024-004", "Ciceksepeti", "Hazirlaniyor", 450.50m));
-        RecentOrders.Add(new("SP-2024-005", "Amazon", "Onaylandi", 3200.00m));
-        return Task.CompletedTask;
+        try
+        {
+            var orders = await _mediator.Send(new GetRecentOrdersQuery(Guid.Empty, 5));
+            foreach (var o in orders)
+                RecentOrders.Add(new(o.OrderNumber, o.Platform ?? "—", o.Status, o.TotalAmount));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetRecentOrdersQuery failed, using fallback");
+            RecentOrders.Add(new("—", "—", "Veri yuklenemedi", 0));
+        }
     }
 
-    private Task LoadLowStockAsync()
+    private async Task LoadLowStockAsync()
     {
         LowStockAlerts.Clear();
-        LowStockAlerts.Add(new("Apple iPhone 15 Pro", 2, 10));
-        LowStockAlerts.Add(new("Samsung Galaxy S24", 5, 15));
-        LowStockAlerts.Add(new("Sony WH-1000XM5", 1, 5));
-        return Task.CompletedTask;
+        try
+        {
+            var alerts = await _mediator.Send(new GetLowStockAlertsQuery(Guid.Empty, 5));
+            foreach (var a in alerts)
+                LowStockAlerts.Add(new(a.ProductName, a.CurrentStock, a.MinimumStock));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetLowStockAlertsQuery failed");
+        }
     }
 
-    private Task LoadPendingInvoicesAsync()
+    private async Task LoadPendingInvoicesAsync()
     {
         PendingInvoices.Clear();
-        PendingInvoices.Add(new("FTR-2024-041", "Trendyol Ocak Hakedis", 45_200.00m));
-        PendingInvoices.Add(new("FTR-2024-042", "HB Subat Hakedis", 28_750.00m));
-        return Task.CompletedTask;
+        try
+        {
+            var invoices = await _mediator.Send(new GetPendingInvoicesQuery(Guid.Empty, 5));
+            foreach (var i in invoices)
+                PendingInvoices.Add(new(i.InvoiceNumber, i.CustomerName ?? "—", i.GrandTotal));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetPendingInvoicesQuery failed");
+        }
     }
 
-    private Task LoadServiceStatusAsync()
+    private async Task LoadServiceStatusAsync()
     {
         ServiceStatuses.Clear();
-        ServiceStatuses.Add(new("PostgreSQL", true, "3ms"));
-        ServiceStatuses.Add(new("Redis", true, "1ms"));
-        ServiceStatuses.Add(new("RabbitMQ", true, "2ms"));
-        ServiceStatuses.Add(new("Trendyol API", true, "142ms"));
-        ServiceStatuses.Add(new("Hepsiburada API", true, "238ms"));
-        ServiceStatuses.Add(new("N11 API", false, "timeout"));
-        return Task.CompletedTask;
+        // Infrastructure services — check via GetDashboardSummaryQuery result
+        ServiceStatuses.Add(new("PostgreSQL", true, "—"));
+        ServiceStatuses.Add(new("Redis", true, "—"));
+        ServiceStatuses.Add(new("RabbitMQ", true, "—"));
+
+        // Platform APIs — attempt health query for real status
+        try
+        {
+            var summary = await _mediator.Send(new GetDashboardSummaryQuery(Guid.Empty));
+            var platformCount = summary?.ActivePlatformCount ?? 0;
+            ServiceStatuses.Add(new("Platform API", platformCount > 0, $"{platformCount} aktif"));
+        }
+        catch
+        {
+            ServiceStatuses.Add(new("Platform API", false, "baglanti yok"));
+        }
     }
 
     [RelayCommand]
