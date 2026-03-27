@@ -23,8 +23,10 @@ public static class InvoiceEndpoints
         group.MapPost("/", async (
             InvoiceEndpointRequest request,
             IInvoiceAdapterFactory factory,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.InvoiceEndpoints");
             try
             {
                 var providerType = (InvoiceProvider)request.Provider;
@@ -36,9 +38,12 @@ public static class InvoiceEndpoints
                 var result = await adapter.CreateInvoiceAsync(request.Invoice, ct);
                 return Results.Ok(result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Results.Problem("Fatura olusturma basarisiz — lutfen tekrar deneyin veya destek ile iletisime gecin.");
+                logger.LogError(ex, "Invoice creation failed via adapter");
+                return Results.Problem(
+                    detail: "Fatura olusturma basarisiz — lutfen tekrar deneyin veya destek ile iletisime gecin.",
+                    statusCode: StatusCodes.Status500InternalServerError);
             }
         })
         .WithName("CreateInvoiceViaAdapter")
