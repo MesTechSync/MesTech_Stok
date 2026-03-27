@@ -18,6 +18,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ErpSyncLog ile her provider icin sync sonucu kaydedilir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ErpStockSyncJob : ISyncJob
 {
     public string JobId => "erp-stock-sync";

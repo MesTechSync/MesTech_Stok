@@ -8,6 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Gunde 1 kez Trendyol cari hesap ekstresini ceker.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class SettlementSyncJob : ISyncJob
 {
     public string JobId => "settlement-sync";

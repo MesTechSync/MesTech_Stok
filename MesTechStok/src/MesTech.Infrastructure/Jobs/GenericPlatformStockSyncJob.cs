@@ -16,6 +16,7 @@ namespace MesTech.Infrastructure.Jobs;
 ///   Ozon, Etsy, Zalando, PttAVM:       2 saat
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class GenericPlatformStockSyncJob
 {
     private readonly IAdapterFactory _factory;

@@ -14,6 +14,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Phase-2 TAM: Bakiye verilerini ceker, metrik loglar, IErpAccountCapable ile hesap arama yapar.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ErpAccountSyncJob : ISyncJob
 {
     public string JobId => "erp-account-sync";

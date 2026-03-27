@@ -8,6 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 30 dakikada OpenCart ile cift yonlu stok sync yapar.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class OpenCartStockSyncJob : ISyncJob
 {
     public string JobId => "opencart-stock-sync";

@@ -17,6 +17,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Data-driven Hangfire job: her aktif SupplierFeed için ayrı recurring job kaydedilir.
 /// Feed URL'den ürün verisi çeker, parse eder, stok/fiyat günceller, hedef platformlara push eder.
 /// </summary>
+[DisableConcurrentExecution(timeoutInSeconds: 600)]
 public sealed class SupplierFeedSyncJob
 {
     private readonly AppDbContext _dbContext;

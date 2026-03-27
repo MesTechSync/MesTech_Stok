@@ -8,6 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 6 saatte Trendyol ile fiyat esitlemesi yapar.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class TrendyolPriceSyncJob : ISyncJob
 {
     public string JobId => "trendyol-price-sync";

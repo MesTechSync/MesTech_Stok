@@ -8,6 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Her 30 dakikada stok delta sync Trendyol'a push eder.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class TrendyolStockSyncJob : ISyncJob
 {
     public string JobId => "trendyol-stock-sync";
