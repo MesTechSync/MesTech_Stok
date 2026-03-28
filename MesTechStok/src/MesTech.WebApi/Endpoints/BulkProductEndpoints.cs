@@ -24,22 +24,22 @@ public static class BulkProductEndpoints
             CancellationToken ct) =>
         {
             if (!httpRequest.HasFormContentType)
-                return Results.BadRequest(new { error = "multipart/form-data content type required." });
+                return Results.Problem(detail: "multipart/form-data content type required.", statusCode: 400);
 
             var form = await httpRequest.ReadFormAsync(ct);
             var file = form.Files.GetFile("file");
 
             if (file is null || file.Length == 0)
-                return Results.BadRequest(new { error = "File is required." });
+                return Results.Problem(detail: "File is required.", statusCode: 400);
 
             var allowedExtensions = new[] { ".csv", ".xlsx", ".xls" };
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
-                return Results.BadRequest(new { error = $"Unsupported file type: {extension}. Allowed: csv, xlsx, xls" });
+                return Results.Problem(detail: $"Unsupported file type: {extension}. Allowed: csv, xlsx, xls", statusCode: 400);
 
             // Dosya boyutu kontrolü (max 10 MB)
             if (file.Length > 10 * 1024 * 1024)
-                return Results.BadRequest(new { error = "File size exceeds 10 MB limit." });
+                return Results.Problem(detail: "File size exceeds 10 MB limit.", statusCode: 400);
 
             return Results.Ok(new
             {
@@ -61,18 +61,18 @@ public static class BulkProductEndpoints
             CancellationToken ct) =>
         {
             if (!httpRequest.HasFormContentType)
-                return Results.BadRequest(new { error = "multipart/form-data content type required." });
+                return Results.Problem(detail: "multipart/form-data content type required.", statusCode: 400);
 
             var form = await httpRequest.ReadFormAsync(ct);
             var file = form.Files.GetFile("file");
 
             if (file is null || file.Length == 0)
-                return Results.BadRequest(new { error = "File is required." });
+                return Results.Problem(detail: "File is required.", statusCode: 400);
 
             var allowedExtensions = new[] { ".csv", ".xlsx", ".xls" };
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
-                return Results.BadRequest(new { error = $"Unsupported file type: {extension}. Allowed: csv, xlsx, xls" });
+                return Results.Problem(detail: $"Unsupported file type: {extension}. Allowed: csv, xlsx, xls", statusCode: 400);
 
             // Dosyayı belleğe oku
             using var memoryStream = new MemoryStream();
@@ -134,7 +134,7 @@ public static class BulkProductEndpoints
             CancellationToken ct) =>
         {
             if (request.Items is null || request.Items.Count == 0)
-                return Results.BadRequest(new { error = "At least one update item is required." });
+                return Results.Problem(detail: "At least one update item is required.", statusCode: 400);
 
             var stockItems = request.Items
                 .Where(i => i.NewStock.HasValue)
