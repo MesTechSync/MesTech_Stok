@@ -186,9 +186,8 @@ public sealed class CommissionChargedGLBridge
             platformType = PlatformType.OpenCart; // fallback — bilinmeyen platform
 
         // OrderId string → Guid dönüşümü
-        var orderId = Guid.TryParse(e.OrderId, out var parsedOrderId)
-            ? parsedOrderId
-            : Guid.Empty;
+        if (!Guid.TryParse(e.OrderId, out var orderId))
+            throw new InvalidOperationException($"OrderId is required for GL entry. Got: '{e.OrderId}'");
 
         _logger.LogDebug(
             "[Bridge] CommissionCharged → GL: Platform={Platform}, Amount={Amount}, Rate={Rate}%",
