@@ -22,8 +22,7 @@ public sealed class SettlementSyncWorker : IAccountingJob
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<SettlementSyncWorker> _logger;
 
-    // Desteklenen platform listesi
-    private static readonly string[] SupportedPlatforms = { "Trendyol", "HepsiBurada", "N11", "CicekSepeti", "Pazarama", "Amazon" };
+    // Tüm ISettlementCapableAdapter implement eden platformlar otomatik dahil
 
     public SettlementSyncWorker(
         IAdapterFactory adapterFactory,
@@ -44,21 +43,21 @@ public sealed class SettlementSyncWorker : IAccountingJob
         var tenantId = _tenantProvider.GetCurrentTenantId();
         var totalSettlements = 0;
 
-        foreach (var platform in SupportedPlatforms)
+        var settlementAdapters = _adapterFactory.GetAll()
+            .Where(a => a is ISettlementCapableAdapter)
+            .ToList();
+
+        foreach (var registeredAdapter in settlementAdapters)
         {
             ct.ThrowIfCancellationRequested();
+            var platform = registeredAdapter.PlatformCode;
 
             try
             {
-                var adapter = _adapterFactory.ResolveCapability<ISettlementCapableAdapter>(platform);
-                if (adapter == null)
-                {
-                    _logger.LogDebug("[{JobId}] {Platform} ISettlementCapableAdapter bulunamadi, atlaniyor",
-                        JobId, platform);
-                    continue;
-                }
+                var settlementAdapter = registeredAdapter as ISettlementCapableAdapter;
+                if (settlementAdapter == null) continue;
 
-                var settlement = await adapter.GetSettlementAsync(yesterday, today, ct).ConfigureAwait(false);
+                var settlement = await settlementAdapter.GetSettlementAsync(yesterday, today, ct).ConfigureAwait(false);
                 if (settlement != null)
                 {
                     totalSettlements++;
@@ -67,7 +66,7 @@ public sealed class SettlementSyncWorker : IAccountingJob
                         JobId, platform, yesterday, today);
                 }
 
-                var cargoInvoices = await adapter.GetCargoInvoicesAsync(yesterday, ct).ConfigureAwait(false);
+                var cargoInvoices = await settlementAdapter.GetCargoInvoicesAsync(yesterday, ct).ConfigureAwait(false);
                 _logger.LogInformation(
                     "[{JobId}] {Platform} — {CargoCount} kargo faturasi cekildi",
                     JobId, platform, cargoInvoices.Count);
