@@ -24,7 +24,7 @@ public class CreateSavedReportHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_ReturnsGuidAndSaves()
     {
-        var cmd = new CreateSavedReportCommand(Guid.NewGuid(), "Aylık Satış", "Sales", "{}");
+        var cmd = new CreateSavedReportCommand(Guid.NewGuid(), "Aylık Satış", "Sales", "{}", Guid.NewGuid());
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
@@ -44,7 +44,7 @@ public class CreateSavedReportHandlerTests
     public async Task Handle_SavedEntityContainsCorrectFields()
     {
         var tenantId = Guid.NewGuid();
-        var cmd = new CreateSavedReportCommand(tenantId, "Stok Raporu", "Inventory", """{"category":"all"}""");
+        var cmd = new CreateSavedReportCommand(tenantId, "Stok Raporu", "Inventory", """{"category":"all"}""", Guid.NewGuid());
 
         await _sut.Handle(cmd, CancellationToken.None);
 
