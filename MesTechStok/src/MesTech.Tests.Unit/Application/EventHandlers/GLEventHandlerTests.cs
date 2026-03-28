@@ -1,14 +1,11 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Application.Interfaces;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using IUnitOfWork = MesTech.Domain.Interfaces.IUnitOfWork;
-using IIncomeRepository = MesTech.Domain.Interfaces.IIncomeRepository;
-using IInvoiceRepository = MesTech.Domain.Interfaces.IInvoiceRepository;
 
 namespace MesTech.Tests.Unit.Application.EventHandlers;
 
@@ -61,7 +58,7 @@ public class CommissionChargedGLHandlerTests
             25.00m, 10.0m, CancellationToken.None);
 
         captured.Should().NotBeNull();
-        captured!.Amount.Should().Be(25.00m);
+        captured!.TotalAmount.Should().Be(25.00m);
         captured.Description.Should().Contain("Hepsiburada");
     }
 }

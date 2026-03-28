@@ -84,7 +84,7 @@ public class PriceLossDetectedEventHandlerTests
         _notifRepo.Verify(r => r.AddAsync(
             It.Is<NotificationLog>(n =>
                 n.TenantId == tenantId &&
-                n.Template == "PriceLossDetected"),
+                n.TemplateName == "PriceLossDetected"),
             It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -139,12 +139,12 @@ public class ReturnApprovedStockRestorationHandlerTests
     {
         var sut = CreateSut();
         var productId = Guid.NewGuid();
-        var product = Product.Create("Test Product", "SKU-RET", Guid.NewGuid());
+        var product = new Product { Name = "Test Product", SKU = "SKU-RET", TenantId = Guid.NewGuid() };
         _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
 
         var lines = new List<ReturnLineInfoEvent>
         {
-            new(productId, "SKU-RET", 3)
+            new(productId, "SKU-RET", 3, 100.00m)
         };
 
         await sut.HandleAsync(
@@ -174,7 +174,7 @@ public class ZeroStockDetectedEventHandlerTests
     {
         var sut = CreateSut();
         var productId = Guid.NewGuid();
-        var product = Product.Create("Zero Stock Product", "SKU-ZERO", Guid.NewGuid());
+        var product = new Product { Name = "Zero Stock Product", SKU = "SKU-ZERO", TenantId = Guid.NewGuid() };
         _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
 
         await sut.HandleAsync(productId, "SKU-ZERO", Guid.NewGuid(), CancellationToken.None);
@@ -219,7 +219,7 @@ public class SubscriptionNotificationHandlerTests
         await sut.HandleCreatedAsync(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
 
         _notifRepo.Verify(r => r.AddAsync(
-            It.Is<NotificationLog>(n => n.Template == "SubscriptionCreated"),
+            It.Is<NotificationLog>(n => n.TemplateName == "SubscriptionCreated"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -279,7 +279,7 @@ public class SyncErrorNotificationHandlerTests
             "API iletisim hatasi", CancellationToken.None);
 
         _notifRepo.Verify(r => r.AddAsync(
-            It.Is<NotificationLog>(n => n.Template == "SyncError"),
+            It.Is<NotificationLog>(n => n.TemplateName == "SyncError"),
             It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -43,7 +43,7 @@ public class LowStockNotificationHandlerTests
 
         _notifRepo.Verify(r => r.AddAsync(It.Is<NotificationLog>(n =>
             n.TenantId == tenantId &&
-            n.Template == "LowStockAlert"), It.IsAny<CancellationToken>()), Times.Once);
+            n.TemplateName == "LowStockAlert"), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -87,7 +87,7 @@ public class CrmNotificationHandlerTests
 
         _notifRepo.Verify(r => r.AddAsync(It.Is<NotificationLog>(n =>
             n.TenantId == tenantId &&
-            n.Template == "DealWon"), It.IsAny<CancellationToken>()), Times.Once);
+            n.TemplateName == "DealWon"), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -103,7 +103,7 @@ public class CrmNotificationHandlerTests
 
         captured.Should().NotBeNull();
         captured!.Content.Should().Contain("Fiyat uyumsuzlugu");
-        captured.Template.Should().Be("DealLost");
+        captured.TemplateName.Should().Be("DealLost");
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class CrmNotificationHandlerTests
 
         captured.Should().NotBeNull();
         captured!.Content.Should().Contain("85");
-        captured.Template.Should().Be("LeadScored");
+        captured.TemplateName.Should().Be("LeadScored");
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class CrmNotificationHandlerTests
 
         captured.Should().NotBeNull();
         captured!.Content.Should().Contain("Sprint Review");
-        captured.Template.Should().Be("CalendarEventCreated");
+        captured.TemplateName.Should().Be("CalendarEventCreated");
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public class CrmNotificationHandlerTests
         await sut.HandleLeadConvertedAsync(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
 
         _notifRepo.Verify(r => r.AddAsync(It.Is<NotificationLog>(n =>
-            n.Template == "LeadConverted"), It.IsAny<CancellationToken>()), Times.Once);
+            n.TemplateName == "LeadConverted"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
