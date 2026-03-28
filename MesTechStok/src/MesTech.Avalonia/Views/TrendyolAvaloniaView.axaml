@@ -129,6 +129,7 @@
                             </Border>
                             <Button Grid.Column="1" Content="Test Et"
                                     Command="{Binding TestConnectionCommand}"
+                                    ToolTip.Tip="Trendyol API baglanti testi yap"
                                     IsEnabled="{Binding !IsConnectionTesting}"
                                     Background="{DynamicResource MesPrimaryBlue}"
                                     Foreground="{DynamicResource MesBgPrimary}"
@@ -206,6 +207,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Son 5 Urunu Cek"
                                     Command="{Binding FetchProductsCommand}"
+                                    ToolTip.Tip="Trendyol'dan son 5 urunu cek"
                                     IsEnabled="{Binding !IsQuickActionRunning}"
                                     Background="{DynamicResource MesBrandAccent}"
                                     Foreground="{DynamicResource MesBgPrimary}"
@@ -214,6 +216,7 @@
                                     CornerRadius="{StaticResource MesRadiusBase}" />
                             <Button Content="Son 5 Siparisi Cek"
                                     Command="{Binding FetchOrdersCommand}"
+                                    ToolTip.Tip="Trendyol'dan son 5 siparisi cek"
                                     IsEnabled="{Binding !IsQuickActionRunning}"
                                     Background="{DynamicResource MesEmerald}"
                                     Foreground="{DynamicResource MesBgPrimary}"
