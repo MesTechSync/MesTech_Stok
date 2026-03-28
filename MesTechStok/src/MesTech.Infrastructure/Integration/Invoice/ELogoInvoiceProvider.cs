@@ -308,17 +308,18 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             {
                 foreach (var item in invoicesArray.EnumerateArray())
                 {
-                    var gibId = item.GetProperty("gibInvoiceId").GetString()!;
+                    var gibId = item.TryGetProperty("gibInvoiceId", out var gibProp) ? gibProp.GetString() ?? string.Empty : string.Empty;
+                    if (string.IsNullOrEmpty(gibId)) continue;
                     var invoiceNumber = item.TryGetProperty("invoiceNumber", out var inv)
                         ? inv.GetString() ?? gibId : gibId;
-                    var senderName = item.GetProperty("senderName").GetString()!;
-                    var senderTax = item.GetProperty("senderTaxNumber").GetString()!;
-                    var amount = item.GetProperty("amount").GetDecimal();
-                    var invoiceDate = item.GetProperty("invoiceDate").GetDateTime();
+                    var senderName = item.TryGetProperty("senderName", out var snProp) ? snProp.GetString() ?? string.Empty : string.Empty;
+                    var senderTax = item.TryGetProperty("senderTaxNumber", out var stProp) ? stProp.GetString() ?? string.Empty : string.Empty;
+                    var amount = item.TryGetProperty("amount", out var amtProp) ? amtProp.GetDecimal() : 0m;
+                    var invoiceDate = item.TryGetProperty("invoiceDate", out var dateProp) ? dateProp.GetDateTime() : DateTime.UtcNow;
                     var pdfUrl = item.TryGetProperty("pdfUrl", out var pdf)
                         && pdf.ValueKind != JsonValueKind.Null
                         ? pdf.GetString() : null;
-                    var statusStr = item.GetProperty("status").GetString()!;
+                    var statusStr = item.TryGetProperty("status", out var statusProp) ? statusProp.GetString() ?? "Draft" : "Draft";
                     var status = Enum.TryParse<Domain.Enums.InvoiceStatus>(statusStr, true, out var parsed)
                         ? parsed : Domain.Enums.InvoiceStatus.Draft;
                     list.Add(new IncomingInvoiceDto(gibId, invoiceNumber, senderName, senderTax, amount, invoiceDate, pdfUrl, status));
