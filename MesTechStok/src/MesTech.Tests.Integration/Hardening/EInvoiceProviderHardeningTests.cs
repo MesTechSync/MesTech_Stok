@@ -38,11 +38,14 @@ public class EInvoiceProviderHardeningTests : IDisposable
 {
     private readonly WireMockServer _server;
     private readonly string _baseUrl;
+    private readonly Mock<IHttpClientFactory> _httpClientFactory;
 
     public EInvoiceProviderHardeningTests()
     {
         _server = WireMockServer.Start();
         _baseUrl = _server.Url!;
+        _httpClientFactory = new Mock<IHttpClientFactory>();
+        _httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
     }
 
     public void Dispose()
@@ -52,6 +55,14 @@ public class EInvoiceProviderHardeningTests : IDisposable
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
+
+    private HttpClient CreateConfiguredHttpClient(TimeSpan? timeout = null)
+    {
+        var httpClient = _httpClientFactory.Object.CreateClient();
+        if (timeout.HasValue)
+            httpClient.Timeout = timeout.Value;
+        return httpClient;
+    }
 
     private const string InvalidVkn = "000";
     private const string ValidVkn = "1234567890";
