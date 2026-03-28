@@ -34,7 +34,7 @@ public class BusinessLogicEventHandlerTests
     [Fact]
     public async Task CommissionGL_ZeroAmount_SkipsGLEntry()
     {
-        var handler = new CommissionChargedGLHandler(_uow.Object, Mock.Of<ILogger<CommissionChargedGLHandler>>());
+        var handler = new CommissionChargedGLHandler(_uow.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<CommissionChargedGLHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, PlatformType.Trendyol, 0m, 0.10m, CancellationToken.None);
 
@@ -45,7 +45,7 @@ public class BusinessLogicEventHandlerTests
     [Fact]
     public async Task CommissionGL_NegativeAmount_SkipsGLEntry()
     {
-        var handler = new CommissionChargedGLHandler(_uow.Object, Mock.Of<ILogger<CommissionChargedGLHandler>>());
+        var handler = new CommissionChargedGLHandler(_uow.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<CommissionChargedGLHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, PlatformType.Amazon, -50m, 0.15m, CancellationToken.None);
 
@@ -58,7 +58,7 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new CommissionChargedGLHandler(uow.Object, Mock.Of<ILogger<CommissionChargedGLHandler>>());
+        var handler = new CommissionChargedGLHandler(uow.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<CommissionChargedGLHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, PlatformType.Trendyol, 500m, 0.12m, CancellationToken.None);
 
@@ -76,7 +76,7 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new CommissionChargedGLHandler(uow.Object, Mock.Of<ILogger<CommissionChargedGLHandler>>());
+        var handler = new CommissionChargedGLHandler(uow.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<CommissionChargedGLHandler>>());
 
         var act = () => handler.HandleAsync(Guid.NewGuid(), _tenantId, platform, 100m, 0.10m, CancellationToken.None);
 
@@ -186,7 +186,10 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new InvoiceApprovedGLHandler(uow.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
+        var journalRepo = new Mock<IJournalEntryRepository>();
+        journalRepo.Setup(r => r.AddAsync(It.IsAny<MesTech.Domain.Accounting.Entities.JournalEntry>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var handler = new InvoiceApprovedGLHandler(uow.Object, journalRepo.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), _tenantId, "INV-001", 11800m, 1800m, 10000m, CancellationToken.None);
 
@@ -199,7 +202,10 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new InvoiceApprovedGLHandler(uow.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
+        var journalRepo = new Mock<IJournalEntryRepository>();
+        journalRepo.Setup(r => r.AddAsync(It.IsAny<MesTech.Domain.Accounting.Entities.JournalEntry>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var handler = new InvoiceApprovedGLHandler(uow.Object, journalRepo.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
 
         // 0 KDV ile fatura → 391 KDV satırı eklenmemeli (handler guard clause)
         var act = () => handler.HandleAsync(Guid.NewGuid(), _tenantId, "INV-002", 5000m, 0m, 5000m, CancellationToken.None);
@@ -217,7 +223,11 @@ public class BusinessLogicEventHandlerTests
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new InvoiceCancelledReversalHandler(uow.Object, Mock.Of<ILogger<InvoiceCancelledReversalHandler>>());
+        var journalRepo = new Mock<IJournalEntryRepository>();
+        journalRepo.Setup(r => r.AddAsync(It.IsAny<MesTech.Domain.Accounting.Entities.JournalEntry>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var invoiceRepo = new Mock<IInvoiceRepository>();
+        var handler = new InvoiceCancelledReversalHandler(uow.Object, journalRepo.Object, invoiceRepo.Object, Mock.Of<ILogger<InvoiceCancelledReversalHandler>>());
 
         await handler.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "INV-003", "İptal sebebi", _tenantId, 11800m, CancellationToken.None);
 
