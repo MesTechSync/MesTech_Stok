@@ -3,6 +3,18 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.14] - 2026-03-28
+
+### DEV2 Frontend & UI (TUR 1-11)
+
+- feat(avalonia): 6 new views — Penalty, FixedExpense, TaxRecord, FixedAsset, Quotation, Billing
+- fix(avalonia): 19 orphaned buttons bound to Commands, 18 ToolTip, 4 DataGrid a11y, 17 hardcoded colors
+- fix(security): G069+G070 P0 XSS — innerHTML escaping in bravo_notification_center + alpha_stats/notification + ComponentLoader
+- fix(avalonia): G089 P1 memory leak — Dispose previous ViewModel on navigation (timer leak)
+- fix(avalonia): BarcodeScannerVM empty catch → HasError (KÇ-07)
+
+**Metrics:** 27 commits, 6 new views, 0 P0/P1 borç, quality A+ (9.5/10), 8/8 user journey verified
+
 ## [1.0.13] - 2026-03-28
 
 ### DEV3 Integration & Adapter Hardening (TUR 1-4)
