@@ -85,9 +85,11 @@ public partial class BarcodeScannerViewModel : ViewModelBase
             TotalScanned++;
             OnPropertyChanged(nameof(ScanSummary));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             stopwatch.Stop();
+            HasError = true;
+            ErrorMessage = $"Barkod tarama hatasi: {ex.Message}";
             ScanResults.Insert(0, new ScanResultItem
             {
                 Barcode = barcode,
