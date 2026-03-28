@@ -264,6 +264,45 @@ public static class CrmEndpoints
         .WithSummary("Deal pipeline aşamasını güncelle")
         .Produces(200).Produces(400);
 
+        // GET /api/v1/crm/campaigns — aktif kampanyalar (G207-DEV6)
+        group.MapGet("/campaigns", async (
+            Guid tenantId, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Crm.Queries.GetActiveCampaigns.GetActiveCampaignsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetActiveCampaigns")
+        .WithSummary("Aktif kampanya listesi")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/customers/{customerId}/points — müşteri sadakat puanları (G207-DEV6)
+        group.MapGet("/customers/{customerId:guid}/points", async (
+            Guid customerId, Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Crm.Queries.GetCustomerPoints.GetCustomerPointsQuery(tenantId, customerId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCustomerPoints")
+        .WithSummary("Müşteri sadakat puanları ve işlem geçmişi")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // POST /api/v1/crm/campaigns/apply-discount — kampanya indirim uygula (G207-DEV6)
+        group.MapPost("/campaigns/apply-discount", async (
+            MesTech.Application.Features.Crm.Queries.ApplyCampaignDiscount.ApplyCampaignDiscountQuery query,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(query, ct);
+            return Results.Ok(result);
+        })
+        .WithName("ApplyCampaignDiscount")
+        .WithSummary("Ürüne kampanya indirimi uygula ve yeni fiyat hesapla")
+        .Produces(200);
+
         // GET /api/v1/crm/suppliers/paged — sayfalanmış tedarikçi listesi
         group.MapGet("/suppliers/paged", async (
             string? search, int? page, int? pageSize,
