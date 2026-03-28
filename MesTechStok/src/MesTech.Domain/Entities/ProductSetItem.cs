@@ -6,8 +6,9 @@ namespace MesTech.Domain.Entities;
 /// Ürün seti bileşen kalemi — ProductSet aggregate'e ait value-like entity.
 /// Her kalem, sette kaç adet o ürünün bulunduğunu tanımlar.
 /// </summary>
-public sealed class ProductSetItem : BaseEntity
+public sealed class ProductSetItem : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid ProductSetId { get; private set; }
     public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
