@@ -24,7 +24,7 @@ public class CreateDropshipSupplierHandlerTests
     public async Task Handle_ValidCommand_ReturnsGuid()
     {
         var cmd = new CreateDropshipSupplierCommand(
-            Guid.NewGuid(), "Test Supplier", "https://supplier.com", DropshipMarkupType.Percentage);
+            Guid.NewGuid(), "Test Supplier", "https://supplier.com", DropshipMarkupType.Percentage, 10m);
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
