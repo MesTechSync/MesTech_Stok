@@ -16,7 +16,7 @@ namespace MesTech.Tests.Integration.Invoice;
 
 /// <summary>
 /// Hepsiburada Fatura provider contract tests — REST JSON API + Basic Auth (username:apiKey).
-/// 17 WireMock tests covering IInvoiceProvider + IBulkInvoiceCapable + IKontorCapable.
+/// 20 WireMock tests covering IInvoiceProvider + IBulkInvoiceCapable + IKontorCapable.
 /// URL pattern: /invoice/api/v1/...
 /// Auth: Authorization: Basic Base64(username:apiKey)
 /// </summary>
@@ -175,6 +175,29 @@ public class HBFaturaProviderTests : IClassFixture<WireMockFixture>, IDisposable
         result.ErrorMessage.Should().NotBeNullOrEmpty();
     }
 
+    // ════ 4b. CreateEFatura — 401 Unauthorized returns failure ════
+
+    [Fact]
+    public async Task CreateEFatura_Unauthorized_ReturnsFailure()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create().WithPath($"{ApiBase}/efatura").UsingPost())
+            .RespondWith(Response.Create()
+                .WithStatusCode(401)
+                .WithBody(@"{""error"":""Unauthorized — invalid credentials""}"));
+
+        // Act
+        var result = await provider.CreateEFaturaAsync(CreateTestInvoice());
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.GibInvoiceId.Should().BeNull();
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+    }
+
     // ════ 5. CreateEArsiv — Success returns GibInvoiceId ════
 
     [Fact]
@@ -243,6 +266,32 @@ public class HBFaturaProviderTests : IClassFixture<WireMockFixture>, IDisposable
         // Assert
         result.Status.Should().Be("Accepted");
         result.AcceptedAt.Should().NotBeNull();
+        result.GibInvoiceId.Should().Be(TestGibInvoiceId);
+        result.ErrorMessage.Should().BeNull();
+    }
+
+    // ════ 7b. CheckStatus — Pending returns Pending status ════
+
+    [Fact]
+    public async Task CheckStatus_Pending_ReturnsPendingStatus()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"{ApiBase}/invoices/{TestGibInvoiceId}/status").UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""status"":""Pending"",""acceptedAt"":null,""errorMessage"":null}"));
+
+        // Act
+        var result = await provider.CheckStatusAsync(TestGibInvoiceId);
+
+        // Assert
+        result.Status.Should().Be("Pending");
+        result.AcceptedAt.Should().BeNull();
         result.GibInvoiceId.Should().Be(TestGibInvoiceId);
         result.ErrorMessage.Should().BeNull();
     }
@@ -496,5 +545,29 @@ public class HBFaturaProviderTests : IClassFixture<WireMockFixture>, IDisposable
         result.TotalKontor.Should().Be(0);
         result.ExpiresAt.Should().BeNull();
         result.ProviderName.Should().Be("Hepsiburada Fatura");
+    }
+
+    // ════ 18. PingAsync — Healthy returns true ════
+
+    [Fact]
+    public async Task PingAsync_Healthy_ReturnsTrue()
+    {
+        // Arrange
+        var provider = CreateConfiguredProvider();
+
+        // PingAsync default impl calls CheckStatusAsync("PING") — mock that endpoint
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath($"{ApiBase}/invoices/PING/status").UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""status"":""Unknown"",""acceptedAt"":null,""errorMessage"":null}"));
+
+        // Act
+        var result = await provider.PingAsync();
+
+        // Assert
+        result.Should().BeTrue();
     }
 }
