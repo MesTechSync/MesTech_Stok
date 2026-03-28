@@ -3,6 +3,24 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.13] - 2026-03-28
+
+### DEV3 Integration & Adapter Hardening (TUR 1-4)
+
+- fix(test): N11Adapter tests HttpClient→IHttpClientFactory constructor (4 files)
+- fix(test): EInvoiceProviderHardeningTests IHttpClientFactory + .Object fix (2 commits)
+- fix(test): CargoAdapterHardeningTests parameter alignment (16 errors→0)
+- fix(test): ERPNext adapter+handler tests — readonly DTO + API method names
+- fix(api): ErpEndpoints + AuthEndpoints premature brace scope fix
+- fix(settlement): TenantId enforcement in 7 settlement parsers — Guid.Empty→throw (BORÇ-N)
+- fix(di): StripePaymentGateway registered as IPaymentGateway
+- feat(payment): StripePaymentProviderAdapter — IPaymentGateway→IPaymentProvider bridge (S3 KOPUK→BAĞLI)
+- fix(di): MockInvoiceProvider/Adapter conditional registration — dev/test only
+- fix(adapter): Amazon LWA token null-forgiving→TryGetProperty (3 files)
+- fix(invoice): ELogo+Sovos null-forgiving→TryGetProperty defensive parsing
+
+**Metrics:** 13 commits, 50 build errors→0, 7 BORÇ-N→0, 5 null crash risks→0, 1 S3 chain fixed
+
 ## [1.0.0] - 2026-03-15
 
 ### Dalga 13: v1.0.0 Final
