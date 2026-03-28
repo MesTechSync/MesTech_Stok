@@ -3,7 +3,9 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Fulfillment;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -34,8 +36,8 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
     private const int TokenRefreshBufferSeconds = 60;
 
     private const string TurkeyMarketplaceId = "A33AVAJ2PDY3EV";
-    private const string SpApiBaseUrl = "https://sellingpartnerapi-eu.amazon.com";
-    private const string LwaEndpoint = "https://api.amazon.com/auth/o2/token";
+    private readonly string _spApiBaseUrl;
+    private readonly string _lwaEndpoint;
     private const string DefaultPostalCode = "34000";
     private const string DefaultCountryCode = "TR";
 
@@ -52,7 +54,8 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         string clientId,
         string clientSecret,
         string sellerId,
-        IHttpClientFactory? httpClientFactory = null)
+        IHttpClientFactory? httpClientFactory = null,
+        IOptions<AmazonOptions>? amazonOptions = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClient.Timeout = TimeSpan.FromSeconds(60);
@@ -63,8 +66,12 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         _sellerId = sellerId ?? throw new ArgumentNullException(nameof(sellerId));
         _httpClientFactory = httpClientFactory;
 
+        var opts = amazonOptions?.Value ?? new AmazonOptions();
+        _spApiBaseUrl = opts.EuEndpoint;
+        _lwaEndpoint = opts.LwaEndpoint;
+
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(SpApiBaseUrl, UriKind.Absolute);
+            _httpClient.BaseAddress = new Uri(_spApiBaseUrl, UriKind.Absolute);
 
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-AmazonFBA-Client/1.0");
 
@@ -147,7 +154,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             ["client_secret"] = _clientSecret
         });
 
-        var response = await lwaClient.PostAsync(LwaEndpoint, content, ct).ConfigureAwait(false);
+        var response = await lwaClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(

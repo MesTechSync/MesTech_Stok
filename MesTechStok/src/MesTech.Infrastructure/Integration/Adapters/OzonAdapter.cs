@@ -37,7 +37,6 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private string _baseUrl;
     private bool _isConfigured;
 
-    private const string DefaultBaseUrl = "https://api-seller.ozon.ru";
     private const string ClientIdHeader = "Client-Id";
     private const string ApiKeyHeader = "Api-Key";
 
@@ -48,7 +47,8 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _baseUrl = options?.Value.BaseUrl ?? DefaultBaseUrl;
+        var opts = options?.Value ?? new OzonOptions();
+        _baseUrl = opts.BaseUrl;
 
         _jsonOptions = new JsonSerializerOptions
         {

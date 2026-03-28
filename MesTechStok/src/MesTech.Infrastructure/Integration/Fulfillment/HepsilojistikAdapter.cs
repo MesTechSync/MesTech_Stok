@@ -4,6 +4,7 @@ using System.Text.Json;
 using MesTech.Application.DTOs.Fulfillment;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -26,14 +27,12 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
-    // Provisional base URL — confirm with official Hepsilojistik documentation
-    private const string HepsilojistikBaseUrl = "https://lojistik-api.hepsiburada.com/v1";
-
     public HepsilojistikAdapter(
         HttpClient httpClient,
         ILogger<HepsilojistikAdapter> logger,
         string merchantId,
-        string apiKey)
+        string apiKey,
+        IOptions<HepsilojistikOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
@@ -41,8 +40,9 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         ArgumentException.ThrowIfNullOrWhiteSpace(merchantId, nameof(merchantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey, nameof(apiKey));
 
+        var opts = options?.Value ?? new HepsilojistikOptions();
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(HepsilojistikBaseUrl, UriKind.Absolute);
+            _httpClient.BaseAddress = new Uri(opts.BaseUrl, UriKind.Absolute);
 
         // Basic Auth: MerchantId:ApiKey (same pattern as HepsiburadaAdapter)
         var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{merchantId}:{apiKey}"));

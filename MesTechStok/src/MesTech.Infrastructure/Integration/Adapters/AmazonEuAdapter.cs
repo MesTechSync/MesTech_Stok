@@ -56,8 +56,6 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     private string _activeMarketplaceId = MarketplaceDE;
 
     // Constants
-    private const string DefaultEuEndpoint = "https://sellingpartnerapi-eu.amazon.com";
-    private const string DefaultLwaEndpoint = "https://api.amazon.com/auth/o2/token";
     private const string UnauthorizedStatusCode = "401";
 
     // EU Marketplace IDs
@@ -100,10 +98,10 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        var opts = options?.Value;
-        _httpClient.Timeout = TimeSpan.FromSeconds(opts?.HttpTimeoutSeconds ?? 30);
-        _lwaEndpoint = opts?.LwaEndpoint ?? DefaultLwaEndpoint;
-        _baseUrl = opts?.EuEndpoint ?? DefaultEuEndpoint;
+        var opts = options?.Value ?? new AmazonOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
+        _lwaEndpoint = opts.LwaEndpoint;
+        _baseUrl = opts.EuEndpoint;
 
         _jsonOptions = new JsonSerializerOptions
         {

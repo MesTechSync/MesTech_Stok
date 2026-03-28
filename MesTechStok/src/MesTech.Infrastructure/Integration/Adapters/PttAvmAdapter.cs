@@ -42,9 +42,6 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     private string _tokenEndpoint;
     private bool _isConfigured;
 
-    private const string DefaultBaseUrl = "https://apigw.pttavm.com";
-    private const string DefaultTokenEndpoint = "https://apigw.pttavm.com/api/auth/login";
-
     // 5-minute safety buffer before actual expiry
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
@@ -55,9 +52,9 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        var opts = options?.Value;
-        _baseUrl = opts?.BaseUrl ?? DefaultBaseUrl;
-        _tokenEndpoint = opts?.TokenEndpoint ?? DefaultTokenEndpoint;
+        var opts = options?.Value ?? new PttAvmOptions();
+        _baseUrl = opts.BaseUrl;
+        _tokenEndpoint = opts.TokenEndpoint;
 
         _jsonOptions = new JsonSerializerOptions
         {
