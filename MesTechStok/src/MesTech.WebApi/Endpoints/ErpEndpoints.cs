@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Application.Features.Erp.Commands.SyncOrderToErp;
 using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
@@ -266,6 +267,20 @@ public static class ErpEndpoints
         .WithSummary("ERP senkronizasyon log listesi")
         .Produces(200)
         .CacheOutput("Report120s");
+
+        // POST /api/v1/erp/sync-order — siparişi ERP'ye senkronize et
+        group.MapPost("/sync-order", async (
+            SyncOrderToErpCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.Success
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SyncOrderToErp")
+        .WithSummary("Siparişi ERP sistemine senkronize et (Parasüt, Logo, vb.)")
+        .Produces(200).Produces(400);
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────

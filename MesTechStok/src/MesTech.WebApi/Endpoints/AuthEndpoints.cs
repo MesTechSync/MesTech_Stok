@@ -1,3 +1,4 @@
+using MediatR;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
@@ -289,10 +290,38 @@ public static class AuthEndpoints
         .WithName("RevokeToken")
         .WithSummary("Refresh token iptal — logout")
         .Produces<StatusResponse>(StatusCodes.Status200OK);
+
+        // POST /api/v1/auth/mfa/enable — enable MFA for user
+        group.MapPost("/mfa/enable", async (
+            MfaEnableRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Auth.Commands.EnableMfa.EnableMfaCommand(request.UserId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("EnableMfa")
+        .WithSummary("Kullanıcı için MFA (TOTP) etkinleştir — QR code + secret döner")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/auth/mfa/verify — verify TOTP code
+        group.MapPost("/mfa/verify", async (
+            MfaVerifyRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Auth.Commands.VerifyTotp.VerifyTotpCommand(request.UserId, request.Code), ct);
+            return Results.Ok(result);
+        })
+        .WithName("VerifyTotp")
+        .WithSummary("TOTP doğrulama kodu kontrol")
+        .Produces(200).Produces(400);
     }
 
     // ── Request / Response Records ──
 
+    public record MfaEnableRequest(Guid UserId);
+    public record MfaVerifyRequest(Guid UserId, string Code);
     public record LoginRequest(string UserName, string Password);
 
     public record LoginResponse(
