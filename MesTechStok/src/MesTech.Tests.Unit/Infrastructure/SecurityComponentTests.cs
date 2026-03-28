@@ -186,9 +186,9 @@ public class OAuth2AuthProviderTests
             .ReturnsAsync(cachedToken);
 
         var httpClient = new HttpClient();
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
+        _httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
-            "amazon", _httpClientFactory.CreateClient(), _tokenCache.Object,
+            "amazon", _httpClientFactory.Object.CreateClient(), _tokenCache.Object,
             "client_id", "client_secret", "https://token.example.com", null, _logger.Object);
 
         var result = await provider.GetTokenAsync();
@@ -201,9 +201,9 @@ public class OAuth2AuthProviderTests
     public void IsTokenExpired_FreshToken_ShouldReturnFalse()
     {
         var httpClient = new HttpClient();
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
+        _httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
-            "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
+            "test", _httpClientFactory.Object.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);
 
         var freshToken = new AuthToken("access", null, DateTime.UtcNow.AddHours(1));
@@ -214,9 +214,9 @@ public class OAuth2AuthProviderTests
     public void IsTokenExpired_NearExpiry_ShouldReturnTrue()
     {
         var httpClient = new HttpClient();
-        _httpClientFactory.Setup(f => f.CreateClient()).Returns(httpClient);
+        _httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
         var provider = new OAuth2AuthProvider(
-            "test", _httpClientFactory.CreateClient(), _tokenCache.Object,
+            "test", _httpClientFactory.Object.CreateClient(), _tokenCache.Object,
             "id", "secret", "https://token.example.com", null, _logger.Object);
 
         var nearExpiryToken = new AuthToken("access", null, DateTime.UtcNow.AddMinutes(3));
