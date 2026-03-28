@@ -96,4 +96,6 @@ public class WarehouseSummaryCardDto
     public string OutOfStockText => $"{OutOfStockCount} tukendi";
     public string CriticalText => $"{CriticalCount} kritik";
     public string NormalText => $"{NormalCount} normal";
+
+    public IRelayCommand? ShowDetailCommand { get; set; }
 }
