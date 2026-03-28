@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
+using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -177,6 +178,22 @@ public static class DashboardEndpoints
         })
         .WithName("GetPendingInvoices")
         .WithSummary("Bekleyen faturalar — onay/gönderim bekleyenler")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/sales-chart — sales chart data (configurable days + platform)
+        group.MapGet("/sales-chart", async (
+            Guid tenantId,
+            int? days,
+            string? platformCode,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSalesChartDataQuery(tenantId, days ?? 30, platformCode), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSalesChartData")
+        .WithSummary("Satış grafiği verisi — gün + platform filtreli")
         .Produces(200)
         .CacheOutput("Dashboard30s");
     }

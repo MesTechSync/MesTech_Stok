@@ -12,6 +12,7 @@ using MesTech.Application.Features.Reports.CustomerSegmentReport;
 using MesTech.Application.Features.Reports.InventoryValuationReport;
 using MesTech.Application.Features.Reports.OrderFulfillmentReport;
 using MesTech.Application.Features.Reports.ProfitabilityReport;
+using MesTech.Application.Features.Reports.SalesAnalytics;
 using MesTech.Application.Features.Reports.StockTurnoverReport;
 using MesTech.Application.Features.Reports.CommissionReport;
 using MesTech.Application.Features.Reports.ErpReconciliationReport;
@@ -419,6 +420,20 @@ public static class ReportEndpoints
         })
         .WithName("ExportErpReconciliationReport")
         .WithSummary("ERP mutabakat raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+
+        // GET /api/v1/reports/sales-analytics — satış analiz raporu
+        group.MapGet("/sales-analytics", async (
+            Guid tenantId, DateTime from, DateTime to,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSalesAnalyticsQuery(tenantId, from, to), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSalesAnalytics")
+        .WithSummary("Satış analiz raporu — platform bazlı gelir, adet, trend")
+        .Produces(200)
+        .CacheOutput("Report120s");
     }
 
     private static async Task<IResult> ExportResult<T>(

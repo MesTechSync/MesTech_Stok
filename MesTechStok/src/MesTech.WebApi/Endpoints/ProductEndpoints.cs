@@ -6,8 +6,11 @@ using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.UpdateProductImage;
+using MesTech.Application.Features.AI.Commands.GenerateProductDescription;
+using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
 using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Queries.SearchProductsForImageMatch;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductById;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -152,6 +155,45 @@ public static class ProductEndpoints
         .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
         .Produces(400);
+
+        // GET /api/v1/products/{productId}/buybox-status — buybox durumu
+        group.MapGet("/{productId:guid}/buybox-status", async (
+            Guid productId, Guid tenantId, string? platformCode,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetBuyboxStatusQuery(tenantId, productId, platformCode), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBuyboxStatus")
+        .WithSummary("Ürün buybox pozisyon durumu")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // POST /api/v1/products/search-by-image — görsel benzerlik ile ürün arama
+        group.MapPost("/search-by-image", async (
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SearchProductsForImageMatchQuery(), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SearchProductsForImageMatch")
+        .WithSummary("Görsel benzerlik ile ürün arama (pgvector)")
+        .Produces(200);
+
+        // POST /api/v1/products/{productId}/generate-description — AI ürün açıklaması
+        group.MapPost("/{productId:guid}/generate-description", async (
+            Guid productId,
+            GenerateProductDescriptionCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var adjusted = command with { ProductId = productId };
+            var result = await mediator.Send(adjusted, ct);
+            return Results.Ok(result);
+        })
+        .WithName("GenerateProductDescription")
+        .WithSummary("AI ile ürün açıklaması oluştur")
+        .Produces(200);
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
