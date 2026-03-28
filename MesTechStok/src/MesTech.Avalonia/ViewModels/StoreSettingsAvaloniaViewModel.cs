@@ -22,6 +22,12 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string? email;
     [ObservableProperty] private string? address;
     [ObservableProperty] private int storeCount;
+    [ObservableProperty] private string apiKey = string.Empty;
+    [ObservableProperty] private string apiSecret = string.Empty;
+    [ObservableProperty] private string sellerId = string.Empty;
+    [ObservableProperty] private int syncIntervalMinutes = 15;
+    [ObservableProperty] private string webhookUrl = string.Empty;
+    [ObservableProperty] private bool autoSyncEnabled;
     [ObservableProperty] private bool isSaving;
     [ObservableProperty] private bool saveSuccess;
 

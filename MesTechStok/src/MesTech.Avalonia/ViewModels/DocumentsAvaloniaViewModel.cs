@@ -17,6 +17,7 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<DocumentListDto> documents = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string summary = string.Empty;
 
     public DocumentsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -35,7 +36,15 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
             Documents = new ObservableCollection<DocumentListDto>(result.Documents);
             TotalCount = result.TotalCount;
             IsEmpty = TotalCount == 0;
+            Summary = $"Toplam {TotalCount} belge";
         }, "Belgeler yuklenirken hata");
+    }
+
+    [RelayCommand]
+    private async Task Upload()
+    {
+        // TODO: File picker + upload via MediatR command
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

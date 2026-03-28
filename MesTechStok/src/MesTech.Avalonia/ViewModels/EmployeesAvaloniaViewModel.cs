@@ -18,6 +18,7 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<EmployeeDto> employees = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
 
     public EmployeesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
@@ -53,7 +54,15 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
 
         Employees = new ObservableCollection<EmployeeDto>(filtered);
         TotalCount = filtered.Count;
+        Summary = $"Toplam {TotalCount} calisan";
         IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        // TODO: Open employee create dialog
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -15,11 +15,13 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalProducts;
+    [ObservableProperty] private int totalCount;
     [ObservableProperty] private int inStockProducts;
     [ObservableProperty] private int outOfStockProducts;
     [ObservableProperty] private int lowStockProducts;
     [ObservableProperty] private decimal totalStockValue;
     [ObservableProperty] private int totalUnits;
+    [ObservableProperty] private string summary = string.Empty;
 
     public StockAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -41,8 +43,17 @@ public partial class StockAvaloniaViewModel : ViewModelBase
             LowStockProducts = result.LowStockProducts;
             TotalStockValue = result.TotalStockValue;
             TotalUnits = result.TotalUnits;
+            TotalCount = TotalProducts;
+            Summary = $"{TotalProducts} urun — {TotalStockValue:N2} ₺ deger";
             IsEmpty = TotalProducts == 0;
         }, "Stok ozeti yuklenirken hata");
+    }
+
+    [RelayCommand]
+    private async Task AddMovement()
+    {
+        // TODO: Open stock movement dialog
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

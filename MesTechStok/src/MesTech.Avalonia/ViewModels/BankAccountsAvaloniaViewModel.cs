@@ -18,6 +18,7 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<BankAccountDto> accounts = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private decimal totalBalance;
 
@@ -55,7 +56,15 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
         Accounts = new ObservableCollection<BankAccountDto>(filtered);
         TotalCount = filtered.Count;
         TotalBalance = filtered.Where(a => a.IsActive).Sum(a => a.Balance);
+        Summary = $"{TotalCount} hesap — {TotalBalance:N2} ₺";
         IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        // TODO: Open bank account create dialog
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -20,6 +20,7 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<ExpenseDto> expenses = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private decimal totalAmount;
+    [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
 
     public ExpensesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
@@ -54,7 +55,15 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
         Expenses = new ObservableCollection<ExpenseDto>(filtered);
         TotalCount = filtered.Count;
         TotalAmount = filtered.Sum(e => e.Amount);
+        Summary = $"Toplam {TotalCount} gider — {TotalAmount:N2} ₺";
         IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        // TODO: Open expense entry dialog
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -17,6 +17,7 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<ContactListDto> contacts = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int currentPage = 1;
 
@@ -40,8 +41,16 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
 
             Contacts = new ObservableCollection<ContactListDto>(result.Contacts);
             TotalCount = result.TotalCount;
+            Summary = $"Toplam {TotalCount} kisi";
             IsEmpty = TotalCount == 0;
         }, "Kisiler yuklenirken hata");
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        // TODO: Open contact create dialog
+        await Task.CompletedTask;
     }
 
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();
