@@ -29,4 +29,10 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to bank account create form or show dialog
+    }
 }
