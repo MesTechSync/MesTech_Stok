@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetPlatformCommissionRates;
 using MesTech.Application.Interfaces.Accounting;
-using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Moq;
 
