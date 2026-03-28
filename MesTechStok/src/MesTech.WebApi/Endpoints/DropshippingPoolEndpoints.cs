@@ -1,12 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
-using MesTech.Application.Features.Dropshipping.Queries.GetDropshippingPools;
-using MesTech.Application.Features.Dropshipping.Queries.GetExportHistory;
-using MesTech.Application.Features.Dropshipping.Queries.GetFeedImportHistory;
-using MesTech.Application.Features.Dropshipping.Queries.GetFeedSourceById;
-using MesTech.Application.Features.Dropshipping.Queries.GetFeedSources;
-using MesTech.Application.Features.Dropshipping.Queries.GetSupplierReliability;
 using MesTech.Application.Interfaces;
 using Microsoft.AspNetCore.OutputCaching;
 
