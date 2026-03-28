@@ -69,11 +69,14 @@ public static class InfrastructureServiceRegistration
         // TenantContextInterceptor — PostgreSQL RLS tenant context (MUH-03)
         services.AddScoped<TenantContextInterceptor>();
 
+        // SlowQueryInterceptor — 200ms+ sorgu tespiti + Prometheus histogram
+        services.AddSingleton<SlowQueryInterceptor>();
+
         // DbContext — PostgreSQL
         var rawConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
 
-        // G176: Pool exhaustion korumas� � Hangfire+Web+SignalR concurrent connections
+        // G176: Pool exhaustion korumas� � Hangfire+Web+SignalR concurrent connections
         var connectionString = rawConnectionString?.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) == true
             ? rawConnectionString
             : rawConnectionString + ";MaxPoolSize=50;MinPoolSize=10;Connection Idle Lifetime=300";
@@ -87,7 +90,8 @@ public static class InfrastructureServiceRegistration
             });
             options.AddInterceptors(
                 sp.GetRequiredService<AuditInterceptor>(),
-                sp.GetRequiredService<TenantContextInterceptor>());
+                sp.GetRequiredService<TenantContextInterceptor>(),
+                sp.GetRequiredService<SlowQueryInterceptor>());
         });
 
         // Repositories
@@ -629,6 +633,50 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderShippedCostHandler>();
         services.AddScoped<Application.EventHandlers.ICommissionChargedGLHandler,
             Application.EventHandlers.CommissionChargedGLHandler>();
+
+        // Yeni event handler'lar (DEV1 TUR 1-2: orphan event temizliği):
+        services.AddScoped<Application.EventHandlers.IPriceLossDetectedEventHandler,
+            Application.EventHandlers.PriceLossDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCancelledStockRestorationHandler,
+            Application.EventHandlers.OrderCancelledStockRestorationHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceCreatedNotificationHandler,
+            Application.EventHandlers.InvoiceCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
+            Application.EventHandlers.StockChangedPlatformSyncHandler>();
+        services.AddScoped<Application.EventHandlers.ILowStockNotificationHandler,
+            Application.EventHandlers.LowStockNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IProductCreatedNotificationHandler,
+            Application.EventHandlers.ProductCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderShippedNotificationHandler,
+            Application.EventHandlers.OrderShippedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCompletedNotificationHandler,
+            Application.EventHandlers.OrderCompletedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnCreatedNotificationHandler,
+            Application.EventHandlers.ReturnCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IPaymentFailedNotificationHandler,
+            Application.EventHandlers.PaymentFailedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceChangedNotificationHandler,
+            Application.EventHandlers.PriceChangedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IStockCriticalNotificationHandler,
+            Application.EventHandlers.StockCriticalNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ISyncErrorNotificationHandler,
+            Application.EventHandlers.SyncErrorNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IEInvoiceNotificationHandler,
+            Application.EventHandlers.EInvoiceNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceLifecycleNotificationHandler,
+            Application.EventHandlers.InvoiceLifecycleNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IExpenseNotificationHandler,
+            Application.EventHandlers.ExpenseNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderReceivedNotificationHandler,
+            Application.EventHandlers.OrderReceivedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IProductLifecycleNotificationHandler,
+            Application.EventHandlers.ProductLifecycleNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICrmNotificationHandler,
+            Application.EventHandlers.CrmNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ISubscriptionNotificationHandler,
+            Application.EventHandlers.SubscriptionNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
+            Application.EventHandlers.MiscNotificationHandler>();
 
         return services;
     }
