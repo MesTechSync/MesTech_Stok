@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
+using MesTech.Application.Features.Finance.Queries.GetBankAccounts;
 using MesTech.Application.Features.Finance.Commands.ApproveExpense;
 using MesTech.Application.Features.Finance.Commands.CloseCashRegister;
 using MesTech.Application.Features.Finance.Commands.MarkExpensePaid;
@@ -213,5 +214,18 @@ public static class FinanceEndpoints
         .WithSummary("Kâr/zarar raporu (tarih aralığı)")
         .Produces(200)
         .CacheOutput("Report120s");
+
+        // GET /api/v1/finance/bank-accounts — banka hesap listesi
+        group.MapGet("/bank-accounts", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetBankAccountsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBankAccounts")
+        .WithSummary("Banka hesap listesi — bakiye ve detaylar")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
     }
 }

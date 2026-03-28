@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Features.Hr.Commands.ApproveLeave;
+using MesTech.Application.Features.Hr.Queries.GetDepartments;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -39,5 +40,18 @@ public static class HrEndpoints
         })
         .WithName("ApproveLeave")
         .WithSummary("İzin talebini onayla").Produces(200).Produces(400);
+
+        // GET /api/v1/hr/departments — departman listesi
+        group.MapGet("/departments", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDepartmentsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetDepartments")
+        .WithSummary("Departman listesi")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
     }
 }

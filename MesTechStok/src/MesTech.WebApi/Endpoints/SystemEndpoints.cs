@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Threading.RateLimiting;
 using MesTech.Application.DTOs;
 using MediatR;
+using MesTech.Application.Features.Health.Queries.GetHealthStatus;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Application.Features.System.Queries.GetBackupHistory;
 
@@ -126,5 +127,16 @@ public static class SystemEndpoints
         })
         .WithName("GetAutomationStatus")
         .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi").Produces(200).Produces(400);
+
+        // GET /api/v1/system/health-status — detaylı sistem sağlık durumu
+        group.MapGet("/health-status", async (
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetHealthStatusQuery(), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetHealthStatus")
+        .WithSummary("Detaylı sistem sağlık durumu — DB, Redis, RabbitMQ, servisler")
+        .Produces(200);
     }
 }

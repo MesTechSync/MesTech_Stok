@@ -1,5 +1,6 @@
 using MesTech.Application.DTOs;
 using MediatR;
+using MesTech.Application.Features.Logging.Commands.CleanOldLogs;
 using MesTech.Application.Features.Logging.Commands.CreateLogEntry;
 using MesTech.Application.Features.Logging.Queries.GetLogCount;
 using MesTech.Application.Features.Logging.Queries.GetLogs;
@@ -54,5 +55,18 @@ public static class LogEndpoints
         .CacheOutput("Lookup60s")
         .WithName("GetLogCount")
         .WithSummary("Log kayıt sayısı (kategori filtresi)").Produces(200).Produces(400);
+
+        // DELETE /api/v1/logs/clean — eski logları temizle
+        group.MapDelete("/clean", async (
+            Guid tenantId, int? daysToKeep,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var count = await mediator.Send(
+                new CleanOldLogsCommand(tenantId, daysToKeep ?? 90), ct);
+            return Results.Ok(new { deletedCount = count });
+        })
+        .WithName("CleanOldLogs")
+        .WithSummary("Eski log kayıtlarını temizle (varsayılan: 90 gün)")
+        .Produces(200);
     }
 }

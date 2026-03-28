@@ -8,6 +8,7 @@ using MesTech.Application.Features.Billing.Commands.ProcessPaymentWebhook;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionUsage;
+using MesTech.Application.Features.Billing.Queries.GetUserFeatures;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 
 namespace MesTech.WebApi.Endpoints;
@@ -149,5 +150,18 @@ public static class BillingEndpoints
         .WithName("ProcessPaymentWebhook")
         .WithSummary("Payment provider webhook receiver (Stripe/Iyzico)")
         .AllowAnonymous(); // Webhook'lar JWT olmadan gelir
+
+        // GET /api/v1/billing/features — tenant feature flags (plan bazlı)
+        group.MapGet("/features", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetUserFeaturesQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetUserFeatures")
+        .WithSummary("Tenant aktif özellik listesi — plan bazlı feature flags")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
     }
 }
