@@ -3,6 +3,12 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.20] - 2026-03-28
+
+### DEV6 Business Logic & WebApi — PAYLAŞIM-DEV3
+- fix(infra): G078 P1 — SafeHandleRequestAsync wrapper for 3 fire-and-forget self-hosted endpoints
+- fix(services): G079 P1 — remove Task.Run threadpool starvation in XmlImportService
+
 ## [1.0.19] - 2026-03-28
 
 ### DEV3 Integration TUR 7 — Timeout Options + Settlement S3 chain
