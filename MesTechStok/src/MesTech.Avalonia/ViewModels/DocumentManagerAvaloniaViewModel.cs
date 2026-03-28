@@ -59,6 +59,12 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
         if (value.Length == 0 || value.Length >= 2)
             _ = LoadAsync();
     }
+
+    [RelayCommand]
+    private void Upload()
+    {
+        // TODO: Open file picker and upload document
+    }
 }
 
 public class DocumentItemVm

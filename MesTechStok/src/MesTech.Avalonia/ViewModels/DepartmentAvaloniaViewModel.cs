@@ -50,6 +50,12 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to department create form or show dialog
+    }
 }
 
 public class DepartmentItemVm

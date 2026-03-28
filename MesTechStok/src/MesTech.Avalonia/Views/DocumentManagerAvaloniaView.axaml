@@ -21,8 +21,8 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="+ Belge Yukle"
-                        ToolTip.Tip="+ Belge Yukle"
+                <Button Grid.Column="1" Content="+ Belge Yukle" Command="{Binding UploadCommand}"
+                        ToolTip.Tip="Yeni belge yukle"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
