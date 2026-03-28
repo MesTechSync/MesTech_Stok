@@ -189,6 +189,11 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    protected override void OnDispose()
+    {
+        StopAutoRefreshTimer();
+    }
 }
 
 public class ServiceHealthItem
