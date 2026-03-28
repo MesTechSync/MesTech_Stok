@@ -341,7 +341,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(CreateFakePdf())
         );
 
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.Object.CreateClient();
         var options = Options.Create(new GibPortalEInvoiceOptions
         {
             BaseUrl = _baseUrl,
@@ -376,7 +376,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(JsonTaxpayerNotFound())
         );
 
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.Object.CreateClient();
         var provider = new BirFaturaProvider(httpClient, NullLogger<BirFaturaProvider>.Instance);
         provider.Configure("test-api-key", _baseUrl);
 
@@ -417,7 +417,7 @@ public class EInvoiceProviderHardeningTests : IDisposable
                 .WithBody(pdfBytes)
         );
 
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.Object.CreateClient();
         var provider = new BirFaturaProvider(httpClient, NullLogger<BirFaturaProvider>.Instance);
         provider.Configure("test-api-key", _baseUrl);
 
