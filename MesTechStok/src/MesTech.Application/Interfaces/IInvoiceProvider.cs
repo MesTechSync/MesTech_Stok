@@ -19,6 +19,12 @@ public interface IInvoiceProvider
 
     Task<InvoiceResult> CreateEIhracatAsync(InvoiceDto invoice, CancellationToken ct = default)
         => Task.FromResult(new InvoiceResult(false, null, null, "e-İhracat not supported by this provider."));
+
+    /// <summary>
+    /// Health check — G327: AdapterHealthService fatura provider DOWN tespiti icin.
+    /// </summary>
+    Task<bool> PingAsync(CancellationToken ct = default)
+        => CheckStatusAsync("PING", ct).ContinueWith(t => !t.IsFaulted, ct);
 }
 
 public record InvoiceDto(
