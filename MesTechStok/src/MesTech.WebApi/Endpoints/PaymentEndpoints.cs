@@ -12,27 +12,31 @@ public static class PaymentEndpoints
             .WithTags("Payments")
             .RequireRateLimiting("PerApiKey");
 
-        // POST /api/v1/payments — ödeme işlemi başlat
+        // POST /api/v1/payments — ödeme işlemi başlat (provider: PayTRDirect|Stripe|Iyzico)
         group.MapPost("/", async (
             PaymentRequest request,
-            IPaymentProvider paymentProvider,
+            PaymentProviderType? provider,
+            IEnumerable<IPaymentProvider> providers,
             CancellationToken ct) =>
         {
+            var paymentProvider = ResolveProvider(providers, provider ?? PaymentProviderType.PayTRDirect);
             var result = await paymentProvider.ProcessPaymentAsync(request, ct);
             return result.Success
                 ? Results.Ok(result)
                 : Results.UnprocessableEntity(new { result.ErrorMessage });
         })
         .WithName("InitiatePayment")
-        .WithSummary("Yeni ödeme işlemi başlat (PayTR)")
+        .WithSummary("Ödeme işlemi başlat — provider query param: PayTRDirect, PayTRiFrame, Iyzico, Stripe")
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/payments/{transactionId} — işlem durumu sorgula
         group.MapGet("/{transactionId}", async (
             string transactionId,
-            IPaymentProvider paymentProvider,
+            PaymentProviderType? provider,
+            IEnumerable<IPaymentProvider> providers,
             CancellationToken ct) =>
         {
+            var paymentProvider = ResolveProvider(providers, provider ?? PaymentProviderType.PayTRDirect);
             var result = await paymentProvider.GetTransactionStatusAsync(transactionId, ct);
             return Results.Ok(result);
         })
@@ -44,9 +48,11 @@ public static class PaymentEndpoints
         group.MapPost("/{transactionId}/refund", async (
             string transactionId,
             RefundRequest request,
-            IPaymentProvider paymentProvider,
+            PaymentProviderType? provider,
+            IEnumerable<IPaymentProvider> providers,
             CancellationToken ct) =>
         {
+            var paymentProvider = ResolveProvider(providers, provider ?? PaymentProviderType.PayTRDirect);
             var result = await paymentProvider.RefundAsync(transactionId, request.Amount, ct);
             return result.Success
                 ? Results.Ok(result)
@@ -60,15 +66,23 @@ public static class PaymentEndpoints
         group.MapGet("/installments", async (
             decimal amount,
             string? binNumber,
-            IPaymentProvider paymentProvider,
+            PaymentProviderType? provider,
+            IEnumerable<IPaymentProvider> providers,
             CancellationToken ct) =>
         {
+            var paymentProvider = ResolveProvider(providers, provider ?? PaymentProviderType.PayTRDirect);
             var result = await paymentProvider.GetInstallmentOptionsAsync(amount, binNumber, ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetInstallmentOptions")
         .WithSummary("Tutar ve BIN numarasına göre taksit seçeneklerini getir").Produces(200).Produces(400);
+    }
+
+    private static IPaymentProvider ResolveProvider(IEnumerable<IPaymentProvider> providers, PaymentProviderType type)
+    {
+        return providers.FirstOrDefault(p => p.Provider == type)
+            ?? throw new InvalidOperationException($"Payment provider '{type}' is not registered.");
     }
 
     /// <summary>İade istek gövdesi — iade miktarı.</summary>
