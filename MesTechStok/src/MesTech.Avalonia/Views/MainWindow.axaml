@@ -275,6 +275,41 @@
                                     <TextBlock Text="Stok Güncelleme"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Yerlesim"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="StockPlacement">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Yerlesim"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Lot Ekleme"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="StockLot">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Lot Ekleme"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Depolar Arasi Transfer"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="StockTransfer">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Depolar Arasi Transfer"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Uyarilari"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="StockAlert">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Uyarilari"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Depo Yonetimi"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="Warehouse">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Depo Yonetimi"/>
+                                </StackPanel>
+                            </Button>
 
                             <!-- 5. KATEGORILER -->
                             <TextBlock Classes="sidebar-section" Text="KATEGORİLER"/>
@@ -462,6 +497,55 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Komisyon Oranları"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Paneli"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="AccountingDashboard">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Muhasebe Paneli"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Fisleri"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="GLTransaction">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Muhasebe Fisleri"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Kar / Zarar"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KarZarar">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Kar / Zarar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Gelir / Gider"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="GelirGider">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Gelir / Gider"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Karlilik Analizi"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KarlilikAnalizi">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Karlilik Analizi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="KDV Raporu"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KdvRapor">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="KDV Raporu"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Mutabakat"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="Mutabakat">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
+                                    <TextBlock Text="Mutabakat"/>
                                 </StackPanel>
                             </Button>
 
@@ -863,6 +947,30 @@
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Etsy"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Shopify"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="WooCommerce"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Zalando"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="eBay"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ozon"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="PTT AVM"/></StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Pazarama"/></StackPanel>
                             </Button>
 
                             <!-- Kampanya & Araçlar -->
