@@ -3,6 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.PlaceOrder;
 using MesTech.Application.Commands.PushOrderToBitrix24;
+using MesTech.Application.Features.Orders.Commands.ExportOrders;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Application.Features.Orders.Queries.GetOrdersByStatus;
 using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
 using MesTech.Application.Queries.ListOrders;
 
@@ -74,5 +77,51 @@ public static class OrderEndpoints
         .WithSummary("Gecikmiş siparişler — platform bazlı SLA aşımı")
         .Produces(200)
         .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/orders/list — tenant-scoped order list (paged)
+        group.MapGet("/list", async (
+            Guid tenantId,
+            int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetOrderListQuery(tenantId, count ?? 100), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetOrderList")
+        .WithSummary("Tenant bazlı sipariş listesi (son N adet)")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/orders/by-status — kanban view: orders grouped by status
+        group.MapGet("/by-status", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetOrdersByStatusQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetOrdersByStatus")
+        .WithSummary("Sipariş kanban görünümü — duruma göre gruplu")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // POST /api/v1/orders/export — export orders to Excel
+        group.MapPost("/export", async (
+            ExportOrdersCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (!result.IsSuccess || result.FileContent is null)
+                return Results.Problem(detail: result.ErrorMessage ?? "Export failed", statusCode: 400);
+            return Results.File(result.FileContent,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                result.FileName);
+        })
+        .WithName("ExportOrders")
+        .WithSummary("Siparişleri Excel'e aktar (tarih + platform filtresi)")
+        .Produces(200)
+        .Produces(400);
     }
 }
