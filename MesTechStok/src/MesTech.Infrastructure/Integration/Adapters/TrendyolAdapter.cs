@@ -47,9 +47,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         IOptions<TrendyolOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(15); // Trendyol API responds fast — 15s fast-fail strategy
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new TrendyolOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
         // Initialise BaseAddress from options so sandbox toggle works without credential override
         _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);

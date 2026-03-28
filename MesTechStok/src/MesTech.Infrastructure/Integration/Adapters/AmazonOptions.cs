@@ -25,4 +25,7 @@ public sealed class AmazonOptions
     [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily",
         Justification = "Explicit false default documents intent for configuration binding.")]
     public bool Enabled { get; set; } = false;
+
+    /// <summary>HTTP request timeout in seconds. Override via config for slow networks.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }
