@@ -47,6 +47,25 @@ public sealed class JournalEntry : BaseEntity, ITenantEntity
         };
     }
 
+    /// <summary>
+    /// Yevmiye kaydını günceller — sadece IsPosted=false iken.
+    /// Mevcut satırları temizler, yenileri AddLine ile eklenir.
+    /// </summary>
+    public void Update(DateTime entryDate, string description, string? referenceNumber)
+    {
+        if (IsPosted)
+            throw new InvalidOperationException("Cannot modify a posted journal entry.");
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+
+        EntryDate = entryDate;
+        Description = description;
+        ReferenceNumber = referenceNumber;
+        UpdatedAt = DateTime.UtcNow;
+
+        _lines.Clear();
+    }
+
     public void AddLine(Guid accountId, decimal debit, decimal credit, string? description = null)
     {
         if (IsPosted)
