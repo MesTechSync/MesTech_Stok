@@ -67,7 +67,8 @@
   private void HandleChange()
   {
     if (_disposed) return;
-    InvokeAsync(StateHasChanged);
+    try { InvokeAsync(StateHasChanged); }
+    catch (ObjectDisposedException) { /* race condition: disposed between check and invoke */ }
   }
 
   private void MarkRead() => NotificationService.MarkAllRead();
