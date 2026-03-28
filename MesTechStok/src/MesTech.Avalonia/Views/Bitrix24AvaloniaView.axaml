@@ -27,6 +27,7 @@
             <TextBlock Text="⚠" FontSize="18" VerticalAlignment="Center" />
             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
             <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="8,4"
+                    ToolTip.Tip="Verileri tekrar yukle"
                     CornerRadius="{StaticResource MesRadiusMd}" />
         </StackPanel>
     </Border>
@@ -69,18 +70,23 @@
         <!-- Row 1: Stage filter chips -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
             <Button Content="Tumu" Command="{Binding FilterByStageCommand}" CommandParameter="{x:Null}"
+                    ToolTip.Tip="Tum asamalari goster"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
                     Background="{DynamicResource MesBgMist}" />
             <Button Content="Yeni" Command="{Binding FilterByStageCommand}" CommandParameter="new"
+                    ToolTip.Tip="Yeni anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
                     Background="#DBEAFE" Foreground="#1D4ED8" />
             <Button Content="Temas" Command="{Binding FilterByStageCommand}" CommandParameter="contact"
+                    ToolTip.Tip="Temas asamasindaki anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
                     Background="#FEF3C7" Foreground="#92400E" />
             <Button Content="Teklif" Command="{Binding FilterByStageCommand}" CommandParameter="proposal"
+                    ToolTip.Tip="Teklif asamasindaki anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
                     Background="#E0E7FF" Foreground="#3730A3" />
             <Button Content="Kazanildi" Command="{Binding FilterByStageCommand}" CommandParameter="won"
+                    ToolTip.Tip="Kazanilan anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
                     Background="#D1FAE5" Foreground="#065F46" />
         </StackPanel>
