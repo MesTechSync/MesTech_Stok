@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Commands.PlaceOrder;
 using MesTech.Application.EventHandlers;
+using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -60,10 +61,10 @@ public class OrderToAccountingChainTests
             NullLogger<OrderConfirmedRevenueHandler>.Instance);
 
         _commissionHandler = new CommissionChargedGLHandler(
-            _uow.Object, NullLogger<CommissionChargedGLHandler>.Instance);
+            _uow.Object, Mock.Of<IJournalEntryRepository>(), NullLogger<CommissionChargedGLHandler>.Instance);
 
         _shippedCostHandler = new OrderShippedCostHandler(
-            _uow.Object, NullLogger<OrderShippedCostHandler>.Instance);
+            _uow.Object, Mock.Of<IJournalEntryRepository>(), NullLogger<OrderShippedCostHandler>.Instance);
     }
 
     /// <summary>
