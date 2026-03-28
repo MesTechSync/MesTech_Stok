@@ -31,7 +31,7 @@ public static class CrmLeadsEndpoint
             CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetLeadsQuery(tenantId, status, assignedTo, page, pageSize), ct);
+                new GetLeadsQuery(tenantId, status, assignedTo, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("SearchLeads")

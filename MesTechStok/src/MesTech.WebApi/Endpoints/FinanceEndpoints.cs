@@ -179,7 +179,7 @@ public static class FinanceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetIncomeExpenseListQuery(tenantId, type, from, to, page, pageSize), ct);
+                new GetIncomeExpenseListQuery(tenantId, type, from, to, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetIncomeExpenseList")

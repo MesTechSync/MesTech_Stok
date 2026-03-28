@@ -30,7 +30,7 @@ public static class DropshippingPoolEndpoints
                 color = parsed;
 
             var result = await mediator.Send(
-                new GetPoolProductsQuery(poolId, color, search, page <= 0 ? 1 : page, pageSize <= 0 ? 50 : pageSize), ct);
+                new GetPoolProductsQuery(poolId, color, search, page <= 0 ? 1 : page, Math.Clamp(pageSize <= 0 ? 50 : pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")

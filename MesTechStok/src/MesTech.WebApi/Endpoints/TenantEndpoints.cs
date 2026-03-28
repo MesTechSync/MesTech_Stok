@@ -25,7 +25,7 @@ public static class TenantEndpoints
             int pageSize,
             ISender sender, CancellationToken ct) =>
         {
-            var result = await sender.Send(new GetTenantsQuery(page, pageSize), ct);
+            var result = await sender.Send(new GetTenantsQuery(Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetTenants")

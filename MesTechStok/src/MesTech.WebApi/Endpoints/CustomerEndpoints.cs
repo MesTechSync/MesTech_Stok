@@ -23,7 +23,7 @@ public static class CustomerEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetCustomersPagedQuery(search, page ?? 1, pageSize ?? 50), ct);
+                new GetCustomersPagedQuery(search, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCustomersPaged")

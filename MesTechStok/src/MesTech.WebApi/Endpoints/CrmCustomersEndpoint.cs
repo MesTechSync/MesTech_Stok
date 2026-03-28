@@ -28,7 +28,7 @@ public static class CrmCustomersEndpoint
             CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetCustomersCrmQuery(tenantId, isVip, isActive, search, page, pageSize), ct);
+                new GetCustomersCrmQuery(tenantId, isVip, isActive, search, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCrmCustomers")

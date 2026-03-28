@@ -233,7 +233,7 @@ public static class ErpEndpoints
             ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(
-                new GetErpSyncHistoryQuery(tenantId, page ?? 1, pageSize ?? 20), ct);
+                new GetErpSyncHistoryQuery(tenantId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetErpSyncHistory")
@@ -260,7 +260,7 @@ public static class ErpEndpoints
             ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(
-                new GetErpSyncLogsQuery(tenantId, page ?? 1, pageSize ?? 20), ct);
+                new GetErpSyncLogsQuery(tenantId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetErpSyncLogs")

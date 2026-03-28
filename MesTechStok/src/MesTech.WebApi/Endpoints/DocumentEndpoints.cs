@@ -22,7 +22,7 @@ public static class DocumentEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetDocumentsQuery(tenantId, folderId, page ?? 1, pageSize ?? 20), ct);
+                new GetDocumentsQuery(tenantId, folderId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetDocuments")

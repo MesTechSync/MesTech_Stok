@@ -40,7 +40,7 @@ public static class CrmEndpoints
             CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetLeadsQuery(tenantId, status, null, page, pageSize), ct);
+                new GetLeadsQuery(tenantId, status, null, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetLeads")
@@ -131,7 +131,7 @@ public static class CrmEndpoints
             var result = await mediator.Send(
                 new GetDealsQuery(tenantId, pipelineId,
                     status.HasValue ? (DealStatus)status.Value : null,
-                    assignedTo, page, pageSize), ct);
+                    assignedTo, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetDeals")
@@ -160,7 +160,7 @@ public static class CrmEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetSuppliersCrmQuery(tenantId, isActive, isPreferred, search, page, pageSize), ct);
+                new GetSuppliersCrmQuery(tenantId, isActive, isPreferred, search, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetSuppliersCrm")
@@ -187,7 +187,7 @@ public static class CrmEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetBitrix24DealsQuery(tenantId, stageId, page ?? 1, pageSize ?? 50), ct);
+                new GetBitrix24DealsQuery(tenantId, stageId, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetBitrix24Deals")
@@ -228,7 +228,7 @@ public static class CrmEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetContactsPagedQuery(tenantId, page ?? 1, pageSize ?? 20, search), ct);
+                new GetContactsPagedQuery(tenantId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100), search), ct);
             return Results.Ok(result);
         })
         .WithName("GetContactsPaged")
@@ -270,7 +270,7 @@ public static class CrmEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetSuppliersPagedQuery(search, page ?? 1, pageSize ?? 50), ct);
+                new GetSuppliersPagedQuery(search, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetSuppliersPaged")

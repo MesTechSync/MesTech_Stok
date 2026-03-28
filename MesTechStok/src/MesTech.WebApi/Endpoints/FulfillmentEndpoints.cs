@@ -76,7 +76,7 @@ public static class FulfillmentEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetFulfillmentShipmentsQuery(tenantId, center, status, page, pageSize), ct);
+                new GetFulfillmentShipmentsQuery(tenantId, center, status, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentShipments")

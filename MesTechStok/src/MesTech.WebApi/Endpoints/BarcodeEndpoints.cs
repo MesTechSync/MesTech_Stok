@@ -50,7 +50,7 @@ public static class BarcodeEndpoints
         {
             var result = await mediator.Send(
                 new GetBarcodeScanLogsQuery(
-                    Math.Max(1, page), Math.Clamp(pageSize, 1, 200), barcode, source, isValid), ct);
+                    Math.Max(1, page), Math.Clamp(pageSize, 1, 100), barcode, source, isValid), ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")

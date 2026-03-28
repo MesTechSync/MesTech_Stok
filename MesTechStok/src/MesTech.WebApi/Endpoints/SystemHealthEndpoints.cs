@@ -116,7 +116,7 @@ public static class SystemHealthEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetKvkkAuditLogsQuery(tenantId, page, pageSize), ct);
+                new GetKvkkAuditLogsQuery(tenantId, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetKvkkAuditLogs")

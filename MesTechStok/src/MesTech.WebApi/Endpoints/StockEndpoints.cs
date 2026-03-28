@@ -88,7 +88,7 @@ public static class StockEndpoints
         {
             var query = new GetInventoryPagedQuery(
                 Page: page ?? 1,
-                PageSize: pageSize ?? 50,
+                PageSize: Math.Clamp(pageSize ?? 50, 1, 100),
                 SearchTerm: search,
                 StatusFilter: stockFilter ?? StockStatusFilter.All,
                 SortOrder: sortOrder ?? InventorySortOrder.ProductName);

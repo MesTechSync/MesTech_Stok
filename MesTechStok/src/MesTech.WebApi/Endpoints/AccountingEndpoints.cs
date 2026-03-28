@@ -386,7 +386,7 @@ public static class AccountingEndpoints
             ISender mediator = default!, CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetPendingReviewsQuery(tenantId, pageSize, page), ct);
+                new GetPendingReviewsQuery(tenantId, Math.Clamp(pageSize, 1, 100), Math.Max(1, page)), ct);
             return Results.Ok(result);
         })
         .WithName("GetPendingReviews")

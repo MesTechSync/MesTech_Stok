@@ -23,7 +23,7 @@ public static class EInvoiceEndpoints
             ISender mediator = default!, CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetEInvoicesQuery(from, to, status, providerId, page, pageSize), ct);
+                new GetEInvoicesQuery(from, to, status, providerId, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetEInvoices")
