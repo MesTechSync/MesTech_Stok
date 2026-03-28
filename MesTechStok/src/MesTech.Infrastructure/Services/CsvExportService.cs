@@ -97,13 +97,17 @@ public sealed class CsvExportService : ICsvExportService
     }
 
     /// <summary>
-    /// RFC 4180 uyumlu field quoting: virgül, çift tırnak veya satır sonu varsa tırnak içine al.
-    /// İçindeki çift tırnak karakterleri çift tırnak ile escape edilir.
+    /// RFC 4180 uyumlu field quoting + CSV injection guard.
+    /// G107 FIX: =, +, -, @ prefix'li değerler Excel'de formül olarak çalışır.
     /// </summary>
     private static string QuoteField(string value)
     {
         if (string.IsNullOrEmpty(value))
             return string.Empty;
+
+        // CSV injection guard — Excel formula prefix neutralization
+        if (value.Length > 0 && value[0] is '=' or '+' or '-' or '@' or '\t' or '\r')
+            value = $"'{value}";
 
         if (value.Contains(',') || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
             return $"\"{value.Replace("\"", "\"\"")}\"";
