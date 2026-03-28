@@ -3,6 +3,11 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.16] - 2026-03-28
+
+### DEV6 Business Logic & WebApi
+- refactor(webapi): standardize 33 BadRequest→ProblemDetails RFC 7807 — G114 complete (Report, Invoice, Warehouse, SupplierFeeds, Shipment, Order, Calendar)
+
 ## [1.0.15] - 2026-03-28
 
 ### DEV6 Business Logic & WebApi
