@@ -6,6 +6,9 @@ using MesTech.Application.Features.Settings.Commands.UpdateStoreSettings;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
 using MesTech.Application.Features.Settings.Queries.GetProfileSettings;
+using MesTech.Application.Features.Settings.Queries.GetErpSettings;
+using MesTech.Application.Features.Settings.Queries.GetFulfillmentSettings;
+using MesTech.Application.Features.Settings.Queries.GetImportSettings;
 using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -112,6 +115,45 @@ public static class SettingsEndpoints
         .WithName("SaveCompanySettings")
         .WithSummary("Şirket ayarlarını kaydet — depolar dahil")
         .Produces(200).Produces(400);
+
+        // GET /api/v1/settings/erp — ERP entegrasyon ayarları (G207-DEV6)
+        group.MapGet("/erp", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetErpSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetErpSettings")
+        .WithSummary("ERP entegrasyon ayarları — Parasüt/Logo bağlantı bilgileri")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/settings/fulfillment — fulfillment/depo ayarları (G207-DEV6)
+        group.MapGet("/fulfillment", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetFulfillmentSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFulfillmentSettings")
+        .WithSummary("Fulfillment ayarları — FBA/Hepsilojistik depo konfigürasyonu")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/settings/import — import/feed ayarları (G207-DEV6)
+        group.MapGet("/import", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetImportSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetImportSettings")
+        .WithSummary("Import ayarları — feed kaynakları, şablon tercihleri")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
 
         // === /api/v1/users/me/settings alias — Blazor MesTechApiClient uyumu ===
         var userGroup = app.MapGroup("/api/v1/users/me")
