@@ -22,7 +22,7 @@ public class DeleteCategoryHandlerTests
     public async Task Handle_ExistingCategory_DeletesAndReturnsSuccess()
     {
         var categoryId = Guid.NewGuid();
-        var category = Category.Create("Test", "TST");
+        var category = new Category { Id = categoryId, Name = "Test", Code = "TST" };
         _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId)).ReturnsAsync(category);
 
         var cmd = new DeleteCategoryCommand(categoryId);
