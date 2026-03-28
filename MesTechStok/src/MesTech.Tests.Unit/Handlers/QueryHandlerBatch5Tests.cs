@@ -11,6 +11,7 @@ using MesTech.Application.Queries.GetBarcodeScanLogs;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Interfaces;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Dropshipping;
 using Moq;
 
@@ -41,7 +42,7 @@ public class QueryHandlerBatch5Tests
     [Fact]
     public async Task GetAuditLogs_ReturnsEmptyList()
     {
-        var sut = new GetAuditLogsHandler();
+        var sut = new GetAuditLogsHandler(Mock.Of<IAccessLogRepository>());
         var query = new GetAuditLogsQuery(_tenantId);
         var result = await sut.Handle(query, CancellationToken.None);
         result.Should().BeEmpty();

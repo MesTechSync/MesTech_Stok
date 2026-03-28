@@ -127,7 +127,7 @@ public class SpecialCommandTests
         var uow = new Mock<IUnitOfWork>();
         var parsers = new List<IFeedParserService>();
         var logger = new Mock<ILogger<ImportFromFeedHandler>>();
-        var sut = new ImportFromFeedHandler(feedRepo.Object, productRepo.Object, uow.Object, parsers, logger.Object);
+        var sut = new ImportFromFeedHandler(feedRepo.Object, productRepo.Object, uow.Object, parsers, Mock.Of<IHttpClientFactory>(), logger.Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -144,7 +144,7 @@ public class SpecialCommandTests
         feedRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((SupplierFeed?)null);
 
-        var sut = new ImportFromFeedHandler(feedRepo.Object, productRepo.Object, uow.Object, parsers, logger.Object);
+        var sut = new ImportFromFeedHandler(feedRepo.Object, productRepo.Object, uow.Object, parsers, Mock.Of<IHttpClientFactory>(), logger.Object);
         var cmd = new ImportFromFeedCommand(_id, new List<string> { "SKU1" }, 1.2m);
 
         await Assert.ThrowsAsync<InvalidOperationException>(

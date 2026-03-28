@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Entities.Onboarding;
 using MesTech.Domain.Interfaces;
 using Moq;
 

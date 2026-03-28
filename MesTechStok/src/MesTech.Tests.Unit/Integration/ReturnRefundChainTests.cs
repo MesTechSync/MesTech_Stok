@@ -8,6 +8,7 @@ using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 
 namespace MesTech.Tests.Unit.Integration;
 

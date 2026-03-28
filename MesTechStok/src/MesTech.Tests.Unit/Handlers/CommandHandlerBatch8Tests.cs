@@ -33,7 +33,7 @@ public class CommandHandlerBatch8Tests
     public async Task UpdateDealStage_NullRequest_Throws()
     {
         var sut = new UpdateDealStageHandler(
-            Mock.Of<ICrmDealRepository>(), Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<UpdateDealStageHandler>>());
+            Mock.Of<IDealRepository>(), Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<UpdateDealStageHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

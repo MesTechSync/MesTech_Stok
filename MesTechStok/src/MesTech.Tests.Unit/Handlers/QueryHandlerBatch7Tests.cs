@@ -37,7 +37,7 @@ public class QueryHandlerBatch7Tests
     public async Task GetCargoComparison_NullRequest_Throws()
     {
         var sut = new GetCargoComparisonHandler(
-            Mock.Of<ICargoExpenseRepository>(), Mock.Of<IOrderRepository>());
+            Mock.Of<ICargoProviderFactory>(), Mock.Of<ILogger<GetCargoComparisonHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -62,7 +62,7 @@ public class QueryHandlerBatch7Tests
     public async Task GetIncomeExpenseList_NullRequest_Throws()
     {
         var sut = new GetIncomeExpenseListHandler(
-            Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>());
+            Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>(), Mock.Of<ILogger<GetIncomeExpenseListHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -71,7 +71,7 @@ public class QueryHandlerBatch7Tests
     public async Task GetIncomeExpenseSummary_NullRequest_Throws()
     {
         var sut = new GetIncomeExpenseSummaryHandler(
-            Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>());
+            Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>(), Mock.Of<ILogger<GetIncomeExpenseSummaryHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -79,7 +79,7 @@ public class QueryHandlerBatch7Tests
     [Fact]
     public async Task GetInventoryPaged_NullRequest_Throws()
     {
-        var sut = new GetInventoryPagedHandler(Mock.Of<IProductRepository>());
+        var sut = new GetInventoryPagedHandler(Mock.Of<IProductRepository>(), Mock.Of<ICategoryRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -88,8 +88,7 @@ public class QueryHandlerBatch7Tests
     public async Task GetKarZarar_NullRequest_Throws()
     {
         var sut = new GetKarZararHandler(
-            Mock.Of<IOrderRepository>(), Mock.Of<IExpenseRepository>(),
-            Mock.Of<IIncomeRepository>(), Mock.Of<IProductRepository>());
+            Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -106,7 +105,6 @@ public class QueryHandlerBatch7Tests
     public async Task GetLaunchReadiness_ReturnsResult()
     {
         var sut = new GetLaunchReadinessHandler(
-            Mock.Of<ITenantRepository>(), Mock.Of<IStoreRepository>(),
             Mock.Of<IProductRepository>(), Mock.Of<IOrderRepository>(),
             Mock.Of<ILogger<GetLaunchReadinessHandler>>());
         var query = new GetLaunchReadinessQuery(_tenantId);

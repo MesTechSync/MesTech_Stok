@@ -18,10 +18,18 @@ public class BulkCreateInvoiceN1RegressionTests
 {
     private static Order CreateTestOrder()
     {
-        var item = OrderItem.Create(Guid.NewGuid(), "TST-001", "Test Product", 1, 100m);
+        var item = new OrderItem
+        {
+            ProductId = Guid.NewGuid(),
+            ProductSKU = "TST-001",
+            ProductName = "Test Product",
+            Quantity = 1,
+            UnitPrice = 100m,
+            TotalPrice = 100m
+        };
         return Order.CreateFromPlatform(
             Guid.NewGuid(), $"EXT-{Guid.NewGuid().ToString()[..8]}", PlatformType.Trendyol,
-            "Test Customer", "test@test.com", new[] { item });
+            "Test Customer", "test@test.com", new List<OrderItem> { item });
     }
 
     [Fact(DisplayName = "G080: 10 orders = 10 separate GetByIdAsync calls (N+1)")]

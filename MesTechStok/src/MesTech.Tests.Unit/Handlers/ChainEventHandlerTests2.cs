@@ -6,6 +6,7 @@ using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
+using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 
 namespace MesTech.Tests.Unit.Handlers;
 
@@ -163,7 +164,7 @@ public class ReturnJournalReversalHandlerTests
     public ReturnJournalReversalHandlerTests()
     {
         _sut = new ReturnJournalReversalHandler(
-            _uowMock.Object, Mock.Of<ILogger<ReturnJournalReversalHandler>>());
+            _uowMock.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<ReturnJournalReversalHandler>>());
     }
 
     [Fact]
@@ -205,7 +206,7 @@ public class OrderShippedCostHandlerTests
     public OrderShippedCostHandlerTests()
     {
         _sut = new OrderShippedCostHandler(
-            _uowMock.Object, Mock.Of<ILogger<OrderShippedCostHandler>>());
+            _uowMock.Object, Mock.Of<IJournalEntryRepository>(), Mock.Of<ILogger<OrderShippedCostHandler>>());
     }
 
     [Fact]

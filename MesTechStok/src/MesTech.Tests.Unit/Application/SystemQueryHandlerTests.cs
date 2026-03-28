@@ -18,7 +18,7 @@ public class SystemQueryHandlerTests
     {
         var accessLogRepo = new Mock<IAccessLogRepository>();
         accessLogRepo.Setup(r => r.GetPagedAsync(
-            It.IsAny<Guid?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
             It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.AccessLog>().AsReadOnly());

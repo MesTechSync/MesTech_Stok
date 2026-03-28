@@ -14,7 +14,7 @@ namespace MesTech.Tests.Unit.Infrastructure;
 [Trait("Layer", "Infrastructure")]
 public class OutputCachePolicyTests
 {
-    private static IServiceProvider BuildServices()
+    private static ServiceProvider BuildServices()
     {
         var services = new ServiceCollection();
         services.AddOutputCache(options =>

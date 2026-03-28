@@ -53,7 +53,7 @@ public class PaymentGatewayTimeoutTests
         var result = await sut.ChargeAsync(100m, "TRY", "test-token", ct: CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.IsSuccess.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
 
     [Fact]
@@ -71,6 +71,6 @@ public class PaymentGatewayTimeoutTests
         var result = await sut.ChargeAsync(50m, "USD", "test-token", ct: CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.IsSuccess.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
 }

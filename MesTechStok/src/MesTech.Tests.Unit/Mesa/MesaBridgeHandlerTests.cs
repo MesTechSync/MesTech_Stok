@@ -28,6 +28,7 @@ public class MesaBridgeHandlerTests
     }
 
     private static Mock<IMesaEventMonitor> CreateMonitor() => new();
+    private static Mock<IDashboardNotifier> CreateNotifier() => new();
 
     // ══════════════════════════════════════════════
     //  ProductCreatedBridgeHandler
@@ -73,6 +74,7 @@ public class MesaBridgeHandlerTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<LowStockBridgeHandler>>().Object);
 
         var domainEvent = new LowStockDetectedEvent(
@@ -105,6 +107,7 @@ public class MesaBridgeHandlerTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<OrderPlacedBridgeHandler>>().Object);
 
         var domainEvent = new OrderPlacedEvent(
@@ -226,6 +229,7 @@ public class MesaBridgeHandlerTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<InvoiceGeneratedBridgeHandler>>().Object);
 
         var domainEvent = new InvoiceSentEvent(
@@ -288,6 +292,7 @@ public class MesaBridgeHandlerTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<ReturnCreatedBridgeHandler>>().Object);
 
         var domainEvent = new ReturnCreatedEvent(
@@ -389,6 +394,7 @@ public class MesaBridgeHandlerTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<SupplierFeedSyncedBridgeHandler>>().Object);
 
         var domainEvent = new SupplierFeedSyncedEvent(

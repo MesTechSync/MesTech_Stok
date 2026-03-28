@@ -26,6 +26,7 @@ public class DailySummarySyncErrorBridgeTests
     }
 
     private static Mock<IMesaEventMonitor> CreateMonitor() => new();
+    private static Mock<IDashboardNotifier> CreateNotifier() => new();
 
     // ══════════════════════════════════════════════
     //  DailySummaryBridgeHandler
@@ -123,6 +124,7 @@ public class DailySummarySyncErrorBridgeTests
             publisherMock.Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<SyncErrorBridgeHandler>>().Object);
 
         var domainEvent = new SyncErrorOccurredEvent(
@@ -151,6 +153,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<IMesaEventPublisher>().Object,
             monitorMock.Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             new Mock<ILogger<SyncErrorBridgeHandler>>().Object);
 
         var domainEvent = new SyncErrorOccurredEvent(
@@ -173,6 +176,7 @@ public class DailySummarySyncErrorBridgeTests
             new Mock<IMesaEventPublisher>().Object,
             CreateMonitor().Object,
             CreateTenantProvider().Object,
+            CreateNotifier().Object,
             loggerMock.Object);
 
         var domainEvent = new SyncErrorOccurredEvent(

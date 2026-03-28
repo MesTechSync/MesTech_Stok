@@ -29,7 +29,7 @@ public class CreateStoreHandlerTests
             Mock.Of<ICredentialEncryptionService>(), Mock.Of<IAdapterFactory>(),
             Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<CreateStoreHandler>>());
 
-        var cmd = new CreateStoreCommand { StoreId = Guid.NewGuid(), StoreName = "", PlatformType = MesTech.Domain.Enums.PlatformType.Trendyol };
+        var cmd = new CreateStoreCommand(Guid.NewGuid(), "", MesTech.Domain.Enums.PlatformType.Trendyol, new Dictionary<string, string>());
         var result = await sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
