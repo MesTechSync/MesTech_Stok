@@ -54,7 +54,7 @@ services:
     pids_limit: 150
     ports: !override
       - "5672"
-      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:3692:15672"
       - "15692"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER zorunlu — .env dosyasini kontrol edin}
