@@ -169,7 +169,7 @@ public sealed class CsvStatementParser : IBankStatementParser
             reference ?? description);
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty,
+            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate.Value,
             amount: amount.Value,

@@ -205,7 +205,7 @@ public partial class MT940Parser : IBankStatementParser
         var idempotencyKey = ComputeIdempotencyKey(bankAccountId, dateStr, amountStr, reference);
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty,
+            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate,
             amount: amount,

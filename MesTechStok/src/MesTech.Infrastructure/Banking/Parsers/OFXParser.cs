@@ -87,7 +87,7 @@ public sealed class OFXParser : IBankStatementParser
         var idempotencyKey = ComputeIdempotencyKey(bankAccountId, datePosted, amountStr, fitId ?? string.Empty);
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty, // Tenant, import servisinde set edilir
+            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate,
             amount: amount,
