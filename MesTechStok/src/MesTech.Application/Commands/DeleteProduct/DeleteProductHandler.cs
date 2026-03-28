@@ -23,6 +23,12 @@ public sealed class DeleteProductHandler : IRequestHandler<DeleteProductCommand,
             return new DeleteProductResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
         }
 
+        // G349: FK dependency check — child record varsa silme
+        if (product.OrderItems.Count > 0)
+            return new DeleteProductResult { IsSuccess = false, ErrorMessage = $"Product has {product.OrderItems.Count} order items — cannot delete a product with order history." };
+        if (product.PlatformMappings.Count > 0)
+            return new DeleteProductResult { IsSuccess = false, ErrorMessage = $"Product is mapped to {product.PlatformMappings.Count} platforms — remove mappings first." };
+
         await _productRepository.DeleteAsync(request.ProductId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
