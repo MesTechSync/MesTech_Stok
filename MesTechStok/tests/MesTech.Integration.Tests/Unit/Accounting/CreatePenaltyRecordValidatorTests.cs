@@ -13,7 +13,7 @@ public class CreatePenaltyRecordValidatorTests
 
     private static CreatePenaltyRecordCommand ValidCommand() => new(
         TenantId: Guid.NewGuid(),
-        Source: PenaltySource.Platform,
+        Source: PenaltySource.Trendyol,
         Description: "Geç kargo cezası",
         Amount: 250m,
         PenaltyDate: DateTime.UtcNow);
