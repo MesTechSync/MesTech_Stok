@@ -56,7 +56,7 @@ namespace MesTechStok.Desktop.Services
                     // Eğer disable edildiyse ve dinliyorsak, dinlemeyi durdur
                     if (!value && _isListening)
                     {
-                        StopListeningAsync().Wait();
+                        _ = Task.Run(async () => await StopListeningAsync().ConfigureAwait(false));
                     }
                 }
             }
@@ -271,7 +271,7 @@ namespace MesTechStok.Desktop.Services
 
         public void Dispose()
         {
-            StopListeningAsync().Wait();
+            Task.Run(async () => await StopListeningAsync().ConfigureAwait(false)).GetAwaiter().GetResult();
         }
     }
 
