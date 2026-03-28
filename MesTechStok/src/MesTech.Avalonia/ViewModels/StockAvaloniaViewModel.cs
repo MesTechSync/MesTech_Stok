@@ -30,4 +30,10 @@ public partial class StockAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void AddMovement()
+    {
+        // TODO: Navigate to stock movement create form
+    }
 }

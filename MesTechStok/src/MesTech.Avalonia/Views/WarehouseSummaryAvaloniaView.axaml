@@ -89,8 +89,8 @@
                                 </StackPanel>
 
                                 <!-- Detail Button -->
-                                <Button Content="Detay &#x2192;" HorizontalAlignment="Right"
-                                        ToolTip.Tip="Detay &#x2192;"
+                                <Button Content="Detay &#x2192;" Command="{Binding ShowDetailCommand}" HorizontalAlignment="Right"
+                                        ToolTip.Tip="Depo detaylarini goruntule"
                                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" FontSize="{StaticResource FontSizeSmall}" />
                             </StackPanel>

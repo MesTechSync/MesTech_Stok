@@ -25,8 +25,9 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Depo" Width="140" Margin="8,0"  AutomationProperties.Name="Depo" />
-                <Button Grid.Column="2" Content="+ Stok Hareketi" Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
-                        ToolTip.Tip="+ Stok Hareketi"
+                <Button Grid.Column="2" Content="+ Stok Hareketi" Command="{Binding AddMovementCommand}"
+                        Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="Yeni stok hareketi olustur"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

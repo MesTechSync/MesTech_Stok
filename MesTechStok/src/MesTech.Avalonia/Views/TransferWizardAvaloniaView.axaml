@@ -139,8 +139,8 @@
                 <TextBlock Grid.Column="0" Text="{Binding TransferStatus}"
                            FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesGreen}" FontWeight="SemiBold"
                            VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="Iptal"
-                        ToolTip.Tip="Iptal"
+                <Button Grid.Column="1" Content="Iptal" Command="{Binding ResetCommand}"
+                        ToolTip.Tip="Transfer islemini iptal et"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}"
                         Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
                 <Button Grid.Column="2" Content="Transferi Baslat"

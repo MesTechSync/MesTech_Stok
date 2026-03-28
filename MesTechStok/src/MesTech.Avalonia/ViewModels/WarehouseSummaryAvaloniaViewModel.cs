@@ -59,6 +59,12 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void ShowDetail()
+    {
+        // TODO: Navigate to warehouse detail view
+    }
 }
 
 public class WarehouseSummaryCardDto
