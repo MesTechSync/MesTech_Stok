@@ -112,5 +112,39 @@ public static class SettingsEndpoints
         .WithName("SaveCompanySettings")
         .WithSummary("Şirket ayarlarını kaydet — depolar dahil")
         .Produces(200).Produces(400);
+
+        // === /api/v1/users/me/settings alias — Blazor MesTechApiClient uyumu ===
+        var userGroup = app.MapGroup("/api/v1/users/me")
+            .WithTags("User Settings")
+            .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/users/me/settings — profil ayarları alias
+        userGroup.MapGet("/settings", async (
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.NotFound(new { error = "User settings not found" });
+        })
+        .WithName("GetUserSettings")
+        .WithSummary("Kullanıcı ayarları (profil alias)")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
+        // POST /api/v1/users/me/settings — profil ayarları güncelle alias
+        userGroup.MapPost("/settings", async (
+            UpdateProfileSettingsCommand command,
+            ISender sender, CancellationToken ct) =>
+        {
+            var success = await sender.Send(command, ct);
+            return success
+                ? Results.NoContent()
+                : Results.Problem(detail: "Settings update failed", statusCode: 400);
+        })
+        .WithName("UpdateUserSettings")
+        .WithSummary("Kullanıcı ayarlarını güncelle (profil alias)")
+        .Produces(204).Produces(400);
     }
 }
