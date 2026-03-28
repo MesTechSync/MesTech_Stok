@@ -218,8 +218,7 @@ public static class InfrastructureServiceRegistration
 
         services.AddScoped<MesTech.Application.Interfaces.IBulkProductImportService,
             MesTech.Infrastructure.Services.BulkProductImportService>();
-        services.AddScoped<MesTech.Domain.Interfaces.IJournalEntryRepository,
-            MesTech.Infrastructure.Persistence.Repositories.JournalEntryRepository>();
+        // IJournalEntryRepository — single registration at line ~490 (Accounting.Repositories)
         services.AddScoped<MesTech.Application.Interfaces.ICategoryPlatformMappingRepository,
             MesTech.Infrastructure.Persistence.Repositories.CategoryPlatformMappingRepository>();
         services.AddScoped<MesTech.Application.Interfaces.ICrmDashboardQueryService,
@@ -487,7 +486,7 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ChartOfAccountsRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.ICounterpartyRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.CounterpartyRepository>();
-        services.AddScoped<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository,
+        services.AddScoped<MesTech.Domain.Interfaces.IJournalEntryRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.JournalEntryRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.ISettlementBatchRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.SettlementBatchRepository>();
