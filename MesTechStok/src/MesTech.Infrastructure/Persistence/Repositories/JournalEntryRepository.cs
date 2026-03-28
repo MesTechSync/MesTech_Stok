@@ -27,4 +27,10 @@ public sealed class JournalEntryRepository : IJournalEntryRepository
     {
         await _context.JournalEntries.AddAsync(entry, ct).ConfigureAwait(false);
     }
+
+    public Task UpdateAsync(JournalEntry entry, CancellationToken ct = default)
+    {
+        _context.JournalEntries.Update(entry);
+        return Task.CompletedTask;
+    }
 }
