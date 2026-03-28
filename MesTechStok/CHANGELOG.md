@@ -3,6 +3,20 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.18] - 2026-03-28
+
+### DEV2 Frontend & UI TUR 11-15 — security fixes + keyboard UX + Blazor paylaşım
+- fix(security): G069+G070 P0 XSS — innerHTML escape in bravo_notification_center + alpha_stats/notification + ComponentLoader (Trendyol)
+- fix(avalonia): G089 P1 — Dispose previous ViewModel on navigation (timer memory leak)
+- fix(blazor): G074 P1 — NotificationBell ObjectDisposedException race condition guard [PAYLAŞIM-DEV2]
+- fix(avalonia): G058 P2 — TrendyolVM OperationCanceledException context comment
+- fix(avalonia): G090 P2 — HealthVM OnDispose timer stop
+- fix(security): G075 P2 — alpha_core_navigation breadcrumb XSS escape
+- feat(html): G109 P2 — CRM deals+leads API fetch with mock fallback
+- feat(avalonia): Ctrl+F search focus + Escape clear — Products, OrderList, Inventory, Customer views
+
+**Metrics:** ~16 commits, 2 P0 XSS fixed, 2 P1 fixed, 5 P2 fixed, 4 keyboard shortcuts, GOREV_HAVUZU DEV2 9/9 closed (100%)
+
 ## [1.0.17] - 2026-03-28
 
 ### DEV5 Test & Kalite TUR 1-10 — handler + validator + event handler test kapsamı
