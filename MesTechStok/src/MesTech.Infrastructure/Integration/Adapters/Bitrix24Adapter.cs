@@ -22,7 +22,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Rate limit: SemaphoreSlim configurable (Enterprise 50, Free 2).
 /// Batch API: 50 commands/request chunking.
 /// </summary>
-public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
+public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, IPingableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
@@ -927,6 +927,33 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "Bitrix24Adapter not configured. Call TestConnectionAsync first.");
+    }
+
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            if (string.IsNullOrEmpty(_portalDomain))
+            {
+                _logger.LogDebug("Bitrix24 ping skipped — not configured");
+                return false;
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Head,
+                new Uri($"https://{_portalDomain}/rest/", UriKind.Absolute));
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+
+            _logger.LogDebug("Bitrix24 ping: {StatusCode}", response.StatusCode);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Bitrix24 ping failed");
+            return false;
+        }
     }
 
     #endregion
