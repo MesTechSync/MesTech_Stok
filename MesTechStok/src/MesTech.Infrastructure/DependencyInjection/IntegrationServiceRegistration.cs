@@ -216,9 +216,16 @@ public static class IntegrationServiceRegistration
         // Token cache (in-memory, Redis swap later)
         services.AddSingleton<ITokenCacheProvider, InMemoryTokenCacheProvider>();
 
-        // Invoice providers — factory pattern (replaces feature flag)
-        services.AddScoped<MockInvoiceProvider>();
-        services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<MockInvoiceProvider>());
+        // Invoice providers — MockInvoiceProvider only in Development/Testing
+        var env = configuration?["ASPNETCORE_ENVIRONMENT"] ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var isDevelopment = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(env, "Testing", StringComparison.OrdinalIgnoreCase)
+                        || env is null; // fallback: register if env not configured (local dev)
+        if (isDevelopment)
+        {
+            services.AddScoped<MockInvoiceProvider>();
+            services.AddScoped<IInvoiceProvider>(sp => sp.GetRequiredService<MockInvoiceProvider>());
+        }
 
         // Dalga 9: UBL-TR 1.2 XML builder + validator
         services.AddSingleton<IUblTrXmlBuilder, UblTrXmlBuilder>();
@@ -298,9 +305,12 @@ public static class IntegrationServiceRegistration
             services.AddScoped<IEInvoiceProvider>(sp => sp.GetRequiredService<GibPortalEInvoiceProvider>());
 
         // Dalga 5: Invoice Adapters — wrap existing providers via composition
-        services.AddScoped<MockInvoiceAdapter>(sp =>
-            new MockInvoiceAdapter(sp.GetRequiredService<MockInvoiceProvider>()));
-        services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<MockInvoiceAdapter>());
+        if (isDevelopment)
+        {
+            services.AddScoped<MockInvoiceAdapter>(sp =>
+                new MockInvoiceAdapter(sp.GetRequiredService<MockInvoiceProvider>()));
+            services.AddScoped<IInvoiceAdapter>(sp => sp.GetRequiredService<MockInvoiceAdapter>());
+        }
 
         services.AddScoped<SovosInvoiceAdapter>(sp =>
             new SovosInvoiceAdapter(
