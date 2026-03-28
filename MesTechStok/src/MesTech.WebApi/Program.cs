@@ -66,7 +66,22 @@ builder.Services.AddMediatR(cfg =>
         typeof(MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
     cfg.RegisterServicesFromAssembly(
         typeof(MesTech.Infrastructure.Integration.Orchestration.StockChangedEventHandler).Assembly);
-    // DEV6-TUR15: TracingBehavior — automatic Activity span per handler
+    // Pipeline Behaviors — sıra önemli: dıştaki önce çalışır
+    // 1. Validation: geçersiz request'leri handler'a ulaşmadan reddet
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ValidationBehavior<,>));
+    // 2. Logging: tüm request/response akışını logla
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.LoggingBehavior<,>));
+    // 3. Performance: yavaş handler'ları tespit et (>500ms uyarı)
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.PerformanceBehavior<,>));
+    // 4. TenantFilter: multi-tenant güvenlik — TenantId doğrulama
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TenantFilterBehavior<,>));
+    // 5. Exception: handler hataları yakala, logla, temiz response dön
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ExceptionBehavior<,>));
+    // 6. Transaction: command handler'lar için UnitOfWork transaction
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TransactionBehavior<,>));
+    // 7. Cache: ICacheableQuery implement eden query sonuçlarını cache'le
+    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.CacheBehavior<,>));
+    // 8. Tracing: OpenTelemetry Activity span per handler
     cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TracingBehavior<,>));
 });
 

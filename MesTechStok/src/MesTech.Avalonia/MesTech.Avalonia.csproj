@@ -10,6 +10,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Avalonia Cross-Platform � Dalga 10 MVP -->
     <RootNamespace>MesTech.Avalonia</RootNamespace>
+    <UserSecretsId>mestech-avalonia</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

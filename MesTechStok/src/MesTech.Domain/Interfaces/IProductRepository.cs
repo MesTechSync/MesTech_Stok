@@ -19,4 +19,5 @@ public interface IProductRepository
     Task<int> GetCountAsync();
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
     Task AddPlatformMappingAsync(ProductPlatformMapping mapping, CancellationToken ct = default);
+    Task<IReadOnlyList<Product>> GetByWarehouseAsync(Guid warehouseId, CancellationToken ct = default);
 }

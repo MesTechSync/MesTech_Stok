@@ -58,7 +58,8 @@ public partial class App : global::Avalonia.Application
             .ConfigureAppConfiguration((ctx, config) =>
             {
                 config.SetBasePath(AppContext.BaseDirectory)
-                      .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                      .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                      .AddUserSecrets<App>(optional: true);
             })
             .ConfigureServices((ctx, services) =>
             {
