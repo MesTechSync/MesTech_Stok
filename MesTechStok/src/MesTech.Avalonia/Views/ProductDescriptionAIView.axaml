@@ -1,0 +1,322 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.ProductDescriptionAIView"
+             x:DataType="vm:ProductDescriptionAIViewModel"
+             AutomationProperties.Name="AI Urun Aciklama">
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
+    <!-- G102: AI Urun Aciklama — 3 varyasyon (Kisa/Orta/Uzun), SEO skoru, karakter sayaci -->
+
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- ═══ Header ═══ -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="AI Urun Aciklama" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
+                            IsVisible="{Binding HasResults}">
+                        <TextBlock Text="Sonuc hazir" Foreground="{DynamicResource MesBgPrimary}"
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Urun listesini yenile (F5)"
+                        Command="{Binding RefreshCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- ═══ Main Content: 2 Column Layout ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="2*,3*" Margin="16,12,16,16">
+
+            <!-- ═══ LEFT PANEL — Urun Bilgisi + Giris ═══ -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" Margin="0,0,8,0">
+                <DockPanel>
+                    <!-- Panel Header -->
+                    <Border DockPanel.Dock="Top" Padding="16,12"
+                            BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Urun Bilgisi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                    </Border>
+
+                    <!-- Form -->
+                    <ScrollViewer DockPanel.Dock="Bottom" VerticalScrollBarVisibility="Auto" Padding="16,12">
+                        <StackPanel Spacing="14">
+
+                            <!-- Product Selector -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Urun Sec" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
+                                          HorizontalAlignment="Stretch" Padding="10,8"
+                                          AutomationProperties.Name="Urun secici">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ProductSelectItem">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding SKU}" FontWeight="SemiBold" Foreground="{DynamicResource MesPrimaryBlue}" />
+                                                <TextBlock Text="-" Foreground="{DynamicResource MesSlateGray}" />
+                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource MesDarkSlate}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Product Name -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Urun Adi *" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBox Text="{Binding ProductName}" Watermark="Ornek: Samsung Galaxy S24 Ultra 256GB"
+                                         Padding="10,8" AutomationProperties.Name="Urun adi" />
+                            </StackPanel>
+
+                            <!-- Category -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Kategori" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBox Text="{Binding Category}" Watermark="Ornek: Elektronik > Telefon"
+                                         Padding="10,8" AutomationProperties.Name="Kategori" />
+                            </StackPanel>
+
+                            <!-- Brand -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Marka" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBox Text="{Binding Brand}" Watermark="Ornek: Samsung"
+                                         Padding="10,8" AutomationProperties.Name="Marka" />
+                            </StackPanel>
+
+                            <!-- Features (Multiline) -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Ozellikler (virgul ile ayirin)" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" />
+                                <TextBox Text="{Binding Features}" Watermark="200MP kamera, 5000mAh batarya, Titanium kasa"
+                                         AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" MaxHeight="140"
+                                         Padding="10,8" AutomationProperties.Name="Urun ozellikleri" />
+                            </StackPanel>
+
+                            <!-- Generate Button -->
+                            <Button Content="AI ile Uret" Command="{Binding GenerateCommand}"
+                                    ToolTip.Tip="Yapay zeka ile 3 farkli aciklama uret"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                                    FontWeight="Bold" FontSize="{StaticResource FontSizeBody}"
+                                    Padding="16,12" CornerRadius="{StaticResource MesRadiusBase}"
+                                    IsEnabled="{Binding !IsGenerating}" />
+
+                            <!-- Status Message -->
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{DynamicResource MesPrimaryBlue}" TextWrapping="Wrap"
+                                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ═══ RIGHT PANEL — AI Sonuclari ═══ -->
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusLg}"
+                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="1" Margin="8,0,0,0">
+                <DockPanel>
+                    <!-- Panel Header -->
+                    <Border DockPanel.Dock="Top" Padding="16,12"
+                            BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="AI Sonuclari" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                            <!-- SEO Score Badge -->
+                            <Border Grid.Column="1" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="12,4"
+                                    IsVisible="{Binding HasResults}">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding SeoScoreColor}" Opacity="0.15" />
+                                </Border.Background>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="SEO:" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SeoScore, StringFormat='{}{0}/100'}" FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{Binding SeoScoreColor}" />
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Content Area -->
+                    <Grid>
+
+                        <!-- ═══ Loading Overlay ═══ -->
+                        <Border IsVisible="{Binding IsLoading}" Background="{DynamicResource MesBgPrimary}"
+                                ZIndex="10" CornerRadius="{StaticResource MesRadiusLg}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                                <TextBlock Text="Yukleniyor..." FontSize="{StaticResource FontSizeBody}"
+                                           Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ═══ Generating Overlay ═══ -->
+                        <Border IsVisible="{Binding IsGenerating}" Background="{DynamicResource MesBgPrimary}"
+                                ZIndex="10" CornerRadius="{StaticResource MesRadiusLg}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                                <Border Width="48" Height="48" CornerRadius="24" BorderThickness="3"
+                                        BorderBrush="{DynamicResource MesPrimaryBlue}" Opacity="0.6" />
+                                <TextBlock Text="AI yaziyor..." FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center" />
+                                <TextBlock Text="Urun aciklamasi uretiliyor, lutfen bekleyin..."
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ═══ Empty State ═══ -->
+                        <Border IsVisible="{Binding !HasResults}" Background="Transparent">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8"
+                                        IsVisible="{Binding !IsGenerating}">
+                                <TextBlock Text="Henuz sonuc yok" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                                <TextBlock Text="Sol panelden urun secin veya urun adi girip 'AI ile Uret' butonuna basin."
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" TextAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ═══ Error State ═══ -->
+                        <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgPrimary}" Padding="16"
+                                ZIndex="5">
+                            <Border Background="#FEF2F2" CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
+                                               Foreground="#EF4444" />
+                                    <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="#991B1B" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- ═══ Results Panel ═══ -->
+                        <DockPanel IsVisible="{Binding HasResults}" Margin="0">
+
+                            <!-- Bottom Actions -->
+                            <Border DockPanel.Dock="Bottom" Padding="16,12"
+                                    BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <!-- SEO Keywords -->
+                                    <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding SeoKeywords}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusBase}"
+                                                            Padding="8,4">
+                                                        <TextBlock Text="{Binding}" FontSize="{StaticResource FontSizeCaption}"
+                                                                   Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+
+                                    <!-- Action Buttons -->
+                                    <Button Grid.Column="1" Content="Yeniden Uret" Command="{Binding RegenerateCommand}"
+                                            ToolTip.Tip="Yeni varyasyonlar olustur"
+                                            Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}" FontWeight="SemiBold"
+                                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="8,0,0,0"
+                                            IsEnabled="{Binding !IsGenerating}" />
+                                    <Button Grid.Column="2" Content="Kabul Et" ToolTip.Tip="Secili aciklamayi onayla"
+                                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="8,0,0,0" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Tab Buttons + Description Content -->
+                            <DockPanel>
+                                <!-- Variant Tabs: Kisa / Orta / Uzun -->
+                                <Border DockPanel.Dock="Top" Padding="16,10"
+                                        BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <!-- Kisa Tab -->
+                                        <Button Command="{Binding SelectShortCommand}" ToolTip.Tip="Kisa aciklama (~80 karakter)"
+                                                Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}"
+                                                Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="Kisa" FontWeight="SemiBold" />
+                                                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="6,1">
+                                                    <TextBlock Text="{Binding ShortCharCount}" FontSize="{StaticResource FontSizeCaption}"
+                                                               Foreground="{DynamicResource MesSlateGray}" />
+                                                </Border>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Orta Tab -->
+                                        <Button Command="{Binding SelectMediumCommand}" ToolTip.Tip="Orta aciklama (~200 karakter)"
+                                                Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}"
+                                                Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="Orta" FontWeight="SemiBold" />
+                                                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="6,1">
+                                                    <TextBlock Text="{Binding MediumCharCount}" FontSize="{StaticResource FontSizeCaption}"
+                                                               Foreground="{DynamicResource MesSlateGray}" />
+                                                </Border>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Uzun Tab -->
+                                        <Button Command="{Binding SelectLongCommand}" ToolTip.Tip="Uzun aciklama (~500+ karakter)"
+                                                Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}"
+                                                Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="Uzun" FontWeight="SemiBold" />
+                                                <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="8" Padding="6,1">
+                                                    <TextBlock Text="{Binding LongCharCount}" FontSize="{StaticResource FontSizeCaption}"
+                                                               Foreground="{DynamicResource MesSlateGray}" />
+                                                </Border>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- SEO Title -->
+                                <Border DockPanel.Dock="Top" Padding="16,8"
+                                        IsVisible="{Binding SeoTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="SEO Baslik" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MesSlateGray}" />
+                                        <TextBlock Text="{Binding SeoTitle}" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Selected Description -->
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8">
+                                    <TextBox Text="{Binding SelectedDescription}" IsReadOnly="True"
+                                             AcceptsReturn="True" TextWrapping="Wrap"
+                                             BorderThickness="0" Background="Transparent"
+                                             FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}"
+                                             Padding="0" MinHeight="200"
+                                             AutomationProperties.Name="Secili aciklama" />
+                                </ScrollViewer>
+                            </DockPanel>
+                        </DockPanel>
+
+                    </Grid>
+                </DockPanel>
+            </Border>
+
+        </Grid>
+
+    </Grid>
+
+</UserControl>
