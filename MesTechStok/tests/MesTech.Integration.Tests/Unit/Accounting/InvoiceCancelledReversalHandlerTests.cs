@@ -23,6 +23,7 @@ public class InvoiceCancelledReversalHandlerTests
 {
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<IJournalEntryRepository> _journalRepo = new();
+    private readonly Mock<IInvoiceRepository> _invoiceRepo = new();
     private readonly Mock<ILogger<InvoiceCancelledReversalHandler>> _logger = new();
 
     public InvoiceCancelledReversalHandlerTests()
@@ -33,7 +34,7 @@ public class InvoiceCancelledReversalHandlerTests
     }
 
     private InvoiceCancelledReversalHandler CreateHandler() =>
-        new(_uow.Object, _journalRepo.Object, _logger.Object);
+        new(_uow.Object, _journalRepo.Object, _invoiceRepo.Object, _logger.Object);
 
     [Fact]
     public async Task HandleAsync_ValidCancel_CreatesReversalAndSaves()
