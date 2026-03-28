@@ -194,9 +194,8 @@ public class CargoAdapterHardeningTests : IDisposable
     }
 
     // Configure adapters
-    private ArasKargoAdapter CreateArasAdapter(IHttpClientFactory httpClientFactory)
+    private ArasKargoAdapter CreateArasAdapter(HttpClient httpClient)
     {
-        var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new ArasKargoAdapter(httpClient, NullLogger<ArasKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
@@ -209,9 +208,8 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private SuratKargoAdapter CreateSuratAdapter(IHttpClientFactory httpClientFactory)
+    private SuratKargoAdapter CreateSuratAdapter(HttpClient httpClient)
     {
-        var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new SuratKargoAdapter(httpClient, NullLogger<SuratKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
@@ -224,9 +222,8 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private MngKargoAdapter CreateMngAdapter(IHttpClientFactory httpClientFactory)
+    private MngKargoAdapter CreateMngAdapter(HttpClient httpClient)
     {
-        var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new MngKargoAdapter(httpClient, NullLogger<MngKargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
@@ -239,7 +236,7 @@ public class CargoAdapterHardeningTests : IDisposable
         return adapter;
     }
 
-    private HepsiJetCargoAdapter CreateHepsiJetAdapter(IHttpClientFactory httpClientFactory)
+    private HepsiJetCargoAdapter CreateHepsiJetAdapter(HttpClient httpClient)
     {
         // HepsiJet needs a token endpoint for EnsureTokenAsync
         _server.Given(
@@ -255,7 +252,6 @@ public class CargoAdapterHardeningTests : IDisposable
                 }))
         );
 
-        var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(30);
         var adapter = new HepsiJetCargoAdapter(httpClient, NullLogger<HepsiJetCargoAdapter>.Instance);
         adapter.Configure(new Dictionary<string, string>
