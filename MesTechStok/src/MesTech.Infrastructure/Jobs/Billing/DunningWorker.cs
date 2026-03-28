@@ -151,7 +151,7 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: "0.0.0.0"),
+                    CustomerIp: "127.0.0.1" /* server-initiated payment */),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;
@@ -220,7 +220,7 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: "0.0.0.0"),
+                    CustomerIp: "127.0.0.1" /* server-initiated payment */),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;

@@ -70,7 +70,7 @@ public sealed class SubscriptionRenewalWorker
                         Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                         CardToken: null, // stored payment token — will be resolved by provider
                         ReturnUrl: string.Empty,
-                        CustomerIp: "0.0.0.0"),
+                        CustomerIp: "127.0.0.1" /* server-initiated payment */),
                     ct).ConfigureAwait(false);
 
                 if (paymentResult.Success)
