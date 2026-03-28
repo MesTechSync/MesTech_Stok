@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetFixedExpenses;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 public partial class FixedExpenseAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -26,9 +29,10 @@ public partial class FixedExpenseAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Categories { get; } =
         ["Tumu", "Kira", "Personel", "Sigorta", "Abonelik", "Vergi", "Diger"];
 
-    public FixedExpenseAvaloniaViewModel(IMediator mediator)
+    public FixedExpenseAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         SelectedCategory = "Tumu";
     }
 
@@ -40,16 +44,23 @@ public partial class FixedExpenseAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId));
 
-            _allItems =
-            [
-                new() { Name = "Ofis Kirasi", Category = "Kira", MonthlyAmount = 15000m, MonthlyFormatted = "15.000,00 TL", Frequency = "Aylik", NextPayment = "2026-04-01", IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Internet + Telefon", Category = "Abonelik", MonthlyAmount = 2500m, MonthlyFormatted = "2.500,00 TL", Frequency = "Aylik", NextPayment = "2026-04-05", IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Muhasebe Yazilimi", Category = "Abonelik", MonthlyAmount = 1200m, MonthlyFormatted = "1.200,00 TL", Frequency = "Aylik", NextPayment = "2026-04-01", IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Isyeri Sigortasi", Category = "Sigorta", MonthlyAmount = 3500m, MonthlyFormatted = "3.500,00 TL", Frequency = "Yillik", NextPayment = "2026-06-15", IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Depo Kirasi (eski)", Category = "Kira", MonthlyAmount = 8000m, MonthlyFormatted = "8.000,00 TL", Frequency = "Aylik", NextPayment = "-", IsActive = false, StatusText = "Pasif" },
-            ];
+            _allItems = result.Select(e => new FixedExpenseItemDto
+            {
+                Name = e.Name,
+                Category = e.SupplierName ?? "Diger",
+                MonthlyAmount = e.MonthlyAmount,
+                MonthlyFormatted = $"{e.MonthlyAmount:N2} TL",
+                Frequency = e.EndDate.HasValue ? "Yillik" : "Aylik",
+                NextPayment = e.IsActive
+                    ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, e.DayOfMonth > 0 ? e.DayOfMonth : 1)
+                        .AddMonths(DateTime.Now.Day >= e.DayOfMonth ? 1 : 0)
+                        .ToString("yyyy-MM-dd")
+                    : "-",
+                IsActive = e.IsActive,
+                StatusText = e.IsActive ? "Aktif" : "Pasif"
+            }).ToList();
 
             var active = _allItems.Where(x => x.IsActive).ToList();
             var monthly = active.Where(x => x.Frequency == "Aylik").Sum(x => x.MonthlyAmount);

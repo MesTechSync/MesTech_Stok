@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Reports.ProfitabilityReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
@@ -12,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 public partial class ProfitabilityReportViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     // Date range
     [ObservableProperty] private DateTimeOffset? _dateFrom;
@@ -30,11 +33,12 @@ public partial class ProfitabilityReportViewModel : ViewModelBase
 
     [ObservableProperty] private bool _isEmpty;
 
-    public ObservableCollection<PlatformProfitDto> PlatformProfits { get; } = [];
+    public ObservableCollection<PlatformProfitViewDto> PlatformProfits { get; } = [];
 
-    public ProfitabilityReportViewModel(IMediator mediator)
+    public ProfitabilityReportViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         Title = "Karlilik Raporu";
     }
 
@@ -42,37 +46,38 @@ public partial class ProfitabilityReportViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(200, ct); // Will be replaced with MediatR query
+            var fromDate = DateFrom?.DateTime ?? DateTime.Now.AddMonths(-1);
+            var toDate = DateTo?.DateTime ?? DateTime.Now;
+
+            var report = await _mediator.Send(
+                new ProfitabilityReportQuery(_currentUser.TenantId, fromDate, toDate), ct);
 
             PlatformProfits.Clear();
 
-            var items = new List<PlatformProfitDto>
+            foreach (var p in report.ByPlatform)
             {
-                new() { Platform = "Trendyol", Revenue = 45200m, Expense = 12500m, Commission = 6780m, NetProfit = 25920m },
-                new() { Platform = "Hepsiburada", Revenue = 28400m, Expense = 8200m, Commission = 3550m, NetProfit = 16650m },
-                new() { Platform = "N11", Revenue = 12800m, Expense = 4100m, Commission = 1792m, NetProfit = 6908m },
-                new() { Platform = "Ciceksepeti", Revenue = 8600m, Expense = 2900m, Commission = 1548m, NetProfit = 4152m },
-                new() { Platform = "Amazon", Revenue = 18900m, Expense = 7200m, Commission = 2835m, NetProfit = 8865m },
-                new() { Platform = "eBay", Revenue = 6200m, Expense = 2400m, Commission = 806m, NetProfit = 2994m },
-                new() { Platform = "Pazarama", Revenue = 3400m, Expense = 1200m, Commission = 340m, NetProfit = 1860m },
-            };
-
-            foreach (var item in items)
-            {
-                item.Margin = item.Revenue > 0 ? item.NetProfit / item.Revenue * 100 : 0;
-                item.RevenueFormatted = $"{item.Revenue:N2} TL";
-                item.ExpenseFormatted = $"{item.Expense:N2} TL";
-                item.CommissionFormatted = $"{item.Commission:N2} TL";
-                item.NetProfitFormatted = $"{item.NetProfit:N2} TL";
-                item.MarginFormatted = $"%{item.Margin:N1}";
-                PlatformProfits.Add(item);
+                var expense = p.Cost + p.Shipping + p.Tax;
+                PlatformProfits.Add(new PlatformProfitViewDto
+                {
+                    Platform = p.Platform,
+                    Revenue = p.Revenue,
+                    Expense = expense,
+                    Commission = p.Commission,
+                    NetProfit = p.NetProfit,
+                    Margin = p.ProfitMargin,
+                    RevenueFormatted = $"{p.Revenue:N2} TL",
+                    ExpenseFormatted = $"{expense:N2} TL",
+                    CommissionFormatted = $"{p.Commission:N2} TL",
+                    NetProfitFormatted = $"{p.NetProfit:N2} TL",
+                    MarginFormatted = $"%{p.ProfitMargin:N1}"
+                });
             }
 
-            TotalIncome = items.Sum(i => i.Revenue);
-            TotalExpense = items.Sum(i => i.Expense);
-            var totalCommission = items.Sum(i => i.Commission);
-            TotalNetProfit = items.Sum(i => i.NetProfit);
-            var totalMargin = TotalIncome > 0 ? TotalNetProfit / TotalIncome * 100 : 0;
+            TotalIncome = report.TotalRevenue;
+            TotalExpense = report.TotalCost + report.TotalShipping + report.TotalTax;
+            var totalCommission = report.TotalCommission;
+            TotalNetProfit = report.NetProfit;
+            var totalMargin = report.ProfitMargin;
 
             TotalIncomeFormatted = $"{TotalIncome:N2} TL";
             TotalExpenseFormatted = $"{TotalExpense:N2} TL";
@@ -106,7 +111,7 @@ public partial class ProfitabilityReportViewModel : ViewModelBase
     }
 }
 
-public class PlatformProfitDto
+public class PlatformProfitViewDto
 {
     public string Platform { get; set; } = string.Empty;
     public decimal Revenue { get; set; }

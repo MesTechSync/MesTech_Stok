@@ -2,12 +2,16 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetPenaltyRecords;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 public partial class PenaltyAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -26,9 +30,10 @@ public partial class PenaltyAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Sources { get; } =
         ["Tumu", "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "eBay", "Vergi Dairesi", "SGK", "Gumruk", "Diger"];
 
-    public PenaltyAvaloniaViewModel(IMediator mediator)
+    public PenaltyAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         SelectedSource = "Tumu";
     }
 
@@ -40,15 +45,19 @@ public partial class PenaltyAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetPenaltyRecordsQuery(_currentUser.TenantId));
 
-            _allItems =
-            [
-                new() { Source = "Trendyol", Description = "Gec kargo cezasi - Siparis #TR-2026-4521", Amount = 150.00m, AmountFormatted = "150,00 TL", PenaltyDate = "2026-03-15", DueDate = "2026-04-15", Status = "Beklemede", ReferenceNumber = "TY-PEN-001" },
-                new() { Source = "Hepsiburada", Description = "Iptal orani asimi cezasi", Amount = 320.00m, AmountFormatted = "320,00 TL", PenaltyDate = "2026-03-10", DueDate = "2026-04-10", Status = "Beklemede", ReferenceNumber = "HB-PEN-042" },
-                new() { Source = "SGK", Description = "Gecikme zammi - 2026/02 donem", Amount = 1250.00m, AmountFormatted = "1.250,00 TL", PenaltyDate = "2026-03-01", DueDate = "2026-03-31", Status = "Odendi", ReferenceNumber = "SGK-2026-0312" },
-                new() { Source = "Vergi Dairesi", Description = "KDV beyanname gecikme cezasi", Amount = 890.00m, AmountFormatted = "890,00 TL", PenaltyDate = "2026-02-28", DueDate = "2026-03-28", Status = "Beklemede", ReferenceNumber = "VD-2026-0228" },
-            ];
+            _allItems = result.Select(p => new PenaltyItemDto
+            {
+                Source = p.Source.ToString(),
+                Description = p.Description,
+                Amount = p.Amount,
+                AmountFormatted = $"{p.Amount:N2} TL",
+                PenaltyDate = p.PenaltyDate.ToString("yyyy-MM-dd"),
+                DueDate = p.DueDate?.ToString("yyyy-MM-dd") ?? "-",
+                Status = p.PaymentStatus == PaymentStatus.Completed ? "Odendi" : "Beklemede",
+                ReferenceNumber = p.ReferenceNumber ?? string.Empty
+            }).ToList();
 
             var total = _allItems.Sum(x => x.Amount);
             var paid = _allItems.Where(x => x.Status == "Odendi").Sum(x => x.Amount);

@@ -2,6 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
@@ -12,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 public partial class IncomeExpenseDashboardViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     // KPI
     [ObservableProperty] private decimal _totalIncome;
@@ -27,9 +31,10 @@ public partial class IncomeExpenseDashboardViewModel : ViewModelBase
 
     public ObservableCollection<IncomeExpenseTransactionDto> RecentTransactions { get; } = [];
 
-    public IncomeExpenseDashboardViewModel(IMediator mediator)
+    public IncomeExpenseDashboardViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         Title = "Gelir / Gider Ozeti";
     }
 
@@ -37,30 +42,34 @@ public partial class IncomeExpenseDashboardViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(200, ct); // Will be replaced with MediatR query
+            var summaryTask = _mediator.Send(new GetIncomeExpenseSummaryQuery(_currentUser.TenantId), ct);
+            var listTask = _mediator.Send(new GetIncomeExpenseListQuery(_currentUser.TenantId, PageSize: 10), ct);
+
+            await Task.WhenAll(summaryTask, listTask);
+
+            var summary = summaryTask.Result;
+            var list = listTask.Result;
 
             RecentTransactions.Clear();
 
-            var items = new List<IncomeExpenseTransactionDto>
+            foreach (var item in list.Items)
             {
-                new() { Date = "24.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+8.240,00 TL", Amount = 8240m, Platform = "Trendyol", Description = "Trendyol satis hasilati" },
-                new() { Date = "23.03.2026", Type = "Gider", Category = "Kargo", AmountFormatted = "-620,00 TL", Amount = -620m, Platform = "Aras Kargo", Description = "Kargo gideri" },
-                new() { Date = "23.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+3.180,00 TL", Amount = 3180m, Platform = "Hepsiburada", Description = "Hepsiburada satis hasilati" },
-                new() { Date = "22.03.2026", Type = "Gider", Category = "Komisyon", AmountFormatted = "-988,80 TL", Amount = -988.80m, Platform = "Trendyol", Description = "Platform komisyonu" },
-                new() { Date = "22.03.2026", Type = "Gider", Category = "Genel Gider", AmountFormatted = "-6.500,00 TL", Amount = -6500m, Platform = "-", Description = "Ofis kirasi" },
-                new() { Date = "21.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+1.940,00 TL", Amount = 1940m, Platform = "N11", Description = "N11 satis hasilati" },
-                new() { Date = "21.03.2026", Type = "Gelir", Category = "Satis", AmountFormatted = "+4.520,00 TL", Amount = 4520m, Platform = "Amazon", Description = "Amazon satis hasilati" },
-                new() { Date = "20.03.2026", Type = "Gider", Category = "Kargo", AmountFormatted = "-380,00 TL", Amount = -380m, Platform = "Yurtici Kargo", Description = "Kargo gideri" },
-                new() { Date = "20.03.2026", Type = "Gelir", Category = "Hizmet", AmountFormatted = "+750,00 TL", Amount = 750m, Platform = "-", Description = "Danismanlik geliri" },
-                new() { Date = "19.03.2026", Type = "Gider", Category = "Iade", AmountFormatted = "-420,00 TL", Amount = -420m, Platform = "Trendyol", Description = "Urun iade bedeli" },
-            };
+                var isIncome = item.Amount > 0;
+                RecentTransactions.Add(new IncomeExpenseTransactionDto
+                {
+                    Date = item.Date.ToString("dd.MM.yyyy"),
+                    Type = isIncome ? "Gelir" : "Gider",
+                    Category = item.Type,
+                    Amount = item.Amount,
+                    AmountFormatted = isIncome ? $"+{item.Amount:N2} TL" : $"{item.Amount:N2} TL",
+                    Platform = item.Source,
+                    Description = item.Description
+                });
+            }
 
-            foreach (var item in items)
-                RecentTransactions.Add(item);
-
-            TotalIncome = items.Where(i => i.Amount > 0).Sum(i => i.Amount);
-            TotalExpense = items.Where(i => i.Amount < 0).Sum(i => Math.Abs(i.Amount));
-            NetProfit = TotalIncome - TotalExpense;
+            TotalIncome = summary.TotalIncome;
+            TotalExpense = summary.TotalExpense;
+            NetProfit = summary.NetProfit;
             ProfitMargin = TotalIncome > 0 ? NetProfit / TotalIncome * 100 : 0;
 
             TotalIncomeFormatted = $"{TotalIncome:N2} TL";

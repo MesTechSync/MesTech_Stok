@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetFixedAssets;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 public partial class FixedAssetAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -26,9 +29,10 @@ public partial class FixedAssetAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Categories { get; } =
         ["Tumu", "Bilgisayar", "Mobilya", "Arac", "Makine", "Yazilim", "Diger"];
 
-    public FixedAssetAvaloniaViewModel(IMediator mediator)
+    public FixedAssetAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         SelectedCategory = "Tumu";
     }
 
@@ -40,20 +44,25 @@ public partial class FixedAssetAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var result = await _mediator.Send(new GetFixedAssetsQuery(_currentUser.TenantId));
 
-            _allItems =
-            [
-                new() { Name = "MacBook Pro 16\" M3", Category = "Bilgisayar", PurchaseDate = "2026-01-15", PurchaseValue = 85000m, PurchaseValueFormatted = "85.000,00 TL", DepreciationFormatted = "7.083,33 TL", NetValueFormatted = "77.916,67 TL", UsefulLifeYears = 3, IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Ofis Masasi Set (4 adet)", Category = "Mobilya", PurchaseDate = "2025-06-01", PurchaseValue = 32000m, PurchaseValueFormatted = "32.000,00 TL", DepreciationFormatted = "10.666,67 TL", NetValueFormatted = "21.333,33 TL", UsefulLifeYears = 5, IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Dell Monitor 27\" (3 adet)", Category = "Bilgisayar", PurchaseDate = "2025-09-10", PurchaseValue = 27000m, PurchaseValueFormatted = "27.000,00 TL", DepreciationFormatted = "4.500,00 TL", NetValueFormatted = "22.500,00 TL", UsefulLifeYears = 3, IsActive = true, StatusText = "Aktif" },
-                new() { Name = "MesTech ERP Lisansi", Category = "Yazilim", PurchaseDate = "2026-01-01", PurchaseValue = 45000m, PurchaseValueFormatted = "45.000,00 TL", DepreciationFormatted = "3.750,00 TL", NetValueFormatted = "41.250,00 TL", UsefulLifeYears = 3, IsActive = true, StatusText = "Aktif" },
-                new() { Name = "Eski Yazici (HP LaserJet)", Category = "Bilgisayar", PurchaseDate = "2022-03-01", PurchaseValue = 8500m, PurchaseValueFormatted = "8.500,00 TL", DepreciationFormatted = "8.500,00 TL", NetValueFormatted = "0,00 TL", UsefulLifeYears = 3, IsActive = false, StatusText = "Pasif" },
-            ];
+            _allItems = result.Select(a => new FixedAssetItemDto
+            {
+                Name = a.Name,
+                Category = !string.IsNullOrEmpty(a.AssetCode) ? a.AssetCode : "Diger",
+                PurchaseDate = a.AcquisitionDate.ToString("yyyy-MM-dd"),
+                PurchaseValue = a.AcquisitionCost,
+                PurchaseValueFormatted = $"{a.AcquisitionCost:N2} TL",
+                DepreciationFormatted = $"{a.AccumulatedDepreciation:N2} TL",
+                NetValueFormatted = $"{a.NetBookValue:N2} TL",
+                UsefulLifeYears = a.UsefulLifeYears,
+                IsActive = a.IsActive,
+                StatusText = a.IsActive ? "Aktif" : "Pasif"
+            }).ToList();
 
             var totalValue = _allItems.Sum(x => x.PurchaseValue);
-            var totalDepr = _allItems.Sum(x => decimal.Parse(x.DepreciationFormatted.Replace(".", "").Replace(",", ".").Replace(" TL", ""), System.Globalization.CultureInfo.InvariantCulture));
-            var netBook = totalValue - totalDepr;
+            var totalDepr = result.Sum(x => x.AccumulatedDepreciation);
+            var netBook = result.Sum(x => x.NetBookValue);
 
             TotalAssetValue = $"{totalValue:N2} TL";
             TotalDepreciation = $"{totalDepr:N2} TL";
