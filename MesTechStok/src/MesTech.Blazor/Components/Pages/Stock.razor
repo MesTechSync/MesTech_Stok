@@ -177,7 +177,7 @@ else
         {
             isLoading = true;
             errorMessage = null;
-            var result = await ApiClient.SafeGetAsync<List<ProductStockRow>>("products");
+            var result = await ApiClient.SafeGetAsync<List<ProductStockRow>>("products/search");
             if (result.IsSuccess && result.Data is { Count: > 0 })
             {
                 products = result.Data;

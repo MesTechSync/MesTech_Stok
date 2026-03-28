@@ -80,7 +80,7 @@ else
     {
         try
         {
-            var result = await ApiClient.SafeGetAsync<object>("users/me/settings");
+            var result = await ApiClient.SafeGetAsync<object>("settings/profile");
             if (result.IsSuccess) { }
             else { _isDemoMode = true; }
         }

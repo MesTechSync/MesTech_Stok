@@ -174,7 +174,7 @@
   {
     try
     {
-      var result = await ApiClient.SafeGetAsync<AccountingSummary>("accounting/summary");
+      var result = await ApiClient.SafeGetAsync<AccountingSummary>("dashboard/accounting-kpi");
       if (result.IsSuccess && result.Data is not null)
       {
         _summary = result.Data;
