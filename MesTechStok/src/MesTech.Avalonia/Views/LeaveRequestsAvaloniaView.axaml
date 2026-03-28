@@ -30,8 +30,9 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Talep ara..." AutomationProperties.Name="Talep ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0"  AutomationProperties.Name="Durum" />
-                <Button Grid.Column="2" Content="+ Yeni Talep" Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
-                        ToolTip.Tip="+ Yeni Talep"
+                <Button Grid.Column="2" Content="+ Yeni Talep" Command="{Binding AddCommand}"
+                        Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="Yeni izin talebi olustur"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

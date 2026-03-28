@@ -59,6 +59,12 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to folder create dialog
+    }
+
     partial void OnSelectedFolderChanged(DocFolderItemVm? value)
     {
         // Load files for selected folder

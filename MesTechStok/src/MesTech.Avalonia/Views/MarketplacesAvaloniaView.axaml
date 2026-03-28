@@ -30,8 +30,9 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Platform ara..." AutomationProperties.Name="Platform ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0"  AutomationProperties.Name="Durum" />
-                <Button Grid.Column="2" Content="+ Platform Ekle" Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"
-                        ToolTip.Tip="+ Platform Ekle"
+                <Button Grid.Column="2" Content="+ Platform Ekle" Command="{Binding AddCommand}"
+                        Background="{DynamicResource MesBrandAccent}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="Yeni pazaryeri platformu ekle"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

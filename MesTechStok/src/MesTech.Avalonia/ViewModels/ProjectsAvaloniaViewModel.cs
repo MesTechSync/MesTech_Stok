@@ -70,6 +70,12 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to project create form
+    }
+
     partial void OnSelectedStatusChanged(string? value)
         => _ = LoadAsync();
 

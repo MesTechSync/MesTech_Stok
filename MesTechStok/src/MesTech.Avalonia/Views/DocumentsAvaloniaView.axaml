@@ -30,8 +30,9 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Belge Tipi" Width="140" Margin="8,0"  AutomationProperties.Name="Belge Tipi" />
-                <Button Grid.Column="2" Content="+ Belge Yukle" Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
-                        ToolTip.Tip="+ Belge Yukle"
+                <Button Grid.Column="2" Content="+ Belge Yukle" Command="{Binding UploadCommand}"
+                        Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="Yeni belge yukle"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

@@ -21,8 +21,8 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="+ Yeni Kisi"
-                        ToolTip.Tip="+ Yeni Kisi"
+                <Button Grid.Column="1" Content="+ Yeni Kisi" Command="{Binding AddCommand}"
+                        ToolTip.Tip="Yeni kisi ekle"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

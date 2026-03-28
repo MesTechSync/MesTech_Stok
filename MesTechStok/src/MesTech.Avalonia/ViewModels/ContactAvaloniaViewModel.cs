@@ -51,6 +51,12 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to contact create form or show dialog
+    }
+
     partial void OnSearchTextChanged(string value)
     {
         if (value.Length == 0 || value.Length >= 2)

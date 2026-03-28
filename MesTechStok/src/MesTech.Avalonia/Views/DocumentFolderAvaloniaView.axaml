@@ -21,8 +21,8 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="+ Yeni Klasor"
-                        ToolTip.Tip="+ Yeni Klasor"
+                <Button Grid.Column="1" Content="+ Yeni Klasor" Command="{Binding AddCommand}"
+                        ToolTip.Tip="Yeni klasor olustur"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
                         Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>

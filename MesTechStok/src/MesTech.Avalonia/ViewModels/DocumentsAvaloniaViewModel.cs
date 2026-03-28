@@ -29,4 +29,10 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Upload()
+    {
+        // TODO: Open file picker and upload document
+    }
 }
