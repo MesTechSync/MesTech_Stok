@@ -1,6 +1,6 @@
 using MediatR;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 

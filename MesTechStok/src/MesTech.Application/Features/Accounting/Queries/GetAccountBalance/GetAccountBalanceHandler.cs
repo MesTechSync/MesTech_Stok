@@ -1,6 +1,8 @@
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Interfaces;
+using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetAccountBalance;
 
