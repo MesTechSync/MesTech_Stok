@@ -701,6 +701,8 @@ public static class InfrastructureServiceRegistration
             Persistence.Repositories.ImportTemplateRepository>();
         services.AddSingleton<Application.Interfaces.IPlatformHealthProvider,
             Integration.Health.PlatformHealthProvider>();
+        services.AddScoped<Application.Interfaces.IAccessLogRepository,
+            Persistence.Repositories.AccessLogRepository>();
 
         return services;
     }
