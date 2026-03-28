@@ -62,7 +62,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             // MediatR queries will be wired when CQRS handlers are available
             IsEmpty = RecentOrders.Count == 0;
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }
         catch (Exception ex)
         {
             HasError = true;
@@ -230,7 +230,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             SyncStatus = "Tamamlandi";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }
         catch (Exception ex)
         {
             HasError = true;
