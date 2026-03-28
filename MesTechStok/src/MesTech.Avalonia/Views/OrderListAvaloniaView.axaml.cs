@@ -9,8 +9,10 @@ public partial class OrderListAvaloniaView : BaseView
     public OrderListAvaloniaView()
     {
         InitializeComponent();
-        KeyDown += OnKeyDown;
     }
+
+    protected override void SubscribeEvents() => KeyDown += OnKeyDown;
+    protected override void UnsubscribeEvents() => KeyDown -= OnKeyDown;
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
