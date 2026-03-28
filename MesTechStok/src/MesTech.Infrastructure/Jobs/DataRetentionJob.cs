@@ -11,6 +11,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Silme DEĞİL anonimleştirme — audit trail korunur.
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class DataRetentionJob : ISyncJob
 {
     public string JobId => "kvkk-data-retention";

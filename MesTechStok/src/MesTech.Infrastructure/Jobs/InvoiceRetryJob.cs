@@ -10,6 +10,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Status=Error veya ParasutSyncStatus=Failed olanları alır, IInvoiceProvider ile tekrar gönderir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class InvoiceRetryJob : ISyncJob
 {
     public string JobId => "invoice-retry";

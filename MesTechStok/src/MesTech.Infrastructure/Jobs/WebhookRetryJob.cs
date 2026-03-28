@@ -12,6 +12,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Max 5 attempt — sonra Failed status'e geçer.
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class WebhookRetryJob : ISyncJob
 {
     public string JobId => "webhook-dlq-retry";

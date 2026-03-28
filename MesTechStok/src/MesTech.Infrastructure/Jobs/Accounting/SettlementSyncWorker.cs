@@ -12,6 +12,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 03:30'da calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class SettlementSyncWorker : IAccountingJob
 {
     public string JobId => "accounting-settlement-sync";

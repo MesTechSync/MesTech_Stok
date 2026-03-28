@@ -15,6 +15,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Sonuçlar: Cache (anlık) + PlatformHealthHistory (24s) + Prometheus (metrik).
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class HealthCheckJob : ISyncJob
 {
     public string JobId => "health-check";

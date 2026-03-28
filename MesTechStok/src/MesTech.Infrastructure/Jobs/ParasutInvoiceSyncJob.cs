@@ -15,6 +15,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// Feature flag: Parasut.InvoiceSyncEnabled
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ParasutInvoiceSyncJob
 {
     private readonly AppDbContext _db;
