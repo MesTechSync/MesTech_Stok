@@ -1,4 +1,7 @@
+using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList;
+using MesTech.Application.Features.Cargo.Queries.GetShipmentLabel;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Domain.Enums;
 
@@ -31,6 +34,35 @@ public static class CargoEndpoints
         .WithSummary("Desteklenen kargo sağlayıcı listesi")
         .Produces(200)
         .CacheOutput("Lookup60s");
+
+        // GET /api/v1/cargo/tracking — kargo takip listesi
+        group.MapGet("/tracking", async (
+            Guid tenantId, int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetCargoTrackingListQuery(tenantId, count ?? 100), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCargoTrackingList")
+        .WithSummary("Kargo takip listesi — gönderim durumları")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/cargo/label/{shipmentId} — kargo etiketi
+        group.MapGet("/label/{shipmentId}", async (
+            string shipmentId, Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetShipmentLabelQuery(tenantId, shipmentId), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 404);
+        })
+        .WithName("GetShipmentLabel")
+        .WithSummary("Kargo etiketi (ZPL/PDF)")
+        .Produces(200).Produces(404);
     }
 
     private static string GetDisplayName(CargoProvider provider)
