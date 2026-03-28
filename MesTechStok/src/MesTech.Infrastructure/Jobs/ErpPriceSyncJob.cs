@@ -2,6 +2,7 @@ using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Constants;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Interfaces;
+using IErpSyncLogRepository = MesTech.Application.Interfaces.Erp.IErpSyncLogRepository;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 using System.Diagnostics;

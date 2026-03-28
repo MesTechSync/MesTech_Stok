@@ -2,7 +2,7 @@ using MediatR;
 using MesTech.Application.DTOs.ERP;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Entities.Erp;
-using MesTech.Domain.Interfaces;
+using IUnitOfWork = MesTech.Domain.Interfaces.IUnitOfWork;
 
 namespace MesTech.Application.Features.Erp.Commands.SyncOrderToErp;
 

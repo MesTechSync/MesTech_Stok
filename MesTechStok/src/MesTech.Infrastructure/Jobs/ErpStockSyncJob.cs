@@ -4,6 +4,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using IErpSyncLogRepository = MesTech.Application.Interfaces.Erp.IErpSyncLogRepository;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 using System.Diagnostics;
