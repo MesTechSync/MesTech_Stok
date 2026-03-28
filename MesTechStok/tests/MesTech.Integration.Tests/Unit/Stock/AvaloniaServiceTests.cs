@@ -71,14 +71,14 @@ public class FeatureGateServiceTests
     public void DefaultTier_IsUltra()
     {
         var svc = new FeatureGateService();
-        svc.CurrentTier.Should().Be(FeatureTier.Ultra);
+        svc.CurrentTier.Should().Be(SubscriptionTier.Ultra);
     }
 
     [Fact]
     public void LightTier_CanAccess_Dashboard()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Light);
+        svc.SetTier(SubscriptionTier.Light);
         svc.IsEnabled("Dashboard").Should().BeTrue();
     }
 
@@ -86,7 +86,7 @@ public class FeatureGateServiceTests
     public void LightTier_CannotAccess_Reports()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Light);
+        svc.SetTier(SubscriptionTier.Light);
         svc.IsEnabled("Reports").Should().BeFalse();
     }
 
@@ -94,7 +94,7 @@ public class FeatureGateServiceTests
     public void ProTier_CanAccess_Analytics()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Pro);
+        svc.SetTier(SubscriptionTier.Pro);
         svc.IsEnabled("Analytics").Should().BeTrue();
     }
 
@@ -102,7 +102,7 @@ public class FeatureGateServiceTests
     public void ProTier_CannotAccess_AIInsight()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Pro);
+        svc.SetTier(SubscriptionTier.Pro);
         svc.IsEnabled("AIInsight").Should().BeFalse();
     }
 
@@ -110,7 +110,7 @@ public class FeatureGateServiceTests
     public void UltraTier_CanAccess_Everything()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Ultra);
+        svc.SetTier(SubscriptionTier.Ultra);
         svc.IsEnabled("Dashboard").Should().BeTrue();
         svc.IsEnabled("Reports").Should().BeTrue();
         svc.IsEnabled("AIInsight").Should().BeTrue();
@@ -120,7 +120,7 @@ public class FeatureGateServiceTests
     public void UnknownFeature_FailOpen()
     {
         var svc = new FeatureGateService();
-        svc.SetTier(FeatureTier.Light);
+        svc.SetTier(SubscriptionTier.Light);
         svc.IsEnabled("NonExistentFeature").Should().BeTrue();
     }
 
@@ -128,12 +128,12 @@ public class FeatureGateServiceTests
     public void SetTier_FiresTierChangedEvent()
     {
         var svc = new FeatureGateService();
-        FeatureTier? changedTo = null;
+        SubscriptionTier? changedTo = null;
         svc.TierChanged += (_, tier) => changedTo = tier;
 
-        svc.SetTier(FeatureTier.Pro);
+        svc.SetTier(SubscriptionTier.Pro);
 
-        changedTo.Should().Be(FeatureTier.Pro);
+        changedTo.Should().Be(SubscriptionTier.Pro);
     }
 }
 
