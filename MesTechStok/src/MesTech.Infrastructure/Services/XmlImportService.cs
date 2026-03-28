@@ -8,22 +8,28 @@ namespace MesTech.Infrastructure.Services;
 
 public sealed class XmlImportService : IXmlImportService
 {
-    public async Task<XmlImportResult> ImportProductsAsync(Stream xmlStream, CancellationToken ct = default)
+    // G079 FIX: Task.Run() kaldırıldı — threadpool starvation riski.
+    // ParseXml CPU-bound ama tipik XML küçük (<1MB). Sync çalıştırılır.
+    // Büyük dosyalar için caller Task.Run ile sarabilir.
+    public Task<XmlImportResult> ImportProductsAsync(Stream xmlStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(xmlStream);
-        return await Task.Run(() => ParseXml(xmlStream, ImportMode.Products), ct);
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(ParseXml(xmlStream, ImportMode.Products));
     }
 
-    public async Task<XmlImportResult> ImportStockAsync(Stream xmlStream, CancellationToken ct = default)
+    public Task<XmlImportResult> ImportStockAsync(Stream xmlStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(xmlStream);
-        return await Task.Run(() => ParseXml(xmlStream, ImportMode.Stock), ct);
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(ParseXml(xmlStream, ImportMode.Stock));
     }
 
-    public async Task<XmlImportResult> ImportPricesAsync(Stream xmlStream, CancellationToken ct = default)
+    public Task<XmlImportResult> ImportPricesAsync(Stream xmlStream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(xmlStream);
-        return await Task.Run(() => ParseXml(xmlStream, ImportMode.Prices), ct);
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(ParseXml(xmlStream, ImportMode.Prices));
     }
 
     private enum ImportMode { Products, Stock, Prices }
