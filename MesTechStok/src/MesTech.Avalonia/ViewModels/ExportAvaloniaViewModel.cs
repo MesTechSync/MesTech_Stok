@@ -1,15 +1,25 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Product.Commands.ExportProducts;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Dışa Aktar ViewModel — WPF011.
-/// Format seçimi + checkbox seçimi + progress simülasyonu.
+/// Wired to ExportProductsCommand via MediatR for product export.
+/// Format seçimi + checkbox seçimi + progress.
 /// </summary>
 public partial class ExportAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public ExportAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     // Data type checkboxes
     [ObservableProperty] private bool exportProducts = true;
     [ObservableProperty] private bool exportOrders = true;
@@ -59,19 +69,30 @@ public partial class ExportAvaloniaViewModel : ViewModelBase
 
         try
         {
+            var format = SelectedFormat switch
+            {
+                "CSV" => "csv",
+                "JSON" => "json",
+                _ => "xlsx"
+            };
+
             var stepCount = selected.Count;
             for (int i = 0; i < stepCount; i++)
             {
                 ExportMessage = $"{selected[i]} dışa aktarılıyor...";
                 int baseProgress = (i * 100) / stepCount;
                 int nextProgress = ((i + 1) * 100) / stepCount;
+                ExportProgress = baseProgress;
 
-                // Simulate inner progress for each data type
-                for (int p = baseProgress; p <= nextProgress; p += 5)
+                if (selected[i] == "Ürünler")
                 {
-                    await Task.Delay(80, CancellationToken);
-                    ExportProgress = p;
+                    // Wire to real MediatR command for product export
+                    _ = await _mediator.Send(
+                        new ExportProductsCommand(Format: format), CancellationToken);
                 }
+                // TODO: Wire ExportOrders, ExportStock, ExportCustomers, ExportInvoices commands
+
+                ExportProgress = nextProgress;
             }
 
             ExportProgress = 100;

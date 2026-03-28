@@ -1,14 +1,24 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
+using MesTech.Application.Features.Stock.Queries.GetStockSummary;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// ViewModel for Reports screen — Dalga 14/15.
-/// Provides date range selection and report generation with loading state.
+/// Wired to GetDashboardSummaryQuery + GetStockSummaryQuery via MediatR.
 /// </summary>
 public partial class ReportsAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public ReportsAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty] private string summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
     [ObservableProperty] private DateTimeOffset startDate = new(new DateTime(2026, 3, 1));
     [ObservableProperty] private DateTimeOffset endDate = new(new DateTime(2026, 3, 17));
@@ -38,21 +48,32 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var dashboardTask = _mediator.Send(new GetDashboardSummaryQuery(TenantId: Guid.Empty));
+            var stockTask = _mediator.Send(new GetStockSummaryQuery(TenantId: Guid.Empty));
+
+            await Task.WhenAll(dashboardTask, stockTask);
+
+            var dashboard = dashboardTask.Result;
+            var stock = stockTask.Result;
+
+            // Sales Report
+            TotalSales = $"{dashboard.MonthlySalesAmount:N0} TL";
+            TotalOrders = $"{dashboard.TodayOrderCount:N0}";
+            AverageOrderValue = dashboard.TodayOrderCount > 0
+                ? $"{dashboard.TodaySalesAmount / dashboard.TodayOrderCount:N2} TL"
+                : "0 TL";
+
+            // Stock Report
+            TotalProducts = $"{stock.TotalProducts:N0}";
+            LowStockCount = $"{stock.LowStockProducts:N0}";
+            OutOfStockCount = $"{stock.OutOfStockProducts:N0}";
+
+            // Revenue Report
+            TotalRevenue = $"{dashboard.MonthlySalesAmount:N0} TL";
+            TotalExpenses = "—"; // TODO: wire to GetExpenseReportQuery when available
+            NetProfit = "—";
+
             Summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
-
-            // Load summary card data
-            TotalSales = "1.245.670 TL";
-            TotalOrders = "3.456";
-            AverageOrderValue = "360,50 TL";
-
-            TotalProducts = "4.812";
-            LowStockCount = "127";
-            OutOfStockCount = "34";
-
-            TotalRevenue = "1.245.670 TL";
-            TotalExpenses = "876.340 TL";
-            NetProfit = "369.330 TL";
         }
         catch (Exception ex)
         {

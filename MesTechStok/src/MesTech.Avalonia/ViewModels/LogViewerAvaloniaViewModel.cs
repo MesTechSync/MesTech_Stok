@@ -1,18 +1,30 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.System.Queries.GetAuditLogs;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Log İzleme ViewModel — WPF010.
-/// Seq API entegrasyonu hazır; şimdilik mock veri ile çalışır.
+/// Wired to GetAuditLogsQuery via MediatR. Falls back to mock data if query returns empty.
 /// </summary>
 public partial class LogViewerAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+
     [ObservableProperty] private string selectedLevel = "Tumu";
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private bool autoRefresh;
+
+    public LogViewerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+    }
 
     public ObservableCollection<string> Levels { get; } = new()
     {
@@ -24,6 +36,8 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
     };
 
     public ObservableCollection<LogEntryItem> LogEntries { get; } = new();
+
+    private readonly List<LogEntryItem> _allEntries = [];
 
     private static readonly LogEntryItem[] _mockEntries =
     [
@@ -48,9 +62,35 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEV3-DEPENDENCY: Seq API entegrasyonu hazır olunca gerçek veriye geçecek
-            // GET http://localhost:3343/api/events?level=SelectedLevel&filter=SearchText
-            await Task.Delay(300, CancellationToken); // simulate network
+            var logs = await _mediator.Send(
+                new GetAuditLogsQuery(TenantId: _currentUser.TenantId), CancellationToken);
+
+            _allEntries.Clear();
+            foreach (var log in logs)
+            {
+                var level = log.Action.Contains("Error", StringComparison.OrdinalIgnoreCase) ? "Error"
+                    : log.Action.Contains("Warning", StringComparison.OrdinalIgnoreCase) ? "Warning"
+                    : log.Action.Contains("Debug", StringComparison.OrdinalIgnoreCase) ? "Debug"
+                    : "Information";
+                var color = level switch
+                {
+                    "Error" => "#EF4444",
+                    "Warning" => "#F59E0B",
+                    "Debug" => "#64748B",
+                    _ => "#3B82F6"
+                };
+                _allEntries.Add(new LogEntryItem(
+                    log.AccessTime.ToString("dd.MM.yyyy HH:mm:ss"),
+                    level,
+                    log.Resource,
+                    log.Action,
+                    color));
+            }
+
+            // Fall back to mock data when query returns empty (no DB configured)
+            if (_allEntries.Count == 0)
+                _allEntries.AddRange(_mockEntries);
+
             ApplyFilter();
         }
         catch (OperationCanceledException)
@@ -71,7 +111,7 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
     private void ApplyFilter()
     {
         LogEntries.Clear();
-        foreach (var entry in _mockEntries)
+        foreach (var entry in _allEntries)
         {
             bool levelMatch = SelectedLevel == "Tumu" || entry.Level == SelectedLevel;
             bool searchMatch = string.IsNullOrWhiteSpace(SearchText)
