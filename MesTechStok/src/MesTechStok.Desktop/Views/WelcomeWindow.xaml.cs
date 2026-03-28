@@ -1110,7 +1110,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private void DeleteImage(string imagePath)
+        private async void DeleteImage(string imagePath)
         {
             try
             {
@@ -1128,17 +1128,12 @@ namespace MesTechStok.Desktop.Views
                                 BackgroundImage.Source is BitmapImage currentBitmap &&
                                 currentBitmap.UriSource?.LocalPath == imagePath)
                             {
-                                // UI'dan resmi temizle
+                                // UI'dan resmi temizle — file handle serbest kalır
                                 BackgroundImage.Source = null;
-
-                                // Garbage collection'ı zorunlu yap
-                                GC.Collect();
-                                GC.WaitForPendingFinalizers();
-                                GC.Collect();
                             }
 
-                            // Biraz bekle ki file handle serbest kalsın
-                            System.Threading.Thread.Sleep(100);
+                            // Kısa async bekleme — UI thread bloklanmaz
+                            await Task.Delay(150);
 
                             // Dosyayı sil
                             if (File.Exists(imagePath))
