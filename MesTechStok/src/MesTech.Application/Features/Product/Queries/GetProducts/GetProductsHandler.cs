@@ -11,7 +11,7 @@ public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, Paged
 
     public GetProductsHandler(IProductRepository productRepo) => _productRepo = productRepo;
 
-    public async Task<PagedResult<ProductDto>> Handle(GetProductsQuery request, CancellationToken ct)
+    public async Task<PagedResult<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 

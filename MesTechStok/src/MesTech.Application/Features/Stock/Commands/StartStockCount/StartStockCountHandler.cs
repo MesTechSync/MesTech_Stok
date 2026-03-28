@@ -14,7 +14,7 @@ public sealed class StartStockCountHandler : IRequestHandler<StartStockCountComm
         _warehouseRepo = warehouseRepo;
     }
 
-    public async Task<StockCountSessionDto> Handle(StartStockCountCommand request, CancellationToken ct)
+    public async Task<StockCountSessionDto> Handle(StartStockCountCommand request, CancellationToken cancellationToken)
     {
         string? warehouseName = null;
         if (request.WarehouseId.HasValue)

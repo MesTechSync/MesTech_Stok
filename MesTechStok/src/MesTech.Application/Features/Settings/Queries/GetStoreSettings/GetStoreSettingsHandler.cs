@@ -14,10 +14,10 @@ public sealed class GetStoreSettingsHandler : IRequestHandler<GetStoreSettingsQu
         _storeRepo = storeRepo;
     }
 
-    public async Task<StoreSettingsDto> Handle(GetStoreSettingsQuery request, CancellationToken ct)
+    public async Task<StoreSettingsDto> Handle(GetStoreSettingsQuery request, CancellationToken cancellationToken)
     {
-        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, ct);
-        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, ct);
+        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
 
         return new StoreSettingsDto
         {

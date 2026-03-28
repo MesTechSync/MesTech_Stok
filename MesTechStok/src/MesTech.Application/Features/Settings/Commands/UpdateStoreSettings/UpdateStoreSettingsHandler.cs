@@ -15,9 +15,9 @@ public sealed class UpdateStoreSettingsHandler : IRequestHandler<UpdateStoreSett
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> Handle(UpdateStoreSettingsCommand request, CancellationToken ct)
+    public async Task<bool> Handle(UpdateStoreSettingsCommand request, CancellationToken cancellationToken)
     {
-        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, ct);
+        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
 
         if (settings is null)
         {
@@ -30,7 +30,7 @@ public sealed class UpdateStoreSettingsHandler : IRequestHandler<UpdateStoreSett
                 Email = request.Email,
                 Address = request.Address
             };
-            await _settingsRepo.AddAsync(settings, ct);
+            await _settingsRepo.AddAsync(settings, cancellationToken);
         }
         else
         {
@@ -39,10 +39,10 @@ public sealed class UpdateStoreSettingsHandler : IRequestHandler<UpdateStoreSett
             settings.Phone = request.Phone;
             settings.Email = request.Email;
             settings.Address = request.Address;
-            await _settingsRepo.UpdateAsync(settings, ct);
+            await _settingsRepo.UpdateAsync(settings, cancellationToken);
         }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

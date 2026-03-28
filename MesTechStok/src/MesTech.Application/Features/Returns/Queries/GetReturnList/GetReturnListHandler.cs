@@ -9,9 +9,9 @@ public sealed class GetReturnListHandler : IRequestHandler<GetReturnListQuery, I
 
     public GetReturnListHandler(IReturnRequestRepository returnRepo) => _returnRepo = returnRepo;
 
-    public async Task<IReadOnlyList<ReturnListItemDto>> Handle(GetReturnListQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<ReturnListItemDto>> Handle(GetReturnListQuery request, CancellationToken cancellationToken)
     {
-        var returns = await _returnRepo.GetByTenantAsync(request.TenantId, request.Count, ct);
+        var returns = await _returnRepo.GetByTenantAsync(request.TenantId, request.Count, cancellationToken);
 
         return returns.Select(r => new ReturnListItemDto
         {

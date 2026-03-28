@@ -16,9 +16,9 @@ public sealed class ExportOrdersHandler : IRequestHandler<ExportOrdersCommand, E
         _excelService = excelService;
     }
 
-    public async Task<ExportOrdersResult> Handle(ExportOrdersCommand request, CancellationToken ct)
+    public async Task<ExportOrdersResult> Handle(ExportOrdersCommand request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepo.GetByDateRangeAsync(request.TenantId, request.From, request.To, ct);
+        var orders = await _orderRepo.GetByDateRangeAsync(request.TenantId, request.From, request.To, cancellationToken);
 
         var filtered = request.PlatformFilter is not null
             ? orders.Where(o => string.Equals(o.SourcePlatform?.ToString(), request.PlatformFilter, StringComparison.OrdinalIgnoreCase)).ToList()
@@ -36,9 +36,9 @@ public sealed class ExportOrdersHandler : IRequestHandler<ExportOrdersCommand, E
             o.TrackingNumber
         )).ToList();
 
-        using var stream = await _excelService.ExportOrdersAsync(exportDtos, ct);
+        using var stream = await _excelService.ExportOrdersAsync(exportDtos, cancellationToken);
         using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms, ct);
+        await stream.CopyToAsync(ms, cancellationToken);
 
         return new ExportOrdersResult
         {

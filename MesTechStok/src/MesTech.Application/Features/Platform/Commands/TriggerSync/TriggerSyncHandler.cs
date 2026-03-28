@@ -15,7 +15,7 @@ public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, Tri
         _logger = logger;
     }
 
-    public Task<TriggerSyncResult> Handle(TriggerSyncCommand request, CancellationToken ct)
+    public Task<TriggerSyncResult> Handle(TriggerSyncCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Manual sync triggered for {Platform} by tenant {TenantId}",
             request.PlatformCode, request.TenantId);

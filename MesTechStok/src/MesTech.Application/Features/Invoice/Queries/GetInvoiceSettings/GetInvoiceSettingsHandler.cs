@@ -4,7 +4,7 @@ namespace MesTech.Application.Features.Invoice.Queries.GetInvoiceSettings;
 
 public sealed class GetInvoiceSettingsHandler : IRequestHandler<GetInvoiceSettingsQuery, InvoiceSettingsDto>
 {
-    public Task<InvoiceSettingsDto> Handle(GetInvoiceSettingsQuery request, CancellationToken ct)
+    public Task<InvoiceSettingsDto> Handle(GetInvoiceSettingsQuery request, CancellationToken cancellationToken)
     {
         // Defaults for Turkish e-commerce — will wire to ICompanySettingsRepository when persisted
         var result = new InvoiceSettingsDto

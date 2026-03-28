@@ -11,15 +11,15 @@ public sealed class GetHealthStatusHandler : IRequestHandler<GetHealthStatusQuer
 
     public GetHealthStatusHandler(ICacheService cache) => _cache = cache;
 
-    public async Task<HealthStatusDto> Handle(GetHealthStatusQuery request, CancellationToken ct)
+    public async Task<HealthStatusDto> Handle(GetHealthStatusQuery request, CancellationToken cancellationToken)
     {
         var services = new List<ServiceHealthDto>();
 
         // Redis health
         services.Add(await CheckServiceAsync("Redis", async () =>
         {
-            await _cache.SetAsync("health-check", "ok", TimeSpan.FromSeconds(5), ct);
-            var val = await _cache.GetAsync<string>("health-check", ct);
+            await _cache.SetAsync("health-check", "ok", TimeSpan.FromSeconds(5), cancellationToken);
+            var val = await _cache.GetAsync<string>("health-check", cancellationToken);
             return string.Equals(val, "ok", StringComparison.Ordinal) ? null : "Cache read/write mismatch";
         }));
 

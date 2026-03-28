@@ -9,9 +9,9 @@ public sealed class GetSyncHistoryHandler : IRequestHandler<GetSyncHistoryQuery,
 
     public GetSyncHistoryHandler(ISyncLogRepository syncLogRepo) => _syncLogRepo = syncLogRepo;
 
-    public async Task<IReadOnlyList<SyncHistoryItemDto>> Handle(GetSyncHistoryQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<SyncHistoryItemDto>> Handle(GetSyncHistoryQuery request, CancellationToken cancellationToken)
     {
-        var logs = await _syncLogRepo.GetRecentAsync(request.TenantId, request.Count, request.PlatformFilter, ct);
+        var logs = await _syncLogRepo.GetRecentAsync(request.TenantId, request.Count, request.PlatformFilter, cancellationToken);
 
         return logs.Select(l => new SyncHistoryItemDto
         {

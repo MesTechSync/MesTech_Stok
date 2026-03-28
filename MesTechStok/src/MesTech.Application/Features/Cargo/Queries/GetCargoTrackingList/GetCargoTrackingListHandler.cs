@@ -9,9 +9,9 @@ public sealed class GetCargoTrackingListHandler : IRequestHandler<GetCargoTracki
 
     public GetCargoTrackingListHandler(IOrderRepository orderRepo) => _orderRepo = orderRepo;
 
-    public async Task<IReadOnlyList<CargoTrackingItemDto>> Handle(GetCargoTrackingListQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<CargoTrackingItemDto>> Handle(GetCargoTrackingListQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepo.GetRecentAsync(request.TenantId, request.Count, ct);
+        var orders = await _orderRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken);
 
         return orders
             .Where(o => o.ShippedAt.HasValue || o.TrackingNumber != null)
