@@ -3,6 +3,7 @@ using MesTech.Application.EventHandlers;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -30,7 +31,8 @@ public class OrderPlacedStockDeductionHandlerTests
     {
         _sut = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _uowMock.Object, Mock.Of<ILogger<OrderPlacedStockDeductionHandler>>());
+            _uowMock.Object, Mock.Of<IDistributedLockService>(),
+            Mock.Of<ILogger<OrderPlacedStockDeductionHandler>>());
     }
 
     [Fact]
@@ -138,7 +140,8 @@ public class InvoiceApprovedGLHandlerTests
     public InvoiceApprovedGLHandlerTests()
     {
         _sut = new InvoiceApprovedGLHandler(
-            _uowMock.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
+            _uowMock.Object, Mock.Of<MesTech.Domain.Interfaces.IJournalEntryRepository>(),
+            Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
     }
 
     [Fact]
@@ -239,7 +242,8 @@ public class ReturnJournalReversalHandlerTests
     public ReturnJournalReversalHandlerTests()
     {
         _sut = new ReturnJournalReversalHandler(
-            _uowMock.Object, Mock.Of<ILogger<ReturnJournalReversalHandler>>());
+            _uowMock.Object, Mock.Of<MesTech.Domain.Interfaces.IJournalEntryRepository>(),
+            Mock.Of<ILogger<ReturnJournalReversalHandler>>());
     }
 
     [Fact]
@@ -278,7 +282,8 @@ public class CommissionChargedGLHandlerTests
     public CommissionChargedGLHandlerTests()
     {
         _sut = new CommissionChargedGLHandler(
-            _uowMock.Object, Mock.Of<ILogger<CommissionChargedGLHandler>>());
+            _uowMock.Object, Mock.Of<MesTech.Domain.Interfaces.IJournalEntryRepository>(),
+            Mock.Of<ILogger<CommissionChargedGLHandler>>());
     }
 
     [Fact]

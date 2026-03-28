@@ -287,7 +287,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_SingleLine_ThrowsException()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         var handler = new CreateJournalEntryHandler(repo.Object, uow.Object);
 
@@ -447,7 +447,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_MultipleLines_AllBalanced()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         JournalEntry? captured = null;
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
@@ -481,7 +481,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_WithReferenceNumber_PersistsIt()
     {
         // Arrange
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         JournalEntry? captured = null;
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))

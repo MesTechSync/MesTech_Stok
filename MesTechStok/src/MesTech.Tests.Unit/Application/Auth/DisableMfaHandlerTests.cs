@@ -27,9 +27,15 @@ public class DisableMfaHandlerTests
 
     private static User CreateMfaEnabledUser(Guid userId)
     {
-        var user = User.Create("testuser", "test@test.com", "hashed", Guid.NewGuid());
-        // Use reflection to set internal state since User.Create may not expose MFA fields
-        typeof(User).GetProperty(nameof(User.Id))?.SetValue(user, userId);
+        var user = new User
+        {
+            Username = "testuser",
+            Email = "test@test.com",
+            PasswordHash = "hashed",
+            TenantId = Guid.NewGuid()
+        };
+        // Protected set — use reflection for test
+        typeof(MesTech.Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(user, userId);
         user.IsMfaEnabled = true;
         user.TotpSecret = "JBSWY3DPEHPK3PXP";
         return user;

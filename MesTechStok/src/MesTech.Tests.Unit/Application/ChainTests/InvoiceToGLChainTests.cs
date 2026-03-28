@@ -32,7 +32,7 @@ public class InvoiceToGLChainTests
 
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, _loggerMock.Object);
+        var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, Mock.Of<MesTech.Domain.Interfaces.IJournalEntryRepository>(), _loggerMock.Object);
 
         // Act — handler creates JournalEntry with deterministic account GUIDs
         await handler.HandleAsync(
@@ -54,7 +54,7 @@ public class InvoiceToGLChainTests
         decimal taxAmount = 0m;
         decimal netAmount = 500m;
 
-        var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, _loggerMock.Object);
+        var handler = new InvoiceApprovedGLHandler(_unitOfWorkMock.Object, Mock.Of<MesTech.Domain.Interfaces.IJournalEntryRepository>(), _loggerMock.Object);
 
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 

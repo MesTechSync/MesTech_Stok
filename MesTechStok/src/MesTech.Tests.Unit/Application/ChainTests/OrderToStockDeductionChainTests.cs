@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Entities;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -64,6 +65,7 @@ public class OrderToStockDeductionChainTests
             _orderRepoMock.Object,
             _productRepoMock.Object,
             _unitOfWorkMock.Object,
+            Mock.Of<IDistributedLockService>(),
             _loggerMock.Object);
 
         // Act
@@ -85,6 +87,7 @@ public class OrderToStockDeductionChainTests
             _orderRepoMock.Object,
             _productRepoMock.Object,
             _unitOfWorkMock.Object,
+            Mock.Of<IDistributedLockService>(),
             _loggerMock.Object);
 
         // Act & Assert — handler gracefully returns, does not throw
