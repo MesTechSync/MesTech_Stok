@@ -13,6 +13,7 @@ using MesTech.Application.Features.Reports.InventoryValuationReport;
 using MesTech.Application.Features.Reports.StockTurnoverReport;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProducts;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
+using MesTech.Application.Interfaces.Dropshipping;
 using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -47,11 +48,8 @@ public class StockQueryHandlerTests
     public async Task GetProducts_EmptyRepo_ReturnsEmptyPage()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetPagedAsync(
-                _tenantId, It.IsAny<string?>(), It.IsAny<Guid?>(),
-                It.IsAny<bool?>(), It.IsAny<bool?>(),
-                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<Product>(new List<Product>(), 0, 1, 50));
+        repo.Setup(r => r.GetAllAsync())
+            .ReturnsAsync(new List<Product>());
 
         var handler = new GetProductsHandler(repo.Object);
         var result = await handler.Handle(
@@ -65,18 +63,14 @@ public class StockQueryHandlerTests
     public async Task GetProducts_WithSearchTerm_PassesFilterToRepo()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetPagedAsync(
-                _tenantId, "iPhone", null, null, null,
-                1, 50, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<Product>(new List<Product>(), 0, 1, 50));
+        repo.Setup(r => r.SearchAsync("iPhone"))
+            .ReturnsAsync(new List<Product>());
 
         var handler = new GetProductsHandler(repo.Object);
         await handler.Handle(
             new GetProductsQuery(_tenantId, SearchTerm: "iPhone"), CancellationToken.None);
 
-        repo.Verify(r => r.GetPagedAsync(
-            _tenantId, "iPhone", null, null, null,
-            1, 50, It.IsAny<CancellationToken>()), Times.Once);
+        repo.Verify(r => r.SearchAsync("iPhone"), Times.Once);
     }
 
     // ═══ GetStockSummary ═══
@@ -94,7 +88,7 @@ public class StockQueryHandlerTests
     public async Task GetStockSummary_EmptyRepo_ReturnsZeroTotals()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetAllByTenantAsync(_tenantId, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetAllAsync())
             .ReturnsAsync(new List<Product>());
 
         var handler = new GetStockSummaryHandler(repo.Object);
@@ -121,7 +115,7 @@ public class StockQueryHandlerTests
     public async Task GetStockTransfers_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IStockMovementRepository>();
-        repo.Setup(r => r.GetTransfersAsync(_tenantId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetRecentAsync(_tenantId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>());
 
         var handler = new GetStockTransfersHandler(repo.Object);
@@ -146,7 +140,7 @@ public class StockQueryHandlerTests
     public async Task GetStockAlerts_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetLowStockAsync(_tenantId, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetLowStockAsync())
             .ReturnsAsync(new List<Product>());
 
         var handler = new GetStockAlertsHandler(repo.Object);
@@ -171,7 +165,7 @@ public class StockQueryHandlerTests
     public async Task GetLowStockAlerts_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetLowStockAsync(_tenantId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetLowStockAsync())
             .ReturnsAsync(new List<Product>());
 
         var handler = new GetLowStockAlertsHandler(repo.Object);
@@ -221,7 +215,8 @@ public class StockQueryHandlerTests
     public async Task GetOrdersPending_EmptyRepo_ReturnsZeroCount()
     {
         var repo = new Mock<IOrderRepository>();
-        repo.Setup(r => r.GetPendingAsync(_tenantId, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>());
 
         var handler = new GetOrdersPendingHandler(repo.Object);
@@ -293,7 +288,7 @@ public class StockQueryHandlerTests
     public async Task InventoryValuationReport_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetAllByTenantAsync(_tenantId, It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetAllAsync())
             .ReturnsAsync(new List<Product>());
 
         var handler = new InventoryValuationReportHandler(repo.Object);
@@ -330,7 +325,7 @@ public class StockQueryHandlerTests
     public async Task GetDropshipProducts_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IDropshipProductRepository>();
-        repo.Setup(r => r.GetAllAsync(_tenantId, It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByTenantAsync(_tenantId, It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Dropshipping.Entities.DropshipProduct>());
 
         var handler = new GetDropshipProductsHandler(repo.Object);
@@ -355,7 +350,7 @@ public class StockQueryHandlerTests
     public async Task GetDropshipOrders_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IDropshipOrderRepository>();
-        repo.Setup(r => r.GetAllAsync(_tenantId, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByTenantAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Dropshipping.Entities.DropshipOrder>());
 
         var handler = new GetDropshipOrdersHandler(repo.Object);
