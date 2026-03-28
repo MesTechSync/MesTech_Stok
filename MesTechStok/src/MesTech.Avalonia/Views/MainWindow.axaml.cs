@@ -250,7 +250,7 @@ public partial class MainWindow : Window
         Close();
     }
 
-    /// <summary>Window kapanırken timer + event temizliği [V4-B1]</summary>
+    /// <summary>Window kapanırken timer + event temizliği [V4-B1] [EL-02]</summary>
     protected override void OnClosed(EventArgs e)
     {
         _clockTimer.Stop();
@@ -258,6 +258,7 @@ public partial class MainWindow : Window
         PointerMoved -= OnPointerActivity;
         PointerPressed -= OnPointerActivity;
         KeyDown -= OnGlobalKeyDown;
+        (DataContext as IDisposable)?.Dispose();
         base.OnClosed(e);
     }
 }

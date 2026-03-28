@@ -10,8 +10,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// Uses IViewModelFactory (proper DI) instead of raw IServiceProvider (ServiceLocator).
 /// FeatureGateService controls sidebar item visibility per subscription tier.
 /// </summary>
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
+    private bool _disposed;
     [ObservableProperty]
     private ObservableObject? currentView;
 
@@ -217,5 +218,12 @@ public partial class MainWindowViewModel : ViewModelBase
             "WarehouseSummary" => "Depo Ozeti",
             _ => CurrentViewTitle
         };
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        _featureGate.TierChanged -= OnTierChanged;
     }
 }
