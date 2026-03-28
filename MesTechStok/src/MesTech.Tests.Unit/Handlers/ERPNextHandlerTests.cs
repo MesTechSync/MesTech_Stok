@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,9 @@ public class ERPNextHandlerTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "Test Customer", "test@test.com", "0555", CancellationToken.None);
 
-        _erpBridgeMock.Verify(e => e.Push(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        _erpBridgeMock.Verify(e => e.PushCustomerAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -30,7 +32,9 @@ public class ERPNextHandlerTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-001", 1500m, "Customer", CancellationToken.None);
 
-        _erpBridgeMock.Verify(e => e.Push(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        _erpBridgeMock.Verify(e => e.PushSalesInvoiceAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -41,6 +45,8 @@ public class ERPNextHandlerTests
 
         await sut.HandleAsync(Guid.NewGuid(), "SKU-001", Guid.NewGuid(), 10, 15, "Stock In", CancellationToken.None);
 
-        _erpBridgeMock.Verify(e => e.Push(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        _erpBridgeMock.Verify(e => e.PushStockEntryAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

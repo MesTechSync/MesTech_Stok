@@ -113,9 +113,8 @@ public class ERPNextRestAdapterTests
         var party = new CounterpartyDto
         {
             Name = "Test Customer",
-            TaxId = "1234567890",
-            IsSupplier = false,
-            IsCompany = true
+            VKN = "1234567890",
+            CounterpartyType = "Customer"
         };
 
         await _sut.SyncCounterpartiesAsync(new[] { party }, CancellationToken.None);
@@ -131,9 +130,8 @@ public class ERPNextRestAdapterTests
         var party = new CounterpartyDto
         {
             Name = "Test Supplier",
-            TaxId = "9876543210",
-            IsSupplier = true,
-            IsCompany = true
+            VKN = "9876543210",
+            CounterpartyType = "Supplier"
         };
 
         await _sut.SyncCounterpartiesAsync(new[] { party }, CancellationToken.None);
@@ -197,7 +195,7 @@ public class ERPNextRestAdapterTests
         {
             Id = Guid.NewGuid(),
             SupplierName = "Test Supplier",
-            Date = DateTime.UtcNow,
+            ExpenseDate = DateTime.UtcNow,
             Amount = 500m,
             Description = "Kargo masrafı",
             Category = "Shipping",
@@ -236,13 +234,13 @@ public class ERPNextRestAdapterTests
 
     private static MesTech.Domain.Entities.Invoice CreateTestInvoice()
     {
-        // Invoice.Create factory — minimal valid instance for adapter test
-        return MesTech.Domain.Entities.Invoice.Create(
-            tenantId: Guid.NewGuid(),
-            orderId: Guid.NewGuid(),
-            invoiceNumber: "INV-TEST-001",
-            customer: "Test Müşteri A.Ş.",
-            grandTotal: 1180.00m,
-            taxAmount: 180.00m);
+        return new MesTech.Domain.Entities.Invoice
+        {
+            TenantId = Guid.NewGuid(),
+            OrderId = Guid.NewGuid(),
+            InvoiceNumber = "INV-TEST-001",
+            CustomerName = "Test Müşteri A.Ş.",
+            CustomerAddress = "Test Adres"
+        };
     }
 }
