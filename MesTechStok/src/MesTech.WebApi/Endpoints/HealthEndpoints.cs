@@ -131,6 +131,37 @@ public static class HealthEndpoints
         .WithSummary("Derin sağlık kontrolü — infra + platform adapter ping + MESA OS (G054)")
         .WithTags("Health");
 
+        // GET /health/platforms — platform sağlık özeti (G166-DEV6)
+        app.MapGet("/health/platforms", (
+            MesTech.Application.Interfaces.IPlatformHealthProvider healthProvider) =>
+        {
+            var summaries = healthProvider.GetAllHealthSummaries();
+            var allHealthy = summaries.All(s => s.FailedChecks24h == 0);
+            return Results.Json(new
+            {
+                status = allHealthy ? "healthy" : "degraded",
+                timestamp = DateTime.UtcNow,
+                platforms = summaries.Select(s => new
+                {
+                    platform = s.PlatformCode,
+                    lastCheckUtc = s.LastCheckUtc,
+                    uptimePercent24h = s.UptimePercent24h,
+                    failedChecks24h = s.FailedChecks24h,
+                    avgResponseTimeMs = s.AvgResponseTimeMs,
+                    totalChecks24h = s.TotalChecks24h
+                }),
+                summary = new
+                {
+                    total = summaries.Count,
+                    healthy = summaries.Count(s => s.FailedChecks24h == 0),
+                    degraded = summaries.Count(s => s.FailedChecks24h > 0)
+                }
+            });
+        })
+        .WithName("PlatformHealth")
+        .WithSummary("Platform sağlık özeti — HealthCheckJob 15dk verisi (G166)")
+        .WithTags("Health");
+
         // GET /health/ready — Kubernetes readiness probe (DB + Redis bağlı mı?)
         app.MapGet("/health/ready", async (HealthCheckService healthCheckService, CancellationToken ct) =>
         {
