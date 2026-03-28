@@ -14,7 +14,7 @@ public class CreateCounterpartyValidatorTests
     private static CreateCounterpartyCommand ValidCommand() => new(
         TenantId: Guid.NewGuid(),
         Name: "ABC Ticaret Ltd.",
-        CounterpartyType: CounterpartyType.Vendor);
+        CounterpartyType: CounterpartyType.Supplier);
 
     [Fact]
     public void Valid_Command_Passes()
