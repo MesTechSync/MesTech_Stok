@@ -25,7 +25,7 @@ public class GetNotificationSettingsHandlerTests
         var settings = new List<NotificationSetting>
         {
             new NotificationSetting { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.Email, IsEnabled = true },
-            new NotificationSetting { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.InApp, IsEnabled = false }
+            new NotificationSetting { Id = Guid.NewGuid(), UserId = userId, Channel = NotificationChannel.Push, IsEnabled = false }
         };
         _repoMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(settings.AsReadOnly());
