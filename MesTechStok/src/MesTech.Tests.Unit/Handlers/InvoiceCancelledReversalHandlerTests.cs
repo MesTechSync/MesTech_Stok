@@ -18,6 +18,7 @@ public class InvoiceCancelledReversalHandlerTests
 {
     private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IJournalEntryRepository> _journalRepoMock = new();
+    private readonly Mock<IInvoiceRepository> _invoiceRepoMock = new();
     private readonly InvoiceCancelledReversalHandler _sut;
     private readonly Guid _tenantId = Guid.NewGuid();
 
@@ -28,7 +29,7 @@ public class InvoiceCancelledReversalHandlerTests
             .ReturnsAsync(false);
 
         _sut = new InvoiceCancelledReversalHandler(
-            _uowMock.Object, _journalRepoMock.Object,
+            _uowMock.Object, _journalRepoMock.Object, _invoiceRepoMock.Object,
             Mock.Of<ILogger<InvoiceCancelledReversalHandler>>());
     }
 

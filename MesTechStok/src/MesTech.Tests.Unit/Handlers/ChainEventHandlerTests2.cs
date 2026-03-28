@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
+using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
@@ -64,12 +65,16 @@ public class OrderConfirmedRevenueHandlerTests
 public class InvoiceApprovedGLHandlerTests
 {
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<IJournalEntryRepository> _journalRepoMock = new();
     private readonly InvoiceApprovedGLHandler _sut;
 
     public InvoiceApprovedGLHandlerTests()
     {
+        _journalRepoMock.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         _sut = new InvoiceApprovedGLHandler(
-            _uowMock.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
+            _uowMock.Object, _journalRepoMock.Object, Mock.Of<ILogger<InvoiceApprovedGLHandler>>());
     }
 
     [Fact]

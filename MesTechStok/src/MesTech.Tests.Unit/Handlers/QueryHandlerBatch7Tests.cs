@@ -28,7 +28,7 @@ public class QueryHandlerBatch7Tests
     [Fact]
     public async Task GetBitrix24Pipeline_NullRequest_Throws()
     {
-        var sut = new GetBitrix24PipelineHandler(Mock.Of<IBitrix24Repository>(), Mock.Of<Microsoft.Extensions.Logging.ILogger<GetBitrix24PipelineHandler>>());
+        var sut = new GetBitrix24PipelineHandler(Mock.Of<IPipelineRepository>(), Mock.Of<Microsoft.Extensions.Logging.ILogger<GetBitrix24PipelineHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

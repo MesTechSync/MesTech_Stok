@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -14,12 +15,17 @@ namespace MesTech.Tests.Unit.Handlers;
 public class CommissionChargedGLHandlerTests
 {
     private readonly Mock<IUnitOfWork> _uow;
+    private readonly Mock<IJournalEntryRepository> _journalRepo;
     private readonly CommissionChargedGLHandler _sut;
 
     public CommissionChargedGLHandlerTests()
     {
         _uow = new Mock<IUnitOfWork>();
-        _sut = new CommissionChargedGLHandler(_uow.Object, NullLogger<CommissionChargedGLHandler>.Instance);
+        _journalRepo = new Mock<IJournalEntryRepository>();
+        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _sut = new CommissionChargedGLHandler(_uow.Object, _journalRepo.Object, NullLogger<CommissionChargedGLHandler>.Instance);
     }
 
     [Fact]

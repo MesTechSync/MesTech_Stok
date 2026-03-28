@@ -3,6 +3,7 @@ using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MesTech.Tests.Unit.Handlers;
@@ -38,9 +39,10 @@ public class BulkCreateInvoiceN1RegressionTests
             .ReturnsAsync((Guid _) => CreateTestOrder());
 
         var sut = new BulkCreateInvoiceHandler(
-            orderRepoMock.Object, invoiceRepoMock.Object, uowMock.Object);
+            invoiceRepoMock.Object, orderRepoMock.Object, uowMock.Object,
+            Mock.Of<ILogger<BulkCreateInvoiceHandler>>());
 
-        var cmd = new BulkCreateInvoiceCommand(Guid.NewGuid(), orderIds);
+        var cmd = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
         await sut.Handle(cmd, CancellationToken.None);
 
         // G080 KANIT: GetByIdAsync 10 KERE çağrıldı — her biri ayrı SQL query

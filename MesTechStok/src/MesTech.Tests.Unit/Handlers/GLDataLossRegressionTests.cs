@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -67,8 +68,8 @@ public class GLDataLossRegressionTests
             Mock.Of<ILogger<CommissionChargedGLHandler>>());
 
         await sut.HandleAsync(
-            Guid.NewGuid(), "Trendyol", 100m, 0.10m,
-            _tenantId, CancellationToken.None);
+            Guid.NewGuid(), _tenantId, PlatformType.Trendyol,
+            100m, 0.10m, CancellationToken.None);
 
         _journalRepoMock.Verify(
             r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()),
@@ -88,8 +89,8 @@ public class GLDataLossRegressionTests
             Mock.Of<ILogger<OrderShippedCostHandler>>());
 
         await sut.HandleAsync(
-            Guid.NewGuid(), 25.50m, "YurticiKargo",
-            _tenantId, CancellationToken.None);
+            Guid.NewGuid(), _tenantId, "TRK-001",
+            CargoProvider.YurticiKargo, 25.50m, CancellationToken.None);
 
         _journalRepoMock.Verify(
             r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()),
