@@ -3,6 +3,8 @@ using MesTech.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
+using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
+using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductDbStatus;
@@ -145,6 +147,36 @@ public static class DashboardEndpoints
         })
         .WithName("GetAccountingKpi")
         .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/low-stock-alerts — products below reorder point
+        group.MapGet("/low-stock-alerts", async (
+            Guid tenantId,
+            int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetLowStockAlertsQuery(tenantId, count ?? 20), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLowStockAlerts")
+        .WithSummary("Düşük stok uyarıları — yeniden sipariş noktası altı ürünler")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/pending-invoices — invoices awaiting approval/send
+        group.MapGet("/pending-invoices", async (
+            Guid tenantId,
+            int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetPendingInvoicesQuery(tenantId, count ?? 10), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPendingInvoices")
+        .WithSummary("Bekleyen faturalar — onay/gönderim bekleyenler")
         .Produces(200)
         .CacheOutput("Dashboard30s");
     }
