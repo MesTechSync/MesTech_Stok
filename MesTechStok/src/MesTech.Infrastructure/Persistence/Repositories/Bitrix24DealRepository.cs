@@ -1,4 +1,5 @@
 using MesTech.Domain.Entities;
+using MesTech.Domain.Entities.Crm;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
