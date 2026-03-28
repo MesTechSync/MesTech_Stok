@@ -13,17 +13,20 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
     private readonly ISupplierFeedRepository _feedRepository;
     private readonly IDropshipProductRepository _productRepository;
     private readonly IEnumerable<IFeedParserService> _feedParsers;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<PreviewFeedHandler> _logger;
 
     public PreviewFeedHandler(
         ISupplierFeedRepository feedRepository,
         IDropshipProductRepository productRepository,
         IEnumerable<IFeedParserService> feedParsers,
+        IHttpClientFactory httpClientFactory,
         ILogger<PreviewFeedHandler> logger)
     {
         _feedRepository = feedRepository;
         _productRepository = productRepository;
         _feedParsers = feedParsers;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
@@ -53,13 +56,13 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
         return await BuildPreviewAsync(feed, parseResult, cancellationToken);
     }
 
-    private static async Task<(FeedParseResult? Result, string? Error)> DownloadAndParseAsync(
+    private async Task<(FeedParseResult? Result, string? Error)> DownloadAndParseAsync(
         string feedUrl, IFeedParserService parser, CancellationToken cancellationToken)
     {
         try
         {
-            using var httpClient = new HttpClient();
-            using var stream = await httpClient.GetStreamAsync(new Uri(feedUrl), cancellationToken);
+            using var httpClient = _httpClientFactory.CreateClient("FeedDownload");
+            using var stream = await httpClient.GetStreamAsync(new Uri(feedUrl), cancellationToken).ConfigureAwait(false);
             var mapping = new FeedFieldMapping(null, null, null, null, null, null, null, null);
             var result = await parser.ParseAsync(stream, mapping, cancellationToken);
             return (result, null);
