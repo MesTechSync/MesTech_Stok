@@ -29,7 +29,6 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    private const string DefaultBaseUrl = "https://www.paytr.com";
     private const string TokenEndpoint = "/odeme/api/get-token";
     private const string StatusEndpoint = "/odeme/durum";
     private const string RefundEndpoint = "/odeme/iade";
@@ -432,7 +431,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
             MerchantId = configuration["PayTR:MerchantId"] ?? string.Empty,
             MerchantKey = configuration["PayTR:MerchantKey"] ?? string.Empty,
             MerchantSalt = configuration["PayTR:MerchantSalt"] ?? string.Empty,
-            BaseUrl = configuration["PayTR:IFrameBaseUrl"] ?? DefaultBaseUrl,
+            BaseUrl = configuration["PayTR:IFrameBaseUrl"] ?? "https://www.paytr.com",
             TestMode = bool.TryParse(configuration["PayTR:TestMode"], out var tm) && tm
         };
     }
@@ -475,6 +474,6 @@ internal sealed class PayTRiFrameOptions
     public string MerchantId { get; set; } = string.Empty;
     public string MerchantKey { get; set; } = string.Empty;
     public string MerchantSalt { get; set; } = string.Empty;
-    public string BaseUrl { get; set; } = string.Empty;
+    public string BaseUrl { get; set; } = "https://www.paytr.com";
     public bool TestMode { get; set; }
 }

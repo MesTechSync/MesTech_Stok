@@ -30,7 +30,6 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
     private readonly JsonSerializerOptions _jsonOptions;
     private const int CurrencySubunitMultiplier = 100; // TL → kuruş
 
-    private const string DefaultBaseUrl = "https://www.paytr.com/odeme";
     private const string TokenEndpoint = "/api/paytrdirect";
     private const string StatusEndpoint = "/odeme/durum";
     private const string RefundEndpoint = "/odeme/iade";
@@ -431,7 +430,7 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
             MerchantId = configuration["PayTR:MerchantId"] ?? string.Empty,
             MerchantKey = configuration["PayTR:MerchantKey"] ?? string.Empty,
             MerchantSalt = configuration["PayTR:MerchantSalt"] ?? string.Empty,
-            BaseUrl = configuration["PayTR:DirectBaseUrl"] ?? DefaultBaseUrl,
+            BaseUrl = configuration["PayTR:DirectBaseUrl"] ?? "https://www.paytr.com/odeme",
             TestMode = bool.TryParse(configuration["PayTR:TestMode"], out var tm) && tm
         };
     }
@@ -475,6 +474,6 @@ internal sealed class PayTRDirectOptions
     public string MerchantId { get; set; } = string.Empty;
     public string MerchantKey { get; set; } = string.Empty;
     public string MerchantSalt { get; set; } = string.Empty;
-    public string BaseUrl { get; set; } = string.Empty;
+    public string BaseUrl { get; set; } = "https://www.paytr.com/odeme";
     public bool TestMode { get; set; }
 }

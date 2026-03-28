@@ -15,7 +15,6 @@ public sealed class StripePaymentGateway : IPaymentGateway
     private readonly StripeOptions _options;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    private const string StripeApiBaseUrl = "https://api.stripe.com";
     private const int CurrencySubunitMultiplier = 100; // USD → cents
 
     public string ProviderName => "Stripe";
@@ -127,7 +126,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
     private HttpClient CreateHttpClient()
     {
         var client = _httpClientFactory.CreateClient("Stripe");
-        client.BaseAddress = new Uri(StripeApiBaseUrl);
+        client.BaseAddress = new Uri(_options.BaseUrl);
         client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.SecretKey);
@@ -153,6 +152,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
 /// <summary>Stripe yapilandirma.</summary>
 public sealed class StripeOptions
 {
+    public string BaseUrl { get; set; } = "https://api.stripe.com";
     public string PublishableKey { get; set; } = string.Empty;
     public string SecretKey { get; set; } = string.Empty;
     public string WebhookSecret { get; set; } = string.Empty;
