@@ -44,7 +44,7 @@ public static class SocialFeedEndpoints
             CancellationToken ct) =>
         {
             if (!Enum.TryParse<SocialFeedPlatform>(platform, ignoreCase: true, out var parsedPlatform))
-                return Results.BadRequest(new { error = $"Bilinmeyen platform: {platform}" });
+                return Results.Problem(detail: $"Bilinmeyen platform: {platform}", statusCode: 400);
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
@@ -65,7 +65,7 @@ public static class SocialFeedEndpoints
             CancellationToken ct) =>
         {
             if (!Enum.TryParse<SocialFeedPlatform>(platform, ignoreCase: true, out var parsedPlatform))
-                return Results.BadRequest(new { error = $"Bilinmeyen platform: {platform}" });
+                return Results.Problem(detail: $"Bilinmeyen platform: {platform}", statusCode: 400);
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
@@ -86,7 +86,7 @@ public static class SocialFeedEndpoints
             CancellationToken ct) =>
         {
             if (!Enum.TryParse<SocialFeedPlatform>(platform, ignoreCase: true, out var parsedPlatform))
-                return Results.BadRequest(new { error = $"Bilinmeyen platform: {platform}" });
+                return Results.Problem(detail: $"Bilinmeyen platform: {platform}", statusCode: 400);
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
@@ -106,7 +106,7 @@ public static class SocialFeedEndpoints
             CancellationToken ct) =>
         {
             if (!Enum.TryParse<SocialFeedPlatform>(platform, ignoreCase: true, out var parsedPlatform))
-                return Results.BadRequest(new { error = $"Bilinmeyen platform: {platform}" });
+                return Results.Problem(detail: $"Bilinmeyen platform: {platform}", statusCode: 400);
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)

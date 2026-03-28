@@ -53,10 +53,10 @@ public static class BaBsEndpoints
             CancellationToken ct) =>
         {
             if (formType is not ("Ba" or "Bs"))
-                return Results.BadRequest(new { error = "formType 'Ba' veya 'Bs' olmalı" });
+                return Results.Problem(detail: "formType 'Ba' veya 'Bs' olmalı", statusCode: 400);
 
             if (month < 1 || month > 12)
-                return Results.BadRequest(new { error = "month 1-12 arasında olmalı" });
+                return Results.Problem(detail: "month 1-12 arasında olmalı", statusCode: 400);
 
             var report = await mediator.Send(
                 new GenerateBaBsReportQuery(tenantId, year, month), ct);

@@ -68,7 +68,7 @@ public static class EInvoiceEndpoints
                 new SendEInvoiceCommand(id), ct);
             return success
                 ? Results.Ok(new EntityActionResponse(id, "Sent", "E-Fatura başarıyla gönderildi"))
-                : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura gönderilemedi"));
+                : Results.Problem(detail: "E-Fatura gönderilemedi", statusCode: 400);
         })
         .WithName("SendEInvoice")
         .WithSummary("E-faturayı GİB'e gönder")
@@ -83,7 +83,7 @@ public static class EInvoiceEndpoints
                 new CancelEInvoiceCommand(id, reason), ct);
             return success
                 ? Results.Ok(new EntityActionResponse(id, "Cancelled", "E-Fatura iptal edildi"))
-                : Results.BadRequest(new EntityActionResponse(id, "Failed", "E-Fatura iptal edilemedi"));
+                : Results.Problem(detail: "E-Fatura iptal edilemedi", statusCode: 400);
         })
         .WithName("CancelEInvoice")
         .WithSummary("E-fatura iptal et").Produces(200).Produces(400)

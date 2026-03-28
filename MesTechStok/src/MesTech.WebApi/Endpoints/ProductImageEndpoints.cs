@@ -29,13 +29,13 @@ public static class ProductImageEndpoints
             CancellationToken ct) =>
         {
             if (file is null || file.Length == 0)
-                return Results.BadRequest(new { error = "Dosya gerekli." });
+                return Results.Problem(detail: "Dosya gerekli.", statusCode: 400);
 
             if (file.Length > MaxFileSizeBytes)
-                return Results.BadRequest(new { error = "Dosya boyutu 10 MB'ı aşamaz." });
+                return Results.Problem(detail: "Dosya boyutu 10 MB'ı aşamaz.", statusCode: 400);
 
             if (!AllowedContentTypes.Contains(file.ContentType))
-                return Results.BadRequest(new { error = "Desteklenen formatlar: JPEG, PNG, WebP, GIF." });
+                return Results.Problem(detail: "Desteklenen formatlar: JPEG, PNG, WebP, GIF.", statusCode: 400);
 
             var fileName = $"{id}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
@@ -58,7 +58,7 @@ public static class ProductImageEndpoints
                     contentType = file.ContentType,
                     sizeBytes = file.Length
                 })
-                : Results.BadRequest(new { error = result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("UploadProductImage")
         .WithSummary("Ürün resmi yükle (JPEG/PNG/WebP/GIF, max 10 MB)")
