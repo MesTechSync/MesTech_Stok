@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Commands.UpdateStoreSettings;
 using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
 using MesTech.Domain.Interfaces;
 
@@ -70,8 +71,8 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
         SaveSuccess = false;
         try
         {
-            await Task.Delay(100, CancellationToken);
-            SaveSuccess = true;
+            SaveSuccess = await _mediator.Send(new UpdateStoreSettingsCommand(
+                _currentUser.TenantId, CompanyName, TaxNumber, Phone, Email, Address), CancellationToken);
         }
         catch (Exception ex)
         {

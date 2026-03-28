@@ -6,6 +6,7 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
 using MesTech.Application.Features.Reporting.Queries.GetSavedReports;
+using MesTech.Application.Features.Reports.PlatformSalesReport;
 using MesTech.Domain.Interfaces;
 using SkiaSharp;
 
@@ -114,18 +115,10 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         GeneratingMessage = $"{SelectedReportType} hazırlanıyor...";
         try
         {
-            // Simulate async report generation; replace with real query when available
-            for (int i = 1; i <= 5; i++)
-            {
-                await Task.Delay(250);
-                ProgressPercent = i * 20;
-            }
-
-            await BuildMockReportDataAsync();
-
-            GeneratingMessage = $"{SelectedReportType} başarıyla oluşturuldu!";
-            await Task.Delay(800);
-            GeneratingMessage = string.Empty;
+            ProgressPercent = 30;
+            await BuildReportDataAsync();
+            ProgressPercent = 100;
+            GeneratingMessage = $"{SelectedReportType} basariyla olusturuldu!";
         }
         catch (Exception ex)
         {
@@ -146,10 +139,9 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         GeneratingMessage = "Excel dosyası hazırlanıyor...";
         try
         {
-            await Task.Delay(600); // Placeholder: replace with ClosedXML / EPPlus export
-            GeneratingMessage = "Excel aktarımı tamamlandı!";
-            await Task.Delay(800);
-            GeneratingMessage = string.Empty;
+            // TODO: Wire to ExportReportCommand (ClosedXML/EPPlus)
+            await Task.CompletedTask;
+            GeneratingMessage = "Excel aktarimi tamamlandi!";
         }
         catch (Exception ex)
         {
@@ -253,37 +245,36 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         };
     }
 
-    private async Task BuildMockReportDataAsync()
+    private async Task BuildReportDataAsync()
     {
-        await Task.CompletedTask;
-
         ReportRows.Clear();
 
-        // Mock rows — replace with real CQRS query results
-        var mockRows = new[]
+        var platformFilter = SelectedPlatform == "Tümü" ? null : SelectedPlatform;
+        var results = await _mediator.Send(new PlatformSalesReportQuery(
+            _currentUser.TenantId,
+            DateFrom.DateTime,
+            DateTo.DateTime,
+            platformFilter));
+
+        foreach (var r in results)
         {
-            new ReportRowItem("20.03.2026", "Trendyol", "Günlük", 127, 38_450.00m, 5_767.50m),
-            new ReportRowItem("21.03.2026", "Trendyol", "Günlük", 148, 44_900.00m, 6_735.00m),
-            new ReportRowItem("22.03.2026", "Hepsiburada", "Günlük", 83, 21_250.00m, 2_762.50m),
-            new ReportRowItem("23.03.2026", "N11", "Günlük", 56, 14_800.00m, 1_924.00m),
-            new ReportRowItem("24.03.2026", "Amazon", "Günlük", 34, 9_350.00m, 1_215.50m),
-            new ReportRowItem("25.03.2026", "Trendyol", "Günlük", 175, 52_700.00m, 7_905.00m),
-            new ReportRowItem("26.03.2026", "Çiçeksepeti", "Günlük", 62, 17_400.00m, 2_262.00m),
-        };
+            ReportRows.Add(new ReportRowItem(
+                DateFrom.DateTime.ToString("dd.MM.yyyy"),
+                r.Platform,
+                SelectedReportType,
+                r.TotalOrders,
+                r.TotalRevenue,
+                r.NetRevenue));
+        }
 
-        foreach (var row in mockRows)
-            ReportRows.Add(row);
-
-        var totalSalesVal = mockRows.Sum(r => r.SatisAmount);
-        var totalProfitVal = mockRows.Sum(r => r.KarAmount);
-        var totalOrdersVal = mockRows.Sum(r => r.SiparisSayisi);
+        var totalSalesVal = results.Sum(r => r.TotalRevenue);
+        var totalProfitVal = results.Sum(r => r.NetRevenue);
+        var totalOrdersVal = results.Sum(r => r.TotalOrders);
 
         TotalSales = $"{totalSalesVal:N2} TL";
         TotalOrders = totalOrdersVal;
         NetProfit = $"{totalProfitVal:N2} TL";
-        TotalExpenses = $"{totalSalesVal - totalProfitVal:N2} TL";
-        TotalProducts = 324;
-        LowStockCount = 17;
+        TotalExpenses = $"{results.Sum(r => r.Commissions):N2} TL";
 
         IsEmpty = ReportRows.Count == 0;
     }

@@ -106,7 +106,8 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(800); // Simulate API call
+            // TODO: Wire to TestApiConnectionCommand via MediatR
+            await Task.CompletedTask;
 
             if (!string.IsNullOrWhiteSpace(ApiUrl) && ApiUrl.StartsWith("http"))
             {
@@ -142,7 +143,8 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate save
+            // TODO: Wire to SaveSettingsCommand via MediatR
+            await Task.CompletedTask;
             IsSaved = true;
         }
         catch (Exception ex)
@@ -188,7 +190,8 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500);
+            // TODO: Wire to TestPlatformConnectionCommand via MediatR
+            await Task.CompletedTask;
             if (SelectedCredential.IsConnected)
             {
                 await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: Baglanti basarili!", "Test Sonucu");
