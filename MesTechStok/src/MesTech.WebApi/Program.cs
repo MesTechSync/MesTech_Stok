@@ -97,10 +97,11 @@ builder.Services.AddRateLimiter(options =>
     };
     options.AddPolicy("PerApiKey", context =>
     {
-        // DEV6-TUR11: Per-tenant rate limiting — API key + tenant combined partition
+        // DEV6-TUR: Per-tenant rate limiting — JWT claim preferred, fallback to API key only
+        // G105 FIX: tenantId MUST come from JWT claim, NOT from query/header (bypass risk)
         var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault() ?? "anonymous";
-        var tenantId = context.Request.Query["tenantId"].FirstOrDefault()
-                    ?? context.Request.Headers["X-Tenant-Id"].FirstOrDefault()
+        var tenantId = context.User?.FindFirst("tenant_id")?.Value
+                    ?? context.User?.FindFirst("tenantId")?.Value
                     ?? "no-tenant";
         var partitionKey = $"{apiKey}:{tenantId}";
         return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
