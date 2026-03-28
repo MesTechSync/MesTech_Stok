@@ -5,6 +5,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [1.0.16] - 2026-03-28
 
+### DEV3 Integration TUR 6 — S3 KOPUK fixes + PAYLAŞIM
+- feat(accounting): ParseAndImportSettlementHandler — raw file → ISettlementParserFactory → DB (G186 S3 KOPUK→BAĞLI)
+- feat(api): /settlements/parse-and-import endpoint (8 platform parser bağlandı)
+- feat(api): PaymentEndpoints multi-provider factory — PayTR+Stripe+Iyzico (G187 KAPANDI)
+
 ### DEV6 Business Logic & WebApi
 - refactor(webapi): standardize 33 BadRequest→ProblemDetails RFC 7807 — G114 complete (Report, Invoice, Warehouse, SupplierFeeds, Shipment, Order, Calendar)
 
