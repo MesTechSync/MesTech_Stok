@@ -3,6 +3,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -90,7 +91,8 @@ public static class WebhookEndpoints
         .Produces(200)
         .Produces(400)
         .Produces(422)
-        .AllowAnonymous(); // Webhook'lar platform'dan JWT olmadan gelir
+        .AllowAnonymous() // Webhook'lar platform'dan JWT olmadan gelir
+        .WithMetadata(new RequestSizeLimitAttribute(1_048_576)); // G088 FIX: 1MB limit (tipik webhook 1-100KB)
 
         // GET /api/webhooks/dead-letters — DLQ list (admin)
         group.MapGet("/dead-letters", async (
