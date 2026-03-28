@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
+using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
@@ -178,6 +179,18 @@ public static class DashboardEndpoints
         })
         .WithName("GetPendingInvoices")
         .WithSummary("Bekleyen faturalar — onay/gönderim bekleyenler")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/summary — unified 12-KPI dashboard summary (G207-DEV6)
+        group.MapGet("/summary", async (
+            Guid tenantId, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDashboardSummaryQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetDashboardSummary")
+        .WithSummary("Birleşik 12-KPI dashboard özeti — Blazor ana sayfa (G207)")
         .Produces(200)
         .CacheOutput("Dashboard30s");
 
