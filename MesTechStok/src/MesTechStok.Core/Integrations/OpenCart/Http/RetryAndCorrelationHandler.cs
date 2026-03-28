@@ -71,7 +71,7 @@ namespace MesTechStok.Core.Integrations.OpenCart.Http
                 lastException = null;
                 try
                 {
-                    var cloned = CloneIfNeeded(request, attempt);
+                    var cloned = await CloneIfNeededAsync(request, attempt).ConfigureAwait(false);
                     var response = await base.SendAsync(cloned, cancellationToken).ConfigureAwait(false);
                     RegisterOutcome(response.IsSuccessStatusCode);
                     if (!ShouldRetry(response.StatusCode, attempt))
@@ -120,7 +120,7 @@ namespace MesTechStok.Core.Integrations.OpenCart.Http
             return TimeSpan.FromSeconds(baseSeconds + jitter);
         }
 
-        private HttpRequestMessage CloneIfNeeded(HttpRequestMessage original, int attempt)
+        private async Task<HttpRequestMessage> CloneIfNeededAsync(HttpRequestMessage original, int attempt)
         {
             if (attempt == 0) return original;
             var clone = new HttpRequestMessage(original.Method, original.RequestUri);
@@ -128,7 +128,7 @@ namespace MesTechStok.Core.Integrations.OpenCart.Http
                 clone.Headers.TryAddWithoutValidation(h.Key, h.Value);
             if (original.Content != null)
             {
-                var bytes = original.Content.ReadAsByteArrayAsync().Result; // small payload assumption
+                var bytes = await original.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                 var newContent = new ByteArrayContent(bytes);
                 foreach (var h in original.Content.Headers)
                     newContent.Headers.TryAddWithoutValidation(h.Key, h.Value);
