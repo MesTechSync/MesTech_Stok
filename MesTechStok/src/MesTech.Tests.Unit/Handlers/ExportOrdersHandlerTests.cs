@@ -9,6 +9,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -50,7 +51,7 @@ public class ExportOrdersHandlerTests
         var to = DateTime.UtcNow;
         var orders = new List<Order>
         {
-            new Order("ORD-001", "Test", DateTime.UtcNow, 100m)
+            Order.CreateFromPlatform(_tenantId, "ORD-001", PlatformType.Trendyol, "Test", null, new List<OrderItem>().AsReadOnly())
         };
         _orderRepoMock.Setup(r => r.GetByDateRangeAsync(_tenantId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders.AsReadOnly());
