@@ -678,6 +678,22 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
             Application.EventHandlers.MiscNotificationHandler>();
 
+        // Repository implementations (DEV1 TUR 6: 7 missing repos):
+        services.AddScoped<Domain.Interfaces.IBankAccountRepository,
+            Persistence.Repositories.BankAccountRepository>();
+        services.AddScoped<Domain.Interfaces.ICampaignRepository,
+            Persistence.Repositories.CampaignRepository>();
+        services.AddScoped<Domain.Interfaces.ICompanySettingsRepository,
+            Persistence.Repositories.CompanySettingsRepository>();
+        services.AddScoped<Domain.Interfaces.ICustomerRepository,
+            Persistence.Repositories.CustomerRepository>();
+        services.AddScoped<Domain.Interfaces.IDealRepository,
+            Persistence.Repositories.DealRepository>();
+        services.AddScoped<Domain.Interfaces.ILeadRepository,
+            Persistence.Repositories.LeadRepository>();
+        services.AddScoped<Domain.Interfaces.ILoyaltyProgramRepository,
+            Persistence.Repositories.LoyaltyProgramRepository>();
+
         return services;
     }
 }
