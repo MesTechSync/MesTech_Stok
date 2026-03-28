@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             x:Class="MesTech.Avalonia.Views.Accounting.PenaltyAvaloniaView"
+             x:DataType="vm:PenaltyAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesDanger}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Ceza Kayitlari" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                        Command="{Binding RefreshCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesDanger}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI Row -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPage}" Padding="16,12">
+            <Grid ColumnDefinitions="*,*,*">
+                <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
+                        BoxShadow="{DynamicResource MesElevationCard}">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Ceza" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalPenaltyAmount}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesDanger}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
+                        BoxShadow="{DynamicResource MesElevationCard}">
+                    <StackPanel>
+                        <TextBlock Text="Bekleyen" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding PendingAmount}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="16" Margin="4"
+                        BoxShadow="{DynamicResource MesElevationCard}">
+                    <StackPanel>
+                        <TextBlock Text="Odenmis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding PaidAmount}" FontSize="{StaticResource FontSizeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}"
+                          Width="180" AutomationProperties.Name="Kaynak filtresi" />
+                <TextBox Width="280" Watermark="Aciklama veya referans no ara..."
+                         AutomationProperties.Name="Ceza kaydi ara"
+                         Text="{Binding SearchText}" />
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Margin="16" CornerRadius="{StaticResource MesRadiusLg}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid>
+                <DataGrid ItemsSource="{Binding Items}"
+                          AutomationProperties.Name="Ceza kayitlari listesi"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          CanUserSortColumns="True"
+                          CanUserResizeColumns="True" CanUserReorderColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Kaynak" Binding="{Binding Source}" Width="120" />
+                        <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding AmountFormatted}" Width="120" />
+                        <DataGridTextColumn Header="Ceza Tarihi" Binding="{Binding PenaltyDate}" Width="110" />
+                        <DataGridTextColumn Header="Son Odeme" Binding="{Binding DueDate}" Width="110" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100" />
+                        <DataGridTextColumn Header="Referans No" Binding="{Binding ReferenceNumber}" Width="140" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State in grid -->
+                <TextBlock Text="Kayit bulunamadi"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="0,40" Opacity="0.5"
+                           FontSize="{StaticResource FontSizeSubtitle}"
+                           IsVisible="{Binding !Items.Count}" />
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Ceza kayitlari yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Ceza kaydi bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
+                <TextBlock Text="Secilen filtrelere uygun ceza kaydi yok"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}" Margin="0,0,0,8" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
+                           HorizontalAlignment="Center" Margin="0,0,0,12"
+                           TextWrapping="Wrap" MaxWidth="400" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
