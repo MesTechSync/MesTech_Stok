@@ -60,6 +60,39 @@ public static class AccountingEndpoints
             .WithTags("Accounting")
             .RequireRateLimiting("PerApiKey");
 
+        // GET /api/v1/accounting/summary — Blazor AccountingDashboard özet (G362-DEV6)
+        group.MapGet("/summary", async (
+            Guid tenantId, ISender mediator, CancellationToken ct) =>
+        {
+            var now = DateTime.UtcNow;
+            var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var monthlySummary = await mediator.Send(
+                new GetMonthlySummaryQuery(now.Year, now.Month, tenantId), ct);
+            var trialBalance = await mediator.Send(
+                new GetTrialBalanceQuery(tenantId, monthStart, now), ct);
+
+            return Results.Ok(new
+            {
+                period = $"{now.Year}-{now.Month:D2}",
+                totalSales = monthlySummary.TotalSales,
+                totalExpenses = monthlySummary.TotalExpenses,
+                netProfit = monthlySummary.TotalSales - monthlySummary.TotalExpenses,
+                totalOrders = monthlySummary.TotalOrders,
+                totalReturns = monthlySummary.TotalReturns,
+                returnRate = monthlySummary.ReturnRate,
+                averageOrderValue = monthlySummary.AverageOrderValue,
+                totalCommissions = monthlySummary.TotalCommissions,
+                totalShippingCost = monthlySummary.TotalShippingCost,
+                totalTaxDue = monthlySummary.TotalTaxDue,
+                trialBalance
+            });
+        })
+        .WithName("GetAccountingSummary")
+        .WithSummary("Muhasebe özet — Blazor AccountingDashboard.razor için (G362)")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
         // GET /api/v1/accounting/trial-balance — mizan raporu
         group.MapGet("/trial-balance", async (
             Guid tenantId, DateTime startDate, DateTime endDate,
