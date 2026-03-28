@@ -77,7 +77,7 @@ public static class SupplierFeedsEndpoints
             return Results.Created($"/api/v1/supplier-feeds/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateSupplierFeed")
-        .WithSummary("Yeni tedarikçi feed kaynağı oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni tedarikçi feed kaynağı oluştur").Produces(201).Produces(400);
 
         // PUT /api/v1/supplier-feeds/{id} — feed kaynağını güncelle
         group.MapPut("/{id:guid}", async (Guid id, UpdateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>

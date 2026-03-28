@@ -56,7 +56,7 @@ public static class QuotationEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateQuotation")
-        .WithSummary("Yeni teklif oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni teklif oluştur").Produces(201).Produces(400);
 
         // POST /api/v1/quotations/{id}/accept — accept a quotation
         group.MapPost("/{id:guid}/accept", async (Guid id, ISender mediator, CancellationToken ct) =>
