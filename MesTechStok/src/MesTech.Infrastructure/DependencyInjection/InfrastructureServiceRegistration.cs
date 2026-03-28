@@ -694,6 +694,14 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Domain.Interfaces.ILoyaltyProgramRepository,
             Persistence.Repositories.LoyaltyProgramRepository>();
 
+        // G222-DEV6: Missing DI registrations — root cause fix
+        services.AddScoped<Domain.Interfaces.ILoyaltyTransactionRepository,
+            Persistence.Repositories.LoyaltyTransactionRepository>();
+        services.AddScoped<Domain.Interfaces.IImportTemplateRepository,
+            Persistence.Repositories.ImportTemplateRepository>();
+        services.AddSingleton<Application.Interfaces.IPlatformHealthProvider,
+            Integration.Health.PlatformHealthProvider>();
+
         return services;
     }
 }
