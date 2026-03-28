@@ -22,11 +22,10 @@ public class GetBankTransactionsHandlerTests
     [Fact]
     public async Task Handle_ReturnsTransactions()
     {
-        var transactions = new List<BankTransaction>
-        {
-            new(Guid.NewGuid(), _bankAccountId, 1500m, "Trendyol havale", DateTime.UtcNow) { IsReconciled = false },
-            new(Guid.NewGuid(), _bankAccountId, -300m, "Kargo ödemesi", DateTime.UtcNow) { IsReconciled = true }
-        };
+        var tx1 = BankTransaction.Create(_tenantId, _bankAccountId, DateTime.UtcNow, 1500m, "Trendyol havale");
+        var tx2 = BankTransaction.Create(_tenantId, _bankAccountId, DateTime.UtcNow, -300m, "Kargo ödemesi");
+        tx2.MarkReconciled();
+        var transactions = new List<BankTransaction> { tx1, tx2 };
         _repoMock.Setup(r => r.GetByBankAccountAsync(_tenantId, _bankAccountId, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(transactions.AsReadOnly());
 
