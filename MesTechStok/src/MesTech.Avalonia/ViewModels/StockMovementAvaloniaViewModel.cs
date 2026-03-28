@@ -4,16 +4,19 @@ using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Commands.BulkUpdateStock;
+using MesTech.Application.Queries.GetStockMovements;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// ViewModel for Stock Update (Toplu Stok Guncelleme) screen.
 /// Displays stock items with editable "Yeni Stok" column and bulk update action.
-/// Will be wired to BulkUpdateStockCommand via MediatR when full migration starts.
 /// </summary>
 public partial class StockMovementAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
     private readonly PropertyChangedEventHandler _itemChangedHandler;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int changedCount;
@@ -21,8 +24,9 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<StockMovementItemDto> Items { get; } = [];
 
-    public StockMovementAvaloniaViewModel()
+    public StockMovementAvaloniaViewModel(IMediator mediator)
     {
+        _mediator = mediator;
         _itemChangedHandler = (_, _) => RecalculateChangedCount();
     }
 
@@ -35,20 +39,21 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
         UpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(80); // Simulate async load
-
             UnsubscribeItemEvents();
             Items.Clear();
-            Items.Add(new StockMovementItemDto { Sku = "TRD-SAM-001", UrunAdi = "Samsung Galaxy S24 Ultra", MevcutStok = 45, YeniStok = 45, Platform = "Trendyol" });
-            Items.Add(new StockMovementItemDto { Sku = "HB-APL-002", UrunAdi = "Apple iPhone 15 Pro", MevcutStok = 22, YeniStok = 22, Platform = "Hepsiburada" });
-            Items.Add(new StockMovementItemDto { Sku = "N11-SON-003", UrunAdi = "Sony WH-1000XM5 Kulaklik", MevcutStok = 78, YeniStok = 78, Platform = "N11" });
-            Items.Add(new StockMovementItemDto { Sku = "CS-LOG-004", UrunAdi = "Logitech MX Master 3S Mouse", MevcutStok = 156, YeniStok = 156, Platform = "CicekSepeti" });
-            Items.Add(new StockMovementItemDto { Sku = "AMZ-DEL-005", UrunAdi = "Dell U2723QE 4K Monitor", MevcutStok = 8, YeniStok = 8, Platform = "Amazon" });
-            Items.Add(new StockMovementItemDto { Sku = "TRD-XIA-006", UrunAdi = "Xiaomi Redmi Note 13 Pro", MevcutStok = 210, YeniStok = 210, Platform = "Trendyol" });
-            Items.Add(new StockMovementItemDto { Sku = "SHP-HPE-007", UrunAdi = "HP EliteBook 840 G10", MevcutStok = 14, YeniStok = 14, Platform = "Shopify" });
-            Items.Add(new StockMovementItemDto { Sku = "WOO-LEN-008", UrunAdi = "Lenovo ThinkPad X1 Carbon", MevcutStok = 31, YeniStok = 31, Platform = "WooCommerce" });
-            Items.Add(new StockMovementItemDto { Sku = "PZR-ASU-009", UrunAdi = "Asus ROG Strix G16 Laptop", MevcutStok = 6, YeniStok = 6, Platform = "Pazarama" });
-            Items.Add(new StockMovementItemDto { Sku = "PTT-ANK-010", UrunAdi = "Anker PowerCore 26800mAh", MevcutStok = 340, YeniStok = 340, Platform = "PttAVM" });
+
+            var movements = await _mediator.Send(new GetStockMovementsQuery());
+            foreach (var m in movements)
+            {
+                Items.Add(new StockMovementItemDto
+                {
+                    Sku = m.ProductSKU ?? string.Empty,
+                    UrunAdi = m.ProductName ?? string.Empty,
+                    MevcutStok = m.PreviousStock,
+                    YeniStok = m.NewStock,
+                    Platform = m.MovementType
+                });
+            }
 
             // Subscribe to changes (named handler — unsubscribe possible)
             foreach (var item in Items)
@@ -103,7 +108,8 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
         UpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate bulk update
+            var bulkItems = changed.Select(c => new BulkUpdateStockItem(c.Sku, c.YeniStok)).ToList();
+            await _mediator.Send(new BulkUpdateStockCommand(bulkItems));
 
             foreach (var item in changed)
                 item.MevcutStok = item.YeniStok;
