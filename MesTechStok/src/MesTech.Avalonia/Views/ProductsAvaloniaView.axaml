@@ -61,7 +61,7 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBox Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..." AutomationProperties.Name="Ad, SKU, Barkod veya Aciklama ile arayin..."
+                    <TextBox x:Name="SearchBox" Width="380" Watermark="Ad, SKU, Barkod veya Aciklama ile arayin..." AutomationProperties.Name="Ad, SKU, Barkod veya Aciklama ile arayin..."
                              Text="{Binding SearchText}" />
                     <!-- Barcode quick-search button -->
                     <Button Command="{Binding BarcodeSearchCommand}"
