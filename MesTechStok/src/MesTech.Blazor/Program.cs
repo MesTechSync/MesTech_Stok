@@ -7,6 +7,9 @@ using MesTech.Blazor.Components;
 using MesTech.Blazor.Services;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.DependencyInjection;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using Prometheus;
 
 using Polly;
@@ -56,6 +59,22 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(
         typeof(MesTech.Infrastructure.Integration.Orchestration.StockChangedEventHandler).Assembly);
 });
+
+// ── OpenTelemetry — distributed tracing (Blazor → WebAPI correlation) ──
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService("MesTech.Blazor", serviceVersion: "1.0.0"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("MesTech.Application.Handlers")
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
+        }))
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation());
 
 // ── Infrastructure (DbContext, Repositories, Domain Services, Cache, Messaging, etc.) ──
 builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);
