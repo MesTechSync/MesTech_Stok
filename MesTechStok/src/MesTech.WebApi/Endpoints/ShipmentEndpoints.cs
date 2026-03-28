@@ -19,7 +19,7 @@ public static class ShipmentEndpoints
             var result = await mediator.Send(command, ct);
             return result.Success
                 ? Results.Created($"/api/v1/shipments/{result.ShipmentId}", result)
-                : Results.BadRequest(new { error = result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateShipment")
         .WithSummary("Yeni gönderi oluştur (otomatik kargo sağlayıcı seçimi)").Produces(200).Produces(400);

@@ -83,7 +83,7 @@ public static class SupplierFeedsEndpoints
         group.MapPut("/{id:guid}", async (Guid id, UpdateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>
         {
             if (id != command.Id)
-                return Results.BadRequest(new { error = "Route ID ile body ID uyuşmuyor." });
+                return Results.Problem(detail: "Route ID ile body ID uyuşmuyor.", statusCode: 400);
 
             await mediator.Send(command, ct);
             return Results.NoContent();

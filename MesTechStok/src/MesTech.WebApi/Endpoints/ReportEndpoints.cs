@@ -52,9 +52,9 @@ public static class ReportEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (month < 1 || month > 12)
-                return Results.BadRequest(new { error = "Month must be between 1 and 12." });
+                return Results.Problem(detail: "Month must be between 1 and 12.", statusCode: 400);
             if (year < 2000 || year > 2100)
-                return Results.BadRequest(new { error = "Year must be between 2000 and 2100." });
+                return Results.Problem(detail: "Year must be between 2000 and 2100.", statusCode: 400);
 
             var result = await mediator.Send(
                 new GetMonthlySummaryQuery(year, month, tenantId), ct);
@@ -71,9 +71,9 @@ public static class ReportEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (month < 1 || month > 12)
-                return Results.BadRequest(new { error = "Month must be between 1 and 12." });
+                return Results.Problem(detail: "Month must be between 1 and 12.", statusCode: 400);
             if (year < 2000 || year > 2100)
-                return Results.BadRequest(new { error = "Year must be between 2000 and 2100." });
+                return Results.Problem(detail: "Year must be between 2000 and 2100.", statusCode: 400);
 
             var result = await mediator.Send(
                 new GetKdvReportQuery(tenantId, year, month), ct);
@@ -91,7 +91,7 @@ public static class ReportEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (year < 2000 || year > 2100)
-                return Results.BadRequest(new { error = "Year must be between 2000 and 2100." });
+                return Results.Problem(detail: "Year must be between 2000 and 2100.", statusCode: 400);
 
             var count = await mediator.Send(
                 new GenerateTaxCalendarCommand(year, tenantId), ct);
@@ -458,7 +458,7 @@ public static class ReportEndpoints
                 await exportService.ExportToCsvAsync(data, ct),
                 "text/csv",
                 $"{title.Replace(' ', '_')}_{DateTime.UtcNow:yyyyMMdd}.csv"),
-            _ => Results.BadRequest(new { error = "Desteklenen formatlar: pdf, xlsx, csv" })
+            _ => Results.Problem(detail: "Desteklenen formatlar: pdf, xlsx, csv", statusCode: 400)
         };
     }
 }

@@ -35,7 +35,7 @@ public static class InvoiceEndpoints
                 var adapter = factory.Resolve(providerType);
 
                 if (adapter is null)
-                    return Results.BadRequest("Unknown provider");
+                    return Results.Problem(detail: "Unknown provider", statusCode: 400);
 
                 var result = await adapter.CreateInvoiceAsync(request.Invoice, ct);
                 return Results.Ok(result);
@@ -76,7 +76,7 @@ public static class InvoiceEndpoints
             var success = await mediator.Send(new ApproveInvoiceCommand(id), ct);
             return success
                 ? Results.Ok(new EntityActionResponse(id, "Approved"))
-                : Results.BadRequest(new EntityActionResponse(id, "Failed", "Fatura onaylanamadı"));
+                : Results.Problem(detail: "Fatura onaylanamadı", statusCode: 400);
         })
         .WithName("ApproveInvoice")
         .WithSummary("Fatura onayla").Produces(200).Produces(400)

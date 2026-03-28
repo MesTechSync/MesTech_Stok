@@ -81,7 +81,7 @@ public static class CalendarEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (year < 2000 || year > 2100)
-                return Results.BadRequest(new { error = "Year must be between 2000 and 2100." });
+                return Results.Problem(detail: "Year must be between 2000 and 2100.", statusCode: 400);
 
             var count = await mediator.Send(
                 new GenerateTaxCalendarCommand(year, tenantId), ct);

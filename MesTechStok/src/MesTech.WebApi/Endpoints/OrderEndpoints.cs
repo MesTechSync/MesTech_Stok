@@ -58,7 +58,7 @@ public static class OrderEndpoints
             var result = await mediator.Send(new PushOrderToBitrix24Command(id), ct);
             return result.IsSuccess
                 ? Results.Ok(result)
-                : Results.BadRequest(new { error = result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("PushOrderToBitrix24")
         .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder")
