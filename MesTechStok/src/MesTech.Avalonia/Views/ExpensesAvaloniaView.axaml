@@ -30,8 +30,9 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" Watermark="Gider ara..." AutomationProperties.Name="Gider ara..." Width="250" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Kategori" Width="140" Margin="8,0"  AutomationProperties.Name="Kategori" />
-                <Button Grid.Column="2" Content="+ Gider Ekle" Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}"
-                        ToolTip.Tip="+ Gider Ekle"
+                <Button Grid.Column="2" Content="+ Gider Ekle" Command="{Binding AddCommand}"
+                        Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}"
+                        ToolTip.Tip="Yeni gider ekle"
                         FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
             </Grid>
         </Border>

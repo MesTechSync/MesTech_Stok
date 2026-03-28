@@ -29,4 +29,10 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to expense create form or show dialog
+    }
 }

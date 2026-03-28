@@ -30,8 +30,9 @@
             <Grid ColumnDefinitions="*,Auto">
                 <TextBox Grid.Column="0" Watermark="Kisi veya firma ara..." AutomationProperties.Name="Kisi veya firma ara..." Width="280" HorizontalAlignment="Left" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="+ Yeni Kisi" Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                            ToolTip.Tip="+ Yeni Kisi"
+                    <Button Content="+ Yeni Kisi" Command="{Binding AddCommand}"
+                            Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                            ToolTip.Tip="Yeni kisi ekle"
                             FontWeight="SemiBold" Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" />
                 </StackPanel>
             </Grid>

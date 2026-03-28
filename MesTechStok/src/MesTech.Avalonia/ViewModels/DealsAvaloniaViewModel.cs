@@ -77,6 +77,12 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
         if (value.Length == 0 || value.Length >= 2)
             _ = LoadAsync();
     }
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to deal create form or show dialog
+    }
 }
 
 public class DealListItemVm

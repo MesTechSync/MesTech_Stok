@@ -29,4 +29,10 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to employee create form or show dialog
+    }
 }

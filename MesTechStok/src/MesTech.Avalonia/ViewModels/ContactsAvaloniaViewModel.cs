@@ -29,4 +29,10 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void Add()
+    {
+        // TODO: Navigate to contact create form or show dialog
+    }
 }
