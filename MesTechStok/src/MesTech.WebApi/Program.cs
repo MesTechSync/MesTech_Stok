@@ -3,6 +3,9 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MesTech.Domain.Interfaces;
@@ -69,6 +72,8 @@ builder.Services.AddMediatR(cfg =>
 
 // OpenTelemetry — distributed tracing + metrics
 builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService("MesTech.WebApi", serviceVersion: "1.0.0"))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()

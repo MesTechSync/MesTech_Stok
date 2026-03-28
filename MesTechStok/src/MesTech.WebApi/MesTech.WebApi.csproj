@@ -25,6 +25,12 @@
     <!-- GHSA-5crp fix: pin Newtonsoft.Json 13.0.3 via CPM to override transitive 11.0.1 from MassTransit -->
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="prometheus-net.AspNetCore" />
+    <!-- OpenTelemetry distributed tracing -->
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
   </ItemGroup>
 
 </Project>
