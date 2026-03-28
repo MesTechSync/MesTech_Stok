@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MediatR;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -11,7 +13,7 @@ public class EInvoiceAvaloniaViewModelTests
 
     public EInvoiceAvaloniaViewModelTests()
     {
-        _sut = new EInvoiceAvaloniaViewModel(null);
+        _sut = new EInvoiceAvaloniaViewModel(Mock.Of<IMediator>());
     }
 
     [Fact]
