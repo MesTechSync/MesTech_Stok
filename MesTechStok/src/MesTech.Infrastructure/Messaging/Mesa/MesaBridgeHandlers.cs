@@ -55,15 +55,19 @@ public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNoti
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<LowStockBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public LowStockBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<LowStockBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -84,6 +88,9 @@ public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNoti
 
         await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("stock.low");
+
+        // WPF realtime WebSocket push
+        await _notifier.NotifyLowStockAsync(e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, ct).ConfigureAwait(false);
     }
 }
 
@@ -94,15 +101,19 @@ public sealed class OrderPlacedBridgeHandler : INotificationHandler<DomainEventN
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<OrderPlacedBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public OrderPlacedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<OrderPlacedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -121,6 +132,9 @@ public sealed class OrderPlacedBridgeHandler : INotificationHandler<DomainEventN
 
         await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("order.placed");
+
+        // WPF realtime WebSocket push
+        await _notifier.NotifyNewOrderAsync("MesTech", e.OrderNumber, e.TotalAmount, 0, ct).ConfigureAwait(false);
     }
 }
 
@@ -168,15 +182,19 @@ public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainE
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<InvoiceGeneratedBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public InvoiceGeneratedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<InvoiceGeneratedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -195,6 +213,10 @@ public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainE
 
         await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("invoice.generated");
+
+        // WPF realtime WebSocket push
+        await _notifier.NotifyInvoiceGeneratedAsync(
+            e.GibInvoiceId ?? e.InvoiceId.ToString(), string.Empty, 0m, ct).ConfigureAwait(false);
     }
 }
 
@@ -241,15 +263,19 @@ public sealed class ReturnCreatedBridgeHandler : INotificationHandler<DomainEven
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<ReturnCreatedBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public ReturnCreatedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<ReturnCreatedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -269,6 +295,11 @@ public sealed class ReturnCreatedBridgeHandler : INotificationHandler<DomainEven
 
         await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("return.created");
+
+        // WPF realtime WebSocket push
+        await _notifier.NotifyReturnCreatedAsync(
+            e.Platform.ToString(), e.ReturnRequestId.ToString(),
+            e.OrderId.ToString(), e.Reason.ToString(), ct).ConfigureAwait(false);
     }
 }
 
