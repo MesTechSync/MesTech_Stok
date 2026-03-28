@@ -36,9 +36,11 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     private readonly IAuthService? _authService;
 
     // ═══ Background Image ═══
+    // v1.1: Current image always at opacity 1.0 (no binding needed).
+    // Only NextImageOpacity transitions — next fades IN on top of current, then swaps.
+    // This prevents the flash/gap during crossfade.
     [ObservableProperty] private Bitmap? _currentBackgroundImage;
     [ObservableProperty] private Bitmap? _nextBackgroundImage;
-    [ObservableProperty] private double _currentImageOpacity = 1.0;
     [ObservableProperty] private double _nextImageOpacity;
     [ObservableProperty] private string _currentImageName = string.Empty;
     [ObservableProperty] private bool _hasSpotlightImages;
@@ -113,54 +115,61 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     // IMAGE ROTATION
     // ═══════════════════════════════════════════════
 
-    private void LoadCurrentImage()
+    private async void LoadCurrentImage()
     {
         if (!_spotlight.HasImages) return;
 
         var info = _spotlight.GetCurrent();
         if (info == null) return;
 
-        CurrentBackgroundImage = LoadBitmap(info.FilePath);
+        CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
         CurrentImageName = info.DisplayName;
-        CurrentImageOpacity = 1.0;
         NextImageOpacity = 0.0;
     }
 
     /// <summary>
     /// Called by code-behind timer. Initiates crossfade to next image.
-    /// Returns true if transition started (caller should wait 800ms then call CompleteTransition).
+    /// v1.1: Current image stays fully visible (opacity 1.0 always).
+    /// Next image fades IN on top (0→1). After transition, swap buffers.
+    /// Returns true if transition started (caller should wait ~1300ms then call CompleteTransition).
     /// </summary>
-    public bool StartNextImageTransition()
+    public async Task<bool> StartNextImageTransitionAsync()
     {
         if (!_spotlight.HasImages || _spotlight.Count <= 1) return false;
 
         var next = _spotlight.GetNext();
         if (next == null) return false;
 
-        NextBackgroundImage = LoadBitmap(next.FilePath);
+        // Load next image while current remains fully visible
+        NextBackgroundImage = await LoadBitmapAsync(next.FilePath);
         CurrentImageName = next.DisplayName;
 
-        // Trigger crossfade via bound Transitions
+        // Only fade IN the next image on top — current stays solid underneath
         NextImageOpacity = 1.0;
-        CurrentImageOpacity = 0.0;
 
         return true;
     }
 
-    /// <summary>Called 800ms after StartNextImageTransition to swap buffers.</summary>
+    /// <summary>
+    /// Called after crossfade animation completes (~1300ms).
+    /// Swaps next→current, resets next to invisible for next cycle.
+    /// </summary>
     public void CompleteTransition()
     {
         var oldBitmap = CurrentBackgroundImage;
+
+        // Next is now fully visible on top — make it the new current
         CurrentBackgroundImage = NextBackgroundImage;
         NextBackgroundImage = null;
-        CurrentImageOpacity = 1.0;
+
+        // Instantly reset next opacity to 0 (no transition — it's null/invisible anyway)
         NextImageOpacity = 0.0;
 
         oldBitmap?.Dispose();
     }
 
     [RelayCommand]
-    private void SelectThumbnail(SpotlightThumbnailItem? item)
+    private async void SelectThumbnail(SpotlightThumbnailItem? item)
     {
         if (item == null) return;
 
@@ -174,9 +183,8 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
             if (info != null)
             {
                 var oldBitmap = CurrentBackgroundImage;
-                CurrentBackgroundImage = LoadBitmap(info.FilePath);
+                CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
                 CurrentImageName = info.DisplayName;
-                CurrentImageOpacity = 1.0;
                 NextImageOpacity = 0.0;
                 oldBitmap?.Dispose();
             }
@@ -310,22 +318,23 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
 
     private void InitializeThumbnails()
     {
+        // v1.1: Cleaner Unicode symbols — cross-platform compatible, no color emoji dependency
         var modules = new (string Name, string Icon, string ViewName)[]
         {
-            ("Stok", "📦", "Stock"),
-            ("Siparişler", "📋", "Orders"),
-            ("Fatura", "🧾", "InvoiceList"),
-            ("CRM", "👥", "CrmDashboard"),
-            ("Kargo", "🚚", "CargoTracking"),
-            ("Pazaryerleri", "🏪", "Marketplaces"),
-            ("Muhasebe", "💰", "AccountingDashboard"),
-            ("Raporlar", "📊", "Reports"),
-            ("Trendyol", "🟠", "Trendyol"),
-            ("Hepsiburada", "🟣", "Hepsiburada"),
-            ("Amazon", "📦", "Amazon"),
-            ("N11", "🔮", "N11"),
-            ("Dashboard", "🏠", "Dashboard"),
-            ("Ayarlar", "⚙️", "Settings"),
+            ("Stok", "\u25A3", "Stock"),           // ▣ filled square with inner
+            ("Siparisler", "\u2630", "Orders"),     // ☰ trigram / list
+            ("Fatura", "\u2637", "InvoiceList"),    // ☷ receipt-like
+            ("CRM", "\u2B22", "CrmDashboard"),      // ⬢ hexagon
+            ("Kargo", "\u2B9E", "CargoTracking"),   // ⮞ right arrow
+            ("Pazaryeri", "\u25C8", "Marketplaces"), // ◈ diamond with dot
+            ("Muhasebe", "\u2B1F", "AccountingDashboard"), // ⬟ pentagon
+            ("Raporlar", "\u25A4", "Reports"),      // ▤ grid
+            ("Trendyol", "\u25CF", "Trendyol"),     // ● filled circle
+            ("Hepsiburada", "\u25CF", "Hepsiburada"), // ● filled circle
+            ("Amazon", "\u25B2", "Amazon"),          // ▲ triangle
+            ("N11", "\u25C6", "N11"),               // ◆ diamond
+            ("Dashboard", "\u2302", "Dashboard"),    // ⌂ house
+            ("Ayarlar", "\u2699", "Settings"),       // ⚙ gear
         };
 
         for (int i = 0; i < modules.Length; i++)
@@ -375,12 +384,17 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
         try
         {
             using var stream = File.OpenRead(path);
-            return Bitmap.DecodeToWidth(stream, 1920);
+            return Bitmap.DecodeToWidth(stream, 1280);
         }
         catch
         {
             return null;
         }
+    }
+
+    private static Task<Bitmap?> LoadBitmapAsync(string path)
+    {
+        return Task.Run(() => LoadBitmap(path));
     }
 
     private void SaveRememberedUser(string username)

@@ -3,34 +3,38 @@
         xmlns:vm="using:MesTech.Avalonia.ViewModels"
         x:Class="MesTech.Avalonia.Views.WelcomeWindow"
         x:DataType="vm:SpotlightWelcomeViewModel"
-        Title="MesTech — Hoş Geldiniz"
+        Title="MesTech — Hos Geldiniz"
         WindowState="Maximized"
         SystemDecorations="None"
-        Background="Transparent"
+        Background="#0D1117"
         Topmost="True"
         CanResize="False">
 
   <!-- ╔═══════════════════════════════════════════════════════════════════╗ -->
   <!-- ║ KORUMALI TASARIM — SPOTLIGHT WELCOME SCREEN                     ║ -->
   <!-- ║ Sahip: DEV2 (Frontend & UI/UX)                                  ║ -->
-  <!-- ║ Versiyon: v1.0.0 — 2026-03-27                                  ║ -->
+  <!-- ║ Versiyon: v1.1.0 — 2026-03-28                                  ║ -->
   <!-- ╠═══════════════════════════════════════════════════════════════════╣ -->
   <!-- ║ KURALLAR:                                                       ║ -->
-  <!-- ║ 1. Katman yapısı (Layer 0-5) DEĞİŞTİRİLEMEZ — sadece İÇERİK  ║ -->
-  <!-- ║ 2. Renk/font/spacing değişiklikleri → DesignTokens üzerinden   ║ -->
-  <!-- ║ 3. Yeni özellik → mevcut yapıya UYUMLU ekleme, kırma YASAK    ║ -->
-  <!-- ║ 4. Köklü layout değişikliği → ÖNCE tasarım onayı al           ║ -->
-  <!-- ║ 5. İyileştirme = zarifleştirme. Basitleştirme = kalite kaybı  ║ -->
-  <!-- ║ 6. macOS/Bitrix24 kalite hedefi — kolaya kaçma YASAK           ║ -->
+  <!-- ║ 1. Katman yapisi (Layer 0-5) DEGISTIRILEMEZ — sadece ICERIK    ║ -->
+  <!-- ║ 2. Renk/font/spacing degisiklikleri → DesignTokens uzerinden   ║ -->
+  <!-- ║ 3. Yeni ozellik → mevcut yapiya UYUMLU ekleme, kirma YASAK    ║ -->
+  <!-- ║ 4. Koklu layout degisikligi → ONCE tasarim onayi al           ║ -->
+  <!-- ║ 5. Iyilestirme = zariflestirme. Basitlestirme = kalite kaybi  ║ -->
+  <!-- ║ 6. macOS/Bitrix24 kalite hedefi — kolaya kacma YASAK           ║ -->
   <!-- ╚═══════════════════════════════════════════════════════════════════╝ -->
   <!--                                                                     -->
-  <!-- BING SPOTLIGHT INSPIRED WELCOME + LOGIN SCREEN                      -->
-  <!-- Layered Panel: BG Image → Overlays → Content                        -->
+  <!-- BING SPOTLIGHT / WINDOWS LOCK SCREEN INSPIRED WELCOME + LOGIN       -->
+  <!-- Layered Panel: Solid BG → Current Image → Next Image → Overlays → Content -->
+  <!-- v1.1: Seamless crossfade fix — current stays at 1.0, next fades IN on top -->
   <!-- ═══════════════════════════════════════════════ -->
 
   <Panel>
 
-    <!-- ═══ LAYER 0: Gradient fallback (no images) ═══ -->
+    <!-- ═══ LAYER 0: Solid dark fallback — ALWAYS visible, prevents flash ═══ -->
+    <Border Background="#0D1117"/>
+
+    <!-- ═══ LAYER 0b: Gradient fallback (when no images) ═══ -->
     <Border IsVisible="{Binding !HasSpotlightImages}">
       <Border.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -42,49 +46,43 @@
       </Border.Background>
     </Border>
 
-    <!-- ═══ LAYER 1: Current background image ═══ -->
+    <!-- ═══ LAYER 1: Current background image (always opacity=1, stable base) ═══ -->
     <Image x:Name="CurrentBgImage"
            Source="{Binding CurrentBackgroundImage}"
-           Stretch="UniformToFill"
-           Opacity="{Binding CurrentImageOpacity}">
-      <Image.Transitions>
-        <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.8" Easing="CubicEaseInOut"/>
-        </Transitions>
-      </Image.Transitions>
-    </Image>
+           Stretch="UniformToFill"/>
 
-    <!-- ═══ LAYER 2: Next background image (crossfade) ═══ -->
+    <!-- ═══ LAYER 2: Next background image — fades IN on top of current ═══ -->
     <Image x:Name="NextBgImage"
            Source="{Binding NextBackgroundImage}"
            Stretch="UniformToFill"
            Opacity="{Binding NextImageOpacity}">
       <Image.Transitions>
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.8" Easing="CubicEaseInOut"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:1.2" Easing="CubicEaseInOut"/>
         </Transitions>
       </Image.Transitions>
     </Image>
 
     <!-- ═══ LAYER 3: Top gradient overlay ═══ -->
-    <Border VerticalAlignment="Top" Height="160" IsHitTestVisible="False">
+    <Border VerticalAlignment="Top" Height="180" IsHitTestVisible="False">
       <Border.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-          <GradientStop Color="#99000000" Offset="0"/>
-          <GradientStop Color="#33000000" Offset="0.5"/>
+          <GradientStop Color="#88000000" Offset="0"/>
+          <GradientStop Color="#22000000" Offset="0.6"/>
           <GradientStop Color="#00000000" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
     </Border>
 
-    <!-- ═══ LAYER 4: Bottom gradient overlay ═══ -->
-    <Border VerticalAlignment="Bottom" Height="420" IsHitTestVisible="False">
+    <!-- ═══ LAYER 4: Bottom gradient overlay (taller, smoother) ═══ -->
+    <Border VerticalAlignment="Bottom" Height="480" IsHitTestVisible="False">
       <Border.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
           <GradientStop Color="#00000000" Offset="0"/>
-          <GradientStop Color="#55000000" Offset="0.25"/>
-          <GradientStop Color="#AA000000" Offset="0.6"/>
-          <GradientStop Color="#DD000000" Offset="1"/>
+          <GradientStop Color="#33000000" Offset="0.2"/>
+          <GradientStop Color="#88000000" Offset="0.5"/>
+          <GradientStop Color="#CC000000" Offset="0.75"/>
+          <GradientStop Color="#E5000000" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
     </Border>
@@ -95,13 +93,13 @@
       <!-- ═════════════════════════════════════════ -->
       <!-- ROW 0: Top thumbnail bar                 -->
       <!-- ═════════════════════════════════════════ -->
-      <Border Grid.Row="0" Margin="24,20,24,0">
+      <Border Grid.Row="0" Margin="32,24,32,0">
         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled">
           <ItemsControl ItemsSource="{Binding Thumbnails}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" Spacing="10"/>
+                <StackPanel Orientation="Horizontal" Spacing="8"/>
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
@@ -110,26 +108,28 @@
                         CommandParameter="{Binding}"
                         Padding="0" BorderThickness="0" Background="Transparent"
                         Cursor="Hand"
-                        CornerRadius="10">
-                  <Border Width="130" Height="80" CornerRadius="10"
+                        CornerRadius="12">
+                  <Border Width="110" Height="72" CornerRadius="12"
                           ClipToBounds="True"
-                          Background="#55000000"
-                          BorderBrush="#33FFFFFF" BorderThickness="1">
+                          Background="#44000000"
+                          BorderBrush="#22FFFFFF" BorderThickness="1">
                     <Border.Transitions>
                       <Transitions>
-                        <BrushTransition Property="Background" Duration="0:0:0.2"/>
-                        <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                        <BrushTransition Property="Background" Duration="0:0:0.25"/>
+                        <BrushTransition Property="BorderBrush" Duration="0:0:0.25"/>
                       </Transitions>
                     </Border.Transitions>
                     <StackPanel VerticalAlignment="Center"
-                                HorizontalAlignment="Center" Spacing="4">
-                      <TextBlock Text="{Binding Icon}" FontSize="22"
-                                 HorizontalAlignment="Center"/>
-                      <TextBlock Text="{Binding Name}" FontSize="11"
+                                HorizontalAlignment="Center" Spacing="6">
+                      <TextBlock Text="{Binding Icon}" FontSize="24"
+                                 HorizontalAlignment="Center"
+                                 Opacity="0.95"/>
+                      <TextBlock Text="{Binding Name}" FontSize="10"
                                  FontWeight="SemiBold"
                                  Foreground="White"
                                  HorizontalAlignment="Center"
-                                 Opacity="0.9"/>
+                                 Opacity="0.85"
+                                 LetterSpacing="0.3"/>
                     </StackPanel>
                   </Border>
                 </Button>
@@ -142,97 +142,117 @@
       <!-- ═════════════════════════════════════════ -->
       <!-- ROW 2: Bottom area                       -->
       <!-- ═════════════════════════════════════════ -->
-      <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="40,0,40,36">
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="48,0,48,40">
 
-        <!-- ─── BOTTOM-LEFT: Branding + Info + Actions + Clock ─── -->
-        <StackPanel Grid.Column="0" VerticalAlignment="Bottom" Spacing="8"
+        <!-- ─── BOTTOM-LEFT: Clock + Branding + Info ─── -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Bottom" Spacing="4"
                     MaxWidth="600">
 
+          <!-- Clock + Date (Windows lock screen style — large clock on top) -->
+          <StackPanel Spacing="-4" Margin="0,0,0,16">
+            <TextBlock x:Name="ClockDisplay" Text="{Binding ClockText}"
+                       FontSize="72" FontWeight="ExtraLight"
+                       Foreground="White" Opacity="0.95"
+                       LetterSpacing="2">
+              <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="20" OffsetX="0" OffsetY="3" Opacity="0.35"/>
+              </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock x:Name="DateDisplay" Text="{Binding DateText}"
+                       FontSize="16" Foreground="#DDFFFFFF" Margin="3,0,0,0"
+                       LetterSpacing="0.5">
+              <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="10" OffsetX="0" OffsetY="1" Opacity="0.3"/>
+              </TextBlock.Effect>
+            </TextBlock>
+          </StackPanel>
+
           <!-- Brand name -->
-          <TextBlock Text="MesTech" FontSize="46" FontWeight="Bold"
-                     Foreground="White" Opacity="0.95">
+          <TextBlock Text="MesTech" FontSize="28" FontWeight="Bold"
+                     Foreground="White" Opacity="0.9"
+                     LetterSpacing="1.5">
             <TextBlock.Effect>
-              <DropShadowEffect Color="Black" BlurRadius="12" OffsetX="0" OffsetY="2" Opacity="0.5"/>
+              <DropShadowEffect Color="Black" BlurRadius="10" OffsetX="0" OffsetY="1" Opacity="0.4"/>
             </TextBlock.Effect>
           </TextBlock>
 
           <!-- Subtitle -->
-          <TextBlock Text="Entegratör  |  Çoklu Pazaryeri Yönetim Platformu"
-                     FontSize="15" Foreground="#CCFFFFFF" Margin="2,0,0,0">
+          <TextBlock Text="Entegrator  |  Coklu Pazaryeri Yonetim Platformu"
+                     FontSize="13" Foreground="#BBFFFFFF" Margin="1,0,0,0"
+                     LetterSpacing="0.3">
             <TextBlock.Effect>
-              <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.4"/>
+              <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.3"/>
             </TextBlock.Effect>
           </TextBlock>
 
           <!-- Quick stats row -->
-          <StackPanel Orientation="Horizontal" Spacing="20" Margin="2,8,0,0">
-            <StackPanel Orientation="Horizontal" Spacing="5">
-              <TextBlock Text="{Binding ModuleCount}" FontSize="18" FontWeight="Bold"
-                         Foreground="#64B5F6"/>
-              <TextBlock Text="Modül" FontSize="13" Foreground="#AAFFFFFF"
+          <StackPanel Orientation="Horizontal" Spacing="16" Margin="1,8,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="{Binding ModuleCount}" FontSize="16" FontWeight="SemiBold"
+                         Foreground="#90CAF9"/>
+              <TextBlock Text="Modul" FontSize="12" Foreground="#99FFFFFF"
                          VerticalAlignment="Center"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="5">
-              <TextBlock Text="{Binding PlatformCount}" FontSize="18" FontWeight="Bold"
-                         Foreground="#81C784"/>
-              <TextBlock Text="Platform" FontSize="13" Foreground="#AAFFFFFF"
+            <TextBlock Text="|" Foreground="#33FFFFFF" VerticalAlignment="Center" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="{Binding PlatformCount}" FontSize="16" FontWeight="SemiBold"
+                         Foreground="#A5D6A7"/>
+              <TextBlock Text="Platform" FontSize="12" Foreground="#99FFFFFF"
                          VerticalAlignment="Center"/>
             </StackPanel>
-            <TextBlock Text="{Binding VersionText}" FontSize="13"
-                       Foreground="#77FFFFFF" VerticalAlignment="Center"/>
-          </StackPanel>
-
-          <!-- Action links -->
-          <StackPanel Orientation="Horizontal" Spacing="12" Margin="2,6,0,0">
-            <Button Content="🔐  Giriş Yap"
-                    Command="{Binding ToggleLoginModeCommand}"
-                    Background="Transparent" Foreground="White"
-                    FontSize="13" FontWeight="SemiBold"
-                    Padding="8,4" BorderThickness="0" Cursor="Hand"
-                    Opacity="0.9"/>
-            <TextBlock Text="│" Foreground="#44FFFFFF" VerticalAlignment="Center" FontSize="14"/>
-            <Button Content="🎮  Demo ile Keşfet"
-                    Command="{Binding DemoLoginCommand}"
-                    Background="Transparent" Foreground="White"
-                    FontSize="13" FontWeight="SemiBold"
-                    Padding="8,4" BorderThickness="0" Cursor="Hand"
-                    Opacity="0.9"/>
-            <TextBlock Text="│" Foreground="#44FFFFFF" VerticalAlignment="Center" FontSize="14"/>
-            <Button Content="Esc ile Çıkış"
-                    Command="{Binding CloseCommand}"
-                    Background="Transparent" Foreground="#88FFFFFF"
-                    FontSize="12" Padding="8,4" BorderThickness="0" Cursor="Hand"/>
+            <TextBlock Text="|" Foreground="#33FFFFFF" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="{Binding VersionText}" FontSize="12"
+                       Foreground="#66FFFFFF" VerticalAlignment="Center"/>
           </StackPanel>
 
           <!-- Image name (like Bing "Keşfedin: Zhangjiajie") -->
-          <TextBlock Text="{Binding CurrentImageName, StringFormat='Keşfedin: {0}'}"
-                     FontSize="13" Foreground="#99FFFFFF" Margin="2,4,0,0"
+          <TextBlock Text="{Binding CurrentImageName, StringFormat='Kesfet: {0}'}"
+                     FontSize="12" Foreground="#77FFFFFF" Margin="1,10,0,0"
                      IsVisible="{Binding HasSpotlightImages}"
-                     FontStyle="Italic"/>
+                     FontStyle="Italic"
+                     LetterSpacing="0.3"/>
 
-          <!-- Clock + Date -->
-          <StackPanel Spacing="0" Margin="0,12,0,0">
-            <TextBlock x:Name="ClockDisplay" Text="{Binding ClockText}"
-                       FontSize="52" FontWeight="Light"
-                       Foreground="White" Opacity="0.92">
-              <TextBlock.Effect>
-                <DropShadowEffect Color="Black" BlurRadius="16" OffsetX="0" OffsetY="2" Opacity="0.4"/>
-              </TextBlock.Effect>
-            </TextBlock>
-            <TextBlock x:Name="DateDisplay" Text="{Binding DateText}"
-                       FontSize="15" Foreground="#BBFFFFFF" Margin="2,-2,0,0">
-              <TextBlock.Effect>
-                <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.3"/>
-              </TextBlock.Effect>
-            </TextBlock>
+          <!-- Action links -->
+          <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+            <Button Content="Giris Yap"
+                    Command="{Binding ToggleLoginModeCommand}"
+                    Background="#33FFFFFF" Foreground="White"
+                    FontSize="12" FontWeight="SemiBold"
+                    Padding="14,6" CornerRadius="16"
+                    BorderThickness="1" BorderBrush="#22FFFFFF"
+                    Cursor="Hand" Opacity="0.9">
+              <Button.Transitions>
+                <Transitions>
+                  <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+              </Button.Transitions>
+            </Button>
+            <Button Content="Demo ile Kesfet"
+                    Command="{Binding DemoLoginCommand}"
+                    Background="Transparent" Foreground="#CCFFFFFF"
+                    FontSize="12" FontWeight="SemiBold"
+                    Padding="14,6" CornerRadius="16"
+                    BorderThickness="1" BorderBrush="#33FFFFFF"
+                    Cursor="Hand" Opacity="0.85">
+              <Button.Transitions>
+                <Transitions>
+                  <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+              </Button.Transitions>
+            </Button>
+            <Button Content="Esc"
+                    Command="{Binding CloseCommand}"
+                    Background="Transparent" Foreground="#66FFFFFF"
+                    FontSize="11" Padding="10,6" CornerRadius="16"
+                    BorderThickness="0" Cursor="Hand"/>
           </StackPanel>
         </StackPanel>
 
         <!-- ─── BOTTOM-RIGHT: Login card ─── -->
         <Border Grid.Column="1" VerticalAlignment="Bottom"
-                Width="360" CornerRadius="16"
+                Width="370" CornerRadius="16"
                 IsVisible="{Binding IsLoginMode}"
-                BoxShadow="0 8 32 0 #50000000"
+                BoxShadow="0 12 40 0 #60000000"
                 ClipToBounds="True"
                 Background="#CC0D1B2A">
           <Border.Transitions>
@@ -243,48 +263,51 @@
 
           <!-- Glass overlay -->
           <Border CornerRadius="16"
-                  BorderBrush="#22FFFFFF" BorderThickness="1"
-                  Background="#18FFFFFF">
-            <StackPanel Margin="28,24" Spacing="14">
+                  BorderBrush="#18FFFFFF" BorderThickness="1"
+                  Background="#14FFFFFF">
+            <StackPanel Margin="30,28" Spacing="16">
 
               <!-- Card header -->
-              <StackPanel Spacing="2" Margin="0,0,0,4">
-                <TextBlock Text="Giriş Yap" FontSize="22" FontWeight="Bold"
-                           Foreground="White" HorizontalAlignment="Center"/>
-                <TextBlock Text="MesTech hesabınızla devam edin"
-                           FontSize="12" Foreground="#88FFFFFF"
+              <StackPanel Spacing="4" Margin="0,0,0,4">
+                <TextBlock Text="Giris Yap" FontSize="20" FontWeight="SemiBold"
+                           Foreground="White" HorizontalAlignment="Center"
+                           LetterSpacing="0.5"/>
+                <TextBlock Text="MesTech hesabinizla devam edin"
+                           FontSize="12" Foreground="#77FFFFFF"
                            HorizontalAlignment="Center"/>
               </StackPanel>
 
               <!-- Username -->
-              <StackPanel Spacing="4">
-                <TextBlock Text="Kullanıcı Adı" FontSize="12" Foreground="#AAFFFFFF"/>
+              <StackPanel Spacing="6">
+                <TextBlock Text="Kullanici Adi" FontSize="11" Foreground="#99FFFFFF"
+                           LetterSpacing="0.5"/>
                 <TextBox x:Name="UsernameBox"
                          Text="{Binding Username, Mode=TwoWay}"
-                         Watermark="Kullanıcı adınızı girin"
+                         Watermark="Kullanici adinizi girin"
                          FontSize="14"
-                         Padding="12,10"
-                         CornerRadius="8"
-                         Background="#22FFFFFF"
+                         Padding="14,11"
+                         CornerRadius="10"
+                         Background="#18FFFFFF"
                          Foreground="White"
-                         BorderBrush="#33FFFFFF"
+                         BorderBrush="#22FFFFFF"
                          BorderThickness="1"/>
               </StackPanel>
 
               <!-- Password -->
-              <StackPanel Spacing="4">
-                <TextBlock Text="Şifre" FontSize="12" Foreground="#AAFFFFFF"/>
+              <StackPanel Spacing="6">
+                <TextBlock Text="Sifre" FontSize="11" Foreground="#99FFFFFF"
+                           LetterSpacing="0.5"/>
                 <Grid>
                   <TextBox x:Name="PasswordBox"
                            Text="{Binding Password, Mode=TwoWay}"
                            PasswordChar="●"
-                           Watermark="Şifrenizi girin"
+                           Watermark="Sifrenizi girin"
                            FontSize="14"
-                           Padding="12,10"
-                           CornerRadius="8"
-                           Background="#22FFFFFF"
+                           Padding="14,11"
+                           CornerRadius="10"
+                           Background="#18FFFFFF"
                            Foreground="White"
-                           BorderBrush="#33FFFFFF"
+                           BorderBrush="#22FFFFFF"
                            BorderThickness="1"/>
                   <Button HorizontalAlignment="Right"
                           VerticalAlignment="Center"
@@ -293,23 +316,23 @@
                           Padding="6"
                           Cursor="Hand"
                           Command="{Binding TogglePasswordVisibilityCommand}">
-                    <TextBlock x:Name="PasswordToggleIcon" Text="👁"
-                               FontSize="14" Foreground="#88FFFFFF"/>
+                    <TextBlock x:Name="PasswordToggleIcon" Text="*"
+                               FontSize="16" Foreground="#66FFFFFF"/>
                   </Button>
                 </Grid>
               </StackPanel>
 
               <!-- Remember me -->
               <CheckBox x:Name="RememberMeCheck"
-                        Content="Beni Hatırla"
+                        Content="Beni Hatirla"
                         IsChecked="{Binding RememberMe}"
-                        Foreground="#BBFFFFFF" FontSize="12"/>
+                        Foreground="#AAFFFFFF" FontSize="12"/>
 
               <!-- Login button -->
               <Button x:Name="LoginButton"
                       HorizontalAlignment="Stretch"
                       HorizontalContentAlignment="Center"
-                      Height="44" CornerRadius="10"
+                      Height="46" CornerRadius="12"
                       FontSize="14" FontWeight="SemiBold"
                       Background="#2563EB"
                       Foreground="White"
@@ -318,38 +341,40 @@
                       Cursor="Hand">
                 <Button.Transitions>
                   <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
                   </Transitions>
                 </Button.Transitions>
                 <Panel>
-                  <TextBlock Text="GİRİŞ YAP" HorizontalAlignment="Center"
-                             IsVisible="{Binding !IsLoginLoading}"/>
-                  <TextBlock Text="Doğrulanıyor..." HorizontalAlignment="Center"
+                  <TextBlock Text="GIRIS YAP" HorizontalAlignment="Center"
+                             IsVisible="{Binding !IsLoginLoading}"
+                             LetterSpacing="1"/>
+                  <TextBlock Text="Dogrulaniyor..." HorizontalAlignment="Center"
                              IsVisible="{Binding IsLoginLoading}" Opacity="0.7"/>
                 </Panel>
               </Button>
 
               <!-- Error panel -->
               <Border IsVisible="{Binding ShowLoginError}"
-                      Background="#33FF3B30" CornerRadius="8"
-                      Padding="12,8">
+                      Background="#22FF3B30" CornerRadius="10"
+                      Padding="14,10">
                 <TextBlock Text="{Binding LoginErrorMessage}"
-                           Foreground="#FF6B6B" FontSize="12"
+                           Foreground="#FF7B7B" FontSize="12"
                            TextWrapping="Wrap"/>
               </Border>
 
               <!-- Lockout panel -->
               <Border IsVisible="{Binding ShowLockout}"
-                      Background="#33F59E0B" CornerRadius="8"
-                      Padding="12,8">
+                      Background="#22F59E0B" CornerRadius="10"
+                      Padding="14,10">
                 <TextBlock Text="{Binding LockoutMessage}"
-                           Foreground="#FFBE4D" FontSize="12"/>
+                           Foreground="#FFCC5D" FontSize="12"/>
               </Border>
 
               <!-- Demo hint -->
-              <TextBlock Text="Demo Giriş: admin / Admin123!"
-                         FontSize="11" Foreground="#55FFFFFF"
-                         HorizontalAlignment="Center" Margin="0,2,0,0"/>
+              <TextBlock Text="Demo: admin / Admin123!"
+                         FontSize="10" Foreground="#44FFFFFF"
+                         HorizontalAlignment="Center" Margin="0,2,0,0"
+                         LetterSpacing="0.5"/>
             </StackPanel>
           </Border>
         </Border>

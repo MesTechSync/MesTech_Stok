@@ -64,16 +64,16 @@ public partial class WelcomeWindow : Window
         }
     }
 
-    private void OnImageTimerTick(object? sender, EventArgs e)
+    private async void OnImageTimerTick(object? sender, EventArgs e)
     {
         if (_vm == null) return;
 
-        bool started = _vm.StartNextImageTransition();
+        bool started = await _vm.StartNextImageTransitionAsync();
         if (!started) return;
 
-        // After 800ms crossfade completes, swap buffers
+        // After 1.2s crossfade completes, swap buffers (add 100ms safety margin)
         _transitionTimer?.Stop();
-        _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(850) };
+        _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1350) };
         _transitionTimer.Tick += (_, _) =>
         {
             _transitionTimer?.Stop();
