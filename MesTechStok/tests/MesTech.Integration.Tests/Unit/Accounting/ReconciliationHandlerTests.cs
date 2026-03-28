@@ -201,10 +201,10 @@ public class ReconciliationHandlerTests
     {
         var accountRepo = new Mock<IChartOfAccountsRepository>();
         var journalRepo = new Mock<IJournalEntryRepository>();
-        var service = new Mock<BalanceSheetValidationService>();
+        var service = new BalanceSheetValidationService();
 
         var handler = new ValidateBalanceSheetHandler(
-            accountRepo.Object, journalRepo.Object, service.Object);
+            accountRepo.Object, journalRepo.Object, service);
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
             handler.Handle(null!, CancellationToken.None));
@@ -216,9 +216,9 @@ public class ReconciliationHandlerTests
     public async Task ValidateTrialBalance_NullRequest_Throws()
     {
         var journalRepo = new Mock<IJournalEntryRepository>();
-        var service = new Mock<TrialBalanceValidationService>();
+        var service = new TrialBalanceValidationService();
 
-        var handler = new ValidateTrialBalanceHandler(journalRepo.Object, service.Object);
+        var handler = new ValidateTrialBalanceHandler(journalRepo.Object, service);
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
             handler.Handle(null!, CancellationToken.None));

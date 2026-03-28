@@ -190,7 +190,8 @@ public class StockQueryHandlerTests
     public async Task GetRecentOrders_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IOrderRepository>();
-        repo.Setup(r => r.GetRecentAsync(_tenantId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>());
 
         var handler = new GetRecentOrdersHandler(repo.Object);
