@@ -28,6 +28,7 @@
             <TextBlock Text="⚠" FontSize="18" VerticalAlignment="Center" />
             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
             <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="8,4"
+                    ToolTip.Tip="Verileri tekrar yukle"
                     CornerRadius="{StaticResource MesRadiusMd}" />
         </StackPanel>
     </Border>
@@ -53,6 +54,7 @@
                                Foreground="{DynamicResource MesTextSecondary}" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="↻ Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri yenile (F5)"
                         VerticalAlignment="Center" Padding="12,8"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" CornerRadius="{StaticResource MesRadiusMd}" />
