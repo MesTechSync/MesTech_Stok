@@ -1,0 +1,168 @@
+@page "/muhasebe/donemler"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<AccountingPeriods> Logger
+
+<PageTitle>MesTech - Muhasebe Donemleri</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #6610f2;">
+            <i class="fas fa-calendar-check text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #6610f2;">Muhasebe Donemleri</h3>
+            <small class="text-muted">Donem yonetimi ve kapatma islemleri</small>
+        </div>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    @if (_periods.Count == 0)
+    {
+        <EmptyState Icon="fa-calendar-check" Message="Muhasebe donemi bulunamadi." />
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Donem</th>
+                            <th>Baslangic</th>
+                            <th>Bitis</th>
+                            <th>Durum</th>
+                            <th class="text-end">Fis Sayisi</th>
+                            <th class="text-end">Toplam Borc</th>
+                            <th class="text-end">Toplam Alacak</th>
+                            <th style="width: 100px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in _periods)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@p.Name</td>
+                                <td class="small">@p.StartDate.ToString("dd.MM.yyyy")</td>
+                                <td class="small">@p.EndDate.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    @if (p.Status == "Acik")
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-lock-open me-1"></i>Acik</span>
+                                    }
+                                    else if (p.Status == "Kapali")
+                                    {
+                                        <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>Kapali</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Beklemede</span>
+                                    }
+                                </td>
+                                <td class="text-end">@p.VoucherCount</td>
+                                <td class="text-end">@p.TotalDebit.ToString("C2", _trCulture)</td>
+                                <td class="text-end">@p.TotalCredit.ToString("C2", _trCulture)</td>
+                                <td>
+                                    @if (p.Status == "Acik")
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => ClosePeriodAsync(p.Id)" disabled="@_isClosing">
+                                            <i class="fas fa-lock me-1"></i>Kapat
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool _isClosing;
+    private string? errorMessage;
+    private List<PeriodRow> _periods = new();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<PeriodRow>>("accounting/periods");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+                _periods = result.Data;
+            else { _isDemoMode = true; _periods = GetDemoData(); }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Accounting periods load failed");
+            _isDemoMode = true;
+            _periods = GetDemoData();
+        }
+        finally { isLoading = false; StateHasChanged(); }
+    }
+
+    private async Task ClosePeriodAsync(Guid periodId)
+    {
+        _isClosing = true;
+        try
+        {
+            var result = await ApiClient.SafePostAsync<object>("accounting/periods/close", new { PeriodId = periodId });
+            if (result.IsSuccess)
+            {
+                var period = _periods.FirstOrDefault(p => p.Id == periodId);
+                if (period != null)
+                {
+                    var idx = _periods.IndexOf(period);
+                    _periods[idx] = period with { Status = "Kapali" };
+                }
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Donem kapatilamadi.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally { _isClosing = false; StateHasChanged(); }
+    }
+
+    private static List<PeriodRow> GetDemoData() => new()
+    {
+        new(Guid.NewGuid(), "Mart 2026", new(2026, 3, 1), new(2026, 3, 31), "Acik", 234, 456_200m, 456_200m),
+        new(Guid.NewGuid(), "Subat 2026", new(2026, 2, 1), new(2026, 2, 28), "Kapali", 312, 523_800m, 523_800m),
+        new(Guid.NewGuid(), "Ocak 2026", new(2026, 1, 1), new(2026, 1, 31), "Kapali", 287, 498_600m, 498_600m),
+    };
+
+    private record PeriodRow(Guid Id, string Name, DateTime StartDate, DateTime EndDate, string Status, int VoucherCount, decimal TotalDebit, decimal TotalCredit);
+}

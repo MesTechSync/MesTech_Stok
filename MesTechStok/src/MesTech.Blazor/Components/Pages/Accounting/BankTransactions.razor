@@ -1,0 +1,170 @@
+@page "/muhasebe/banka-hareketleri"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<BankTransactions> Logger
+
+<PageTitle>MesTech - Banka Hareketleri</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #0d6efd;">
+            <i class="fas fa-university text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #0d6efd;">Banka Hareketleri</h3>
+            <small class="text-muted">Banka hesap hareketleri ve mutabakat</small>
+        </div>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" @onclick="LoadDataAsync" disabled="@isLoading">
+        <i class="fas fa-sync-alt me-1"></i>Yenile
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-success border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Giris</div>
+                    <div class="fs-5 fw-bold text-success">@_transactions.Where(t => t.Type == "Giris").Sum(t => t.Amount).ToString("C2", _trCulture)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-danger border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Cikis</div>
+                    <div class="fs-5 fw-bold text-danger">@_transactions.Where(t => t.Type == "Cikis").Sum(t => t.Amount).ToString("C2", _trCulture)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-primary border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Bakiye</div>
+                    <div class="fs-5 fw-bold">@(_transactions.Where(t => t.Type == "Giris").Sum(t => t.Amount) - _transactions.Where(t => t.Type == "Cikis").Sum(t => t.Amount)).ToString("C2", _trCulture)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-warning border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Hareket Sayisi</div>
+                    <div class="fs-5 fw-bold">@_transactions.Count</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Aciklama</th>
+                        <th>Banka</th>
+                        <th>Tip</th>
+                        <th class="text-end">Tutar</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_transactions.Count == 0)
+                    {
+                        <tr><td colspan="6"><EmptyState Icon="fa-university" Message="Banka hareketi bulunamadi." /></td></tr>
+                    }
+                    @foreach (var tx in _transactions)
+                    {
+                        <tr>
+                            <td class="small">@tx.Date.ToString("dd.MM.yyyy")</td>
+                            <td>@tx.Description</td>
+                            <td><span class="badge bg-light text-dark">@tx.BankName</span></td>
+                            <td>
+                                <span class="badge @(tx.Type == "Giris" ? "bg-success" : "bg-danger")">
+                                    <i class="fas @(tx.Type == "Giris" ? "fa-arrow-down" : "fa-arrow-up") me-1"></i>@tx.Type
+                                </span>
+                            </td>
+                            <td class="text-end fw-semibold @(tx.Type == "Giris" ? "text-success" : "text-danger")">
+                                @((tx.Type == "Giris" ? "+" : "-"))@tx.Amount.ToString("C2", _trCulture)
+                            </td>
+                            <td>
+                                <span class="badge @(tx.Reconciled ? "bg-success" : "bg-warning text-dark")">
+                                    @(tx.Reconciled ? "Eslesti" : "Bekliyor")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private List<BankTx> _transactions = new();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<BankTx>>("accounting/bank-transactions");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+                _transactions = result.Data;
+            else
+            {
+                _isDemoMode = true;
+                _transactions = GetDemoData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Bank transactions load failed");
+            _isDemoMode = true;
+            _transactions = GetDemoData();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static List<BankTx> GetDemoData() => new()
+    {
+        new(DateTime.Now.AddDays(-1), "Trendyol hakediş ödemesi", "Garanti", "Giris", 45_200m, true),
+        new(DateTime.Now.AddDays(-2), "Hepsiburada hakediş", "Garanti", "Giris", 23_100m, true),
+        new(DateTime.Now.AddDays(-2), "Tedarikçi ödemesi — ABC Ltd", "İş Bankası", "Cikis", 18_500m, true),
+        new(DateTime.Now.AddDays(-3), "Kargo ücreti — Yurtiçi", "Garanti", "Cikis", 4_200m, false),
+        new(DateTime.Now.AddDays(-4), "N11 hakediş", "İş Bankası", "Giris", 12_800m, false),
+        new(DateTime.Now.AddDays(-5), "Ofis kira ödemesi", "İş Bankası", "Cikis", 8_500m, true),
+    };
+
+    private record BankTx(DateTime Date, string Description, string BankName, string Type, decimal Amount, bool Reconciled);
+}

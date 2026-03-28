@@ -1,0 +1,191 @@
+@page "/muhasebe/bilanco"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<BalanceSheet> Logger
+
+<PageTitle>MesTech - Bilanco</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #198754;">
+            <i class="fas fa-balance-scale text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #198754;">Bilanco</h3>
+            <small class="text-muted">Varlik, borc ve ozsermaye durumu</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm" style="width: 140px;" @bind="_selectedPeriod">
+            <option value="2026-03">Mart 2026</option>
+            <option value="2026-02">Subat 2026</option>
+            <option value="2026-01">Ocak 2026</option>
+        </select>
+        <button class="btn btn-outline-success btn-sm" @onclick="LoadDataAsync" disabled="@isLoading">
+            <i class="fas fa-sync-alt me-1"></i>Yenile
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        <!-- Varliklar -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Varliklar (Aktif)</h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (_assets.Count == 0)
+                    {
+                        <EmptyState Icon="fa-balance-scale" Message="Varlik verisi bulunamadi." />
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Hesap</th><th class="text-end">Tutar</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in _assets)
+                                {
+                                    <tr class="@(a.IsGroup ? "fw-bold table-light" : "")">
+                                        <td>@(a.IsGroup ? "" : "  ")@a.Name</td>
+                                        <td class="text-end">@a.Amount.ToString("C2", _trCulture)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-success">
+                                <tr><th>TOPLAM VARLIKLAR</th><th class="text-end">@_assets.Where(a => !a.IsGroup).Sum(a => a.Amount).ToString("C2", _trCulture)</th></tr>
+                            </tfoot>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Borclar + Ozsermaye -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Borclar + Ozsermaye (Pasif)</h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (_liabilities.Count == 0)
+                    {
+                        <EmptyState Icon="fa-balance-scale" Message="Borc verisi bulunamadi." />
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Hesap</th><th class="text-end">Tutar</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in _liabilities)
+                                {
+                                    <tr class="@(l.IsGroup ? "fw-bold table-light" : "")">
+                                        <td>@(l.IsGroup ? "" : "  ")@l.Name</td>
+                                        <td class="text-end">@l.Amount.ToString("C2", _trCulture)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-danger">
+                                <tr><th>TOPLAM PASIF</th><th class="text-end">@_liabilities.Where(l => !l.IsGroup).Sum(l => l.Amount).ToString("C2", _trCulture)</th></tr>
+                            </tfoot>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string _selectedPeriod = "2026-03";
+    private List<BalanceRow> _assets = new();
+    private List<BalanceRow> _liabilities = new();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<BalanceSheetDto>($"accounting/balance-sheet?period={_selectedPeriod}");
+            if (result.IsSuccess && result.Data != null)
+            {
+                _assets = result.Data.Assets;
+                _liabilities = result.Data.Liabilities;
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Balance sheet load failed");
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LoadDemoData()
+    {
+        _assets = new()
+        {
+            new("Donen Varliklar", 0, true),
+            new("Kasa", 45_200m, false),
+            new("Bankalar", 312_500m, false),
+            new("Ticari Alacaklar", 89_300m, false),
+            new("Stoklar", 234_600m, false),
+            new("Duran Varliklar", 0, true),
+            new("Demirbaslar", 45_000m, false),
+            new("Tasitlar", 120_000m, false),
+        };
+        _liabilities = new()
+        {
+            new("Kisa Vadeli Borclar", 0, true),
+            new("Ticari Borclar", 156_400m, false),
+            new("Odenecek Vergiler", 34_200m, false),
+            new("Uzun Vadeli Borclar", 0, true),
+            new("Banka Kredileri", 180_000m, false),
+            new("Ozsermaye", 0, true),
+            new("Sermaye", 300_000m, false),
+            new("Donem Kari", 176_000m, false),
+        };
+    }
+
+    private record BalanceRow(string Name, decimal Amount, bool IsGroup);
+    private record BalanceSheetDto(List<BalanceRow> Assets, List<BalanceRow> Liabilities);
+}
