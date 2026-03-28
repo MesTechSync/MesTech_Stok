@@ -3,6 +3,12 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.15] - 2026-03-28
+
+### DEV6 Business Logic & WebApi
+- refactor(webapi): standardize 20 BadRequest→ProblemDetails RFC 7807 (BulkProduct, SocialFeed, ProductImage, BaBs, EInvoice)
+- docs(gorev): close G062(Blazor endpoints), G075(XSS file removed) + add G113-G114
+
 ## [1.0.14] - 2026-03-28
 
 ### DEV2 Frontend & UI (TUR 1-11)
