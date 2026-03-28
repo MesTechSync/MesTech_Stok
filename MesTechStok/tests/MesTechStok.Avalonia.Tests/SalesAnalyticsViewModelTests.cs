@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,9 @@ public class SalesAnalyticsViewModelTests
     public SalesAnalyticsViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new SalesAnalyticsViewModel(_mediatorMock.Object);
+        var currentUserMock = new Mock<ICurrentUserService>();
+        currentUserMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+        _sut = new SalesAnalyticsViewModel(_mediatorMock.Object, currentUserMock.Object);
     }
 
     [Fact]
