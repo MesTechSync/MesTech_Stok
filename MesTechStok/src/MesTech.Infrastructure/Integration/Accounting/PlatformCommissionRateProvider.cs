@@ -25,11 +25,17 @@ public sealed class PlatformCommissionRateProvider : ICommissionRateProvider
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Legacy overload — TenantId olmadan çağırmak güvenli değil.
+    /// Lütfen <see cref="GetRateAsync(Guid, string, string?, CancellationToken)"/> overload'unu kullanın.
+    /// </remarks>
     public Task<CommissionRateInfo?> GetRateAsync(
         string platform,
         string? categoryId,
         CancellationToken cancellationToken = default)
-        => GetRateAsync(Guid.Empty, platform, categoryId, cancellationToken);
+        => throw new InvalidOperationException(
+            "TenantId is required. Use GetRateAsync(Guid tenantId, ...) overload.");
 
     public async Task<CommissionRateInfo?> GetRateAsync(
         Guid tenantId,
