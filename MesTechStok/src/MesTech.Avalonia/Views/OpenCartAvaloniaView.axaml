@@ -117,6 +117,7 @@
                                 <TextBlock Text="OpenCart Ürünleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        ToolTip.Tip="Urunleri senkronize et"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
                             </Grid>
@@ -151,6 +152,7 @@
                                 <TextBlock Text="OpenCart Siparişleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        ToolTip.Tip="Siparisleri senkronize et"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
                             </Grid>
@@ -185,6 +187,7 @@
                                 <TextBlock Text="Platform ↔ MesTech Kategori Eşleme" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MesDarkSlate}" />
                                 <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                        ToolTip.Tip="Kategorileri senkronize et"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
                             </Grid>
@@ -238,6 +241,7 @@
 
                             <!-- Test Connection -->
                             <Button Content="Bağlantı Test" Command="{Binding TestConnectionCommand}"
+                                    ToolTip.Tip="OpenCart API baglanti testi yap"
                                     Padding="16,9" CornerRadius="{StaticResource MesRadiusBase}"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                                     FontWeight="SemiBold" HorizontalAlignment="Left" />
