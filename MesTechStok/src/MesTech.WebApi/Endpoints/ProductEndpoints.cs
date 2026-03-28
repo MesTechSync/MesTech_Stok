@@ -162,6 +162,39 @@ public static class ProductEndpoints
         .Produces(200)
         .CacheOutput("Lookup60s");
 
+        // GET /api/v1/products/prices — product list with price data (Blazor PriceUpdate.razor)
+        group.MapGet("/prices", async (
+            Guid? tenantId,
+            int? page,
+            int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetProductsQuery(tenantId ?? Guid.Empty, null, null, true, null,
+                    page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetProductPrices")
+        .WithSummary("Ürün fiyat listesi — toplu fiyat güncelleme için")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/products/import/templates — import template listesi (Blazor ProductImport.razor)
+        group.MapGet("/import/templates", () =>
+        {
+            var templates = new[]
+            {
+                new { Id = "excel-basic", Name = "Temel Ürün (Excel)", Format = "xlsx", Columns = new[] { "SKU", "Name", "Price", "Stock", "Barcode" } },
+                new { Id = "csv-full", Name = "Tam Ürün (CSV)", Format = "csv", Columns = new[] { "SKU", "Name", "Price", "Stock", "Barcode", "Category", "Brand", "Weight", "Description" } },
+                new { Id = "trendyol", Name = "Trendyol Format", Format = "xlsx", Columns = new[] { "Barkod", "Model Kodu", "Stok Adedi", "Satis Fiyati", "Kategori" } },
+            };
+            return Results.Ok(templates);
+        })
+        .WithName("GetImportTemplates")
+        .WithSummary("Ürün import şablon listesi")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
         // POST /api/v1/products/bulk — create demo/seed products in bulk
         group.MapPost("/bulk", async (
             CreateBulkProductsCommand command,
