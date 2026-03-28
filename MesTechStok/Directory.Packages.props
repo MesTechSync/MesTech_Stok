@@ -138,6 +138,8 @@
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
+    <!-- Dalga 15: BenchmarkDotNet micro-benchmarking -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <!-- Dalga 13: NUnit + Playwright E2E -->
     <PackageVersion Include="NUnit" Version="4.3.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />

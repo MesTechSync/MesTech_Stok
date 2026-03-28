@@ -32,6 +32,20 @@
         </StackPanel>
     </Border>
 
+    <!-- Empty State -->
+    <Border IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Spacing="8" HorizontalAlignment="Center">
+            <TextBlock Text="Pipeline bos" FontSize="18" FontWeight="Bold"
+                       HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
+            <TextBlock Text="Henuz anlaşma bulunamadi. Bitrix24 entegrasyonunu kontrol edin."
+                       FontSize="13" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
+            <Button Content="Yenile" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
+                    ToolTip.Tip="Verileri tekrar yukle" Margin="0,8,0,0"
+                    Padding="16,6" CornerRadius="{StaticResource MesRadiusSm}"
+                    Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
+        </StackPanel>
+    </Border>
+
     <!-- Main Content -->
     <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
     <Grid RowDefinitions="Auto,Auto,*" Margin="24,16">
@@ -76,19 +90,19 @@
             <Button Content="Yeni" Command="{Binding FilterByStageCommand}" CommandParameter="new"
                     ToolTip.Tip="Yeni anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
-                    Background="#DBEAFE" Foreground="#1D4ED8" />
+                    Background="{DynamicResource MesBgInfoLight}" Foreground="{DynamicResource MesPrimaryBlue}" />
             <Button Content="Temas" Command="{Binding FilterByStageCommand}" CommandParameter="contact"
                     ToolTip.Tip="Temas asamasindaki anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
-                    Background="#FEF3C7" Foreground="#92400E" />
+                    Background="{DynamicResource MesBgAmberLight}" Foreground="{DynamicResource MesAmberDark}" />
             <Button Content="Teklif" Command="{Binding FilterByStageCommand}" CommandParameter="proposal"
                     ToolTip.Tip="Teklif asamasindaki anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
-                    Background="#E0E7FF" Foreground="#3730A3" />
+                    Background="{DynamicResource MesBgPurpleLight}" Foreground="{DynamicResource MesPurple}" />
             <Button Content="Kazanildi" Command="{Binding FilterByStageCommand}" CommandParameter="won"
                     ToolTip.Tip="Kazanilan anlasmalar"
                     Padding="12,6" CornerRadius="14" FontSize="{StaticResource FontSizeSmall}"
-                    Background="#D1FAE5" Foreground="#065F46" />
+                    Background="{DynamicResource MesBgSuccessLight}" Foreground="{DynamicResource MesGreenSuccess}" />
         </StackPanel>
 
         <!-- Row 2: Kanban Columns -->
