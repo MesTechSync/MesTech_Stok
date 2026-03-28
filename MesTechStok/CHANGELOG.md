@@ -3,6 +3,19 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.17] - 2026-03-28
+
+### DEV5 Test & Kalite TUR 1-10 — handler + validator + event handler test kapsamı
+- test(accounting): 22 query happy path + 14 reconciliation + 18 expense/income handler tests
+- test(stock): 28 stock/order/dashboard + 13 order/warehouse + 12 product extended + 3 bulk handler tests
+- test(validators): 69 accounting validator tests (FixedExpense, Salary, Tax, Counterparty, Penalty, FinancialGoal, Update/Delete, Campaign, Warehouse, Store, Product, Order, Billing, Cari, Barcode)
+- test(crm): 8 CRM + 12 extended CRM handler tests (deals, pipeline, messages, contacts, loyalty)
+- test(platform): 13 report + 6 dashboard + 1 trigger sync + 8 notification/settings + 7 ERP handler tests
+- test(invoice): 9 e-invoice + invoice handler tests
+- test(events): 9 domain event (Z2,Z3,Z6,Z7,Z8,Z10 chain) + 10 notification event handler tests
+- test(bulk): 27 bulk null-guard tests (category, stock, cari, quotation, return, tenant, HR, finance)
+- Unique handler kapsam: 100→293 (%74.7), Validator test: 33→48, Toplam: 256→325 .cs (+69 dosya, ~442 test metot)
+
 ## [1.0.16] - 2026-03-28
 
 ### DEV3 Integration TUR 6 — S3 KOPUK fixes + PAYLAŞIM
