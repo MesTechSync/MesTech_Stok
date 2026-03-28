@@ -67,6 +67,21 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TracingBehavior<,>));
 });
 
+// OpenTelemetry — distributed tracing + metrics
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation(opt => opt.SetDbStatementForText = true)
+        .AddSource("MesTech.Application.Handlers")
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
+        }))
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation());
+
 // Infrastructure (DbContext, Repositories, Domain Services, etc.)
 // skipSelfHostedEndpoints=true: HealthCheckEndpoint/MesaStatusEndpoint/RealtimeDashboardEndpoint
 // are WPF-only. WebAPI provides /health and /metrics via Kestrel.
@@ -406,12 +421,21 @@ app.UseExceptionHandler(error =>
     });
 });
 
-// Swagger JSON spec — all environments for external tool consumption (A-M2-05)
-app.UseSwagger();
+// G091 FIX: Cache-Control for API responses — prevent proxy/browser caching of sensitive data
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.Headers["Cache-Control"] = "no-store, no-cache, private";
+        context.Response.Headers["Pragma"] = "no-cache";
+    }
+    await next();
+});
 
-// Swagger UI — Development only (production API structure exposure = OWASP risk) (KEŞİF-DEV6-T14)
+// G102 FIX: Swagger JSON — Development only (production API structure exposure = OWASP risk)
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "MesTech API v1");
