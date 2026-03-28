@@ -21,11 +21,23 @@ public class MesTechHub : Hub
 
     /// <summary>
     /// Client'i tenant grubuna ekler. Tenant bazli event broadcast icin kullanilir.
+    /// G104 FIX: tenantId JWT claim ile dogrulanir — client baska tenant'a katılamaz.
     /// </summary>
     public async Task JoinTenantGroup(string tenantId)
     {
         if (string.IsNullOrWhiteSpace(tenantId))
             return;
+
+        var claimTenantId = Context.User?.FindFirst("tenant_id")?.Value
+                         ?? Context.User?.FindFirst("tenantId")?.Value;
+
+        if (claimTenantId is null || !string.Equals(claimTenantId, tenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning(
+                "SignalR tenant group REJECTED: connectionId={ConnectionId}, requested={Requested}, claim={Claim}",
+                Context.ConnectionId, tenantId, claimTenantId ?? "null");
+            throw new HubException("Tenant group access denied: tenant mismatch");
+        }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
 
