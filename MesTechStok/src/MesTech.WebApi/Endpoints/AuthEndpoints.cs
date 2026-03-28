@@ -316,12 +316,30 @@ public static class AuthEndpoints
         .WithName("VerifyTotp")
         .WithSummary("TOTP doğrulama kodu kontrol")
         .Produces(200).Produces(400);
+
+        // POST /api/v1/auth/mfa/disable — disable MFA for user (G222-DEV6)
+        group.MapPost("/mfa/disable", async (
+            MfaDisableRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Auth.Commands.DisableMfa.DisableMfaCommand(
+                    request.UserId, request.TotpCode), ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.BadRequest(result);
+        })
+        .WithName("DisableMfa")
+        .WithSummary("Kullanıcı MFA (TOTP) devre dışı bırak — aktif TOTP kodu gerekli (G222)")
+        .Produces(200).Produces(400);
     }
 
     // ── Request / Response Records ──
 
     public record MfaEnableRequest(Guid UserId);
     public record MfaVerifyRequest(Guid UserId, string Code);
+    public record MfaDisableRequest(Guid UserId, string TotpCode);
     public record LoginRequest(string UserName, string Password);
 
     public record LoginResponse(
