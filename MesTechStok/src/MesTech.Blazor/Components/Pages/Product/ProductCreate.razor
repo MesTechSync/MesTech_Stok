@@ -1,0 +1,238 @@
+@page "/urunler/ekle"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<ProductCreate> Logger
+@inject NavigationManager Navigation
+
+<PageTitle>MesTech - Yeni Urun Ekle</PageTitle>
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width: 48px; height: 48px; background-color: #198754;">
+        <i class="fas fa-plus text-white"></i>
+    </div>
+    <div>
+        <h3 class="mb-0" style="color: #198754;">Yeni Urun Ekle</h3>
+        <small class="text-muted">Yeni urun tanimi olusturun</small>
+    </div>
+</div>
+
+@if (successMessage is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@successMessage
+        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+    </div>
+}
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <EditForm Model="@_form" OnValidSubmit="HandleSubmitAsync">
+            <DataAnnotationsValidator />
+
+            <div class="row g-3">
+                <!-- Temel Bilgiler -->
+                <div class="col-12">
+                    <h6 class="fw-semibold text-muted text-uppercase mb-3">
+                        <i class="fas fa-info-circle me-1"></i>Temel Bilgiler
+                    </h6>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Urun Adi <span class="text-danger">*</span></label>
+                    <InputText class="form-control" @bind-Value="_form.Name" placeholder="Urun adini giriniz" />
+                    <ValidationMessage For="@(() => _form.Name)" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">SKU <span class="text-danger">*</span></label>
+                    <InputText class="form-control" @bind-Value="_form.SKU" placeholder="SKU-001" />
+                    <ValidationMessage For="@(() => _form.SKU)" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Barkod</label>
+                    <InputText class="form-control" @bind-Value="_form.Barcode" placeholder="8690000..." />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Kategori</label>
+                    <InputText class="form-control" @bind-Value="_form.Category" placeholder="Elektronik" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Marka</label>
+                    <InputText class="form-control" @bind-Value="_form.Brand" placeholder="Apple" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Birim</label>
+                    <select class="form-select" @bind="_form.Unit">
+                        <option value="Adet">Adet</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Lt">Lt</option>
+                        <option value="Metre">Metre</option>
+                        <option value="Paket">Paket</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Aciklama</label>
+                    <InputTextArea class="form-control" @bind-Value="_form.Description" rows="3" placeholder="Urun aciklamasi..." />
+                </div>
+
+                <!-- Fiyat ve Stok -->
+                <div class="col-12 mt-4">
+                    <h6 class="fw-semibold text-muted text-uppercase mb-3">
+                        <i class="fas fa-tag me-1"></i>Fiyat ve Stok
+                    </h6>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Alis Fiyati (TL) <span class="text-danger">*</span></label>
+                    <InputNumber class="form-control" @bind-Value="_form.PurchasePrice" />
+                    <ValidationMessage For="@(() => _form.PurchasePrice)" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Satis Fiyati (TL) <span class="text-danger">*</span></label>
+                    <InputNumber class="form-control" @bind-Value="_form.SalePrice" />
+                    <ValidationMessage For="@(() => _form.SalePrice)" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Baslangic Stok</label>
+                    <InputNumber class="form-control" @bind-Value="_form.InitialStock" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Minimum Stok</label>
+                    <InputNumber class="form-control" @bind-Value="_form.MinStock" />
+                </div>
+
+                <!-- KDV -->
+                <div class="col-md-3">
+                    <label class="form-label">KDV Orani (%)</label>
+                    <select class="form-select" @bind="_form.VatRate">
+                        <option value="20">%20</option>
+                        <option value="10">%10</option>
+                        <option value="1">%1</option>
+                        <option value="0">%0</option>
+                    </select>
+                </div>
+
+                <!-- Fiziksel -->
+                <div class="col-12 mt-4">
+                    <h6 class="fw-semibold text-muted text-uppercase mb-3">
+                        <i class="fas fa-weight-hanging me-1"></i>Fiziksel Bilgiler
+                    </h6>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Agirlik (gr)</label>
+                    <InputNumber class="form-control" @bind-Value="_form.WeightGrams" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Desi</label>
+                    <InputNumber class="form-control" @bind-Value="_form.Desi" />
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <hr class="my-4" />
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" @onclick="() => Navigation.NavigateTo('/urunler')">
+                    <i class="fas fa-arrow-left me-1"></i>Geri
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary" @onclick="ResetForm">
+                        <i class="fas fa-eraser me-1"></i>Temizle
+                    </button>
+                    <button type="submit" class="btn btn-success" disabled="@isSaving">
+                        @if (isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-save me-1"></i>
+                        }
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private bool isSaving;
+    private string? errorMessage;
+    private string? successMessage;
+    private ProductForm _form = new();
+
+    private async Task HandleSubmitAsync()
+    {
+        try
+        {
+            isSaving = true;
+            errorMessage = null;
+            successMessage = null;
+
+            var result = await ApiClient.SafePostAsync<object>("products", _form);
+            if (result.IsSuccess)
+            {
+                successMessage = $"'{_form.Name}' basariyla olusturuldu.";
+                _form = new();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Urun olusturulamadi. Lutfen tekrar deneyin.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Product create failed");
+            errorMessage = $"Hata: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ResetForm()
+    {
+        _form = new();
+        errorMessage = null;
+        successMessage = null;
+    }
+
+    private class ProductForm
+    {
+        public string Name { get; set; } = string.Empty;
+        public string SKU { get; set; } = string.Empty;
+        public string? Barcode { get; set; }
+        public string? Category { get; set; }
+        public string? Brand { get; set; }
+        public string Unit { get; set; } = "Adet";
+        public string? Description { get; set; }
+        public decimal PurchasePrice { get; set; }
+        public decimal SalePrice { get; set; }
+        public int InitialStock { get; set; }
+        public int MinStock { get; set; } = 5;
+        public int VatRate { get; set; } = 20;
+        public int WeightGrams { get; set; }
+        public decimal Desi { get; set; }
+    }
+}

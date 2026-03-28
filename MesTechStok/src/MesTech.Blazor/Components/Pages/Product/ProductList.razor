@@ -1,0 +1,273 @@
+@page "/urunler"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<ProductList> Logger
+@inject NavigationManager Navigation
+
+<PageTitle>MesTech - Urun Listesi</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #2855AC;">
+            <i class="fas fa-cube text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #2855AC;">Urun Listesi</h3>
+            <small class="text-muted">Tum urunlerin yonetimi, duzenleme ve detay goruntuleme</small>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary btn-sm" @onclick="() => Navigation.NavigateTo('/urunler/ekle')">
+            <i class="fas fa-plus me-1"></i>Yeni Urun
+        </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="() => Navigation.NavigateTo('/urunler/toplu-aktar')">
+            <i class="fas fa-file-import me-1"></i>Toplu Aktar
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="LoadDataAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-primary border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Toplam Urun</div>
+                    <div class="fs-4 fw-bold">@_products.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-success border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Aktif</div>
+                    <div class="fs-4 fw-bold text-success">@_products.Count(p => p.IsActive)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-warning border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Dusuk Stok</div>
+                    <div class="fs-4 fw-bold text-warning">@_products.Count(p => p.Stock < p.MinStock && p.Stock > 0)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-start border-danger border-4">
+                <div class="card-body py-2">
+                    <div class="text-muted small">Stokta Yok</div>
+                    <div class="fs-4 fw-bold text-danger">@_products.Count(p => p.Stock == 0)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm-4">
+                    <SearchInput @bind-Value="_searchText" Placeholder="Urun adi, SKU veya barkod ara..." />
+                </div>
+                <div class="col-6 col-sm-2">
+                    <select class="form-select form-select-sm" @bind="_categoryFilter">
+                        <option value="">Tum Kategoriler</option>
+                        @foreach (var cat in _categories)
+                        {
+                            <option value="@cat">@cat</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-6 col-sm-2">
+                    <select class="form-select form-select-sm" @bind="_statusFilter">
+                        <option value="">Tum Durum</option>
+                        <option value="active">Aktif</option>
+                        <option value="passive">Pasif</option>
+                        <option value="lowstock">Dusuk Stok</option>
+                        <option value="outofstock">Stokta Yok</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-4 text-end">
+                    <button class="btn btn-sm btn-outline-success" @onclick="LoadDataAsync" disabled="@isLoading">
+                        <i class="fas fa-sync-alt me-1"></i>Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (FilteredProducts.Count == 0)
+    {
+        <EmptyState Icon="fa-cube" Message="Filtreye uyan urun bulunamadi." />
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;"></th>
+                            <th>SKU</th>
+                            <th>Urun Adi</th>
+                            <th>Kategori</th>
+                            <th class="text-end">Stok</th>
+                            <th class="text-end">Alis</th>
+                            <th class="text-end">Satis</th>
+                            <th>Durum</th>
+                            <th style="width: 80px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in FilteredProducts)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                    {
+                                        <img src="@p.ImageUrl" alt="@p.Name" class="rounded" style="width: 36px; height: 36px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                            <i class="fas fa-image text-muted small"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td><code>@p.SKU</code></td>
+                                <td class="fw-semibold">@p.Name</td>
+                                <td><span class="badge bg-light text-dark">@p.Category</span></td>
+                                <td class="text-end fw-semibold @(p.Stock == 0 ? "text-danger" : p.Stock < p.MinStock ? "text-warning" : "")">
+                                    @p.Stock
+                                </td>
+                                <td class="text-end">@p.PurchasePrice.ToString("C2", _trCulture)</td>
+                                <td class="text-end">@p.SalePrice.ToString("C2", _trCulture)</td>
+                                <td>
+                                    @if (!p.IsActive)
+                                    {
+                                        <span class="badge bg-secondary">Pasif</span>
+                                    }
+                                    else if (p.Stock == 0)
+                                    {
+                                        <span class="badge bg-danger">Tukendi</span>
+                                    }
+                                    else if (p.Stock < p.MinStock)
+                                    {
+                                        <span class="badge bg-warning text-dark">Dusuk</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Aktif</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" title="Detay">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-muted small">
+                @FilteredProducts.Count / @_products.Count urun gosteriliyor
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private static readonly System.Globalization.CultureInfo _trCulture = new("tr-TR");
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string? _searchText;
+    private string? _categoryFilter;
+    private string? _statusFilter;
+    private List<ProductRow> _products = new();
+    private List<string> _categories = new();
+
+    private List<ProductRow> FilteredProducts => _products
+        .Where(p => string.IsNullOrEmpty(_searchText) ||
+            p.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+            p.SKU.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+            (p.Barcode ?? "").Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(_categoryFilter) || p.Category == _categoryFilter)
+        .Where(p => _statusFilter switch
+        {
+            "active" => p.IsActive,
+            "passive" => !p.IsActive,
+            "lowstock" => p.Stock < p.MinStock && p.Stock > 0,
+            "outofstock" => p.Stock == 0,
+            _ => true
+        })
+        .OrderBy(p => p.Name)
+        .ToList();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<ProductRow>>("products");
+            if (result.IsSuccess && result.Data is { Count: > 0 })
+            {
+                _products = result.Data;
+                _categories = _products.Select(p => p.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c).ToList();
+            }
+            else
+            {
+                _isDemoMode = true;
+                _products = GetDemoData();
+                _categories = _products.Select(p => p.Category).Distinct().OrderBy(c => c).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Product list load failed, using demo data");
+            _isDemoMode = true;
+            _products = GetDemoData();
+            _categories = _products.Select(p => p.Category).Distinct().OrderBy(c => c).ToList();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static List<ProductRow> GetDemoData() => new()
+    {
+        new("SKU-001", "iPhone 15 Pro Max 256GB", "Elektronik", 45, 10, 42000m, 54999m, true, null, "8690000001234"),
+        new("SKU-002", "Samsung Galaxy S24 Ultra", "Elektronik", 32, 10, 38000m, 49999m, true, null, "8690000001235"),
+        new("SKU-003", "Apple AirPods Pro 2", "Aksesuar", 120, 20, 3500m, 5999m, true, null, "8690000001236"),
+        new("SKU-004", "Dyson V15 Detect", "Ev Elektroniği", 0, 5, 12000m, 17999m, true, null, "8690000001237"),
+        new("SKU-005", "Sony WH-1000XM5", "Aksesuar", 8, 15, 4500m, 7999m, true, null, "8690000001238"),
+        new("SKU-006", "MacBook Air M3", "Bilgisayar", 15, 5, 32000m, 42999m, true, null, "8690000001239"),
+        new("SKU-007", "iPad Pro 11 M4", "Tablet", 22, 5, 28000m, 37999m, false, null, "8690000001240"),
+    };
+
+    private record ProductRow(string SKU, string Name, string Category, int Stock, int MinStock, decimal PurchasePrice, decimal SalePrice, bool IsActive, string? ImageUrl, string? Barcode);
+}
