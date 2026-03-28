@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Queries.GetWarehouseSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,14 +14,16 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalWarehouses;
 
     public ObservableCollection<WarehouseSummaryCardDto> WarehouseCards { get; } = [];
 
-    public WarehouseSummaryAvaloniaViewModel(IMediator mediator)
+    public WarehouseSummaryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -30,7 +33,7 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetWarehouseSummaryQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetWarehouseSummaryQuery(_currentUser.TenantId));
 
             WarehouseCards.Clear();
             foreach (var w in result)

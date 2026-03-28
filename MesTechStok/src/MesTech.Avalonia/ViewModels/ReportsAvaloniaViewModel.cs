@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Stock.Queries.GetStockSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,10 +14,12 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ReportsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
-    public ReportsAvaloniaViewModel(IMediator mediator)
+    public ReportsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [ObservableProperty] private string summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
@@ -48,8 +51,8 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var dashboardTask = _mediator.Send(new GetDashboardSummaryQuery(TenantId: Guid.Empty));
-            var stockTask = _mediator.Send(new GetStockSummaryQuery(TenantId: Guid.Empty));
+            var dashboardTask = _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
+            var stockTask = _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
 
             await Task.WhenAll(dashboardTask, stockTask);
 

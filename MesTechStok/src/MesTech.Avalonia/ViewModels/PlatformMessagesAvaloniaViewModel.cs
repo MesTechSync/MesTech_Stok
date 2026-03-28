@@ -7,6 +7,7 @@ using MesTech.Application.Features.Crm.Commands.ReplyToMessage;
 using MesTech.Application.Features.Crm.Queries.GetPlatformMessages;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,6 +15,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -31,10 +33,11 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
     public string[] StatusFilters { get; } = ["Tumu", "Okunmadi", "Yanit Bekliyor", "Arsiv"];
     public string[] PlatformFilters { get; } = ["Tumu", "Trendyol", "Hepsiburada", "N11", "Amazon", "Ciceksepeti"];
 
-    public PlatformMessagesAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    public PlatformMessagesAvaloniaViewModel(IMediator mediator, IDialogService dialog, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _dialog = dialog;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -64,7 +67,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
             };
 
             var result = await _mediator.Send(new GetPlatformMessagesQuery(
-                TenantId: Guid.Empty,
+                TenantId: _currentUser.TenantId,
                 Platform: platform,
                 Status: status));
 

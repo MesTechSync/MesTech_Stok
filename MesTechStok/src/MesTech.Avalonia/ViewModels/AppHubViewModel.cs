@@ -8,6 +8,7 @@ using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
 using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -24,6 +25,7 @@ public partial class AppHubViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ILogger<AppHubViewModel> _logger;
     private readonly IMesTechApiClient? _apiClient;
+    private readonly ICurrentUserService _currentUser;
 
     // === Günlük Özet KPI ===
     [ObservableProperty] private int todayOrderCount;
@@ -41,10 +43,11 @@ public partial class AppHubViewModel : ViewModelBase
     // === Sağ Panel: Servis Durumu ===
     public ObservableCollection<ServiceStatusItem> ServiceStatuses { get; } = [];
 
-    public AppHubViewModel(IMediator mediator, ILogger<AppHubViewModel> logger, IMesTechApiClient? apiClient = null)
+    public AppHubViewModel(IMediator mediator, ILogger<AppHubViewModel> logger, ICurrentUserService currentUser, IMesTechApiClient? apiClient = null)
     {
         _mediator = mediator;
         _logger = logger;
+        _currentUser = currentUser;
         _apiClient = apiClient;
     }
 
@@ -86,7 +89,7 @@ public partial class AppHubViewModel : ViewModelBase
     {
         try
         {
-            var result = await _mediator.Send(new GetDashboardSummaryQuery(Guid.Empty));
+            var result = await _mediator.Send(new GetDashboardSummaryQuery(_currentUser.TenantId));
             if (result is not null)
             {
                 TodayOrderCount = result.TodayOrderCount;
@@ -112,7 +115,7 @@ public partial class AppHubViewModel : ViewModelBase
         RecentOrders.Clear();
         try
         {
-            var orders = await _mediator.Send(new GetRecentOrdersQuery(Guid.Empty, 5));
+            var orders = await _mediator.Send(new GetRecentOrdersQuery(_currentUser.TenantId, 5));
             foreach (var o in orders)
                 RecentOrders.Add(new(o.OrderNumber, o.Platform ?? "—", o.Status, o.TotalAmount));
         }
@@ -128,7 +131,7 @@ public partial class AppHubViewModel : ViewModelBase
         LowStockAlerts.Clear();
         try
         {
-            var alerts = await _mediator.Send(new GetLowStockAlertsQuery(Guid.Empty, 5));
+            var alerts = await _mediator.Send(new GetLowStockAlertsQuery(_currentUser.TenantId, 5));
             foreach (var a in alerts)
                 LowStockAlerts.Add(new(a.ProductName, a.CurrentStock, a.MinimumStock));
         }
@@ -143,7 +146,7 @@ public partial class AppHubViewModel : ViewModelBase
         PendingInvoices.Clear();
         try
         {
-            var invoices = await _mediator.Send(new GetPendingInvoicesQuery(Guid.Empty, 5));
+            var invoices = await _mediator.Send(new GetPendingInvoicesQuery(_currentUser.TenantId, 5));
             foreach (var i in invoices)
                 PendingInvoices.Add(new(i.InvoiceNumber, i.CustomerName ?? "—", i.GrandTotal));
         }
@@ -164,7 +167,7 @@ public partial class AppHubViewModel : ViewModelBase
         // Platform APIs — attempt health query for real status
         try
         {
-            var summary = await _mediator.Send(new GetDashboardSummaryQuery(Guid.Empty));
+            var summary = await _mediator.Send(new GetDashboardSummaryQuery(_currentUser.TenantId));
             var platformCount = summary?.ActivePlatformCount ?? 0;
             ServiceStatuses.Add(new("Platform API", platformCount > 0, $"{platformCount} aktif"));
         }
@@ -189,7 +192,7 @@ public partial class AppHubViewModel : ViewModelBase
         {
             if (_apiClient != null)
             {
-                var ok = await _apiClient.TriggerPlatformSyncAsync(Guid.Empty, "all");
+                var ok = await _apiClient.TriggerPlatformSyncAsync(_currentUser.TenantId, "all");
                 QuickActionStatus = ok ? "Senkronizasyon basarili!" : "Senkronizasyon basarisiz.";
             }
             else
@@ -210,7 +213,7 @@ public partial class AppHubViewModel : ViewModelBase
         {
             if (_apiClient != null)
             {
-                var ok = await _apiClient.CreateQuickInvoiceAsync(Guid.Empty, Guid.Empty);
+                var ok = await _apiClient.CreateQuickInvoiceAsync(_currentUser.TenantId, Guid.Empty);
                 QuickActionStatus = ok ? "Fatura olusturuldu!" : "Fatura olusturulamadi.";
             }
             else

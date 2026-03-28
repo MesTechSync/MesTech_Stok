@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Application.DTOs.Platform;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,13 +15,15 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
-    public PlatformSyncAvaloniaViewModel(IMediator mediator)
+    public PlatformSyncAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public ObservableCollection<PlatformSyncItemDto> Platforms { get; } = [];
@@ -49,7 +52,7 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: Guid.Empty));
+            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: _currentUser.TenantId));
 
             _allPlatforms = statuses.Select(s => new PlatformSyncItemDto
             {

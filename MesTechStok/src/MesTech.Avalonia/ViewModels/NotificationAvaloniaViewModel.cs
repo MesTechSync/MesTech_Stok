@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.System.UserNotifications.Queries.GetUserNotifications;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,16 +14,17 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class NotificationAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<NotificationItemDto> Notifications { get; } = [];
 
-    public NotificationAvaloniaViewModel(IMediator mediator)
+    public NotificationAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -34,8 +36,8 @@ public partial class NotificationAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new GetUserNotificationsQuery(
-                TenantId: Guid.Empty,
-                UserId: Guid.Empty));
+                TenantId: _currentUser.TenantId,
+                UserId: _currentUser.UserId ?? Guid.Empty));
 
             Notifications.Clear();
             foreach (var n in result.Items)

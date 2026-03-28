@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,16 +14,17 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class SupplierAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<SupplierItemDto> Suppliers { get; } = [];
 
-    public SupplierAvaloniaViewModel(IMediator mediator)
+    public SupplierAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -34,7 +36,7 @@ public partial class SupplierAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new GetSuppliersCrmQuery(
-                TenantId: Guid.Empty,
+                TenantId: _currentUser.TenantId,
                 SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText));
 
             Suppliers.Clear();

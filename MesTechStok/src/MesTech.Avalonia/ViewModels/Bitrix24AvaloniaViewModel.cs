@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetBitrix24Pipeline;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -16,6 +17,7 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<Bitrix24AvaloniaViewModel> _logger;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalDeals;
     [ObservableProperty] private decimal totalValue;
@@ -23,10 +25,11 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<PipelineStageItem> Stages { get; } = [];
 
-    public Bitrix24AvaloniaViewModel(IMediator mediator, ILogger<Bitrix24AvaloniaViewModel> logger)
+    public Bitrix24AvaloniaViewModel(IMediator mediator, ILogger<Bitrix24AvaloniaViewModel> logger, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _logger = logger;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -36,7 +39,7 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetBitrix24PipelineQuery(Guid.Empty, StageFilter));
+            var result = await _mediator.Send(new GetBitrix24PipelineQuery(_currentUser.TenantId, StageFilter));
             Stages.Clear();
             TotalDeals = result.TotalDeals;
             TotalValue = result.TotalValue;

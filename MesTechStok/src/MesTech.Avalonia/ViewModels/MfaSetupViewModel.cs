@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Auth.Commands.EnableMfa;
 using MesTech.Application.Features.Auth.Commands.VerifyTotp;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -18,6 +19,7 @@ public partial class MfaSetupViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<MfaSetupViewModel> _logger;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private bool isMfaEnabled;
     [ObservableProperty] private bool isSetupStarted;
@@ -27,10 +29,11 @@ public partial class MfaSetupViewModel : ViewModelBase
     [ObservableProperty] private bool isVerified;
     [ObservableProperty] private string statusMessage = string.Empty;
 
-    public MfaSetupViewModel(IMediator mediator, ILogger<MfaSetupViewModel> logger)
+    public MfaSetupViewModel(IMediator mediator, ILogger<MfaSetupViewModel> logger, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _logger = logger;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -65,7 +68,7 @@ public partial class MfaSetupViewModel : ViewModelBase
         StatusMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new EnableMfaCommand(Guid.Empty));
+            var result = await _mediator.Send(new EnableMfaCommand(_currentUser.UserId ?? Guid.Empty));
             if (result.IsSuccess)
             {
                 QrCodeUri = result.QrCodeUri ?? string.Empty;
@@ -104,7 +107,7 @@ public partial class MfaSetupViewModel : ViewModelBase
         StatusMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new VerifyTotpCommand(Guid.Empty, VerificationCode));
+            var result = await _mediator.Send(new VerifyTotpCommand(_currentUser.UserId ?? Guid.Empty, VerificationCode));
             if (result.IsSuccess)
             {
                 IsVerified = true;
