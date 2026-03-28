@@ -169,7 +169,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async void SelectThumbnail(SpotlightThumbnailItem? item)
+    private async Task SelectThumbnail(SpotlightThumbnailItem? item)
     {
         if (item == null) return;
 
