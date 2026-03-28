@@ -227,8 +227,12 @@ public static class AuthEndpoints
                 options.RefreshTokenExpiryDays, ip, ua);
             await refreshTokenRepo.AddAsync(newRefreshToken, ct);
 
-            // Generate new access token — UserRole has no Role navigation, use default
-            var roles = new[] { "User" };
+            // Generate new access token — resolve roles from DB (G226-DEV6)
+            var roles = user.UserRoles
+                .Where(ur => ur.Role is not null)
+                .Select(ur => ur.Role!.Name)
+                .DefaultIfEmpty("User")
+                .ToArray();
 
             var newAccessToken = jwtService.GenerateToken(userId, tenantId, user.Username, roles);
             var expiresAt = DateTime.UtcNow.AddMinutes(options.AccessTokenExpiryMinutes > 0
