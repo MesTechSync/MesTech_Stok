@@ -5,6 +5,10 @@ using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
 using MesTech.Application.Commands.TransferStock;
+using MesTech.Application.Features.Stock.Commands.StartStockCount;
+using MesTech.Application.Features.Stock.Queries.GetStockSummary;
+using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
+using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
 using MesTech.Application.Queries.GetInventoryPaged;
 using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetInventoryValue;
@@ -150,6 +154,62 @@ public static class StockEndpoints
         .WithName("AddStockLot")
         .WithSummary("Lot/parti bazlı stok girişi")
         .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/stock/summary — stock summary (totals, value, alerts)
+        group.MapGet("/summary", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockSummaryQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockSummary")
+        .WithSummary("Stok özeti — toplam adet, değer, uyarılar")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/stock/transfers — recent stock transfers
+        group.MapGet("/transfers", async (
+            Guid tenantId,
+            int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetStockTransfersQuery(tenantId, count ?? 100), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockTransfers")
+        .WithSummary("Depolar arası transfer geçmişi")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/stock/value-report — stock value report (FIFO/COGS)
+        group.MapGet("/value-report", async (
+            Guid tenantId,
+            Guid? warehouseId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetStockValueReportQuery(tenantId, warehouseId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockValueReport")
+        .WithSummary("Stok değerleme raporu — depo bazlı, FIFO/COGS")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // POST /api/v1/stock/count — start a stock count session
+        group.MapPost("/count", async (
+            StartStockCountCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/stock/count/{result.SessionId}", result);
+        })
+        .WithName("StartStockCount")
+        .WithSummary("Stok sayım oturumu başlat")
+        .Produces(201)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
