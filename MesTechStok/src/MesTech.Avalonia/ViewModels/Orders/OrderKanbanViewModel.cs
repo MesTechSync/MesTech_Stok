@@ -3,6 +3,9 @@ using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetOrdersByStatus;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Orders;
 
@@ -12,6 +15,15 @@ namespace MesTech.Avalonia.ViewModels.Orders;
 /// </summary>
 public partial class OrderKanbanViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
+    public OrderKanbanViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     [ObservableProperty] private string selectedPlatform = "Tümü";
 
     public ObservableCollection<string> PlatformFilters { get; } =
@@ -23,10 +35,19 @@ public partial class OrderKanbanViewModel : ViewModelBase
     public override async Task LoadAsync()
     {
         IsLoading = true;
+        HasError = false;
         try
         {
-            await Task.Delay(300);
-            BuildKanbanBoard();
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var result = await _mediator.Send(
+                new GetOrdersByStatusQuery(tenantId), CancellationToken);
+
+            BuildKanbanBoard(result);
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Kanban yuklenemedi: {ex.Message}";
         }
         finally
         {
@@ -47,53 +68,70 @@ public partial class OrderKanbanViewModel : ViewModelBase
         return SolidColorBrush.Parse(fallback);
     }
 
-    private void BuildKanbanBoard()
+    private void BuildKanbanBoard(OrderKanbanResult result)
     {
         KanbanColumns.Clear();
         ColumnSummaries.Clear();
 
-        var infoBrush = GetBrush("InfoBrush", "#3B82F6");
-        var warningBrush = GetBrush("WarningOrangeBrush", "#F59E0B");
-        var successBrush = GetBrush("SuccessBrush", "#10B981");
-        var purpleBrush = GetBrush("MesPurple", "#6366F1");
-
-        var columns = new[]
+        // Status → brush mapping
+        ISolidColorBrush GetStatusBrush(string status) => status switch
         {
-            ("Yeni", infoBrush, new[]
-            {
-                new KanbanOrderCard("SIP-0041", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Ahmet Yılmaz", "2,450 TL", "3 ürün", "2 saat"),
-                new KanbanOrderCard("SIP-0037", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Ali Öztürk", "3,150 TL", "1 ürün", "6 saat"),
-                new KanbanOrderCard("SIP-0031", "Pazarama", "PZ", GetBrush("MesBrandPazarama", "#FF5722"), "Emre Aksoy", "1,675 TL", "2 ürün", "12 saat"),
-                new KanbanOrderCard("SIP-0027", "N11", "N11", GetBrush("MesBrandN11", "#6B21A8"), "Neşe Karaca", "8,900 TL", "5 ürün", "1 gün"),
-            }),
-            ("Hazırlanıyor", warningBrush, new[]
-            {
-                new KanbanOrderCard("SIP-0040", "Hepsiburada", "HB", GetBrush("MesBrandHepsiburada", "#FF6000"), "Fatma Demir", "1,890 TL", "2 ürün", "3 saat"),
-                new KanbanOrderCard("SIP-0036", "Çiçeksepeti", "ÇS", GetBrush("MesBrandCiceksepeti", "#E91E63"), "Zeynep Arslan", "4,720 TL", "4 ürün", "8 saat"),
-                new KanbanOrderCard("SIP-0030", "Hepsiburada", "HB", GetBrush("MesBrandHepsiburada", "#FF6000"), "Deniz Polat", "3,890 TL", "1 ürün", "1 gün"),
-            }),
-            ("Kargoda", successBrush, new[]
-            {
-                new KanbanOrderCard("SIP-0039", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Mehmet Kaya", "5,200 TL", "2 ürün", "1 gün"),
-                new KanbanOrderCard("SIP-0035", "Hepsiburada", "HB", GetBrush("MesBrandHepsiburada", "#FF6000"), "Hasan Doğan", "1,340 TL", "1 ürün", "2 gün"),
-                new KanbanOrderCard("SIP-0032", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Selin Korkmaz", "7,450 TL", "3 ürün", "2 gün"),
-                new KanbanOrderCard("SIP-0028", "Çiçeksepeti", "ÇS", GetBrush("MesBrandCiceksepeti", "#E91E63"), "Cem Aydın", "4,200 TL", "2 ürün", "3 gün"),
-            }),
-            ("Teslim Edildi", purpleBrush, new[]
-            {
-                new KanbanOrderCard("SIP-0038", "N11", "N11", GetBrush("MesBrandN11", "#6B21A8"), "Ayşe Çelik", "890 TL", "1 ürün", "2 gün"),
-                new KanbanOrderCard("SIP-0034", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Elif Şahin", "6,890 TL", "4 ürün", "3 gün"),
-                new KanbanOrderCard("SIP-0033", "N11", "N11", GetBrush("MesBrandN11", "#6B21A8"), "Burak Yıldız", "2,100 TL", "1 ürün", "4 gün"),
-                new KanbanOrderCard("SIP-0029", "Trendyol", "TR", GetBrush("MesBrandAccent", "#F27A1A"), "Gül Erdem", "12,350 TL", "7 ürün", "5 gün"),
-            }),
+            "Yeni" => GetBrush("InfoBrush", "#3B82F6"),
+            "Hazırlanıyor" or "Onaylandı" => GetBrush("WarningOrangeBrush", "#F59E0B"),
+            "Kargoda" => GetBrush("SuccessBrush", "#10B981"),
+            "Teslim Edildi" => GetBrush("MesPurple", "#6366F1"),
+            _ => GetBrush("InfoBrush", "#3B82F6")
         };
 
-        foreach (var (name, brush, orders) in columns)
+        ISolidColorBrush GetPlatformBrush(string? platform) => platform switch
         {
-            var col = new KanbanColumnVm(name, brush);
-            foreach (var o in orders) col.Orders.Add(o);
-            KanbanColumns.Add(col);
-            ColumnSummaries.Add(new ColumnSummaryVm(name, brush, orders.Length));
+            "Trendyol" => GetBrush("MesBrandAccent", "#F27A1A"),
+            "Hepsiburada" => GetBrush("MesBrandHepsiburada", "#FF6000"),
+            "N11" => GetBrush("MesBrandN11", "#6B21A8"),
+            "Çiçeksepeti" or "Ciceksepeti" => GetBrush("MesBrandCiceksepeti", "#E91E63"),
+            "Pazarama" => GetBrush("MesBrandPazarama", "#FF5722"),
+            _ => GetBrush("InfoBrush", "#3B82F6")
+        };
+
+        string PlatformShort(string? platform) => platform switch
+        {
+            "Trendyol" => "TR",
+            "Hepsiburada" => "HB",
+            "N11" => "N11",
+            "Çiçeksepeti" or "Ciceksepeti" => "ÇS",
+            "Pazarama" => "PZ",
+            _ => platform?[..Math.Min(2, platform.Length)] ?? "?"
+        };
+
+        string TimeAgoText(DateTime date)
+        {
+            var diff = DateTime.UtcNow - date;
+            if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes} dk";
+            if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} saat";
+            return $"{(int)diff.TotalDays} gün";
+        }
+
+        foreach (var col in result.Columns)
+        {
+            var statusBrush = GetStatusBrush(col.Status);
+            var kanbanCol = new KanbanColumnVm(col.Status, statusBrush);
+
+            foreach (var order in col.Orders)
+            {
+                var card = new KanbanOrderCard(
+                    order.OrderNumber,
+                    order.Platform ?? "-",
+                    PlatformShort(order.Platform),
+                    GetPlatformBrush(order.Platform),
+                    order.CustomerName ?? "-",
+                    $"{order.TotalAmount:N0} TL",
+                    "-",
+                    TimeAgoText(order.OrderDate));
+                kanbanCol.Orders.Add(card);
+            }
+
+            KanbanColumns.Add(kanbanCol);
+            ColumnSummaries.Add(new ColumnSummaryVm(col.Status, statusBrush, col.Count));
         }
 
         IsEmpty = KanbanColumns.Count == 0;

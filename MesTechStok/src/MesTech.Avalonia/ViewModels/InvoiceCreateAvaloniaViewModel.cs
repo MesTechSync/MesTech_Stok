@@ -1,6 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.EInvoice.Commands;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -10,6 +14,15 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
+    public InvoiceCreateAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     [ObservableProperty] private int currentStep = 1;
 
     // Step 1: Order selection
@@ -52,14 +65,25 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            await Task.Delay(300);
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var orders = await _mediator.Send(
+                new GetOrderListQuery(tenantId, 50), CancellationToken);
 
             Orders.Clear();
-            Orders.Add(new() { OrderId = "SIP-2026-0451", CustomerName = "Yilmaz Elektronik Ltd. Sti.", Amount = 12450.00m, Date = new DateTime(2026, 3, 17), Platform = "Trendyol", IsSelected = false });
-            Orders.Add(new() { OrderId = "SIP-2026-0452", CustomerName = "Demir Bilisim A.S.", Amount = 8320.50m, Date = new DateTime(2026, 3, 16), Platform = "Hepsiburada", IsSelected = false });
-            Orders.Add(new() { OrderId = "SIP-2026-0453", CustomerName = "Kaya Ticaret ve Sanayi", Amount = 3250.00m, Date = new DateTime(2026, 3, 15), Platform = "N11", IsSelected = false });
-            Orders.Add(new() { OrderId = "SIP-2026-0454", CustomerName = "Arslan Mobilya", Amount = 15400.75m, Date = new DateTime(2026, 3, 14), Platform = "Trendyol", IsSelected = false });
-            Orders.Add(new() { OrderId = "SIP-2026-0455", CustomerName = "Celik Otomotiv San.", Amount = 27200.00m, Date = new DateTime(2026, 3, 13), Platform = "Amazon", IsSelected = false });
+            foreach (var o in orders)
+            {
+                Orders.Add(new()
+                {
+                    OrderId = o.OrderNumber,
+                    CustomerName = o.CustomerName ?? "-",
+                    Amount = o.TotalAmount,
+                    Date = o.OrderDate,
+                    Platform = o.SourcePlatform ?? "-",
+                    IsSelected = false
+                });
+            }
+
+            IsEmpty = Orders.Count == 0;
         }
         catch (Exception ex)
         {
@@ -98,7 +122,8 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500); // Simulate invoice creation
+            // TODO: Wire to CreateEInvoiceCommand via _mediator.Send() — requires full line mapping
+            await Task.CompletedTask;
             // Reset wizard
             CurrentStep = 1;
             UpdateWizardState();

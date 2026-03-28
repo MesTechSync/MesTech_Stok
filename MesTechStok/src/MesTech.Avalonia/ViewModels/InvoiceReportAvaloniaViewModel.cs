@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Invoice.Queries;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -9,6 +12,12 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public InvoiceReportAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     // Period filter
     [ObservableProperty] private DateTimeOffset fromDate = new(new DateTime(2026, 3, 1));
@@ -34,19 +43,43 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            await Task.Delay(400);
+            PlatformType? platformFilter = SelectedPlatform switch
+            {
+                "Trendyol" => PlatformType.Trendyol,
+                "Hepsiburada" => PlatformType.Hepsiburada,
+                "N11" => PlatformType.N11,
+                "Amazon" => PlatformType.Amazon,
+                "Ciceksepeti" => PlatformType.Ciceksepeti,
+                _ => null
+            };
 
-            TotalCount = 156;
-            TotalAmount = 1_248_750.50m;
-            EFaturaCount = 112;
-            EArsivCount = 44;
+            var report = await _mediator.Send(
+                new GetInvoiceReportQuery(
+                    FromDate.DateTime,
+                    ToDate.DateTime,
+                    platformFilter),
+                CancellationToken);
+
+            TotalCount = report.TotalCount;
+            TotalAmount = report.TotalAmount;
+            EFaturaCount = report.EFaturaCount;
+            EArsivCount = report.EArsivCount;
 
             PlatformBreakdown.Clear();
-            PlatformBreakdown.Add(new() { Platform = "Trendyol", InvoiceCount = 62, TotalAmount = 524300.00m, EFaturaCount = 48, EArsivCount = 14 });
-            PlatformBreakdown.Add(new() { Platform = "Hepsiburada", InvoiceCount = 38, TotalAmount = 312450.50m, EFaturaCount = 28, EArsivCount = 10 });
-            PlatformBreakdown.Add(new() { Platform = "N11", InvoiceCount = 24, TotalAmount = 186200.00m, EFaturaCount = 16, EArsivCount = 8 });
-            PlatformBreakdown.Add(new() { Platform = "Amazon", InvoiceCount = 18, TotalAmount = 142800.00m, EFaturaCount = 12, EArsivCount = 6 });
-            PlatformBreakdown.Add(new() { Platform = "Ciceksepeti", InvoiceCount = 14, TotalAmount = 83000.00m, EFaturaCount = 8, EArsivCount = 6 });
+            foreach (var bp in report.ByPlatform)
+            {
+                PlatformBreakdown.Add(new()
+                {
+                    Platform = bp.PlatformName,
+                    InvoiceCount = bp.Count,
+                    TotalAmount = bp.Amount,
+                    // ByPlatform DTO does not split e-Fatura/e-Arsiv per platform
+                    EFaturaCount = 0,
+                    EArsivCount = 0
+                });
+            }
+
+            IsEmpty = TotalCount == 0;
         }
         catch (Exception ex)
         {
@@ -65,8 +98,8 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500);
-            // Simulate export
+            // TODO: Wire to ExportInvoiceReportCommand (Excel format) via _mediator.Send()
+            await Task.CompletedTask;
         }
         finally { IsLoading = false; }
     }
@@ -77,8 +110,8 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500);
-            // Simulate export
+            // TODO: Wire to ExportInvoiceReportCommand (PDF format) via _mediator.Send()
+            await Task.CompletedTask;
         }
         finally { IsLoading = false; }
     }

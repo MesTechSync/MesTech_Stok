@@ -1,6 +1,11 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Invoice.Commands;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -10,6 +15,15 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
+
+    public BulkInvoiceAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
+    }
+
     [ObservableProperty] private bool isProcessing;
     [ObservableProperty] private double progress;
     [ObservableProperty] private int selectedCount;
@@ -34,18 +48,26 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
         ShowResults = false;
         try
         {
-            await Task.Delay(300);
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var orderList = await _mediator.Send(
+                new GetOrderListQuery(tenantId, 100), CancellationToken);
 
             Orders.Clear();
-            Orders.Add(new() { OrderId = "SIP-2026-0501", CustomerName = "Yilmaz Elektronik Ltd. Sti.", Amount = 12450.00m, Date = new DateTime(2026, 3, 17), Platform = "Trendyol" });
-            Orders.Add(new() { OrderId = "SIP-2026-0502", CustomerName = "Demir Bilisim A.S.", Amount = 8320.50m, Date = new DateTime(2026, 3, 16), Platform = "Hepsiburada" });
-            Orders.Add(new() { OrderId = "SIP-2026-0503", CustomerName = "Kaya Ticaret ve Sanayi", Amount = 3250.00m, Date = new DateTime(2026, 3, 15), Platform = "N11" });
-            Orders.Add(new() { OrderId = "SIP-2026-0504", CustomerName = "Arslan Mobilya", Amount = 15400.75m, Date = new DateTime(2026, 3, 14), Platform = "Trendyol" });
-            Orders.Add(new() { OrderId = "SIP-2026-0505", CustomerName = "Celik Otomotiv San.", Amount = 27200.00m, Date = new DateTime(2026, 3, 13), Platform = "Amazon" });
-            Orders.Add(new() { OrderId = "SIP-2026-0506", CustomerName = "Ozturk Gida Paz.", Amount = 4980.25m, Date = new DateTime(2026, 3, 12), Platform = "Ciceksepeti" });
-            Orders.Add(new() { OrderId = "SIP-2026-0507", CustomerName = "Sahin Insaat Malz.", Amount = 52300.00m, Date = new DateTime(2026, 3, 11), Platform = "Trendyol" });
+            foreach (var o in orderList)
+            {
+                Orders.Add(new()
+                {
+                    Id = o.Id,
+                    OrderId = o.OrderNumber,
+                    CustomerName = o.CustomerName ?? "-",
+                    Amount = o.TotalAmount,
+                    Date = o.OrderDate,
+                    Platform = o.SourcePlatform ?? "-"
+                });
+            }
 
             UpdateSelectedCount();
+            IsEmpty = Orders.Count == 0;
         }
         catch (Exception ex)
         {
@@ -80,21 +102,35 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
         Progress = 0;
         ErrorDetails.Clear();
 
-        for (int i = 0; i < selected.Count; i++)
+        var provider = SelectedProvider switch
         {
-            await Task.Delay(400); // Simulate per-invoice processing
-            Progress = (double)(i + 1) / selected.Count * 100;
+            "Sovos" => InvoiceProvider.Sovos,
+            "GIB Portal" => InvoiceProvider.GibPortal,
+            "Foriba" => InvoiceProvider.DijitalPlanet,
+            "Logo e-Fatura" => InvoiceProvider.ELogo,
+            _ => InvoiceProvider.Sovos
+        };
 
-            // Simulate: ~80% success, ~20% fail
-            if (i % 5 == 3)
+        var orderIds = selected.Select(o => o.Id).ToList();
+
+        try
+        {
+            var result = await _mediator.Send(
+                new BulkCreateInvoiceCommand(orderIds, provider), CancellationToken);
+
+            SuccessCount = result.SuccessCount;
+            FailCount = result.FailCount;
+            Progress = 100;
+
+            foreach (var item in result.Results.Where(r => !r.Success))
             {
-                FailCount++;
-                ErrorDetails.Add($"{selected[i].OrderId}: GIB baglanti hatasi — zaman asimi");
+                ErrorDetails.Add($"{item.OrderNumber}: {item.ErrorMessage}");
             }
-            else
-            {
-                SuccessCount++;
-            }
+        }
+        catch (Exception ex)
+        {
+            ErrorDetails.Add($"Toplu fatura hatasi: {ex.Message}");
+            FailCount = selected.Count;
         }
 
         IsProcessing = false;
@@ -107,6 +143,7 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
 
 public class BulkInvoiceOrderDto : ObservableObject
 {
+    public Guid Id { get; set; }
     public string OrderId { get; set; } = string.Empty;
     public string CustomerName { get; set; } = string.Empty;
     public decimal Amount { get; set; }

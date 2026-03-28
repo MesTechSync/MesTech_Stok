@@ -2,6 +2,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Invoice.Queries;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +15,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public InvoiceManagementAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
@@ -33,19 +43,32 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            InvoiceType? typeFilter = SelectedType switch
+            {
+                "e-Fatura" => InvoiceType.EFatura,
+                "e-Arsiv" => InvoiceType.EArsiv,
+                _ => null
+            };
 
-            _allInvoices =
-            [
-                new() { FaturaNo = "MES2026000001", Tarih = new DateTime(2026, 3, 17), Alici = "Yilmaz Elektronik Ltd. Sti.", Tutar = 24850.00m, Durum = "Onayli", Tip = "e-Fatura" },
-                new() { FaturaNo = "MES2026000002", Tarih = new DateTime(2026, 3, 16), Alici = "Demir Bilisim A.S.", Tutar = 18320.50m, Durum = "Bekliyor", Tip = "e-Fatura" },
-                new() { FaturaNo = "MES2026000003", Tarih = new DateTime(2026, 3, 15), Alici = "Kaya Ticaret ve Sanayi", Tutar = 9750.00m, Durum = "Onayli", Tip = "e-Arsiv" },
-                new() { FaturaNo = "MES2026000004", Tarih = new DateTime(2026, 3, 14), Alici = "Arslan Mobilya", Tutar = 35400.75m, Durum = "Reddedildi", Tip = "e-Fatura" },
-                new() { FaturaNo = "MES2026000005", Tarih = new DateTime(2026, 3, 13), Alici = "Celik Otomotiv San.", Tutar = 67200.00m, Durum = "Onayli", Tip = "e-Fatura" },
-                new() { FaturaNo = "MES2026000006", Tarih = new DateTime(2026, 3, 12), Alici = "Ozturk Gida Paz.", Tutar = 4980.25m, Durum = "Bekliyor", Tip = "e-Arsiv" },
-                new() { FaturaNo = "MES2026000007", Tarih = new DateTime(2026, 3, 11), Alici = "Sahin Insaat Malz.", Tutar = 152300.00m, Durum = "Onayli", Tip = "e-Fatura" },
-                new() { FaturaNo = "MES2026000008", Tarih = new DateTime(2026, 3, 10), Alici = "Koc Tekstil", Tutar = 28600.50m, Durum = "Bekliyor", Tip = "e-Arsiv" },
-            ];
+            var result = await _mediator.Send(
+                new GetInvoicesQuery(
+                    Type: typeFilter,
+                    Status: null,
+                    Platform: null,
+                    From: null,
+                    To: null,
+                    Search: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText),
+                CancellationToken);
+
+            _allInvoices = result.Items.Select(i => new InvoiceMgmtItemDto
+            {
+                FaturaNo = i.InvoiceNumber,
+                Tarih = i.InvoiceDate,
+                Alici = i.RecipientName,
+                Tutar = i.TotalAmount,
+                Durum = i.StatusName,
+                Tip = i.TypeName
+            }).ToList();
 
             ApplyFilters();
         }
@@ -88,23 +111,9 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateInvoice()
     {
-        IsLoading = true;
-        try
-        {
-            await Task.Delay(300); // Simulate creation
-            var newInvoice = new InvoiceMgmtItemDto
-            {
-                FaturaNo = $"MES2026{(_allInvoices.Count + 1):D6}",
-                Tarih = DateTime.Now,
-                Alici = "Yeni Musteri",
-                Tutar = 0.00m,
-                Durum = "Bekliyor",
-                Tip = "e-Fatura"
-            };
-            _allInvoices.Insert(0, newInvoice);
-            ApplyFilters();
-        }
-        finally { IsLoading = false; }
+        // TODO: Wire to CreateEInvoiceCommand via navigation or dialog — requires user input
+        // For now, refresh the list after external creation
+        await LoadAsync();
     }
 
     partial void OnSearchTextChanged(string value)
