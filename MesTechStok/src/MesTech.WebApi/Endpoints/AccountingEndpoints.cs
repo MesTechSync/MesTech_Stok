@@ -29,6 +29,7 @@ using MesTech.Application.Features.Accounting.Commands.UpdateCounterparty;
 using MesTech.Application.Features.Accounting.Commands.CreateFinancialGoal;
 using MesTech.Application.Features.Accounting.Commands.ImportBankStatement;
 using MesTech.Application.Features.Accounting.Commands.ImportSettlement;
+using MesTech.Application.Features.Accounting.Commands.ParseAndImportSettlement;
 using MesTech.Application.Features.Accounting.Commands.RecordCargoExpense;
 using MesTech.Application.Features.Accounting.Commands.RecordCommission;
 using MesTech.Application.Features.Accounting.Commands.RejectReconciliation;
@@ -452,7 +453,20 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/settlements/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("ImportSettlement")
-        .WithSummary("Hakediş dosyası içe aktar").Produces(200).Produces(400)
+        .WithSummary("Hakediş dosyası içe aktar (pre-parsed)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // POST /api/v1/accounting/settlements/parse-and-import — platform raw dosya → parse → kaydet
+        group.MapPost("/settlements/parse-and-import", async (
+            ParseAndImportSettlementCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/settlements/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
+        })
+        .WithName("ParseAndImportSettlement")
+        .WithSummary("Platform ham hakediş dosyası yükle — otomatik parse + kaydet (Trendyol, Amazon, N11...)")
+        .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cargo-expenses — kargo gideri kaydet
