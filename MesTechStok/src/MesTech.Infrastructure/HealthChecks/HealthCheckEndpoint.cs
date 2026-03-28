@@ -42,7 +42,7 @@ public sealed class HealthCheckEndpoint : BackgroundService
             while (!stoppingToken.IsCancellationRequested)
             {
                 var context = await _listener.GetContextAsync();
-                _ = HandleRequestAsync(context, stoppingToken);
+                _ = SafeHandleRequestAsync(context, stoppingToken);
             }
         }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
@@ -52,6 +52,18 @@ public sealed class HealthCheckEndpoint : BackgroundService
         finally
         {
             _listener?.Stop();
+        }
+    }
+
+    private async Task SafeHandleRequestAsync(HttpListenerContext context, CancellationToken ct)
+    {
+        try
+        {
+            await HandleRequestAsync(context, ct);
+        }
+        catch (Exception ex) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "Unhandled error in health check request handler");
         }
     }
 

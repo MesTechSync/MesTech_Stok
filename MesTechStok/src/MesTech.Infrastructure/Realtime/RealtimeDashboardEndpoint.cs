@@ -40,9 +40,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
             while (!stoppingToken.IsCancellationRequested)
             {
                 var context = await _listener.GetContextAsync();
-                _ = HandleRequestAsync(context, stoppingToken)
-                    .ContinueWith(t => _logger.LogError(t.Exception!, "[WS Dashboard] Unhandled request error"),
-                        TaskContinuationOptions.OnlyOnFaulted);
+                _ = SafeHandleRequestAsync(context, stoppingToken);
             }
         }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
@@ -52,6 +50,18 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
         finally
         {
             _listener?.Stop();
+        }
+    }
+
+    private async Task SafeHandleRequestAsync(HttpListenerContext context, CancellationToken ct)
+    {
+        try
+        {
+            await HandleRequestAsync(context, ct);
+        }
+        catch (Exception ex) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "[WS Dashboard] Unhandled request error");
         }
     }
 

@@ -43,9 +43,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
             while (!stoppingToken.IsCancellationRequested)
             {
                 var context = await _listener.GetContextAsync().ConfigureAwait(false);
-                _ = HandleRequestAsync(context)
-                    .ContinueWith(t => _logger.LogError(t.Exception!, "[MESA Status] Unhandled request error"),
-                        TaskContinuationOptions.OnlyOnFaulted);
+                _ = SafeHandleRequestAsync(context);
             }
         }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
@@ -55,6 +53,18 @@ public sealed class MesaStatusEndpoint : BackgroundService
         finally
         {
             _listener?.Stop();
+        }
+    }
+
+    private async Task SafeHandleRequestAsync(HttpListenerContext context)
+    {
+        try
+        {
+            await HandleRequestAsync(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[MESA Status] Unhandled request error");
         }
     }
 
