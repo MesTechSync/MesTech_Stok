@@ -73,6 +73,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var resolved = _viewModelFactory.Create(viewName);
         if (resolved is not null)
         {
+            (CurrentView as IDisposable)?.Dispose();
             CurrentView = resolved;
             // G040 FIX: Trigger data loading for the new view
             if (resolved is ViewModelBase vmBase)
