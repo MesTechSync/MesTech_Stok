@@ -35,10 +35,10 @@ public sealed class HepsiburadaSettlementParser : ISettlementParser
         };
     }
 
+    [Obsolete("Use ParseAsync(tenantId, rawData, format, ct) — Guid.Empty is a multi-tenant risk (BORÇ-N)")]
     public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
     {
-        _logger.LogWarning("[HepsiburadaSettlementParser] ParseAsync called without TenantId — Guid.Empty will be used. Caller must set TenantId before persisting.");
-        return ParseAsync(Guid.Empty, rawData, format, ct);
+        throw new ArgumentException("TenantId is required for settlement parsing. Use the overload with tenantId parameter.", nameof(rawData));
     }
 
     public async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
