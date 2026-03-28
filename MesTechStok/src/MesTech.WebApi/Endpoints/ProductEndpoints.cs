@@ -1,10 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
+using MesTech.Application.Commands.CreateBulkProducts;
 using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.UpdateProductImage;
+using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductById;
@@ -112,6 +114,42 @@ public static class ProductEndpoints
         })
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")
+        .Produces(200)
+        .Produces(400);
+
+        // GET /api/v1/products/search — paginated product search with filters
+        group.MapGet("/search", async (
+            Guid tenantId,
+            string? search,
+            Guid? categoryId,
+            bool? isActive,
+            bool? lowStockOnly,
+            int? page,
+            int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetProductsQuery(tenantId, search, categoryId, isActive, lowStockOnly,
+                    page ?? 1, pageSize ?? 50), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetProducts")
+        .WithSummary("Sayfalanmış ürün arama (kategori, stok, aktiflik filtresi)")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // POST /api/v1/products/bulk — create demo/seed products in bulk
+        group.MapPost("/bulk", async (
+            CreateBulkProductsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.Message, statusCode: 400);
+        })
+        .WithName("CreateBulkProducts")
+        .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
         .Produces(400);
     }
