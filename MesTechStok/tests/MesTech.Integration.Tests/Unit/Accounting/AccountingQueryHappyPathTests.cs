@@ -22,10 +22,14 @@ using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
 using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
+using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Accounting.Enums;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Domain.Accounting.Services;
 using AccountType = MesTech.Domain.Accounting.Enums.AccountType;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -106,7 +110,7 @@ public class AccountingQueryHappyPathTests
         entry2.Validate();
         entry2.Post();
 
-        journalRepo.Setup(r => r.GetByAccountIdAsync(kasa.Id, It.IsAny<CancellationToken>()))
+        journalRepo.Setup(r => r.GetByAccountIdAsync(_tenantId, kasa.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<JournalEntry> { entry1, entry2 });
 
         var handler = new GetAccountBalanceHandler(accountRepo.Object, journalRepo.Object);
@@ -142,7 +146,7 @@ public class AccountingQueryHappyPathTests
             new GetJournalEntriesQuery(_tenantId, from, to), CancellationToken.None);
 
         result.Should().HaveCount(1);
-        result[0].Reference.Should().Be("JE-001");
+        result[0].ReferenceNumber.Should().Be("JE-001");
     }
 
     [Fact]
@@ -246,7 +250,7 @@ public class AccountingQueryHappyPathTests
     public async Task GetPlatformCommissionRates_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IPlatformCommissionRepository>();
-        repo.Setup(r => r.GetAllAsync(_tenantId, It.IsAny<PlatformType?>(), It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByPlatformAsync(_tenantId, It.IsAny<PlatformType?>(), It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<PlatformCommission>());
 
         var handler = new GetPlatformCommissionRatesHandler(repo.Object);
@@ -262,7 +266,7 @@ public class AccountingQueryHappyPathTests
     public async Task GetAccountingPeriods_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IAccountingPeriodRepository>();
-        repo.Setup(r => r.GetByYearAsync(_tenantId, It.IsAny<int?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByTenantAsync(_tenantId, It.IsAny<int?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AccountingPeriod>());
 
         var handler = new GetAccountingPeriodsHandler(repo.Object);
@@ -282,7 +286,7 @@ public class AccountingQueryHappyPathTests
 
         matchRepo.Setup(r => r.GetByStatusAsync(_tenantId, It.IsAny<ReconciliationStatus>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ReconciliationMatch>());
-        settlementRepo.Setup(r => r.GetByPlatformAsync(_tenantId, It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+        settlementRepo.Setup(r => r.GetUnmatchedAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch>());
 
         var handler = new GetReconciliationDashboardHandler(matchRepo.Object, settlementRepo.Object);
@@ -298,7 +302,7 @@ public class AccountingQueryHappyPathTests
     public async Task GetReconciliationMatches_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IReconciliationMatchRepository>();
-        repo.Setup(r => r.GetByStatusAsync(_tenantId, It.IsAny<ReconciliationStatus?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByStatusAsync(_tenantId, It.IsAny<ReconciliationStatus>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ReconciliationMatch>());
 
         var handler = new GetReconciliationMatchesHandler(repo.Object);
@@ -317,9 +321,9 @@ public class AccountingQueryHappyPathTests
         var expenseRepo = new Mock<IExpenseRepository>();
         var logger = Mock.Of<ILogger<GetCashFlowTrendHandler>>();
 
-        incomeRepo.Setup(r => r.GetByDateRangeAsync(_tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Income>());
-        expenseRepo.Setup(r => r.GetByDateRangeAsync(_tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Expense>());
 
         var handler = new GetCashFlowTrendHandler(incomeRepo.Object, expenseRepo.Object, logger);
@@ -338,9 +342,9 @@ public class AccountingQueryHappyPathTests
         var expenseRepo = new Mock<IExpenseRepository>();
         var logger = Mock.Of<ILogger<GetIncomeExpenseSummaryHandler>>();
 
-        incomeRepo.Setup(r => r.GetByDateRangeAsync(_tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Income>());
-        expenseRepo.Setup(r => r.GetByDateRangeAsync(_tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Expense>());
 
         var handler = new GetIncomeExpenseSummaryHandler(incomeRepo.Object, expenseRepo.Object, logger);
@@ -358,7 +362,7 @@ public class AccountingQueryHappyPathTests
     public async Task GetFifoCOGS_EmptyService_ReturnsEmptyList()
     {
         var service = new Mock<IFifoCostCalculationService>();
-        service.Setup(s => s.CalculateAllAsync(_tenantId, It.IsAny<CancellationToken>()))
+        service.Setup(s => s.CalculateAllCOGSAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<FifoCostResultDto>());
 
         var handler = new GetFifoCOGSHandler(service.Object);
@@ -374,8 +378,8 @@ public class AccountingQueryHappyPathTests
     public async Task GetCommissionSummary_EmptyRepo_ReturnsEmptyPlatforms()
     {
         var repo = new Mock<ICommissionRecordRepository>();
-        repo.Setup(r => r.GetByPlatformAndDateRangeAsync(
-                _tenantId, It.IsAny<PlatformType>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByPlatformAsync(
+                _tenantId, It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CommissionRecord>());
 
         var handler = new GetCommissionSummaryHandler(repo.Object);
@@ -392,7 +396,7 @@ public class AccountingQueryHappyPathTests
     public async Task GetSettlementBatches_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<ISettlementBatchRepository>();
-        repo.Setup(r => r.GetByPlatformAsync(_tenantId, It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByDateRangeAsync(_tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch>());
 
         var handler = new GetSettlementBatchesHandler(repo.Object);
