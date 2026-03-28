@@ -179,6 +179,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<OrderDetailAvaloniaViewModel>();
                 services.AddTransient<OrderListAvaloniaViewModel>();
                 services.AddTransient<OzonAvaloniaViewModel>();
+                services.AddTransient<ProductDescriptionAIViewModel>();
                 services.AddTransient<EtsyAvaloniaViewModel>();
                 services.AddTransient<ShopifyAvaloniaViewModel>();
                 services.AddTransient<WooCommerceAvaloniaViewModel>();

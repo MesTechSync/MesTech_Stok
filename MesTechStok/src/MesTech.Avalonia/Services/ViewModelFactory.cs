@@ -136,6 +136,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "StoreSettings" => _provider.GetService<StoreSettingsAvaloniaViewModel>(),
             "StoreDetail" => _provider.GetService<StoreDetailAvaloniaViewModel>(),
             "ProductFetch" => _provider.GetService<ProductFetchAvaloniaViewModel>(),
+            "ProductDescriptionAI" => _provider.GetService<ProductDescriptionAIViewModel>(),
             "SupplierFeeds" => _provider.GetService<SupplierFeedListAvaloniaViewModel>(),
             "FeedCreate" => _provider.GetService<FeedCreateAvaloniaViewModel>(),
             "DropshipOrders" => _provider.GetService<DropshipOrdersAvaloniaViewModel>(),

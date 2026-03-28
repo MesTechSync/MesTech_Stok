@@ -191,6 +191,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             "NotificationSettings" => "Bildirim Ayarlari",
             "ReportDashboard" => "Rapor Merkezi",
             "AuditLog" => "Denetim Kayitlari",
+            "ProductDescriptionAI" => "AI Urun Aciklama",
             "Backup" => "Yedekleme",
             "Buybox" => "Buybox Analizi",
             "ImportProducts" => "Urun Iceaktar",

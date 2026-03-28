@@ -988,6 +988,9 @@
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="AI Aciklama"/></StackPanel>
+                            </Button>
 
                             <!-- Sistem Yönetimi -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
