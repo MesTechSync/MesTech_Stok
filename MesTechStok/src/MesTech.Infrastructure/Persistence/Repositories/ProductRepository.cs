@@ -153,4 +153,11 @@ public sealed class ProductRepository : IProductRepository
     {
         await _context.ProductPlatformMappings.AddAsync(mapping, ct).ConfigureAwait(false);
     }
+
+    public async Task<IReadOnlyList<Product>> GetByWarehouseAsync(Guid warehouseId, CancellationToken ct = default)
+        => await _context.Products
+            .Where(p => p.WarehouseId == warehouseId && p.IsActive)
+            .AsNoTracking()
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
 }
