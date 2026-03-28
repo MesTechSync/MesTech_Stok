@@ -72,6 +72,14 @@ else
                         </tr>
                     </thead>
                     <tbody>
+                        @if (_platforms.Count == 0 && !isLoading)
+
+                        {
+
+                            <EmptyState Icon="fa-chart-bar" Message="Satis verisi bulunamadi." />
+
+                        }
+
                         @foreach (var p in _platforms ?? Enumerable.Empty<PlatformSalesRow>())
                         {
                             <tr>

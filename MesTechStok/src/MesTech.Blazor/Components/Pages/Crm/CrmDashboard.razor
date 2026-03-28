@@ -24,8 +24,11 @@
 }
 else if (errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="OnInitializedAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
     </div>
 }
 else
@@ -210,6 +213,14 @@ else
           </div>
           <div class="card-body">
             <div class="list-group list-group-flush">
+              @if (recentActivities.Count == 0 && !isLoading)
+
+              {
+
+                  <EmptyState Icon="fa-address-book" Message="Henuz CRM aktivitesi bulunamadi." />
+
+              }
+
               @foreach (var activity in recentActivities)
               {
                 <div class="list-group-item px-0 border-0 d-flex align-items-start">

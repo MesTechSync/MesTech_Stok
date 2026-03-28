@@ -24,8 +24,11 @@
 }
 else if (errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="OnInitializedAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
     </div>
 }
 else
@@ -68,6 +71,14 @@ else
 
     <!-- Platform Grid -->
     <div class="row g-3 mb-4">
+        @if (platforms.Count == 0 && !isLoading)
+
+        {
+
+            <EmptyState Icon="fa-globe" Message="Henuz platform verisi bulunamadi." />
+
+        }
+
         @foreach (var p in platforms)
         {
             <div class="col-md-4 col-lg-3">

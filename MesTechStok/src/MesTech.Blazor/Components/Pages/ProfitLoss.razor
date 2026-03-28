@@ -35,8 +35,11 @@
 }
 else if (errorMessage is not null)
 {
-    <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="OnInitializedAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
     </div>
 }
 else if (data is not null)
@@ -125,6 +128,14 @@ else if (data is not null)
                             </tr>
                         </thead>
                         <tbody>
+                            @if (data.Count == 0 && !isLoading)
+
+                            {
+
+                                <EmptyState Icon="fa-chart-line" Message="Kar/zarar verisi bulunamadi." />
+
+                            }
+
                             @foreach (var p in data.RevenueByPlatform)
                             {
                                 <tr>

@@ -46,6 +46,14 @@ else
     </div>
 
     <div class="row g-3">
+        @if (_connections.Count == 0 && !isLoading)
+
+        {
+
+            <EmptyState Icon="fa-plug" Message="Henuz ERP baglantisi bulunamadi." />
+
+        }
+
         @foreach (var conn in _connections ?? Enumerable.Empty<ErpConnectionItem>())
         {
             <div class="col-md-6 col-lg-3">

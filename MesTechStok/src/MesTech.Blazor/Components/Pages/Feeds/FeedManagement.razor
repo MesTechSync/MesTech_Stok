@@ -46,6 +46,14 @@ else
     </div>
 
     <div class="row g-3">
+        @if (_feeds.Count == 0 && !isLoading)
+
+        {
+
+            <EmptyState Icon="fa-rss" Message="Henuz feed tanimi bulunamadi." />
+
+        }
+
         @foreach (var feed in _feeds ?? Enumerable.Empty<FeedItem>())
         {
             <div class="col-md-6">
