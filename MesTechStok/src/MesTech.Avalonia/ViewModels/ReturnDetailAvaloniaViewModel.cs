@@ -2,6 +2,10 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.ApproveReturn;
+using MesTech.Application.Commands.RejectReturn;
+using MesTech.Application.Features.Returns.Queries.GetReturnList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,7 +17,9 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
+    private Guid _returnId;
 
     // Return info
     [ObservableProperty] private string iadeNo = string.Empty;
@@ -38,9 +44,10 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         "Diger"
     ];
 
-    public ReturnDetailAvaloniaViewModel(IMediator mediator)
+    public ReturnDetailAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -50,17 +57,23 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         IsEmpty = false;
         try
         {
-            await Task.Delay(120);
+            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 1));
 
-            IadeNo = "IAD-2001";
-            SiparisNo = "SIP-1001";
-            Musteri = "Ahmet Yilmaz";
-            Platform = "Trendyol";
-            Tutar = 249.90m;
-            Sebep = "Hatali Urun";
-            Aciklama = "Urun kutusundan hasarli cikti, ambalaj ezilmis.";
-            Durum = "Beklemede";
-            TalepTarihi = new DateTime(2026, 3, 18);
+            if (returns.Count > 0)
+            {
+                var r = returns[0];
+                _returnId = r.Id;
+                IadeNo = r.Id.ToString()[..8].ToUpperInvariant();
+                SiparisNo = r.OrderNumber ?? string.Empty;
+                Tutar = r.RefundAmount;
+                Sebep = r.Reason ?? string.Empty;
+                Durum = r.Status;
+                TalepTarihi = r.CreatedAt;
+            }
+            else
+            {
+                IsEmpty = true;
+            }
 
             Timeline.Clear();
             Timeline.Add(new() { Step = "Talep Olusturuldu", Date = new DateTime(2026, 3, 18, 10, 30, 0), IsCompleted = true, Description = "Musteri iade talebi olusturdu" });
@@ -84,7 +97,10 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300); // Simulate API call
+            var result = await _mediator.Send(new ApproveReturnCommand(_returnId));
+            if (!result.IsSuccess)
+                throw new InvalidOperationException(result.ErrorMessage ?? "Onay basarisiz");
+
             Durum = "Onaylandi";
 
             // Update timeline
@@ -111,7 +127,10 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300); // Simulate API call
+            var result = await _mediator.Send(new RejectReturnCommand(_returnId, SelectedRejectReason));
+            if (!result.IsSuccess)
+                throw new InvalidOperationException(result.ErrorMessage ?? "Red basarisiz");
+
             Durum = "Reddedildi";
 
             if (Timeline.Count >= 2)

@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private string orderNumber = "1042";
@@ -26,9 +29,10 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<OrderDetailItemDto> OrderItems { get; } = [];
 
-    public OrderDetailAvaloniaViewModel(IMediator mediator)
+    public OrderDetailAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -39,22 +43,34 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var orders = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId, 1));
 
-            OrderNumber = "1042";
-            OrderStatus = "Hazirlaniyor";
-            StatusColor = "#F59E0B";
-            CustomerName = "Ahmet Yilmaz";
-            OrderDate = DateTime.Now.AddDays(-1).ToString("dd.MM.yyyy");
-            Platform = "Trendyol";
-            CargoCompany = "Aras Kargo";
-            TrackingNumber = "TR1234567890";
+            if (orders.Count > 0)
+            {
+                var o = orders[0];
+                OrderNumber = o.OrderNumber;
+                CustomerName = o.CustomerName ?? string.Empty;
+                OrderDate = o.OrderDate.ToString("dd.MM.yyyy");
+                TotalAmount = o.TotalAmount;
+                Platform = o.SourcePlatform ?? string.Empty;
+                OrderStatus = o.Status;
+                StatusColor = o.Status switch
+                {
+                    "Tamamlandi" => "#10B981",
+                    "Iptal" => "#EF4444",
+                    _ => "#F59E0B"
+                };
+                TrackingNumber = o.TrackingNumber ?? string.Empty;
+            }
+            else
+            {
+                IsEmpty = true;
+            }
 
+            // TODO: OrderItems — line items query does not exist yet, keeping mock
             OrderItems.Clear();
             OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Quantity = 1, UnitPrice = 54999.99m, LineTotal = 54999.99m });
             OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Kilif", Sku = "SKU-2001", Quantity = 2, UnitPrice = 299.90m, LineTotal = 599.80m });
-
-            TotalAmount = OrderItems.Sum(x => x.LineTotal);
         }
         catch (Exception ex)
         {

@@ -2,12 +2,16 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class GLTransactionAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     [ObservableProperty] private int totalCount;
@@ -31,9 +35,10 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
         "770 - Genel Yonetim Giderleri"
     ];
 
-    public GLTransactionAvaloniaViewModel(IMediator mediator)
+    public GLTransactionAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -44,17 +49,28 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var from = StartDate?.DateTime ?? DateTime.Today.AddMonths(-1);
+            var to = EndDate?.DateTime ?? DateTime.Today;
+            var entries = await _mediator.Send(new GetJournalEntriesQuery(_currentUser.TenantId, from, to));
 
-            _allItems =
-            [
-                new() { Date = "19.03.2026", VoucherNo = "YMF-001", Account = "100 - Kasa", Description = "Kasa acilis bakiyesi", DebitFormatted = "10.000,00", CreditFormatted = "", BalanceFormatted = "10.000,00 B" },
-                new() { Date = "19.03.2026", VoucherNo = "YMF-002", Account = "600 - Yurtici Satislar", Description = "Trendyol satis", DebitFormatted = "", CreditFormatted = "4.520,00", BalanceFormatted = "4.520,00 A" },
-                new() { Date = "19.03.2026", VoucherNo = "YMF-002", Account = "120 - Alicilar", Description = "Trendyol alacak", DebitFormatted = "4.520,00", CreditFormatted = "", BalanceFormatted = "4.520,00 B" },
-                new() { Date = "18.03.2026", VoucherNo = "YMF-003", Account = "770 - Genel Yonetim", Description = "Kargo gideri", DebitFormatted = "380,00", CreditFormatted = "", BalanceFormatted = "380,00 B" },
-                new() { Date = "18.03.2026", VoucherNo = "YMF-003", Account = "102 - Bankalar", Description = "Kargo odemesi", DebitFormatted = "", CreditFormatted = "380,00", BalanceFormatted = "9.620,00 B" },
-                new() { Date = "17.03.2026", VoucherNo = "YMF-004", Account = "621 - SMM", Description = "Satis maliyeti", DebitFormatted = "2.100,00", CreditFormatted = "", BalanceFormatted = "2.100,00 B" },
-            ];
+            _allItems = entries.SelectMany(e => e.Lines.Count > 0
+                ? e.Lines.Select(l => new GLTransactionItemDto
+                {
+                    Date = e.EntryDate.ToString("dd.MM.yyyy"),
+                    VoucherNo = e.ReferenceNumber ?? string.Empty,
+                    Account = $"{l.AccountCode} - {l.AccountName}",
+                    Description = l.Description ?? e.Description,
+                    DebitFormatted = l.Debit > 0 ? l.Debit.ToString("N2") : string.Empty,
+                    CreditFormatted = l.Credit > 0 ? l.Credit.ToString("N2") : string.Empty,
+                })
+                : [new GLTransactionItemDto
+                {
+                    Date = e.EntryDate.ToString("dd.MM.yyyy"),
+                    VoucherNo = e.ReferenceNumber ?? string.Empty,
+                    Description = e.Description,
+                    DebitFormatted = e.TotalDebit > 0 ? e.TotalDebit.ToString("N2") : string.Empty,
+                    CreditFormatted = e.TotalCredit > 0 ? e.TotalCredit.ToString("N2") : string.Empty,
+                }]).ToList();
 
             ApplyFilters();
         }
