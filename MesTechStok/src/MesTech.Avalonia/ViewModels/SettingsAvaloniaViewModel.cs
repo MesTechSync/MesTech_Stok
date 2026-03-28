@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class SettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
     private readonly IThemeService _themeService;
 
@@ -40,9 +43,10 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
     // Save state
     [ObservableProperty] private bool isSaved;
 
-    public SettingsAvaloniaViewModel(IMediator mediator, IDialogService dialog, IThemeService themeService)
+    public SettingsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog, IThemeService themeService)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         _dialog = dialog;
         _themeService = themeService;
 
@@ -66,16 +70,22 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: await _mediator.Send(new GetCredentialsSettingsQuery(Guid.Empty));
-            await Task.Delay(50);
+            var creds = await _mediator.Send(new GetCredentialsSettingsQuery(_currentUser.TenantId));
+            var configured = creds.ConfiguredPlatforms.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             PlatformCredentials.Clear();
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Trendyol", ApiKey = "tr-***", Status = "Bagli", IsConnected = true });
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Hepsiburada", ApiKey = "hb-***", Status = "Bagli", IsConnected = true });
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "N11", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Ciceksepeti", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Amazon TR", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
-            PlatformCredentials.Add(new PlatformCredentialItem { Platform = "Pazarama", ApiKey = "", Status = "Yapilandirilmamis", IsConnected = false });
+            var allPlatforms = new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon TR", "Pazarama", "eBay", "Shopify", "WooCommerce", "Ozon" };
+            foreach (var platform in allPlatforms)
+            {
+                var isConfigured = configured.Contains(platform);
+                PlatformCredentials.Add(new PlatformCredentialItem
+                {
+                    Platform = platform,
+                    ApiKey = isConfigured ? "***" : "",
+                    Status = isConfigured ? "Bagli" : "Yapilandirilmamis",
+                    IsConnected = isConfigured
+                });
+            }
         }
         catch (Exception ex)
         {
