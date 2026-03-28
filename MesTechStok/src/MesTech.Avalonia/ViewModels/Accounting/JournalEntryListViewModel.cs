@@ -1,15 +1,19 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
 /// <summary>
 /// Yevmiye Defteri ViewModel — Chain 3 GL kayıtları.
-/// DEV 1'in JournalEntry entity'sine bağlanacak.
+/// Wired to GetJournalEntriesQuery via MediatR.
 /// </summary>
 public partial class JournalEntryListViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private DateTimeOffset? fromDate = DateTimeOffset.Now.AddMonths(-1);
     [ObservableProperty] private DateTimeOffset? toDate = DateTimeOffset.Now;
     [ObservableProperty] private string selectedSourceType = "Tümü";
@@ -19,17 +23,32 @@ public partial class JournalEntryListViewModel : ViewModelBase
 
     public ObservableCollection<JournalEntryItem> JournalEntries { get; } = [];
 
+    public JournalEntryListViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     public override async Task LoadAsync()
     {
         await SafeExecuteAsync(async () =>
         {
             JournalEntries.Clear();
-            await Task.Delay(150); // Simulate — MediatR Send kullanılacak
 
-            JournalEntries.Add(new("YEV-2026-001", DateTime.Now.AddDays(-3), "Trendyol sipariş #SIP-0041 satış kaydı", "Satış", 2450m, 2450m));
-            JournalEntries.Add(new("YEV-2026-002", DateTime.Now.AddDays(-2), "Hepsiburada komisyon kesintisi", "Komisyon", 189.50m, 189.50m));
-            JournalEntries.Add(new("YEV-2026-003", DateTime.Now.AddDays(-1), "Yurtiçi Kargo gönderim ücreti", "Kargo", 45m, 45m));
-            JournalEntries.Add(new("YEV-2026-004", DateTime.Now, "N11 iade ürün stok girişi", "İade", 890m, 890m));
+            var from = FromDate?.DateTime ?? DateTime.Now.AddMonths(-1);
+            var to = ToDate?.DateTime ?? DateTime.Now;
+            var results = await _mediator.Send(
+                new GetJournalEntriesQuery(Guid.Empty, from, to), CancellationToken);
+
+            foreach (var dto in results)
+            {
+                JournalEntries.Add(new(
+                    dto.ReferenceNumber ?? $"YEV-{dto.Id:N}".Substring(0, 14),
+                    dto.EntryDate,
+                    dto.Description,
+                    dto.Lines.FirstOrDefault()?.AccountName ?? "Manuel",
+                    dto.TotalDebit,
+                    dto.TotalCredit));
+            }
 
             IsEmpty = JournalEntries.Count == 0;
         }, "Yevmiye defteri");

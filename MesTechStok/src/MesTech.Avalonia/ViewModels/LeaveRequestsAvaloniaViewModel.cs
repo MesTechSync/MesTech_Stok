@@ -1,23 +1,31 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Stub ViewModel for HR Leave Requests screen — Dalga 11.
-/// Will be wired to GetLeaveRequestsQuery via MediatR when full migration starts.
+/// Wired to IMediator — will use GetLeaveRequestsQuery when HR module is implemented.
 /// </summary>
 public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private string summary = "Izin talepleri ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int totalCount;
 
-    public override async Task LoadAsync()
+    public LeaveRequestsAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    public override Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            await Task.Delay(50); // Simulate async load
+            // TODO: Wire to GetLeaveRequestsQuery when HR module CQRS is implemented
             TotalCount = 0;
             Summary = "Izin talepleri ekrani hazir. Izin basvurusu, onay sureci ve yillik izin takibi burada yer alacak.";
         }
@@ -25,6 +33,7 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

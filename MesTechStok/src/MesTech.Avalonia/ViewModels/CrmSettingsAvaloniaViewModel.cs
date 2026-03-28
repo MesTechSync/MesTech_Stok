@@ -1,12 +1,14 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
 
     [ObservableProperty] private bool isMesaAiEnabled = true;
@@ -23,14 +25,15 @@ public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
         "Stok bilgisi guncellenmistir. Urun su an mevcuttur."
     ];
 
-    public CrmSettingsAvaloniaViewModel(IDialogService dialog)
+    public CrmSettingsAvaloniaViewModel(IMediator mediator, IDialogService dialog)
     {
+        _mediator = mediator;
         _dialog = dialog;
     }
 
     public override Task LoadAsync()
     {
-        // Settings loaded from defaults — will integrate with IConfiguration in future
+        // TODO: Wire to GetCrmSettingsQuery when CRM settings CQRS is implemented
         return Task.CompletedTask;
     }
 
@@ -60,8 +63,7 @@ public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
         IsSaving = true;
         try
         {
-            // Persist settings via IConfiguration / local storage
-            await Task.Delay(200);
+            // TODO: Wire to SaveCrmSettingsCommand when CRM settings CQRS is implemented
             await _dialog.ShowInfoAsync("CRM ayarlari kaydedildi.", "MesTech CRM");
         }
         finally

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using MesTech.Application.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,6 +12,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class LoginAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
     private readonly IAuthService _authService;
 
     [ObservableProperty] private string username = string.Empty;
@@ -18,8 +20,9 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool isAuthenticated;
     [ObservableProperty] private string welcomeMessage = string.Empty;
 
-    public LoginAvaloniaViewModel(IAuthService authService)
+    public LoginAvaloniaViewModel(IMediator mediator, IAuthService authService)
     {
+        _mediator = mediator;
         _authService = authService;
     }
 
@@ -30,7 +33,8 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
+            // TODO: Wire to MediatR query when AuthenticateCommand is available
+            await Task.CompletedTask;
         }
         catch (Exception ex)
         {

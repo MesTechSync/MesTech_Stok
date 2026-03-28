@@ -1,15 +1,20 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Commands.BulkUpdateStock;
+using MesTech.Application.Features.Product.Queries.GetProducts;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Stock Update ViewModel — DataGrid with SKU, Ad, Mevcut Stok, Yeni Stok, Platform.
-/// 10 demo items + Bulk update button. M1 Avalonia canlandirma — Beta Agent.
+/// Wired to GetProductsQuery + BulkUpdateStockCommand via MediatR.
 /// </summary>
 public partial class StockUpdateAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string updateStatus = string.Empty;
@@ -17,6 +22,11 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
     public ObservableCollection<StockUpdateItemDto> StockItems { get; } = [];
 
     private List<StockUpdateItemDto> _allItems = [];
+
+    public StockUpdateAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     public override async Task LoadAsync()
     {
@@ -27,21 +37,18 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
         UpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(300); // Simulate async load
+            var result = await _mediator.Send(
+                new GetProductsQuery(Guid.Empty, SearchTerm: null, IsActive: true, Page: 1, PageSize: 200),
+                CancellationToken);
 
-            _allItems =
-            [
-                new() { Sku = "TRY-ELK-001", UrunAdi = "Samsung Galaxy S24 Ultra", MevcutStok = 45, YeniStok = 45, Platform = "Trendyol" },
-                new() { Sku = "HB-BLG-002", UrunAdi = "Apple MacBook Air M3", MevcutStok = 12, YeniStok = 12, Platform = "Hepsiburada" },
-                new() { Sku = "N11-AKS-003", UrunAdi = "Sony WH-1000XM5 Kulaklik", MevcutStok = 78, YeniStok = 78, Platform = "N11" },
-                new() { Sku = "TRY-AKS-004", UrunAdi = "Logitech MX Master 3S Mouse", MevcutStok = 156, YeniStok = 156, Platform = "Trendyol" },
-                new() { Sku = "CS-MNT-005", UrunAdi = "Dell U2723QE 4K Monitor", MevcutStok = 8, YeniStok = 15, Platform = "Ciceksepeti" },
-                new() { Sku = "AMZ-GYM-006", UrunAdi = "Dyson V15 Detect Supurge", MevcutStok = 23, YeniStok = 23, Platform = "Amazon" },
-                new() { Sku = "OC-EV-007", UrunAdi = "Philips Airfryer XXL", MevcutStok = 0, YeniStok = 50, Platform = "OpenCart" },
-                new() { Sku = "TRY-GYM-008", UrunAdi = "Karaca Hatir Turk Kahve Makinesi", MevcutStok = 340, YeniStok = 340, Platform = "Trendyol" },
-                new() { Sku = "HB-KSA-009", UrunAdi = "Vestel 55 inc 4K Smart TV", MevcutStok = 5, YeniStok = 20, Platform = "Hepsiburada" },
-                new() { Sku = "N11-SPR-010", UrunAdi = "Nike Air Max 270 Ayakkabi", MevcutStok = 67, YeniStok = 67, Platform = "N11" },
-            ];
+            _allItems = result.Items.Select(p => new StockUpdateItemDto
+            {
+                Sku = p.SKU,
+                UrunAdi = p.Name,
+                MevcutStok = p.Stock,
+                YeniStok = p.Stock,
+                Platform = p.SupplierName ?? "MesTech"
+            }).ToList();
 
             ApplyFilters();
         }
@@ -87,22 +94,27 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
         UpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(800); // Simulate bulk update
+            var changedItems = _allItems
+                .Where(i => i.MevcutStok != i.YeniStok)
+                .Select(i => new BulkUpdateStockItem(i.Sku, i.YeniStok))
+                .ToList();
 
-            int updatedCount = 0;
-            foreach (var item in _allItems)
+            if (changedItems.Count == 0)
             {
-                if (item.MevcutStok != item.YeniStok)
-                {
-                    item.MevcutStok = item.YeniStok;
-                    updatedCount++;
-                }
+                UpdateStatus = "Guncellenecek stok degisikligi bulunamadi.";
+                return;
             }
 
+            var result = await _mediator.Send(
+                new BulkUpdateStockCommand(changedItems), CancellationToken);
+
+            // Sync local state
+            foreach (var item in _allItems.Where(i => i.MevcutStok != i.YeniStok))
+                item.MevcutStok = item.YeniStok;
+
             ApplyFilters();
-            UpdateStatus = updatedCount > 0
-                ? $"{updatedCount} urun stoku guncellendi."
-                : "Guncellenecek stok degisikligi bulunamadi.";
+            UpdateStatus = $"{result.SuccessCount} urun stoku guncellendi." +
+                (result.FailedCount > 0 ? $" {result.FailedCount} basarisiz." : "");
         }
         catch (Exception ex)
         {
