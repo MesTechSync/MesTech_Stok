@@ -60,8 +60,8 @@ public class MenuFeatureCoverageTests
     public async Task ProfitabilityReport_NullRequest_Throws()
     {
         var sut = new ProfitabilityReportHandler(
-            Mock.Of<IOrderRepository>(), Mock.Of<IExpenseRepository>(),
-            Mock.Of<IIncomeRepository>(), Mock.Of<IProductRepository>());
+            Mock.Of<IOrderRepository>(), Mock.Of<IProductRepository>(),
+            Mock.Of<ILogger<ProfitabilityReportHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

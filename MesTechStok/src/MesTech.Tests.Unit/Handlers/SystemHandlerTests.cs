@@ -4,6 +4,7 @@ using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.LaunchReadiness;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Application.Features.System.Queries.GetBackupHistory;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,10 +19,21 @@ public class SystemHandlerTests
 
     // ── GetAuditLogsHandler ──────────────────────────────────────
 
+    private static GetAuditLogsHandler CreateAuditLogsHandler()
+    {
+        var repoMock = new Mock<IAccessLogRepository>();
+        repoMock.Setup(r => r.GetPagedAsync(
+                It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+                It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AccessLog>());
+        return new GetAuditLogsHandler(repoMock.Object);
+    }
+
     [Fact]
     public async Task GetAuditLogs_ReturnsEmptyList()
     {
-        var sut = new GetAuditLogsHandler();
+        var sut = CreateAuditLogsHandler();
         var query = new GetAuditLogsQuery(_tenantId);
 
         var result = await sut.Handle(query, CancellationToken.None);
@@ -33,12 +45,11 @@ public class SystemHandlerTests
     [Fact]
     public async Task GetAuditLogs_NullRequest_StillReturnsEmpty()
     {
-        // Handler has no ThrowIfNull and doesn't access request — null is safe
-        var sut = new GetAuditLogsHandler();
+        // Handler accesses request.TenantId — null will throw NullReferenceException
+        var sut = CreateAuditLogsHandler();
 
-        var result = await sut.Handle(null!, CancellationToken.None);
-
-        result.Should().BeEmpty();
+        await Assert.ThrowsAnyAsync<Exception>(
+            () => sut.Handle(null!, CancellationToken.None));
     }
 
     // ── GetBackupHistoryHandler ──────────────────────────────────
