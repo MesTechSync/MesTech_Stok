@@ -7,6 +7,7 @@ using MesTech.Application.Features.Accounting.Commands.CreateAccountingExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
 using MesTech.Application.Features.Accounting.Commands.RunReconciliation;
 using MesTech.Application.Features.Accounting.Queries.GetAccountingExpenses;
+using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
 using MesTech.Application.Features.Accounting.Queries.GetBankTransactions;
 using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
@@ -160,6 +161,26 @@ public static class AccountingEndpoints
         .WithName("CreateJournalEntry")
         .WithSummary("Yeni yevmiye kaydı oluştur").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // PUT /api/v1/accounting/journal-entries/{id} — yevmiye güncelle + RowVersion (G228-DEV6)
+        group.MapPut("/journal-entries/{id:guid}", async (
+            Guid id,
+            UpdateJournalEntryRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var command = new MesTech.Application.Features.Accounting.Commands.UpdateJournalEntry
+                .UpdateJournalEntryCommand(
+                    id, request.TenantId, request.EntryDate, request.Description,
+                    request.ReferenceNumber, request.Lines, request.RowVersion);
+
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new { newRowVersion = result.NewRowVersion })
+                : Results.Conflict(new { error = result.ErrorMessage });
+        })
+        .WithName("UpdateJournalEntry")
+        .WithSummary("Yevmiye kaydı güncelle — RowVersion optimistic concurrency (G228)")
+        .Produces(200).Produces(409);
 
         // GET /api/v1/accounting/expenses — masraf listesi
         group.MapGet("/expenses", async (
@@ -740,4 +761,13 @@ public static class AccountingEndpoints
         .WithSummary("Karşı taraf bilgilerini güncelle").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
+
+    // ── Request Records (G228-DEV6) ──
+    public record UpdateJournalEntryRequest(
+        Guid TenantId,
+        DateTime EntryDate,
+        string Description,
+        string? ReferenceNumber,
+        List<JournalLineInput> Lines,
+        byte[]? RowVersion);
 }
