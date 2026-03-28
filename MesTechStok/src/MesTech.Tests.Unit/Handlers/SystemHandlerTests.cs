@@ -76,10 +76,11 @@ public class SystemHandlerTests
         var credentialRepo = new Mock<IStoreCredentialRepository>();
         var orderRepo = new Mock<IOrderRepository>();
         var uow = new Mock<IUnitOfWork>();
+        var kvkkAuditRepo = new Mock<IKvkkAuditLogRepository>();
 
         var sut = new DeletePersonalDataHandler(
             tenantRepo.Object, storeRepo.Object, credentialRepo.Object,
-            orderRepo.Object, uow.Object,
+            orderRepo.Object, uow.Object, kvkkAuditRepo.Object,
             NullLogger<DeletePersonalDataHandler>.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
@@ -94,13 +95,14 @@ public class SystemHandlerTests
         var credentialRepo = new Mock<IStoreCredentialRepository>();
         var orderRepo = new Mock<IOrderRepository>();
         var uow = new Mock<IUnitOfWork>();
+        var kvkkAuditRepo = new Mock<IKvkkAuditLogRepository>();
 
         tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Tenant?)null);
 
         var sut = new DeletePersonalDataHandler(
             tenantRepo.Object, storeRepo.Object, credentialRepo.Object,
-            orderRepo.Object, uow.Object,
+            orderRepo.Object, uow.Object, kvkkAuditRepo.Object,
             NullLogger<DeletePersonalDataHandler>.Instance);
 
         var cmd = new DeletePersonalDataCommand(_tenantId, Guid.NewGuid(), "KVKK talebi");
@@ -116,7 +118,10 @@ public class SystemHandlerTests
     {
         var tenantRepo = new Mock<ITenantRepository>();
         var sut = new ExportPersonalDataHandler(
-            tenantRepo.Object,
+            tenantRepo.Object, new Mock<IStoreRepository>().Object,
+            new Mock<IOrderRepository>().Object, new Mock<IProductRepository>().Object,
+            new Mock<IUserRepository>().Object, new Mock<IKvkkAuditLogRepository>().Object,
+            new Mock<IUnitOfWork>().Object,
             NullLogger<ExportPersonalDataHandler>.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
@@ -131,7 +136,10 @@ public class SystemHandlerTests
             .ReturnsAsync((Tenant?)null);
 
         var sut = new ExportPersonalDataHandler(
-            tenantRepo.Object,
+            tenantRepo.Object, new Mock<IStoreRepository>().Object,
+            new Mock<IOrderRepository>().Object, new Mock<IProductRepository>().Object,
+            new Mock<IUserRepository>().Object, new Mock<IKvkkAuditLogRepository>().Object,
+            new Mock<IUnitOfWork>().Object,
             NullLogger<ExportPersonalDataHandler>.Instance);
 
         var query = new ExportPersonalDataQuery(_tenantId, Guid.NewGuid());
@@ -149,7 +157,10 @@ public class SystemHandlerTests
             .ReturnsAsync(tenant);
 
         var sut = new ExportPersonalDataHandler(
-            tenantRepo.Object,
+            tenantRepo.Object, new Mock<IStoreRepository>().Object,
+            new Mock<IOrderRepository>().Object, new Mock<IProductRepository>().Object,
+            new Mock<IUserRepository>().Object, new Mock<IKvkkAuditLogRepository>().Object,
+            new Mock<IUnitOfWork>().Object,
             NullLogger<ExportPersonalDataHandler>.Instance);
 
         var query = new ExportPersonalDataQuery(_tenantId, Guid.NewGuid());

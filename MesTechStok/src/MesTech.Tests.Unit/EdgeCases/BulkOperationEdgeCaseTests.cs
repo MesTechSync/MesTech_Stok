@@ -24,6 +24,7 @@ public class BulkOperationEdgeCaseTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IInvoiceRepository> _invoiceRepo = new();
+    private readonly Mock<IOrderRepository> _orderRepo = new();
 
     #region BulkUpdateStockHandler
 
@@ -177,7 +178,7 @@ public class BulkOperationEdgeCaseTests
     {
         // Arrange
         var logger = NullLogger<BulkCreateInvoiceHandler>.Instance;
-        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, logger);
+        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, _orderRepo.Object, _unitOfWork.Object, logger);
         var command = new BulkCreateInvoiceCommand(
             OrderIds: new List<Guid>(),
             Provider: InvoiceProvider.Sovos);
@@ -197,7 +198,7 @@ public class BulkOperationEdgeCaseTests
     {
         // Arrange
         var logger = NullLogger<BulkCreateInvoiceHandler>.Instance;
-        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, logger);
+        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, _orderRepo.Object, _unitOfWork.Object, logger);
         var orderId = Guid.NewGuid();
         var command = new BulkCreateInvoiceCommand(
             OrderIds: new List<Guid> { orderId },
@@ -217,7 +218,7 @@ public class BulkOperationEdgeCaseTests
     public async Task BulkCreateInvoice_NullRequest_ThrowsArgumentNullException()
     {
         var logger = NullLogger<BulkCreateInvoiceHandler>.Instance;
-        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, logger);
+        var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, _orderRepo.Object, _unitOfWork.Object, logger);
 
         var act = () => handler.Handle(null!, CancellationToken.None);
 

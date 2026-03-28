@@ -179,7 +179,9 @@ public class WarehouseExtraHandlerTests
     [Fact]
     public async Task GetWarehouseSummary_NullRequest_ThrowsArgumentNullException()
     {
-        var sut = new GetWarehouseSummaryHandler();
+        var sut = new GetWarehouseSummaryHandler(
+            new Mock<IWarehouseRepository>().Object,
+            new Mock<IProductRepository>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -188,7 +190,9 @@ public class WarehouseExtraHandlerTests
     [Fact]
     public async Task GetWarehouseSummary_ValidRequest_ReturnsEmptyList()
     {
-        var sut = new GetWarehouseSummaryHandler();
+        var sut = new GetWarehouseSummaryHandler(
+            new Mock<IWarehouseRepository>().Object,
+            new Mock<IProductRepository>().Object);
         var result = await sut.Handle(new GetWarehouseSummaryQuery(_tenantId), CancellationToken.None);
 
         result.Should().NotBeNull();

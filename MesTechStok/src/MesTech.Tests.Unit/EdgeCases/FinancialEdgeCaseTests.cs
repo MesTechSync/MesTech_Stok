@@ -35,7 +35,7 @@ public class FinancialEdgeCaseTests
         var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Task.CompletedTask);
+            .Returns(Task.CompletedTask);
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
@@ -140,9 +140,10 @@ public class FinancialEdgeCaseTests
         // Arrange — 0.01 TL commission should still create GL record
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger);
+        var handler = new CommissionChargedGLHandler(uow.Object, journalRepo.Object, logger);
 
         // Act
         await handler.HandleAsync(
@@ -163,9 +164,10 @@ public class FinancialEdgeCaseTests
         // Arrange — 999,999.99 TL commission
         var uow = new Mock<IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger);
+        var handler = new CommissionChargedGLHandler(uow.Object, journalRepo.Object, logger);
 
         // Act
         await handler.HandleAsync(
@@ -185,9 +187,10 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — 0 commission should be skipped (guard clause)
         var uow = new Mock<IUnitOfWork>();
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger);
+        var handler = new CommissionChargedGLHandler(uow.Object, journalRepo.Object, logger);
 
         // Act
         await handler.HandleAsync(
@@ -207,9 +210,10 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — negative commission should be skipped (guard clause <= 0)
         var uow = new Mock<IUnitOfWork>();
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var logger = NullLogger<CommissionChargedGLHandler>.Instance;
 
-        var handler = new CommissionChargedGLHandler(uow.Object, logger);
+        var handler = new CommissionChargedGLHandler(uow.Object, journalRepo.Object, logger);
 
         // Act
         await handler.HandleAsync(
@@ -233,7 +237,7 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — no accounts, no journal entries
         var accountRepo = new Mock<IChartOfAccountsRepository>();
-        var journalRepo = new Mock<IJournalEntryRepository>();
+        var journalRepo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
 
         accountRepo.Setup(r => r.GetAllAsync(_tenantId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ChartOfAccounts>());
@@ -262,7 +266,7 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — accounts exist but no journal entries
         var accountRepo = new Mock<IChartOfAccountsRepository>();
-        var journalRepo = new Mock<IJournalEntryRepository>();
+        var journalRepo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
 
         var account = ChartOfAccounts.Create(_tenantId, "100", "Kasa", AccountType.Asset);
         accountRepo.Setup(r => r.GetAllAsync(_tenantId, true, It.IsAny<CancellationToken>()))

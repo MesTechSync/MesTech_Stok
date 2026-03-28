@@ -157,7 +157,7 @@ public class AccountingQueryTests2
     public async Task GetJournalEntriesHandler_NullRequest_Throws()
     {
         var sut = new GetJournalEntriesHandler(
-            new Mock<IJournalEntryRepository>().Object);
+            new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CT));
@@ -166,7 +166,7 @@ public class AccountingQueryTests2
     [Fact]
     public async Task GetJournalEntriesHandler_EmptyResult_ReturnsEmptyList()
     {
-        var repo = new Mock<IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
         repo.Setup(r => r.GetByDateRangeAsync(
                 It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), CT))
             .ReturnsAsync(new List<MesTech.Domain.Accounting.Entities.JournalEntry>());
@@ -197,7 +197,7 @@ public class AccountingQueryTests2
     {
         var sut = new ValidateBalanceSheetHandler(
             new Mock<IChartOfAccountsRepository>().Object,
-            new Mock<IJournalEntryRepository>().Object,
+            new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object,
             new BalanceSheetValidationService());
 
         sut.Should().NotBeNull();
@@ -209,7 +209,7 @@ public class AccountingQueryTests2
     public async Task ValidateTrialBalanceHandler_CanBeConstructed()
     {
         var sut = new ValidateTrialBalanceHandler(
-            new Mock<IJournalEntryRepository>().Object,
+            new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>().Object,
             new TrialBalanceValidationService());
 
         sut.Should().NotBeNull();
