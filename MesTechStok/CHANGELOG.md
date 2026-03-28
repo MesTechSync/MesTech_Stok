@@ -3,6 +3,20 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.21] - 2026-03-28
+
+### DEV5 Test & Kalite TUR 9-11 — handler %100 + VM test %77
+- fix(tests): fix 3 Avalonia VM constructor mismatches — CashFlowReport, DropshipOrders, EInvoice (G286 P0 KAPANDI)
+- test(event-handlers): 20 notification event handler tests — LowStock, CRM 7 method, ShipmentCost, StockSync, OrderCancelled
+- test(dashboard): 8 dashboard query handler tests — SalesChart, LowStockAlerts, PendingInvoices, RecentOrders
+- test(auth): 5 DisableMfa security tests — OWASP ASVS V2.8 coverage
+- test(accounting): 13 GL event handler tests — CommissionCharged, InvoiceApproved, InvoiceCancelled, OrderConfirmedRevenue, OrderShippedCost, ReturnJournalReversal
+- test(erp): 6 ERPNext event handler tests — Customer, SalesInvoice, StockEntry
+- test(stock+notif): 13 stock/notification handler tests — OrderPlacedStockDeduction, PriceLossDetected, ReturnApproved, ZeroStock, Subscription, SyncError
+- test(vm): 47 Avalonia ViewModel tests — Settings, OnboardingWizard, MfaSetup, Stock, Leads, Kanban, Contacts, Barcode, TrialBalance, CommissionRates, Calendar, Expenses, Billing, Backup, Documents + 20 more
+
+**Metrics:** 15 commits, 112 yeni test, handler coverage %100 (399/399), VM coverage %77 (128/166), G286 P0 KAPANDI, G367 cross-DEV acildi
+
 ## [1.0.20] - 2026-03-28
 
 ### DEV6 Business Logic & WebApi — PAYLAŞIM-DEV3
