@@ -14,5 +14,10 @@ public sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.HasIndex(ur => ur.TenantId)
             .HasDatabaseName("IX_UserRoles_TenantId");
+
+        builder.HasOne(ur => ur.Role)
+            .WithMany(r => r.UserRoles)
+            .HasForeignKey(ur => ur.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
