@@ -281,6 +281,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ViewModels.Accounting.PenaltyAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Accounting.FixedExpenseAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Accounting.TaxRecordAvaloniaViewModel>();
+                services.AddTransient<ViewModels.Accounting.FixedAssetAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Monitoring.StaleOrdersAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Orders.OrderKanbanViewModel>();
             })

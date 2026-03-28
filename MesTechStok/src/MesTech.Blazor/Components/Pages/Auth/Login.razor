@@ -145,13 +145,7 @@
     }
     catch (HttpRequestException)
     {
-      // WebApi not available — allow demo mode for PoC
-      var username = loginModel.Username ?? "Demo";
-      AuthStateProvider.MarkUserAsAuthenticated("demo-token", username);
-      // Keep AuthTokenStore in sync for backward compatibility
-      AuthTokenStore.Token = "demo-token";
-      AuthTokenStore.Username = username;
-      Navigation.NavigateTo("/dashboard", forceLoad: false);
+      errorMessage = "Sunucuya baglanilamiyor. Lutfen API servisinin calistigindan emin olun.";
     }
     catch (Exception ex)
     {
