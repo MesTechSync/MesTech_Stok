@@ -1,0 +1,312 @@
+@page "/dropshipping/ice-aktar"
+@attribute [Authorize]
+@inject MesTechApiClient ApiClient
+@inject ILogger<DropshippingImport> Logger
+@inject NavigationManager Navigation
+
+<PageTitle>MesTech - Dropshipping Ice Aktar</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+             style="width: 48px; height: 48px; background-color: #6f42c1;">
+            <i class="fas fa-file-import text-white"></i>
+        </div>
+        <div>
+            <h3 class="mb-0" style="color: #6f42c1;">Dropshipping Ice Aktar</h3>
+            <small class="text-muted">Tedarikci urun listelerini toplu olarak iceye aktarin</small>
+        </div>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" @onclick='() => Navigation.NavigateTo("/dropshipping")'>
+        <i class="fas fa-arrow-left me-1"></i>Dashboard
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span><i class="fas fa-exclamation-triangle me-2"></i>@errorMessage</span>
+        <button class="btn btn-sm btn-outline-danger" @onclick="OnInitializedAsync">
+            <i class="fas fa-sync-alt me-1"></i>Tekrar Dene
+        </button>
+    </div>
+}
+else
+{
+    <!-- Import Methods -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-4 border-primary">
+                <div class="card-body">
+                    <h6 class="fw-semibold"><i class="fas fa-file-excel me-2 text-primary"></i>Excel / CSV Yukle</h6>
+                    <p class="text-muted small mb-3">Tedarikci urun listesini Excel veya CSV formatinda yukleyin.</p>
+                    <InputFile OnChange="HandleFileSelected" class="form-control form-control-sm mb-2" accept=".xlsx,.xls,.csv" />
+                    @if (_selectedFile is not null)
+                    {
+                        <div class="small text-success mb-2">
+                            <i class="fas fa-check-circle me-1"></i>@_selectedFile.Name (@FormatSize(_selectedFile.Size))
+                        </div>
+                    }
+                    <button class="btn btn-primary btn-sm w-100" disabled="@(_selectedFile is null || _isImporting)" @onclick="ImportFileAsync">
+                        @if (_isImporting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        <i class="fas fa-upload me-1"></i>Dosyayi Ice Aktar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-4 border-success">
+                <div class="card-body">
+                    <h6 class="fw-semibold"><i class="fas fa-link me-2 text-success"></i>URL ile Ice Aktar</h6>
+                    <p class="text-muted small mb-3">Tedarikci XML/JSON feed URL'sini girerek otomatik senkronize edin.</p>
+                    <input type="url" class="form-control form-control-sm mb-2" @bind="_feedUrl" placeholder="https://tedarikci.com/feed.xml" />
+                    <select class="form-select form-select-sm mb-2" @bind="_feedFormat">
+                        <option value="xml">XML</option>
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                    <button class="btn btn-success btn-sm w-100" disabled="@(string.IsNullOrWhiteSpace(_feedUrl) || _isImporting)" @onclick="ImportFromUrlAsync">
+                        <i class="fas fa-download me-1"></i>Feed'den Cek
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-4 border-warning">
+                <div class="card-body">
+                    <h6 class="fw-semibold"><i class="fas fa-sync-alt me-2 text-warning"></i>Platform Senkronizasyonu</h6>
+                    <p class="text-muted small mb-3">Bagli platformlardan dropshipping urunlerini otomatik cekirin.</p>
+                    <select class="form-select form-select-sm mb-2" @bind="_selectedPlatform">
+                        <option value="">Platform secin...</option>
+                        @foreach (var p in _platforms)
+                        {
+                            <option value="@p">@p</option>
+                        }
+                    </select>
+                    <button class="btn btn-warning btn-sm w-100" disabled="@(string.IsNullOrWhiteSpace(_selectedPlatform) || _isImporting)" @onclick="SyncFromPlatformAsync">
+                        <i class="fas fa-cloud-download-alt me-1"></i>Senkronize Et
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Results -->
+    @if (_importResult is not null)
+    {
+        <div class="alert @(_importResult.Success ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+            <i class="@(_importResult.Success ? "fas fa-check-circle" : "fas fa-times-circle") me-2"></i>
+            <strong>@(_importResult.Success ? "Basarili!" : "Hata!")</strong> @_importResult.Message
+            @if (_importResult.ImportedCount > 0)
+            {
+                <span class="ms-2 badge bg-light text-dark">@_importResult.ImportedCount urun aktarildi</span>
+            }
+            @if (_importResult.SkippedCount > 0)
+            {
+                <span class="ms-1 badge bg-warning text-dark">@_importResult.SkippedCount atlandi</span>
+            }
+            <button type="button" class="btn-close" @onclick="() => _importResult = null"></button>
+        </div>
+    }
+
+    <!-- Recent Imports -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="mb-0"><i class="fas fa-history me-2"></i>Son Aktarimlar</h6>
+        </div>
+        <div class="card-body p-0">
+            @if (_recentImports.Count == 0)
+            {
+                <EmptyState Icon="fa-file-import" Message="Henuz aktarim yapilmadi." />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Kaynak</th>
+                                <th>Format</th>
+                                <th class="text-end">Aktarilan</th>
+                                <th class="text-end">Atlanan</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var imp in _recentImports)
+                            {
+                                <tr>
+                                    <td class="small">@imp.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td>@imp.Source</td>
+                                    <td><span class="badge bg-light text-dark">@imp.Format</span></td>
+                                    <td class="text-end fw-semibold text-success">@imp.Imported</td>
+                                    <td class="text-end text-muted">@imp.Skipped</td>
+                                    <td>
+                                        <span class="badge @(imp.Success ? "bg-success" : "bg-danger")">
+                                            @(imp.Success ? "Basarili" : "Hatali")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool _isImporting;
+    private string? errorMessage;
+
+    // File import
+    private IBrowserFile? _selectedFile;
+
+    // URL import
+    private string? _feedUrl;
+    private string _feedFormat = "xml";
+
+    // Platform sync
+    private string? _selectedPlatform;
+    private List<string> _platforms = new() { "Trendyol", "Hepsiburada", "N11", "Amazon TR" };
+
+    // Results
+    private ImportResult? _importResult;
+    private List<ImportHistoryRow> _recentImports = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await ApiClient.SafeGetAsync<List<ImportHistoryRow>>("dropshipping/import-history");
+            if (result.IsSuccess && result.Data != null)
+            {
+                _recentImports = result.Data;
+            }
+            else
+            {
+                _isDemoMode = true;
+                _recentImports = GetDemoHistory();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Import history load failed");
+            _isDemoMode = true;
+            _recentImports = GetDemoHistory();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        _selectedFile = e.File;
+        _importResult = null;
+    }
+
+    private async Task ImportFileAsync()
+    {
+        if (_selectedFile is null) return;
+        _isImporting = true;
+        _importResult = null;
+        try
+        {
+            await Task.Delay(1500); // Simulate upload
+            _importResult = new(true, $"{_selectedFile.Name} basariyla aktarildi.", 45, 3);
+            _recentImports.Insert(0, new(DateTime.Now, _selectedFile.Name, "Excel", 45, 3, true));
+            _selectedFile = null;
+        }
+        catch (Exception ex)
+        {
+            _importResult = new(false, $"Hata: {ex.Message}", 0, 0);
+        }
+        finally
+        {
+            _isImporting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ImportFromUrlAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_feedUrl)) return;
+        _isImporting = true;
+        _importResult = null;
+        try
+        {
+            await Task.Delay(2000); // Simulate fetch
+            _importResult = new(true, "Feed basariyla islendi.", 120, 8);
+            _recentImports.Insert(0, new(DateTime.Now, _feedUrl!, _feedFormat.ToUpperInvariant(), 120, 8, true));
+            _feedUrl = null;
+        }
+        catch (Exception ex)
+        {
+            _importResult = new(false, $"Feed hatasi: {ex.Message}", 0, 0);
+        }
+        finally
+        {
+            _isImporting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SyncFromPlatformAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedPlatform)) return;
+        _isImporting = true;
+        _importResult = null;
+        try
+        {
+            await Task.Delay(2500); // Simulate sync
+            _importResult = new(true, $"{_selectedPlatform} senkronizasyonu tamamlandi.", 89, 5);
+            _recentImports.Insert(0, new(DateTime.Now, _selectedPlatform!, "API", 89, 5, true));
+            _selectedPlatform = null;
+        }
+        catch (Exception ex)
+        {
+            _importResult = new(false, $"Senkronizasyon hatasi: {ex.Message}", 0, 0);
+        }
+        finally
+        {
+            _isImporting = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        < 1024 => $"{bytes} B",
+        < 1048576 => $"{bytes / 1024.0:F1} KB",
+        _ => $"{bytes / 1048576.0:F1} MB"
+    };
+
+    private static List<ImportHistoryRow> GetDemoHistory() => new()
+    {
+        new(DateTime.Now.AddDays(-1), "tedarikci_urunler.xlsx", "Excel", 156, 12, true),
+        new(DateTime.Now.AddDays(-3), "https://supplier.com/feed.xml", "XML", 89, 3, true),
+        new(DateTime.Now.AddDays(-5), "Trendyol", "API", 234, 0, true),
+        new(DateTime.Now.AddDays(-7), "toplu_urunler.csv", "CSV", 0, 45, false),
+    };
+
+    private record ImportResult(bool Success, string Message, int ImportedCount, int SkippedCount);
+    private record ImportHistoryRow(DateTime Date, string Source, string Format, int Imported, int Skipped, bool Success);
+}
