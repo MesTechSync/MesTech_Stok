@@ -124,6 +124,36 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
                 // Handled at higher orchestration layer — mark intent here.
                 break;
 
+            case BulkUpdateAction.BrandAssign:
+                product.BrandId = Guid.Parse(value?.ToString() ?? throw new ArgumentNullException(nameof(value)));
+                break;
+
+            case BulkUpdateAction.TagAdd:
+                var tagToAdd = value?.ToString() ?? throw new ArgumentNullException(nameof(value));
+                var currentTags = product.Tags ?? string.Empty;
+                if (!currentTags.Contains(tagToAdd, StringComparison.OrdinalIgnoreCase))
+                    product.Tags = string.IsNullOrEmpty(currentTags) ? tagToAdd : $"{currentTags},{tagToAdd}";
+                break;
+
+            case BulkUpdateAction.TagRemove:
+                var tagToRemove = value?.ToString() ?? throw new ArgumentNullException(nameof(value));
+                if (!string.IsNullOrEmpty(product.Tags))
+                {
+                    var tags = product.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Where(t => !t.Equals(tagToRemove, StringComparison.OrdinalIgnoreCase));
+                    product.Tags = string.Join(",", tags);
+                }
+                break;
+
+            case BulkUpdateAction.DescriptionSet:
+                product.Description = value?.ToString();
+                break;
+
+            case BulkUpdateAction.StockReset:
+                if (product.Stock != 0)
+                    product.AdjustStock(-product.Stock, Domain.Enums.StockMovementType.Adjustment, "Bulk stock reset");
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Desteklenmeyen toplu güncelleme aksiyonu.");
         }

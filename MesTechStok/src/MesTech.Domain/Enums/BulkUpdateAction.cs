@@ -14,5 +14,10 @@ public enum BulkUpdateAction
     StatusDeactivate,
     CategoryAssign,
     PlatformPublish,
-    PlatformUnpublish
+    PlatformUnpublish,
+    BrandAssign,
+    TagAdd,
+    TagRemove,
+    DescriptionSet,
+    StockReset
 }
