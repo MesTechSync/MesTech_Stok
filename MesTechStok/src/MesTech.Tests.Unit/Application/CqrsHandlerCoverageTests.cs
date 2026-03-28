@@ -223,7 +223,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_BalancedLines_CreatesSuccessfully()
     {
         // Arrange
-        var repo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         JournalEntry? captured = null;
         repo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
@@ -260,7 +260,7 @@ public class CqrsHandlerCoverageTests
     public async Task CreateJournalEntryHandler_ImbalancedLines_ThrowsException()
     {
         // Arrange
-        var repo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
+        var repo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
         var uow = new Mock<IUnitOfWork>();
         var handler = new CreateJournalEntryHandler(repo.Object, uow.Object);
 

@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ public class CommissionChargedGLHandlerTests
             25.00m, 10.0m, CancellationToken.None);
 
         captured.Should().NotBeNull();
-        captured!.TotalAmount.Should().Be(25.00m);
+        captured!.Lines.Sum(l => l.Debit).Should().Be(25.00m);
         captured.Description.Should().Contain("Hepsiburada");
     }
 }

@@ -33,9 +33,9 @@ public class ERPNextCustomerHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), "Acme Corp",
             "info@acme.com", "+905551234567", CancellationToken.None);
 
-        _erpBridge.Verify(e => e.CreateCustomerAsync(
-            It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        _erpBridge.Verify(e => e.PushCustomerAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -74,9 +74,9 @@ public class ERPNextSalesInvoiceHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), "ORD-2026-001",
             1250.00m, "Acme Corp", CancellationToken.None);
 
-        _erpBridge.Verify(e => e.CreateSalesInvoiceAsync(
-            It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<string?>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        _erpBridge.Verify(e => e.PushSalesInvoiceAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -115,9 +115,9 @@ public class ERPNextStockEntryHandlerTests
             Guid.NewGuid(), "SKU-001", Guid.NewGuid(),
             100, 95, "Satis", CancellationToken.None);
 
-        _erpBridge.Verify(e => e.CreateStockEntryAsync(
-            It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        _erpBridge.Verify(e => e.PushStockEntryAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

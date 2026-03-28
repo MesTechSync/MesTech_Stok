@@ -87,7 +87,14 @@ public class GetWarehouseStockHandlerTests
 [Trait("Feature", "Warehouse")]
 public class GetWarehouseSummaryHandlerTests
 {
-    private readonly GetWarehouseSummaryHandler _sut = new();
+    private readonly Mock<IWarehouseRepository> _warehouseRepoMock = new();
+    private readonly Mock<IProductRepository> _productRepoMock2 = new();
+    private readonly GetWarehouseSummaryHandler _sut;
+
+    public GetWarehouseSummaryHandlerTests()
+    {
+        _sut = new GetWarehouseSummaryHandler(_warehouseRepoMock.Object, _productRepoMock2.Object);
+    }
 
     [Fact]
     public async Task Handle_ReturnsEmptyList()

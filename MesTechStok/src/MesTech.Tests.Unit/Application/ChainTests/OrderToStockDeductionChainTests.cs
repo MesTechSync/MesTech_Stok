@@ -120,7 +120,7 @@ public class OrderToStockDeductionChainTests
 
         var handler = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _unitOfWorkMock.Object, _loggerMock.Object);
+            _unitOfWorkMock.Object, Mock.Of<IDistributedLockService>(), _loggerMock.Object);
 
         // Act
         await handler.HandleAsync(orderId, "ORD-002", CancellationToken.None);

@@ -199,7 +199,7 @@ public class ShipmentCostJournalHandlerTests
 
         _cargoRepo.Verify(r => r.AddAsync(It.Is<CargoExpense>(e =>
             e.TenantId == tenantId &&
-            e.Amount == 45.50m), It.IsAny<CancellationToken>()), Times.Once);
+            e.Cost == 45.50m), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -214,7 +214,7 @@ public class ShipmentCostJournalHandlerTests
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "TR987654321", "ArasKargo", 32.00m, CancellationToken.None);
 
         captured.Should().NotBeNull();
-        captured!.CargoProvider.Should().Be("ArasKargo");
+        captured!.CarrierName.Should().Be("ArasKargo");
         captured.TrackingNumber.Should().Be("TR987654321");
     }
 }

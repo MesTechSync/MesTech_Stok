@@ -2,6 +2,7 @@
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -11,10 +12,12 @@ namespace MesTech.Tests.Unit.Application.Invoice.Commands;
 public class BulkCreateInvoiceHandlerTests
 {
     private readonly Mock<IInvoiceRepository> _repository = new();
+    private readonly Mock<IOrderRepository> _orderRepository = new();
+    private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<ILogger<BulkCreateInvoiceHandler>> _logger = new();
 
     private BulkCreateInvoiceHandler CreateHandler() =>
-        new BulkCreateInvoiceHandler(_repository.Object, _logger.Object);
+        new BulkCreateInvoiceHandler(_repository.Object, _orderRepository.Object, _unitOfWork.Object, _logger.Object);
 
     [Fact]
     public async Task Handle_MultipleOrderIds_ShouldReturnSuccessForAll()

@@ -36,7 +36,7 @@ public class OrderPlacedStockDeductionHandlerTests
     public async Task HandleAsync_OrderNotFound_ShouldReturnEarlyWithoutSaving()
     {
         var sut = CreateSut();
-        _orderRepo.Setup(r => r.GetWithLinesByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), "ORD-001", CancellationToken.None);
 
@@ -47,7 +47,7 @@ public class OrderPlacedStockDeductionHandlerTests
     public async Task HandleAsync_ShouldAcquireDistributedLock()
     {
         var sut = CreateSut();
-        _orderRepo.Setup(r => r.GetWithLinesByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), "ORD-LOCK", CancellationToken.None);
 

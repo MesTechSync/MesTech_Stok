@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Features.System.Queries.GetBackupHistory;
 using MesTech.Application.Features.System.Users;
 using MesTech.Domain.Entities;
@@ -15,7 +16,13 @@ public class SystemQueryHandlerTests
     [Fact]
     public async Task GetAuditLogs_ReturnsEmptyList()
     {
-        var handler = new GetAuditLogsHandler();
+        var accessLogRepo = new Mock<IAccessLogRepository>();
+        accessLogRepo.Setup(r => r.GetPagedAsync(
+            It.IsAny<Guid?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Domain.Entities.AccessLog>().AsReadOnly());
+        var handler = new GetAuditLogsHandler(accessLogRepo.Object);
         var result = await handler.Handle(
             new GetAuditLogsQuery(TenantId: Guid.NewGuid(), Page: 1, PageSize: 50),
             CancellationToken.None);
