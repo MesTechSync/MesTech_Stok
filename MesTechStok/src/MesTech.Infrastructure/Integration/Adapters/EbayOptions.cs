@@ -46,4 +46,7 @@ public sealed class EbayOptions
 
     /// <summary>eBay marketplace identifier (e.g. EBAY_TR, EBAY_US).</summary>
     public string MarketplaceId { get; set; } = "EBAY_TR";
+
+    /// <summary>HTTP client timeout in seconds.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }

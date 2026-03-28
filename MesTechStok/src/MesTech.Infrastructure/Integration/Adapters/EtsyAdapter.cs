@@ -48,9 +48,9 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         IOptions<EtsyOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new EtsyOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         BaseUrl = _options.BaseUrl;
 
         // Seed from options if provided
@@ -1135,4 +1135,7 @@ public sealed class EtsyOptions
 
     /// <summary>Base URL for Etsy API v3.</summary>
     public string BaseUrl { get; set; } = "https://openapi.etsy.com/v3";
+
+    /// <summary>HTTP client timeout in seconds.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }

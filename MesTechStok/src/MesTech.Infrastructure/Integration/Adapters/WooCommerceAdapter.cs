@@ -49,9 +49,9 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         IOptions<WooCommerceOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new WooCommerceOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.SiteUrl))
@@ -1313,6 +1313,9 @@ public sealed class WooCommerceOptions
 
     /// <summary>Whether the WooCommerce integration is enabled.</summary>
     public bool Enabled { get; set; } = false;
+
+    /// <summary>HTTP client timeout in seconds.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

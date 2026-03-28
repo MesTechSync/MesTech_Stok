@@ -44,10 +44,10 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         IOptions<OzonOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var opts = options?.Value ?? new OzonOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
         _baseUrl = opts.BaseUrl;
 
         _jsonOptions = new JsonSerializerOptions

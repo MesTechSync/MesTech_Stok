@@ -54,9 +54,9 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         IOptions<ShopifyOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new ShopifyOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.ShopDomain))
@@ -1825,6 +1825,9 @@ public sealed class ShopifyOptions
 
     /// <summary>Whether the Shopify integration is enabled.</summary>
     public bool Enabled { get; set; } = false;
+
+    /// <summary>HTTP client timeout in seconds.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

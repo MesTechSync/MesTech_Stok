@@ -49,10 +49,10 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         IOptions<PttAvmOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var opts = options?.Value ?? new PttAvmOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
         _baseUrl = opts.BaseUrl;
         _tokenEndpoint = opts.TokenEndpoint;
 

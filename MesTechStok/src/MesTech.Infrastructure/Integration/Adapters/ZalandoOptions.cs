@@ -28,4 +28,7 @@ public sealed class ZalandoOptions
 
     /// <summary>Zalando Partner API base URL.</summary>
     public string ApiBaseUrl { get; set; } = "https://api.zalando.com";
+
+    /// <summary>HTTP client timeout in seconds.</summary>
+    public int HttpTimeoutSeconds { get; set; } = 30;
 }
