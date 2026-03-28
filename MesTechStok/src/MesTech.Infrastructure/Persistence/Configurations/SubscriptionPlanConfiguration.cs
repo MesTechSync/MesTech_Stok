@@ -24,5 +24,7 @@ public sealed class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Sub
         builder.HasIndex(x => x.IsActive);
 
         builder.HasQueryFilter(x => !x.IsDeleted);
+
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_subscription_plans_tenant_id");
     }
 }

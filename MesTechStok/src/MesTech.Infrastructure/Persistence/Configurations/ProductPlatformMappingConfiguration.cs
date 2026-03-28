@@ -30,5 +30,7 @@ public sealed class ProductPlatformMappingConfiguration : IEntityTypeConfigurati
             .WithMany(v => v.PlatformMappings)
             .HasForeignKey(m => m.ProductVariantId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(m => m.TenantId).HasDatabaseName("ix_product_platform_mappings_tenant_id");
     }
 }

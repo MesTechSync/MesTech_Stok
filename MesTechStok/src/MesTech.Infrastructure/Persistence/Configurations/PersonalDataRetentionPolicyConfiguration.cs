@@ -20,5 +20,7 @@ public sealed class PersonalDataRetentionPolicyConfiguration : IEntityTypeConfig
         builder.Property(x => x.Notes).HasMaxLength(2000);
         // Seed: DataRetentionJob runtime'da policy yoksa hardcoded fallback kullanır.
         // Migration-safe seed için EnsureDefaultPoliciesAsync() kullanılacak.
+
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_personal_data_retention_policies_tenant_id");
     }
 }

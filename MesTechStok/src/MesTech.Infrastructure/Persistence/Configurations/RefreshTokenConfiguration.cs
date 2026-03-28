@@ -37,5 +37,7 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
 
         builder.HasIndex(t => t.ExpiresAt)
             .HasDatabaseName("ix_refresh_tokens_expires_at");
+
+        builder.HasIndex(t => t.TenantId).HasDatabaseName("ix_refresh_tokens_tenant_id");
     }
 }

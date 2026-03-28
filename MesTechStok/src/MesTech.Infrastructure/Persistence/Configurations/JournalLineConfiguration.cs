@@ -19,5 +19,6 @@ public sealed class JournalLineConfiguration : IEntityTypeConfiguration<JournalL
 
         builder.HasIndex(x => x.JournalEntryId);
         builder.HasIndex(x => x.AccountId);
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_journal_lines_tenant_id");
     }
 }

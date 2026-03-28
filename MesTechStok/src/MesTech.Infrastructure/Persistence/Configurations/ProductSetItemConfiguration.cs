@@ -11,5 +11,7 @@ public sealed class ProductSetItemConfiguration : IEntityTypeConfiguration<Produ
         builder.HasIndex(i => new { i.ProductSetId, i.ProductId })
             .IsUnique()
             .HasDatabaseName("IX_ProductSetItems_Set_Product");
+
+        builder.HasIndex(i => i.TenantId).HasDatabaseName("ix_product_set_items_tenant_id");
     }
 }

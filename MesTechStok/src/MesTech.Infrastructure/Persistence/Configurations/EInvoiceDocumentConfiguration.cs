@@ -49,5 +49,8 @@ public sealed class EInvoiceDocumentConfiguration : IEntityTypeConfiguration<EIn
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasQueryFilter(x => !x.IsDeleted);
+
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_einvoice_documents_tenant_id");
+        builder.HasIndex(x => new { x.TenantId, x.IsDeleted }).HasDatabaseName("ix_einvoice_documents_tenant_deleted");
     }
 }

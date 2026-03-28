@@ -20,5 +20,7 @@ public sealed class QuotationLineConfiguration : IEntityTypeConfiguration<Quotat
 
         builder.HasIndex(l => l.QuotationId)
             .HasDatabaseName("IX_QuotationLines_QuotationId");
+
+        builder.HasIndex(l => l.TenantId).HasDatabaseName("ix_quotation_lines_tenant_id");
     }
 }

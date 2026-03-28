@@ -17,5 +17,7 @@ public sealed class EInvoiceSendLogConfiguration : IEntityTypeConfiguration<EInv
         builder.Property(x => x.ProviderRef).HasMaxLength(100);
         builder.HasIndex(x => x.EInvoiceDocumentId);
         builder.HasQueryFilter(x => !x.IsDeleted);
+
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_einvoice_send_logs_tenant_id");
     }
 }

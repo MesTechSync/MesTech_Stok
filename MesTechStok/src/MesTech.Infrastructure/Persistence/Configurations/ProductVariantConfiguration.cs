@@ -20,5 +20,7 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
             .WithMany(p => p.Variants)
             .HasForeignKey(v => v.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(v => v.TenantId).HasDatabaseName("ix_product_variants_tenant_id");
     }
 }

@@ -17,5 +17,7 @@ public sealed class StoreCredentialConfiguration : IEntityTypeConfiguration<Stor
             .WithMany(s => s.Credentials)
             .HasForeignKey(c => c.StoreId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(c => c.TenantId).HasDatabaseName("ix_store_credentials_tenant_id");
     }
 }

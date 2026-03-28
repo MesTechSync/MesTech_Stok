@@ -23,5 +23,7 @@ public sealed class CategoryPlatformMappingConfiguration : IEntityTypeConfigurat
             .WithMany()
             .HasForeignKey(m => m.StoreId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(m => m.TenantId).HasDatabaseName("ix_category_platform_mappings_tenant_id");
     }
 }

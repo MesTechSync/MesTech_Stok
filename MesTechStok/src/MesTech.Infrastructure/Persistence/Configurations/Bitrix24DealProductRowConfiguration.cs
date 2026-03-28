@@ -19,5 +19,7 @@ public sealed class Bitrix24DealProductRowConfiguration : IEntityTypeConfigurati
         builder.Ignore(r => r.TaxAmount);
 
         builder.HasIndex(r => r.Bitrix24DealId);
+
+        builder.HasIndex(r => r.TenantId).HasDatabaseName("ix_bitrix24_deal_product_rows_tenant_id");
     }
 }

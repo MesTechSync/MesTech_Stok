@@ -25,5 +25,7 @@ public sealed class BrandPlatformMappingConfiguration : IEntityTypeConfiguration
             .WithMany()
             .HasForeignKey(m => m.StoreId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(m => m.TenantId).HasDatabaseName("ix_brand_platform_mappings_tenant_id");
     }
 }

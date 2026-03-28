@@ -18,5 +18,7 @@ public sealed class SettlementLineConfiguration : IEntityTypeConfiguration<Settl
 
         builder.HasIndex(x => x.SettlementBatchId);
         builder.HasIndex(x => x.OrderId);
+
+        builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_settlement_lines_tenant_id");
     }
 }
