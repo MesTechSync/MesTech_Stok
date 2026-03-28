@@ -33,6 +33,8 @@ else if (errorMessage is not null)
 }
 else
 {
+    <ErrorBoundary @ref="_errorBoundary">
+      <ChildContent>
     <!-- Summary -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
@@ -108,9 +110,22 @@ else
             </div>
         }
     </div>
+
+      </ChildContent>
+      <ErrorContent>
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          Bu bolumde beklenmeyen bir hata olustu.
+          <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => _errorBoundary?.Recover()">
+            <i class="fas fa-redo me-1"></i>Tekrar Dene
+          </button>
+        </div>
+      </ErrorContent>
+    </ErrorBoundary>
 }
 
 @code {
+    private ErrorBoundary? _errorBoundary;
     private bool isLoading = true;
     private bool _isDemoMode;
     private string? errorMessage;
