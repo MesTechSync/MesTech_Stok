@@ -3,3 +3,6 @@
 {"id":"G3","bulan":"DEV5","alan":"DEV1","oncelik":"P1","durum":"ACIK","konu":"GetWarehouseSummaryHandler STUB — repository bağlantısı yok, boş array dönüyor. Gerçek IWarehouseRepository inject edilmeli","tarih":"2026-03-28"}
 {"id":"G4","bulan":"DEV5","alan":"DEV6","oncelik":"P1","durum":"ACIK","konu":"GetInvoicesHandler ve GetInvoiceReportHandler STUB — TODO yorum, hardcoded zero. Gerçek repository query implementasyonu gerekli","tarih":"2026-03-28"}
 {"id":"G5","bulan":"DEV5","alan":"DEV2","oncelik":"P3","durum":"ACIK","konu":"LoginWindow.axaml DataContext/x:DataType eksik — compiled binding kullanılamıyor (tek view)","tarih":"2026-03-28"}
+{"id":"G6","bulan":"DEV4","alan":"DEV2","oncelik":"P1","durum":"ACIK","konu":"Avalonia ViewModels 71 Guid.Empty placeholder — AppHubViewModel (10x), MfaSetupViewModel, CampaignVM, KanbanVM, Bitrix24VM gerçek TenantId inject edilmeli","tarih":"2026-03-28"}
+{"id":"G7","bulan":"DEV4","alan":"DEV6","oncelik":"P2","durum":"ACIK","konu":"TODO/FIXME 29 adet src/ içinde — handler ve endpoint'lerde stub/placeholder temizlenmeli","tarih":"2026-03-28"}
+{"id":"G8","bulan":"DEV4","alan":"DEV5","oncelik":"P2","durum":"ACIK","konu":"Handler test kapsam 81% (322/393) — kalan 71 handler için test yazılmalı, hedef 90%+","tarih":"2026-03-28"}
