@@ -3,6 +3,11 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.19] - 2026-03-28
+
+### DEV6 Business Logic & WebApi — PAYLAŞIM-DEV3
+- fix(infra): G078 P1 — SafeHandleRequestAsync wrapper for HealthCheck, RealtimeDashboard, MesaStatus fire-and-forget endpoints
+
 ## [1.0.18] - 2026-03-28
 
 ### DEV2 Frontend & UI TUR 11-15 — security fixes + keyboard UX + Blazor paylaşım
