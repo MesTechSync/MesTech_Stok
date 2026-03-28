@@ -204,7 +204,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
         try
         {
             // GIB public endpoint for VKN lookup (no auth required)
-            const string mukellefUrl = "https://earsivportal.efatura.gov.tr/earsiv-services/dispatch";
+            var mukellefUrl = _options.MukellefQueryUrl;
 
             var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -338,6 +338,9 @@ public sealed class GibPortalEInvoiceOptions
 
     /// <summary>Portal password (Internet Vergi Dairesi password).</summary>
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>GIB public VKN mukellef sorgu URL (e-Arsiv dispatch).</summary>
+    public string MukellefQueryUrl { get; set; } = "https://earsivportal.efatura.gov.tr/earsiv-services/dispatch";
 
     /// <summary>Whether the GIB Portal e-Invoice integration is enabled.</summary>
     public bool Enabled { get; set; } = false;

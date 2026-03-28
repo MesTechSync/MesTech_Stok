@@ -139,12 +139,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
         }
         catch (Exception ex)
         {
-            SentrySdk.CaptureException(ex, scope =>
-            {
-                scope.SetTag("adapter", "sendeo");
-                scope.SetTag("operation", "health_check");
-            });
-            _logger.LogWarning(ex, "[SendeoCargoAdapter] IsAvailableAsync health check failed");
+            _logger.LogWarning(ex, "[SendeoCargoAdapter] IsAvailableAsync health check failed — adapter=sendeo operation=health_check");
             return false;
         }
     }
