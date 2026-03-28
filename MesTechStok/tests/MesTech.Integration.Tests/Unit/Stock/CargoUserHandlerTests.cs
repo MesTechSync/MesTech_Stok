@@ -1,6 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList;
-using MesTech.Application.Features.Users.Queries.GetUsers;
+using MesTech.Application.Features.System.Users;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
