@@ -10,10 +10,14 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 public sealed class UserRepository(AppDbContext db) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id) =>
-        await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        await db.Users
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == id);
 
     public async Task<User?> GetByUsernameAsync(string username) =>
-        await db.Users.FirstOrDefaultAsync(u => u.Username == username);
+        await db.Users
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Username == username);
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default) =>
         await db.Users.OrderBy(u => u.Username).ToListAsync(ct);
