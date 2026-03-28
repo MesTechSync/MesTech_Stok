@@ -97,6 +97,7 @@ public static class InfrastructureServiceRegistration
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductPlatformMappingRepository, ProductPlatformMappingRepository>();
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
