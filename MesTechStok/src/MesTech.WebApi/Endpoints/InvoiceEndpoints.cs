@@ -1,8 +1,10 @@
 using MediatR;
+using MesTech.Application.Commands.SendInvoice;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Application.Features.Invoice.Queries;
+using MesTech.Application.Features.Invoice.Queries.GetInvoiceSettings;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
@@ -117,5 +119,34 @@ public static class InvoiceEndpoints
         .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)")
         .Produces(200)
         .CacheOutput("Report120s");
+
+        // GET /api/v1/invoices/settings — invoice settings (provider config, defaults)
+        group.MapGet("/settings", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetInvoiceSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetInvoiceSettings")
+        .WithSummary("Fatura ayarları — sağlayıcı konfigürasyonu ve varsayılanlar")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // POST /api/v1/invoices/{id}/send — send invoice to provider (e-Fatura/e-Arşiv)
+        group.MapPost("/{id:guid}/send", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SendInvoiceCommand(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SendInvoice")
+        .WithSummary("Faturayı e-Fatura/e-Arşiv sağlayıcısına gönder")
+        .Produces(200)
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
