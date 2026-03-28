@@ -88,10 +88,14 @@
                                 <!-- Action Buttons -->
                                 <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
                                     <Button Content="Siparis Ver" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
-                                            ToolTip.Tip="Siparis Ver"
+                                            ToolTip.Tip="Bu urun icin siparis olustur"
+                                            Command="{Binding $parent[ItemsControl].((vm:StockAlertAvaloniaViewModel)DataContext).PlaceOrderCommand}"
+                                            CommandParameter="{Binding}"
                                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />
                                     <Button Content="{Binding SecondaryAction}" Padding="10,4" CornerRadius="{StaticResource MesRadiusSm}"
                                             ToolTip.Tip="{Binding SecondaryAction}"
+                                            Command="{Binding $parent[ItemsControl].((vm:StockAlertAvaloniaViewModel)DataContext).ExecuteSecondaryActionCommand}"
+                                            CommandParameter="{Binding}"
                                             Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" FontSize="{StaticResource FontSizeCaption}" />
                                 </StackPanel>
                             </Grid>

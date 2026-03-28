@@ -95,6 +95,18 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     [RelayCommand] private void FilterOutOfStock() { CurrentFilter = "OutOfStock"; ApplyFilter(); }
     [RelayCommand] private void FilterCritical() { CurrentFilter = "Critical"; ApplyFilter(); }
     [RelayCommand] private void FilterLow() { CurrentFilter = "Low"; ApplyFilter(); }
+
+    [RelayCommand]
+    private void PlaceOrder(StockAlertItemDto? alert)
+    {
+        // TODO: Navigate to order create with pre-filled product SKU
+    }
+
+    [RelayCommand]
+    private void ExecuteSecondaryAction(StockAlertItemDto? alert)
+    {
+        // TODO: Execute secondary action (transfer/adjust) based on alert level
+    }
 }
 
 public class StockAlertItemDto
