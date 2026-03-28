@@ -6,5 +6,7 @@ namespace MesTech.Domain.Enums;
 public enum PaymentProviderType
 {
     PayTRDirect = 0,
-    PayTRiFrame = 1
+    PayTRiFrame = 1,
+    Iyzico = 2,
+    Stripe = 3
 }
