@@ -24,6 +24,27 @@ public static class ProductEndpoints
     {
         var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey");
 
+        // GET /api/v1/products — paginated product list (Blazor StockLot, ProductUpload, ProductVariants)
+        group.MapGet("/", async (
+            Guid? tenantId,
+            string? search,
+            Guid? categoryId,
+            bool? isActive,
+            int? page,
+            int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
+            var result = await mediator.Send(
+                new GetProductsQuery(tenantId ?? Guid.Empty, search, categoryId, isActive, null,
+                    page ?? 1, clampedSize), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetProductList")
+        .WithSummary("Sayfalanmış ürün listesi")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
         // GET /api/v1/products/status — DB connectivity + counts
         group.MapGet("/status", async (ISender mediator, CancellationToken ct) =>
         {
