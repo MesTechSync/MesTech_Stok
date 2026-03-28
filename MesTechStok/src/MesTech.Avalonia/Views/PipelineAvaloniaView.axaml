@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.PipelineAvaloniaView"
-             x:DataType="vm:PipelineAvaloniaViewModel">
+             x:DataType="vm:PipelineAvaloniaViewModel"
+             AutomationProperties.Name="Satis Pipeline">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">

@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.WelcomeAvaloniaView"
-             x:DataType="vm:WelcomeAvaloniaViewModel">
+             x:DataType="vm:WelcomeAvaloniaViewModel"
+             AutomationProperties.Name="Hosgeldiniz">
 
     <!-- EMR-12: Karsilama Ekrani — logo + hosgeldin mesaji + son aktiviteler -->
 

@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.WorkScheduleAvaloniaView"
-             x:DataType="vm:WorkScheduleAvaloniaViewModel">
+             x:DataType="vm:WorkScheduleAvaloniaViewModel"
+             AutomationProperties.Name="Calisma Takvimi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- EMR-12: Calisma Takvimi — haftalik plan + vardiya listesi -->

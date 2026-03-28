@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.AboutAvaloniaView"
-             x:DataType="vm:AboutAvaloniaViewModel">
+             x:DataType="vm:AboutAvaloniaViewModel"
+             AutomationProperties.Name="Hakkinda Sayfasi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">

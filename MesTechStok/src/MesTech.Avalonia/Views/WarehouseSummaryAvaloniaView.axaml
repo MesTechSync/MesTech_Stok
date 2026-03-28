@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.WarehouseSummaryAvaloniaView"
-             x:DataType="vm:WarehouseSummaryAvaloniaViewModel">
+             x:DataType="vm:WarehouseSummaryAvaloniaViewModel"
+             AutomationProperties.Name="Depo Ozeti">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- I-06 Gorev 6: Depo Ozet Kartlari — kapasite + kritik urun + doluluk cubugu -->

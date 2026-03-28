@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.BackupAvaloniaView"
-             x:DataType="vm:BackupAvaloniaViewModel">
+             x:DataType="vm:BackupAvaloniaViewModel"
+             AutomationProperties.Name="Yedekleme Yonetimi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Yedekleme Yonetimi — İ-11 Görev 4D -->

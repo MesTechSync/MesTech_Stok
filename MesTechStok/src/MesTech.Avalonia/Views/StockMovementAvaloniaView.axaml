@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.StockMovementAvaloniaView"
-             x:DataType="vm:StockMovementAvaloniaViewModel">
+             x:DataType="vm:StockMovementAvaloniaViewModel"
+             AutomationProperties.Name="Stok Hareketi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Toplu Stok Guncelleme — bulk stock update with editable new-stock column -->

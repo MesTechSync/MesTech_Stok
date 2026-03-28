@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.DepartmentAvaloniaView"
-             x:DataType="vm:DepartmentAvaloniaViewModel">
+             x:DataType="vm:DepartmentAvaloniaViewModel"
+             AutomationProperties.Name="Departman Yonetimi">
 
     <UserControl.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />

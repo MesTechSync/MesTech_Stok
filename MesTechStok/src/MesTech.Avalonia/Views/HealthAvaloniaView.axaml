@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.HealthAvaloniaView"
-             x:DataType="vm:HealthAvaloniaViewModel">
+             x:DataType="vm:HealthAvaloniaViewModel"
+             AutomationProperties.Name="Sistem Sagligi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- WPF008: Sistem Sagligi — servis kartlari, 30s oto-yenileme, hata log paneli -->

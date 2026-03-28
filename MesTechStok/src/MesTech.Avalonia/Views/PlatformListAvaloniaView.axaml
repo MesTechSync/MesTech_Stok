@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.PlatformListAvaloniaView"
-             x:DataType="vm:PlatformListAvaloniaViewModel">
+             x:DataType="vm:PlatformListAvaloniaViewModel"
+             AutomationProperties.Name="Platform Listesi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <!-- Platform Listesi — 13 platform karti ile pazaryeri yonetimi -->

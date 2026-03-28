@@ -8,7 +8,8 @@
         SystemDecorations="None"
         Background="#0D1117"
         Topmost="True"
-        CanResize="False">
+        CanResize="False"
+        AutomationProperties.Name="Giris Ekrani">
 
   <!-- ╔═══════════════════════════════════════════════════════════════════╗ -->
   <!-- ║ KORUMALI TASARIM — SPOTLIGHT WELCOME SCREEN                     ║ -->
