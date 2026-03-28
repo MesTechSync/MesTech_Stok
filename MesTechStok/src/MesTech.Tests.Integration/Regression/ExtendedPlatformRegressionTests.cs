@@ -6,6 +6,7 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -36,6 +37,13 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
         _fixture.Reset();
     }
 
+    private static Mock<IHttpClientFactory> CreateN11MockFactory()
+    {
+        var mock = new Mock<IHttpClientFactory>();
+        mock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+        return mock;
+    }
+
     // ════════════════════════════════════════════════════════════════
     //  N11 ADAPTER (SOAP) — Dalga 4+5
     // ════════════════════════════════════════════════════════════════
@@ -43,7 +51,7 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
     [Fact]
     public void N11_PlatformCode_IsCorrect()
     {
-        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), new HttpClient());
+        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), CreateN11MockFactory().Object);
         adapter.PlatformCode.Should().Be("N11");
     }
 
@@ -67,7 +75,7 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildN11GetCategoryListResponse(3)));
 
-        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), new HttpClient());
+        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), CreateN11MockFactory().Object);
         var credentials = new Dictionary<string, string>
         {
             ["N11AppKey"] = "test-n11-key",
@@ -84,7 +92,7 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
     [Fact]
     public async Task N11_TestConnection_MissingCredentials_ReturnsError()
     {
-        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>());
+        var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), CreateN11MockFactory().Object);
         var credentials = new Dictionary<string, string>
         {
             ["N11BaseUrl"] = _fixture.BaseUrl

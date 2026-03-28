@@ -3,6 +3,7 @@ using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -38,13 +39,20 @@ public class N11AdapterHardeningTests : IClassFixture<WireMockFixture>, IDisposa
         _loggerFactory.Dispose();
     }
 
+    private static Mock<IHttpClientFactory> CreateMockFactory()
+    {
+        var mock = new Mock<IHttpClientFactory>();
+        mock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+        return mock;
+    }
+
     private N11Adapter CreateAdapter(TimeSpan? timeout = null)
     {
         var httpClient = new HttpClient
         {
             Timeout = timeout ?? TimeSpan.FromSeconds(5)
         };
-        var adapter = CreateAdapter(TimeSpan.FromSeconds(3));
+        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
         adapter.Configure("test-app-key", "test-app-secret", _fixture.BaseUrl, httpClient);
         return adapter;
     }
@@ -70,7 +78,7 @@ public class N11AdapterHardeningTests : IClassFixture<WireMockFixture>, IDisposa
                 .WithStatusCode(200)
                 .WithDelay(TimeSpan.FromSeconds(35)));
 
-        var adapter = new N11Adapter(_logger);
+        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
         var creds = TestCredentials();
         creds["N11BaseUrl"] = _fixture.BaseUrl;
 

@@ -4,6 +4,7 @@ using MesTech.Domain.Entities;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -34,10 +35,17 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
         _logger = new LoggerFactory().CreateLogger<N11Adapter>();
     }
 
+    private static Mock<IHttpClientFactory> CreateMockFactory()
+    {
+        var mock = new Mock<IHttpClientFactory>();
+        mock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+        return mock;
+    }
+
     private N11Adapter CreateConfiguredAdapter()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
-        var adapter = CreateConfiguredAdapter();
+        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
         adapter.Configure(TestAppKey, TestAppSecret, _fixture.BaseUrl, httpClient);
         return adapter;
     }
@@ -98,7 +106,7 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildSoapFault("Server", "Authentication failed")));
 
-        var adapter = new N11Adapter(_logger);
+        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
         var result = await adapter.TestConnectionAsync(GetValidCredentials());
 
         result.IsSuccess.Should().BeFalse();
@@ -630,7 +638,7 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
     [Fact]
     public async Task TestConnection_MissingCredentials_ReturnsError()
     {
-        var adapter = new N11Adapter(_logger);
+        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
         var result = await adapter.TestConnectionAsync(new Dictionary<string, string>());
 
         result.IsSuccess.Should().BeFalse();

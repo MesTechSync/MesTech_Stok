@@ -6,6 +6,7 @@ using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
+using System.Net.Http;
 
 namespace MesTech.Tests.Integration.N11Soap;
 
@@ -26,7 +27,9 @@ public class N11SoapContractTests : IDisposable
     {
         _server = WireMockServer.Start();
         _baseUrl = _server.Url!;
-        _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object, new HttpClient());
+        var mockFactory = new Mock<IHttpClientFactory>();
+        mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+        _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object, mockFactory.Object);
         _adapter.Configure("test-app-key", "test-app-secret", _baseUrl);
     }
 
