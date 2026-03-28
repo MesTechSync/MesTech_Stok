@@ -9,8 +9,9 @@ using MesTech.Application.Features.Accounting.Commands.UploadAccountingDocument;
 using MesTech.Application.Features.Accounting.Queries.ValidateBalanceSheet;
 using MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
+using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -63,7 +64,7 @@ public class ReconciliationHandlerTests
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
             handler.Handle(
-                new ApproveReconciliationCommand(_tenantId, Guid.NewGuid(), "Onaylandı"),
+                new ApproveReconciliationCommand(Guid.NewGuid(), _tenantId),
                 CancellationToken.None));
     }
 
@@ -119,7 +120,7 @@ public class ReconciliationHandlerTests
         var matchRepo = new Mock<IReconciliationMatchRepository>();
         var scoringService = new Mock<IReconciliationScoringService>();
 
-        settlementRepo.Setup(r => r.GetUnreconciledAsync(_tenantId, It.IsAny<CancellationToken>()))
+        settlementRepo.Setup(r => r.GetUnmatchedAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch>());
         bankTxRepo.Setup(r => r.GetUnreconciledAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BankTransaction>());
@@ -131,7 +132,7 @@ public class ReconciliationHandlerTests
         var result = await handler.Handle(
             new RunReconciliationCommand(_tenantId), CancellationToken.None);
 
-        result.TotalMatched.Should().Be(0);
+        result.AutoMatchedCount.Should().Be(0);
     }
 
     // ═══ CloseAccountingPeriod ═══
@@ -164,7 +165,7 @@ public class ReconciliationHandlerTests
         var handler = new ImportBankStatementHandler(repo.Object, _uow.Object);
 
         var cmd = new ImportBankStatementCommand(
-            _tenantId, Guid.NewGuid(), new List<BankStatementLineInput>());
+            _tenantId, Guid.NewGuid(), new List<BankTransactionInput>());
 
         var result = await handler.Handle(cmd, CancellationToken.None);
 
