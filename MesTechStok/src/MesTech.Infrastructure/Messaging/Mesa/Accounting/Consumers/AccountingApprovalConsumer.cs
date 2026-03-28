@@ -9,7 +9,6 @@ using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 
 namespace MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 

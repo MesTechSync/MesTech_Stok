@@ -4,6 +4,7 @@ using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTech.Tests.Unit.Accounting.Queries;

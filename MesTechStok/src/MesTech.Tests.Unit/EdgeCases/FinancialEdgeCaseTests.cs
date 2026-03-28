@@ -237,7 +237,7 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — no accounts, no journal entries
         var accountRepo = new Mock<IChartOfAccountsRepository>();
-        var journalRepo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
 
         accountRepo.Setup(r => r.GetAllAsync(_tenantId, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ChartOfAccounts>());
@@ -266,7 +266,7 @@ public class FinancialEdgeCaseTests
     {
         // Arrange — accounts exist but no journal entries
         var accountRepo = new Mock<IChartOfAccountsRepository>();
-        var journalRepo = new Mock<MesTech.Application.Interfaces.Accounting.IJournalEntryRepository>();
+        var journalRepo = new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>();
 
         var account = ChartOfAccounts.Create(_tenantId, "100", "Kasa", AccountType.Asset);
         accountRepo.Setup(r => r.GetAllAsync(_tenantId, true, It.IsAny<CancellationToken>()))

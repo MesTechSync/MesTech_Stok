@@ -1,7 +1,7 @@
 using MassTransit;
 using MediatR;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Events;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using Microsoft.Extensions.Logging;

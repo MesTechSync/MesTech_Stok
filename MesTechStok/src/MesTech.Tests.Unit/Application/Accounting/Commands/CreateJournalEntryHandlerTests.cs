@@ -1,10 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
 using Moq;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 
 namespace MesTech.Tests.Unit.Application.Accounting.Commands;
 

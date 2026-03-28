@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces.Accounting;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Finance;

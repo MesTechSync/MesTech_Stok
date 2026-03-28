@@ -1,6 +1,4 @@
 using FluentAssertions;
-using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.ERP;

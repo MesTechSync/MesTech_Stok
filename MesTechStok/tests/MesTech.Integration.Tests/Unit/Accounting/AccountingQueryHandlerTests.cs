@@ -42,7 +42,6 @@ using MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 using MesTech.Application.Features.Accounting.Queries.CalculateDepreciation;
 using MesTech.Application.Features.Accounting.Queries.GenerateBaBsReport;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;

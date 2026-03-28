@@ -4,7 +4,6 @@ using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.AI.Accounting;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using Microsoft.Extensions.Logging;
 using Moq;
 

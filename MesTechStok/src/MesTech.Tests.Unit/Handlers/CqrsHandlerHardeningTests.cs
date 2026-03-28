@@ -39,7 +39,6 @@ using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using Moq;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 using AccountingAccountType = MesTech.Domain.Accounting.Enums.AccountType;
 using CounterpartyType = MesTech.Domain.Accounting.Enums.CounterpartyType;
 using ExpenseSource = MesTech.Domain.Accounting.Enums.ExpenseSource;

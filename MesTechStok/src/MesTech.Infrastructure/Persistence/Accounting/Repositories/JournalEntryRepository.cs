@@ -1,5 +1,5 @@
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace MesTech.Infrastructure.Persistence.Accounting.Repositories;
@@ -11,12 +11,17 @@ public sealed class JournalEntryRepository : IJournalEntryRepository
 
     public async Task<JournalEntry?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.JournalEntries
-            .Include(e => e.Lines).ThenInclude(l => l.Account)
-            .AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
+            .Include(e => e.Lines)
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
+
+    public async Task<bool> ExistsByReferenceAsync(Guid tenantId, string referenceNumber, CancellationToken ct = default)
+        => await _context.JournalEntries
+            .AsNoTracking()
+            .AnyAsync(j => j.TenantId == tenantId && j.ReferenceNumber == referenceNumber, ct);
 
     public async Task<IReadOnlyList<JournalEntry>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.JournalEntries
-            .Include(e => e.Lines).ThenInclude(l => l.Account)
+            .Include(e => e.Lines)
             .Where(e => e.TenantId == tenantId && e.EntryDate >= from && e.EntryDate <= to)
             .OrderByDescending(e => e.EntryDate)
             .AsNoTracking().ToListAsync(ct);
@@ -30,4 +35,10 @@ public sealed class JournalEntryRepository : IJournalEntryRepository
 
     public async Task AddAsync(JournalEntry entry, CancellationToken ct = default)
         => await _context.JournalEntries.AddAsync(entry, ct);
+
+    public Task UpdateAsync(JournalEntry entry, CancellationToken ct = default)
+    {
+        _context.JournalEntries.Update(entry);
+        return Task.CompletedTask;
+    }
 }

@@ -30,7 +30,6 @@ using MesTech.Application.Features.Tenant.Queries.GetTenants;
 using MesTech.Application.Features.Hr.Queries.GetDepartments;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;

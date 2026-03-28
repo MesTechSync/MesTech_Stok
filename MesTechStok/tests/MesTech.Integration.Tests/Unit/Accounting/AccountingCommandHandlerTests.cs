@@ -37,7 +37,6 @@ using MesTech.Application.Features.Accounting.Commands.ApproveReconciliation;
 using MesTech.Application.Features.Accounting.Commands.RejectReconciliation;
 using MesTech.Application.Features.Accounting.Commands.RunReconciliation;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Domain.Interfaces.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Enums;

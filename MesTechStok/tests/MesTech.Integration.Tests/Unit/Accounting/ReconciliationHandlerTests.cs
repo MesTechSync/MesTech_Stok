@@ -9,7 +9,6 @@ using MesTech.Application.Features.Accounting.Commands.UploadAccountingDocument;
 using MesTech.Application.Features.Accounting.Queries.ValidateBalanceSheet;
 using MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Services;
 using MesTech.Domain.Interfaces;

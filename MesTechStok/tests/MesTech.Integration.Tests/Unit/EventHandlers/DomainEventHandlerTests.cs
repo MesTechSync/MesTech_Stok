@@ -1,10 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.EventHandlers;
 using MesTech.Application.Interfaces;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;

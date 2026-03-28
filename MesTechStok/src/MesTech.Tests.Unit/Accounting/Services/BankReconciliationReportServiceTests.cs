@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Finance;
 using Microsoft.Extensions.Logging;
 using Moq;

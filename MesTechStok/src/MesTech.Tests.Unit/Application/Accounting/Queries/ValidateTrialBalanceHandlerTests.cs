@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.ValidateTrialBalance;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Services;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application.Accounting.Queries;

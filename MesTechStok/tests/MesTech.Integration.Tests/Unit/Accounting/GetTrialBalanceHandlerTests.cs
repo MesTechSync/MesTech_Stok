@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
 using MesTech.Application.Interfaces.Accounting;
-using IJournalEntryRepository = MesTech.Application.Interfaces.Accounting.IJournalEntryRepository;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using MesTech.Domain.Accounting.Enums;
 using Moq;
 using Xunit;

@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MassTransit;
 using MediatR;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using MesTech.Domain.Accounting.Events;
 using MesTech.Infrastructure.AI.Accounting;
 using MesTech.Infrastructure.Messaging.Mesa;

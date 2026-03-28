@@ -6,6 +6,7 @@ using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetTrialBalance;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
 using Microsoft.Extensions.Logging;

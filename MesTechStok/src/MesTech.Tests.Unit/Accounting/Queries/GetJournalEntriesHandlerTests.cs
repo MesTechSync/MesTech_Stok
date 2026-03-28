@@ -1,7 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
-using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTech.Tests.Unit.Accounting.Queries;
