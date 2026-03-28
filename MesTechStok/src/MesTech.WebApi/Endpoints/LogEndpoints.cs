@@ -37,7 +37,7 @@ public static class LogEndpoints
             ISender mediator = default!, CancellationToken ct = default) =>
         {
             var result = await mediator.Send(
-                new GetLogsQuery(tenantId, page, pageSize, category, userId, productName, barcode, startDate, endDate), ct);
+                new GetLogsQuery(tenantId, Math.Max(1, page), Math.Clamp(pageSize, 1, 100), category, userId, productName, barcode, startDate, endDate), ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")

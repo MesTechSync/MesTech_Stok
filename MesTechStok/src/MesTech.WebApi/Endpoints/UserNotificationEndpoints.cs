@@ -26,7 +26,7 @@ public static class UserNotificationEndpoints
                     tenantId,
                     userId,
                     page is > 0 ? page.Value : 1,
-                    pageSize is > 0 ? pageSize.Value : 20,
+                    Math.Clamp(pageSize is > 0 ? pageSize.Value : 20, 1, 100),
                     unreadOnly ?? false), ct);
             return Results.Ok(result);
         })

@@ -26,7 +26,7 @@ public static class NotificationEndpoints
                 new GetNotificationsQuery(
                     tenantId,
                     page <= 0 ? 1 : page,
-                    pageSize <= 0 ? 20 : pageSize,
+                    Math.Clamp(pageSize <= 0 ? 20 : pageSize, 1, 100),
                     unreadOnly ?? false), ct);
             return Results.Ok(result);
         })

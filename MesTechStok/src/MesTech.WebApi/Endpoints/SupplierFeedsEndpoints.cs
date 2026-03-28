@@ -23,7 +23,7 @@ public static class SupplierFeedsEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetFeedSourcesQuery(isActive, page <= 0 ? 1 : page, pageSize <= 0 ? 50 : pageSize), ct);
+                new GetFeedSourcesQuery(isActive, page <= 0 ? 1 : page, Math.Clamp(pageSize <= 0 ? 50 : pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetSupplierFeeds")
@@ -62,7 +62,7 @@ public static class SupplierFeedsEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetFeedImportHistoryQuery(id, page <= 0 ? 1 : page, pageSize <= 0 ? 20 : pageSize), ct);
+                new GetFeedImportHistoryQuery(id, page <= 0 ? 1 : page, Math.Clamp(pageSize <= 0 ? 20 : pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetFeedImportLogs")

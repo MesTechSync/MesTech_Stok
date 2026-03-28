@@ -102,7 +102,7 @@ public static class WebhookEndpoints
             IWebhookDeadLetterRepository dlqRepo,
             CancellationToken ct) =>
         {
-            var (items, total) = await dlqRepo.GetPagedAsync(status, page, pageSize, ct);
+            var (items, total) = await dlqRepo.GetPagedAsync(status, Math.Max(1, page), Math.Clamp(pageSize, 1, 100), ct);
             return Results.Ok(ApiResponse<PagedResponse<WebhookDeadLetter>>.Ok(
                 new PagedResponse<WebhookDeadLetter>(items, total)));
         })
