@@ -68,6 +68,7 @@
             <DataGrid Grid.Column="0"
                       ItemsSource="{Binding Items}"
                       SelectedItem="{Binding SelectedCustomer}"
+                      AutomationProperties.Name="Musteri listesi"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="True"
                       CanUserResizeColumns="True"
@@ -137,6 +138,7 @@
                                        Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
                             <Button Grid.Column="1" Content="✕"
                                     Command="{Binding CloseDetailCommand}"
+                                    ToolTip.Tip="Detay panelini kapat"
                                     Background="Transparent"
                                     Padding="8,4"
                                     FontSize="14" />
@@ -222,12 +224,14 @@
                                 <Button Content="Siparişleri Göster"
                                         Command="{Binding ShowOrdersCommand}"
                                         CommandParameter="{Binding SelectedCustomer}"
+                                        ToolTip.Tip="Secili musterinin siparislerini goster"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Center"
                                         Padding="12,8" />
                                 <Button Content="Not Ekle"
                                         Command="{Binding AddNoteCommand}"
                                         CommandParameter="{Binding SelectedCustomer}"
+                                        ToolTip.Tip="Musteriye not ekle"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Center"
                                         Padding="12,8" />
