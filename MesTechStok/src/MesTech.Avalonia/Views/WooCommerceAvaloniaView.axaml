@@ -1,0 +1,192 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.WooCommerceAvaloniaView"
+             x:DataType="vm:WooCommerceAvaloniaViewModel">
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPurpleAccent}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="WooCommerce Entegrasyonu" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesOverlayLight}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
+                            IsVisible="{Binding IsConnected}">
+                        <TextBlock Text="Bagli" Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2"
+                            IsVisible="{Binding !IsConnected}">
+                        <TextBlock Text="Bagli Degil" Foreground="{DynamicResource MesRedBright}" FontSize="{StaticResource FontSizeSmall}"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Senkronize Et" ToolTip.Tip="Platform verilerini senkronize et" Command="{Binding SyncCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPurpleAccent}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- KPI Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesPurpleAccent}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding ProductCount}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesPurpleAccent}"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="WooCommerce'deki urun sayisi"
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Aktif Siparis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding OrderCount}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Bekleyen siparis sayisi"
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Gunluk Ciro" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding DailyRevenue, StringFormat='₺{0:N0}'}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Bugunku toplam ciro (TRY)"
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Stok Senkron" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding SyncStatus}"
+                                   FontSize="{StaticResource FontSizeH3}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="{Binding LastSyncTime, StringFormat='Son: {0}'}"
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Recent Orders DataGrid -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,0,22,22"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Padding="20,14"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="Son Siparisler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <Grid>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding RecentOrders}"
+                          AutoGenerateColumns="False"
+                          CanUserReorderColumns="True"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          Background="{DynamicResource MesBgPrimary}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="160" />
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
+                        <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="200" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount}" Width="150" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="130" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                    <!-- Empty State -->
+                    <TextBlock Text="Kayit bulunamadi"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40"
+                               Opacity="0.5"
+                               FontSize="{StaticResource FontSizeSubtitle}"
+                               IsVisible="{Binding !RecentOrders.Count}" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesOverlayLight}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="WooCommerce verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Veri bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
+                <TextBlock Text="WooCommerce entegrasyonundan henuz veri cekilemedi"
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" />
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
+                        Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding HasError}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                                   TextWrapping="Wrap" MaxWidth="400" />
+                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                                Command="{Binding RefreshCommand}"
+                                Padding="16,6" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
