@@ -4,9 +4,11 @@ using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Enums;
-using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
+using IUnitOfWork = MesTech.Domain.Interfaces.IUnitOfWork;
+using IIncomeRepository = MesTech.Domain.Interfaces.IIncomeRepository;
+using IInvoiceRepository = MesTech.Domain.Interfaces.IInvoiceRepository;
 
 namespace MesTech.Tests.Unit.Application.EventHandlers;
 
