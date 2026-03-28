@@ -31,7 +31,7 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,12"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="280" Watermark="Siparis no, musteri adi ile arama..." AutomationProperties.Name="Siparis no, musteri adi ile arama..."
+                <TextBox x:Name="SearchBox" Width="280" Watermark="Siparis no, musteri adi ile arama..." AutomationProperties.Name="Siparis no, musteri adi ile arama..."
                          Text="{Binding SearchText}"
                          FontSize="{StaticResource FontSizeBody}" Padding="10,8" />
                 <ComboBox ItemsSource="{Binding PlatformOptions}" SelectedItem="{Binding SelectedPlatform}"

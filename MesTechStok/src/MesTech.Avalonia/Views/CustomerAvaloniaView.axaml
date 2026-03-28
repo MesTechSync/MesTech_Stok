@@ -53,7 +53,7 @@
                 </ItemsControl>
 
                 <!-- Search Box -->
-                <TextBox Grid.Column="2" Width="320"
+                <TextBox x:Name="SearchBox" Grid.Column="2" Width="320"
                          Watermark="Ad, soyad, email veya telefon ara..."
                          AutomationProperties.Name="Müşteri ara"
                          Text="{Binding SearchText}"
