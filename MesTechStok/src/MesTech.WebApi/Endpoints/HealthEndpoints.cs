@@ -131,6 +131,27 @@ public static class HealthEndpoints
         .WithSummary("Derin sağlık kontrolü — infra + platform adapter ping + MESA OS (G054)")
         .WithTags("Health");
 
+        // GET /health/ready — Kubernetes readiness probe (DB + Redis bağlı mı?)
+        app.MapGet("/health/ready", async (HealthCheckService healthCheckService, CancellationToken ct) =>
+        {
+            var report = await healthCheckService.CheckHealthAsync(
+                registration => registration.Tags.Contains("ready"), ct);
+            var statusCode = report.Status == HealthStatus.Healthy ? 200 : 503;
+            return Results.Json(new
+            {
+                status = report.Status.ToString().ToLowerInvariant(),
+                checks = report.Entries.Select(e => new
+                {
+                    name = e.Key,
+                    status = e.Value.Status.ToString().ToLowerInvariant()
+                })
+            }, statusCode: statusCode);
+        })
+        .WithName("ReadinessCheck")
+        .WithSummary("Kubernetes readiness probe — kritik altyapı kontrolleri")
+        .WithTags("Health")
+        .AllowAnonymous();
+
         // GET /metrics — Prometheus text format (no auth — bypass path)
         app.MapGet("/metrics", async (CancellationToken ct) =>
         {
