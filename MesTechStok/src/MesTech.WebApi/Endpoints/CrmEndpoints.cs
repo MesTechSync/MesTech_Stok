@@ -3,13 +3,20 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Commands.SyncBitrix24Contacts;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
+using MesTech.Application.Features.Crm.Commands.UpdateDealStage;
 using MesTech.Application.Features.Crm.Commands.WinDeal;
 using MesTech.Application.Features.Crm.Commands.LoseDeal;
+using MesTech.Application.Features.Crm.Queries.GetBitrix24Deals;
+using MesTech.Application.Features.Crm.Queries.GetBitrix24Pipeline;
+using MesTech.Application.Features.Crm.Queries.GetContactsPaged;
 using MesTech.Application.Features.Crm.Queries.GetDeals;
+using MesTech.Application.Features.Crm.Queries.GetLeadScore;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
 using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Queries.GetBitrix24DealStatus;
+using MesTech.Application.Queries.GetSuppliersPaged;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -173,5 +180,102 @@ public static class CrmEndpoints
         .WithName("SyncBitrix24Contacts")
         .WithSummary("Bitrix24 CRM contact senkronizasyonu başlat")
         .Produces(200).Produces(422);
+
+        // GET /api/v1/crm/bitrix24/deals — Bitrix24 deal listesi
+        group.MapGet("/bitrix24/deals", async (
+            Guid tenantId, Guid? stageId, int? page, int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetBitrix24DealsQuery(tenantId, stageId, page ?? 1, pageSize ?? 50), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBitrix24Deals")
+        .WithSummary("Bitrix24 deal listesi (stage filtreli)")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/bitrix24/deal-status/{orderId} — sipariş → Bitrix24 deal durumu
+        group.MapGet("/bitrix24/deal-status/{orderId:guid}", async (
+            Guid orderId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetBitrix24DealStatusQuery(orderId), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetBitrix24DealStatus")
+        .WithSummary("Sipariş → Bitrix24 deal durum eşleşmesi")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/bitrix24/pipeline — Bitrix24 pipeline durumu
+        group.MapGet("/bitrix24/pipeline", async (
+            Guid tenantId, string? stageFilter,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetBitrix24PipelineQuery(tenantId, stageFilter), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetBitrix24Pipeline")
+        .WithSummary("Bitrix24 pipeline durumu ve stage dağılımı")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/contacts — paginated contact list
+        group.MapGet("/contacts", async (
+            Guid tenantId, int? page, int? pageSize, string? search,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetContactsPagedQuery(tenantId, page ?? 1, pageSize ?? 20, search), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetContactsPaged")
+        .WithSummary("Kişi listesi — sayfalanmış, arama destekli")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/leads/{leadId}/score — lead scoring
+        group.MapGet("/leads/{leadId:guid}/score", async (
+            Guid leadId, Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetLeadScoreQuery(leadId, tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLeadScore")
+        .WithSummary("Potansiyel müşteri puanlama — RFM + davranış skoru")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // PUT /api/v1/crm/deals/{dealId}/stage — deal stage güncelleme
+        group.MapPut("/deals/{dealId:guid}/stage", async (
+            Guid dealId, UpdateDealStageCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var adjusted = command with { DealId = dealId };
+            var result = await mediator.Send(adjusted, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("UpdateDealStage")
+        .WithSummary("Deal pipeline aşamasını güncelle")
+        .Produces(200).Produces(400);
+
+        // GET /api/v1/crm/suppliers/paged — sayfalanmış tedarikçi listesi
+        group.MapGet("/suppliers/paged", async (
+            string? search, int? page, int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSuppliersPagedQuery(search, page ?? 1, pageSize ?? 50), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSuppliersPaged")
+        .WithSummary("Sayfalanmış tedarikçi listesi (arama destekli)")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
     }
 }
