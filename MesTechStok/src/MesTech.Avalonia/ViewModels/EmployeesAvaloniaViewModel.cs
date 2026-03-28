@@ -1,38 +1,61 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Stub ViewModel for HR Employees screen — Dalga 11.
-/// Will be wired to GetEmployeesPagedQuery via MediatR when full migration starts.
+/// HR Employees ViewModel — wired to GetEmployeesQuery via MediatR.
 /// </summary>
 public partial class EmployeesAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private string summary = "Calisan yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+    private List<EmployeeDto> _allEmployees = [];
+
+    [ObservableProperty] private ObservableCollection<EmployeeDto> employees = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    public EmployeesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+        Title = "Calisanlar";
+    }
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(50); // Simulate async load
-            TotalCount = 0;
-            Summary = "Calisan yonetimi ekrani hazir. Personel kaydi, departman atama ve organizasyon semasi burada yer alacak.";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            var result = await _mediator.Send(
+                new GetEmployeesQuery(_currentUser.TenantId), ct);
+
+            _allEmployees = result.ToList();
+            ApplyFilter();
+        }, "Calisanlar yuklenirken hata");
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allEmployees
+            : _allEmployees.Where(e =>
+                e.EmployeeCode.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                e.JobTitle.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                e.WorkEmail.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+              .ToList();
+
+        Employees = new ObservableCollection<EmployeeDto>(filtered);
+        TotalCount = filtered.Count;
+        IsEmpty = TotalCount == 0;
     }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
-
-    [RelayCommand]
-    private void Add()
-    {
-        // TODO: Navigate to employee create form or show dialog
-    }
 }

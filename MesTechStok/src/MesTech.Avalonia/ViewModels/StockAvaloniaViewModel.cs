@@ -1,39 +1,50 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Stub ViewModel for Stock management screen — Dalga 10.
-/// Will be wired to GetStockSummaryQuery via MediatR when full migration starts.
+/// Stock Management ViewModel — wired to GetStockSummaryQuery via MediatR.
 /// </summary>
 public partial class StockAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private string summary = "Stok yonetimi ekrani — Dalga 10 sonrasi aktif edilecek.";
-    [ObservableProperty] private int totalCount;
-    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> stockItems = new();
-    [ObservableProperty] private string? selectedStockItem;
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+
+    [ObservableProperty] private int totalProducts;
+    [ObservableProperty] private int inStockProducts;
+    [ObservableProperty] private int outOfStockProducts;
+    [ObservableProperty] private int lowStockProducts;
+    [ObservableProperty] private decimal totalStockValue;
+    [ObservableProperty] private int totalUnits;
+
+    public StockAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+        Title = "Stok Yonetimi";
+    }
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(50); // Simulate async load
-            Summary = "Stok yonetimi ekrani hazir. Depo secimi, stok hareketi ve envanter islemleri burada yer alacak.";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            var result = await _mediator.Send(
+                new GetStockSummaryQuery(_currentUser.TenantId), ct);
+
+            TotalProducts = result.TotalProducts;
+            InStockProducts = result.InStockProducts;
+            OutOfStockProducts = result.OutOfStockProducts;
+            LowStockProducts = result.LowStockProducts;
+            TotalStockValue = result.TotalStockValue;
+            TotalUnits = result.TotalUnits;
+            IsEmpty = TotalProducts == 0;
+        }, "Stok ozeti yuklenirken hata");
     }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
-
-    [RelayCommand]
-    private void AddMovement()
-    {
-        // TODO: Navigate to stock movement create form
-    }
 }

@@ -1,38 +1,62 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Queries.GetExpenses;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Stub ViewModel for Expenses screen — Dalga 11.
-/// Will be wired to GetExpensesPagedQuery via MediatR when full migration starts.
+/// Expenses ViewModel — wired to GetExpensesQuery via MediatR.
 /// </summary>
 public partial class ExpensesAvaloniaViewModel : ViewModelBase
 {
-    [ObservableProperty] private string summary = "Gider yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
+    private List<ExpenseDto> _allExpenses = [];
+
+    [ObservableProperty] private ObservableCollection<ExpenseDto> expenses = [];
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private decimal totalAmount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    public ExpensesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    {
+        _mediator = mediator;
+        _currentUser = currentUser;
+        Title = "Giderler";
+    }
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            await Task.Delay(50); // Simulate async load
-            TotalCount = 0;
-            Summary = "Gider yonetimi ekrani hazir. Gider kaydi, kategori bazli takip, fatura eslestirme ve onay sureci burada yer alacak.";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            var result = await _mediator.Send(
+                new GetExpensesQuery(TenantId: _currentUser.TenantId), ct);
+
+            _allExpenses = result.ToList();
+            ApplyFilter();
+        }, "Giderler yuklenirken hata");
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allExpenses
+            : _allExpenses.Where(e =>
+                e.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+              .ToList();
+
+        Expenses = new ObservableCollection<ExpenseDto>(filtered);
+        TotalCount = filtered.Count;
+        TotalAmount = filtered.Sum(e => e.Amount);
+        IsEmpty = TotalCount == 0;
     }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
-
-    [RelayCommand]
-    private void Add()
-    {
-        // TODO: Navigate to expense create form or show dialog
-    }
 }
