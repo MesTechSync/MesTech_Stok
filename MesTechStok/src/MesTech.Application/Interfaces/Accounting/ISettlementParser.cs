@@ -30,16 +30,13 @@ public interface ISettlementParser
     /// <param name="rawData">Raw stream (JSON, TSV, etc.) from platform API or file upload.</param>
     /// <param name="format">Data format hint (e.g. "json", "tsv").</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
+    async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
     {
         // Default implementation: delegate to legacy overload, set tenantId on result.
         // DEV3 parsers can override this with native tenantId support.
-        return ParseAsync(rawData, format, ct).ContinueWith(t =>
-        {
-            var batch = t.Result;
-            batch.TenantId = tenantId;
-            return batch;
-        }, ct, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+        var batch = await ParseAsync(rawData, format, ct).ConfigureAwait(false);
+        batch.TenantId = tenantId;
+        return batch;
     }
 
     /// <summary>
