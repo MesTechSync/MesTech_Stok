@@ -5,6 +5,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [1.0.19] - 2026-03-28
 
+### DEV3 Integration TUR 7 — Timeout Options + Settlement S3 chain
+- refactor(adapter): HttpTimeout→Options for Trendyol(15s)+AmazonTR(30s)+AmazonEU(30s) — configurable via appsettings (G189 partial)
+- feat(accounting): ParseAndImportSettlementHandler — raw file→ISettlementParserFactory→DB (G186 KAPANDI)
+- feat(api): /settlements/parse-and-import endpoint (8 parser bağlandı)
+
 ### DEV6 Business Logic & WebApi — PAYLAŞIM-DEV3
 - fix(infra): G078 P1 — SafeHandleRequestAsync wrapper for HealthCheck, RealtimeDashboard, MesaStatus fire-and-forget endpoints
 
