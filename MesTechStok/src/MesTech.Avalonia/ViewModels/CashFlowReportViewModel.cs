@@ -2,16 +2,19 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// R-01: Nakit Akis Raporu ViewModel.
+/// R-01: Nakit Akis Raporu ViewModel — wired to GetCashFlowReportQuery via MediatR.
 /// Aylik nakit giris/cikis/net/kumulatif hesaplama.
 /// </summary>
 public partial class CashFlowReportViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private DateTimeOffset? _dateFrom = new DateTimeOffset(DateTime.Now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
     [ObservableProperty] private DateTimeOffset? _dateTo = DateTimeOffset.Now;
@@ -21,43 +24,47 @@ public partial class CashFlowReportViewModel : ViewModelBase
 
     public ObservableCollection<CashFlowMonthItem> MonthlyFlows { get; } = [];
 
-    public CashFlowReportViewModel(IMediator mediator)
+    public CashFlowReportViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         Title = "Nakit Akis Raporu";
     }
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async () =>
+        await SafeExecuteAsync(async ct =>
         {
             MonthlyFlows.Clear();
 
-            // TODO: Replace with IMediator query — await _mediator.Send(new GetCashFlowQuery(...), CancellationToken);
-            await Task.Delay(300, CancellationToken);
+            var from = DateFrom?.DateTime ?? new DateTime(DateTime.Now.Year, 1, 1);
+            var to = DateTo?.DateTime ?? DateTime.Now;
+            var result = await _mediator.Send(
+                new GetCashFlowReportQuery(_currentUser.TenantId, from, to), ct);
 
-            var flows = new List<CashFlowMonthItem>
-            {
-                new("Ocak 2026", 145_000m, 98_500m),
-                new("Subat 2026", 132_800m, 105_200m),
-                new("Mart 2026", 168_400m, 112_700m),
-            };
+            // Group entries by month for cumulative view
+            var grouped = result.Entries
+                .GroupBy(e => new { e.EntryDate.Year, e.EntryDate.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .Select(g =>
+                {
+                    var monthName = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"));
+                    var inflow = g.Where(e => e.Direction == "Inflow").Sum(e => e.Amount);
+                    var outflow = g.Where(e => e.Direction == "Outflow").Sum(e => e.Amount);
+                    return new CashFlowMonthItem(monthName, inflow, outflow);
+                }).ToList();
 
             decimal cumulative = 0m;
-            foreach (var item in flows)
+            foreach (var item in grouped)
             {
                 cumulative += item.Net;
                 item.SetCumulative(cumulative);
                 MonthlyFlows.Add(item);
             }
 
-            var totalInflow = MonthlyFlows.Sum(f => f.Inflow);
-            var totalOutflow = MonthlyFlows.Sum(f => f.Outflow);
-            var netFlow = totalInflow - totalOutflow;
-
-            TotalInflowText = $"{totalInflow:N2} TL";
-            TotalOutflowText = $"{totalOutflow:N2} TL";
-            NetFlowText = $"{netFlow:N2} TL";
+            TotalInflowText = $"{result.TotalInflow:N2} TL";
+            TotalOutflowText = $"{result.TotalOutflow:N2} TL";
+            NetFlowText = $"{result.NetFlow:N2} TL";
             IsEmpty = MonthlyFlows.Count == 0;
         }, "Nakit akis verisi yukleniyor");
     }

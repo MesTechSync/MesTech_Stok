@@ -2,16 +2,19 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// R-03: Stok Deger Raporu ViewModel.
+/// R-03: Stok Deger Raporu ViewModel — wired to GetStockValueReportQuery via MediatR.
 /// Depo bazli stok degeri + yaslandirma analizi.
 /// </summary>
 public partial class StockValueReportViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string _totalStockValueText = "0.00 TL";
     [ObservableProperty] private string _totalSkuText = "0";
@@ -20,43 +23,35 @@ public partial class StockValueReportViewModel : ViewModelBase
     public ObservableCollection<WarehouseStockItem> WarehouseStocks { get; } = [];
     public ObservableCollection<AgingBucketItem> AgingBuckets { get; } = [];
 
-    public StockValueReportViewModel(IMediator mediator)
+    public StockValueReportViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         Title = "Stok Deger Raporu";
     }
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async () =>
+        await SafeExecuteAsync(async ct =>
         {
             WarehouseStocks.Clear();
             AgingBuckets.Clear();
 
-            // TODO: Replace with IMediator query — await _mediator.Send(new GetStockValueReportQuery(), CancellationToken);
-            await Task.Delay(300, CancellationToken);
+            var result = await _mediator.Send(
+                new GetStockValueReportQuery(_currentUser.TenantId), ct);
 
-            WarehouseStocks.Add(new("Ana Depo - Istanbul", 842, 15_430, 2_456_780.50m, 28));
-            WarehouseStocks.Add(new("Amazon FBA", 312, 8_720, 1_245_600.00m, 18));
-            WarehouseStocks.Add(new("Hepsilojistik", 198, 4_560, 678_340.25m, 22));
-            WarehouseStocks.Add(new("Yedek Depo - Ankara", 156, 3_210, 412_890.75m, 45));
+            // Map top value products to warehouse view items
+            foreach (var p in result.TopValueProducts)
+            {
+                WarehouseStocks.Add(new(
+                    p.ProductName, 1, p.Stock, p.TotalValue,
+                    p.Stock > 0 ? (int)(p.TotalCost / Math.Max(p.Price, 0.01m)) : 0));
+            }
 
-            var totalValue = WarehouseStocks.Sum(w => w.TotalValue);
-            var totalSku = WarehouseStocks.Sum(w => w.SkuCount);
-            var avgTurnover = WarehouseStocks.Count > 0
-                ? (int)WarehouseStocks.Average(w => w.TurnoverDays)
-                : 0;
-
-            // Aging analysis
-            AgingBuckets.Add(new("0-30 gun", 524, 18_200, 2_890_450.00m, 58.7m));
-            AgingBuckets.Add(new("31-60 gun", 287, 7_640, 1_234_560.00m, 25.1m));
-            AgingBuckets.Add(new("61-90 gun", 98, 3_120, 512_340.00m, 10.4m));
-            AgingBuckets.Add(new("90+ gun", 45, 1_960, 286_261.50m, 5.8m));
-
-            TotalStockValueText = $"{totalValue:N2} TL";
-            TotalSkuText = totalSku.ToString("N0");
-            AverageTurnoverText = $"{avgTurnover} gun";
-            IsEmpty = WarehouseStocks.Count == 0;
+            TotalStockValueText = $"{result.TotalValue:N2} TL";
+            TotalSkuText = result.TotalProducts.ToString("N0");
+            AverageTurnoverText = $"{result.ZeroStockProducts} stoksuz";
+            IsEmpty = result.TotalProducts == 0;
         }, "Stok deger verisi yukleniyor");
     }
 
