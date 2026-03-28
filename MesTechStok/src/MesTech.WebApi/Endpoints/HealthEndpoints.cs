@@ -38,7 +38,8 @@ public static class HealthEndpoints
         .WithName("HealthCheck")
         .WithSummary("Sistem sağlık durumu — PostgreSQL, Redis, RabbitMQ, MinIO")
         .WithTags("Health")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .RequireRateLimiting("HealthRateLimit");
 
         // GET /health/deep — infra + adapter ping + MESA (G054)
         app.MapGet("/health/deep", async (
@@ -129,7 +130,8 @@ public static class HealthEndpoints
         })
         .WithName("DeepHealthCheck")
         .WithSummary("Derin sağlık kontrolü — infra + platform adapter ping + MESA OS (G054)")
-        .WithTags("Health");
+        .WithTags("Health")
+        .RequireRateLimiting("HealthRateLimit");
 
         // GET /health/platforms — platform sağlık özeti (G166-DEV6)
         app.MapGet("/health/platforms", (
@@ -160,7 +162,8 @@ public static class HealthEndpoints
         })
         .WithName("PlatformHealth")
         .WithSummary("Platform sağlık özeti — HealthCheckJob 15dk verisi (G166)")
-        .WithTags("Health");
+        .WithTags("Health")
+        .RequireRateLimiting("HealthRateLimit");
 
         // GET /health/ready — Kubernetes readiness probe (DB + Redis bağlı mı?)
         app.MapGet("/health/ready", async (HealthCheckService healthCheckService, CancellationToken ct) =>
@@ -181,7 +184,8 @@ public static class HealthEndpoints
         .WithName("ReadinessCheck")
         .WithSummary("Kubernetes readiness probe — kritik altyapı kontrolleri")
         .WithTags("Health")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .RequireRateLimiting("HealthRateLimit");
 
         // GET /metrics — Prometheus text format (no auth — bypass path)
         app.MapGet("/metrics", async (CancellationToken ct) =>
@@ -194,7 +198,8 @@ public static class HealthEndpoints
         .WithName("PrometheusMetrics")
         .WithSummary("Prometheus metrikleri — text/plain format")
         .WithTags("Health")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .RequireRateLimiting("HealthRateLimit");
     }
 
     private sealed record HealthCheckItem(string Name, bool IsHealthy, double DurationMs, string? Error);

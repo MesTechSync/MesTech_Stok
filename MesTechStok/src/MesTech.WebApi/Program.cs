@@ -146,6 +146,17 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0
         });
     });
+    // Health endpoint rate limit — 30 req/min per IP (DDoS defense, G385-DEV6)
+    options.AddPolicy("HealthRateLimit", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter($"health:{ip}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 30,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
     // Stricter rate limit for auth endpoints — 20 req/min per IP (brute force defense layer)
     options.AddPolicy("AuthRateLimit", context =>
     {
