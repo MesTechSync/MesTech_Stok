@@ -72,6 +72,7 @@
             <DataGrid Grid.Column="0"
                       ItemsSource="{Binding LogEntries}"
                       SelectedItem="{Binding SelectedEntry}"
+                      AutomationProperties.Name="Denetim kayitlari listesi"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="True"
                       CanUserResizeColumns="True"

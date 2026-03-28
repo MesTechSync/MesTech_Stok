@@ -91,6 +91,7 @@
                         </Border>
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding WarehouseStocks}"
+                                  AutomationProperties.Name="Depo stok dagilimi"
                                   AutoGenerateColumns="False"
                                   CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                                   IsReadOnly="True"

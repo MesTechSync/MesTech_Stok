@@ -49,6 +49,7 @@
 
             <!-- Orders DataGrid -->
             <DataGrid ItemsSource="{Binding Orders}"
+                      AutomationProperties.Name="Toplu fatura siparis listesi"
                       AutoGenerateColumns="False"
                       CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                       IsReadOnly="False"
