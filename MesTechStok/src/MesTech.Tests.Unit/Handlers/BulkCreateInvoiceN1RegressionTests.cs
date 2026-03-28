@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -14,6 +15,14 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Bug", "G080")]
 public class BulkCreateInvoiceN1RegressionTests
 {
+    private static Order CreateTestOrder()
+    {
+        var item = OrderItem.Create(Guid.NewGuid(), "TST-001", "Test Product", 1, 100m);
+        return Order.CreateFromPlatform(
+            Guid.NewGuid(), $"EXT-{Guid.NewGuid().ToString()[..8]}", PlatformType.Trendyol,
+            "Test Customer", "test@test.com", new[] { item });
+    }
+
     [Fact(DisplayName = "G080: 10 orders = 10 separate GetByIdAsync calls (N+1)")]
     public async Task G080_BulkInvoice_CallsGetByIdForEachOrder()
     {
@@ -26,13 +35,7 @@ public class BulkCreateInvoiceN1RegressionTests
 
         // Her GetByIdAsync çağrısında geçerli sipariş dön
         orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => new Order
-            {
-                Id = id,
-                OrderNumber = $"ORD-{id.ToString()[..8]}",
-                CustomerName = "Test",
-                TotalAmount = 100m
-            });
+            .ReturnsAsync((Guid _) => CreateTestOrder());
 
         var sut = new BulkCreateInvoiceHandler(
             orderRepoMock.Object, invoiceRepoMock.Object, uowMock.Object);
