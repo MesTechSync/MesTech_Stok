@@ -386,15 +386,19 @@ public sealed class SupplierFeedSyncedBridgeHandler : INotificationHandler<Domai
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<SupplierFeedSyncedBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public SupplierFeedSyncedBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<SupplierFeedSyncedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -413,6 +417,10 @@ public sealed class SupplierFeedSyncedBridgeHandler : INotificationHandler<Domai
 
         await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("supplier.feed.synced");
+
+        // WPF realtime sync status push
+        await _notifier.NotifySyncStatusAsync(
+            "SupplierFeed", "completed", e.TotalProducts, e.TotalProducts, ct).ConfigureAwait(false);
     }
 }
 
@@ -459,15 +467,19 @@ public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNot
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<SyncErrorBridgeHandler> _logger;
 
+    private readonly IDashboardNotifier _notifier;
+
     public SyncErrorBridgeHandler(
         IMesaEventPublisher mesaPublisher,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
+        IDashboardNotifier notifier,
         ILogger<SyncErrorBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -485,6 +497,10 @@ public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNot
 
         await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("sync.error");
+
+        // WPF realtime sync error push
+        await _notifier.NotifySyncStatusAsync(
+            e.Platform, $"error:{e.ErrorType}", 0, 0, ct).ConfigureAwait(false);
     }
 }
 
