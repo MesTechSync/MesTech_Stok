@@ -41,14 +41,7 @@ public sealed class LeadConvertedBridgeHandler : INotificationHandler<DomainEven
 
         var tenantId = _tenantProvider.GetCurrentTenantId() != Guid.Empty
             ? _tenantProvider.GetCurrentTenantId()
-            : lead?.TenantId ?? Guid.Empty;
-
-        if (tenantId == Guid.Empty)
-        {
-            _logger.LogWarning(
-                "[LeadConvertedBridge] TenantId could not be resolved for LeadId={LeadId} — " +
-                "event will be published with empty tenant", e.LeadId);
-        }
+            : lead?.TenantId ?? throw new InvalidOperationException($"TenantId is required for GL entry. LeadId={e.LeadId}");
 
         await _mesaPublisher.PublishLeadConvertedAsync(new LeadConvertedIntegrationEvent(
             LeadId: e.LeadId,
