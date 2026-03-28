@@ -16,16 +16,12 @@ namespace MesTech.Avalonia.ViewModels.Erp;
 /// with connection status, last sync time, test + settings buttons.
 /// Bottom section: recent sync log DataGrid.
 /// </summary>
-public partial class ErpDashboardViewModel : ObservableObject
+public partial class ErpDashboardViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private static readonly CultureInfo TrCulture = new("tr-TR");
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int connectedCount;
     [ObservableProperty] private int totalSyncToday;
     [ObservableProperty] private int failedSyncToday;
@@ -41,7 +37,7 @@ public partial class ErpDashboardViewModel : ObservableObject
         _currentUser = currentUser;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;

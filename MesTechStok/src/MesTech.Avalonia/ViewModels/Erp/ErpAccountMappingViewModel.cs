@@ -11,14 +11,10 @@ namespace MesTech.Avalonia.ViewModels.Erp;
 /// Middle "Esle" button maps selected items.
 /// Bottom: mapped pairs DataGrid showing MesTech Account <-> ERP Account.
 /// </summary>
-public partial class ErpAccountMappingViewModel : ObservableObject
+public partial class ErpAccountMappingViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasError;
-    [ObservableProperty] private string errorMessage = string.Empty;
-    [ObservableProperty] private bool isEmpty;
     [ObservableProperty] private int mappedCount;
 
     // Search
@@ -46,7 +42,7 @@ public partial class ErpAccountMappingViewModel : ObservableObject
     partial void OnMesTechSearchTextChanged(string value) => ApplyMesTechFilter();
     partial void OnErpSearchTextChanged(string value) => ApplyErpFilter();
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
