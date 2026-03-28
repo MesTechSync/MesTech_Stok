@@ -39,27 +39,27 @@
       <StackPanel Orientation="Horizontal" Spacing="32">
         <!-- Total -->
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Border Background="#0078D4" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <Border Background="{DynamicResource MesPrimaryBlue}" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
           <TextBlock Text="Toplam:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
           <TextBlock Text="{Binding TotalCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" VerticalAlignment="Center" />
         </StackPanel>
         <!-- Basarili -->
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Border Background="#16A34A" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <Border Background="{DynamicResource MesEmerald}" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
           <TextBlock Text="Basarili:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
-          <TextBlock Text="{Binding BasariliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#16A34A" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding BasariliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesEmerald}" VerticalAlignment="Center" />
         </StackPanel>
         <!-- Hatali -->
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Border Background="#DC2626" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <Border Background="{DynamicResource MesRedBright}" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
           <TextBlock Text="Hatali:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
-          <TextBlock Text="{Binding HataliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#DC2626" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding HataliCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesRedBright}" VerticalAlignment="Center" />
         </StackPanel>
         <!-- Bekliyor -->
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <Border Background="#D97706" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
+          <Border Background="{DynamicResource MesAmber}" CornerRadius="{StaticResource MesRadiusSm}" Width="10" Height="10" VerticalAlignment="Center" />
           <TextBlock Text="Bekliyor:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesTextMuted}" VerticalAlignment="Center" />
-          <TextBlock Text="{Binding BekleyenCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="#D97706" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding BekleyenCount}" FontSize="{StaticResource FontSizeCallout}" FontWeight="SemiBold" Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
         </StackPanel>
       </StackPanel>
     </Border>
@@ -145,11 +145,11 @@
                 </Grid>
 
                 <!-- Hata Satiri (sadece Hatali ise goster) -->
-                <Border Grid.Row="3" Background="#FEF2F2" CornerRadius="{StaticResource MesRadiusSm}"
+                <Border Grid.Row="3" Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusSm}"
                         Padding="8,4" Margin="0,0,0,10"
                         IsVisible="{Binding HasErrors}">
                   <TextBlock Text="{Binding HataSayisi, StringFormat='Bugun {0} hata'}"
-                             FontSize="{StaticResource FontSizeCaption}" Foreground="#DC2626" />
+                             FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesRedBright}" />
                 </Border>
 
                 <!-- Simdi Senkronize Et Button -->
