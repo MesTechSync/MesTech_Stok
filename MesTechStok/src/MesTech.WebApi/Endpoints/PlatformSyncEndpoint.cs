@@ -30,7 +30,8 @@ public static class PlatformSyncEndpoint
             return Results.Ok(result);
         })
         .WithName("GetPlatformSyncStatus")
-        .WithSummary("Platform senkronizasyon durum listesi").Produces(200).Produces(400);
+        .WithSummary("Platform senkronizasyon durum listesi").Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
 
         // POST /api/v1/platforms/{platformCode}/sync — platform senkronizasyonu başlat
         group.MapPost("/{platformCode}/sync", async (
