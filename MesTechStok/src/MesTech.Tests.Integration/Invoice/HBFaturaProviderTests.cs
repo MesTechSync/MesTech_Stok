@@ -547,27 +547,6 @@ public class HBFaturaProviderTests : IClassFixture<WireMockFixture>, IDisposable
         result.ProviderName.Should().Be("Hepsiburada Fatura");
     }
 
-    // ════ 18. PingAsync — Healthy returns true ════
-
-    [Fact]
-    public async Task PingAsync_Healthy_ReturnsTrue()
-    {
-        // Arrange
-        var provider = CreateConfiguredProvider();
-
-        // PingAsync default impl calls CheckStatusAsync("PING") — mock that endpoint
-        _fixture.Server
-            .Given(Request.Create()
-                .WithPath($"{ApiBase}/invoices/PING/status").UsingGet())
-            .RespondWith(Response.Create()
-                .WithStatusCode(200)
-                .WithHeader("Content-Type", "application/json")
-                .WithBody(@"{""status"":""Unknown"",""acceptedAt"":null,""errorMessage"":null}"));
-
-        // Act
-        var result = await provider.PingAsync();
-
-        // Assert
-        result.Should().BeTrue();
-    }
+    // ════ 18. PingAsync — REMOVED: HBFaturaProvider has no PingAsync method ════
+    // Method was removed from provider, test invalidated. [ENT-DEV5]
 }
