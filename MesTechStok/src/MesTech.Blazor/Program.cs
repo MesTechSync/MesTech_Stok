@@ -70,7 +70,7 @@ builder.Services.AddOpenTelemetry()
         .AddSource("MesTech.Application.Handlers")
         .AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:3317");
         }))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
@@ -113,6 +113,20 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
+// ── CORS — explicit policy for WebAPI cross-origin requests ──
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[] { "http://localhost:3100", "http://localhost:3200" };
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // ── Onboarding ──
 builder.Services.AddScoped<OnboardingService>();
 
@@ -134,7 +148,7 @@ builder.Services.AddHealthChecks()
                 HostName = builder.Configuration["RabbitMQ:Host"] ?? "localhost",
                 Port = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672"),
                 UserName = builder.Configuration["RabbitMQ:Username"] ?? "guest",
-                Password = builder.Configuration["RabbitMQ:Password"] ?? "guest"
+                Password = builder.Configuration["RabbitMQ:Password"]
             };
             return factory.CreateConnectionAsync().GetAwaiter().GetResult();
         },
@@ -213,6 +227,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseCors();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseRequestLocalization();
