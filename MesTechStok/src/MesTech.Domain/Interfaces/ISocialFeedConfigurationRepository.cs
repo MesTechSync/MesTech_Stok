@@ -5,6 +5,7 @@ namespace MesTech.Domain.Interfaces;
 
 public interface ISocialFeedConfigurationRepository
 {
+    Task<SocialFeedConfiguration?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<SocialFeedConfiguration>> GetActiveAsync(CancellationToken ct = default);
     Task<SocialFeedConfiguration?> GetByTenantAndPlatformAsync(
         Guid tenantId, SocialFeedPlatform platform, CancellationToken ct = default);
