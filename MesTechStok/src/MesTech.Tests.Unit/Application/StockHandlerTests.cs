@@ -1,8 +1,10 @@
 using FluentAssertions;
 using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -52,7 +54,7 @@ public class StockHandlerTests
         _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
 
         var cmd = new AdjustStockCommand(product.Id, -10, "Damaged", "admin");
-        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
+        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         result.Should().NotBeNull();
@@ -64,7 +66,7 @@ public class StockHandlerTests
     {
         _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
         var cmd = new AdjustStockCommand(Guid.NewGuid(), 5, "Test", "admin");
-        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
+        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
 
         var result = await handler.Handle(cmd, CancellationToken.None);
         result.IsSuccess.Should().BeFalse();

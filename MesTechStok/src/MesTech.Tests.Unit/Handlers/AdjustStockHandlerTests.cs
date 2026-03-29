@@ -1,7 +1,9 @@
 using FluentAssertions;
 using MesTech.Application.Commands.AdjustStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MesTech.Tests.Unit.Handlers;
@@ -19,7 +21,7 @@ public class AdjustStockHandlerTests
         _productRepo = new Mock<IProductRepository>();
         _movementRepo = new Mock<IStockMovementRepository>();
         _uow = new Mock<IUnitOfWork>();
-        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
+        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
     }
 
     [Fact]
