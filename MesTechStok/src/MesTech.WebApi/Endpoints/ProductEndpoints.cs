@@ -34,9 +34,10 @@ public static class ProductEndpoints
             int? pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
             var result = await mediator.Send(
-                new GetProductsQuery(tenantId ?? Guid.Empty, search, categoryId, isActive, null,
+                new GetProductsQuery(tenantId ?? Guid.Empty, safeSearch, categoryId, isActive, null,
                     page ?? 1, clampedSize), ct);
             return Results.Ok(result);
         })
@@ -152,8 +153,9 @@ public static class ProductEndpoints
             int? pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetProductsQuery(tenantId, search, categoryId, isActive, lowStockOnly,
+                new GetProductsQuery(tenantId, safeSearch, categoryId, isActive, lowStockOnly,
                     page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })

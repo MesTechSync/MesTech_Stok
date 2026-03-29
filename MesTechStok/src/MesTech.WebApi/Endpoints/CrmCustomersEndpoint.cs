@@ -27,8 +27,9 @@ public static class CrmCustomersEndpoint
             int pageSize = 50,
             CancellationToken ct = default) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetCustomersCrmQuery(tenantId, isVip, isActive, search, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
+                new GetCustomersCrmQuery(tenantId, isVip, isActive, safeSearch, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCrmCustomers")

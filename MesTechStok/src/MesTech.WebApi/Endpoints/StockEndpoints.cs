@@ -86,10 +86,11 @@ public static class StockEndpoints
             ISender mediator,
             CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var query = new GetInventoryPagedQuery(
                 Page: page ?? 1,
                 PageSize: Math.Clamp(pageSize ?? 50, 1, 100),
-                SearchTerm: search,
+                SearchTerm: safeSearch,
                 StatusFilter: stockFilter ?? StockStatusFilter.All,
                 SortOrder: sortOrder ?? InventorySortOrder.ProductName);
             var result = await mediator.Send(query, ct);

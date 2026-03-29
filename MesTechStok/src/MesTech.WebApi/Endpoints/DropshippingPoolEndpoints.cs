@@ -29,8 +29,9 @@ public static class DropshippingPoolEndpoints
                 Enum.TryParse<ReliabilityColor>(colorFilter, ignoreCase: true, out var parsed))
                 color = parsed;
 
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetPoolProductsQuery(poolId, color, search, page <= 0 ? 1 : page, Math.Clamp(pageSize <= 0 ? 50 : pageSize, 1, 100)), ct);
+                new GetPoolProductsQuery(poolId, color, safeSearch, page <= 0 ? 1 : page, Math.Clamp(pageSize <= 0 ? 50 : pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .CacheOutput("Lookup60s")

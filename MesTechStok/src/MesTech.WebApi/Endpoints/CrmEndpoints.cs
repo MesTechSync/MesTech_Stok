@@ -159,8 +159,9 @@ public static class CrmEndpoints
             int page, int pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetSuppliersCrmQuery(tenantId, isActive, isPreferred, search, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
+                new GetSuppliersCrmQuery(tenantId, isActive, isPreferred, safeSearch, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetSuppliersCrm")
@@ -227,8 +228,9 @@ public static class CrmEndpoints
             Guid tenantId, int? page, int? pageSize, string? search,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetContactsPagedQuery(tenantId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100), search), ct);
+                new GetContactsPagedQuery(tenantId, page ?? 1, Math.Clamp(pageSize ?? 20, 1, 100), safeSearch), ct);
             return Results.Ok(result);
         })
         .WithName("GetContactsPaged")
@@ -269,8 +271,9 @@ public static class CrmEndpoints
             string? search, int? page, int? pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetSuppliersPagedQuery(search, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
+                new GetSuppliersPagedQuery(safeSearch, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetSuppliersPaged")

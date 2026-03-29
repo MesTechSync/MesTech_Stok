@@ -59,8 +59,9 @@ public static class InvoiceEndpoints
             int page = 1, int pageSize = 50,
             ISender mediator = default!, CancellationToken ct = default) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetInvoicesQuery(type, status, platform, from, to, search, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
+                new GetInvoicesQuery(type, status, platform, from, to, safeSearch, Math.Max(1, page), Math.Clamp(pageSize, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetInvoices")

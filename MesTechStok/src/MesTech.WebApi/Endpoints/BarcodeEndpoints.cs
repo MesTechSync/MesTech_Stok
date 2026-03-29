@@ -20,8 +20,9 @@ public static class BarcodeEndpoints
             string code,
             ISender mediator, CancellationToken ct) =>
         {
+            var safeCode = code is { Length: > 500 } ? code[..500] : code;
             var result = await mediator.Send(
-                new GetProductByBarcodeQuery(code), ct);
+                new GetProductByBarcodeQuery(safeCode), ct);
             return result is not null
                 ? Results.Ok(result)
                 : Results.NotFound(new { Message = $"Barkod '{code}' ile eşleşen ürün bulunamadı" });

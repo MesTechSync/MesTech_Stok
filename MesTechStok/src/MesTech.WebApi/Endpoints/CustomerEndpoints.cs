@@ -22,8 +22,9 @@ public static class CustomerEndpoints
             ISender mediator,
             CancellationToken ct) =>
         {
+            var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var result = await mediator.Send(
-                new GetCustomersPagedQuery(search, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
+                new GetCustomersPagedQuery(safeSearch, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCustomersPaged")
