@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels.Erp;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -10,12 +11,15 @@ namespace MesTechStok.Avalonia.Tests;
 public class ErpAccountMappingViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock;
+    private readonly Mock<ICurrentUserService> _currentUserMock;
     private readonly ErpAccountMappingViewModel _sut;
 
     public ErpAccountMappingViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new ErpAccountMappingViewModel(_mediatorMock.Object);
+        _currentUserMock = new Mock<ICurrentUserService>();
+        _currentUserMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+        _sut = new ErpAccountMappingViewModel(_mediatorMock.Object, _currentUserMock.Object);
     }
 
     [Fact]
