@@ -2,12 +2,16 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
+using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class BillingAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -22,9 +26,10 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
     public ObservableCollection<BillingInvoiceItemDto> Items { get; } = [];
     private List<BillingInvoiceItemDto> _allItems = [];
 
-    public BillingAvaloniaViewModel(IMediator mediator)
+    public BillingAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -35,20 +40,31 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR queries
+            var subTask = _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
+            var invTask = _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
+            await Task.WhenAll(subTask, invTask);
 
-            CurrentPlan = "Pro";
-            MonthlyFee = "2.990,00 TL";
-            NextBillingDate = "2026-04-01";
+            var subscription = await subTask;
+            var invoices = await invTask;
 
-            _allItems =
-            [
-                new() { InvoiceNumber = "BILL-2026-003", Period = "Mart 2026", Amount = 2990m, AmountFormatted = "2.990,00 TL", Status = "Beklemede", DueDate = "2026-04-01", Plan = "Pro" },
-                new() { InvoiceNumber = "BILL-2026-002", Period = "Subat 2026", Amount = 2990m, AmountFormatted = "2.990,00 TL", Status = "Odendi", DueDate = "2026-03-01", Plan = "Pro" },
-                new() { InvoiceNumber = "BILL-2026-001", Period = "Ocak 2026", Amount = 2990m, AmountFormatted = "2.990,00 TL", Status = "Odendi", DueDate = "2026-02-01", Plan = "Pro" },
-                new() { InvoiceNumber = "BILL-2025-012", Period = "Aralik 2025", Amount = 1990m, AmountFormatted = "1.990,00 TL", Status = "Odendi", DueDate = "2026-01-01", Plan = "Starter" },
-            ];
+            CurrentPlan = subscription?.PlanName ?? "—";
+            NextBillingDate = subscription?.NextBillingDate?.ToString("yyyy-MM-dd") ?? "—";
 
+            _allItems = invoices.Select(inv => new BillingInvoiceItemDto
+            {
+                InvoiceNumber = inv.InvoiceNumber,
+                Period = inv.IssueDate.ToString("MMMM yyyy"),
+                Amount = inv.TotalAmount,
+                AmountFormatted = $"{inv.TotalAmount:N2} {inv.CurrencyCode}",
+                Status = inv.Status.ToString(),
+                DueDate = inv.DueDate.ToString("yyyy-MM-dd"),
+                Plan = CurrentPlan
+            }).ToList();
+
+            if (_allItems.Count > 0)
+                MonthlyFee = _allItems[0].AmountFormatted;
+
+            IsEmpty = _allItems.Count == 0;
             ApplyFilters();
         }
         catch (Exception ex)
