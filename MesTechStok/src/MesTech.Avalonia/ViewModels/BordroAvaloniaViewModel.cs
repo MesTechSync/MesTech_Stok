@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class BordroAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -30,9 +33,10 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Years { get; } =
         ["2024", "2025", "2026", "2027"];
 
-    public BordroAvaloniaViewModel(IMediator mediator)
+    public BordroAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -43,24 +47,30 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
 
-            _allItems =
-            [
-                new() { EmployeeName = "Ahmet Yilmaz", GrossFormatted = "25.000,00 TL", SgkEmployeeFormatted = "3.500,00 TL", SgkEmployerFormatted = "5.563,00 TL", IncomeTaxFormatted = "3.750,00 TL", StampTaxFormatted = "189,75 TL", NetFormatted = "17.560,25 TL", Gross = 25000, Net = 17560.25m },
-                new() { EmployeeName = "Fatma Demir", GrossFormatted = "20.000,00 TL", SgkEmployeeFormatted = "2.800,00 TL", SgkEmployerFormatted = "4.450,00 TL", IncomeTaxFormatted = "2.580,00 TL", StampTaxFormatted = "151,80 TL", NetFormatted = "14.468,20 TL", Gross = 20000, Net = 14468.20m },
-                new() { EmployeeName = "Mehmet Kaya", GrossFormatted = "18.000,00 TL", SgkEmployeeFormatted = "2.520,00 TL", SgkEmployerFormatted = "4.005,00 TL", IncomeTaxFormatted = "2.130,00 TL", StampTaxFormatted = "136,62 TL", NetFormatted = "13.213,38 TL", Gross = 18000, Net = 13213.38m },
-                new() { EmployeeName = "Ayse Ozturk", GrossFormatted = "15.000,00 TL", SgkEmployeeFormatted = "2.100,00 TL", SgkEmployerFormatted = "3.338,00 TL", IncomeTaxFormatted = "1.575,00 TL", StampTaxFormatted = "113,85 TL", NetFormatted = "11.211,15 TL", Gross = 15000, Net = 11211.15m },
-            ];
+            _allItems = employees.Select(e => new PayrollItemDto
+            {
+                EmployeeName = $"{e.EmployeeCode} — {e.JobTitle}",
+                Gross = 0,
+                Net = 0,
+                GrossFormatted = "—",
+                SgkEmployeeFormatted = "—",
+                SgkEmployerFormatted = "—",
+                IncomeTaxFormatted = "—",
+                StampTaxFormatted = "—",
+                NetFormatted = "—"
+            }).ToList();
 
             var gross = _allItems.Sum(x => x.Gross);
             var net = _allItems.Sum(x => x.Net);
-            var employerCost = gross * 1.2225m; // approximate employer cost ratio
+            var employerCost = gross * 1.2225m;
 
             TotalGross = $"{gross:N2} TL";
             TotalNet = $"{net:N2} TL";
             TotalEmployerCost = $"{employerCost:N2} TL";
 
+            IsEmpty = _allItems.Count == 0;
             ApplyFilters();
         }
         catch (Exception ex)
