@@ -38,6 +38,12 @@ public sealed class StockPlacement : BaseEntity, ITenantEntity
         string? warehouseName = null, string? shelfCode = null, string? binCode = null,
         string? productName = null, string? productSku = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        if (productId == Guid.Empty)
+            throw new ArgumentException("ProductId boş olamaz.", nameof(productId));
+        if (warehouseId == Guid.Empty)
+            throw new ArgumentException("WarehouseId boş olamaz.", nameof(warehouseId));
         ArgumentOutOfRangeException.ThrowIfNegative(quantity);
         ArgumentOutOfRangeException.ThrowIfNegative(minimumStock);
 
