@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Queries;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -29,14 +30,20 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(250);
+            var result = await _mediator.Send(new GetFeedSourcesQuery());
 
             Feeds.Clear();
-            Feeds.Add(new SupplierFeedItemDto { FeedName = "ABC Elektronik XML", FeedType = "XML", Status = "Aktif", LastSync = "19.03.2026 14:00", ProductCount = 1280 });
-            Feeds.Add(new SupplierFeedItemDto { FeedName = "XYZ Bilisim CSV", FeedType = "CSV", Status = "Aktif", LastSync = "19.03.2026 13:30", ProductCount = 845 });
-            Feeds.Add(new SupplierFeedItemDto { FeedName = "Guney Aksesuar API", FeedType = "API", Status = "Hatali", LastSync = "18.03.2026 22:00", ProductCount = 320 });
-            Feeds.Add(new SupplierFeedItemDto { FeedName = "Delta Depo Excel", FeedType = "Excel", Status = "Aktif", LastSync = "19.03.2026 12:00", ProductCount = 560 });
-            Feeds.Add(new SupplierFeedItemDto { FeedName = "Mega Toptan XML", FeedType = "XML", Status = "Pasif", LastSync = "15.03.2026 10:00", ProductCount = 2100 });
+            foreach (var f in result.Items)
+            {
+                Feeds.Add(new SupplierFeedItemDto
+                {
+                    FeedName = f.Name,
+                    FeedType = f.Format,
+                    Status = f.IsActive ? (f.LastSyncStatus == "Failed" ? "Hatali" : "Aktif") : "Pasif",
+                    LastSync = f.LastSyncAt?.ToString("dd.MM.yyyy HH:mm") ?? "—",
+                    ProductCount = f.ProductCount
+                });
+            }
 
             TotalCount = Feeds.Count;
             IsEmpty = TotalCount == 0;
