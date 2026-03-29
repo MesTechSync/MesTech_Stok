@@ -15,7 +15,11 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task<Category?> GetByIdAsync(Guid id)
     {
-        return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        // G349: Include children so FK dependency checks in DeleteCategoryHandler work
+        return await _context.Categories
+            .Include(c => c.Products)
+            .Include(c => c.SubCategories)
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<IReadOnlyList<Category>> GetAllAsync()

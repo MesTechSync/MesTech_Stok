@@ -12,8 +12,12 @@ public sealed class ProductRepository : IProductRepository
     public ProductRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     // DEV6-TUR11: FindAsync bypasses global query filter — use FirstOrDefaultAsync instead
+    // G349: Include children so FK dependency checks in DeleteProductHandler work
     public async Task<Product?> GetByIdAsync(Guid id)
-        => await _context.Products.FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
+        => await _context.Products
+            .Include(p => p.OrderItems)
+            .Include(p => p.PlatformMappings)
+            .FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
         => await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync(ct).ConfigureAwait(false);
