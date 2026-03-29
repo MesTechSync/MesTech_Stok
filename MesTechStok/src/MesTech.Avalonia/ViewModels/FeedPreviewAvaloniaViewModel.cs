@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Commands.PreviewFeed;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -15,6 +16,7 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string feedUrl = string.Empty;
     [ObservableProperty] private string feedFormat = "XML";
+    [ObservableProperty] private Guid feedSourceId;
     [ObservableProperty] private int totalProducts;
     [ObservableProperty] private int validProducts;
     [ObservableProperty] private int errorCount;
@@ -36,7 +38,6 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
             // Set initial state — user will enter URL and click Preview
             FeedUrl = string.Empty;
             FeedFormat = "XML";
@@ -70,22 +71,30 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(800);
+            if (FeedSourceId == Guid.Empty) return;
+
+            var preview = await _mediator.Send(new PreviewFeedCommand(FeedSourceId));
 
             PreviewItems.Clear();
-            PreviewItems.Add(new FeedPreviewItemDto { SKU = "SUP-001", Name = "Samsung Galaxy S24", Price = 42_999m, Stock = 150, Category = "Elektronik" });
-            PreviewItems.Add(new FeedPreviewItemDto { SKU = "SUP-002", Name = "Apple iPhone 15 Pro", Price = 64_999m, Stock = 75, Category = "Elektronik" });
-            PreviewItems.Add(new FeedPreviewItemDto { SKU = "SUP-003", Name = "Sony WH-1000XM5", Price = 8_499m, Stock = 200, Category = "Aksesuar" });
-            PreviewItems.Add(new FeedPreviewItemDto { SKU = "SUP-004", Name = "Logitech MX Master 3S", Price = 2_899m, Stock = 320, Category = "Aksesuar" });
-            PreviewItems.Add(new FeedPreviewItemDto { SKU = "SUP-005", Name = "Dell U2723QE Monitor", Price = 15_999m, Stock = 42, Category = "Bilgisayar" });
+            foreach (var p in preview.Products)
+            {
+                PreviewItems.Add(new FeedPreviewItemDto
+                {
+                    SKU = p.SKU ?? "",
+                    Name = p.Name,
+                    Price = p.SupplierPrice,
+                    Stock = p.Stock,
+                    Category = p.AlreadyExists ? "Mevcut" : "Yeni"
+                });
+            }
 
             ValidationErrors.Clear();
-            ValidationErrors.Add("Satir 12: Fiyat alani bos — varsayilan 0 atandi");
-            ValidationErrors.Add("Satir 45: SKU tekrari — SUP-003 zaten mevcut");
+            foreach (var w in preview.Warnings)
+                ValidationErrors.Add(w);
 
-            TotalProducts = 120;
-            ValidProducts = 118;
-            ErrorCount = 2;
+            TotalProducts = preview.TotalProductCount;
+            ValidProducts = preview.Products.Count;
+            ErrorCount = preview.Warnings.Count;
             PreviewLoaded = true;
             IsEmpty = PreviewItems.Count == 0;
         }
