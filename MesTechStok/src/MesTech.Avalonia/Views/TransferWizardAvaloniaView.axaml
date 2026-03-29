@@ -2,7 +2,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.TransferWizardAvaloniaView"
-             x:DataType="vm:TransferWizardAvaloniaViewModel">
+             x:DataType="vm:TransferWizardAvaloniaViewModel"
+             AutomationProperties.Name="Depo Arasi Transfer">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />
+    </UserControl.KeyBindings>
 
     <!-- I-06 Gorev 4: Depo Arasi Transfer Wizard — barkod/SKU arama + coklu urun + validasyon -->
 
