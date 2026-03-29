@@ -40,7 +40,6 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
         try
         {
             // TODO: await _mediator.Send(new GetCampaignsQuery(Guid.Empty)) — DEV1 handler bekleniyor
-            await Task.Delay(100);
             Campaigns.Clear();
             Campaigns.Add(new CampaignDto { Id = Guid.NewGuid(), Name = "Yaz Indirimi 2026", StartDate = DateTime.Now.AddDays(-5), EndDate = DateTime.Now.AddDays(25), DiscountPercent = 15, IsActive = true, ProductCount = 42 });
             Campaigns.Add(new CampaignDto { Id = Guid.NewGuid(), Name = "Stok Eritme", StartDate = DateTime.Now.AddDays(-10), EndDate = DateTime.Now.AddDays(3), DiscountPercent = 30, IsActive = true, ProductCount = 18 });

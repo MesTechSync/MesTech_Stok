@@ -129,7 +129,6 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500);
             LastSyncText = "Son sync: az once";
         }
         finally
@@ -144,7 +143,6 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(800);
             AiSuggestionCount = 0;
             MappedCount += 3;
             MappingPercentage = MappedCount * 100.0 / (MappedCount + UnmappedCount);

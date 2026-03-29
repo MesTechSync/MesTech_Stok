@@ -120,8 +120,6 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300); // Will be replaced with MediatR command
-
             var newWarehouse = new WarehouseCardDto
             {
                 Name = NewWarehouseName,

@@ -168,8 +168,6 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
         TransferStatus = string.Empty;
         try
         {
-            await Task.Delay(500); // Will be replaced with MediatR command
-
             TransferHistory.Insert(0, new TransferHistoryDto
             {
                 Sku = SelectedProduct.Sku,

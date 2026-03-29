@@ -99,7 +99,6 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         GeneratingMessage = $"{reportType} hazirlaniyor...";
         try
         {
-            await Task.Delay(1500); // Simulate report generation
             GeneratingMessage = string.Empty;
             Summary = $"{reportType} basariyla olusturuldu. ({StartDate:dd.MM.yyyy} - {EndDate:dd.MM.yyyy})";
         }

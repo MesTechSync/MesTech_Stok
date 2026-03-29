@@ -240,7 +240,6 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(100, CancellationToken);
             SyncStatus = "Tamamlandi";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
         }

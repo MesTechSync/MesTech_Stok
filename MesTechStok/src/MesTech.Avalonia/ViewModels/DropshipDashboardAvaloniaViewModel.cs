@@ -114,7 +114,6 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300);
         }
         finally
         {

@@ -67,7 +67,6 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         {
             for (int i = 1; i <= 10; i++)
             {
-                await Task.Delay(300);
                 BackupProgress = i * 10;
                 BackupMessage = i switch
                 {

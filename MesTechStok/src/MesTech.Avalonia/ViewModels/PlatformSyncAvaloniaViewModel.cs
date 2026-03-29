@@ -117,8 +117,6 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
         }
 
         // TODO: Wire to SyncPlatformCommand when available
-        await Task.Delay(1000);
-
         platform.Status = "Basarili";
         platform.LastSync = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
 

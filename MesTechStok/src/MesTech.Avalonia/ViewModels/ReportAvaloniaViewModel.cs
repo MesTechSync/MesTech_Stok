@@ -52,7 +52,6 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100);
         }
         catch (Exception ex)
         {
@@ -119,7 +118,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300); // Will be replaced with export logic
+            // TODO: Wire to ExportReportCommand
         }
         catch (Exception ex)
         {

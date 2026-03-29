@@ -91,7 +91,6 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task SelectFileAsync()
     {
-        await Task.Delay(100);
         ImportFilePath = "ornek_urunler.xlsx";
         ImportFileInfo = "Excel dosyasi: 156 satir, 12 kolon";
         HasImportFile = true;
@@ -129,7 +128,6 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
             {
                 ImportProgress = i;
                 ImportStatusText = $"Import ediliyor... {i}% ({i * 156 / 100}/156 urun, {i / 10}s)";
-                await Task.Delay(50);
             }
             ImportStatusText = "Import tamamlandi: 152 basarili, 4 atlanmis";
         }

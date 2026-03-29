@@ -61,8 +61,6 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(200);
-
             // Load demo attribute groups
             var colorGroup = new AttributeGroupDto { Name = "Renk" };
             colorGroup.Values.Add(new AttributeValueDto { Value = "Siyah" });
@@ -161,7 +159,6 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         try
         {
             // await _mediator.Send(new SaveProductVariantsCommand { ProductId = ..., Variants = ... });
-            await Task.Delay(500);
         }
         finally
         {
@@ -217,7 +214,6 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(600);
         }
         finally
         {

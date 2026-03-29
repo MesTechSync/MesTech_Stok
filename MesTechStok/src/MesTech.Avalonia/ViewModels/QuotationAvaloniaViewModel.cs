@@ -40,8 +40,7 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with _mediator.Send(new ListQuotationsQuery())
-
+            // TODO: await _mediator.Send(new ListQuotationsQuery())
             _allItems =
             [
                 new() { QuotationNumber = "TKL-2026-001", CustomerName = "ABC Ticaret Ltd.", GrandTotal = 45000m, GrandTotalFormatted = "45.000,00 TL", QuotationDate = "2026-03-20", ValidUntil = "2026-04-20", Status = "Gonderildi", LineCount = 5 },

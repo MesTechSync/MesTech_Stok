@@ -91,7 +91,6 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(600); // Simulate export
             ExportMessage = $"CSV dosyasi basariyla olusturuldu. ({LogEntries.Count} kayit)";
             IsExported = true;
         }

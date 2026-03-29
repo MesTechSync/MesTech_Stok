@@ -138,8 +138,6 @@ public partial class ErpDashboardViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(1000); // Will be replaced with real TestConnectionAsync call
-
             var provider = Providers.FirstOrDefault(p => p.Name == providerName);
             if (provider != null)
             {

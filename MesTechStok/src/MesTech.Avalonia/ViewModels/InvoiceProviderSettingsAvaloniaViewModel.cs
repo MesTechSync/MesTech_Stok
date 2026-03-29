@@ -62,7 +62,6 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
         var provider = Providers.FirstOrDefault(p => p.Name == providerName);
         if (provider is null) return;
 
-        await Task.Delay(800); // Simulate connection test
         provider.LastTestResult = "Basarili";
         provider.LastTestDate = DateTime.Now;
         TestingProvider = string.Empty;

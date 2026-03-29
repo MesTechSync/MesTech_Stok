@@ -73,8 +73,6 @@ public partial class PlatformSyncStatusAvaloniaViewModel : ViewModelBase
         var index = Platforms.IndexOf(platform);
         if (index >= 0) { Platforms.RemoveAt(index); Platforms.Insert(index, platform); }
 
-        await Task.Delay(1000);
-
         platform.HealthStatus = "Saglikli";
         platform.LastSync = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
         platform.LastSuccess = platform.LastSync;

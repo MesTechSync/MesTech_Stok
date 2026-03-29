@@ -133,8 +133,6 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
         QuickUpdateStatus = string.Empty;
         try
         {
-            await Task.Delay(300); // Will be replaced with MediatR command
-
             TotalStock += change;
             if (TotalStock < 0) TotalStock = 0;
 
