@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,7 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class TimeEntryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -26,9 +28,10 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<TimeEntryItemDto> TimeEntries { get; } = [];
 
-    public TimeEntryAvaloniaViewModel(IMediator mediator)
+    public TimeEntryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -39,12 +42,23 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            // TODO: Replace with GetTimeEntriesQuery when available — using employee list as scaffold
+            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
 
             TimeEntries.Clear();
-            TimeEntries.Add(new TimeEntryItemDto { Date = "19.03.2026", StartTime = "09:00", EndTime = "12:30", Duration = "3.5 sa", Project = "MesTech Stok", Description = "Avalonia view gelistirme" });
-            TimeEntries.Add(new TimeEntryItemDto { Date = "19.03.2026", StartTime = "13:30", EndTime = "18:00", Duration = "4.5 sa", Project = "MesTech Stok", Description = "ViewModel entegrasyon" });
-            TimeEntries.Add(new TimeEntryItemDto { Date = "18.03.2026", StartTime = "09:00", EndTime = "17:00", Duration = "8 sa", Project = "MesTech Trendyol", Description = "API adapter duzenleme" });
+            // Placeholder: show employees as time entry rows until dedicated TimeEntry handler exists
+            foreach (var e in employees)
+            {
+                TimeEntries.Add(new TimeEntryItemDto
+                {
+                    Date = DateTime.Now.ToString("dd.MM.yyyy"),
+                    StartTime = "09:00",
+                    EndTime = "18:00",
+                    Duration = "8 sa",
+                    Project = e.JobTitle,
+                    Description = e.EmployeeCode
+                });
+            }
 
             TotalCount = TimeEntries.Count;
             IsEmpty = TotalCount == 0;
@@ -72,8 +86,7 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR command
-
+            // TODO: await _mediator.Send(new CreateTimeEntryCommand(...))
             var dateStr = SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.ToString("dd.MM.yyyy");
             TimeEntries.Insert(0, new TimeEntryItemDto
             {
