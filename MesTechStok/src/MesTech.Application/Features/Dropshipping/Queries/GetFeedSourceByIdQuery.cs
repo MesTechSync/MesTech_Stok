@@ -28,7 +28,7 @@ public sealed class GetFeedSourceByIdQueryHandler(
             feed.LastSyncStatus.ToString(),
             feed.LastSyncAt,
             feed.LastSyncError,
-            0
+            feed.LastSyncProductCount
         );
     }
 }

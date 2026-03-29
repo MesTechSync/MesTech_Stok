@@ -51,7 +51,7 @@ public sealed class GetFeedSourcesQueryHandler(
             f.LastSyncStatus.ToString(),
             f.LastSyncAt,
             f.LastSyncError,
-            0 // Product count ayrı join gerektirir; basit implementasyon
+            f.LastSyncProductCount
         )).ToList();
 
         return PagedResult<FeedSourceDto>.Create(
