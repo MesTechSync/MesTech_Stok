@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Domain.Entities.AI;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -20,22 +21,29 @@ public record ApplyOptimizedPriceCommand : IRequest
 public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedPriceCommand>
 {
     private readonly IProductRepository _productRepository;
+    private readonly IPriceRecommendationRepository _priceRecommendationRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ApplyOptimizedPriceHandler> _logger;
 
-    public ApplyOptimizedPriceHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, ILogger<ApplyOptimizedPriceHandler> logger)
+    public ApplyOptimizedPriceHandler(
+        IProductRepository productRepository,
+        IPriceRecommendationRepository priceRecommendationRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<ApplyOptimizedPriceHandler> logger)
     {
         _productRepository = productRepository;
+        _priceRecommendationRepository = priceRecommendationRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
     public async Task Handle(ApplyOptimizedPriceCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false)
+                      ?? await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
         if (product is null)
         {
-            _logger.LogWarning("ApplyOptimizedPrice: Product {ProductId} not found", request.ProductId);
+            _logger.LogWarning("ApplyOptimizedPrice: Product not found — ProductId={ProductId}, SKU={SKU}", request.ProductId, request.SKU);
             return;
         }
 
@@ -50,6 +58,35 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
         product.SalePrice = clampedPrice;
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        _logger.LogInformation("ApplyOptimizedPrice: {SKU} price → {Price:C} (confidence={Confidence:P0})", request.SKU, clampedPrice, request.Confidence);
+        _logger.LogInformation("ApplyOptimizedPrice: {SKU} price -> {Price:C} (confidence={Confidence:P0})", request.SKU, clampedPrice, request.Confidence);
+
+        // Save PriceRecommendation history
+        var recommendation = new PriceRecommendation
+        {
+            TenantId = request.TenantId,
+            ProductId = product.Id,
+            RecommendedPrice = request.RecommendedPrice,
+            CurrentPrice = product.SalePrice,
+            CompetitorMinPrice = request.CompetitorMinPrice,
+            Confidence = request.Confidence,
+            Reasoning = request.Reasoning ?? string.Empty,
+            Source = "ai.price.optimized"
+        };
+        await _priceRecommendationRepository.AddAsync(recommendation).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        _logger.LogInformation("ApplyOptimizedPrice: PriceRecommendation saved — SKU={SKU}, Id={Id}", request.SKU, recommendation.Id);
+
+        // Price deviation alert
+        if (product.SalePrice > 0)
+        {
+            var deviationPct = Math.Abs((double)(request.RecommendedPrice - product.SalePrice) / (double)product.SalePrice);
+            if (deviationPct > 0.20)
+            {
+                _logger.LogWarning(
+                    "ApplyOptimizedPrice: PRICE ALERT — SKU={SKU} deviation {Pct:P1}, current={Current:N2}, recommended={Recommended:N2}",
+                    request.SKU, deviationPct, product.SalePrice, request.RecommendedPrice);
+            }
+        }
     }
 }
