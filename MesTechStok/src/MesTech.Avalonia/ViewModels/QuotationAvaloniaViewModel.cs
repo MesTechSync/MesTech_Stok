@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.ListQuotations;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -40,15 +41,18 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: await _mediator.Send(new ListQuotationsQuery())
-            _allItems =
-            [
-                new() { QuotationNumber = "TKL-2026-001", CustomerName = "ABC Ticaret Ltd.", GrandTotal = 45000m, GrandTotalFormatted = "45.000,00 TL", QuotationDate = "2026-03-20", ValidUntil = "2026-04-20", Status = "Gonderildi", LineCount = 5 },
-                new() { QuotationNumber = "TKL-2026-002", CustomerName = "XYZ Holding A.S.", GrandTotal = 128000m, GrandTotalFormatted = "128.000,00 TL", QuotationDate = "2026-03-18", ValidUntil = "2026-04-18", Status = "Kabul Edildi", LineCount = 12 },
-                new() { QuotationNumber = "TKL-2026-003", CustomerName = "Demir Elektronik", GrandTotal = 8500m, GrandTotalFormatted = "8.500,00 TL", QuotationDate = "2026-03-25", ValidUntil = "2026-04-25", Status = "Taslak", LineCount = 2 },
-                new() { QuotationNumber = "TKL-2026-004", CustomerName = "Yildiz Insaat", GrandTotal = 67200m, GrandTotalFormatted = "67.200,00 TL", QuotationDate = "2026-03-10", ValidUntil = "2026-03-25", Status = "Reddedildi", LineCount = 8 },
-                new() { QuotationNumber = "TKL-2026-005", CustomerName = "Kaya Otomotiv", GrandTotal = 34500m, GrandTotalFormatted = "34.500,00 TL", QuotationDate = "2026-03-22", ValidUntil = "2026-04-22", Status = "Faturaya Donusturuldu", LineCount = 3 },
-            ];
+            var quotations = await _mediator.Send(new ListQuotationsQuery());
+            _allItems = quotations.Select(q => new QuotationListItemDto
+            {
+                QuotationNumber = q.QuotationNumber,
+                CustomerName = q.CustomerName,
+                GrandTotal = q.GrandTotal,
+                GrandTotalFormatted = $"{q.GrandTotal:N2} TL",
+                QuotationDate = q.QuotationDate.ToString("yyyy-MM-dd"),
+                ValidUntil = q.ValidUntil.ToString("yyyy-MM-dd"),
+                Status = q.Status,
+                LineCount = q.Lines.Count
+            }).ToList();
 
             var total = _allItems.Sum(x => x.GrandTotal);
             var pending = _allItems.Count(x => x.Status is "Taslak" or "Gonderildi");

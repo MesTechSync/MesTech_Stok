@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Features.Stock.Queries.GetStockLots;
 using MesTech.Domain.Interfaces;
 
@@ -122,7 +123,20 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
         SaveStatus = string.Empty;
         try
         {
-            // TODO: await _mediator.Send(new CreateStockLotCommand(...))
+            var result = await _mediator.Send(new AddStockLotCommand(
+                SelectedProduct.ProductId,
+                LotNumber,
+                Quantity,
+                UnitCost,
+                ExpiryDate: ExpiryDate?.DateTime));
+
+            if (!result.IsSuccess)
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "Lot kaydedilemedi.";
+                return;
+            }
+
             RecentLots.Insert(0, new LotEntryDto
             {
                 LotNo = LotNumber,
@@ -157,6 +171,7 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
 
 public class LotProductDto
 {
+    public Guid ProductId { get; set; }
     public string Sku { get; set; } = string.Empty;
     public string Ad { get; set; } = string.Empty;
 }
