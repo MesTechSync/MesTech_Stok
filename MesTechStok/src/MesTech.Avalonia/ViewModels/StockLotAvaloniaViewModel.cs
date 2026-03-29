@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockLots;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -31,9 +33,12 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Warehouses { get; } = [];
     public ObservableCollection<LotEntryDto> RecentLots { get; } = [];
 
-    public StockLotAvaloniaViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public StockLotAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -45,25 +50,33 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
         SaveStatus = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var lots = await _mediator.Send(new GetStockLotsQuery(_currentUser.TenantId));
 
             Suppliers.Clear();
-            Suppliers.Add("ABC Elektronik A.S.");
-            Suppliers.Add("XYZ Teknoloji Ltd.");
-            Suppliers.Add("Global Parts Inc.");
-            Suppliers.Add("Mega Tedarik");
+            var supplierNames = lots.Select(l => l.SupplierName).Where(s => !string.IsNullOrEmpty(s)).Distinct();
+            foreach (var s in supplierNames) Suppliers.Add(s!);
 
             Warehouses.Clear();
-            Warehouses.Add("Ana Depo");
-            Warehouses.Add("Yedek Depo");
-            Warehouses.Add("Iade Depo");
+            var warehouseNames = lots.Select(l => l.WarehouseName).Where(w => !string.IsNullOrEmpty(w)).Distinct();
+            foreach (var w in warehouseNames) Warehouses.Add(w!);
 
             RecentLots.Clear();
-            RecentLots.Add(new LotEntryDto { LotNo = "LOT-2026-001", ProductName = "Samsung Galaxy S24", Quantity = 50, UnitCost = 28500m, Supplier = "ABC Elektronik A.S.", Warehouse = "Ana Depo", ExpiryDate = null, CreatedAt = DateTime.Now.AddDays(-3) });
-            RecentLots.Add(new LotEntryDto { LotNo = "LOT-2026-002", ProductName = "Anker PowerCore 20000", Quantity = 200, UnitCost = 450m, Supplier = "Global Parts Inc.", Warehouse = "Ana Depo", ExpiryDate = DateTime.Now.AddMonths(18), CreatedAt = DateTime.Now.AddDays(-1) });
-            RecentLots.Add(new LotEntryDto { LotNo = "LOT-2026-003", ProductName = "Sony WH-1000XM5 Kulaklik", Quantity = 30, UnitCost = 6200m, Supplier = "XYZ Teknoloji Ltd.", Warehouse = "Yedek Depo", ExpiryDate = null, CreatedAt = DateTime.Now });
+            foreach (var l in lots.Take(20))
+            {
+                RecentLots.Add(new LotEntryDto
+                {
+                    LotNo = l.LotNumber,
+                    ProductName = l.ProductName ?? l.ProductSku ?? "—",
+                    Quantity = l.RemainingQuantity,
+                    UnitCost = l.UnitCost,
+                    Supplier = l.SupplierName ?? "—",
+                    Warehouse = l.WarehouseName ?? "—",
+                    ExpiryDate = l.ExpiryDate,
+                    CreatedAt = l.ReceivedAt
+                });
+            }
 
-            IsEmpty = false;
+            IsEmpty = RecentLots.Count == 0;
         }
         catch (Exception ex)
         {
@@ -109,8 +122,7 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
         SaveStatus = string.Empty;
         try
         {
-            await Task.Delay(500); // Will be replaced with MediatR command
-
+            // TODO: await _mediator.Send(new CreateStockLotCommand(...))
             RecentLots.Insert(0, new LotEntryDto
             {
                 LotNo = LotNumber,
