@@ -43,6 +43,15 @@ public sealed class DropshipOrder : BaseEntity, ITenantEntity
         Guid supplierId,
         Guid productId)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        if (orderId == Guid.Empty)
+            throw new ArgumentException("OrderId boş olamaz.", nameof(orderId));
+        if (supplierId == Guid.Empty)
+            throw new ArgumentException("SupplierId boş olamaz.", nameof(supplierId));
+        if (productId == Guid.Empty)
+            throw new ArgumentException("ProductId boş olamaz.", nameof(productId));
+
         return new DropshipOrder
         {
             Id = Guid.NewGuid(),
