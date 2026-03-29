@@ -5,6 +5,7 @@ namespace MesTech.Domain.Interfaces;
 public interface IOrderRepository
 {
     Task<Order?> GetByIdAsync(Guid id);
+    Task<Order?> GetByIdAsync(Guid id, CancellationToken ct);
     Task<Order?> GetByOrderNumberAsync(string orderNumber);
     Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId);
     Task<IReadOnlyList<Order>> GetByDateRangeAsync(DateTime from, DateTime to);

@@ -15,6 +15,11 @@ public sealed class OrderRepository : IOrderRepository
             .Include(o => o.OrderItems)
             .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id).ConfigureAwait(false);
 
+    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct)
+        => await _context.Orders
+            .Include(o => o.OrderItems)
+            .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id, ct).ConfigureAwait(false);
+
     public async Task<Order?> GetByOrderNumberAsync(string orderNumber)
         => await _context.Orders
             .Include(o => o.OrderItems)
