@@ -3,6 +3,13 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.25] - 2026-03-29
+
+### DEV3 v3.8 TUR4 — DLQ + Webhook 3 bug fix
+- fix: WebhookEventRouter Shopify/WooCommerce PlatformType.OpenCart → doğru enum (veri bütünlüğü)
+- fix: DlqReprocessService hardcoded https → RabbitMQ:ManagementScheme config (HTTP/HTTPS tutarsızlık)
+- perf: WebhookEventRouter payload Nx parse → 1x parse (JsonElement.Clone)
+
 ## [1.0.24] - 2026-03-29
 
 ### DEV3 v3.8 TUR3 — WebhookProcessor STRIDE güvenlik düzeltmesi
