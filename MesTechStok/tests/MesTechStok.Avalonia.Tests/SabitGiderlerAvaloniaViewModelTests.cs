@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -20,7 +21,7 @@ public class SabitGiderlerAvaloniaViewModelTests
     public SabitGiderlerAvaloniaViewModelTests()
     {
         _mockMediator = new Mock<IMediator>();
-        _sut = new SabitGiderlerAvaloniaViewModel(_mockMediator.Object);
+        _sut = new SabitGiderlerAvaloniaViewModel(_mockMediator.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

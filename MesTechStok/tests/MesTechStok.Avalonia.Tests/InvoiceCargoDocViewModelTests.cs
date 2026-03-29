@@ -110,7 +110,7 @@ public class WarehouseSummaryAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new WarehouseSummaryAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new WarehouseSummaryAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }

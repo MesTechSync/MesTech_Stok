@@ -97,7 +97,8 @@ public class MfaSetupViewModelTests
     {
         var sut = new MfaSetupViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<Microsoft.Extensions.Logging.ILogger<MfaSetupViewModel>>());
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<MfaSetupViewModel>>(),
+            Mock.Of<ICurrentUserService>());
 
         sut.IsMfaEnabled.Should().BeFalse();
         sut.IsSetupStarted.Should().BeFalse();

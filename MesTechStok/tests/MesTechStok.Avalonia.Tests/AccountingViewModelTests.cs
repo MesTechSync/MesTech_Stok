@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetFixedAssets;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Avalonia.ViewModels.Accounting;
@@ -119,7 +120,7 @@ public class FixedAssetAvaloniaViewModelTests
     {
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<GetFixedAssetsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Application.Features.Accounting.Queries.GetFixedAssets.FixedAssetDto>());
+            .ReturnsAsync(new List<FixedAssetDto>());
 
         var sut = new FixedAssetAvaloniaViewModel(
             mediator.Object,
@@ -164,7 +165,7 @@ public class JournalEntryListViewModelTests
     [Fact]
     public void Constructor_ShouldInitializeWithNoErrors()
     {
-        var sut = new JournalEntryListViewModel();
+        var sut = new JournalEntryListViewModel(Mock.Of<IMediator>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

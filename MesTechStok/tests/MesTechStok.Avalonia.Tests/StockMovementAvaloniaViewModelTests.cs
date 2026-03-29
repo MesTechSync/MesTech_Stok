@@ -1,5 +1,7 @@
 using FluentAssertions;
+using MediatR;
 using MesTech.Avalonia.ViewModels;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -9,7 +11,7 @@ public class StockMovementAvaloniaViewModelTests
 {
     private static StockMovementAvaloniaViewModel CreateSut()
     {
-        return new StockMovementAvaloniaViewModel();
+        return new StockMovementAvaloniaViewModel(Mock.Of<IMediator>());
     }
 
     // ── 3-State: Default / Empty ──

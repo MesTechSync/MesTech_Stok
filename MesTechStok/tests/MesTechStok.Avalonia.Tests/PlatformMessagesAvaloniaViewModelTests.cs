@@ -5,6 +5,7 @@ using MesTech.Application.Features.Crm.Commands.ReplyToMessage;
 using MesTech.Application.Features.Crm.Queries.GetPlatformMessages;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -16,7 +17,7 @@ public class PlatformMessagesAvaloniaViewModelTests
     private readonly Mock<IMediator> _mediatorMock = new();
     private readonly Mock<IDialogService> _dialogMock = new();
 
-    private PlatformMessagesAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, _dialogMock.Object);
+    private PlatformMessagesAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, _dialogMock.Object, Mock.Of<ICurrentUserService>());
 
     private GetPlatformMessagesResult CreateResult(int count = 2)
     {

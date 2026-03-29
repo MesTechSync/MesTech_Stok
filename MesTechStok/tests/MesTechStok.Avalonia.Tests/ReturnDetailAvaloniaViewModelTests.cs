@@ -6,6 +6,7 @@ using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
+using ReturnDto = MesTech.Application.Features.Returns.Queries.GetReturnList.ReturnListItemDto;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -43,7 +44,7 @@ public class ReturnDetailAvaloniaViewModelTests
     [Fact]
     public async Task LoadAsync_WhenReturnsExist_PopulatesFields()
     {
-        var returnItem = new ReturnListItemDto
+        var returnItem = new ReturnDto
         {
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
@@ -53,7 +54,7 @@ public class ReturnDetailAvaloniaViewModelTests
             CreatedAt = new DateTime(2026, 3, 15)
         };
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetReturnListQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ReturnListItemDto> { returnItem });
+            .ReturnsAsync((IReadOnlyList<ReturnDto>)new List<ReturnDto> { returnItem });
 
         await _sut.LoadAsync();
 
@@ -71,7 +72,7 @@ public class ReturnDetailAvaloniaViewModelTests
     public async Task LoadAsync_WhenEmpty_SetsIsEmpty()
     {
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetReturnListQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ReturnListItemDto>());
+            .ReturnsAsync((IReadOnlyList<ReturnDto>)new List<ReturnDto>());
 
         await _sut.LoadAsync();
 
@@ -107,7 +108,7 @@ public class ReturnDetailAvaloniaViewModelTests
     public async Task ApproveAsync_WhenSuccess_UpdatesDurum()
     {
         // Setup: load a return first
-        var returnItem = new ReturnListItemDto
+        var returnItem = new ReturnDto
         {
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-002",
@@ -117,7 +118,7 @@ public class ReturnDetailAvaloniaViewModelTests
             CreatedAt = DateTime.Now
         };
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetReturnListQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ReturnListItemDto> { returnItem });
+            .ReturnsAsync((IReadOnlyList<ReturnDto>)new List<ReturnDto> { returnItem });
         await _sut.LoadAsync();
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ApproveReturnCommand>(), It.IsAny<CancellationToken>()))
@@ -132,7 +133,7 @@ public class ReturnDetailAvaloniaViewModelTests
     [Fact]
     public async Task RejectAsync_WhenSuccess_UpdatesDurum()
     {
-        var returnItem = new ReturnListItemDto
+        var returnItem = new ReturnDto
         {
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-003",
@@ -142,7 +143,7 @@ public class ReturnDetailAvaloniaViewModelTests
             CreatedAt = DateTime.Now
         };
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetReturnListQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ReturnListItemDto> { returnItem });
+            .ReturnsAsync((IReadOnlyList<ReturnDto>)new List<ReturnDto> { returnItem });
         await _sut.LoadAsync();
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<RejectReturnCommand>(), It.IsAny<CancellationToken>()))
@@ -158,7 +159,7 @@ public class ReturnDetailAvaloniaViewModelTests
     [Fact]
     public async Task ApproveAsync_WhenFails_SetsHasError()
     {
-        var returnItem = new ReturnListItemDto
+        var returnItem = new ReturnDto
         {
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-004",
@@ -167,7 +168,7 @@ public class ReturnDetailAvaloniaViewModelTests
             CreatedAt = DateTime.Now
         };
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetReturnListQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ReturnListItemDto> { returnItem });
+            .ReturnsAsync((IReadOnlyList<ReturnDto>)new List<ReturnDto> { returnItem });
         await _sut.LoadAsync();
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ApproveReturnCommand>(), It.IsAny<CancellationToken>()))

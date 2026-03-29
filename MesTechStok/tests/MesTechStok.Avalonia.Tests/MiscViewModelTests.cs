@@ -168,7 +168,7 @@ public class ExportAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new ExportAvaloniaViewModel();
+        var sut = new ExportAvaloniaViewModel(Mock.Of<IMediator>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -223,7 +223,7 @@ public class BuyboxAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new BuyboxAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new BuyboxAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -241,7 +241,7 @@ public class MarketplacesAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new MarketplacesAvaloniaViewModel();
+        var sut = new MarketplacesAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -259,7 +259,7 @@ public class LogViewerAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new LogViewerAvaloniaViewModel();
+        var sut = new LogViewerAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

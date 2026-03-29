@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,7 @@ public class GLTransactionAvaloniaViewModelTests
     public GLTransactionAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new GLTransactionAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new GLTransactionAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

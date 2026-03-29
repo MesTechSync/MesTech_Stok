@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,7 @@ public class KdvRaporAvaloniaViewModelTests
     public KdvRaporAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new KdvRaporAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new KdvRaporAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

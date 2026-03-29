@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,7 @@ public class MutabakatAvaloniaViewModelTests
     public MutabakatAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new MutabakatAvaloniaViewModel(_mediatorMock.Object);
+        _sut = new MutabakatAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

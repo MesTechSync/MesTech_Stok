@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Avalonia.ViewModels;
 using Moq;
@@ -13,7 +14,7 @@ public class LoginAvaloniaViewModelTests
 
     public LoginAvaloniaViewModelTests()
     {
-        _sut = new LoginAvaloniaViewModel(Mock.Of<IAuthService>());
+        _sut = new LoginAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<IAuthService>());
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels.Accounting;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,7 @@ public class ProfitabilityReportViewModelTests
     public ProfitabilityReportViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new ProfitabilityReportViewModel(_mediatorMock.Object);
+        _sut = new ProfitabilityReportViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
