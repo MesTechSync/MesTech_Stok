@@ -45,15 +45,14 @@ public sealed class WebhookProcessor : IWebhookProcessor
             "Webhook received: platform={Platform}, bodyLength={BodyLength}, hasSignature={HasSignature}",
             normalizedPlatform, body.Length, signature is not null);
 
-        // 1. Imza dogrulama
+        // 1. Imza dogrulama (STRIDE: Spoofing koruması — G472)
         var validator = _validators.FirstOrDefault(
             v => v.Platform.Equals(normalizedPlatform, StringComparison.OrdinalIgnoreCase));
 
-        var isValid = true;
         if (validator is not null && signature is not null)
         {
             var secret = _configuration[$"Webhooks:Secrets:{normalizedPlatform}"] ?? string.Empty;
-            isValid = validator.Validate(body, signature, secret);
+            var isValid = validator.Validate(body, signature, secret);
 
             if (!isValid)
             {
@@ -66,10 +65,21 @@ public sealed class WebhookProcessor : IWebhookProcessor
         }
         else if (validator is not null && signature is null)
         {
+            // Validator kayıtlı = imza bekleniyor. Yoksa REJECT.
+            // Legacy platform desteği: Webhooks:AllowUnsigned:{platform}=true ile bypass
+            var allowUnsigned = _configuration.GetValue<bool>($"Webhooks:AllowUnsigned:{normalizedPlatform}");
+            if (!allowUnsigned)
+            {
+                _logger.LogWarning(
+                    "Webhook REJECTED — signature required but missing: platform={Platform}",
+                    normalizedPlatform);
+
+                return new WebhookResult(false, Error: "Webhook signature required but not provided");
+            }
+
             _logger.LogWarning(
-                "Webhook received without signature: platform={Platform}",
+                "Webhook accepted WITHOUT signature (AllowUnsigned=true): platform={Platform}",
                 normalizedPlatform);
-            // Accept but log — some platforms may not always send signatures
         }
 
         // 2. Event type cikarimi
