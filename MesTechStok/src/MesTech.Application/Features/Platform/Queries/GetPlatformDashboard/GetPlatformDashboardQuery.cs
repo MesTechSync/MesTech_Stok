@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Behaviors;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
@@ -11,7 +12,11 @@ namespace MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 public record GetPlatformDashboardQuery(
     Guid TenantId,
     PlatformType Platform
-) : IRequest<PlatformDashboardDto>;
+) : IRequest<PlatformDashboardDto>, ICacheableQuery
+{
+    public string CacheKey => $"PlatformDashboard_{TenantId}_{Platform}";
+    public TimeSpan? CacheDuration => TimeSpan.FromMinutes(2);
+}
 
 public sealed class PlatformDashboardDto
 {
