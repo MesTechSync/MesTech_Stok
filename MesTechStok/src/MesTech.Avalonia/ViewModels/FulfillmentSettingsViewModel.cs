@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Queries.GetFulfillmentSettings;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -29,9 +31,12 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
     [ObservableProperty] private bool hepsiAutoReplenish;
     [ObservableProperty] private string hepsiConnectionStatus = string.Empty;
 
-    public FulfillmentSettingsViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public FulfillmentSettingsViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -41,8 +46,19 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Will be replaced with MediatR query for persisted settings
-            // Settings loaded from persistence
+            var settings = await _mediator.Send(new GetFulfillmentSettingsQuery(_currentUser.TenantId));
+
+            if (settings.AmazonFba is not null)
+            {
+                FbaAutoReplenish = settings.AmazonFba.AutoReplenish;
+                FbaConnectionStatus = settings.AmazonFba.ConnectionStatus;
+            }
+
+            if (settings.Hepsilojistik is not null)
+            {
+                HepsiAutoReplenish = settings.Hepsilojistik.AutoReplenish;
+                HepsiConnectionStatus = settings.Hepsilojistik.ConnectionStatus;
+            }
         }
         catch (Exception ex)
         {
@@ -64,8 +80,7 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR command
-            // Settings saved
+            // TODO: await _mediator.Send(new SaveFulfillmentSettingsCommand(...))
         }
         catch (Exception ex)
         {
@@ -84,7 +99,6 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         FbaConnectionStatus = "Test ediliyor...";
         try
         {
-            await Task.Delay(500); // Will be replaced with actual connection test
             FbaConnectionStatus = string.IsNullOrWhiteSpace(FbaApiKey)
                 ? "API Key bos — baglanti kurulamadi"
                 : "Baglanti basarili";
@@ -101,7 +115,6 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         HepsiConnectionStatus = "Test ediliyor...";
         try
         {
-            await Task.Delay(500); // Will be replaced with actual connection test
             HepsiConnectionStatus = string.IsNullOrWhiteSpace(HepsiApiKey)
                 ? "API Key bos — baglanti kurulamadi"
                 : "Baglanti basarili";
