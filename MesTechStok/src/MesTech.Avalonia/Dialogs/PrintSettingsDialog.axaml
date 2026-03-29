@@ -1,6 +1,4 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
-        xmlns:vm="using:MesTech.Avalonia.ViewModels.Dialogs"
-        x:DataType="vm:PrintSettingsDialogViewModel"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.PrintSettingsDialog"
         Title="Yazdir Ayarlari"
