@@ -7,6 +7,7 @@ using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
+using MesTech.Application.Features.Dashboard.Queries.GetServiceHealth;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -159,10 +160,21 @@ public partial class AppHubViewModel : ViewModelBase
     private async Task LoadServiceStatusAsync()
     {
         ServiceStatuses.Clear();
-        // Infrastructure services — check via GetDashboardSummaryQuery result
-        ServiceStatuses.Add(new("PostgreSQL", true, "—"));
-        ServiceStatuses.Add(new("Redis", true, "—"));
-        ServiceStatuses.Add(new("RabbitMQ", true, "—"));
+
+        // G308: Real infrastructure health checks via GetServiceHealthQuery
+        try
+        {
+            var healthResults = await _mediator.Send(new GetServiceHealthQuery());
+            foreach (var h in healthResults)
+                ServiceStatuses.Add(new(h.ServiceName, h.IsHealthy, h.ResponseTime));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetServiceHealthQuery failed, using offline defaults");
+            ServiceStatuses.Add(new("PostgreSQL", false, "—"));
+            ServiceStatuses.Add(new("Redis", false, "—"));
+            ServiceStatuses.Add(new("RabbitMQ", false, "—"));
+        }
 
         // Platform APIs — attempt health query for real status
         try
