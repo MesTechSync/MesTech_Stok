@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Queries.GetErpSettings;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -74,9 +76,12 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ErpSyncHistoryItem> SyncHistory { get; } = [];
 
-    public ErpSettingsAvaloniaViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public ErpSettingsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     partial void OnSelectedErpProviderChanged(string value)
@@ -95,46 +100,31 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Will be replaced with MediatR query
+            var settings = await _mediator.Send(new GetErpSettingsQuery(_currentUser.TenantId));
 
-            // Demo sync history
+            SelectedErpProvider = settings.ActiveProvider.ToString();
+            IsConnected = settings.IsConnected;
+            AutoSyncStock = settings.AutoSyncStock;
+            AutoSyncInvoice = settings.AutoSyncInvoice;
+            StockSyncPeriodMinutes = settings.StockSyncPeriodMinutes;
+            PriceSyncPeriodMinutes = settings.PriceSyncPeriodMinutes;
+            LastTestResult = settings.IsConnected ? "Bagli" : "Bagli degil";
+            ConnectionStatusColor = settings.IsConnected ? "#22C55E" : "#94A3B8";
+
             SyncHistory.Clear();
-            SyncHistory.Add(new ErpSyncHistoryItem
+            foreach (var h in settings.RecentSyncHistory)
             {
-                SyncDate = new DateTime(2026, 3, 19, 14, 30, 0),
-                SyncType = "Stok",
-                RecordCount = 245,
-                Status = "Basarili",
-                StatusColor = "#22C55E",
-                Duration = "12s"
-            });
-            SyncHistory.Add(new ErpSyncHistoryItem
-            {
-                SyncDate = new DateTime(2026, 3, 19, 13, 0, 0),
-                SyncType = "Fatura",
-                RecordCount = 18,
-                Status = "Basarili",
-                StatusColor = "#22C55E",
-                Duration = "3s"
-            });
-            SyncHistory.Add(new ErpSyncHistoryItem
-            {
-                SyncDate = new DateTime(2026, 3, 19, 12, 0, 0),
-                SyncType = "Stok",
-                RecordCount = 0,
-                Status = "Hata: Baglanti zaman asimi",
-                StatusColor = "#EF4444",
-                Duration = "30s"
-            });
-            SyncHistory.Add(new ErpSyncHistoryItem
-            {
-                SyncDate = new DateTime(2026, 3, 18, 16, 45, 0),
-                SyncType = "Fiyat",
-                RecordCount = 312,
-                Status = "Basarili",
-                StatusColor = "#22C55E",
-                Duration = "8s"
-            });
+                var isError = h.Status.StartsWith("Hata", StringComparison.OrdinalIgnoreCase);
+                SyncHistory.Add(new ErpSyncHistoryItem
+                {
+                    SyncDate = h.SyncDate,
+                    SyncType = h.SyncType,
+                    RecordCount = h.RecordCount,
+                    Status = h.Status,
+                    StatusColor = isError ? "#EF4444" : "#22C55E",
+                    Duration = h.Duration
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -156,7 +146,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR command
+            // TODO: await _mediator.Send(new SaveErpSettingsCommand(...))
         }
         catch (Exception ex)
         {
@@ -177,7 +167,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         ConnectionStatusColor = "#F59E0B";
         try
         {
-            await Task.Delay(1000); // Will be replaced with real connection test
+            // TODO: await _mediator.Send(new TestErpConnectionCommand(...))
             IsConnected = true;
             LastTestResult = "Baglanti basarili";
             ConnectionStatusColor = "#22C55E";
