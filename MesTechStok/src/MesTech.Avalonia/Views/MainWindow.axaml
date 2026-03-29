@@ -310,6 +310,13 @@
                                     <TextBlock Text="Depo Yonetimi"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Gecmisi"
+                                    Command="{Binding NavigateToCommand}" CommandParameter="StockTimeline">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
+                                    <TextBlock Text="Stok Hareket Geçmişi"/>
+                                </StackPanel>
+                            </Button>
 
                             <!-- 5. KATEGORILER -->
                             <TextBlock Classes="sidebar-section" Text="KATEGORİLER"/>
@@ -467,6 +474,33 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
                                     <TextBlock Text="Cari Hesaplar"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Nakit Akisi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="NakitAkis">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Nakit Akışı"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Teklif Yonetimi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Quotation">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
+                                    <TextBlock Text="Teklif Yönetimi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Abonelik ve Faturalama"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Billing">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
+                                    <TextBlock Text="Abonelik / Faturalama"/>
                                 </StackPanel>
                             </Button>
 
