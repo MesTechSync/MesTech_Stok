@@ -158,6 +158,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProjectRepository, Tasks.ProjectRepository>();
         services.AddScoped<IWorkTaskRepository, Tasks.WorkTaskRepository>();
         services.AddScoped<ICalendarEventRepository, Cal.CalendarEventRepository>();
+        services.AddScoped<ITimeEntryRepository, TimeEntryRepository>();
         services.AddScoped<IFinanceExpenseRepository, FinanceRepo.ExpenseRepository>();
 
         // Finance — Kasa (DEV6)
