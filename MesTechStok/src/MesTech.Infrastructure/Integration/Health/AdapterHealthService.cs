@@ -66,9 +66,14 @@ public sealed class AdapterHealthService
             var categories = await adapter.GetCategoriesAsync(cts.Token).ConfigureAwait(false);
             sw.Stop();
 
+            var isHealthy = categories.Count > 0;
+            if (!isHealthy)
+                _logger.LogWarning("Adapter {Platform} returned 0 categories — degraded health (no IPingableAdapter)",
+                    adapter.PlatformCode);
+
             return new AdapterHealthResult(
-                adapter.PlatformCode, true, sw.ElapsedMilliseconds,
-                $"OK — {categories.Count} kategori");
+                adapter.PlatformCode, isHealthy, sw.ElapsedMilliseconds,
+                isHealthy ? $"OK — {categories.Count} kategori" : "Degraded — 0 kategori (no IPingableAdapter)");
         }
         catch (OperationCanceledException)
         {
