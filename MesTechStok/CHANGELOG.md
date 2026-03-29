@@ -3,6 +3,13 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.23] - 2026-03-29
+
+### DEV3 v3.8 TUR2 — sözleşme doğruluk kontrolü + STRIDE güvenlik tarama
+- docs(gorev): G468-G472 — v3.8 tarama scripti 16 dizin eksik, borç tablosu 3 hata, alan çakışması, webhook STRIDE
+- scan: v3.8 DEV3 tarama scripti kapsamı %29 (62/214 dosya) — 152 dosya taranmıyor
+- security: WebhookProcessor signature=null KABUL riski (FMEA RPN=105)
+
 ## [1.0.22] - 2026-03-29
 
 ### DEV3 Entegrasyon & Adapter TUR 1-3 — alan taraması + v3.8 hata raporu
