@@ -1,5 +1,3 @@
-// DISABLED: Referenced handlers/entities were removed from codebase. Re-enable when re-created.
-#if false
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.Crm;
@@ -265,7 +263,7 @@ public class NotificationTemplateDomainTests
     public void Create_ValidParams_Succeeds()
     {
         var template = NotificationTemplate.Create(Guid.NewGuid(), "Sipariş Onayı",
-            "Onay", "Siparişiniz #{orderId} onaylandı", NotificationChannel.Email);
+            "Onay", "Siparişiniz #{orderId} onaylandı", MesTech.Domain.Enums.NotificationChannel.Email);
         template.TemplateName.Should().Be("Sipariş Onayı");
         template.IsActive.Should().BeTrue();
     }
@@ -273,7 +271,7 @@ public class NotificationTemplateDomainTests
     [Fact]
     public void Deactivate_SetsInactive()
     {
-        var template = NotificationTemplate.Create(Guid.NewGuid(), "Test", "Subject", "body", NotificationChannel.Email);
+        var template = NotificationTemplate.Create(Guid.NewGuid(), "Test", "Subject", "body", MesTech.Domain.Enums.NotificationChannel.Email);
         template.Deactivate();
         template.IsActive.Should().BeFalse();
     }
@@ -281,7 +279,7 @@ public class NotificationTemplateDomainTests
     [Fact]
     public void Activate_AfterDeactivate_SetsActive()
     {
-        var template = NotificationTemplate.Create(Guid.NewGuid(), "Test", "Subject", "body", NotificationChannel.Email);
+        var template = NotificationTemplate.Create(Guid.NewGuid(), "Test", "Subject", "body", MesTech.Domain.Enums.NotificationChannel.Email);
         template.Deactivate();
         template.Activate();
         template.IsActive.Should().BeTrue();
@@ -323,4 +321,3 @@ public class PersonalDataRetentionPolicyDomainTests
 }
 
 #endregion
-#endif
