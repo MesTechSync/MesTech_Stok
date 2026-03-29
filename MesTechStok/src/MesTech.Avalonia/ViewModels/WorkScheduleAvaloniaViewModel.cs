@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,16 +14,17 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<ScheduleItemDto> Schedules { get; } = [];
 
-    public WorkScheduleAvaloniaViewModel(IMediator mediator)
+    public WorkScheduleAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -32,14 +35,20 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
 
             Schedules.Clear();
-            Schedules.Add(new ScheduleItemDto { EmployeeName = "Ali Veli", DayOfWeek = "Pazartesi", StartTime = "09:00", EndTime = "18:00", ShiftType = "Sabah" });
-            Schedules.Add(new ScheduleItemDto { EmployeeName = "Ali Veli", DayOfWeek = "Sali", StartTime = "09:00", EndTime = "18:00", ShiftType = "Sabah" });
-            Schedules.Add(new ScheduleItemDto { EmployeeName = "Mehmet Demir", DayOfWeek = "Pazartesi", StartTime = "14:00", EndTime = "22:00", ShiftType = "Aksam" });
-            Schedules.Add(new ScheduleItemDto { EmployeeName = "Mehmet Demir", DayOfWeek = "Carsamba", StartTime = "14:00", EndTime = "22:00", ShiftType = "Aksam" });
-            Schedules.Add(new ScheduleItemDto { EmployeeName = "Fatma Ozturk", DayOfWeek = "Persembe", StartTime = "09:00", EndTime = "18:00", ShiftType = "Sabah" });
+            foreach (var e in employees)
+            {
+                Schedules.Add(new ScheduleItemDto
+                {
+                    EmployeeName = $"{e.EmployeeCode} — {e.JobTitle}",
+                    DayOfWeek = "Pazartesi-Cuma",
+                    StartTime = "09:00",
+                    EndTime = "18:00",
+                    ShiftType = "Sabah"
+                });
+            }
 
             TotalCount = Schedules.Count;
             IsEmpty = TotalCount == 0;
