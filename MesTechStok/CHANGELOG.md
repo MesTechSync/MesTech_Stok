@@ -3,6 +3,14 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.22] - 2026-03-29
+
+### DEV3 Entegrasyon & Adapter TUR 1-3 — alan taraması + v3.8 hata raporu
+- fix(adapter): PazaramaAdapter token endpoint configurable via PazaramaTokenEndpoint credential key
+- docs(gorev): G456-G458 cross-DEV bulgu — IDealRepository/IOrderRepository/ILeadRepository genişletme
+- docs(gorev): v3.7 BORÇ TABLOSU 5 hata düzeltme önerisi (NotImpl=0, boşCatch=0, GetCategories=0)
+- scan: 214 dosya, 55714 satır — NotImpl=0, TODO=0, stub=0, boşCatch=0
+
 ## [1.0.21] - 2026-03-28
 
 ### DEV5 Test & Kalite TUR 9-11 — handler %100 + VM test %77
