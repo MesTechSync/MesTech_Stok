@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.Services;
 
@@ -27,15 +28,17 @@ public interface IMesTechApiClient
 public sealed class MesTechApiClient : IMesTechApiClient
 {
     private readonly HttpClient _client;
+    private readonly ILogger<MesTechApiClient> _logger;
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public MesTechApiClient(HttpClient client)
+    public MesTechApiClient(HttpClient client, ILogger<MesTechApiClient> logger)
     {
         _client = client;
+        _logger = logger;
     }
 
     public async Task<T?> GetAsync<T>(string relativeUrl, CancellationToken ct = default)
@@ -85,8 +88,9 @@ public sealed class MesTechApiClient : IMesTechApiClient
             var response = await _client.GetAsync("/health", ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Health check failed");
             return false;
         }
     }

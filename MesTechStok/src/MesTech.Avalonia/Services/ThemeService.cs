@@ -55,8 +55,9 @@ public class ThemeService : IThemeService
                 };
             }
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[ThemeService] Load theme failed: {ex.Message}");
             _currentTheme = "Light";
         }
 
@@ -86,9 +87,9 @@ public class ThemeService : IThemeService
                 Directory.CreateDirectory(dir);
             File.WriteAllText(PrefsPath, theme);
         }
-        catch
+        catch (Exception ex)
         {
-            // Non-fatal — preference save failure does not break runtime
+            System.Diagnostics.Debug.WriteLine($"[ThemeService] Save theme failed: {ex.Message}");
         }
     }
 }

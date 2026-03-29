@@ -140,9 +140,9 @@ public sealed class SpotlightService
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Folder scan failure is non-critical — skip silently
+                System.Diagnostics.Debug.WriteLine($"[SpotlightService] Folder scan failed: {ex.Message}");
             }
         }
     }
