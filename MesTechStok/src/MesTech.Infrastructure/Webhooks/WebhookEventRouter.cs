@@ -238,14 +238,24 @@ public sealed class WebhookEventRouter
         return platform.ToLowerInvariant() switch
         {
             "trendyol" => PlatformType.Trendyol,
-            "shopify" => PlatformType.Shopify,
-            "woocommerce" => PlatformType.WooCommerce,
             "hepsiburada" => PlatformType.Hepsiburada,
             "n11" => PlatformType.N11,
-            "amazon" => PlatformType.Amazon,
             "ciceksepeti" => PlatformType.Ciceksepeti,
+            "amazon" => PlatformType.Amazon,
+            "amazoneu" or "amazon_eu" or "amazon-eu" => PlatformType.AmazonEu,
             "ebay" => PlatformType.eBay,
-            _ => PlatformType.OpenCart
+            "etsy" => PlatformType.Etsy,
+            "ozon" => PlatformType.Ozon,
+            "shopify" => PlatformType.Shopify,
+            "woocommerce" => PlatformType.WooCommerce,
+            "zalando" => PlatformType.Zalando,
+            "pazarama" => PlatformType.Pazarama,
+            "pttavm" or "ptavm" => PlatformType.PttAVM,
+            "opencart" => PlatformType.OpenCart,
+            "bitrix24" or "bitrix" => PlatformType.Bitrix24,
+            _ => Enum.TryParse<PlatformType>(platform, true, out var parsed)
+                ? parsed
+                : PlatformType.OpenCart
         };
     }
 
