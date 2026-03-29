@@ -94,7 +94,7 @@ public class BillingAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new BillingAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new BillingAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

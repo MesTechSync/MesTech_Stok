@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -15,7 +16,7 @@ public class FulfillmentSettingsViewModelTests
     public FulfillmentSettingsViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new FulfillmentSettingsViewModel(_mediatorMock.Object);
+        _sut = new FulfillmentSettingsViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class FulfillmentSettingsViewModelTests
         _sut.ErrorMessage.Should().BeEmpty();
 
         // Verify error property format — manually set to validate the pattern
-        var vm = new FulfillmentSettingsViewModel(_mediatorMock.Object);
+        var vm = new FulfillmentSettingsViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
         vm.HasError = true;
         vm.ErrorMessage = "Fulfillment ayarlari yuklenemedi: Timeout";
         vm.HasError.Should().BeTrue();

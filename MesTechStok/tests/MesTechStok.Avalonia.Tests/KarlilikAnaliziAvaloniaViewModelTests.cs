@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
@@ -114,7 +115,7 @@ public class KarlilikAnaliziAvaloniaViewModelTests
     {
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<GetProfitReportQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Application.DTOs.Accounting.ProfitReportDto?)null);
+            .ReturnsAsync((ProfitReportDto?)null);
 
         var sut = new KarlilikAnaliziAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
         await sut.LoadAsync();

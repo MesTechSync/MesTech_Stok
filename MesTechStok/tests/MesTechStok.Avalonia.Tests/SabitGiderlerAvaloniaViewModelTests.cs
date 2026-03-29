@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetFixedExpenses;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
@@ -175,7 +176,7 @@ public class SabitGiderlerAvaloniaViewModelTests
     {
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<Application.DTOs.Accounting.FixedExpenseDto>)new List<Application.DTOs.Accounting.FixedExpenseDto>());
+            .ReturnsAsync((IReadOnlyList<FixedExpenseDto>)new List<FixedExpenseDto>());
 
         var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
         await sut.LoadAsync();
