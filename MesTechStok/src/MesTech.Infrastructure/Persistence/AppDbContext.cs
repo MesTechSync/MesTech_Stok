@@ -298,6 +298,7 @@ public class AppDbContext : DbContext
     public DbSet<CiceksepetiCategory> CiceksepetiCategories => Set<CiceksepetiCategory>();
     public DbSet<HepsiburadaListing> HepsiburadaListings => Set<HepsiburadaListing>();
     public DbSet<ImportTemplate> ImportTemplates => Set<ImportTemplate>();
+    public DbSet<ImportFieldMapping> ImportFieldMappings => Set<ImportFieldMapping>();
     public DbSet<ProfitLossEntry> ProfitLossEntries => Set<ProfitLossEntry>();
     public DbSet<RecurringExpense> RecurringExpenses => Set<RecurringExpense>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
