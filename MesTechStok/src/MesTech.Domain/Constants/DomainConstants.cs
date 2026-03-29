@@ -12,6 +12,12 @@ public static class DomainConstants
     public static readonly Guid SystemUserId = new("00000000-0000-0000-0000-000000000001");
 
     /// <summary>
+    /// System user display name for audit trails and CreatedBy/UpdatedBy fields.
+    /// Replaces hardcoded "system" strings across handlers.
+    /// </summary>
+    public const string SystemUserName = "system";
+
+    /// <summary>
     /// Well-known TenantId for cross-tenant system operations.
     /// </summary>
     public static readonly Guid SystemTenantId = new("00000000-0000-0000-0000-000000000002");

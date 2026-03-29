@@ -36,7 +36,7 @@ public sealed class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Gui
             existing.ExternalCategoryName = request.PlatformCategoryName;
             existing.LastSyncDate = DateTime.UtcNow;
             existing.UpdatedAt = DateTime.UtcNow;
-            existing.UpdatedBy = "system";
+            existing.UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName;
 
             await _mappingRepository.UpdateAsync(existing, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
@@ -51,8 +51,8 @@ public sealed class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Gui
             ExternalCategoryId = request.PlatformCategoryId,
             ExternalCategoryName = request.PlatformCategoryName,
             LastSyncDate = DateTime.UtcNow,
-            CreatedBy = "system",
-            UpdatedBy = "system"
+            CreatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName,
+            UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
         };
 
         await _mappingRepository.AddAsync(mapping, cancellationToken);

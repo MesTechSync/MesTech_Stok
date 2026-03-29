@@ -47,8 +47,8 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
             PlatformType = request.PlatformType,
             StoreName = request.StoreName.Trim(),
             IsActive = true,
-            CreatedBy = "system",
-            UpdatedBy = "system"
+            CreatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName,
+            UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
         };
 
         await _storeRepository.AddAsync(store, cancellationToken);
@@ -63,8 +63,8 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
                 StoreId = store.Id,
                 Key = kvp.Key,
                 EncryptedValue = _encryptionService.Encrypt(kvp.Value),
-                CreatedBy = "system",
-                UpdatedBy = "system"
+                CreatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName,
+                UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
             };
             await _credentialRepository.AddAsync(credential, cancellationToken);
             credentialDict[kvp.Key] = kvp.Value;

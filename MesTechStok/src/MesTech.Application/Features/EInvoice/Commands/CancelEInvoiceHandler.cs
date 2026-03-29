@@ -35,7 +35,7 @@ public sealed class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceComman
                 return false;
         }
 
-        doc.Cancel(request.Reason, cancelledBy: "system");
+        doc.Cancel(request.Reason, cancelledBy: MesTech.Domain.Constants.DomainConstants.SystemUserName);
         await _repository.UpdateAsync(doc, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

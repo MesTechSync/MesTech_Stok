@@ -32,7 +32,7 @@ public sealed class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceComman
             sellerTitle: "MesTech",
             buyerTitle: request.BuyerTitle,
             providerId: request.ProviderId,
-            createdBy: "system");
+            createdBy: MesTech.Domain.Constants.DomainConstants.SystemUserName);
 
         // Add lines
         int lineNo = 1;
