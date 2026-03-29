@@ -459,6 +459,7 @@ app.Use(async (context, next) =>
     {
         context.Response.Headers["Cache-Control"] = "no-store, no-cache, private";
         context.Response.Headers["Pragma"] = "no-cache";
+        context.Response.Headers["X-API-Version"] = "1.0";
     }
     await next();
 });
