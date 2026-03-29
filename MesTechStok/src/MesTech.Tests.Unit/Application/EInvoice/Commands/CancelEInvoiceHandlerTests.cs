@@ -1,5 +1,3 @@
-// DISABLED: Referenced handlers/entities were removed from codebase. Re-enable when re-created.
-#if false
 using FluentAssertions;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Interfaces;
@@ -102,4 +100,3 @@ public class CancelEInvoiceHandlerTests
         _repoMock.Verify(r => r.UpdateAsync(It.IsAny<EInvoiceDocument>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
-#endif
