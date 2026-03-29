@@ -61,6 +61,11 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD zorunlu — .env dosyasini kontrol edin}
       RABBITMQ_PLUGINS: "rabbitmq_management,rabbitmq_prometheus"
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   mysql:
     image: mysql:8.0@sha256:ce4d5c5f9df534fb059e6826805ad7dc3cb431589d4d99cc0869f5ee766e0f47
@@ -72,6 +77,11 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD zorunlu — .env dosyasini kontrol edin}
       MYSQL_DATABASE: opencart_stok
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   seq:
     image: datalust/seq:2024.1@sha256:95b41ddda7bc31825bc9f7ba9331aab6daec13524c2992601c0ddd53129ad43c
@@ -84,6 +94,11 @@ services:
       ACCEPT_EULA: "Y"
       SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:?SEQ_ADMIN_PASSWORD zorunlu — .env dosyasini kontrol edin}"
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
 
   webapi:
     cpus: 1.0
@@ -105,6 +120,11 @@ services:
       retries: 3
       start_period: 40s
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "10"
 
   blazor:
     cpus: 1.0
@@ -123,6 +143,11 @@ services:
       retries: 3
       start_period: 30s
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "10"
 
   minio:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z@sha256:e18c64a852e81bb76d5be1c8d8318694adf18d0b517e49a96fc9402dbcdc396a
@@ -140,6 +165,11 @@ services:
       timeout: 10s
       retries: 3
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   nginx:
     image: nginx:1.25-alpine@sha256:721fa00bc549df26b3e67cc558ff176112d4ba69847537766f3c28e171d180e7
@@ -149,6 +179,11 @@ services:
       - "80:80"
       - "443:443"
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   prometheus:
     image: prom/prometheus:v2.51.0@sha256:3305cd2e483c13364c94ae4905368eb425c9fa804f8e523ee47d8bf4de9d87a2
@@ -157,6 +192,11 @@ services:
     ports: !override
       - "127.0.0.1:3090:9090"
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   grafana:
     image: grafana/grafana:10.4.1@sha256:8b10c3744b8fede79af784d967911691d0e2d6e505512d1466ae1dbcaf745033
@@ -168,3 +208,8 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER zorunlu — .env dosyasini kontrol edin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD zorunlu — .env dosyasini kontrol edin}
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
