@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Behaviors;
 using MesTech.Application.DTOs.Accounting;
 
 namespace MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
@@ -9,4 +10,8 @@ namespace MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
 /// Turkish THP: 1xx=Varliklar, 2xx-3xx=Borclar, 5xx=Ozkaynaklar.
 /// </summary>
 public record GetBalanceSheetQuery(Guid TenantId, DateTime AsOfDate)
-    : IRequest<BalanceSheetDto>;
+    : IRequest<BalanceSheetDto>, ICacheableQuery
+{
+    public string CacheKey => $"BalanceSheet_{TenantId}_{AsOfDate:yyyyMMdd}";
+    public TimeSpan? CacheDuration => TimeSpan.FromMinutes(5);
+}
