@@ -1,8 +1,7 @@
 using MediatR;
-using MesTech.Domain.Entities;
+using MesTech.Application.Commands.CreateIncome;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
-using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Logging;
 
@@ -11,21 +10,19 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 /// <summary>
 /// OrderReceivedEvent -> otomatik Income kaydi olusturma.
 /// Platform siparisi alindiginda OnMuhasebe modulu icin gelir kaydi yaratir.
+/// CQRS: CreateIncomeCommand dispatch eder, inline entity creation YASAK.
 /// </summary>
 public sealed class OrderReceivedIncomeHandler
     : INotificationHandler<DomainEventNotification<OrderReceivedEvent>>
 {
-    private readonly IIncomeRepository _incomeRepo;
-    private readonly IUnitOfWork _uow;
+    private readonly IMediator _mediator;
     private readonly ILogger<OrderReceivedIncomeHandler> _logger;
 
     public OrderReceivedIncomeHandler(
-        IIncomeRepository incomeRepo,
-        IUnitOfWork uow,
+        IMediator mediator,
         ILogger<OrderReceivedIncomeHandler> logger)
     {
-        _incomeRepo = incomeRepo;
-        _uow = uow;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -36,24 +33,23 @@ public sealed class OrderReceivedIncomeHandler
         var e = notification.DomainEvent;
 
         _logger.LogInformation(
-            "OrderReceived -> Income: Creating income record for order {OrderId}, platform={Platform}, amount={Amount}",
+            "OrderReceived -> Income: Dispatching CreateIncomeCommand for order {OrderId}, platform={Platform}, amount={Amount}",
             e.OrderId, e.PlatformCode, e.TotalAmount);
 
-        var income = new Income
-        {
-            TenantId = e.TenantId,
-            Description = $"Satis geliri — {e.PlatformCode} #{e.PlatformOrderId}",
-            IncomeType = IncomeType.Satis,
-            Date = e.OccurredAt,
-            Note = $"Otomatik olusturuldu. OrderId: {e.OrderId}"
-        };
-        income.SetAmount(e.TotalAmount);
+        var command = new CreateIncomeCommand(
+            TenantId: e.TenantId,
+            StoreId: null,
+            Description: $"Satis geliri — {e.PlatformCode} #{e.PlatformOrderId}",
+            Amount: e.TotalAmount,
+            IncomeType: IncomeType.Satis,
+            InvoiceId: null,
+            Date: e.OccurredAt,
+            Note: $"Otomatik olusturuldu. OrderId: {e.OrderId}");
 
-        await _incomeRepo.AddAsync(income).ConfigureAwait(false);
-        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var incomeId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "OrderReceived -> Income: Income record {IncomeId} created for order {OrderId}",
-            income.Id, e.OrderId);
+            incomeId, e.OrderId);
     }
 }
