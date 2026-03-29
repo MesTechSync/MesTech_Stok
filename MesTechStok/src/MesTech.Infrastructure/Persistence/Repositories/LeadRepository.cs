@@ -23,6 +23,10 @@ public sealed class LeadRepository : ILeadRepository
             .OrderByDescending(l => l.CreatedAt)
             .AsNoTracking().ToListAsync(ct);
 
+    public async Task<bool> AnyByTenantAndNameAsync(Guid tenantId, string name, CancellationToken ct = default)
+        => await _context.Leads
+            .AnyAsync(l => l.TenantId == tenantId && l.FullName == name, ct);
+
     public async Task AddAsync(Lead lead)
         => await _context.Leads.AddAsync(lead);
 
