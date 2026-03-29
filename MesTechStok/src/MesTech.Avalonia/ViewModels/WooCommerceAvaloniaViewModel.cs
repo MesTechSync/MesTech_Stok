@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -71,10 +72,18 @@ public partial class WooCommerceAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to TriggerPlatformSyncCommand when available
-            await Task.CompletedTask;
-            SyncStatus = "Tamamlandi";
-            LastSyncTime = DateTime.Now.ToString("HH:mm");
+            var result = await _mediator.Send(new SyncPlatformCommand("WooCommerce", SyncDirection.Bidirectional));
+            if (result.IsSuccess)
+            {
+                SyncStatus = $"Tamamlandi ({result.ItemsProcessed} urun)";
+                LastSyncTime = DateTime.Now.ToString("HH:mm");
+                await LoadAsync();
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "Senkronizasyon basarisiz";
+            }
         }
         catch (Exception ex)
         {

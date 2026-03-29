@@ -1,7 +1,8 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -73,9 +74,18 @@ public partial class PazaramaAvaloniaViewModel : ViewModelBase
         try
         {
 
-            await Task.CompletedTask;
-            SyncStatus = "Tamamlandi";
-            LastSyncTime = DateTime.Now.ToString("HH:mm");
+            var result = await _mediator.Send(new SyncPlatformCommand("Pazarama", SyncDirection.Bidirectional));
+            if (result.IsSuccess)
+            {
+                SyncStatus = $"Tamamlandi ({result.ItemsProcessed} urun)";
+                LastSyncTime = DateTime.Now.ToString("HH:mm");
+                await LoadAsync();
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "Senkronizasyon basarisiz";
+            }
         }
         catch (Exception ex)
         {
