@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -32,9 +35,10 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Categories { get; } =
         ["Tumu", "Giyim", "Elektronik", "Ev & Yasam", "Kozmetik", "Gida"];
 
-    public KarlilikAnaliziAvaloniaViewModel(IMediator mediator)
+    public KarlilikAnaliziAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -45,24 +49,33 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var platform = SelectedPlatform == "Tumu" ? null : SelectedPlatform;
+            var report = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, "Aylik", platform));
+
+            if (report is null)
+            {
+                IsEmpty = true;
+                return;
+            }
+
+            TotalRevenue = $"{report.TotalRevenue:N2} TL";
+            TotalProfit = $"{report.NetProfit:N2} TL";
+            AverageMargin = $"%{report.ProfitMargin:N1}";
 
             _allItems =
             [
-                new() { ProductName = "Erkek Gomlek - Beyaz XL", SalesFormatted = "24.500,00 TL", CostFormatted = "12.250,00 TL", CommissionFormatted = "2.940,00 TL", ShippingFormatted = "1.470,00 TL", NetProfitFormatted = "7.840,00 TL", MarginFormatted = "%32.0", NetProfit = 7840 },
-                new() { ProductName = "Kadin Canta - Siyah", SalesFormatted = "18.200,00 TL", CostFormatted = "7.280,00 TL", CommissionFormatted = "2.730,00 TL", ShippingFormatted = "910,00 TL", NetProfitFormatted = "7.280,00 TL", MarginFormatted = "%40.0", NetProfit = 7280 },
-                new() { ProductName = "Bluetooth Kulaklik Pro", SalesFormatted = "15.600,00 TL", CostFormatted = "9.360,00 TL", CommissionFormatted = "1.482,00 TL", ShippingFormatted = "780,00 TL", NetProfitFormatted = "3.978,00 TL", MarginFormatted = "%25.5", NetProfit = 3978 },
-                new() { ProductName = "Organik Cay Seti", SalesFormatted = "8.400,00 TL", CostFormatted = "3.360,00 TL", CommissionFormatted = "1.008,00 TL", ShippingFormatted = "840,00 TL", NetProfitFormatted = "3.192,00 TL", MarginFormatted = "%38.0", NetProfit = 3192 },
-                new() { ProductName = "Ev Dekorasyon Seti", SalesFormatted = "6.800,00 TL", CostFormatted = "4.080,00 TL", CommissionFormatted = "1.020,00 TL", ShippingFormatted = "680,00 TL", NetProfitFormatted = "1.020,00 TL", MarginFormatted = "%15.0", NetProfit = 1020 },
+                new()
+                {
+                    ProductName = report.Platform ?? "Genel",
+                    SalesFormatted = $"{report.TotalRevenue:N2} TL",
+                    CostFormatted = $"{report.TotalCost:N2} TL",
+                    CommissionFormatted = $"{report.TotalCommission:N2} TL",
+                    ShippingFormatted = $"{report.TotalCargo:N2} TL",
+                    NetProfitFormatted = $"{report.NetProfit:N2} TL",
+                    MarginFormatted = $"%{report.ProfitMargin:N1}",
+                    NetProfit = report.NetProfit
+                }
             ];
-
-            var revenue = 73500m;
-            var profit = _allItems.Sum(x => x.NetProfit);
-            var margin = revenue > 0 ? profit / revenue * 100 : 0;
-
-            TotalRevenue = $"{revenue:N2} TL";
-            TotalProfit = $"{profit:N2} TL";
-            AverageMargin = $"%{margin:N1}";
 
             ApplyFilters();
         }
