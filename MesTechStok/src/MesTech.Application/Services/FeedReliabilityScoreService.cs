@@ -17,13 +17,13 @@ public static class FeedReliabilityScoreService
     /// </summary>
     public static SupplierReliabilityScore Calculate(FeedReliabilityInput input)
     {
-        return CalculateForFeed(Guid.Empty, input);
+        return CalculateForFeed(null, input);
     }
 
     /// <summary>
     /// Calculates reliability score for a specific SupplierFeed.
     /// </summary>
-    public static SupplierReliabilityScore CalculateForFeed(Guid supplierFeedId, FeedReliabilityInput input)
+    public static SupplierReliabilityScore CalculateForFeed(Guid? supplierFeedId, FeedReliabilityInput input)
     {
         var stockAccuracyScore = Clamp(input.StockAccuracyPercent);
         var updateFrequencyScore = Clamp(input.UpdateFrequencyPercent);
@@ -119,7 +119,7 @@ public record FeedReliabilityInput(
 /// and individual component scores.
 /// </summary>
 public record SupplierReliabilityScore(
-    Guid SupplierFeedId,
+    Guid? SupplierFeedId,
     int Score,
     ReliabilityColor Color,
     string ColorLabel,
