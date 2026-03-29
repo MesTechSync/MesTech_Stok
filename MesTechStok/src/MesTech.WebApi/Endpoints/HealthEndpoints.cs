@@ -77,7 +77,8 @@ public static class HealthEndpoints
                         return new HealthCheckItem(name, ok, adapterSw.Elapsed.TotalMilliseconds, ok ? null : "Ping failed");
                     }
                     adapterSw.Stop();
-                    return new HealthCheckItem(name, true, adapterSw.Elapsed.TotalMilliseconds, "No IPingableAdapter");
+                    logger.LogWarning("Adapter {Platform} does not implement IPingableAdapter — health status unknown, reporting degraded", adapter.PlatformCode);
+                    return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, "No IPingableAdapter — degraded");
                 }
                 catch (Exception ex)
                 {
