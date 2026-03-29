@@ -123,6 +123,19 @@ public static class PlatformSyncEndpoint
         .WithSummary("Çiçeksepeti ürün senkronizasyonu başlat")
         .Produces(200).Produces(400);
 
+        // POST /api/v1/platforms/sync/zalando — sync Zalando products (G437-DEV6)
+        group.MapPost("/sync/zalando", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("zalando", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncZalandoProducts")
+        .WithSummary("Zalando ürün senkronizasyonu başlat (G437)")
+        .Produces(200).Produces(400);
+
         // POST /api/v1/platforms/map-product — map product to platform category
         group.MapPost("/map-product", async (
             MapProductToPlatformCommand command,
