@@ -1,5 +1,3 @@
-// DISABLED: Referenced handlers/entities were removed from codebase. Re-enable when re-created.
-#if false
 using FluentAssertions;
 using MesTech.Application.Features.Billing.Commands.CreateBillingInvoice;
 using MesTech.Application.Features.EInvoice.Commands;
@@ -218,4 +216,3 @@ public class InvoiceHandlerTests
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-#endif
