@@ -108,7 +108,7 @@
                 IsVisible="{Binding IsLoading}" ZIndex="100">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Loading profit/loss report..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
+                <TextBlock Text="Kar/zarar raporu yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -118,9 +118,9 @@
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}" ZIndex="50">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="No data found" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                <TextBlock Text="Veri bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" Margin="0,0,0,8" />
-                <TextBlock Text="No profit/loss data available for the selected period"
+                <TextBlock Text="Secilen donem icin kar/zarar verisi bulunamadi"
                            FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
                            HorizontalAlignment="Center" Opacity="0.7" />
             </StackPanel>
@@ -136,8 +136,8 @@
                 <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
                            HorizontalAlignment="Center" Margin="0,0,0,12"
                            TextWrapping="Wrap" MaxWidth="400" />
-                <Button Content="Retry" Command="{Binding RefreshCommand}" Padding="16,6" />
-                        ToolTip.Tip="Retry"
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="16,6"
+                        ToolTip.Tip="Tekrar Dene" />
             </StackPanel>
         </Border>
     </Grid>
