@@ -1116,7 +1116,7 @@ namespace MesTechStok.Desktop.Views
             {
                 ShowConfirmationToast(
                     $"🗑️ Bu resmi silmek istediğinizden emin misiniz?\n{System.IO.Path.GetFileName(imagePath)}",
-                    () =>
+                    async () =>
                     {
                         try
                         {
