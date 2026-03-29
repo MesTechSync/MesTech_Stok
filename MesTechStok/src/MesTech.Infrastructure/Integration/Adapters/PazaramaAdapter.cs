@@ -129,10 +129,14 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         if (!string.IsNullOrEmpty(baseUrl))
             _httpClient.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
 
-        // Determine token endpoint — use WireMock URL when BaseUrl provided
-        var tokenEndpoint = !string.IsNullOrEmpty(baseUrl)
-            ? $"{baseUrl.TrimEnd('/')}/connect/token"
-            : "https://isortagimgiris.pazarama.com/connect/token";
+        // Determine token endpoint — credentials override > BaseUrl derive > default production
+        var tokenEndpoint = credentials.GetValueOrDefault("PazaramaTokenEndpoint", "");
+        if (string.IsNullOrEmpty(tokenEndpoint))
+        {
+            tokenEndpoint = !string.IsNullOrEmpty(baseUrl)
+                ? $"{baseUrl.TrimEnd('/')}/connect/token"
+                : "https://isortagimgiris.pazarama.com/connect/token";
+        }
 
         var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken")
             ?? throw new InvalidOperationException("IHttpClientFactory is required for PazaramaToken client creation");
