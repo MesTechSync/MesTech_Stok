@@ -2,6 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class TrendyolAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     // ── KPI ──────────────────────────────────────────────────────────────────
     [ObservableProperty] private bool isConnected;
@@ -45,9 +49,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
     public ObservableCollection<ApiCallLogItem> ApiCallLogs { get; } = [];
 
-    public TrendyolAvaloniaViewModel(IMediator mediator)
+    public TrendyolAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -58,8 +63,17 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100, CancellationToken);
-            // MediatR queries will be wired when CQRS handlers are available
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol));
+            IsConnected = result.IsConnected;
+            ProductCount = result.ProductCount;
+            OrderCount = result.OrderCount;
+            DailyRevenue = result.DailyRevenue;
+            SyncStatus = result.SyncStatus;
+            LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
+            RecentOrders.Clear();
+            foreach (var o in result.RecentOrders)
+                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+            TotalCount = RecentOrders.Count;
             IsEmpty = RecentOrders.Count == 0;
         }
         catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }

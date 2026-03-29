@@ -2,12 +2,16 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class N11AvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private bool isConnected;
 
@@ -20,9 +24,10 @@ public partial class N11AvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
 
-    public N11AvaloniaViewModel(IMediator mediator)
+    public N11AvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -33,7 +38,17 @@ public partial class N11AvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100);
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.N11));
+            IsConnected = result.IsConnected;
+            ProductCount = result.ProductCount;
+            OrderCount = result.OrderCount;
+            DailyRevenue = result.DailyRevenue;
+            SyncStatus = result.SyncStatus;
+            LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
+            RecentOrders.Clear();
+            foreach (var o in result.RecentOrders)
+                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+            TotalCount = RecentOrders.Count;
             IsEmpty = RecentOrders.Count == 0;
         }
         catch (Exception ex)
@@ -56,7 +71,8 @@ public partial class N11AvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(100);
+            // TODO: Wire to TriggerPlatformSyncCommand when available
+            await Task.CompletedTask;
             SyncStatus = "Tamamlandi";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
         }
