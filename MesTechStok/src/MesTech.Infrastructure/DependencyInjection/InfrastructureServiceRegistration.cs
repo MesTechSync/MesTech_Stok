@@ -400,9 +400,7 @@ public static class InfrastructureServiceRegistration
                 .WithCredentials(accessKey, secretKey)
                 .Build();
         });
-        services.AddScoped<Storage.IDocumentStorageService, MinioDocumentStorageService>();
-        services.AddScoped<Application.Interfaces.IDocumentStorageService>(sp =>
-            (Application.Interfaces.IDocumentStorageService)sp.GetRequiredService<Storage.IDocumentStorageService>());
+        services.AddScoped<Application.Interfaces.IDocumentStorageService, MinioDocumentStorageService>();
 
         // === Label Print Service (barcode/product label generation) ===
         services.AddScoped<ILabelPrintService, LabelPrintService>();
