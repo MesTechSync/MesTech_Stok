@@ -40,7 +40,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         IsEmpty = false;
         try
         {
-            await Task.Delay(200);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             Orders.Clear();
             Orders.Add(new() { IsSelected = true, OrderNumber = "SIP-1001", CustomerName = "Ahmet Yilmaz", City = "Istanbul", Weight = 1.2m, Status = "Bekliyor" });

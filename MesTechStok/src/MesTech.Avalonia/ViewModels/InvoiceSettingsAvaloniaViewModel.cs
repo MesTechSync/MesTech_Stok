@@ -53,7 +53,7 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Will be replaced with MediatR query
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
         }
         catch (Exception ex)
         {
@@ -75,7 +75,7 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR command
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
         }
         catch (Exception ex)
         {

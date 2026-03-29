@@ -29,7 +29,7 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Activities.Clear();
             Activities.Add(new ActivityItemVm
             {

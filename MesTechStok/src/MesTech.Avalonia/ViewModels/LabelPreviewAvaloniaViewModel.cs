@@ -42,7 +42,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsEmpty = false;
         try
         {
-            await Task.Delay(100);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             TrackingNumber = "YK-2026032001";
             CargoProvider = "Yurtici Kargo";

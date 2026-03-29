@@ -27,7 +27,7 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Departments.Clear();
             Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Yazilim Gelistirme", Manager = "Fatih Ilhan", EmployeeCount = 12, Status = "Aktif" });
             Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Satis ve Pazarlama", Manager = "Mehmet Can", EmployeeCount = 8, Status = "Aktif" });

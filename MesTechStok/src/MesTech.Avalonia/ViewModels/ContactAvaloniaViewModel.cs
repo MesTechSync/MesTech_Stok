@@ -28,7 +28,7 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Contacts.Clear();
             Contacts.Add(new ContactItemVm { Id = Guid.NewGuid(), FullName = "Ahmet Yilmaz", Company = "ABC Ltd", Email = "ahmet@abc.com", Phone = "0532 123 45 67", City = "Istanbul", Type = "Musteri" });
             Contacts.Add(new ContactItemVm { Id = Guid.NewGuid(), FullName = "Fatma Demir", Company = "XYZ AS", Email = "fatma@xyz.com", Phone = "0541 987 65 43", City = "Ankara", Type = "Lead" });

@@ -32,7 +32,7 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             Stores.Clear();
             Stores.Add(new StoreItemDto { StoreName = "Ana Magaza - Trendyol", Platform = "Trendyol", ApiStatus = "Bagli", ProductCount = 1250, LastSync = "19.03.2026 14:30" });

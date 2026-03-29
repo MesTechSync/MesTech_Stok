@@ -29,7 +29,7 @@ public partial class AboutAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             // Version and license info loaded from assembly metadata
             var asm = typeof(AboutAvaloniaViewModel).Assembly;
             var ver = asm.GetName().Version;

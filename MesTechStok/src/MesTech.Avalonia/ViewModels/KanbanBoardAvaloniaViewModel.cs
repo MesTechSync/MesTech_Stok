@@ -25,7 +25,7 @@ public partial class KanbanBoardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Columns.Clear();
 
             var todo = new TaskColumnVm { Name = "Yapilacak", Color = "#3B82F6" };

@@ -29,7 +29,7 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(50);
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Folders.Clear();
             Files.Clear();
 

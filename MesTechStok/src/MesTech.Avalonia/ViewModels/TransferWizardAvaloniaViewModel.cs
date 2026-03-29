@@ -50,7 +50,7 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(100); // Will be replaced with warehouse query
+            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             Warehouses.Clear();
             Warehouses.Add("Ana Depo");
