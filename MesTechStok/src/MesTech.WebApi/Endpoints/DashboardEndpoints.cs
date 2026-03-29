@@ -10,6 +10,7 @@ using MesTech.Application.Queries.GetInventoryStatistics;
 using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductDbStatus;
 using MesTech.Application.Queries.ListOrders;
+using MesTech.Application.Features.Dashboard.Queries.GetServiceHealth;
 using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
@@ -194,6 +195,18 @@ public static class DashboardEndpoints
         })
         .WithName("GetSalesChartData")
         .WithSummary("Satış grafiği verisi — gün + platform filtreli")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/service-health — altyapı servisleri sağlık durumu (G308-DEV6)
+        group.MapGet("/service-health", async (
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetServiceHealthQuery(), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetServiceHealth")
+        .WithSummary("Altyapı servisleri sağlık durumu — PostgreSQL, Redis, RabbitMQ (G308)")
         .Produces(200)
         .CacheOutput("Dashboard30s");
     }
