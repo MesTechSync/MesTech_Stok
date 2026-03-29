@@ -7,11 +7,13 @@ namespace MesTech.Application.Features.Invoice.Commands;
 public sealed class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceCommand, bool>
 {
     private readonly IInvoiceRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ApproveInvoiceHandler> _logger;
 
-    public ApproveInvoiceHandler(IInvoiceRepository repository, ILogger<ApproveInvoiceHandler> logger)
+    public ApproveInvoiceHandler(IInvoiceRepository repository, IUnitOfWork unitOfWork, ILogger<ApproveInvoiceHandler> logger)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -36,6 +38,7 @@ public sealed class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceComman
         }
 
         await _repository.UpdateAsync(invoice);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Invoice {Id} ({Number}) basariyla onaylandi.", request.InvoiceId, invoice.InvoiceNumber);
         return true;
