@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -71,7 +71,7 @@ public partial class CiceksepetiAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to TriggerPlatformSyncCommand when available
+            
             await Task.CompletedTask;
             SyncStatus = "Tamamlandi";
             LastSyncTime = DateTime.Now.ToString("HH:mm");

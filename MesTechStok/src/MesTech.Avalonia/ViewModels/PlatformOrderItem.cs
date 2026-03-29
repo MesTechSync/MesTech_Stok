@@ -1,3 +1,5 @@
+using MesTech.Domain.Enums;
+
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
@@ -8,4 +10,5 @@ public sealed record PlatformOrderItem(
     string OrderDate,
     string CustomerName,
     string TotalAmount,
-    string Status);
+    string Status,
+    PlatformType? Platform = null);

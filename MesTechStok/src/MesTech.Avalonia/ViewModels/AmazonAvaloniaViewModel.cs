@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -47,7 +47,7 @@ public partial class AmazonAvaloniaViewModel : ViewModelBase
             LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
             RecentOrders.Clear();
             foreach (var o in result.RecentOrders)
-                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status, PlatformType.Amazon));
             TotalCount = RecentOrders.Count;
             IsEmpty = RecentOrders.Count == 0;
         }
