@@ -1,9 +1,11 @@
 using FluentAssertions;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -18,7 +20,7 @@ public class BulkUpdateHandlerTests
         new(_productRepo.Object, _unitOfWork.Object);
 
     private BulkUpdateStockHandler CreateStockHandler() =>
-        new(_productRepo.Object, _unitOfWork.Object);
+        new(_productRepo.Object, _unitOfWork.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<BulkUpdateStockHandler>>());
 
     // ── BulkUpdatePrice Tests ──
 
