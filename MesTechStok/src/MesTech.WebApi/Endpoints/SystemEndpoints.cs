@@ -30,7 +30,8 @@ public static class SystemEndpoints
             return Results.Ok(result);
         })
         .WithName("GetAuditLogs")
-        .WithSummary("Erişim ve denetim logları (tarih/kullanıcı/aksiyon filtresi)").Produces(200).Produces(400);
+        .WithSummary("Erişim ve denetim logları (tarih/kullanıcı/aksiyon filtresi)").Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/system/backups — yedek geçmişi
         group.MapGet("/backups", async (
@@ -41,7 +42,8 @@ public static class SystemEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBackupHistory")
-        .WithSummary("Yedekleme geçmişi (son N kayıt)").Produces(200).Produces(400);
+        .WithSummary("Yedekleme geçmişi (son N kayıt)").Produces(200).Produces(400)
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/system/rate-limit-status — API kota durumu
         group.MapGet("/rate-limit-status", (HttpContext httpContext) =>
@@ -58,7 +60,8 @@ public static class SystemEndpoints
             });
         })
         .WithName("GetRateLimitStatus")
-        .WithSummary("API rate limit kota bilgisi").Produces(200).Produces(400);
+        .WithSummary("API rate limit kota bilgisi").Produces(200).Produces(400)
+        .CacheOutput("Lookup60s");
 
         // ── N8N / Automation Webhook Endpoints (G130) ──
 
@@ -128,7 +131,8 @@ public static class SystemEndpoints
             }));
         })
         .WithName("GetAutomationStatus")
-        .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi").Produces(200).Produces(400);
+        .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi").Produces(200).Produces(400)
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/system/health-status — detaylı sistem sağlık durumu
         group.MapGet("/health-status", async (

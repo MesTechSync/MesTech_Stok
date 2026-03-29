@@ -99,7 +99,8 @@ public static class KvkkEndpoints
             return Results.Ok(result);
         })
         .WithName("KvkkGetAuditLogs")
-        .WithSummary("KVKK madde 12 — denetim kayıtları (yasal saklama 10 yıl)").Produces(200).Produces(400);
+        .WithSummary("KVKK madde 12 — denetim kayıtları (yasal saklama 10 yıl)").Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/kvkk/rights — KVKK hakları bilgi endpoint'i
         group.MapGet("/rights", () =>
@@ -140,7 +141,8 @@ public static class KvkkEndpoints
             });
         })
         .WithName("KvkkRights")
-        .WithSummary("KVKK hakları bilgilendirme — madde 10 aydınlatma yükümlülüğü").Produces(200).Produces(400);
+        .WithSummary("KVKK hakları bilgilendirme — madde 10 aydınlatma yükümlülüğü").Produces(200).Produces(400)
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/kvkk/processors — veri işleyen üçüncü taraf listesi
         group.MapGet("/processors", () =>
@@ -165,6 +167,7 @@ public static class KvkkEndpoints
             });
         })
         .WithName("KvkkProcessors")
-        .WithSummary("KVKK — veri işleyen üçüncü taraf listesi (madde 11/c)").Produces(200).Produces(400);
+        .WithSummary("KVKK — veri işleyen üçüncü taraf listesi (madde 11/c)").Produces(200).Produces(400)
+        .CacheOutput("Lookup60s");
     }
 }
