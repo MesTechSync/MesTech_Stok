@@ -2,6 +2,10 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Commands.CreateStore;
+using MesTech.Application.Features.Stores.Commands.TestStoreCredential;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -11,7 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StoreWizardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     // Wizard state
     [ObservableProperty] private int currentStep = 1;
@@ -40,9 +44,10 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<WizardPlatformDto> AvailablePlatforms { get; } = [];
 
-    public StoreWizardAvaloniaViewModel(IMediator mediator)
+    public StoreWizardAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
         InitPlatforms();
     }
 
@@ -70,7 +75,6 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
             // Reset wizard to step 1 with clean state
             CurrentStep = 1;
             IsStep1Visible = true;
@@ -179,9 +183,26 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         TestResultMessage = string.Empty;
         try
         {
-            await Task.Delay(1500);
-            TestPassed = true;
-            TestResultMessage = $"{SelectedPlatform} baglantisi basarili!";
+            // First create store to get StoreId, then test connection
+            var platformType = ParsePlatformType(SelectedPlatform);
+            var credentials = BuildCredentials();
+            var createResult = await _mediator.Send(new CreateStoreCommand(
+                _currentUser.TenantId, StoreName, platformType, credentials));
+
+            if (!createResult.IsSuccess || createResult.StoreId is null)
+            {
+                TestFailed = true;
+                TestResultMessage = createResult.ErrorMessage ?? "Magaza olusturulamadi";
+                return;
+            }
+
+            _createdStoreId = createResult.StoreId.Value;
+            var testResult = await _mediator.Send(new TestStoreCredentialCommand(_createdStoreId));
+            TestPassed = testResult.Success;
+            TestFailed = !testResult.Success;
+            TestResultMessage = testResult.Success
+                ? $"{SelectedPlatform} baglantisi basarili! ({testResult.LatencyMs}ms)"
+                : $"Baglanti hatasi: {testResult.Message}";
         }
         catch (Exception ex)
         {
@@ -194,6 +215,8 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         }
     }
 
+    private Guid _createdStoreId;
+
     [RelayCommand]
     private async Task SaveStoreAsync()
     {
@@ -201,7 +224,21 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            await Task.Delay(800);
+            if (_createdStoreId == Guid.Empty)
+            {
+                var platformType = ParsePlatformType(SelectedPlatform);
+                var credentials = BuildCredentials();
+                var result = await _mediator.Send(new CreateStoreCommand(
+                    _currentUser.TenantId, StoreName, platformType, credentials));
+
+                if (!result.IsSuccess)
+                {
+                    HasError = true;
+                    ErrorMessage = result.ErrorMessage ?? "Magaza kaydedilemedi";
+                    return;
+                }
+            }
+
             SaveCompleted = true;
         }
         catch (Exception ex)
@@ -214,6 +251,31 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
             IsSaving = false;
         }
     }
+
+    private Dictionary<string, string> BuildCredentials() => new(StringComparer.Ordinal)
+    {
+        [Field1Label] = Field1Value,
+        [Field2Label] = Field2Value,
+        [Field3Label] = Field3Value
+    };
+
+    private static PlatformType ParsePlatformType(string name) => name switch
+    {
+        "Trendyol" => PlatformType.Trendyol,
+        "Hepsiburada" => PlatformType.Hepsiburada,
+        "N11" => PlatformType.N11,
+        "Ciceksepeti" => PlatformType.Ciceksepeti,
+        "Amazon" => PlatformType.Amazon,
+        "eBay" => PlatformType.eBay,
+        "Shopify" => PlatformType.Shopify,
+        "WooCommerce" => PlatformType.WooCommerce,
+        "Pazarama" => PlatformType.Pazarama,
+        "PttAVM" => PlatformType.PttAVM,
+        "OpenCart" => PlatformType.OpenCart,
+        "Ozon" => PlatformType.Ozon,
+        "Etsy" => PlatformType.Etsy,
+        _ => PlatformType.Trendyol
+    };
 
     [RelayCommand]
     private void Reset()
