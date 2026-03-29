@@ -28,6 +28,12 @@ public sealed class BankTransaction : BaseEntity, ITenantEntity
         string? referenceNumber = null,
         string? idempotencyKey = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        if (bankAccountId == Guid.Empty)
+            throw new ArgumentException("BankAccountId boş olamaz.", nameof(bankAccountId));
+        if (amount == 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Tutar sıfır olamaz.");
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         return new BankTransaction
