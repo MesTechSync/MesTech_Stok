@@ -114,7 +114,7 @@ public class StockExtraHandlerTests
     public async Task GetStockMovements_NullRequest_ThrowsArgumentNullException()
     {
         var repo = new Mock<IStockMovementRepository>();
-        var sut = new GetStockMovementsHandler(repo.Object);
+        var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -124,7 +124,7 @@ public class StockExtraHandlerTests
     public async Task GetStockMovements_NoFilters_ReturnsEmptyList()
     {
         var repo = new Mock<IStockMovementRepository>();
-        var sut = new GetStockMovementsHandler(repo.Object);
+        var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
 
         var query = new GetStockMovementsQuery();
         var result = await sut.Handle(query, CancellationToken.None);
@@ -141,7 +141,7 @@ public class StockExtraHandlerTests
         repo.Setup(r => r.GetByProductIdAsync(productId))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
 
-        var sut = new GetStockMovementsHandler(repo.Object);
+        var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
         var query = new GetStockMovementsQuery(productId);
         var result = await sut.Handle(query, CancellationToken.None);
 

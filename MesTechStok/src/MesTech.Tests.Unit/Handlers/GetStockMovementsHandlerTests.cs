@@ -14,7 +14,7 @@ public class GetStockMovementsHandlerTests
 
     public GetStockMovementsHandlerTests()
     {
-        _sut = new GetStockMovementsHandler(_movementRepoMock.Object);
+        _sut = new GetStockMovementsHandler(_movementRepoMock.Object, Mock.Of<ITenantProvider>());
     }
 
     [Fact]

@@ -34,7 +34,7 @@ public class GapFillQueryHandlerTests
         new(_productRepo.Object);
 
     private GetStockMovementsHandler MovementsHandler() =>
-        new(_movementRepo.Object);
+        new(_movementRepo.Object, Mock.Of<ITenantProvider>());
 
     private GetSyncStatusHandler SyncStatusHandler() =>
         new(_orchestrator.Object);

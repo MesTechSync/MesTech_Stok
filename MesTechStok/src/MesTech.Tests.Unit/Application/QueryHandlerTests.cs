@@ -123,7 +123,7 @@ public class GetStockMovementsHandlerTests
 {
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
 
-    private GetStockMovementsHandler CreateHandler() => new(_movementRepo.Object);
+    private GetStockMovementsHandler CreateHandler() => new(_movementRepo.Object, Mock.Of<ITenantProvider>());
 
     [Fact]
     public async Task Handle_ByProductId_ShouldReturnMovements()
