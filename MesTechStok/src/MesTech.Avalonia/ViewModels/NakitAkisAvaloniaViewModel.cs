@@ -2,13 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class NakitAkisAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     // KPI
     [ObservableProperty] private string totalInflow = "0,00 TL";
@@ -28,9 +30,10 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> PeriodTypes { get; } =
         ["Gunluk", "Haftalik", "Aylik", "Yillik"];
 
-    public NakitAkisAvaloniaViewModel(IMediator mediator)
+    public NakitAkisAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -41,25 +44,37 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var from = StartDate?.DateTime ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var to = EndDate?.DateTime ?? DateTime.Now;
 
-            _allItems =
-            [
-                new() { Date = "20.03.2026", Description = "Trendyol hakedis odemesi", InflowFormatted = "+12.480,00 TL", OutflowFormatted = "", BalanceFormatted = "52.480,00 TL", Inflow = 12480, Outflow = 0 },
-                new() { Date = "19.03.2026", Description = "Aras Kargo fatura odemesi", InflowFormatted = "", OutflowFormatted = "-1.240,00 TL", BalanceFormatted = "40.000,00 TL", Inflow = 0, Outflow = 1240 },
-                new() { Date = "19.03.2026", Description = "Hepsiburada hakedis odemesi", InflowFormatted = "+8.920,00 TL", OutflowFormatted = "", BalanceFormatted = "41.240,00 TL", Inflow = 8920, Outflow = 0 },
-                new() { Date = "18.03.2026", Description = "Ofis kirasi odemesi", InflowFormatted = "", OutflowFormatted = "-6.500,00 TL", BalanceFormatted = "32.320,00 TL", Inflow = 0, Outflow = 6500 },
-                new() { Date = "18.03.2026", Description = "N11 hakedis odemesi", InflowFormatted = "+3.150,00 TL", OutflowFormatted = "", BalanceFormatted = "38.820,00 TL", Inflow = 3150, Outflow = 0 },
-                new() { Date = "17.03.2026", Description = "AWS sunucu odemesi", InflowFormatted = "", OutflowFormatted = "-2.100,00 TL", BalanceFormatted = "35.670,00 TL", Inflow = 0, Outflow = 2100 },
-            ];
+            var report = await _mediator.Send(new GetCashFlowReportQuery(_currentUser.TenantId, from, to));
 
+            TotalInflow = $"{report.TotalInflow:N2} TL";
+            TotalOutflow = $"{report.TotalOutflow:N2} TL";
+            NetCashFlow = $"{report.NetFlow:N2} TL";
+
+            _allItems = report.Entries.Select(e => new CashFlowItemDto
+            {
+                Date = e.EntryDate.ToString("dd.MM.yyyy"),
+                Description = e.Description ?? e.CounterpartyName ?? "-",
+                InflowFormatted = e.Direction == "Inflow" ? $"+{e.Amount:N2} TL" : "",
+                OutflowFormatted = e.Direction == "Outflow" ? $"-{e.Amount:N2} TL" : "",
+                BalanceFormatted = "",
+                Inflow = e.Direction == "Inflow" ? e.Amount : 0,
+                Outflow = e.Direction == "Outflow" ? e.Amount : 0
+            }).ToList();
+
+            // Calculate running balance
+            var balance = report.TotalInflow - report.TotalOutflow;
+            foreach (var item in _allItems)
+            {
+                item.BalanceFormatted = $"{balance:N2} TL";
+                balance -= item.Inflow;
+                balance += item.Outflow;
+            }
+
+            IsEmpty = _allItems.Count == 0;
             ApplyFilters();
-
-            var inflow = _allItems.Sum(i => i.Inflow);
-            var outflow = _allItems.Sum(i => i.Outflow);
-            TotalInflow = $"{inflow:N2} TL";
-            TotalOutflow = $"{outflow:N2} TL";
-            NetCashFlow = $"{inflow - outflow:N2} TL";
         }
         catch (Exception ex)
         {
