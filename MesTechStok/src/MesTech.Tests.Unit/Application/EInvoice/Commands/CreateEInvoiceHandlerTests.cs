@@ -1,5 +1,3 @@
-// DISABLED: Referenced handlers/entities were removed from codebase. Re-enable when re-created.
-#if false
 using FluentAssertions;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Interfaces;
@@ -112,4 +110,3 @@ public class CreateEInvoiceHandlerTests
         capturedDoc.CurrencyCode.Should().Be("TRY");
     }
 }
-#endif
