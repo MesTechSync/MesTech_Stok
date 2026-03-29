@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Erp.Queries.GetErpAccountMappings;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Erp;
 
@@ -34,9 +36,12 @@ public partial class ErpAccountMappingViewModel : ViewModelBase
     private List<AccountItem> _allMesTechAccounts = [];
     private List<AccountItem> _allErpAccounts = [];
 
-    public ErpAccountMappingViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public ErpAccountMappingViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     partial void OnMesTechSearchTextChanged(string value) => ApplyMesTechFilter();
@@ -50,70 +55,40 @@ public partial class ErpAccountMappingViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR queries
+            var mappings = await _mediator.Send(new GetErpAccountMappingsQuery(_currentUser.TenantId));
 
-            // Demo MesTech accounts
-            _allMesTechAccounts =
-            [
-                new() { Code = "120.01", Name = "Alicilar - Yurtici", AccountType = "Alici" },
-                new() { Code = "120.02", Name = "Alicilar - Yurtdisi", AccountType = "Alici" },
-                new() { Code = "320.01", Name = "Saticilar - Yurtici", AccountType = "Satici" },
-                new() { Code = "320.02", Name = "Saticilar - Yurtdisi", AccountType = "Satici" },
-                new() { Code = "100.01", Name = "Kasa Hesabi - TL", AccountType = "Kasa" },
-                new() { Code = "102.01", Name = "Banka Hesabi - Garanti", AccountType = "Banka" },
-                new() { Code = "102.02", Name = "Banka Hesabi - Isbank", AccountType = "Banka" },
-                new() { Code = "153.01", Name = "Ticari Mallar", AccountType = "Stok" },
-                new() { Code = "600.01", Name = "Yurtici Satislar", AccountType = "Gelir" },
-                new() { Code = "600.02", Name = "Yurtdisi Satislar", AccountType = "Gelir" },
-            ];
+            _allMesTechAccounts = mappings.Select(m => new AccountItem
+            {
+                Code = m.MesTechAccountCode,
+                Name = m.MesTechAccountName,
+                AccountType = m.MesTechAccountType
+            }).DistinctBy(a => a.Code).ToList();
 
-            // Demo ERP accounts
-            _allErpAccounts =
-            [
-                new() { Code = "ERP-120-001", Name = "Musteriler Genel", AccountType = "Alici" },
-                new() { Code = "ERP-120-002", Name = "Musteriler Ihracat", AccountType = "Alici" },
-                new() { Code = "ERP-320-001", Name = "Tedarikciler Genel", AccountType = "Satici" },
-                new() { Code = "ERP-320-002", Name = "Tedarikciler Ithalat", AccountType = "Satici" },
-                new() { Code = "ERP-100-001", Name = "Ana Kasa", AccountType = "Kasa" },
-                new() { Code = "ERP-102-001", Name = "Garanti Bankasi", AccountType = "Banka" },
-                new() { Code = "ERP-102-002", Name = "Is Bankasi", AccountType = "Banka" },
-                new() { Code = "ERP-153-001", Name = "Stok Hesabi", AccountType = "Stok" },
-                new() { Code = "ERP-600-001", Name = "Satis Gelirleri", AccountType = "Gelir" },
-                new() { Code = "ERP-600-002", Name = "Ihracat Gelirleri", AccountType = "Gelir" },
-            ];
+            _allErpAccounts = mappings.Select(m => new AccountItem
+            {
+                Code = m.ErpAccountCode,
+                Name = m.ErpAccountName,
+                AccountType = m.MesTechAccountType
+            }).DistinctBy(a => a.Code).ToList();
 
             ApplyMesTechFilter();
             ApplyErpFilter();
 
-            // Demo mapped pairs
             MappedPairs.Clear();
-            MappedPairs.Add(new MappedPairItem
+            foreach (var m in mappings.Where(m => m.IsActive))
             {
-                MesTechCode = "120.01",
-                MesTechName = "Alicilar - Yurtici",
-                ErpCode = "ERP-120-001",
-                ErpName = "Musteriler Genel",
-                MappedDate = "23.03.2026 14:30"
-            });
-            MappedPairs.Add(new MappedPairItem
-            {
-                MesTechCode = "320.01",
-                MesTechName = "Saticilar - Yurtici",
-                ErpCode = "ERP-320-001",
-                ErpName = "Tedarikciler Genel",
-                MappedDate = "23.03.2026 14:32"
-            });
-            MappedPairs.Add(new MappedPairItem
-            {
-                MesTechCode = "102.01",
-                MesTechName = "Banka Hesabi - Garanti",
-                ErpCode = "ERP-102-001",
-                ErpName = "Garanti Bankasi",
-                MappedDate = "22.03.2026 10:15"
-            });
+                MappedPairs.Add(new MappedPairItem
+                {
+                    MesTechCode = m.MesTechAccountCode,
+                    MesTechName = m.MesTechAccountName,
+                    ErpCode = m.ErpAccountCode,
+                    ErpName = m.ErpAccountName,
+                    MappedDate = m.LastSyncAt?.ToString("dd.MM.yyyy HH:mm") ?? m.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                });
+            }
 
             MappedCount = MappedPairs.Count;
-            IsEmpty = MesTechAccounts.Count == 0 && ErpAccounts.Count == 0;
+            IsEmpty = _allMesTechAccounts.Count == 0 && _allErpAccounts.Count == 0;
         }
         catch (Exception ex)
         {
