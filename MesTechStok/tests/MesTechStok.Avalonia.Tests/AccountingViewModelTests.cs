@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Accounting.Queries.GetFixedAssets;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Avalonia.ViewModels.Accounting;
 using MesTech.Domain.Interfaces;
@@ -85,8 +86,48 @@ public class FixedAssetAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitializeWithNoErrors()
     {
-        var sut = new FixedAssetAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new FixedAssetAvaloniaViewModel(
+            Mock.Of<IMediator>(),
+            Mock.Of<ICurrentUserService>());
 
+        sut.IsLoading.Should().BeFalse();
+        sut.HasError.Should().BeFalse();
+        sut.Items.Should().NotBeNull().And.BeEmpty();
+        sut.Categories.Should().Contain("Tumu");
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenMediatorThrows_SetsHasError()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetFixedAssetsQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB error"));
+
+        var sut = new FixedAssetAvaloniaViewModel(
+            mediator.Object,
+            Mock.Of<ICurrentUserService>());
+
+        await sut.LoadAsync();
+
+        sut.HasError.Should().BeTrue();
+        sut.ErrorMessage.Should().Contain("yuklenemedi");
+        sut.IsLoading.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenEmpty_SetsIsEmpty()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetFixedAssetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Application.Features.Accounting.Queries.GetFixedAssets.FixedAssetDto>());
+
+        var sut = new FixedAssetAvaloniaViewModel(
+            mediator.Object,
+            Mock.Of<ICurrentUserService>());
+
+        await sut.LoadAsync();
+
+        sut.IsEmpty.Should().BeTrue();
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
@@ -103,7 +144,9 @@ public class FixedExpenseAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitializeWithNoErrors()
     {
-        var sut = new FixedExpenseAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new FixedExpenseAvaloniaViewModel(
+            Mock.Of<IMediator>(),
+            Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
