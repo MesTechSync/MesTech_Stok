@@ -11,6 +11,7 @@ using MesTech.Application.Queries.GetLowStockProducts;
 using MesTech.Application.Queries.GetProductDbStatus;
 using MesTech.Application.Queries.ListOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetServiceHealth;
+using MesTech.Application.Features.Dashboard.Queries.GetAppHubData;
 using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
@@ -207,6 +208,19 @@ public static class DashboardEndpoints
         })
         .WithName("GetServiceHealth")
         .WithSummary("Altyapı servisleri sağlık durumu — PostgreSQL, Redis, RabbitMQ (G308)")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/dashboard/app-hub — unified aggregator (G207-DEV6)
+        group.MapGet("/app-hub", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAppHubDataQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetAppHubData")
+        .WithSummary("AppHub dashboard aggregator — KPI + health + alerts tek response (G207)")
         .Produces(200)
         .CacheOutput("Dashboard30s");
     }
