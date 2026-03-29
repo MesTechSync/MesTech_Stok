@@ -42,6 +42,7 @@ using MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
 using MesTech.Application.Features.Accounting.Queries.GetCounterparties;
 using MesTech.Application.Features.Accounting.Queries.GetFifoCOGS;
 using MesTech.Application.Features.Accounting.Queries.GetKdvDeclarationDraft;
+using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
 using MesTech.Application.Features.Accounting.Queries.GetPendingReviews;
 using MesTech.Application.Features.Accounting.Queries.GetReconciliationMatches;
 using MesTech.Application.Features.Accounting.Queries.GetTaxSummary;
@@ -628,6 +629,20 @@ public static class AccountingEndpoints
         })
         .WithName("GetKdvDeclarationDraft")
         .WithSummary("KDV beyannamesi taslağı (dönem: 2026-03 formatında)")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // GET /api/v1/accounting/kdv-report — KDV raporu (basitleştirilmiş — G424-DEV6)
+        group.MapGet("/kdv-report", async (
+            Guid tenantId, int year, int month,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetKdvReportQuery(tenantId, year, month), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetKdvReport")
+        .WithSummary("KDV raporu — hesaplanan/indirilecek/ödenecek KDV + beyanname son tarih (G424)")
         .Produces(200)
         .CacheOutput("Report120s");
 
