@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              x:Class="MesTech.Avalonia.Views.Accounting.CommissionRatesView"
-             x:DataType="vm:CommissionRatesViewModel">
+             x:DataType="vm:CommissionRatesViewModel"
+             AutomationProperties.Name="Komisyon Oranlari">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*">
@@ -39,6 +40,17 @@
             </DataGrid.Columns>
         </DataGrid>
     
+        <!-- Empty State -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+                <TextBlock Text="Komisyon orani bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                           HorizontalAlignment="Center" Opacity="0.6" />
+            </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
             <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">

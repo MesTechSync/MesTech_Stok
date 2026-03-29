@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              x:Class="MesTech.Avalonia.Views.Accounting.IncomeExpenseDashboardView"
-             x:DataType="vm:IncomeExpenseDashboardViewModel">
+             x:DataType="vm:IncomeExpenseDashboardViewModel"
+             AutomationProperties.Name="Gelir Gider Dashboard">
 
     <UserControl.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
