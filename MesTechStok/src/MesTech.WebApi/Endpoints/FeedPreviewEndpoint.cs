@@ -22,7 +22,8 @@ public static class FeedPreviewEndpoint
             return Results.Ok(result);
         })
         .WithName("PreviewFeed")
-        .WithSummary("Feed kaynağını ön izle (ilk N ürün)").Produces(200).Produces(400);
+        .WithSummary("Feed kaynağını ön izle (ilk N ürün)").Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
 
         // POST /api/v1/feeds/{id}/import — feed'den ürün içe aktar
         group.MapPost("/{id:guid}/import", async (
