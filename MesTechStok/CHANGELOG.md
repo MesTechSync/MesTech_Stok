@@ -3,6 +3,12 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.24] - 2026-03-29
+
+### DEV3 v3.8 TUR3 — WebhookProcessor STRIDE güvenlik düzeltmesi
+- fix(security): WebhookProcessor unsigned webhook reject (G472 KAPANDI, FMEA RPN 105→35)
+- Backward-compatible: Webhooks:AllowUnsigned:{platform}=true ile legacy bypass
+
 ## [1.0.23] - 2026-03-29
 
 ### DEV3 v3.8 TUR2 — sözleşme doğruluk kontrolü + STRIDE güvenlik tarama

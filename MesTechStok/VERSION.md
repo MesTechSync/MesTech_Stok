@@ -1,1 +1,1 @@
-Versiyon: 1.0.23
+Versiyon: 1.0.24
