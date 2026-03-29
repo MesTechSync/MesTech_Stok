@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -91,5 +92,35 @@ public class KarlilikAnaliziAvaloniaViewModelTests
         // Assert
         loadingStates.Should().Contain(true);
         _sut.IsLoading.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenMediatorThrows_SetsHasError()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetProfitReportQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB down"));
+
+        var sut = new KarlilikAnaliziAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.HasError.Should().BeTrue();
+        sut.ErrorMessage.Should().NotBeNullOrEmpty();
+        sut.IsLoading.Should().BeFalse(); // KÇ-13
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenNullResponse_SetsIsEmpty()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetProfitReportQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Application.DTOs.Accounting.ProfitReportDto?)null);
+
+        var sut = new KarlilikAnaliziAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.IsEmpty.Should().BeTrue();
+        sut.IsLoading.Should().BeFalse();
+        sut.HasError.Should().BeFalse();
     }
 }

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -88,5 +89,20 @@ public class MutabakatAvaloniaViewModelTests
         // Assert — 3 items contain "hakedis" in Description
         _sut.Items.Should().HaveCount(3);
         _sut.Items.Should().OnlyContain(x => x.Description.Contains("hakedis", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenMediatorThrows_SetsHasError()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetReconciliationDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB down"));
+
+        var sut = new MutabakatAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.HasError.Should().BeTrue();
+        sut.ErrorMessage.Should().NotBeNullOrEmpty();
+        sut.IsLoading.Should().BeFalse(); // KÇ-13
     }
 }

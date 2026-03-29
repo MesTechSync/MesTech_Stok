@@ -1,7 +1,8 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetFixedExpenses;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -152,5 +153,35 @@ public class SabitGiderlerAvaloniaViewModelTests
         // Assert
         _sut.Items.Should().BeEmpty();
         _sut.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenMediatorThrows_SetsHasError()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB down"));
+
+        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.HasError.Should().BeTrue();
+        sut.ErrorMessage.Should().NotBeNullOrEmpty();
+        sut.IsLoading.Should().BeFalse(); // KÇ-13
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenEmptyList_SetsIsEmpty()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<Application.DTOs.Accounting.FixedExpenseDto>)new List<Application.DTOs.Accounting.FixedExpenseDto>());
+
+        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.IsEmpty.Should().BeTrue();
+        sut.IsLoading.Should().BeFalse();
+        sut.HasError.Should().BeFalse();
     }
 }

@@ -1,7 +1,8 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -124,20 +125,27 @@ public class NakitAkisAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_Error_ShouldSetErrorState()
+    public async Task LoadAsync_Success_ShouldClearErrorState()
     {
-        // Arrange — We test the error path by calling LoadAsync after
-        // verifying the normal path works. The current implementation
-        // uses seed data that won't throw, so we verify the HasError
-        // remains false on successful load and the error fields are reset.
         _sut.HasError.Should().BeFalse();
-
-        // Act
         await _sut.LoadAsync();
-
-        // Assert — successful load clears error state
         _sut.HasError.Should().BeFalse();
         _sut.ErrorMessage.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhenMediatorThrows_SetsHasError()
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetCashFlowReportQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB down"));
+
+        var sut = new NakitAkisAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        await sut.LoadAsync();
+
+        sut.HasError.Should().BeTrue();
+        sut.ErrorMessage.Should().NotBeNullOrEmpty();
+        sut.IsLoading.Should().BeFalse(); // KÇ-13
     }
 
     [Fact]
