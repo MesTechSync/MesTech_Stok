@@ -58,6 +58,7 @@ public class SystemHandlerTests
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
         var sut = new GetBackupHistoryHandler(
+            Mock.Of<IBackupEntryRepository>(),
             NullLogger<GetBackupHistoryHandler>.Instance);
         var query = new GetBackupHistoryQuery(_tenantId, 10);
 
@@ -71,6 +72,7 @@ public class SystemHandlerTests
     public async Task GetBackupHistory_NullRequest_ThrowsException()
     {
         var sut = new GetBackupHistoryHandler(
+            Mock.Of<IBackupEntryRepository>(),
             NullLogger<GetBackupHistoryHandler>.Instance);
 
         await Assert.ThrowsAnyAsync<Exception>(

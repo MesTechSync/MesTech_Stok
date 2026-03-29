@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Scraping;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace MesTech.Tests.Unit.Scraping;
@@ -245,7 +246,7 @@ public class ProductScraperServiceTests
             ? new HttpClient(handler)
             : new HttpClient(new FakeHttpMessageHandler(HttpStatusCode.OK, "{}"));
 
-        return new ProductScraperService(httpClient, NullLogger<ProductScraperService>.Instance);
+        return new ProductScraperService(httpClient, NullLogger<ProductScraperService>.Instance, Options.Create(new ProductScraperOptions()));
     }
 
     /// <summary>

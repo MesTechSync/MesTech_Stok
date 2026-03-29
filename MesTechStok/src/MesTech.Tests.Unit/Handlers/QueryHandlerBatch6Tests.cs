@@ -29,7 +29,9 @@ public class QueryHandlerBatch6Tests
     [Fact]
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
-        var sut = new GetBackupHistoryHandler(Mock.Of<ILogger<GetBackupHistoryHandler>>());
+        var sut = new GetBackupHistoryHandler(
+            Mock.Of<IBackupEntryRepository>(),
+            Mock.Of<ILogger<GetBackupHistoryHandler>>());
         var query = new GetBackupHistoryQuery(_tenantId);
         var result = await sut.Handle(query, CancellationToken.None);
         result.Should().BeEmpty();

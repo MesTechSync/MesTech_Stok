@@ -57,7 +57,13 @@ public class FulfillmentHandlerTests
     [Fact]
     public async Task GetFulfillmentShipments_ReturnsEmptyResult()
     {
+        var repo = new Mock<IFulfillmentShipmentRepository>();
+        repo.Setup(r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FulfillmentShipment>());
+        repo.Setup(r => r.CountByTenantAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         var sut = new GetFulfillmentShipmentsHandler(
+            repo.Object,
             NullLogger<GetFulfillmentShipmentsHandler>.Instance);
 
         var result = await sut.Handle(
@@ -72,6 +78,7 @@ public class FulfillmentHandlerTests
     public async Task GetFulfillmentShipments_NullRequest_ThrowsAnyException()
     {
         var sut = new GetFulfillmentShipmentsHandler(
+            Mock.Of<IFulfillmentShipmentRepository>(),
             NullLogger<GetFulfillmentShipmentsHandler>.Instance);
 
         await Assert.ThrowsAnyAsync<Exception>(

@@ -34,7 +34,7 @@ public class SystemQueryHandlerTests
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
         var logger = new Mock<ILogger<GetBackupHistoryHandler>>();
-        var handler = new GetBackupHistoryHandler(logger.Object);
+        var handler = new GetBackupHistoryHandler(Mock.Of<IBackupEntryRepository>(), logger.Object);
         var result = await handler.Handle(
             new GetBackupHistoryQuery(TenantId: Guid.NewGuid(), Limit: 20),
             CancellationToken.None);

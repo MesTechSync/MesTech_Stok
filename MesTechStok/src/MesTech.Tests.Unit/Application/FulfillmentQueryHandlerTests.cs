@@ -26,8 +26,13 @@ public class FulfillmentQueryHandlerTests
     [Fact]
     public async Task GetFulfillmentShipments_ReturnsEmptyResult()
     {
+        var repo = new Mock<IFulfillmentShipmentRepository>();
+        repo.Setup(r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<MesTech.Domain.Entities.FulfillmentShipment>());
+        repo.Setup(r => r.CountByTenantAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         var logger = new Mock<ILogger<GetFulfillmentShipmentsHandler>>();
-        var handler = new GetFulfillmentShipmentsHandler(logger.Object);
+        var handler = new GetFulfillmentShipmentsHandler(repo.Object, logger.Object);
         var result = await handler.Handle(
             new GetFulfillmentShipmentsQuery(TenantId: Guid.NewGuid(), Page: 1, PageSize: 20),
             CancellationToken.None);
