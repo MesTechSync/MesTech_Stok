@@ -204,12 +204,12 @@
                         <!-- ═══ Error State ═══ -->
                         <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgPrimary}" Padding="16"
                                 ZIndex="5">
-                            <Border Background="#FEF2F2" CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
+                            <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="16">
                                 <StackPanel Spacing="8">
                                     <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold"
-                                               Foreground="#EF4444" />
+                                               Foreground="{DynamicResource MesDanger}" />
                                     <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeSmall}"
-                                               Foreground="#991B1B" TextWrapping="Wrap" />
+                                               Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                         </Border>
