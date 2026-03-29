@@ -45,7 +45,8 @@ public static class PlatformSyncEndpoint
             return Results.Ok(result);
         })
         .WithName("SyncPlatform")
-        .WithSummary("Belirtilen platformu senkronize et (* = tümü)").Produces(200).Produces(400);
+        .WithSummary("Belirtilen platformu senkronize et (* = tümü)").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/platforms/trigger-sync — trigger sync for specific platform
         group.MapPost("/trigger-sync", async (
@@ -57,7 +58,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("TriggerSync")
         .WithSummary("Platform senkronizasyonu tetikle (tenant + platform kodu)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/platforms/sync-history — recent sync history
         group.MapGet("/sync-history", async (

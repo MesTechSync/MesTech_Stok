@@ -307,7 +307,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report.PlatformBreakdown, "Komisyon Raporu", format, ct);
         })
         .WithName("ExportCommissionReport")
-        .WithSummary("Komisyon raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Komisyon raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/platform-performance/export — platform performans export
         group.MapGet("/platform-performance/export", async (
@@ -322,7 +323,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report.Platforms, "Platform Performans Raporu", format, ct);
         })
         .WithName("ExportPlatformPerformanceReport")
-        .WithSummary("Platform performans raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Platform performans raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/profitability/export — kârlılık raporu export
         group.MapGet("/profitability/export", async (
@@ -337,7 +339,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report.ByPlatform, "Kârlılık Raporu", format, ct);
         })
         .WithName("ExportProfitabilityReport")
-        .WithSummary("Kârlılık raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Kârlılık raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // ─── V6 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
 
@@ -358,7 +361,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report.Centers, "Fulfillment Maliyet Raporu", format, ct);
         })
         .WithName("ExportFulfillmentCostReport")
-        .WithSummary("Fulfillment maliyet raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Fulfillment maliyet raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/cargo-performance/export — kargo performans export
         group.MapGet("/cargo-performance/export", async (
@@ -373,7 +377,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report, "Kargo Performans Raporu", format, ct);
         })
         .WithName("ExportCargoPerformanceReport")
-        .WithSummary("Kargo performans raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Kargo performans raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/inventory-valuation/export — envanter değerleme export
         group.MapGet("/inventory-valuation/export", async (
@@ -388,7 +393,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report, "Envanter Degerleme Raporu", format, ct);
         })
         .WithName("ExportInventoryValuationReport")
-        .WithSummary("Envanter değerleme raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Envanter değerleme raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/stock-turnover/export — stok devir hızı export
         group.MapGet("/stock-turnover/export", async (
@@ -404,7 +410,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report, "Stok Devir Hizi Raporu", format, ct);
         })
         .WithName("ExportStockTurnoverReport")
-        .WithSummary("Stok devir hızı raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("Stok devir hızı raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/erp-reconciliation/export — ERP mutabakat export
         group.MapGet("/erp-reconciliation/export", async (
@@ -419,7 +426,8 @@ public static class ReportEndpoints
             return await ExportResult(exportService, report.UnmatchedItems, "ERP Mutabakat Raporu", format, ct);
         })
         .WithName("ExportErpReconciliationReport")
-        .WithSummary("ERP mutabakat raporu export — PDF, Excel veya CSV").Produces(200).Produces(400);
+        .WithSummary("ERP mutabakat raporu export — PDF, Excel veya CSV").Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/reports/sales-analytics — satış analiz raporu
         group.MapGet("/sales-analytics", async (

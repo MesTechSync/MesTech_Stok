@@ -226,13 +226,17 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 builder.Services.Configure<GzipCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Fastest);
 
-// Request timeouts — 30s default for API endpoints (KEŞİF-DEV6-T7)
+// Request timeouts — 30s default, 120s for bulk/import/sync/export (FMEA-DEV6-TUR8)
 builder.Services.AddRequestTimeouts(options =>
 {
     options.DefaultPolicy = new Microsoft.AspNetCore.Http.Timeouts.RequestTimeoutPolicy
     {
         Timeout = TimeSpan.FromSeconds(30)
     };
+    options.AddPolicy("LongRunning", new Microsoft.AspNetCore.Http.Timeouts.RequestTimeoutPolicy
+    {
+        Timeout = TimeSpan.FromSeconds(120)
+    });
 });
 
 // Output cache — short-lived cache for stable lookup endpoints (KEŞİF-DEV6-T7)

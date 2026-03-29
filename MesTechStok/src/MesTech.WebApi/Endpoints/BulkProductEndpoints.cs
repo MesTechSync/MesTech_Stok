@@ -93,7 +93,8 @@ public static class BulkProductEndpoints
         .WithName("ExecuteBulkImport")
         .WithSummary("CSV/Excel dosyasından toplu ürün import et")
         .Produces(200).Produces(400)
-        .DisableAntiforgery();
+        .DisableAntiforgery()
+        .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
         group.MapPost("/export", async (

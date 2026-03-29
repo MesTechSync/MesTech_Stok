@@ -282,7 +282,8 @@ public static class AccountingEndpoints
         })
         .WithName("RunReconciliation")
         .WithSummary("Otomatik mutabakat eşleştirme çalıştır").Produces(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/accounting/bank-transactions — banka hareketleri
         group.MapGet("/bank-transactions", async (
@@ -497,7 +498,8 @@ public static class AccountingEndpoints
         })
         .WithName("ImportBankStatement")
         .WithSummary("Banka ekstresi içe aktar").Produces(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/accounting/settlements/import — hakediş içe aktar
         group.MapPost("/settlements/import", async (
@@ -522,7 +524,8 @@ public static class AccountingEndpoints
         .WithName("ParseAndImportSettlement")
         .WithSummary("Platform ham hakediş dosyası yükle — otomatik parse + kaydet (Trendyol, Amazon, N11...)")
         .Produces(201).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/accounting/cargo-expenses — kargo gideri kaydet
         group.MapPost("/cargo-expenses", async (
