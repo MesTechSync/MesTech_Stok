@@ -809,7 +809,9 @@ public partial class App : Application
                     var r = new Random();
                     var jitterFactor = 1 + (r.NextDouble() - 0.5) * 0.2; // ±%10
                     var jittered = TimeSpan.FromMilliseconds(baseInterval.TotalMilliseconds * jitterFactor);
-                    _ = syncSvc.StartAutoSyncAsync(jittered);
+                    _ = syncSvc.StartAutoSyncAsync(jittered).ContinueWith(t =>
+                        { if (t.Exception != null) GlobalLogger.Instance.LogError($"OpenCart AutoSync hatası: {t.Exception.InnerException?.Message}", "Startup"); },
+                        TaskContinuationOptions.OnlyOnFaulted);
                     GlobalLogger.Instance.LogInfo($"✅ OpenCart AutoSync başlatıldı (interval={jittered})", "Startup");
                 }
             }
@@ -822,7 +824,9 @@ public partial class App : Application
                 var hid = ServiceProvider.GetService<MesTechStok.Core.Integrations.Barcode.IBarcodeScannerService>();
                 if (hid != null)
                 {
-                    _ = hid.StartScanningAsync();
+                    _ = hid.StartScanningAsync().ContinueWith(t =>
+                        { if (t.Exception != null) GlobalLogger.Instance.LogError($"USB HID dinleyici hatası: {t.Exception.InnerException?.Message}", "Startup"); },
+                        TaskContinuationOptions.OnlyOnFaulted);
                     GlobalLogger.Instance.LogInfo("✅ USB HID barkod dinleyici başlatıldı", "Startup");
                 }
             }
@@ -837,7 +841,9 @@ public partial class App : Application
                 var globalBarcode = ServiceProvider.GetService<IGlobalBarcodeService>();
                 if (globalBarcode != null)
                 {
-                    _ = globalBarcode.StartListeningAsync();
+                    _ = globalBarcode.StartListeningAsync().ContinueWith(t =>
+                        { if (t.Exception != null) GlobalLogger.Instance.LogError($"Global barcode service hatası: {t.Exception.InnerException?.Message}", "Startup"); },
+                        TaskContinuationOptions.OnlyOnFaulted);
                     GlobalLogger.Instance.LogInfo("✅ Global barcode service başlatıldı - Ürün popup desteği aktif", "Startup");
                 }
             }
