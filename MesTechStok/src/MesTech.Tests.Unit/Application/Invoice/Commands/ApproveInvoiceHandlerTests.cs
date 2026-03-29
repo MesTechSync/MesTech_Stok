@@ -1,5 +1,3 @@
-// DISABLED: Referenced handlers/entities were removed from codebase. Re-enable when re-created.
-#if false
 using FluentAssertions;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Domain.Entities;
@@ -132,4 +130,3 @@ public class ApproveInvoiceHandlerTests
         };
     }
 }
-#endif
