@@ -5,7 +5,6 @@ using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
-using IErpSyncLogRepository = MesTech.Application.Interfaces.Erp.IErpSyncLogRepository;
 using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Logging;
 
