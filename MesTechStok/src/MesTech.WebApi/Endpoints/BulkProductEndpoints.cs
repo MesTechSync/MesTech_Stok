@@ -52,6 +52,7 @@ public static class BulkProductEndpoints
         })
         .WithName("ValidateBulkImport")
         .WithSummary("Toplu ürün import dosyasını doğrula (CSV/Excel)")
+        .Produces(200).Produces(400)
         .DisableAntiforgery();
 
         // POST /api/v1/products/bulk/import — CSV/Excel'den toplu ürün aktarımı
@@ -91,6 +92,7 @@ public static class BulkProductEndpoints
         })
         .WithName("ExecuteBulkImport")
         .WithSummary("CSV/Excel dosyasından toplu ürün import et")
+        .Produces(200).Produces(400)
         .DisableAntiforgery();
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar

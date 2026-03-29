@@ -62,6 +62,7 @@ public static class ProductImageEndpoints
         })
         .WithName("UploadProductImage")
         .WithSummary("Ürün resmi yükle (JPEG/PNG/WebP/GIF, max 10 MB)")
+        .Produces(201).Produces(400)
         .DisableAntiforgery();
 
         // DELETE /api/v1/products/{id}/images — ürün resmini sil

@@ -27,6 +27,7 @@ public static class PaymentEndpoints
         })
         .WithName("InitiatePayment")
         .WithSummary("Ödeme işlemi başlat — provider query param: PayTRDirect, PayTRiFrame, Iyzico, Stripe")
+        .Produces(200).Produces(422)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/payments/{transactionId} — işlem durumu sorgula
@@ -60,6 +61,7 @@ public static class PaymentEndpoints
         })
         .WithName("RefundPayment")
         .WithSummary("Ödeme iadesi başlat")
+        .Produces(200).Produces(422)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/payments/installments — taksit seçenekleri sorgula

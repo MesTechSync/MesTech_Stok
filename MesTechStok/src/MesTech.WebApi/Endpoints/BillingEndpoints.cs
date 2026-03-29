@@ -57,6 +57,7 @@ public static class BillingEndpoints
         })
         .WithName("CreateSubscription")
         .WithSummary("Yeni abonelik başlat")
+        .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/billing/subscription/cancel — cancel subscription
@@ -96,6 +97,7 @@ public static class BillingEndpoints
         })
         .WithName("CreateBillingInvoice")
         .WithSummary("Fatura oluştur")
+        .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/billing/subscription/change-plan — plan yükselt/düşür
@@ -149,6 +151,7 @@ public static class BillingEndpoints
         })
         .WithName("ProcessPaymentWebhook")
         .WithSummary("Payment provider webhook receiver (Stripe/Iyzico)")
+        .Produces(200).Produces(400).Produces(422)
         .AllowAnonymous() // Webhook'lar JWT olmadan gelir
         .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)); // G088: 1MB limit
 

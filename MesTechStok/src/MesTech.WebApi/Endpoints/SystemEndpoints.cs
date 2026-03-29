@@ -98,6 +98,7 @@ public static class SystemEndpoints
         })
         .WithName("AutomationWebhook")
         .WithSummary("N8N/automation workflow webhook receiver (G130)")
+        .Produces(200).Produces(401)
         .AllowAnonymous();
 
         // GET /api/v1/system/automation/status — N8N entegrasyon durumu

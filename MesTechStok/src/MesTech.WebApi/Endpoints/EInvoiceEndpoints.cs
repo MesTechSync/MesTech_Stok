@@ -41,6 +41,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("CreateEInvoice")
         .WithSummary("Yeni e-fatura oluştur (UBL-TR 1.2)")
+        .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/e-invoices/{id} — e-fatura detayı
@@ -72,6 +73,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("SendEInvoice")
         .WithSummary("E-faturayı GİB'e gönder")
+        .Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/e-invoices/{id}/cancel — e-fatura iptal

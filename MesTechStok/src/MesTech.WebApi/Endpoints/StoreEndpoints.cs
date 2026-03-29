@@ -46,6 +46,7 @@ public static class StoreEndpoints
         })
         .WithName("CreateStore")
         .WithSummary("Yeni mağaza oluştur — admin only")
+        .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.StorePlanLimitFilter>();
 
         // POST /api/v1/admin/stores/{id}/test-connection — mağaza API bağlantı testi

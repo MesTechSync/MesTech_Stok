@@ -108,6 +108,7 @@ public static class WebhookEndpoints
         })
         .WithName("GetWebhookDeadLetters")
         .WithSummary("Webhook dead letter queue — başarısız webhook listesi (admin)")
+        .Produces(200).Produces(400)
         .RequireRateLimiting("PerApiKey");
 
         // ── Webhook Test Console (G108 — DEV6-TUR10) ──
@@ -127,6 +128,7 @@ public static class WebhookEndpoints
         })
         .WithName("GetWebhookTestPlatforms")
         .WithSummary("Webhook test konsolu — platform listesi ve event tipleri")
+        .Produces(200)
         .RequireRateLimiting("PerApiKey");
 
         // GET /api/webhooks/test/sample/{platform}/{eventType} — örnek payload
@@ -140,6 +142,7 @@ public static class WebhookEndpoints
         })
         .WithName("GetWebhookSamplePayload")
         .WithSummary("Platform + event tipi için örnek webhook payload")
+        .Produces(200).Produces(404)
         .RequireRateLimiting("PerApiKey");
 
         // POST /api/webhooks/test — test webhook gönder ve sonucu göster
@@ -185,6 +188,7 @@ public static class WebhookEndpoints
         })
         .WithName("TestWebhook")
         .WithSummary("Webhook test konsolu — payload gönder, sonucu gör (sandbox only)")
+        .Produces(200).Produces(400).Produces(403)
         .RequireRateLimiting("PerApiKey");
 
         // POST /api/webhooks/dead-letters/{id}/resolve — manual resolve
@@ -204,6 +208,7 @@ public static class WebhookEndpoints
         })
         .WithName("ResolveWebhookDeadLetter")
         .WithSummary("Dead letter webhook'u manuel çözüldü olarak işaretle")
+        .Produces(200).Produces(404)
         .RequireRateLimiting("PerApiKey");
     }
 
