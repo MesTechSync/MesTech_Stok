@@ -2,6 +2,8 @@ using MediatR;
 using MesTech.Application.Features.Hr.Commands.ApproveLeave;
 using MesTech.Application.Features.Hr.Queries.GetDepartments;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Application.Features.Hr.Queries.GetLeaveRequests;
+using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
@@ -53,5 +55,20 @@ public static class HrEndpoints
         .WithSummary("Departman listesi")
         .Produces(200)
         .CacheOutput("Lookup60s");
+
+        // GET /api/v1/hr/leaves — izin talepleri listesi (G207-DEV6)
+        group.MapGet("/leaves", async (
+            Guid tenantId,
+            LeaveStatus? status,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetLeaveRequestsQuery(tenantId, status), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLeaveRequests")
+        .WithSummary("İzin talepleri listesi — durum filtreli (G207)")
+        .Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
     }
 }
