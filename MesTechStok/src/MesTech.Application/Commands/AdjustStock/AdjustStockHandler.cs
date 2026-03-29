@@ -1,7 +1,9 @@
 using MediatR;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Commands.AdjustStock;
 
@@ -10,20 +12,38 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDistributedLockService _lockService;
+    private readonly ILogger<AdjustStockHandler> _logger;
 
     public AdjustStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDistributedLockService lockService,
+        ILogger<AdjustStockHandler> logger)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _movementRepository = movementRepository ?? throw new ArgumentNullException(nameof(movementRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _lockService = lockService ?? throw new ArgumentNullException(nameof(lockService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<AdjustStockResult> Handle(AdjustStockCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        await using var lockHandle = await _lockService.AcquireLockAsync(
+            $"stock:product:{request.ProductId}",
+            expiry: TimeSpan.FromSeconds(30),
+            waitTimeout: TimeSpan.FromSeconds(10),
+            cancellationToken).ConfigureAwait(false);
+
+        if (lockHandle is null)
+        {
+            _logger.LogWarning("Stock lock alınamadı — ProductId={ProductId}", request.ProductId);
+            return new AdjustStockResult { IsSuccess = false, ErrorMessage = "Stok kilidi alınamadı. Lütfen tekrar deneyin." };
+        }
 
         var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
         if (product == null)
