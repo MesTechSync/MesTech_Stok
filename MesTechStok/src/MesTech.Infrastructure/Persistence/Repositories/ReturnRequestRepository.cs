@@ -12,7 +12,9 @@ public sealed class ReturnRequestRepository : IReturnRequestRepository
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<ReturnRequest?> GetByIdAsync(Guid id)
-        => await _context.ReturnRequests.FirstOrDefaultAsync(r => r.Id == id).ConfigureAwait(false);
+        => await _context.ReturnRequests
+            .Include(r => r.Lines)
+            .FirstOrDefaultAsync(r => r.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ReturnRequest>> GetByOrderIdAsync(Guid orderId)
         => await _context.ReturnRequests
