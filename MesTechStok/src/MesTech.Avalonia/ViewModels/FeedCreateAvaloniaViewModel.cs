@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Commands;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -47,7 +49,6 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
             // Reset form to clean initial state
             FeedName = string.Empty;
             FeedUrl = string.Empty;
@@ -88,7 +89,10 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         SaveCompleted = false;
         try
         {
-            await Task.Delay(600);
+            var format = Enum.TryParse<FeedFormat>(SelectedFormat, out var f) ? f : FeedFormat.Xml;
+            await _mediator.Send(new CreateFeedSourceCommand(
+                Guid.Empty, FeedName, FeedUrl, format,
+                PriceMarkupPercent, 0, SyncIntervalMinutes, null, true));
             SaveCompleted = true;
         }
         catch (Exception ex)
