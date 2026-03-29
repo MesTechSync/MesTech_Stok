@@ -6,6 +6,7 @@ using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Application.Features.Invoice.DTOs;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,6 +24,7 @@ public class BulkOperationEdgeCaseTests
 {
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
     private readonly Mock<IInvoiceRepository> _invoiceRepo = new();
     private readonly Mock<IOrderRepository> _orderRepo = new();
 
@@ -32,7 +34,7 @@ public class BulkOperationEdgeCaseTests
     public async Task BulkUpdateStock_EmptyItemsList_ReturnsSuccessWithZeroCount()
     {
         // Arrange
-        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object);
+        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: Array.Empty<BulkUpdateStockItem>());
 
         // Act
@@ -60,7 +62,7 @@ public class BulkOperationEdgeCaseTests
                 .ReturnsAsync(product);
         }
 
-        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object);
+        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: items);
 
         // Act
@@ -82,7 +84,7 @@ public class BulkOperationEdgeCaseTests
             new("SKU-001", -5) // negative stock
         };
 
-        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object);
+        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: items);
 
         // Act
@@ -97,7 +99,7 @@ public class BulkOperationEdgeCaseTests
     [Fact]
     public async Task BulkUpdateStock_NullRequest_ThrowsArgumentNullException()
     {
-        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object);
+        var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
 
         var act = () => handler.Handle(null!, CancellationToken.None);
 

@@ -623,7 +623,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task BulkUpdateStockHandler_NullCommand_ThrowsArgumentNullException()
     {
-        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object);
+        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object, new Mock<MesTech.Application.Interfaces.IDistributedLockService>().Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<BulkUpdateStockHandler>.Instance);
 
         var act = () => handler.Handle(null!, CancellationToken.None);
 
@@ -633,7 +633,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task BulkUpdateStockHandler_NegativeStock_ReportsFailure()
     {
-        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object);
+        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object, new Mock<MesTech.Application.Interfaces.IDistributedLockService>().Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<BulkUpdateStockHandler>.Instance);
 
         var command = new BulkUpdateStockCommand(
             Items: new[] { new BulkUpdateStockItem("SKU-001", -10) });
