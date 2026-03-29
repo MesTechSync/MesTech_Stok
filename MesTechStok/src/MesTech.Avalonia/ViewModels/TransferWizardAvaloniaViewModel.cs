@@ -57,7 +57,11 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
             Warehouses.Add("Yedek Depo");
             Warehouses.Add("Iade Depo");
         }
-        finally { IsLoading = false; }
+        finally
+        {
+            IsLoading = false;
+            IsEmpty = TransferItems.Count == 0;
+        }
     }
 
     partial void OnSelectedSourceWarehouseChanged(string? value)

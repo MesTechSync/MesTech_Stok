@@ -47,6 +47,7 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
 
             ActiveCampaignCount = Campaigns.Count(c => c.IsActive);
             TotalProductsInCampaign = Campaigns.Sum(c => c.ProductCount);
+            IsEmpty = Campaigns.Count == 0;
         }
         catch (Exception ex)
         {

@@ -18,6 +18,17 @@
         </StackPanel>
     </Border>
 
+    <!-- Empty State -->
+    <Border IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="8" HorizontalAlignment="Center">
+            <TextBlock Text="Kampanya bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                       HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+            <TextBlock Text="Henuz kampanya tanimlanmamis. Yeni kampanya olusturmak icin asagidaki formu kullanin."
+                       FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                       HorizontalAlignment="Center" Opacity="0.7" TextWrapping="Wrap" MaxWidth="400" />
+        </StackPanel>
+    </Border>
+
     <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
     <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="24,16">
 

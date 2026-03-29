@@ -65,6 +65,44 @@
             </StackPanel>
         </Border>
 
+        <!-- Loading Overlay -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Fatura verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesMutedGray}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Fatura olusturulacak siparis bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
+                <TextBlock Text="Oncelikle siparis olusturun veya mevcut siparisleri kontrol edin"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
+                                   Foreground="{DynamicResource MesDanger}" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
         <!-- Row 2: Step Content -->
         <ScrollViewer Grid.Row="2" Padding="24">
           <Panel>

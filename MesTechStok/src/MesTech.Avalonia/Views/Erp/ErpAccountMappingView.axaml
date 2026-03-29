@@ -30,6 +30,44 @@
             </Grid>
         </Border>
 
+        <!-- Loading Overlay -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Hesap eslestirme verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesMutedGray}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Hesap eslestirmesi bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
+                <TextBlock Text="ERP ve MesTech hesap planlari yuklenemedi veya henuz tanimlanmamis"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
+                                   Foreground="{DynamicResource MesDanger}" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{DynamicResource MesDarkSlate}" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
         <!-- Split Panel: MesTech Accounts | Map Button | ERP Accounts -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" Margin="16,12,16,0">
 
