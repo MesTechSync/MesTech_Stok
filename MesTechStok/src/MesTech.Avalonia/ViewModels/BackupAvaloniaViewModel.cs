@@ -54,6 +54,7 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = BackupHistory.Count == 0;
         }
     }
 

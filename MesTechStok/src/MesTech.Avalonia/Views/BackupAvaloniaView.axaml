@@ -29,6 +29,29 @@
             </Grid>
         </Border>
 
+        <!-- Loading Overlay -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Yedekleme gecmisi yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesMutedGray}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Yedekleme gecmisi bos" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
+                <TextBlock Text="Henuz yedekleme yapilmamis. Manuel yedekleme butonunu kullanin."
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
         <!-- Content -->
         <ScrollViewer Grid.Row="1" Padding="24">
             <StackPanel Spacing="24" MaxWidth="900">
