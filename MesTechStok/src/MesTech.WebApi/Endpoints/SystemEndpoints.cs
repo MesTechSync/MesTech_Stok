@@ -5,6 +5,7 @@ using MediatR;
 using MesTech.Application.Features.Health.Queries.GetHealthStatus;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Application.Features.System.Queries.GetBackupHistory;
+using MesTech.Application.Features.System.Commands.TriggerBackup;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -138,5 +139,18 @@ public static class SystemEndpoints
         .WithName("GetHealthStatus")
         .WithSummary("Detaylı sistem sağlık durumu — DB, Redis, RabbitMQ, servisler")
         .Produces(200);
+
+        // POST /api/v1/system/backups — manuel yedekleme tetikle (G207-DEV6)
+        group.MapPost("/backups", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new TriggerBackupCommand(tenantId), ct);
+            return Results.Created($"/api/v1/system/backups/{result.BackupId}", result);
+        })
+        .WithName("TriggerBackup")
+        .WithSummary("Manuel veritabanı yedekleme tetikle (G207)")
+        .Produces(201).Produces(400);
     }
 }
