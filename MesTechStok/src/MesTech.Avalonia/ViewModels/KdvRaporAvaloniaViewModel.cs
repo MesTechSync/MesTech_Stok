@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class KdvRaporAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -37,9 +40,13 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> InvoiceTypes { get; } =
         ["Tumu", "Satis Faturasi", "Alis Faturasi", "Iade Faturasi"];
 
-    public KdvRaporAvaloniaViewModel(IMediator mediator)
+    private static readonly string[] MonthNames =
+        ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
+
+    public KdvRaporAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -50,24 +57,30 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var monthIndex = Array.IndexOf(MonthNames, SelectedMonth) + 1;
+            if (monthIndex <= 0) monthIndex = DateTime.Now.Month;
+            var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
 
-            var salesVatAmount = 22586m;
-            var purchaseVatAmount = 14120m;
-            SalesVat = $"{salesVatAmount:N2} TL";
-            PurchaseVat = $"{purchaseVatAmount:N2} TL";
-            NetVat = $"{salesVatAmount - purchaseVatAmount:N2} TL";
+            var report = await _mediator.Send(new GetKdvReportQuery(_currentUser.TenantId, year, monthIndex));
+
+            SalesVat = $"{report.HesaplananKdv:N2} TL";
+            PurchaseVat = $"{report.IndirilecekKdv:N2} TL";
+            NetVat = $"{report.OdenecekKdv:N2} TL";
 
             _allItems =
             [
-                new() { InvoiceNumber = "MES2026-0342", Date = "19.03.2026", AmountFormatted = "4.520,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "904,00 TL", InvoiceType = "Satis Faturasi" },
-                new() { InvoiceNumber = "MES2026-0341", Date = "18.03.2026", AmountFormatted = "2.180,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "436,00 TL", InvoiceType = "Satis Faturasi" },
-                new() { InvoiceNumber = "ALF-2026-089", Date = "18.03.2026", AmountFormatted = "6.500,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "1.300,00 TL", InvoiceType = "Alis Faturasi" },
-                new() { InvoiceNumber = "MES2026-0340", Date = "17.03.2026", AmountFormatted = "1.240,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "248,00 TL", InvoiceType = "Satis Faturasi" },
-                new() { InvoiceNumber = "KRG-2026-512", Date = "17.03.2026", AmountFormatted = "380,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "76,00 TL", InvoiceType = "Alis Faturasi" },
-                new() { InvoiceNumber = "IAD-2026-015", Date = "16.03.2026", AmountFormatted = "540,00 TL", VatRateFormatted = "%20", VatAmountFormatted = "108,00 TL", InvoiceType = "Iade Faturasi" },
+                new()
+                {
+                    InvoiceNumber = $"KDV-{report.Year}-{report.Month:D2}",
+                    Date = report.BeyannameSonTarih.ToString("dd.MM.yyyy"),
+                    AmountFormatted = $"{report.HesaplananKdv + report.IndirilecekKdv:N2} TL",
+                    VatRateFormatted = "%20",
+                    VatAmountFormatted = $"{report.OdenecekKdv:N2} TL",
+                    InvoiceType = "KDV Ozet"
+                }
             ];
 
+            IsEmpty = report.HesaplananKdv == 0 && report.IndirilecekKdv == 0;
             ApplyFilters();
         }
         catch (Exception ex)
