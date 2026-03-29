@@ -17,6 +17,11 @@ public sealed class DealRepository : IDealRepository
     public async Task<Deal?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Deals.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct);
 
+    public async Task<Deal?> GetByIdTrackedWithContactAsync(Guid id, CancellationToken ct = default)
+        => await _context.Deals
+            .Include(d => d.Contact)
+            .FirstOrDefaultAsync(d => d.Id == id, ct);
+
     public async Task<IReadOnlyList<Deal>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Deals
             .Where(d => d.TenantId == tenantId)
