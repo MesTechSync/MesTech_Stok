@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,7 +41,7 @@ public sealed class ApiKeyMiddleware(
             return;
         }
 
-        if (!_options.ValidApiKeys.Contains(receivedKey.ToString()))
+        if (!IsValidApiKey(receivedKey.ToString()))
         {
             logger.LogWarning("Invalid API key. Path={Path} IP={IP}",
                 path, context.Connection.RemoteIpAddress);
@@ -49,5 +51,21 @@ public sealed class ApiKeyMiddleware(
         }
 
         await next(context);
+    }
+
+    /// <summary>
+    /// Constant-time API key comparison — prevents timing-based side-channel attacks.
+    /// Matches HangfireDashboardAuthFilter pattern (CryptographicOperations.FixedTimeEquals).
+    /// </summary>
+    private bool IsValidApiKey(string providedKey)
+    {
+        var providedBytes = Encoding.UTF8.GetBytes(providedKey);
+        foreach (var validKey in _options.ValidApiKeys)
+        {
+            if (CryptographicOperations.FixedTimeEquals(
+                    providedBytes, Encoding.UTF8.GetBytes(validKey)))
+                return true;
+        }
+        return false;
     }
 }
