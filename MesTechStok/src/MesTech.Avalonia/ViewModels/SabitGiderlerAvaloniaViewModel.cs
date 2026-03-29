@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetFixedExpenses;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -30,9 +33,10 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Periods { get; } =
         ["Tumu", "Aylik", "Yillik", "Ucaylik"];
 
-    public SabitGiderlerAvaloniaViewModel(IMediator mediator)
+    public SabitGiderlerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -43,17 +47,17 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var expenses = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId, true));
 
-            _allItems =
-            [
-                new() { Name = "Ofis Kirasi", Category = "Kira", AmountFormatted = "15.000,00 TL", Period = "Aylik", NextPaymentDate = "01.04.2026", Amount = 15000 },
-                new() { Name = "AWS Sunucu", Category = "Teknoloji", AmountFormatted = "2.100,00 TL", Period = "Aylik", NextPaymentDate = "01.04.2026", Amount = 2100 },
-                new() { Name = "Muhasebeci", Category = "Personel", AmountFormatted = "5.000,00 TL", Period = "Aylik", NextPaymentDate = "01.04.2026", Amount = 5000 },
-                new() { Name = "Internet + Telefon", Category = "Abonelik", AmountFormatted = "1.800,00 TL", Period = "Aylik", NextPaymentDate = "15.04.2026", Amount = 1800 },
-                new() { Name = "Isyeri Sigortasi", Category = "Sigorta", AmountFormatted = "4.500,00 TL", Period = "Yillik", NextPaymentDate = "15.06.2026", Amount = 4500 },
-                new() { Name = "Domain + SSL", Category = "Teknoloji", AmountFormatted = "750,00 TL", Period = "Yillik", NextPaymentDate = "01.09.2026", Amount = 750 },
-            ];
+            _allItems = expenses.Select(e => new RecurringExpenseItemDto
+            {
+                Name = e.Name,
+                Category = e.Notes ?? "Diger",
+                AmountFormatted = $"{e.MonthlyAmount:N2} {e.Currency}",
+                Period = e.EndDate.HasValue ? "Yillik" : "Aylik",
+                NextPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, e.DayOfMonth > 28 ? 28 : e.DayOfMonth).ToString("dd.MM.yyyy"),
+                Amount = e.MonthlyAmount
+            }).ToList();
 
             var monthlyItems = _allItems.Where(x => x.Period == "Aylik").Sum(x => x.Amount);
             var yearlyItems = _allItems.Where(x => x.Period == "Yillik").Sum(x => x.Amount);
@@ -61,6 +65,7 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
             YearlyTotal = $"{monthlyItems * 12 + yearlyItems:N2} TL";
             ActiveCount = _allItems.Count;
 
+            IsEmpty = _allItems.Count == 0;
             ApplyFilters();
         }
         catch (Exception ex)
