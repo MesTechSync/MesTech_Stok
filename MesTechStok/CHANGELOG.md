@@ -4,6 +4,7 @@ All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [1.0.25] - 2026-03-29
+## [1.0.29] - 2026-03-29### DEV3 v3.8 TUR10 — Bitrix24 timing-safe + endpoint auth audit- fix(security): Bitrix24SignatureValidator string.Equals → FixedTimeEquals (13/13 timing-safe)- audit: 4 internal endpoint kontrol — DlqEndpoints dışında auth eksikliği yok
 ## [1.0.28] - 2026-03-29### DEV3 v3.8 TUR9 — DlqEndpoints güvenlik düzeltmesi- fix(security): DlqEndpoints X-Admin-Key auth filter eklendi (STRIDE Elevation of Privilege)- 14/14 webhook signature validator GERÇEK HMAC implementasyon doğrulandı (0 stub)
 ## [1.0.27] - 2026-03-29### DEV3 v3.8 TUR8 — Webhook event alias 21→35 platform kapsam genişletme- feat: Shopify orders/paid+orders/updated, eBay ITEM.SOLD+ORDER.DELIVERY_UPDATE- feat: Ozon order_status_changed+stock_changed+item_price_changed- feat: Generic return.requested, claim.created, order.updated
 ## [1.0.26] - 2026-03-29
