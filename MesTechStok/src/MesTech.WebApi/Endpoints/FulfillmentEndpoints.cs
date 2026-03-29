@@ -39,7 +39,8 @@ public static class FulfillmentEndpoints
             return Results.Ok(result);
         })
         .WithName("GetFulfillmentInventory")
-        .WithSummary("Fulfillment envanter sorgula (SKU bazlı)").Produces(200).Produces(400);
+        .WithSummary("Fulfillment envanter sorgula (SKU bazlı)").Produces(200).Produces(400)
+        .CacheOutput("Dashboard30s");
 
         // GET /api/v1/fulfillment/orders — fulfillment orders
         group.MapGet("/orders", async (
