@@ -147,6 +147,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ILeaveRepository, Hr.LeaveRepository>();
         services.AddScoped<IDocumentFolderRepository, Docs.DocumentFolderRepository>();
         services.AddScoped<IDocumentRepository, Docs.DocumentRepository>();
+        services.AddScoped<IBackupEntryRepository, BackupEntryRepository>();
+        services.AddScoped<IFulfillmentShipmentRepository, FulfillmentShipmentRepository>();
         services.AddScoped<IPipelineRepository, Crm.PipelineRepository>();
 
         // Task / Calendar Repositories (Dalga 8 H27)
