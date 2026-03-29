@@ -23,44 +23,56 @@ public sealed class WebhookEventRouter
     /// </summary>
     private static readonly Dictionary<string, string> EventTypeAliases = new(StringComparer.OrdinalIgnoreCase)
     {
-        // Order events
+        // ── Order created ──
         ["order.created"] = "order.created",
         ["order_created"] = "order.created",
-        ["orders/create"] = "order.created",
+        ["orders/create"] = "order.created",           // Shopify
+        ["orders/paid"] = "order.created",              // Shopify (paid = confirmed order)
         ["order.new"] = "order.created",
+        ["order_status_changed"] = "order.created",     // Ozon (status filter'la ayırt edilir)
+        ["ITEM.SOLD"] = "order.created",                // eBay
 
-        // Order cancelled events
+        // ── Order cancelled ──
         ["order.cancelled"] = "order.cancelled",
         ["order_cancelled"] = "order.cancelled",
-        ["orders/cancelled"] = "order.cancelled",
+        ["orders/cancelled"] = "order.cancelled",       // Shopify
         ["order.cancel"] = "order.cancelled",
 
-        // Order shipped events
+        // ── Order updated ──
+        ["order.updated"] = "order.created",            // Treat as re-sync trigger
+        ["orders/updated"] = "order.created",           // Shopify
+
+        // ── Order shipped ──
         ["order.shipped"] = "order.shipped",
         ["order_shipped"] = "order.shipped",
-        ["orders/fulfilled"] = "order.shipped",
+        ["orders/fulfilled"] = "order.shipped",         // Shopify
+        ["ORDER.DELIVERY_UPDATE"] = "order.shipped",    // eBay
 
-        // Stock events
+        // ── Stock events ──
         ["stock.updated"] = "stock.updated",
         ["stock_updated"] = "stock.updated",
-        ["inventory_levels/update"] = "stock.updated",
+        ["stock_changed"] = "stock.updated",            // Ozon
+        ["inventory_levels/update"] = "stock.updated",  // Shopify
+        ["item_price_changed"] = "stock.updated",       // Ozon (price+stock combined)
 
-        // Product events
+        // ── Product updated ──
         ["product.updated"] = "product.updated",
         ["product_updated"] = "product.updated",
-        ["products/update"] = "product.updated",
+        ["products/update"] = "product.updated",        // Shopify
 
-        // Product created events
+        // ── Product created ──
         ["product.created"] = "product.created",
         ["product_created"] = "product.created",
-        ["products/create"] = "product.created",
+        ["products/create"] = "product.created",        // Shopify
 
-        // Return events
+        // ── Return / Refund ──
         ["return.created"] = "return.created",
         ["return_created"] = "return.created",
-        ["refunds/create"] = "return.created",
+        ["refunds/create"] = "return.created",          // Shopify
+        ["return.requested"] = "return.created",
+        ["claim.created"] = "return.created",
 
-        // Invoice events
+        // ── Invoice ──
         ["invoice.created"] = "invoice.created",
         ["invoice_created"] = "invoice.created",
     };
