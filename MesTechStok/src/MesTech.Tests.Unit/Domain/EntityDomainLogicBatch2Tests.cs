@@ -21,7 +21,7 @@ public class FinanceExpenseDomainTests
 {
     private static FinanceExpense CreateDraft()
         => FinanceExpense.Create(Guid.NewGuid(), "Kargo faturası", 150m,
-            ExpenseCategory.Shipping, DateTime.UtcNow);
+            ExpenseCategory.Other, DateTime.UtcNow);
 
     // ── Factory ──
 
@@ -32,14 +32,14 @@ public class FinanceExpenseDomainTests
         expense.Title.Should().Be("Kargo faturası");
         expense.Amount.Should().Be(150m);
         expense.Status.Should().Be(ExpenseStatus.Draft);
-        expense.Category.Should().Be(ExpenseCategory.Shipping);
+        expense.Category.Should().Be(ExpenseCategory.Other);
     }
 
     [Fact]
     public void Create_EmptyTitle_Throws()
     {
         var act = () => FinanceExpense.Create(Guid.NewGuid(), "", 100m,
-            ExpenseCategory.Shipping, DateTime.UtcNow);
+            ExpenseCategory.Other, DateTime.UtcNow);
         act.Should().Throw<ArgumentException>();
     }
 
@@ -47,7 +47,7 @@ public class FinanceExpenseDomainTests
     public void Create_ZeroAmount_Throws()
     {
         var act = () => FinanceExpense.Create(Guid.NewGuid(), "Test", 0m,
-            ExpenseCategory.Shipping, DateTime.UtcNow);
+            ExpenseCategory.Other, DateTime.UtcNow);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -55,7 +55,7 @@ public class FinanceExpenseDomainTests
     public void Create_NegativeAmount_Throws()
     {
         var act = () => FinanceExpense.Create(Guid.NewGuid(), "Test", -50m,
-            ExpenseCategory.Shipping, DateTime.UtcNow);
+            ExpenseCategory.Other, DateTime.UtcNow);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
