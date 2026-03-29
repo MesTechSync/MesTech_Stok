@@ -4,6 +4,12 @@ All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [1.0.25] - 2026-03-29
+## [1.0.26] - 2026-03-29
+
+### DEV3 v3.8 TUR6 — WebhookEventRouter 16 platform mapping tamamlandı
+- fix: ResolvePlatformType 8→16 platform (AmazonEu, Ozon, Etsy, Zalando, Pazarama, PttAVM, OpenCart, Bitrix24)
+- fix: Default fallback Enum.TryParse ile güvenli çözümleme
+
 
 ### DEV3 v3.8 TUR4 — DLQ + Webhook 3 bug fix
 - fix: WebhookEventRouter Shopify/WooCommerce PlatformType.OpenCart → doğru enum (veri bütünlüğü)
