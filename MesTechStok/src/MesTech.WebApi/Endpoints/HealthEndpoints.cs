@@ -41,10 +41,11 @@ public static class HealthEndpoints
         .AllowAnonymous()
         .RequireRateLimiting("HealthRateLimit");
 
-        // GET /health/deep — infra + adapter ping + MESA (G054)
+        // GET /health/deep — infra + adapter ping + cargo ping + MESA (G054 + G439)
         app.MapGet("/health/deep", async (
             HealthCheckService healthCheckService,
             IAdapterFactory adapterFactory,
+            ICargoProviderFactory cargoProviderFactory,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             ILoggerFactory loggerFactory,
@@ -88,6 +89,29 @@ public static class HealthEndpoints
             });
             adapterChecks.AddRange(await Task.WhenAll(pingTasks));
 
+            // 2b. Cargo adapter ping (parallel) — G439
+            var cargoChecks = new List<HealthCheckItem>();
+            var cargoAdapters = cargoProviderFactory.GetAll();
+            var cargoPingTasks = cargoAdapters.Select(async cargo =>
+            {
+                var name = $"cargo:{cargo.Provider}";
+                var cargoSw = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                    cts.CancelAfter(TimeSpan.FromSeconds(5));
+                    var ok = await cargo.PingAsync(cts.Token);
+                    cargoSw.Stop();
+                    return new HealthCheckItem(name, ok, cargoSw.Elapsed.TotalMilliseconds, ok ? null : "Cargo ping failed");
+                }
+                catch (Exception)
+                {
+                    cargoSw.Stop();
+                    return new HealthCheckItem(name, false, cargoSw.Elapsed.TotalMilliseconds, "Cargo connection failed");
+                }
+            });
+            cargoChecks.AddRange(await Task.WhenAll(cargoPingTasks));
+
             // 3. MESA OS status
             HealthCheckItem mesaCheck;
             var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://mestech-mesa:3105";
@@ -108,7 +132,7 @@ public static class HealthEndpoints
 
             sw.Stop();
 
-            var allChecks = infraChecks.Concat(adapterChecks).Append(mesaCheck).ToList();
+            var allChecks = infraChecks.Concat(adapterChecks).Concat(cargoChecks).Append(mesaCheck).ToList();
             var allHealthy = allChecks.All(c => c.IsHealthy);
 
             var result = new
@@ -118,6 +142,7 @@ public static class HealthEndpoints
                 totalDurationMs = sw.Elapsed.TotalMilliseconds,
                 infrastructure = infraChecks,
                 adapters = adapterChecks,
+                cargo = cargoChecks,
                 mesa = mesaCheck,
                 summary = new
                 {
