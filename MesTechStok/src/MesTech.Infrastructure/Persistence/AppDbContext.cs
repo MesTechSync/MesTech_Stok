@@ -293,6 +293,17 @@ public class AppDbContext : DbContext
     public DbSet<StockPlacement> StockPlacements => Set<StockPlacement>();
     public DbSet<Domain.Entities.Erp.ErpAccountMapping> ErpAccountMappings => Set<Domain.Entities.Erp.ErpAccountMapping>();
 
+    // G402: Snapshot drift fix — 9 entity DbSet eklendi
+    public DbSet<BudgetPlan> BudgetPlans => Set<BudgetPlan>();
+    public DbSet<CiceksepetiCategory> CiceksepetiCategories => Set<CiceksepetiCategory>();
+    public DbSet<HepsiburadaListing> HepsiburadaListings => Set<HepsiburadaListing>();
+    public DbSet<ImportTemplate> ImportTemplates => Set<ImportTemplate>();
+    public DbSet<ProfitLossEntry> ProfitLossEntries => Set<ProfitLossEntry>();
+    public DbSet<RecurringExpense> RecurringExpenses => Set<RecurringExpense>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<StockAlertRule> StockAlertRules => Set<StockAlertRule>();
+    public DbSet<WebhookDeadLetter> WebhookDeadLetters => Set<WebhookDeadLetter>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
