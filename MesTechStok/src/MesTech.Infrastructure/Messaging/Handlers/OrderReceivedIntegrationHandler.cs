@@ -33,6 +33,6 @@ public sealed class OrderReceivedIntegrationHandler
             e.PlatformCode, e.PlatformOrderId, e.TotalAmount);
 
         await _publisher.PublishOrderReceivedAsync(
-            e.OrderId, e.PlatformCode, e.PlatformOrderId, e.TotalAmount).ConfigureAwait(false);
+            e.OrderId, e.PlatformCode, e.PlatformOrderId, e.TotalAmount, cancellationToken).ConfigureAwait(false);
     }
 }

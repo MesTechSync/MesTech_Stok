@@ -33,6 +33,6 @@ public sealed class InvoiceCreatedIntegrationHandler
             e.OrderId, e.GrandTotal);
 
         await _publisher.PublishInvoiceCreatedAsync(
-            e.InvoiceId, e.OrderId, string.Empty, e.GrandTotal).ConfigureAwait(false);
+            e.InvoiceId, e.OrderId, string.Empty, e.GrandTotal, cancellationToken).ConfigureAwait(false);
     }
 }
