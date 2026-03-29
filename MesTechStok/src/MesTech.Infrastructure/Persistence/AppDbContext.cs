@@ -286,6 +286,13 @@ public class AppDbContext : DbContext
     public DbSet<WebhookLog> WebhookLogs => Set<WebhookLog>();
     public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
 
+    // G415 + G383 + G420: Yeni entity'ler
+    public DbSet<BackupEntry> BackupEntries => Set<BackupEntry>();
+    public DbSet<FulfillmentShipment> FulfillmentShipments => Set<FulfillmentShipment>();
+    public DbSet<StockLot> StockLots => Set<StockLot>();
+    public DbSet<StockPlacement> StockPlacements => Set<StockPlacement>();
+    public DbSet<Domain.Entities.Erp.ErpAccountMapping> ErpAccountMappings => Set<Domain.Entities.Erp.ErpAccountMapping>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
