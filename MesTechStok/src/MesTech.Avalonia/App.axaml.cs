@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace MesTech.Avalonia;
 
@@ -80,14 +82,22 @@ public partial class App : global::Avalonia.Application
                     cfg.RegisterServicesFromAssembly(
                         typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
-                // === WebApi HTTP Client (G072) ===
+                // === WebApi HTTP Client (G072 + ORG138 Polly resilience) ===
                 var apiBaseUrl = configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
+                var retryPolicy = HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+                var circuitBreakerPolicy = HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
                 services.AddHttpClient<IMesTechApiClient, MesTechApiClient>(client =>
                 {
                     client.BaseAddress = new Uri(apiBaseUrl);
                     client.Timeout = TimeSpan.FromSeconds(30);
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
-                });
+                })
+                .AddPolicyHandler(retryPolicy)
+                .AddPolicyHandler(circuitBreakerPolicy);
 
                 // === Spotlight + Security services ===
                 services.AddSingleton<SpotlightService>();
