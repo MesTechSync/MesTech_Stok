@@ -22,8 +22,8 @@ public sealed class EbaySettlementParser : ISettlementParser
     private List<EbayTransaction>? _cachedTransactions;
     private string? _rawFileHash;
 
-    // Placeholder tenant ID used when caller hasn't set one yet (will be overwritten by command handler)
-    private static readonly Guid PlaceholderTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    // Tenant ID set from the tenantId overload — required for multi-tenant safety
+    private Guid _tenantId;
 
     public string Platform => "eBay";
 
@@ -37,10 +37,19 @@ public sealed class EbaySettlementParser : ISettlementParser
         };
     }
 
-    public async Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+    [Obsolete("Use ParseAsync(tenantId, rawData, format, ct) — Guid.Empty is a multi-tenant risk (BORÇ-N)")]
+    public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
+    {
+        throw new ArgumentException("TenantId is required for settlement parsing. Use the overload with tenantId parameter.", nameof(rawData));
+    }
+
+    public async Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(rawData);
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be Guid.Empty — multi-tenant safety.", nameof(tenantId));
 
+        _tenantId = tenantId;
         _logger.LogInformation("[EbaySettlementParser] Parsing settlement data (format: {Format})", format);
 
         // Compute SHA256 hash of raw stream for deduplication
@@ -64,7 +73,7 @@ public sealed class EbaySettlementParser : ISettlementParser
             _logger.LogWarning("[EbaySettlementParser] Empty or null response, creating empty batch");
 
             return SettlementBatch.Create(
-                tenantId: PlaceholderTenantId,
+                tenantId: _tenantId,
                 platform: Platform,
                 periodStart: DateTime.UtcNow.Date,
                 periodEnd: DateTime.UtcNow.Date,
@@ -94,7 +103,7 @@ public sealed class EbaySettlementParser : ISettlementParser
         var periodEnd = dates.Count > 0 ? dates.Max() : DateTime.UtcNow.Date;
 
         var batch = SettlementBatch.Create(
-            tenantId: PlaceholderTenantId, // Will be set by the caller/command handler
+            tenantId: _tenantId,
             platform: Platform,
             periodStart: periodStart,
             periodEnd: periodEnd,
