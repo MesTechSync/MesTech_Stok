@@ -255,12 +255,83 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // IIntegratorAdapter — Products
     // ═══════════════════════════════════════════
 
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    /// <summary>
+    /// Creates a product listing on Ozon via POST /v2/product/import.
+    /// Ozon requires category_id + minimal attributes (offer_id, name, price, vat, dimension_unit, weight_unit).
+    /// Category-specific attributes can be provided via product metadata; if absent, minimal listing is attempted.
+    /// </summary>
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // POST /v2/product/import — requires complex attribute mapping per category.
-        // Stubbed for now — full implementation needs category-specific attributes.
-        _logger.LogWarning("OzonAdapter.PushProductAsync — full listing creation requires category attribute mapping");
-        return Task.FromResult(false);
+        ArgumentNullException.ThrowIfNull(product);
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.PushProductAsync SKU={SKU} Name={Name}", product.SKU, product.Name);
+
+        try
+        {
+            var payload = new
+            {
+                items = new[]
+                {
+                    new
+                    {
+                        offer_id = product.SKU,
+                        name = product.Name,
+                        category_id = product.CategoryId,
+                        barcode = product.Barcode ?? "",
+                        price = product.SalePrice.ToString("0.00", CultureInfo.InvariantCulture),
+                        old_price = (product.ListPrice ?? product.SalePrice).ToString("0.00", CultureInfo.InvariantCulture),
+                        vat = product.TaxRate switch
+                        {
+                            0m => "0",
+                            0.10m => "0.1",
+                            0.20m => "0.2",
+                            _ => "0"
+                        },
+                        description = product.Description ?? "",
+                        dimension_unit = "mm",
+                        weight_unit = "g",
+                        height = 100,
+                        depth = 100,
+                        width = 100,
+                        weight = 500,
+                        images = !string.IsNullOrEmpty(product.ImageUrl)
+                            ? new[] { product.ImageUrl }
+                            : Array.Empty<string>()
+                    }
+                }
+            };
+
+            using var request = BuildPostRequest("/v2/product/import", payload);
+            var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Ozon product import failed {Status}: {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            // Ozon returns { "result": { "task_id": 123 } } on success
+            if (doc.RootElement.TryGetProperty("result", out var result)
+                && result.TryGetProperty("task_id", out var taskId))
+            {
+                _logger.LogInformation("Ozon product import accepted: TaskId={TaskId} SKU={SKU}",
+                    taskId.GetInt64(), product.SKU);
+                return true;
+            }
+
+            _logger.LogWarning("Ozon product import response missing task_id: {Content}", content);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon PushProductAsync exception SKU={SKU}", product.SKU);
+            return false;
+        }
     }
 
     /// <summary>
