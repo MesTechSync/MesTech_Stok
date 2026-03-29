@@ -2,13 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class MutabakatAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     // KPI
     [ObservableProperty] private string totalRecords = "0";
@@ -30,9 +32,10 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> StatusFilters { get; } =
         ["Tumu", "Eslesti", "Eslesmedi", "Beklemede"];
 
-    public MutabakatAvaloniaViewModel(IMediator mediator)
+    public MutabakatAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -43,20 +46,26 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(200); // Will be replaced with MediatR query
+            var dashboard = await _mediator.Send(new GetReconciliationDashboardQuery(_currentUser.TenantId));
 
-            _allItems =
-            [
-                new() { Date = "19.03.2026", Reference = "TR-2026-1842", Source = "Cari - Trendyol", Description = "Trendyol hakedis odemesi", AmountFormatted = "4.520,00 TL", Status = "Eslesti" },
-                new() { Date = "18.03.2026", Reference = "BNK-00341", Source = "Banka - Garanti", Description = "EFT gelen - Trendyol", AmountFormatted = "4.520,00 TL", Status = "Eslesti" },
-                new() { Date = "18.03.2026", Reference = "HB-2026-0923", Source = "Cari - Hepsiburada", Description = "Hepsiburada hakedis odemesi", AmountFormatted = "2.180,00 TL", Status = "Eslesti" },
-                new() { Date = "17.03.2026", Reference = "N11-2026-0412", Source = "Cari - N11", Description = "N11 hakedis odemesi", AmountFormatted = "1.240,00 TL", Status = "Eslesmedi" },
-                new() { Date = "17.03.2026", Reference = "BNK-00338", Source = "Banka - Isbank", Description = "EFT gelen - bilinmiyor", AmountFormatted = "1.180,00 TL", Status = "Eslesmedi" },
-                new() { Date = "16.03.2026", Reference = "TR-2026-1790", Source = "Cari - Trendyol", Description = "Trendyol iade iadesi", AmountFormatted = "-320,00 TL", Status = "Beklemede" },
-            ];
+            var total = dashboard.AutoMatchedCount + dashboard.NeedsReviewCount + dashboard.UnmatchedCount;
+            var score = total > 0 ? (double)dashboard.AutoMatchedCount / total * 100 : 0;
 
+            TotalRecords = total.ToString();
+            MatchedCount = dashboard.AutoMatchedCount.ToString();
+            UnmatchedCount = dashboard.UnmatchedCount.ToString();
+            MatchScoreText = $"%{score:N0}";
+
+            _allItems = [];
+            if (dashboard.AutoMatchedCount > 0)
+                _allItems.Add(new() { Date = DateTime.Now.ToString("dd.MM.yyyy"), Reference = "ESLESTIRME", Source = "Otomatik", Description = $"{dashboard.AutoMatchedCount} kayit eslesti", AmountFormatted = $"{dashboard.AutoMatchedTotal:N2} TL", Status = "Eslesti" });
+            if (dashboard.NeedsReviewCount > 0)
+                _allItems.Add(new() { Date = DateTime.Now.ToString("dd.MM.yyyy"), Reference = "INCELEME", Source = "Manuel", Description = $"{dashboard.NeedsReviewCount} kayit inceleme bekliyor", AmountFormatted = $"{dashboard.NeedsReviewTotal:N2} TL", Status = "Beklemede" });
+            if (dashboard.UnmatchedCount > 0)
+                _allItems.Add(new() { Date = DateTime.Now.ToString("dd.MM.yyyy"), Reference = "ESLESMEDI", Source = "Sistem", Description = $"{dashboard.UnmatchedCount} kayit eslesmedi", AmountFormatted = $"{dashboard.UnmatchedTotal:N2} TL", Status = "Eslesmedi" });
+
+            IsEmpty = total == 0;
             ApplyFilters();
-            UpdateKpis();
         }
         catch (Exception ex)
         {
@@ -67,19 +76,6 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
-    }
-
-    private void UpdateKpis()
-    {
-        var total = _allItems.Count;
-        var matched = _allItems.Count(x => x.Status == "Eslesti");
-        var unmatched = _allItems.Count(x => x.Status == "Eslesmedi");
-        var score = total > 0 ? (double)matched / total * 100 : 0;
-
-        TotalRecords = total.ToString();
-        MatchedCount = matched.ToString();
-        UnmatchedCount = unmatched.ToString();
-        MatchScoreText = $"%{score:N0}";
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
@@ -120,8 +116,7 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500); // Will be replaced with MediatR command
-            // Auto-match logic placeholder
+            // Reload dashboard after auto-match triggers server-side reconciliation
             await LoadAsync();
         }
         catch (Exception ex)
