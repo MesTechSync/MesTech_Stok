@@ -94,18 +94,31 @@ public sealed class WebhookEventRouter
             return null;
         }
 
+        // Parse payload ONCE — avoid repeated JsonDocument.Parse per field extraction
+        JsonElement root;
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            root = doc.RootElement.Clone();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Webhook payload is not valid JSON: platform={Platform}", platform);
+            return null;
+        }
+
         var now = DateTime.UtcNow;
 
         switch (normalizedType)
         {
             case "order.created":
-                var orderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
-                var orderTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var platformOrderId = ExtractStringField(payload, "platformOrderId")
-                    ?? ExtractStringField(payload, "id")
+                var orderId = GetGuid(root, "orderId") ?? Guid.NewGuid();
+                var orderTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var platformOrderId = GetString(root, "platformOrderId")
+                    ?? GetString(root, "id")
                     ?? "unknown";
-                var totalAmount = ExtractDecimalField(payload, "totalAmount")
-                    ?? ExtractDecimalField(payload, "total_price")
+                var totalAmount = GetDecimal(root, "totalAmount")
+                    ?? GetDecimal(root, "total_price")
                     ?? 0m;
 
                 await PublishAsync(new OrderReceivedEvent(
@@ -113,25 +126,25 @@ public sealed class WebhookEventRouter
                 break;
 
             case "order.cancelled":
-                var cancelOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
-                var cancelTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var cancelPlatformOrderId = ExtractStringField(payload, "platformOrderId")
-                    ?? ExtractStringField(payload, "id")
+                var cancelOrderId = GetGuid(root, "orderId") ?? Guid.NewGuid();
+                var cancelTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var cancelPlatformOrderId = GetString(root, "platformOrderId")
+                    ?? GetString(root, "id")
                     ?? "unknown";
-                var reason = ExtractStringField(payload, "reason")
-                    ?? ExtractStringField(payload, "cancel_reason");
+                var reason = GetString(root, "reason")
+                    ?? GetString(root, "cancel_reason");
 
                 await PublishAsync(new OrderCancelledEvent(
                     cancelOrderId, cancelTenantId, platform, cancelPlatformOrderId, reason, now), ct);
                 break;
 
             case "product.created":
-                var createdProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
-                var createdTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var createdSku = ExtractStringField(payload, "sku") ?? "unknown";
-                var createdName = ExtractStringField(payload, "name") ?? "Webhook Product";
-                var createdPrice = ExtractDecimalField(payload, "salePrice")
-                    ?? ExtractDecimalField(payload, "price")
+                var createdProductId = GetGuid(root, "productId") ?? Guid.NewGuid();
+                var createdTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var createdSku = GetString(root, "sku") ?? "unknown";
+                var createdName = GetString(root, "name") ?? "Webhook Product";
+                var createdPrice = GetDecimal(root, "salePrice")
+                    ?? GetDecimal(root, "price")
                     ?? 0m;
 
                 await PublishAsync(new ProductCreatedEvent(
@@ -139,22 +152,22 @@ public sealed class WebhookEventRouter
                 break;
 
             case "product.updated":
-                var updatedProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
-                var updatedTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var updatedSku = ExtractStringField(payload, "sku") ?? "unknown";
+                var updatedProductId = GetGuid(root, "productId") ?? Guid.NewGuid();
+                var updatedTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var updatedSku = GetString(root, "sku") ?? "unknown";
 
                 await PublishAsync(new ProductUpdatedEvent(
                     updatedProductId, updatedTenantId, updatedSku, now), ct);
                 break;
 
             case "order.shipped":
-                var shippedOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
-                var shippedTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var trackingNumber = ExtractStringField(payload, "trackingNumber")
-                    ?? ExtractStringField(payload, "tracking_number")
+                var shippedOrderId = GetGuid(root, "orderId") ?? Guid.NewGuid();
+                var shippedTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var trackingNumber = GetString(root, "trackingNumber")
+                    ?? GetString(root, "tracking_number")
                     ?? "unknown";
-                var carrierStr = ExtractStringField(payload, "carrier")
-                    ?? ExtractStringField(payload, "cargoProvider")
+                var carrierStr = GetString(root, "carrier")
+                    ?? GetString(root, "cargoProvider")
                     ?? "Unknown";
                 var cargoProvider = Enum.TryParse<Domain.Enums.CargoProvider>(carrierStr, true, out var cp)
                     ? cp : Domain.Enums.CargoProvider.None;
@@ -164,11 +177,11 @@ public sealed class WebhookEventRouter
                 break;
 
             case "stock.updated":
-                var stockProductId = ExtractGuidField(payload, "productId") ?? Guid.NewGuid();
-                var stockTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var stockSku = ExtractStringField(payload, "sku") ?? "unknown";
-                var newQuantity = (int)(ExtractDecimalField(payload, "quantity")
-                    ?? ExtractDecimalField(payload, "available")
+                var stockProductId = GetGuid(root, "productId") ?? Guid.NewGuid();
+                var stockTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var stockSku = GetString(root, "sku") ?? "unknown";
+                var newQuantity = (int)(GetDecimal(root, "quantity")
+                    ?? GetDecimal(root, "available")
                     ?? 0);
 
                 await PublishAsync(new StockChangedEvent(
@@ -177,9 +190,9 @@ public sealed class WebhookEventRouter
                 break;
 
             case "return.created":
-                var returnId = ExtractGuidField(payload, "returnId") ?? Guid.NewGuid();
-                var returnTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var returnOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
+                var returnId = GetGuid(root, "returnId") ?? Guid.NewGuid();
+                var returnTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var returnOrderId = GetGuid(root, "orderId") ?? Guid.NewGuid();
                 var returnPlatform = ResolvePlatformType(platform);
 
                 await PublishAsync(new ReturnCreatedEvent(
@@ -187,11 +200,11 @@ public sealed class WebhookEventRouter
                 break;
 
             case "invoice.created":
-                var invoiceId = ExtractGuidField(payload, "invoiceId") ?? Guid.NewGuid();
-                var invoiceOrderId = ExtractGuidField(payload, "orderId") ?? Guid.NewGuid();
-                var invoiceTenantId = ExtractGuidField(payload, "tenantId") ?? Guid.NewGuid();
-                var grandTotal = ExtractDecimalField(payload, "grandTotal")
-                    ?? ExtractDecimalField(payload, "total")
+                var invoiceId = GetGuid(root, "invoiceId") ?? Guid.NewGuid();
+                var invoiceOrderId = GetGuid(root, "orderId") ?? Guid.NewGuid();
+                var invoiceTenantId = GetGuid(root, "tenantId") ?? Guid.NewGuid();
+                var grandTotal = GetDecimal(root, "grandTotal")
+                    ?? GetDecimal(root, "total")
                     ?? 0m;
 
                 await PublishAsync(new InvoiceCreatedEvent(
@@ -225,8 +238,8 @@ public sealed class WebhookEventRouter
         return platform.ToLowerInvariant() switch
         {
             "trendyol" => PlatformType.Trendyol,
-            "shopify" => PlatformType.OpenCart, // Shopify → OpenCart enum slot (closest match)
-            "woocommerce" => PlatformType.OpenCart,
+            "shopify" => PlatformType.Shopify,
+            "woocommerce" => PlatformType.WooCommerce,
             "hepsiburada" => PlatformType.Hepsiburada,
             "n11" => PlatformType.N11,
             "amazon" => PlatformType.Amazon,
@@ -243,50 +256,12 @@ public sealed class WebhookEventRouter
         await _publisher.Publish(notification, ct);
     }
 
-    private Guid? ExtractGuidField(string json, string fieldName)
-    {
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty(fieldName, out var prop) &&
-                prop.TryGetGuid(out var value))
-                return value;
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract Guid field '{Field}' from payload", fieldName);
-        }
-        return null;
-    }
+    private static Guid? GetGuid(JsonElement root, string fieldName)
+        => root.TryGetProperty(fieldName, out var prop) && prop.TryGetGuid(out var v) ? v : null;
 
-    private string? ExtractStringField(string json, string fieldName)
-    {
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty(fieldName, out var prop))
-                return prop.GetString();
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract String field '{Field}' from payload", fieldName);
-        }
-        return null;
-    }
+    private static string? GetString(JsonElement root, string fieldName)
+        => root.TryGetProperty(fieldName, out var prop) ? prop.GetString() : null;
 
-    private decimal? ExtractDecimalField(string json, string fieldName)
-    {
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty(fieldName, out var prop) &&
-                prop.TryGetDecimal(out var value))
-                return value;
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogDebug(ex, "[WebhookRouter] Failed to extract Decimal field '{Field}' from payload", fieldName);
-        }
-        return null;
-    }
+    private static decimal? GetDecimal(JsonElement root, string fieldName)
+        => root.TryGetProperty(fieldName, out var prop) && prop.TryGetDecimal(out var v) ? v : null;
 }

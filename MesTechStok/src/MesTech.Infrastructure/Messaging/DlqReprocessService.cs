@@ -36,7 +36,8 @@ public sealed class DlqReprocessService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"https://{rabbitHost}:{managementPort}";
+        var scheme = _configuration["RabbitMQ:ManagementScheme"] ?? "http";
+        var baseUrl = $"{scheme}://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =
@@ -150,7 +151,8 @@ public sealed class DlqReprocessService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"https://{rabbitHost}:{managementPort}";
+        var scheme = _configuration["RabbitMQ:ManagementScheme"] ?? "http";
+        var baseUrl = $"{scheme}://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =
