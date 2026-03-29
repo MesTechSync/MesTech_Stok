@@ -299,21 +299,25 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             "0 * * * *");
 
-        // ── 12-Platform Stok Sync (GenericPlatformStockSyncJob) ──
+        // ── 14-Platform Stok Sync (GenericPlatformStockSyncJob) ──
+        // Platform code = AdapterFactory key (PlatformCode property). Case-insensitive resolve.
         var platformSyncSchedules = new (string code, string cron)[]
         {
-            ("Hepsiburada",  "*/30 * * * *"),  // 30dk
+            ("Hepsiburada",  "*/30 * * * *"),  // 30dk — yüksek hacim
             ("Ciceksepeti",  "*/30 * * * *"),
             ("N11",          "*/30 * * * *"),
             ("Pazarama",     "*/30 * * * *"),
-            ("Amazon_TR",    "0 * * * *"),     // 1 saat
+            ("Amazon",       "0 * * * *"),     // 1 saat — G494 FIX: Amazon_TR → Amazon (PlatformCode)
+            ("AmazonEu",     "0 * * * *"),     // 1 saat — G495 FIX: eksikti, eklendi
             ("eBay",         "0 * * * *"),
             ("Shopify",      "0 * * * *"),
             ("WooCommerce",  "0 * * * *"),
-            ("Ozon",         "0 */2 * * *"),   // 2 saat
+            ("Ozon",         "0 */2 * * *"),   // 2 saat — düşük hacim
             ("Etsy",         "0 */2 * * *"),
             ("Zalando",      "0 */2 * * *"),
             ("PttAVM",       "0 */2 * * *"),
+            // OpenCart → ayrı OpenCartStockSyncJob (self-hosted, özel mantık)
+            // Bitrix24 → CRM adapter, stok sync uygulanamaz
         };
 
         foreach (var (code, cron) in platformSyncSchedules)
