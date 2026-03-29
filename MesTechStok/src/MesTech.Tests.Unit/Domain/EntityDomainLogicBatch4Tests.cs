@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Entities.Crm;
+using MesTech.Domain.Entities.Tasks;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Tests.Unit.Domain;
@@ -86,7 +87,7 @@ public class MilestoneDomainTests
         var milestone = Milestone.Create(Guid.NewGuid(), Guid.NewGuid(), "MVP Release", 1, DateTime.UtcNow.AddDays(30));
         milestone.Name.Should().Be("MVP Release");
         milestone.Position.Should().Be(1);
-        milestone.Status.Should().Be(MilestoneStatus.NotStarted);
+        milestone.Status.Should().Be(MilestoneStatus.Pending);
     }
 
     [Fact]
@@ -117,30 +118,29 @@ public class PipelineStageDomainTests
     [Fact]
     public void Create_ValidParams_Succeeds()
     {
-        var stage = PipelineStage.Create(Guid.NewGuid(), "Teklif", 1, 30);
+        var stage = PipelineStage.Create(Guid.NewGuid(), Guid.NewGuid(), "Teklif", 1, 30m, StageType.Normal);
         stage.Name.Should().Be("Teklif");
         stage.Position.Should().Be(1);
-        stage.WinProbability.Should().Be(30);
     }
 
     [Fact]
     public void Create_ProbabilityAbove100_Throws()
     {
-        var act = () => PipelineStage.Create(Guid.NewGuid(), "Test", 1, 110);
+        var act = () => PipelineStage.Create(Guid.NewGuid(), Guid.NewGuid(), "Test", 1, 110m, StageType.Normal);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
     public void Create_NegativeProbability_Throws()
     {
-        var act = () => PipelineStage.Create(Guid.NewGuid(), "Test", 1, -5);
+        var act = () => PipelineStage.Create(Guid.NewGuid(), Guid.NewGuid(), "Test", 1, -5m, StageType.Normal);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
     public void UpdatePosition_ChangesPosition()
     {
-        var stage = PipelineStage.Create(Guid.NewGuid(), "Teklif", 1, 30);
+        var stage = PipelineStage.Create(Guid.NewGuid(), Guid.NewGuid(), "Teklif", 1, 30m, StageType.Normal);
         stage.UpdatePosition(5);
         stage.Position.Should().Be(5);
     }
@@ -204,12 +204,12 @@ public class ImportTemplateDomainTests
     }
 
     [Fact]
-    public void AddMapping_IncrementsMappings()
+    public void AddMapping_IncreasesFieldCount()
     {
         var template = ImportTemplate.Create(Guid.NewGuid(), "Test", "CSV");
         template.AddMapping("urun_adi", "Name");
         template.AddMapping("fiyat", "Price");
-        template.ColumnMappingsJson.Should().NotBeNullOrEmpty();
+        template.FieldCount.Should().Be(2);
     }
 
     [Fact]
@@ -232,22 +232,21 @@ public class ShipmentCostDomainTests
     [Fact]
     public void Create_ValidParams_Succeeds()
     {
-        var cost = ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), 45.90m, "TRY");
+        var cost = ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), CargoProvider.Yurtici, 45.90m);
         cost.Cost.Should().Be(45.90m);
-        cost.Currency.Should().Be("TRY");
     }
 
     [Fact]
     public void Create_NegativeCost_Throws()
     {
-        var act = () => ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), -10m, "TRY");
+        var act = () => ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), CargoProvider.Yurtici, -10m);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
     public void Create_ZeroCost_Succeeds()
     {
-        var cost = ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), 0m, "TRY");
+        var cost = ShipmentCost.Create(Guid.NewGuid(), Guid.NewGuid(), CargoProvider.Yurtici, 0m);
         cost.Cost.Should().Be(0m);
     }
 }

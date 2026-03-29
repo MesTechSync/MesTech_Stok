@@ -392,7 +392,7 @@ public class UpdateCommandTests
         repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((MesTech.Domain.Entities.Tenant?)null);
 
-        var sut = new UpdateProfileSettingsHandler(repo.Object);
+        var sut = new UpdateProfileSettingsHandler(repo.Object, Mock.Of<IUnitOfWork>());
         var cmd = new UpdateProfileSettingsCommand(_tenantId, "Name", "123");
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -407,7 +407,7 @@ public class UpdateCommandTests
         var tenant = new MesTech.Domain.Entities.Tenant { Name = "Old" };
         repo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
 
-        var sut = new UpdateProfileSettingsHandler(repo.Object);
+        var sut = new UpdateProfileSettingsHandler(repo.Object, Mock.Of<IUnitOfWork>());
         var cmd = new UpdateProfileSettingsCommand(_tenantId, "NewName", "VKN123");
 
         var result = await sut.Handle(cmd, CancellationToken.None);
