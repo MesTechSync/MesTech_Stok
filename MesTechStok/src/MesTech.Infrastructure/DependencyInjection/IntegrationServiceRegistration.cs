@@ -337,11 +337,16 @@ public static class IntegrationServiceRegistration
         services.AddMemoryCache();
         services.AddScoped<IGibMukellefService, GibMukellefService>();
 
-        // Product scraper service — URL-based product info via platform APIs
+        // Product scraper service — URL-based product info via platform APIs (G440: config-driven URLs)
+        if (configuration is not null)
+            services.Configure<ProductScraperOptions>(configuration.GetSection("Scraping:PlatformApiUrls"));
+        else
+            services.Configure<ProductScraperOptions>(_ => { });
         services.AddScoped<IProductScraperService>(sp =>
             new ProductScraperService(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ProductScraper),
-                sp.GetRequiredService<ILogger<ProductScraperService>>()));
+                sp.GetRequiredService<ILogger<ProductScraperService>>(),
+                sp.GetRequiredService<IOptions<ProductScraperOptions>>()));
 
         // G10 A-08: Paraşüt accounting integration
         services.AddScoped<IParasutAccountingService>(sp =>

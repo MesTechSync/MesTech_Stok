@@ -2,8 +2,22 @@ using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.Scraping;
+
+/// <summary>
+/// Configuration for platform product API base URLs.
+/// Bind from appsettings: "Scraping:PlatformApiUrls".
+/// </summary>
+public sealed class ProductScraperOptions
+{
+    public string TrendyolBaseUrl { get; set; } = "https://apigw.trendyol.com/integration/product/products";
+    public string HepsiburadaBaseUrl { get; set; } = "https://api.hepsiburada.com/product/api/products";
+    public string N11BaseUrl { get; set; } = "https://api.n11.com/rest/products";
+    public string CiceksepetiBaseUrl { get; set; } = "https://api.ciceksepeti.com/products";
+    public string PazaramaBaseUrl { get; set; } = "https://api.pazarama.com/marketplace/products";
+}
 
 /// <summary>
 /// URL-bazli urun bilgi servisi — platform URL'sinden urun detayini cekmek icin.
@@ -14,6 +28,7 @@ public sealed class ProductScraperService : IProductScraperService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ProductScraperService> _logger;
+    private readonly ProductScraperOptions _options;
 
     // Platform URL detection map
     private static readonly Dictionary<string, string> PlatformDomainMap = new(StringComparer.OrdinalIgnoreCase)
@@ -26,10 +41,11 @@ public sealed class ProductScraperService : IProductScraperService
         ["pazarama.com"] = "Pazarama"
     };
 
-    public ProductScraperService(HttpClient httpClient, ILogger<ProductScraperService> logger)
+    public ProductScraperService(HttpClient httpClient, ILogger<ProductScraperService> logger, IOptions<ProductScraperOptions> options)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new ProductScraperOptions();
     }
 
     public async Task<ScrapedProductDto?> ScrapeFromUrlAsync(string url, CancellationToken ct = default)
@@ -174,15 +190,15 @@ public sealed class ProductScraperService : IProductScraperService
         return last;
     }
 
-    private static string? BuildApiUrl(string platform, string productId)
+    private string? BuildApiUrl(string platform, string productId)
     {
         return platform switch
         {
-            "Trendyol" => $"https://apigw.trendyol.com/integration/product/products/{productId}",
-            "Hepsiburada" => $"https://api.hepsiburada.com/product/api/products/{productId}",
-            "N11" => $"https://api.n11.com/rest/products/{productId}",
-            "Ciceksepeti" => $"https://api.ciceksepeti.com/products/{productId}",
-            "Pazarama" => $"https://api.pazarama.com/marketplace/products/{productId}",
+            "Trendyol" => $"{_options.TrendyolBaseUrl.TrimEnd('/')}/{productId}",
+            "Hepsiburada" => $"{_options.HepsiburadaBaseUrl.TrimEnd('/')}/{productId}",
+            "N11" => $"{_options.N11BaseUrl.TrimEnd('/')}/{productId}",
+            "Ciceksepeti" => $"{_options.CiceksepetiBaseUrl.TrimEnd('/')}/{productId}",
+            "Pazarama" => $"{_options.PazaramaBaseUrl.TrimEnd('/')}/{productId}",
             _ => null
         };
     }
