@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
@@ -7,13 +8,16 @@ public sealed class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceComman
 {
     private readonly IEInvoiceDocumentRepository _repository;
     private readonly IEInvoiceProvider _eInvoiceProvider;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CancelEInvoiceHandler(
         IEInvoiceDocumentRepository repository,
-        IEInvoiceProvider eInvoiceProvider)
+        IEInvoiceProvider eInvoiceProvider,
+        IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _eInvoiceProvider = eInvoiceProvider;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<bool> Handle(CancelEInvoiceCommand request, CancellationToken cancellationToken)
@@ -33,6 +37,7 @@ public sealed class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceComman
 
         doc.Cancel(request.Reason, cancelledBy: "system");
         await _repository.UpdateAsync(doc, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
     }

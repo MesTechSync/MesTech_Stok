@@ -1,16 +1,19 @@
 using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities.EInvoice;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Application.Features.EInvoice.Commands;
 
 public sealed class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceCommand, Guid>
 {
     private readonly IEInvoiceDocumentRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateEInvoiceHandler(IEInvoiceDocumentRepository repository)
+    public CreateEInvoiceHandler(IEInvoiceDocumentRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Guid> Handle(CreateEInvoiceCommand request, CancellationToken cancellationToken)
@@ -68,6 +71,7 @@ public sealed class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceComman
             currency: request.CurrencyCode);
 
         await _repository.AddAsync(doc, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return doc.Id;
     }
