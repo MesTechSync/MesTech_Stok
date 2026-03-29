@@ -63,7 +63,11 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
             }
             TotalCount = result.TotalCount;
         }
-        finally { IsLoading = false; }
+        finally
+        {
+            IsLoading = false;
+            IsEmpty = Leads.Count == 0;
+        }
     }
 
     [RelayCommand]

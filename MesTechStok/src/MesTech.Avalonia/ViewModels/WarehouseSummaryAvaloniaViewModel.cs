@@ -57,7 +57,11 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
             HasError = true;
             ErrorMessage = $"Depo verileri yuklenemedi: {ex.Message}";
         }
-        finally { IsLoading = false; }
+        finally
+        {
+            IsLoading = false;
+            IsEmpty = WarehouseCards.Count == 0;
+        }
     }
 
     [RelayCommand]

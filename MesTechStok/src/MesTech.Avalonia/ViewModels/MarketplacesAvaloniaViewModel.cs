@@ -52,6 +52,7 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = Platforms.Count == 0;
         }
     }
 

@@ -91,6 +91,7 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = Stages.Count == 0;
         }
     }
 

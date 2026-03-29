@@ -72,6 +72,7 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = Stages.Count == 0;
         }
     }
 
