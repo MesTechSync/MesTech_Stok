@@ -3,6 +3,8 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockPlacements;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -26,9 +28,12 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
 
     private List<PlacementItemDto> _allItems = [];
 
-    public StockPlacementAvaloniaViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public StockPlacementAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -39,26 +44,21 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(300); // Will be replaced with MediatR query
+            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId));
 
             Warehouses.Clear();
-            Warehouses.Add("Ana Depo");
-            Warehouses.Add("Yedek Depo");
-            Warehouses.Add("Iade Depo");
+            var warehouseNames = placements.Select(p => p.WarehouseName ?? "—").Distinct().OrderBy(w => w);
+            foreach (var w in warehouseNames) Warehouses.Add(w);
 
-            _allItems =
-            [
-                new() { Sku = "SKU-1001", Ad = "Samsung Galaxy S24", Miktar = 45, MinimumStock = 10, Depo = "Ana Depo", Raf = "A-01" },
-                new() { Sku = "SKU-1002", Ad = "Apple MacBook Air M3", Miktar = 3, MinimumStock = 5, Depo = "Ana Depo", Raf = "A-02" },
-                new() { Sku = "SKU-1003", Ad = "Sony WH-1000XM5 Kulaklik", Miktar = 78, MinimumStock = 20, Depo = "Yedek Depo", Raf = "B-01" },
-                new() { Sku = "SKU-1004", Ad = "Logitech MX Master 3S", Miktar = 0, MinimumStock = 15, Depo = "Ana Depo", Raf = "A-03" },
-                new() { Sku = "SKU-1005", Ad = "Dell U2723QE Monitor", Miktar = 8, MinimumStock = 5, Depo = "Yedek Depo", Raf = "B-02" },
-                new() { Sku = "SKU-1006", Ad = "Anker PowerCore 20000", Miktar = 120, MinimumStock = 30, Depo = "Ana Depo", Raf = "A-01" },
-                new() { Sku = "SKU-1007", Ad = "Xiaomi Mi Band 8", Miktar = 12, MinimumStock = 25, Depo = "Yedek Depo", Raf = "B-03" },
-                new() { Sku = "SKU-1008", Ad = "HP LaserJet Pro M404", Miktar = 15, MinimumStock = 5, Depo = "Iade Depo", Raf = "C-01" },
-                new() { Sku = "SKU-1009", Ad = "Canon EOS R50 Kamera", Miktar = 4, MinimumStock = 8, Depo = "Ana Depo", Raf = "A-02" },
-                new() { Sku = "SKU-1010", Ad = "JBL Charge 5 Hoparlor", Miktar = 56, MinimumStock = 10, Depo = "Iade Depo", Raf = "C-02" },
-            ];
+            _allItems = placements.Select(p => new PlacementItemDto
+            {
+                Sku = p.ProductSku ?? "—",
+                Ad = p.ProductName ?? "—",
+                Miktar = p.Quantity,
+                MinimumStock = p.MinimumStock,
+                Depo = p.WarehouseName ?? "—",
+                Raf = p.ShelfCode ?? p.BinCode ?? "—"
+            }).ToList();
 
             if (SelectedWarehouse is null && Warehouses.Count > 0)
                 SelectedWarehouse = Warehouses[0];
