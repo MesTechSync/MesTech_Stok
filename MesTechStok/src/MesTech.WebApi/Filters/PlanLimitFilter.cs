@@ -147,15 +147,26 @@ public sealed class FeatureGateFilter : IEndpointFilter
         if (plan is null)
             return await next(context).ConfigureAwait(false);
 
-        // Check FeaturesJson for the required feature
+        // Check FeaturesJson for the required feature — proper JSON parsing (FMEA-DEV6)
         if (!string.IsNullOrWhiteSpace(plan.FeaturesJson))
         {
-            var featuresLower = plan.FeaturesJson.ToLowerInvariant();
-            if (featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\"")
-                || featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\": true")
-                || featuresLower.Contains($"\"{_requiredFeature.ToLowerInvariant()}\":true"))
+            try
             {
-                return await next(context).ConfigureAwait(false);
+                using var doc = System.Text.Json.JsonDocument.Parse(plan.FeaturesJson);
+                foreach (var prop in doc.RootElement.EnumerateObject())
+                {
+                    if (string.Equals(prop.Name, _requiredFeature, StringComparison.OrdinalIgnoreCase)
+                        && (prop.Value.ValueKind == System.Text.Json.JsonValueKind.True
+                            || (prop.Value.ValueKind == System.Text.Json.JsonValueKind.String
+                                && string.Equals(prop.Value.GetString(), "true", StringComparison.OrdinalIgnoreCase))))
+                    {
+                        return await next(context).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                logger.LogWarning(ex, "Feature gate: invalid FeaturesJson for plan {PlanId}", plan.Id);
             }
         }
 
