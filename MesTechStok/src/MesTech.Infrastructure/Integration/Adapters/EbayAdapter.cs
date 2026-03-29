@@ -179,10 +179,6 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         var expiresIn = json.RootElement.GetProperty("expires_in").GetInt32();
         _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
 
-        // Set Bearer token on default headers for subsequent calls
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _accessToken);
-
         _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
         return _accessToken;
     }
@@ -217,6 +213,18 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "EbayAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    /// <summary>
+    /// Creates an HttpRequestMessage with Bearer auth set per-request (thread-safe).
+    /// Avoids DefaultRequestHeaders mutation on shared HttpClient.
+    /// </summary>
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_accessToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+        return request;
     }
 
     // ═══════════════════════════════════════════
@@ -285,7 +293,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             {
                 var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item?limit={pageSize}&offset={offset}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -381,7 +389,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             // We need the current inventory_item first to do a proper PUT (partial update not supported)
             var getResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
             string existingProductTitle = string.Empty;
 
             if (getResponse.IsSuccessStatusCode)
@@ -413,7 +421,12 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var putResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -450,7 +463,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             // Step 1: Find offerId for the SKU
             var getOffersUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer?sku={sku}";
             var getResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(getOffersUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, getOffersUrl), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!getResponse.IsSuccessStatusCode)
             {
@@ -503,7 +516,12 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var putUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer/{offerId}";
             using var putContent = new StringContent(json, Encoding.UTF8, "application/json");
             var putResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    var req = CreateAuthenticatedRequest(HttpMethod.Put, putUrl);
+                    req.Content = putContent;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -542,7 +560,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             const int categoryTreeId = 3;
             var url = $"{_ebayBaseUrl}/commerce/taxonomy/v1/category_tree/{categoryTreeId}";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -659,7 +677,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             {
                 var url = $"{_ebayBaseUrl}/sell/fulfillment/v1/order?filter={filter}&limit={pageSize}&offset={offset}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -892,7 +910,12 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -972,7 +995,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var url = $"{_ebayBaseUrl}/sell/finances/v1/transaction?filter={Uri.EscapeDataString(filter)}&limit=200";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(new Uri(url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

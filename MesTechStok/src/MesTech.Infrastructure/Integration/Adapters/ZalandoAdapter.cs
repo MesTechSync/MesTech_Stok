@@ -193,9 +193,6 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             : DefaultTokenExpirySeconds;
         _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
 
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _accessToken);
-
         _logger.LogInformation("Zalando OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
         return _accessToken;
     }
@@ -217,6 +214,14 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "ZalandoAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_accessToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+        return request;
     }
 
     // ═══════════════════════════════════════════
@@ -245,7 +250,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             // Probe: fetch a single article to confirm API access
             var url = $"{ApiBase}/partner/articles?page=0&pageSize=1";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             result.IsSuccess = response.IsSuccessStatusCode;
@@ -301,7 +306,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             {
                 var url = $"{ApiBase}/partner/articles?page={page}&pageSize={pageSize}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -400,8 +405,12 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync($"{ApiBase}/partner/inventory", content, token)
-                    .ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/inventory");
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -449,8 +458,12 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync($"{ApiBase}/partner/prices", content, token)
-                    .ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/prices");
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -512,7 +525,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 var url = $"{ApiBase}/partner/orders?createdAfter={Uri.EscapeDataString(sinceStr)}" +
                           $"&page={page}&pageSize={pageSize}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -711,7 +724,12 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

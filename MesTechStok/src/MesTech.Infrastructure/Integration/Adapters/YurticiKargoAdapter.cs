@@ -1,4 +1,4 @@
-using System.Security;
+﻿using System.Security;
 using System.Xml.Linq;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Interfaces;
@@ -169,7 +169,7 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
                 AuthElement(),
                 new XElement(YkNs + "keys", "PING-TEST"));
 
-            await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
+            await ThrottledSoapAsync(_serviceUrl, "https://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)

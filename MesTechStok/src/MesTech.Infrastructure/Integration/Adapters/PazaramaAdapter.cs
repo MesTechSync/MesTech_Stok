@@ -149,10 +149,10 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             scope: "merchantgatewayapi.fullaccess",
             logger: loggerFactory.CreateLogger<OAuth2AuthProvider>());
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Pazarama-Client/4.0");
-
         _isConfigured = true;
     }
+
+    private string _currentAccessToken = string.Empty;
 
     private async Task EnsureAuthHeaderAsync(CancellationToken ct)
     {
@@ -161,8 +161,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 "PazaramaAdapter henuz konfigure edilmedi. Once TestConnectionAsync cagirin.");
 
         var token = await _authProvider.GetTokenAsync(ct).ConfigureAwait(false);
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token.AccessToken);
+        _currentAccessToken = token.AccessToken;
     }
 
     private void EnsureConfigured()
@@ -1008,6 +1007,9 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Pazarama-Client/4.0");
+                if (!string.IsNullOrEmpty(_currentAccessToken))
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentAccessToken);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

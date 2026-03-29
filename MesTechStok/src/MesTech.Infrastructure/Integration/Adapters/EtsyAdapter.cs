@@ -40,6 +40,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // Runtime credential state — set via TestConnectionAsync
     private string _shopId = string.Empty;
     private string _accessToken = string.Empty;
+    private string _apiKey = string.Empty;
     private bool _isConfigured;
 
     private readonly string BaseUrl;
@@ -58,6 +59,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             _shopId = _options.ShopId;
             _accessToken = _options.AccessToken;
+            _apiKey = _options.ApiKey;
             _isConfigured = !string.IsNullOrWhiteSpace(_shopId) &&
                             !string.IsNullOrWhiteSpace(_accessToken);
         }
@@ -152,24 +154,10 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _accessToken = credentials.GetValueOrDefault("AccessToken", string.Empty);
 
         // Also accept ApiKey for x-api-key header (Etsy v3 requires it)
-        var apiKey = credentials.GetValueOrDefault("ApiKey", _options.ApiKey);
+        _apiKey = credentials.GetValueOrDefault("ApiKey", _options.ApiKey);
 
         _isConfigured = !string.IsNullOrWhiteSpace(_shopId) &&
                         !string.IsNullOrWhiteSpace(_accessToken);
-
-        if (_isConfigured)
-        {
-            _httpClient.DefaultRequestHeaders.Remove("Authorization");
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _accessToken);
-
-            // Etsy v3 requires x-api-key header
-            if (!string.IsNullOrWhiteSpace(apiKey))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("x-api-key");
-                _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-            }
-        }
     }
 
     private void EnsureConfigured()
@@ -177,6 +165,16 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "EtsyAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_accessToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+        if (!string.IsNullOrWhiteSpace(_apiKey))
+            request.Headers.TryAddWithoutValidation("x-api-key", _apiKey);
+        return request;
     }
 
     private async Task<HttpResponseMessage> SendWithResilienceAsync(
@@ -238,7 +236,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             // GET shop info
             var url = $"{BaseUrl}/application/shops/{_shopId}";
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -301,7 +299,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             while (hasMore)
             {
                 var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}";
-                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
                 var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -376,10 +374,8 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            using var request = new HttpRequestMessage(HttpMethod.Post, url)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
@@ -424,7 +420,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             // Step 2: Get current inventory to preserve offering structure
             var inventoryUrl = $"{BaseUrl}/application/listings/{listingId}/inventory";
-            using var getRequest = new HttpRequestMessage(HttpMethod.Get, inventoryUrl);
+            using var getRequest = CreateAuthenticatedRequest(HttpMethod.Get, inventoryUrl);
             var getResponse = await SendWithResilienceAsync(getRequest, ct).ConfigureAwait(false);
 
             if (!getResponse.IsSuccessStatusCode)
@@ -440,10 +436,8 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             // Step 3: Update quantity in existing inventory structure
             var updatedInventory = BuildInventoryUpdatePayload(inventoryDoc.RootElement, newStock);
 
-            using var putRequest = new HttpRequestMessage(HttpMethod.Put, inventoryUrl)
-            {
-                Content = new StringContent(updatedInventory, Encoding.UTF8, "application/json")
-            };
+            using var putRequest = CreateAuthenticatedRequest(HttpMethod.Put, inventoryUrl);
+            putRequest.Content = new StringContent(updatedInventory, Encoding.UTF8, "application/json");
 
             var putResponse = await SendWithResilienceAsync(putRequest, ct).ConfigureAwait(false);
 
@@ -489,10 +483,8 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             var payload = new { price = newPrice };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            using var request = new HttpRequestMessage(HttpMethod.Put, url)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            using var request = CreateAuthenticatedRequest(HttpMethod.Put, url);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
@@ -531,7 +523,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         try
         {
             var url = $"{BaseUrl}/application/seller-taxonomy/nodes";
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
 
             // Note: taxonomy endpoint may work with just API key (no OAuth needed)
             var response = _isConfigured
@@ -621,7 +613,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                     url += $"&min_created={unixTimestamp}";
                 }
 
-                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
                 var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -687,10 +679,8 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            using var request = new HttpRequestMessage(HttpMethod.Post, url)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
@@ -906,7 +896,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         for (var page = 0; page < 2; page++)
         {
             var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}&includes=images";
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
             var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1017,7 +1007,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     }
 
     // ── IPingableAdapter ──
-    public async Task<bool> PingAsync(CancellationToken ct = default) { try { using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct); cts.CancelAfter(TimeSpan.FromSeconds(5)); var response = await _httpClient.GetAsync($"{BaseUrl}/application/openapi-ping", cts.Token).ConfigureAwait(false); return true; } catch (Exception ex) { _logger.LogWarning(ex, "Etsy ping failed"); return false; } }
+    public async Task<bool> PingAsync(CancellationToken ct = default) { try { using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct); cts.CancelAfter(TimeSpan.FromSeconds(5)); using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"{BaseUrl}/application/openapi-ping"); var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false); return true; } catch (Exception ex) { _logger.LogWarning(ex, "Etsy ping failed"); return false; } }
 
     // ── IShipmentCapableAdapter ──
     public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default) { _logger.LogInformation("[EtsyAdapter] SendShipment — Receipt:{Receipt}", platformOrderId); try { var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/application/shops/{_shopId}/receipts/{platformOrderId}/tracking") { Content = new StringContent(JsonSerializer.Serialize(new { tracking_code = trackingNumber, carrier_name = provider.ToString() }, _jsonOptions), Encoding.UTF8, "application/json") }; request.Headers.Add("x-api-key", _accessToken); var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false); return response.IsSuccessStatusCode; } catch (Exception ex) { _logger.LogError(ex, "[EtsyAdapter] SendShipment error"); return false; } }

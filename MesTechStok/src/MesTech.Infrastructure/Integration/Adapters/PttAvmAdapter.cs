@@ -179,10 +179,6 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         else
             _tokenExpiry = DateTime.UtcNow.AddHours(1);
 
-        // Set Bearer token on default headers for subsequent calls
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _accessToken);
-
         _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
         return _accessToken;
     }
@@ -207,6 +203,14 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "PttAvmAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_accessToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+        return request;
     }
 
     // ═══════════════════════════════════════════
@@ -281,7 +285,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/create";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -323,7 +332,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             {
                 var url = $"{_baseUrl}/api/product/list?page={page}&size={pageSize}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -409,7 +422,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/stock";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -454,7 +472,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/price";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -490,7 +513,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             var url = $"{_baseUrl}/api/category/list";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -584,7 +611,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             {
                 var url = $"{_baseUrl}/api/orders?startDate={sinceStr}&page={page}&size={pageSize}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -758,7 +789,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/order/shipment";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -828,7 +864,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/settlement?startDate={startStr}&endDate={endStr}";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -934,7 +974,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/return-requests?startDate={sinceStr}";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1048,7 +1092,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             var url = $"{_baseUrl}/api/return-requests/{claimId}/approve";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, null, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1091,7 +1139,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/return-requests/{claimId}/reject";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1146,7 +1199,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
+                    req.Content = content;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1201,7 +1259,12 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice-upload";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, formContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
+                    req.Content = formContent;
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

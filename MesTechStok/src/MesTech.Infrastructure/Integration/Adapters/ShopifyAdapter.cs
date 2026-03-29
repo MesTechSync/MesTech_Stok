@@ -182,10 +182,22 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         if (_isConfigured)
         {
-            // Set access token header for all subsequent calls
-            _httpClient.DefaultRequestHeaders.Remove("X-Shopify-Access-Token");
-            _httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", _accessToken);
+            // Credentials stored in fields — applied per-request via CreateAuthenticatedRequest
         }
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        request.Headers.Add("X-Shopify-Access-Token", _accessToken);
+        return request;
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url, HttpContent content)
+    {
+        var request = CreateAuthenticatedRequest(method, url);
+        request.Content = content;
+        return request;
     }
 
     private void EnsureConfigured()
@@ -219,7 +231,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             // Verify by hitting shop.json — returns store info
             var url = $"{BaseUrl}/shop.json";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
 
@@ -243,7 +259,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             // Count products
             var countUrl = $"{BaseUrl}/products/count.json";
             var countResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(countUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, countUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
             if (countResponse.IsSuccessStatusCode)
             {
                 var countContent = await countResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -291,7 +311,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             while (!string.IsNullOrEmpty(url))
             {
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -407,7 +431,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var sku = productId.ToString();
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku,inventory_item_id&limit=250";
             var variantResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(variantsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, variantsUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!variantResponse.IsSuccessStatusCode)
             {
@@ -458,7 +486,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             using var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var setUrl = $"{BaseUrl}/inventory_levels/set.json";
             var setResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(setUrl, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Post, setUrl, requestContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!setResponse.IsSuccessStatusCode)
             {
@@ -495,7 +527,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             // Step 1: Find variant id by SKU
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku&limit=250";
             var variantResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(variantsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, variantsUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!variantResponse.IsSuccessStatusCode)
             {
@@ -548,7 +584,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             using var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var putUrl = $"{BaseUrl}/variants/{variantId}.json";
             var putResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(putUrl, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, putUrl, requestContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -581,7 +621,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var url = $"{BaseUrl}/custom_collections.json?fields=id,title&limit=250";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -651,7 +695,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             while (!string.IsNullOrEmpty(url))
             {
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -905,7 +953,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -965,7 +1017,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
                 var url = $"{BaseUrl}/webhooks.json";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -1002,7 +1058,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var listUrl = $"{BaseUrl}/webhooks.json";
             var listResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(listUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, listUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!listResponse.IsSuccessStatusCode)
             {
@@ -1025,7 +1085,8 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
                 var webhookId = idEl.GetInt64();
                 var deleteUrl = $"{BaseUrl}/webhooks/{webhookId}.json";
-                var deleteResponse = await _httpClient.DeleteAsync(deleteUrl, ct).ConfigureAwait(false);
+                using var deleteRequest = CreateAuthenticatedRequest(HttpMethod.Delete, deleteUrl);
+                var deleteResponse = await _httpClient.SendAsync(deleteRequest, ct).ConfigureAwait(false);
 
                 if (!deleteResponse.IsSuccessStatusCode)
                 {
@@ -1190,7 +1251,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/orders/{Uri.EscapeDataString(platformOrderId)}/fulfillments.json";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1230,7 +1295,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var url = $"{BaseUrl}/locations.json";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1312,7 +1381,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1436,7 +1509,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}&status=paid";
 
             var payoutsResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(payoutsUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, payoutsUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!payoutsResponse.IsSuccessStatusCode)
             {
@@ -1483,7 +1560,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 $"?payout_status=paid&test=false";
 
             var txResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(txUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, txUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (txResponse.IsSuccessStatusCode)
             {
@@ -1567,7 +1648,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 $"&updated_at_min={sinceDate:yyyy-MM-ddTHH:mm:ssZ}&status=any&limit=250";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1694,10 +1779,8 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var calcResponse = await ThrottledExecuteAsync(async token =>
             {
-                using var request = new HttpRequestMessage(HttpMethod.Post, calcUrl)
-                {
-                    Content = new StringContent(calcJson, Encoding.UTF8, "application/json")
-                };
+                using var request = CreateAuthenticatedRequest(HttpMethod.Post, calcUrl,
+                    new StringContent(calcJson, Encoding.UTF8, "application/json"));
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
 
@@ -1716,10 +1799,8 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var refundResponse = await ThrottledExecuteAsync(async token =>
             {
-                using var request = new HttpRequestMessage(HttpMethod.Post, refundUrl)
-                {
-                    Content = new StringContent(refundJson, Encoding.UTF8, "application/json")
-                };
+                using var request = CreateAuthenticatedRequest(HttpMethod.Post, refundUrl,
+                    new StringContent(refundJson, Encoding.UTF8, "application/json"));
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
 

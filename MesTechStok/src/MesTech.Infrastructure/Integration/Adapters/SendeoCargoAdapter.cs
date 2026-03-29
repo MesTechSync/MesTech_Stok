@@ -27,6 +27,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
     private string _customerCode = string.Empty;
+    private string _apiKey = string.Empty;
     private bool _isConfigured;
 
     public SendeoCargoAdapter(HttpClient httpClient, ILogger<SendeoCargoAdapter> logger)
@@ -109,11 +110,8 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         ArgumentNullException.ThrowIfNull(credentials);
 
-        var apiKey = credentials.GetValueOrDefault("ApiKey", "");
+        _apiKey = credentials.GetValueOrDefault("ApiKey", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
-
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Sendeo-Client/1.0");
 
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
@@ -304,6 +302,15 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
     }
 
     // -- Helpers ---------------------------------------------
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_apiKey))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Sendeo-Client/1.0");
+        return request;
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
@@ -313,6 +320,9 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                if (!string.IsNullOrEmpty(_apiKey))
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Sendeo-Client/1.0");
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

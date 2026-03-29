@@ -206,7 +206,9 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             ["client_secret"] = _clientSecret
         });
 
-        var response = await _httpClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
+        var lwaRequest = CreateRequest(HttpMethod.Post, _lwaEndpoint);
+        lwaRequest.Content = content;
+        var response = await _httpClient.SendAsync(lwaRequest, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -222,11 +224,18 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn - 60); // 60s buffer
     }
 
+    private HttpRequestMessage CreateRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-AmazonEU-Client/1.0");
+        return request;
+    }
+
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
         HttpMethod method, string path, CancellationToken ct)
     {
         await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
-        var request = new HttpRequestMessage(method, path);
+        var request = CreateRequest(method, path);
         request.Headers.Add("x-amz-access-token", _accessToken);
         return request;
     }
@@ -258,7 +267,6 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         if (_httpClient.BaseAddress == null && !string.IsNullOrEmpty(_baseUrl))
             _httpClient.BaseAddress = new Uri(_baseUrl, UriKind.Absolute);
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-AmazonEU-Client/1.0");
     }
 
     /// <summary>
@@ -869,10 +877,9 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             ? feedXml.Declaration + Environment.NewLine + feedXml.ToString()
             : feedXml.ToString();
 
-        var uploadResponse = await _httpClient.PutAsync(
-            uploadUrl,
-            new StringContent(xmlString, Encoding.UTF8, "text/xml"),
-            ct).ConfigureAwait(false);
+        var uploadRequest = CreateRequest(HttpMethod.Put, uploadUrl);
+        uploadRequest.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
+        var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
 
         if (!uploadResponse.IsSuccessStatusCode)
         {
@@ -956,9 +963,9 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(feedXml, System.Text.Encoding.UTF8, "text/xml");
-                    return await _httpClient.PostAsync(
-                        new Uri("/feeds/2021-06-30/feeds", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var req = CreateRequest(HttpMethod.Post, "/feeds/2021-06-30/feeds");
+                    req.Content = new StringContent(feedXml, System.Text.Encoding.UTF8, "text/xml");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1011,8 +1018,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
 
-            var request = new HttpRequestMessage(HttpMethod.Head,
-                new Uri(_baseUrl, UriKind.Absolute));
+            var request = CreateRequest(HttpMethod.Head, _baseUrl);
             var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Amazon EU ping: {StatusCode}", response.StatusCode);
@@ -1353,7 +1359,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             }
 
             // Step 2: Upload PDF to the pre-signed URL
-            using var uploadRequest = new HttpRequestMessage(HttpMethod.Put, uploadUrl);
+            using var uploadRequest = CreateRequest(HttpMethod.Put, uploadUrl);
             uploadRequest.Content = new ByteArrayContent(pdfBytes);
             uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 

@@ -41,6 +41,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
     // Credential key'leri — StoreCredential tablosundaki Key alanlari
     private string? _supplierId;
+    private AuthenticationHeaderValue? _authHeader;
     private bool _isConfigured;
 
     public TrendyolAdapter(HttpClient httpClient, ILogger<TrendyolAdapter> logger,
@@ -148,7 +149,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         _supplierId = credentials.GetValueOrDefault("SupplierId", "");
 
         var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{apiKey}:{apiSecret}"));
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
+        _authHeader = new AuthenticationHeaderValue("Basic", encoded);
 
         // Support BaseUrl override for sandbox testing via credentials
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
@@ -160,7 +161,6 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _httpClient.BaseAddress = new Uri(_options.SandboxBaseUrl, UriKind.Absolute);
         }
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Trendyol-Client/3.0");
         _isConfigured = true;
     }
 
@@ -187,8 +187,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             ConfigureAuth(credentials);
 
             // Trendyol API'ye test istegi — urun sayisini cek
-            var response = await _httpClient.GetAsync(
-                new Uri($"/integration/product/sellers/{_supplierId}/products?page=0&size=1", UriKind.Relative), ct).ConfigureAwait(false);
+            using var testRequest = CreateAuthenticatedRequest(HttpMethod.Get,
+                new Uri($"/integration/product/sellers/{_supplierId}/products?page=0&size=1", UriKind.Relative));
+            var response = await _httpClient.SendAsync(testRequest, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -275,9 +276,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -326,8 +328,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri($"/integration/product/sellers/{_supplierId}/products?page={page}&size={pageSize}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/product/sellers/{_supplierId}/products?page={page}&size={pageSize}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -403,9 +409,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -450,9 +457,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/inventory/sellers/{_supplierId}/products/price-and-inventory", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -499,7 +507,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 }
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri(url, UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -589,9 +602,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageId}", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -656,9 +670,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageIdLong}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/orders/shipment-packages/{packageIdLong}", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -703,9 +718,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/orders/invoiceLinks", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/orders/invoiceLinks", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -738,8 +754,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.PostAsync(
-                    new Uri($"/integration/order/sellers/{_supplierId}/orders/invoice-file", UriKind.Relative), formContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                            new Uri($"/integration/order/sellers/{_supplierId}/orders/invoice-file", UriKind.Relative), formContent);
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -785,7 +805,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 }
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri(url, UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -858,9 +883,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent("{}", Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative),
+                        new StringContent("{}", Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -894,9 +920,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/issue", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/issue", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -932,8 +959,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var endEpoch = new DateTimeOffset(endDate).ToUnixTimeMilliseconds();
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/finance/sellers/{_supplierId}/settlement?startDate={startEpoch}&endDate={endEpoch}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/finance/sellers/{_supplierId}/settlement?startDate={startEpoch}&endDate={endEpoch}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -980,8 +1011,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/finance/sellers/{_supplierId}/cargo-invoices?startDate={startEpoch}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/finance/sellers/{_supplierId}/cargo-invoices?startDate={startEpoch}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1017,8 +1052,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri("/integration/product/product-categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri("/integration/product/product-categories", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1062,8 +1101,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/product/product-categories/{categoryId}/attributes", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/product/product-categories/{categoryId}/attributes", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1129,8 +1172,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/product/sellers/{_supplierId}/products/batch-requests/{batchRequestId}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/product/sellers/{_supplierId}/products/batch-requests/{batchRequestId}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1196,8 +1243,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/product/brands?name={Uri.EscapeDataString(namePrefix)}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/product/brands?name={Uri.EscapeDataString(namePrefix)}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1237,8 +1288,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
         try
         {
-            var response = await _httpClient.GetAsync(
-                new Uri("/integration/product/api-status", UriKind.Relative), ct).ConfigureAwait(false);
+            using var statusRequest = CreateAuthenticatedRequest(HttpMethod.Get,
+                new Uri("/integration/product/api-status", UriKind.Relative));
+            var response = await _httpClient.SendAsync(statusRequest, ct).ConfigureAwait(false);
 
             sw.Stop();
             result.LatencyMs = (int)sw.ElapsedMilliseconds;
@@ -1280,9 +1332,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/webhooks", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/webhooks", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1348,9 +1401,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products/archive", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products/archive", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1390,9 +1444,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products/unlock", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products/unlock", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1430,8 +1485,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/product/sellers/{_supplierId}/questions?page={page}&size={size}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/product/sellers/{_supplierId}/questions?page={page}&size={size}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1489,9 +1548,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/product/sellers/{_supplierId}/questions/{questionId}/answers", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/product/sellers/{_supplierId}/questions/{questionId}/answers", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1541,8 +1601,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             }
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri(url, UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1595,9 +1659,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent("{}", Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/approve", UriKind.Relative),
+                        new StringContent("{}", Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1636,9 +1701,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/reject", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}/reject", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1686,9 +1752,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/invoices", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/invoices", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1729,8 +1796,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var endEpoch = new DateTimeOffset(endDate).ToUnixTimeMilliseconds();
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/finance/sellers/{_supplierId}/settlements?startDate={startEpoch}&endDate={endEpoch}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/finance/sellers/{_supplierId}/settlements?startDate={startEpoch}&endDate={endEpoch}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1793,9 +1864,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/split", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/split", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1834,9 +1906,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/box-info", UriKind.Relative), content, token).ConfigureAwait(false);
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/packages/{packageId}/box-info", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1874,8 +1947,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri($"/integration/order/sellers/{_supplierId}/claims/compensation", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri($"/integration/order/sellers/{_supplierId}/claims/compensation", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1938,6 +2015,24 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
 
         return cat;
+    }
+
+    /// <summary>Creates an HttpRequestMessage with per-request Authorization and User-Agent headers (thread-safe).</summary>
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, Uri uri)
+    {
+        var request = new HttpRequestMessage(method, uri);
+        if (_authHeader is not null)
+            request.Headers.Authorization = _authHeader;
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Trendyol-Client/3.0");
+        return request;
+    }
+
+    /// <summary>Creates an HttpRequestMessage with per-request Authorization, User-Agent, and body content (thread-safe).</summary>
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, Uri uri, HttpContent content)
+    {
+        var request = CreateAuthenticatedRequest(method, uri);
+        request.Content = content;
+        return request;
     }
 
     private void EnsureConfigured()

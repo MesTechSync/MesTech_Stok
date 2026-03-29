@@ -31,6 +31,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
+    private string _apiKey = string.Empty;
     private bool _isConfigured;
 
     public CiceksepetiAdapter(HttpClient httpClient, ILogger<CiceksepetiAdapter> logger)
@@ -115,11 +116,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         ArgumentNullException.ThrowIfNull(credentials);
 
-        var apiKey = credentials.GetValueOrDefault("ApiKey", "");
-
-        _httpClient.DefaultRequestHeaders.Remove("x-api-key");
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-api-key", apiKey);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Ciceksepeti-Client/3.0");
+        _apiKey = credentials.GetValueOrDefault("ApiKey", "");
 
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
@@ -1130,7 +1127,15 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         }
     }
 
-    // ── HTTP helper ─────────────────────────────────────
+    // ── HTTP helpers ────────────────────────────────────
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string relativeUrl)
+    {
+        var request = new HttpRequestMessage(method, relativeUrl);
+        request.Headers.TryAddWithoutValidation("x-api-key", _apiKey);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Ciceksepeti-Client/3.0");
+        return request;
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
@@ -1140,6 +1145,8 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                request.Headers.TryAddWithoutValidation("x-api-key", _apiKey);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Ciceksepeti-Client/3.0");
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
@@ -1165,7 +1172,8 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, _httpClient.BaseAddress.ToString());
+            var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Ciceksepeti ping failed"); return false; }

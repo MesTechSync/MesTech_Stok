@@ -27,6 +27,8 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(15, 15);
 
     private string _customerCode = string.Empty;
+    private string _basicAuthValue = string.Empty;
+    private string _userAgent = string.Empty;
     private bool _isConfigured;
 
     public ArasKargoAdapter(HttpClient httpClient, ILogger<ArasKargoAdapter> logger)
@@ -113,9 +115,8 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
         var password = credentials.GetValueOrDefault("Password", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-ArasKargo-Client/3.0");
+        _basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
+        _userAgent = "MesTech-ArasKargo-Client/3.0";
 
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
@@ -319,6 +320,14 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
     }
 
     // -- Helpers ---------------------------------------------
+    private void ApplyAuthHeaders(HttpRequestMessage request)
+    {
+        if (!string.IsNullOrEmpty(_basicAuthValue))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _basicAuthValue);
+        if (!string.IsNullOrEmpty(_userAgent))
+            request.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
@@ -328,6 +337,7 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                ApplyAuthHeaders(request);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

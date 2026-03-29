@@ -30,6 +30,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 
     private string _apiKey = string.Empty;
     private string _apiSecret = string.Empty;
+    private string _basicAuthValue = string.Empty;
     private string _customerCode = string.Empty;
     private bool _isConfigured;
 
@@ -117,11 +118,8 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         _apiSecret = credentials.GetValueOrDefault("ApiSecret", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        // API Key + Secret in Authorization header (Basic as fallback — confirm with official docs)
-        var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_apiKey}:{_apiSecret}"));
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-API-Key", _apiKey);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-MngKargo-Client/1.0");
+        // Store encoded credentials for per-request auth (thread-safe)
+        _basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_apiKey}:{_apiSecret}"));
 
         var baseUrl = credentials.GetValueOrDefault("BaseUrl", "https://apizone.mngkargo.com.tr/");
         _httpClient.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
@@ -142,7 +140,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
+                () => CreateAuthenticatedRequest(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -183,7 +181,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var response = await ExecuteWithRetryAsync(() =>
             {
-                var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
+                var req = CreateAuthenticatedRequest(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return req;
             }, ct).ConfigureAwait(false);
@@ -228,7 +226,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         try
         {
             var response = await ExecuteWithRetryAsync(
-                () => new HttpRequestMessage(HttpMethod.Get,
+                () => CreateAuthenticatedRequest(HttpMethod.Get,
                     $"/api/v1/tracking/{trackingNumber}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -282,7 +280,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Delete,
+            () => CreateAuthenticatedRequest(HttpMethod.Delete,
                 $"/api/v1/shipments/{shipmentId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -301,7 +299,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         EnsureConfigured();
 
         var response = await ExecuteWithRetryAsync(
-            () => new HttpRequestMessage(HttpMethod.Get,
+            () => CreateAuthenticatedRequest(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -329,6 +327,17 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
     }
 
     // -- Helpers ---------------------------------------------
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_basicAuthValue))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _basicAuthValue);
+        if (!string.IsNullOrEmpty(_apiKey))
+            request.Headers.TryAddWithoutValidation("X-API-Key", _apiKey);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-MngKargo-Client/1.0");
+        return request;
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {

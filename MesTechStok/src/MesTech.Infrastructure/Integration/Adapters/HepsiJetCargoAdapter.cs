@@ -119,8 +119,6 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         _password = credentials.GetValueOrDefault("Password", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-HepsiJet-Client/1.0");
-
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
 
@@ -371,6 +369,13 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     }
 
     // -- Helpers ---------------------------------------------
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-HepsiJet-Client/1.0");
+        return request;
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
@@ -382,6 +387,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             {
                 using var request = requestFactory();
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-HepsiJet-Client/1.0");
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }

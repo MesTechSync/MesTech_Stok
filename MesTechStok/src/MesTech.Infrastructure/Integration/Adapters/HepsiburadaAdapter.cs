@@ -32,6 +32,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
     private string _merchantId = string.Empty;
+    private AuthenticationHeaderValue? _fallbackAuthHeader;
     private bool _isConfigured;
 
     public HepsiburadaAdapter(HttpClient httpClient, ILogger<HepsiburadaAdapter> logger,
@@ -126,12 +127,9 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         if (_tokenService is null)
         {
             var apiKey = credentials.GetValueOrDefault("ApiKey", "");
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", $"{_merchantId}:{apiKey}");
+            _fallbackAuthHeader = new AuthenticationHeaderValue("Bearer", $"{_merchantId}:{apiKey}");
             _logger.LogWarning("HepsiburadaTokenService not available — falling back to static Bearer header");
         }
-
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Hepsiburada-Client/3.0");
 
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
@@ -141,6 +139,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
     /// <summary>
     /// K1c-03: Apply OAuth token to request. Uses HepsiburadaTokenService when available.
+    /// Falls back to static Bearer header. Also sets User-Agent per-request (thread-safe).
     /// </summary>
     private async Task ApplyAuthHeaderAsync(HttpRequestMessage request, CancellationToken ct)
     {
@@ -149,6 +148,12 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var token = await _tokenService.GetAccessTokenAsync(ct).ConfigureAwait(false);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
+        else if (_fallbackAuthHeader is not null)
+        {
+            request.Headers.Authorization = _fallbackAuthHeader;
+        }
+
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Hepsiburada-Client/3.0");
     }
 
     private void EnsureConfigured()
@@ -1201,7 +1206,9 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var pingRequest = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress);
+            pingRequest.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Hepsiburada-Client/3.0");
+            var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Hepsiburada ping failed"); return false; }

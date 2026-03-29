@@ -173,15 +173,25 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                         !string.IsNullOrWhiteSpace(_consumerSecret);
 
         if (_isConfigured)
-            ApplyBasicAuthHeader();
+        {
+            // Credentials stored in fields — applied per-request via CreateAuthenticatedRequest
+        }
     }
 
-    private void ApplyBasicAuthHeader()
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
     {
+        var request = new HttpRequestMessage(method, url);
         var token = Convert.ToBase64String(
             Encoding.ASCII.GetBytes($"{_consumerKey}:{_consumerSecret}"));
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Basic", token);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
+        return request;
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url, HttpContent content)
+    {
+        var request = CreateAuthenticatedRequest(method, url);
+        request.Content = content;
+        return request;
     }
 
     private void EnsureConfigured()
@@ -215,7 +225,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             // System status endpoint — lightweight connectivity check
             var url = $"{ApiBase}/system_status";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
 
@@ -242,7 +256,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             // Product count
             var countUrl = $"{ApiBase}/products?per_page=1&page=1&status=publish";
             var countResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(countUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, countUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
             if (countResponse.IsSuccessStatusCode &&
                 countResponse.Headers.TryGetValues("X-WP-Total", out var totalValues))
             {
@@ -291,7 +309,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             {
                 var url = $"{ApiBase}/products?per_page={PageSize}&page={page}&status=publish";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -363,7 +385,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             // Search by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
             var searchResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(searchUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, searchUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!searchResponse.IsSuccessStatusCode)
             {
@@ -392,7 +418,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             var putUrl = $"{ApiBase}/products/{wooId}";
             var putResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, putUrl, putContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -429,7 +459,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             // 1. Find product by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
             var searchResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(searchUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, searchUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!searchResponse.IsSuccessStatusCode)
             {
@@ -458,7 +492,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             var putUrl = $"{ApiBase}/products/{wooId}";
             var putResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(putUrl, putContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, putUrl, putContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!putResponse.IsSuccessStatusCode)
             {
@@ -488,10 +526,9 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         {
             var response = await ThrottledExecuteAsync(async (token) =>
             {
-                ApplyBasicAuthHeader();
-                return await _httpClient.GetAsync(
-                    $"{ApiBase}/products/categories?per_page={perPage}&page={page}", token)
-                    .ConfigureAwait(false);
+                using var request = CreateAuthenticatedRequest(HttpMethod.Get,
+                    $"{ApiBase}/products/categories?per_page={perPage}&page={page}");
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
@@ -547,7 +584,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             {
                 var url = $"{ApiBase}/orders?status=processing&per_page={PageSize}&page={page}{after}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -651,7 +692,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(packageId)}";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, content, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -731,7 +776,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(platformOrderId)}";
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.PutAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, requestContent);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -810,7 +859,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
                 var url = $"{ApiBase}/products/batch";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.PostAsync(url, requestContent, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -868,7 +921,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             {
                 var url = $"{ApiBase}/products/{Uri.EscapeDataString(productId)}/variations?per_page={PageSize}&page={page}";
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -946,7 +1003,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}";
 
             var response = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1051,7 +1112,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     $"&per_page={PageSize}&page={page}";
 
                 var response = await ThrottledExecuteAsync(
-                    async token => await _httpClient.GetAsync(url, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -1167,7 +1232,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             // First get order total for full refund
             var orderUrl = $"{ApiBase}/orders/{claimId}";
             var orderResponse = await ThrottledExecuteAsync(
-                async token => await _httpClient.GetAsync(orderUrl, token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, orderUrl);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!orderResponse.IsSuccessStatusCode)
             {
@@ -1189,10 +1258,8 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             var refundResponse = await ThrottledExecuteAsync(async token =>
             {
-                using var request = new HttpRequestMessage(HttpMethod.Post, refundUrl)
-                {
-                    Content = new StringContent(json, Encoding.UTF8, "application/json")
-                };
+                using var request = CreateAuthenticatedRequest(HttpMethod.Post, refundUrl,
+                    new StringContent(json, Encoding.UTF8, "application/json"));
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
 

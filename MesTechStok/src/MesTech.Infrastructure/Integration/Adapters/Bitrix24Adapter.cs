@@ -137,7 +137,6 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
         }
 
         _httpClient.BaseAddress ??= new Uri($"https://{_portalDomain}/rest/", UriKind.Absolute);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Bitrix24-Client/1.0");
 
         var tokenEndpoint = credentials.GetValueOrDefault("Bitrix24TokenEndpoint");
 
@@ -904,6 +903,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Bitrix24-Client/1.0");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);

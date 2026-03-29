@@ -182,6 +182,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     {
         await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
         var request = new HttpRequestMessage(method, path);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Amazon-Client/1.0");
         request.Headers.Add("x-amz-access-token", _accessToken);
         return request;
     }
@@ -206,7 +207,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         if (_httpClient.BaseAddress == null && !string.IsNullOrEmpty(_baseUrl))
             _httpClient.BaseAddress = new Uri(_baseUrl, UriKind.Absolute);
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-Amazon-Client/1.0");
+        // User-Agent is added per-request in CreateAuthenticatedRequestAsync for thread-safety
     }
 
     public async Task<ConnectionTestResultDto> TestConnectionAsync(

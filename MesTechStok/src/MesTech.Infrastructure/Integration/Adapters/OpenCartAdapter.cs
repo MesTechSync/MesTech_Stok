@@ -107,7 +107,6 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _httpClient.BaseAddress = parsedUri;
         }
 
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Oc-Restadmin-Id", _apiToken);
         _isConfigured = true;
     }
 
@@ -132,8 +131,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             ConfigureAuth(credentials);
 
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri("/api/rest/products?limit=1", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/products?limit=1");
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -197,9 +199,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PostAsync(
-                        new Uri("/api/rest/products", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Post, "/api/rest/products", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -239,8 +241,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             while (hasMore)
             {
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri($"/api/rest/products?limit={limit}&page={page}", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"/api/rest/products?limit={limit}&page={page}");
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode) break;
 
@@ -301,9 +306,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/products/{productId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -373,9 +378,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/products/{productId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/products/{productId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -415,8 +420,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var url = $"/api/rest/orders?limit={limit}&page={page}&sort=o.date_added&order=DESC";
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode) break;
 
@@ -507,9 +515,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/orders/{packageId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/orders/{packageId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -552,8 +560,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode) break;
 
@@ -628,12 +639,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return isUpdate
-                        ? await _httpClient.PutAsync(
-                            new Uri($"/api/rest/customers/{customer.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
-                        : await _httpClient.PostAsync(
-                            new Uri("/api/rest/customers", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var method = isUpdate ? HttpMethod.Put : HttpMethod.Post;
+                    var url = isUpdate ? $"/api/rest/customers/{customer.Id}" : "/api/rest/customers";
+                    using var request = CreateAuthenticatedRequest(method, url, content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -664,8 +674,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         try
         {
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri("/api/rest/categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -753,12 +766,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return isUpdate
-                        ? await _httpClient.PutAsync(
-                            new Uri($"/api/rest/categories/{category.Id}", UriKind.Relative), content, token).ConfigureAwait(false)
-                        : await _httpClient.PostAsync(
-                            new Uri("/api/rest/categories", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var method = isUpdate ? HttpMethod.Put : HttpMethod.Post;
+                    var url = isUpdate ? $"/api/rest/categories/{category.Id}" : "/api/rest/categories";
+                    using var request = CreateAuthenticatedRequest(method, url, content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -778,6 +790,20 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     }
 
     // ── Private helpers ───────────────────────────────────────────────────
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string relativeUrl)
+    {
+        var request = new HttpRequestMessage(method, new Uri(relativeUrl, UriKind.Relative));
+        request.Headers.TryAddWithoutValidation("X-Oc-Restadmin-Id", _apiToken);
+        return request;
+    }
+
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string relativeUrl, HttpContent content)
+    {
+        var request = CreateAuthenticatedRequest(method, relativeUrl);
+        request.Content = content;
+        return request;
+    }
 
     private void EnsureConfigured()
     {
@@ -851,8 +877,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         try
         {
             var response = await _retryPipeline.ExecuteAsync(
-                async token => await _httpClient.GetAsync(
-                    new Uri("/api/rest/categories", UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                async token =>
+                {
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -930,8 +959,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                           $"&date_added_from={startDate:yyyy-MM-dd}&date_added_to={endDate:yyyy-MM-dd}";
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -1057,9 +1089,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/orders/{platformOrderId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/orders/{platformOrderId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1128,8 +1160,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
                 var response = await _retryPipeline.ExecuteAsync(
-                    async token => await _httpClient.GetAsync(
-                        new Uri(url, UriKind.Relative), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+                    async token =>
+                    {
+                        using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+                        return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -1249,9 +1284,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/returns/{claimId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/returns/{claimId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1297,9 +1332,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    return await _httpClient.PutAsync(
-                        new Uri($"/api/rest/returns/{claimId}", UriKind.Relative), content, token).ConfigureAwait(false);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var request = CreateAuthenticatedRequest(HttpMethod.Put, $"/api/rest/returns/{claimId}", content);
+                    return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1399,7 +1434,8 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, _httpClient.BaseAddress.ToString());
+            var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex) { _logger.LogWarning(ex, "OpenCart ping failed"); return false; }

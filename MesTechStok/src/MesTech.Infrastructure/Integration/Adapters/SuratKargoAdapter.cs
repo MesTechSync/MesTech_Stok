@@ -27,6 +27,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
     private string _customerCode = string.Empty;
+    private string _basicAuthValue = string.Empty;
     private bool _isConfigured;
 
     public SuratKargoAdapter(HttpClient httpClient, ILogger<SuratKargoAdapter> logger)
@@ -113,9 +114,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
         var password = credentials.GetValueOrDefault("Password", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-SuratKargo-Client/3.0");
+        _basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
 
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
             _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
@@ -318,6 +317,15 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
     }
 
     // -- Helpers ---------------------------------------------
+    private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        if (!string.IsNullOrEmpty(_basicAuthValue))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _basicAuthValue);
+        request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-SuratKargo-Client/3.0");
+        return request;
+    }
+
     private async Task<HttpResponseMessage> ExecuteWithRetryAsync(
         Func<HttpRequestMessage> requestFactory, CancellationToken ct)
     {
@@ -327,6 +335,9 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
             return await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
+                if (!string.IsNullOrEmpty(_basicAuthValue))
+                    request.Headers.Authorization ??= new AuthenticationHeaderValue("Basic", _basicAuthValue);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-SuratKargo-Client/3.0");
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
         }
