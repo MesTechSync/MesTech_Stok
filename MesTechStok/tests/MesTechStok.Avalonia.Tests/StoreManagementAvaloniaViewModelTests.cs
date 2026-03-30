@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,8 @@ public class StoreManagementAvaloniaViewModelTests
     public StoreManagementAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new StoreManagementAvaloniaViewModel(_mediatorMock.Object);
+        var tenantProviderMock = new Mock<ITenantProvider>();
+        _sut = new StoreManagementAvaloniaViewModel(_mediatorMock.Object, tenantProviderMock.Object);
     }
 
     [Fact]
