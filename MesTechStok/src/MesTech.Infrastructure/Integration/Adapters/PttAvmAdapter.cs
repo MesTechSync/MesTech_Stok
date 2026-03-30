@@ -189,8 +189,17 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         _username = credentials.GetValueOrDefault("Username", string.Empty);
         _password = credentials.GetValueOrDefault("Password", string.Empty);
 
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _baseUrl = credentials["BaseUrl"];
+        var rawPttBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawPttBaseUrl))
+        {
+            if (!Uri.TryCreate(rawPttBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid PttAvm base URL scheme: {rawPttBaseUrl}. Only HTTP(S) allowed.");
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[PttAvmAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawPttBaseUrl);
+            _baseUrl = rawPttBaseUrl;
+        }
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("TokenEndpoint")))
             _tokenEndpoint = credentials["TokenEndpoint"];
 

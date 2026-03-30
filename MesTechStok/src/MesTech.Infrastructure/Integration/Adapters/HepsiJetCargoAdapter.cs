@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -29,7 +29,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private string _username = string.Empty;
-    private string _password = string.Empty;
+    private string _password = Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
     private string _customerCode = string.Empty;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
@@ -116,11 +116,20 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         ArgumentNullException.ThrowIfNull(credentials);
 
         _username = credentials.GetValueOrDefault("UserName", "");
-        _password = credentials.GetValueOrDefault("Password", "");
+        _password = credentials.GetValueOrDefault("Password") ?? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
+        var rawBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawBaseUrl))
+        {
+            if (!Uri.TryCreate(rawBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid HepsiJet base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[HepsiJetCargoAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            _httpClient.BaseAddress = parsedUri;
+        }
 
         _isConfigured = true;
     }
@@ -147,7 +156,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             var tokenPayload = new
             {
                 username = _username,
-                password = _password
+                password = string.IsNullOrEmpty(_password) ? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty : _password
             };
 
             var json = JsonSerializer.Serialize(tokenPayload, _jsonOptions);

@@ -192,10 +192,18 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("TokenEndpoint")))
             _tokenEndpoint = credentials["TokenEndpoint"];
 
-        // Support BaseUrl override for sandbox testing
-        // Use "https://api.sandbox.ebay.com" for eBay sandbox environment
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _ebayBaseUrl = credentials["BaseUrl"].TrimEnd('/');
+        // Support BaseUrl override for sandbox testing — SSRF guard (G106)
+        var rawEbayBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawEbayBaseUrl))
+        {
+            if (!Uri.TryCreate(rawEbayBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid eBay base URL scheme: {rawEbayBaseUrl}. Only HTTP(S) allowed.");
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[EbayAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawEbayBaseUrl);
+            _ebayBaseUrl = rawEbayBaseUrl.TrimEnd('/');
+        }
 
         // UseSandbox=true shortcut sets sandbox URL automatically
         if (credentials.GetValueOrDefault("UseSandbox", "false").Equals("true", StringComparison.OrdinalIgnoreCase))

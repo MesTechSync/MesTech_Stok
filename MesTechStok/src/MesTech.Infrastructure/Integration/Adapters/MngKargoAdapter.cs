@@ -122,7 +122,13 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         _basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_apiKey}:{_apiSecret}"));
 
         var baseUrl = credentials.GetValueOrDefault("BaseUrl", "https://apizone.mngkargo.com.tr/");
-        _httpClient.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedUri) ||
+            (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+            throw new ArgumentException($"Invalid MngKargo base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
+        if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+            parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+            _logger.LogWarning("[MngKargoAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+        _httpClient.BaseAddress = parsedUri;
 
         _isConfigured = true;
     }

@@ -169,8 +169,17 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _clientId = credentials.GetValueOrDefault("ClientId", string.Empty);
         _apiKey = credentials.GetValueOrDefault("ApiKey", string.Empty);
 
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _baseUrl = credentials["BaseUrl"];
+        var rawOzonBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawOzonBaseUrl))
+        {
+            if (!Uri.TryCreate(rawOzonBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid Ozon base URL scheme: {rawOzonBaseUrl}. Only HTTP(S) allowed.");
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[OzonAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawOzonBaseUrl);
+            _baseUrl = rawOzonBaseUrl;
+        }
 
         _isConfigured = !string.IsNullOrWhiteSpace(_clientId) &&
                         !string.IsNullOrWhiteSpace(_apiKey);

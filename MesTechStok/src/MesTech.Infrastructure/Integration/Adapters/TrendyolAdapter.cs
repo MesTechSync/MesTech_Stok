@@ -151,9 +151,18 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{apiKey}:{apiSecret}"));
         _authHeader = new AuthenticationHeaderValue("Basic", encoded);
 
-        // Support BaseUrl override for sandbox testing via credentials
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
+        // Support BaseUrl override for sandbox testing via credentials — SSRF guard (G106)
+        var rawBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawBaseUrl))
+        {
+            if (!Uri.TryCreate(rawBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid Trendyol base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[TrendyolAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            _httpClient.BaseAddress = parsedUri;
+        }
 
         // UseSandbox=true shortcut sets sandbox URL automatically
         if (credentials.GetValueOrDefault("UseSandbox", "false").Equals("true", StringComparison.OrdinalIgnoreCase))
