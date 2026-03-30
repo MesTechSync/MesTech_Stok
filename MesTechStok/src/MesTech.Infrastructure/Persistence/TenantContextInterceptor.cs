@@ -73,13 +73,14 @@ public sealed class TenantContextInterceptor : DbCommandInterceptor
         if (command.Connection == null || command.Connection.State != System.Data.ConnectionState.Open)
             return;
 
+        // PostgreSQL SET does NOT support parameterized queries ($1 syntax).
+        // Guid.TryParse validates input — only canonical GUID format passes.
+        var tenantStr = tenantId.ToString();
+        if (!Guid.TryParse(tenantStr, out _))
+            return; // defense-in-depth: reject non-GUID values
+
         using var setCmd = command.Connection.CreateCommand();
-        // Parameterized: Guid is safe but defense-in-depth against SQL injection
-        var param = setCmd.CreateParameter();
-        param.ParameterName = "@tenantId";
-        param.Value = tenantId.ToString();
-        setCmd.Parameters.Add(param);
-        setCmd.CommandText = "SET app.current_tenant_id = @tenantId";
+        setCmd.CommandText = $"SET app.current_tenant_id = '{tenantStr}'";
         setCmd.ExecuteNonQuery();
     }
 }
