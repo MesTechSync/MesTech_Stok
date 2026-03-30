@@ -42,26 +42,25 @@ public sealed class GetReconciliationDashboardHandler
         // Combine auto and manual matched
         var allAutoMatched = autoMatched.Concat(manualMatched).ToList();
 
-        // Calculate totals by fetching related settlement batches
-        var autoMatchedTotal = 0m;
-        foreach (var match in allAutoMatched)
-        {
-            if (match.SettlementBatchId.HasValue)
-            {
-                var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
-                if (batch != null) autoMatchedTotal += batch.TotalNet;
-            }
-        }
+        // Batch fetch settlement batches — eliminates N+1 query
+        var allSettlementIds = allAutoMatched
+            .Concat(needsReview)
+            .Where(m => m.SettlementBatchId.HasValue)
+            .Select(m => m.SettlementBatchId!.Value)
+            .Distinct()
+            .ToList();
 
-        var needsReviewTotal = 0m;
-        foreach (var match in needsReview)
-        {
-            if (match.SettlementBatchId.HasValue)
-            {
-                var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
-                if (batch != null) needsReviewTotal += batch.TotalNet;
-            }
-        }
+        var settlementBatches = allSettlementIds.Count > 0
+            ? (await _settlementRepo.GetByIdsAsync(allSettlementIds, cancellationToken)).ToDictionary(b => b.Id)
+            : new Dictionary<Guid, Domain.Accounting.Entities.SettlementBatch>();
+
+        var autoMatchedTotal = allAutoMatched
+            .Where(m => m.SettlementBatchId.HasValue && settlementBatches.ContainsKey(m.SettlementBatchId.Value))
+            .Sum(m => settlementBatches[m.SettlementBatchId!.Value].TotalNet);
+
+        var needsReviewTotal = needsReview
+            .Where(m => m.SettlementBatchId.HasValue && settlementBatches.ContainsKey(m.SettlementBatchId.Value))
+            .Sum(m => settlementBatches[m.SettlementBatchId!.Value].TotalNet);
 
         var unmatchedTotal = unmatchedSettlements.Sum(s => s.TotalNet);
 

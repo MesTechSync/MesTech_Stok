@@ -14,6 +14,15 @@ public sealed class SettlementBatchRepository : ISettlementBatchRepository
             .Include(b => b.Lines)
             .AsNoTracking().FirstOrDefaultAsync(b => b.Id == id, ct);
 
+    public async Task<IReadOnlyList<SettlementBatch>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.ToList();
+        if (idList.Count == 0) return [];
+        return await _context.SettlementBatches
+            .Where(b => idList.Contains(b.Id))
+            .AsNoTracking().ToListAsync(ct);
+    }
+
     public async Task<IReadOnlyList<SettlementBatch>> GetByPlatformAsync(Guid tenantId, string platform, CancellationToken ct = default)
         => await _context.SettlementBatches
             .Include(b => b.Lines)
