@@ -10,6 +10,7 @@ using MesTech.Application.Features.AI.Commands.GenerateProductDescription;
 using MesTech.Application.Features.Product.Commands.AutoCompetePrice;
 using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
 using MesTech.Application.Features.Product.Queries.GetPlatformProducts;
+using MesTech.Application.Features.Product.Commands.ExportProducts;
 using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Features.Product.Queries.GetProductVariants;
 using MesTech.Application.Interfaces;
@@ -341,5 +342,24 @@ public static class ProductEndpoints
         .WithSummary("Platform ürün listesi — Trendyol, HB, N11 vb. adapter'dan çekilen ürünler")
         .Produces(200)
         .CacheOutput("Report120s");
+
+        // POST /api/v1/products/export — ürün dışa aktarma (P1 — DEV6 TUR11)
+        group.MapPost("/export", async (
+            ExportProductsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (result is null || result.Length == 0)
+                return Results.Problem(detail: "Export failed — no data", statusCode: 400);
+            var contentType = command.Format == "csv"
+                ? "text/csv"
+                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            var fileName = $"products_export_{DateTime.UtcNow:yyyyMMdd}.{command.Format}";
+            return Results.File(result, contentType, fileName);
+        })
+        .WithName("ExportProducts")
+        .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
+        .Produces(200)
+        .Produces(400);
     }
 }

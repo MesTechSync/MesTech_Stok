@@ -695,6 +695,7 @@ ProductImageEndpoints.Map(app);
 CustomerEndpoints.Map(app);
 DocumentEndpoints.Map(app);
 BuyboxEndpoints.Map(app);
+SupplierEndpoints.Map(app); // DEV6-TUR11: Tedarikçi CRUD
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
