@@ -108,6 +108,20 @@ public static class OrderEndpoints
         .Produces(200)
         .CacheOutput("Dashboard30s");
 
+        // GET /api/v1/orders/{id} — sipariş detayı (P0 — DEV6 TUR10)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetOrderDetailQuery(tenantId, id), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetOrderDetail")
+        .WithSummary("Sipariş detayı — satır kalemleri, kargo, müşteri bilgisi dahil")
+        .Produces<OrderDetailDto>(200)
+        .Produces(404);
+
         // POST /api/v1/orders/export — export orders to Excel
         group.MapPost("/export", async (
             ExportOrdersCommand command,

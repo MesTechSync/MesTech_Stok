@@ -83,6 +83,20 @@ public static class ProductEndpoints
         .Produces(404)
         .CacheOutput("Lookup60s");
 
+        // GET /api/v1/products/{id}/variants — ürün varyant matrisi (P1 — DEV6 TUR10)
+        group.MapGet("/{id:guid}/variants", async (
+            Guid id,
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetProductVariantsQuery(tenantId, id), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetProductVariants")
+        .WithSummary("Ürün varyant matrisi — renk/beden kombinasyonları + stok")
+        .Produces<ProductVariantMatrixDto>(200)
+        .Produces(400);
+
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
         {
