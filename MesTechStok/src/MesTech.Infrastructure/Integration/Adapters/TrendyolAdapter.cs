@@ -130,6 +130,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     public string PlatformCode => nameof(PlatformType.Trendyol);
 
     /// <summary>Rate limit telemetry for connection test panel.</summary>
+#pragma warning disable CA1024 // Telemetry snapshot — method semantics preferred over property
     public RateLimitInfo GetRateLimitInfo() => new(
         ConcurrentSlots: _rateLimitSemaphore.CurrentCount,
         MaxConcurrentSlots: 100,

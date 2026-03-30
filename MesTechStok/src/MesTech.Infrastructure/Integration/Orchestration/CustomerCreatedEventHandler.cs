@@ -3,6 +3,8 @@ using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
+
+#pragma warning disable CA1711 // DDD event handler — INotificationHandler<DomainEventNotification<T>> pattern
 using MediatR;
 using Microsoft.Extensions.Logging;
 
