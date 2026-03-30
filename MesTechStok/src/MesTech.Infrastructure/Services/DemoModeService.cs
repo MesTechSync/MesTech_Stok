@@ -70,6 +70,8 @@ public sealed class DemoModeService
     {
         _logger.LogInformation("[DemoMode] Cleanup: checking for expired demo data");
 
+        // IgnoreQueryFilters: KASITLI — admin cleanup job, sabit DemoTenantId ile sorgular.
+        // Tenant bypass riski YOK: DemoDataSeeder.DemoTenantId hardcoded GUID, user input DEĞİL.
         var demoTenant = await _context.Tenants
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(t => t.Id == DemoDataSeeder.DemoTenantId, ct)
