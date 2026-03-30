@@ -44,7 +44,7 @@ public sealed class OrderCancelledStockRestorationHandler : IOrderCancelledStock
             "OrderCancelled → stok geri yükleme başlıyor. OrderId={OrderId}, Reason={Reason}",
             orderId, reason);
 
-        var order = await _orderRepo.GetByIdAsync(orderId);
+        var order = await _orderRepo.GetByIdAsync(orderId, ct);
         if (order is null)
         {
             _logger.LogError("Order {OrderId} bulunamadı — stok geri y��kleme atlandı", orderId);

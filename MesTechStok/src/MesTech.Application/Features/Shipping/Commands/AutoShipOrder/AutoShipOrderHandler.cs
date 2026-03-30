@@ -32,7 +32,7 @@ public sealed class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand,
 
     public async Task<AutoShipResult> Handle(AutoShipOrderCommand request, CancellationToken cancellationToken)
     {
-        var orderOrNull = await _orderRepository.GetByIdAsync(request.OrderId);
+        var orderOrNull = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
         var validationError = ValidateOrder(orderOrNull, request);
         if (validationError is not null)

@@ -44,7 +44,7 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             "OrderPlaced → stok düşürme başlıyor. OrderId={OrderId}, OrderNumber={OrderNumber}",
             orderId, orderNumber);
 
-        var order = await _orderRepo.GetByIdAsync(orderId);
+        var order = await _orderRepo.GetByIdAsync(orderId, ct);
         if (order is null)
         {
             _logger.LogError("Order {OrderId} bulunamadı — stok düşürme atlandı", orderId);

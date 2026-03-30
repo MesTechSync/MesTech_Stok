@@ -41,7 +41,7 @@ public sealed class GenerateEFaturaHandler : IRequestHandler<GenerateEFaturaComm
             return;
         }
 
-        var order = await _orderRepository.GetByIdAsync(request.OrderId.Value).ConfigureAwait(false);
+        var order = await _orderRepository.GetByIdAsync(request.OrderId.Value, cancellationToken).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogWarning("GenerateEFatura: Order {OrderId} not found", request.OrderId);

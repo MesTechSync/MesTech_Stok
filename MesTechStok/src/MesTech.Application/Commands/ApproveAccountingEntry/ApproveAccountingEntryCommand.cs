@@ -37,7 +37,7 @@ public sealed class ApproveAccountingEntryHandler : IRequestHandler<ApproveAccou
             return;
         }
 
-        var entry = await _journalEntryRepository.GetByIdAsync(request.JournalEntryId.Value).ConfigureAwait(false);
+        var entry = await _journalEntryRepository.GetByIdAsync(request.JournalEntryId.Value, cancellationToken).ConfigureAwait(false);
         if (entry is null)
         {
             _logger.LogWarning("ApproveAccountingEntry: JournalEntry {Id} not found", request.JournalEntryId);

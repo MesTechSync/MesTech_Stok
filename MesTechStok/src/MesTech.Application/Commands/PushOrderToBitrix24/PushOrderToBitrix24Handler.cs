@@ -46,7 +46,7 @@ public sealed class PushOrderToBitrix24Handler
         }
 
         // Get the order
-        var order = await _orderRepository.GetByIdAsync(request.OrderId).ConfigureAwait(false);
+        var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken).ConfigureAwait(false);
         if (order is null)
         {
             return new PushOrderToBitrix24Result
