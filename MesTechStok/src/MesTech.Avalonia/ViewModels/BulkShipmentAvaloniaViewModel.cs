@@ -1,14 +1,18 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Shipping.Commands.CreateShipment;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private bool isSending;
     [ObservableProperty] private int selectedCount;
@@ -28,9 +32,10 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         "YurticiKargo", "ArasKargo", "SuratKargo", "MngKargo", "PttKargo", "Hepsijet", "Sendeo"
     ];
 
-    public BulkShipmentAvaloniaViewModel(IMediator mediator)
+    public BulkShipmentAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -98,10 +103,19 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 
             try
             {
-                // DEP: DEV1 — Replace with CreateShipmentCommand via MediatR (DEV 1+3 handler gerekli)
-                order.Status = "Gonderildi";
-                order.TrackingNumber = $"TR{DateTime.Now:yyyyMMdd}{ProgressCurrent:D4}";
-                SuccessCount++;
+                var provider = Enum.TryParse<CargoProvider>(SelectedProvider, out var cp)
+                    ? cp : CargoProvider.YurticiKargo;
+                var result = await _mediator.Send(new CreateShipmentCommand(
+                    _currentUser.TenantId,
+                    order.OrderId,
+                    provider,
+                    order.CustomerName,
+                    order.City,
+                    order.CustomerName, // phone placeholder — view doesn't collect phone
+                    order.Weight));
+                order.Status = result.IsSuccess ? "Gonderildi" : $"Hata: {result.ErrorMessage}";
+                order.TrackingNumber = result.TrackingNumber;
+                if (result.IsSuccess) SuccessCount++; else FailCount++;
             }
             catch
             {
@@ -121,6 +135,7 @@ public class BulkShipmentItemDto : ObservableObject
 {
     private bool _isSelected;
     public bool IsSelected { get => _isSelected; set => SetProperty(ref _isSelected, value); }
+    public Guid OrderId { get; set; }
     public string OrderNumber { get; set; } = "";
     public string CustomerName { get; set; } = "";
     public string City { get; set; } = "";
