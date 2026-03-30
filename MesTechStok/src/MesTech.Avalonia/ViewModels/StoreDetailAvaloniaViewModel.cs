@@ -1,17 +1,22 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stores.Queries.GetStoreDetail;
+using MesTech.Application.Queries.GetStoresByTenant;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Magaza Detay ViewModel — magaza bilgileri + sync gecmisi + adapter saglik durumu.
+/// Wired to GetStoreDetailQuery via MediatR.
 /// </summary>
 public partial class StoreDetailAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     // Store info
     [ObservableProperty] private string storeName = string.Empty;
@@ -24,9 +29,10 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<SyncHistoryItemDto> SyncHistory { get; } = [];
 
-    public StoreDetailAvaloniaViewModel(IMediator mediator)
+    public StoreDetailAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -37,27 +43,30 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEP: DEV1 — Replace with GetStoreDetailQuery via MediatR (DEV 1 handler gerekli)
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var store = stores.FirstOrDefault(s => s.IsActive);
 
-            StoreName = "Ana Magaza - Trendyol";
-            PlatformName = "Trendyol";
-            ApiStatus = "Bagli";
-            ProductCount = 1250;
-            OrderCount = 89;
-            AdapterHealth = "Saglikli";
-            AdapterVersion = "v2.1.0";
+            if (store is null)
+            {
+                IsEmpty = true;
+                StoreName = "Magaza bulunamadi";
+                return;
+            }
 
-            SyncHistory.Clear();
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 14:30", Status = "Basarili", ProductsSynced = 1250, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 14:00", Status = "Basarili", ProductsSynced = 1248, Errors = 2 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 13:30", Status = "Basarili", ProductsSynced = 1248, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 13:00", Status = "Hatali", ProductsSynced = 0, Errors = 1 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 12:30", Status = "Basarili", ProductsSynced = 1245, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 12:00", Status = "Basarili", ProductsSynced = 1245, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 11:30", Status = "Basarili", ProductsSynced = 1242, Errors = 3 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 11:00", Status = "Basarili", ProductsSynced = 1240, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 10:30", Status = "Basarili", ProductsSynced = 1240, Errors = 0 });
-            SyncHistory.Add(new SyncHistoryItemDto { SyncTime = "19.03.2026 10:00", Status = "Basarili", ProductsSynced = 1238, Errors = 1 });
+            var detail = await _mediator.Send(new GetStoreDetailQuery(_currentUser.TenantId, store.Id));
+            if (detail is null)
+            {
+                IsEmpty = true;
+                StoreName = "Detay yuklenemedi";
+                return;
+            }
+
+            StoreName = detail.Name;
+            PlatformName = detail.Platform;
+            ApiStatus = detail.CredentialStatus == "Configured" ? "Bagli" : "Yapilandirilmamis";
+            ProductCount = detail.ProductCount;
+            AdapterHealth = detail.IsActive ? "Saglikli" : "Pasif";
+            AdapterVersion = detail.WebhookStatus;
 
             IsEmpty = false;
         }

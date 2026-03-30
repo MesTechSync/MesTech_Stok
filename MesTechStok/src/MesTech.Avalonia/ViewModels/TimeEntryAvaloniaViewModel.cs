@@ -2,14 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Application.Features.Hr.Commands.CreateTimeEntry;
+using MesTech.Application.Features.Hr.Queries.GetTimeEntries;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Zaman Kaydi ViewModel — tarih, saat, proje, aciklama girisi + liste.
-/// EMR-12: Enhanced from placeholder to functional view.
+/// EMR-12: Wired to GetTimeEntriesQuery + CreateTimeEntryCommand via MediatR.
 /// </summary>
 public partial class TimeEntryAvaloniaViewModel : ViewModelBase
 {
@@ -42,21 +43,25 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEP: DEV1 — Replace with GetTimeEntriesQuery when available — using employee list as scaffold
-            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
+            var from = SelectedDate?.Date ?? DateTime.Now.Date.AddDays(-7);
+            var to = DateTime.Now.Date.AddDays(1);
+            var entries = await _mediator.Send(new GetTimeEntriesQuery(
+                _currentUser.TenantId, from, to));
 
             TimeEntries.Clear();
-            // Placeholder: show employees as time entry rows until dedicated TimeEntry handler exists
-            foreach (var e in employees)
+            foreach (var e in entries)
             {
+                var dur = e.EndedAt.HasValue
+                    ? $"{(int)(e.EndedAt.Value - e.StartedAt).TotalHours} sa {(e.EndedAt.Value - e.StartedAt).Minutes} dk"
+                    : $"{e.Minutes} dk";
                 TimeEntries.Add(new TimeEntryItemDto
                 {
-                    Date = DateTime.Now.ToString("dd.MM.yyyy"),
-                    StartTime = "09:00",
-                    EndTime = "18:00",
-                    Duration = "8 sa",
-                    Project = e.JobTitle,
-                    Description = e.EmployeeCode
+                    Date = e.StartedAt.ToString("dd.MM.yyyy"),
+                    StartTime = e.StartedAt.ToString("HH:mm"),
+                    EndTime = e.EndedAt?.ToString("HH:mm") ?? "--",
+                    Duration = dur,
+                    Project = e.IsBillable ? "Faturalanabilir" : "Dahili",
+                    Description = e.Description ?? string.Empty
                 });
             }
 
@@ -86,23 +91,19 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — await _mediator.Send(new CreateTimeEntryCommand(...))
-            var dateStr = SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.ToString("dd.MM.yyyy");
-            TimeEntries.Insert(0, new TimeEntryItemDto
-            {
-                Date = dateStr,
-                StartTime = StartTime,
-                EndTime = EndTime,
-                Duration = "-- sa",
-                Project = ProjectName,
-                Description = Description
-            });
+            await _mediator.Send(new CreateTimeEntryCommand(
+                TenantId: _currentUser.TenantId,
+                WorkTaskId: Guid.Empty, // NAV: task selection needed
+                UserId: _currentUser.UserId ?? Guid.Empty,
+                Description: $"{ProjectName}: {Description}".Trim(':').Trim(),
+                IsBillable: false));
 
-            TotalCount = TimeEntries.Count;
+            // Reload to show the new entry from DB
             StartTime = string.Empty;
             EndTime = string.Empty;
             ProjectName = string.Empty;
             Description = string.Empty;
+            await LoadAsync();
         }
         finally
         {
