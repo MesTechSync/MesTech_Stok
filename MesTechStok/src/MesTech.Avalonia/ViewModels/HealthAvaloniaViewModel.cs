@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,25 +43,25 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // Try real platform health data
-            List<PlatformHealthDto>? platformResults = null;
-            try
-            {
-                var result = await _mediator.Send(new GetPlatformHealthQuery(_currentUser.TenantId));
-                platformResults = result?.ToList();
-            }
-            catch
-            {
-                // Infrastructure not available — use mock
-            }
+            var platformResults = (await _mediator.Send(
+                new GetPlatformHealthQuery(_currentUser.TenantId)))?.ToList();
 
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
-            // Mock system metrics (runtime counters)
-            var rand = new Random();
-            CpuUsage = rand.Next(12, 45);
-            RamUsage = rand.Next(40, 72);
-            DiskUsage = rand.Next(28, 58);
+            // Real process metrics
+            var proc = Process.GetCurrentProcess();
+            var gcInfo = GC.GetGCMemoryInfo();
+            RamUsage = gcInfo.TotalAvailableMemoryBytes > 0
+                ? (int)(proc.WorkingSet64 * 100 / gcInfo.TotalAvailableMemoryBytes)
+                : 0;
+            CpuUsage = (int)(proc.TotalProcessorTime.TotalSeconds /
+                (Environment.ProcessorCount * (DateTime.Now - proc.StartTime).TotalSeconds) * 100);
+            try
+            {
+                var drive = new System.IO.DriveInfo(System.IO.Path.GetPathRoot(Environment.CurrentDirectory) ?? "C");
+                DiskUsage = (int)((drive.TotalSize - drive.AvailableFreeSpace) * 100 / drive.TotalSize);
+            }
+            catch { DiskUsage = 0; }
 
             BuildServiceCards(platformResults);
 
@@ -98,16 +99,16 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
     {
         ServiceCards.Clear();
 
-        // Core infrastructure services (always shown)
-        ServiceCards.Add(MakeCard("PostgreSQL",   true,  "8ms",  "Veritabani", "#22C55E"));
-        ServiceCards.Add(MakeCard("Redis",        true,  "2ms",  "Önbellek",   "#22C55E"));
-        ServiceCards.Add(MakeCard("RabbitMQ",     true,  "5ms",  "Mesajlama",  "#22C55E"));
-        ServiceCards.Add(MakeCard("Hangfire",     true,  "12ms", "İşler",      "#22C55E"));
-        ServiceCards.Add(MakeCard("MESA OS",      true,  "18ms", "AI Köprü",   "#22C55E"));
+        // DEP: DEV4 — Infrastructure health check endpoints needed (PostgreSQL, Redis, RabbitMQ, Hangfire, MESA OS)
+        // Once /health endpoints exist, replace these hardcoded cards with real probes
+        ServiceCards.Add(MakeCard("PostgreSQL",   true,  "—",  "Veritabani", "#22C55E"));
+        ServiceCards.Add(MakeCard("Redis",        true,  "—",  "Önbellek",   "#22C55E"));
+        ServiceCards.Add(MakeCard("RabbitMQ",     true,  "—",  "Mesajlama",  "#22C55E"));
+        ServiceCards.Add(MakeCard("Hangfire",     true,  "—",  "İşler",      "#22C55E"));
+        ServiceCards.Add(MakeCard("MESA OS",      true,  "—",  "AI Köprü",   "#22C55E"));
 
         if (platformResults is { Count: > 0 })
         {
-            // Real platform adapter data
             foreach (var p in platformResults)
             {
                 var isHealthy = p.Status == "Active" || p.Status == "Healthy";
@@ -121,20 +122,6 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
                     Category     = "Platform Adaptör",
                 });
             }
-        }
-        else
-        {
-            // Mock platform adapters
-            ServiceCards.Add(MakeCard("Trendyol",     true,  "95ms",  "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("Hepsiburada",  true,  "112ms", "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("N11",          false, "--",    "Platform Adaptör", "#EF4444"));
-            ServiceCards.Add(MakeCard("Amazon",       true,  "88ms",  "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("eBay",         true,  "134ms", "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("OpenCart",     false, "--",    "Platform Adaptör", "#EF4444"));
-            ServiceCards.Add(MakeCard("Pazarama",     true,  "76ms",  "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("Çiçeksepeti",  true,  "103ms", "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("Shopify",      true,  "91ms",  "Platform Adaptör", "#22C55E"));
-            ServiceCards.Add(MakeCard("WooCommerce",  true,  "145ms", "Platform Adaptör", "#22C55E"));
         }
     }
 
