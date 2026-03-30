@@ -93,6 +93,16 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
 
         _appKey = appKey;
         _appSecret = appSecret;
+
+        // SSRF guard (G106) — validate soapBaseUrl before assigning
+        if (!Uri.TryCreate(soapBaseUrl, UriKind.Absolute, out var parsedUri) ||
+            (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+            throw new ArgumentException($"Invalid N11 SOAP base URL scheme: {soapBaseUrl}. Only HTTP(S) allowed.");
+
+        if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+            parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+            _logger.LogWarning("[N11Adapter] soapBaseUrl points to internal/private network: {BaseUrl}", soapBaseUrl);
+
         _soapBaseUrl = soapBaseUrl.TrimEnd('/');
 
         var client = httpClient ?? throw new ArgumentNullException(nameof(httpClient), "HttpClient is required for N11 SOAP communication");

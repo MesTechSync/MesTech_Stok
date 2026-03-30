@@ -124,10 +124,20 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         var clientId = credentials.GetValueOrDefault("PazaramaClientId", "");
         var clientSecret = credentials.GetValueOrDefault("PazaramaClientSecret", "");
 
-        // BaseUrl override for WireMock testing
+        // BaseUrl override for WireMock testing — SSRF guard (G106)
         var baseUrl = credentials.GetValueOrDefault("BaseUrl", "");
         if (!string.IsNullOrEmpty(baseUrl))
-            _httpClient.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
+        {
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid Pazarama base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
+
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[PazaramaAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+
+            _httpClient.BaseAddress = parsedUri;
+        }
 
         // Determine token endpoint — credentials override > BaseUrl derive > default production
         var tokenEndpoint = credentials.GetValueOrDefault("PazaramaTokenEndpoint", "");

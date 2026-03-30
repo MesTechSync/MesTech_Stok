@@ -264,8 +264,19 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _activeMarketplaceId = mpId;
         }
 
+        // SSRF guard (G106) — validate BaseUrl before assigning
         if (_httpClient.BaseAddress == null && !string.IsNullOrEmpty(_baseUrl))
-            _httpClient.BaseAddress = new Uri(_baseUrl, UriKind.Absolute);
+        {
+            if (!Uri.TryCreate(_baseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid AmazonEu base URL scheme: {_baseUrl}. Only HTTP(S) allowed.");
+
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[AmazonEuAdapter] BaseUrl points to internal/private network: {BaseUrl}", _baseUrl);
+
+            _httpClient.BaseAddress = parsedUri;
+        }
 
     }
 

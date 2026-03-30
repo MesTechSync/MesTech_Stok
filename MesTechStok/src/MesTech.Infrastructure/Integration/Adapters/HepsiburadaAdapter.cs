@@ -131,8 +131,19 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogWarning("HepsiburadaTokenService not available — falling back to static Bearer header");
         }
 
-        if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("BaseUrl")))
-            _httpClient.BaseAddress = new Uri(credentials["BaseUrl"], UriKind.Absolute);
+        var rawBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
+        if (!string.IsNullOrEmpty(rawBaseUrl))
+        {
+            if (!Uri.TryCreate(rawBaseUrl, UriKind.Absolute, out var parsedUri) ||
+                (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
+                throw new ArgumentException($"Invalid Hepsiburada base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
+
+            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
+                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
+                _logger.LogWarning("[HepsiburadaAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+
+            _httpClient.BaseAddress = parsedUri;
+        }
 
         _isConfigured = true;
     }
