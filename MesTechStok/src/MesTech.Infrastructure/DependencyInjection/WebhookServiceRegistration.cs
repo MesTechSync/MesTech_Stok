@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Events;
 using MesTech.Infrastructure.Messaging.Mesa;
