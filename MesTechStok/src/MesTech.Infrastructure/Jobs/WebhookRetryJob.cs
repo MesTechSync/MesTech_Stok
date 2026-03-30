@@ -81,9 +81,11 @@ public sealed class WebhookRetryJob : ISyncJob
                         "[{JobId}] Retry exception: Platform={Platform}, Attempt={Attempt}",
                         JobId, item.Platform, item.AttemptCount);
                 }
-            }
 
-            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+                // Idempotency guard (G086): per-item save — crash durumunda
+                // RecordRetry sonucu kaybolmaz, aynı webhook tekrar denenmez
+                await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+            }
 
             _logger.LogInformation(
                 "[{JobId}] DLQ retry tamamlandı: {Retried} işlendi, {Succeeded} başarılı",
