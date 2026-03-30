@@ -2,6 +2,7 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Events;
 using MesTech.Infrastructure.Messaging.Mesa;
+using MesTech.Infrastructure.Integration.Orchestration;
 using MesTech.Infrastructure.Services;
 using MesTech.Infrastructure.Webhooks;
 using MesTech.Infrastructure.Webhooks.Validators;
@@ -49,6 +50,12 @@ public static class WebhookServiceRegistration
             SignalRNotificationBridge>();
         services.AddScoped<INotificationHandler<DomainEventNotification<OrderCancelledEvent>>,
             SignalRNotificationBridge>();
+
+        // === Orphan Event Bridge Handlers ===
+        services.AddScoped<INotificationHandler<DomainEventNotification<OrderCompletedEvent>>,
+            OrderCompletedEventHandler>();
+        services.AddScoped<INotificationHandler<DomainEventNotification<CustomerCreatedEvent>>,
+            CustomerCreatedEventHandler>();
 
         return services;
     }
