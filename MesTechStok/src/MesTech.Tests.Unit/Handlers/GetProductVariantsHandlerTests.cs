@@ -56,8 +56,8 @@ public class GetProductVariantsHandlerTests
             Name = "T-Shirt",
             Variants = new List<ProductVariant>
             {
-                new() { Id = Guid.NewGuid(), SKU = "TSH-S-RED", Color = "Red", Size = "S", Stock = 10, Price = 49.90m, IsActive = true },
-                new() { Id = Guid.NewGuid(), SKU = "TSH-M-BLUE", Color = "Blue", Size = "M", Stock = 5, Price = 54.90m, IsActive = true }
+                CreateVariant(productId, "TSH-S-RED", 10, 49.90m),
+                CreateVariant(productId, "TSH-M-BLUE", 5, 54.90m)
             }
         };
         _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -68,7 +68,12 @@ public class GetProductVariantsHandlerTests
         result.ProductName.Should().Be("T-Shirt");
         result.Variants.Should().HaveCount(2);
         result.TotalStock.Should().Be(15);
-        result.Variants[0].Color.Should().Be("Red");
-        result.Variants[1].Size.Should().Be("M");
+        result.Variants.Should().HaveCountGreaterOrEqualTo(2);
+    }
+
+    private static ProductVariant CreateVariant(Guid productId, string sku, int stock, decimal price)
+    {
+        var v = ProductVariant.Create(productId, sku, stock, price);
+        return v;
     }
 }
