@@ -153,6 +153,7 @@ public static class BillingEndpoints
         .WithSummary("Payment provider webhook receiver (Stripe/Iyzico)")
         .Produces(200).Produces(400).Produces(422)
         .AllowAnonymous() // Webhook'lar JWT olmadan gelir
+        .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR8: Payment webhook flood protection
         .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)); // G088: 1MB limit
 
         // GET /api/v1/billing/features — tenant feature flags (plan bazlı)
