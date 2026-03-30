@@ -70,22 +70,99 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
     public async Task<ErpSyncResult> SyncOrderAsync(Guid orderId, CancellationToken ct = default)
     {
         if (orderId == Guid.Empty) return ErpSyncResult.Fail("OrderId empty");
-        try { var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false); if (order is null) return ErpSyncResult.Fail("Not found"); var payload = new { orderNumber = order.OrderNumber, orderDate = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), totalAmount = order.TotalAmount }; var response = await _apiClient.PostJsonAsync("api/v1/orders", payload, ct).ConfigureAwait(false); if (response.IsSuccessStatusCode) { var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false); return ErpSyncResult.Ok(r?.Reference ?? ""); } return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode); }
-        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] SyncOrder error"); return ErpSyncResult.Fail(ex.Message); }
+
+        try
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+            if (order is null) return ErpSyncResult.Fail("Not found");
+
+            var payload = new
+            {
+                orderNumber = order.OrderNumber,
+                orderDate = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                totalAmount = order.TotalAmount
+            };
+
+            var response = await _apiClient.PostJsonAsync("api/v1/orders", payload, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false);
+                return ErpSyncResult.Ok(r?.Reference ?? "");
+            }
+
+            return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] SyncOrder error");
+            return ErpSyncResult.Fail(ex.Message);
+        }
     }
+
     public async Task<ErpSyncResult> SyncInvoiceAsync(Guid invoiceId, CancellationToken ct = default)
     {
         if (invoiceId == Guid.Empty) return ErpSyncResult.Fail("InvoiceId empty");
-        try { var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false); if (inv is null) return ErpSyncResult.Fail("Not found"); var payload = new { invoiceNumber = inv.InvoiceNumber, invoiceDate = inv.InvoiceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), totalAmount = inv.GrandTotal }; var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false); if (response.IsSuccessStatusCode) { var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false); return ErpSyncResult.Ok(r?.Reference ?? ""); } return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode); }
-        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] SyncInvoice error"); return ErpSyncResult.Fail(ex.Message); }
+
+        try
+        {
+            var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            if (inv is null) return ErpSyncResult.Fail("Not found");
+
+            var payload = new
+            {
+                invoiceNumber = inv.InvoiceNumber,
+                invoiceDate = inv.InvoiceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                totalAmount = inv.GrandTotal
+            };
+
+            var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var r = await _apiClient.DeserializeResponseAsync<BizimHesapSyncResponse>(response, ct).ConfigureAwait(false);
+                return ErpSyncResult.Ok(r?.Reference ?? "");
+            }
+
+            return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] SyncInvoice error");
+            return ErpSyncResult.Fail(ex.Message);
+        }
     }
+
     public async Task<IReadOnlyList<ErpAccountDto>> GetAccountBalancesAsync(CancellationToken ct = default)
     {
-        try { var response = await _apiClient.GetAsync("api/v1/contacts", ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>(); var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapAccountResponse>>(response, ct).ConfigureAwait(false); if (items is null) return Array.Empty<ErpAccountDto>(); return items.Select(a => new ErpAccountDto(a.Code ?? "", a.Code ?? "", decimal.TryParse(a.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var b) ? b : 0m, a.Currency ?? "TRY")).ToArray(); }
-        catch (Exception ex) { _logger.LogError(ex, "[BizimHesapERPAdapter] GetAccountBalances error"); return Array.Empty<ErpAccountDto>(); }
+        try
+        {
+            var response = await _apiClient.GetAsync("api/v1/contacts", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>();
+
+            var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapAccountResponse>>(response, ct).ConfigureAwait(false);
+            if (items is null) return Array.Empty<ErpAccountDto>();
+
+            return items.Select(a => new ErpAccountDto(
+                a.Code ?? "",
+                a.Code ?? "",
+                decimal.TryParse(a.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var b) ? b : 0m,
+                a.Currency ?? "TRY")).ToArray();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BizimHesapERPAdapter] GetAccountBalances error");
+            return Array.Empty<ErpAccountDto>();
+        }
     }
+
     public Task<bool> PingAsync(CancellationToken ct = default) => TestConnectionAsync(ct);
-    private sealed class BizimHesapSyncResponse { [System.Text.Json.Serialization.JsonPropertyName("reference")] public string? Reference { get; set; } }
+
+    private sealed class BizimHesapSyncResponse
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("reference")]
+        public string? Reference { get; set; }
+    }
 
     /// <inheritdoc/>
     public async Task SyncInvoicesAsync(IReadOnlyList<InvoiceEntity> invoices, CancellationToken ct = default)
