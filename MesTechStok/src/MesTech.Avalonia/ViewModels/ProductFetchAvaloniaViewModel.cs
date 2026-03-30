@@ -107,7 +107,19 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            // DEP: DEV1 — Replace with CreateProductCommand via MediatR (DEV 1 handler)
+            var result = await _mediator.Send(new Application.Commands.CreateProduct.CreateProductCommand(
+                Name: FetchedName,
+                SKU: FetchedSKU,
+                Barcode: null,
+                PurchasePrice: 0,
+                SalePrice: FetchedPrice,
+                CategoryId: Guid.Empty, // NAV: category selection needed
+                Description: FetchedDescription,
+                ImageUrl: FetchedImageUrl));
+
+            if (!result.IsSuccess)
+                throw new InvalidOperationException(result.ErrorMessage ?? "Urun olusturulamadi");
+
             SaveCompleted = true;
         }
         catch (Exception ex)
