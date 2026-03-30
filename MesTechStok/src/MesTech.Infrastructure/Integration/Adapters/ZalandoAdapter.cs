@@ -777,14 +777,81 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     }
 
     // ── IShipmentCapableAdapter ──
-    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default) { _logger.LogInformation("[ZalandoAdapter] SendShipment — Order:{Order}", platformOrderId); try { var token = await GetAccessTokenAsync(ct).ConfigureAwait(false); var payload = JsonSerializer.Serialize(new { tracking_number = trackingNumber, carrier = provider.ToString() }); var response = await ThrottledExecuteAsync(async c => { using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/orders/{platformOrderId}/shipments") { Content = new StringContent(payload, Encoding.UTF8, "application/json") }; req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token); return await _httpClient.SendAsync(req, c).ConfigureAwait(false); }, ct).ConfigureAwait(false); return response.IsSuccessStatusCode; } catch (Exception ex) { _logger.LogError(ex, "[ZalandoAdapter] SendShipment error"); return false; } }
+    public async Task<bool> SendShipmentAsync(string platformOrderId, string trackingNumber, MesTech.Domain.Enums.CargoProvider provider, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[ZalandoAdapter] SendShipment — Order:{Order}", platformOrderId);
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            var payload = JsonSerializer.Serialize(new { tracking_number = trackingNumber, carrier = provider.ToString() });
+
+            var response = await ThrottledExecuteAsync(async c =>
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/orders/{platformOrderId}/shipments")
+                { Content = new StringContent(payload, Encoding.UTF8, "application/json") };
+                req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                return await _httpClient.SendAsync(req, c).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZalandoAdapter] SendShipment error");
+            return false;
+        }
+    }
 
     // ── ISettlementCapableAdapter ──
-    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default) { _logger.LogWarning("[ZalandoAdapter] GetSettlement — Zalando Settlements API not available for all partners"); return Task.FromResult<SettlementDto?>(null); }
-    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
+    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        _logger.LogWarning("[ZalandoAdapter] GetSettlement — Zalando Settlements API not available for all partners");
+        return Task.FromResult<SettlementDto?>(null);
+    }
+
+    public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<CargoInvoiceDto>>(Array.Empty<CargoInvoiceDto>());
 
     // ── IClaimCapableAdapter ──
-    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default) { _logger.LogInformation("[ZalandoAdapter] PullClaims"); try { var token = await GetAccessTokenAsync(ct).ConfigureAwait(false); var response = await ThrottledExecuteAsync(async c => { using var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiBase}/merchants/returns?status=APPROVED"); req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token); return await _httpClient.SendAsync(req, c).ConfigureAwait(false); }, ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var doc = JsonDocument.Parse(body); var claims = new List<ExternalClaimDto>(); if (doc.RootElement.TryGetProperty("items", out var items)) foreach (var r in items.EnumerateArray()) { var rid = r.TryGetProperty("return_id", out var id) ? id.GetString() ?? "" : ""; claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Zalando", Status = "APPROVED" }); } return claims; } catch (Exception ex) { _logger.LogError(ex, "[ZalandoAdapter] PullClaims error"); return Array.Empty<ExternalClaimDto>(); } }
+    public async Task<IReadOnlyList<ExternalClaimDto>> PullClaimsAsync(DateTime? since = null, CancellationToken ct = default)
+    {
+        _logger.LogInformation("[ZalandoAdapter] PullClaims");
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(async c =>
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiBase}/merchants/returns?status=APPROVED");
+                req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                return await _httpClient.SendAsync(req, c).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>();
+
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var claims = new List<ExternalClaimDto>();
+
+            if (doc.RootElement.TryGetProperty("items", out var items))
+            {
+                foreach (var r in items.EnumerateArray())
+                {
+                    var rid = r.TryGetProperty("return_id", out var id) ? id.GetString() ?? "" : "";
+                    claims.Add(new ExternalClaimDto { PlatformClaimId = rid, PlatformCode = "Zalando", Status = "APPROVED" });
+                }
+            }
+
+            return claims;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZalandoAdapter] PullClaims error");
+            return Array.Empty<ExternalClaimDto>();
+        }
+    }
     public Task<bool> ApproveClaimAsync(string claimId, CancellationToken ct = default) => Task.FromResult(true);
     public Task<bool> RejectClaimAsync(string claimId, string reason, CancellationToken ct = default)
     { _logger.LogDebug("[ZalandoAdapter] RejectClaim — Zalando auto-accepts returns"); return Task.FromResult(false); }
@@ -829,7 +896,11 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex) { _logger.LogError(ex, "Zalando RegisterWebhook exception"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Zalando RegisterWebhook exception");
+            return false;
+        }
     }
 
     public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
@@ -858,7 +929,11 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex) { _logger.LogError(ex, "Zalando UnregisterWebhook exception"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Zalando UnregisterWebhook exception");
+            return false;
+        }
     }
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
