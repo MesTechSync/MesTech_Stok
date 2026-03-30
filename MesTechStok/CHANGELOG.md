@@ -5,10 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [1.0.31] - 2026-03-30
 
-### DEV4 v3.8 TUR1 — CHANGELOG format fix + v3.8 sözleşme 8 hata raporu
+### DEV4 v3.8 TUR1-2 — CORS hardening + CHANGELOG fix + v3.8 sözleşme audit
+- fix(security): Blazor CORS AllowAnyHeader/AllowAnyMethod → explicit whitelist (FMEA RPN 84)
 - fix(docs): CHANGELOG.md kırık satırlar düzeltildi (v1.0.25-v1.0.29 newline eksikti)
-- audit: v3.8 sözleşme 8 tutarsızlık tespit (2 P1, 3 P2, 3 P3)
-- scan: DEV4 alan taraması — 0 P0/P1 borç, docker-compose 10 servis fully hardened
+- close: G060 FALSE POSITIVE — DataRetentionJob property'ler doğrulandı
+- audit: v3.8 sözleşme 8 tutarsızlık tespit (2 P1, 3 P2, 3 P3) → G117
+- scan: Blazor 121 sayfa güvenlik audit — 90/90 [Authorize], CSP aktif, rate limit aktif, 0 boş catch
 
 ## [1.0.25] - 2026-03-29
 
