@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
@@ -41,7 +41,7 @@ public sealed class ProductVariant : BaseEntity, ITenantEntity
             _attributes = string.IsNullOrWhiteSpace(value)
                 ? new Dictionary<string, string>(StringComparer.Ordinal)
                 : new Dictionary<string, string>(
-                    JsonSerializer.Deserialize<Dictionary<string, string>>(value)
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = false })
                     ?? new Dictionary<string, string>(StringComparer.Ordinal),
                     StringComparer.Ordinal);
         }
