@@ -1,8 +1,13 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 
@@ -88,7 +93,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         }
     }
 
-    // ── WPF013: Test Connection ───────────────────────────────────────────────
+    // ── WPF013: Test Connection — real adapter ping via TestStoreConnectionCommand ──
     [RelayCommand]
     private async Task TestConnection()
     {
@@ -99,40 +104,53 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
         try
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            await Task.Delay(Random.Shared.Next(300, 900), CancellationToken);
-            sw.Stop();
+            // Find the Trendyol store for this tenant
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId), CancellationToken);
+            var trendyolStore = stores.FirstOrDefault(s => s.PlatformType == PlatformType.Trendyol && s.IsActive);
 
-            PingDurationMs = (int)sw.ElapsedMilliseconds;
+            if (trendyolStore is null)
+            {
+                ConnectionStatusText = "Trendyol mağazası bulunamadı — Ayarlar'dan ekleyin";
+                ConnectionStatusColor = "#EF4444";
+                IsConnected = false;
+                AddLog("GET", "/stores/trendyol", "404 Not Found", 0);
+                return;
+            }
+
+            SellerId = trendyolStore.ExternalStoreId ?? trendyolStore.Id.ToString()[..8];
+
+            var result = await _mediator.Send(new TestStoreConnectionCommand(trendyolStore.Id), CancellationToken);
+
+            PingDurationMs = (int)result.ResponseTime.TotalMilliseconds;
             LastPingTime = DateTime.Now.ToString("HH:mm:ss");
             SonBaglantiZamani = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            IsConnected = result.IsSuccess;
 
-            // Simulate 90% success rate
-            bool success = Random.Shared.NextDouble() > 0.1;
-            IsConnected = success;
-
-            if (success)
+            if (result.IsSuccess)
             {
                 ConnectionStatusText = $"Bağlantı başarılı ({PingDurationMs} ms)";
                 ConnectionStatusColor = "#10B981"; // emerald
-                AddLog("GET", "/integration/product/sellers/{sellerId}/products", "200 OK", PingDurationMs);
+                if (result.ProductCount.HasValue)
+                    ProductCount = result.ProductCount.Value;
+                AddLog("GET", "/integration/product/sellers/{sellerId}/products", $"{result.HttpStatusCode ?? 200} OK", PingDurationMs);
             }
             else
             {
-                ConnectionStatusText = "Bağlantı başarısız — API ulaşılamıyor";
+                ConnectionStatusText = $"Bağlantı başarısız — {result.ErrorMessage ?? "API ulaşılamıyor"}";
                 ConnectionStatusColor = "#EF4444"; // red
-                AddLog("GET", "/integration/product/sellers/{sellerId}/products", "503 Hata", PingDurationMs);
+                AddLog("GET", "/integration/product/sellers/{sellerId}/products", $"{result.HttpStatusCode ?? 503} Hata", PingDurationMs);
             }
-
-            // Update rate limit mock
-            RateLimitUsed = Math.Min(RateLimitUsed + 1, RateLimitTotal);
-            RateLimitRemaining = RateLimitTotal - RateLimitUsed;
-            RateLimitPercent = (double)RateLimitUsed / RateLimitTotal * 100.0;
         }
         catch (OperationCanceledException)
         {
             ConnectionStatusText = "Test iptal edildi";
             ConnectionStatusColor = "#6B7280";
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatusText = $"Test hatası: {ex.Message}";
+            ConnectionStatusColor = "#EF4444";
+            IsConnected = false;
         }
         finally
         {
@@ -140,7 +158,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         }
     }
 
-    // ── WPF013: Fetch Products ────────────────────────────────────────────────
+    // ── WPF013: Fetch Products — real query via GetProductsQuery ────────────────
     [RelayCommand]
     private async Task FetchProducts()
     {
@@ -151,30 +169,22 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         try
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            await Task.Delay(Random.Shared.Next(400, 1200), CancellationToken);
+            var result = await _mediator.Send(
+                new GetProductsQuery(_currentUser.TenantId, PageSize: 5), CancellationToken);
             sw.Stop();
             int duration = (int)sw.ElapsedMilliseconds;
 
-            var mockProducts = new[]
-            {
-                "iPhone 15 Pro Kılıf - Siyah",
-                "Samsung Galaxy S24 Ekran Koruyucu",
-                "AirPods Pro Şarj Kablosu",
-                "Laptop Standı Alüminyum",
-                "Mekanik Klavye TKL RGB"
-            };
-
-            ProductCount = 5;
-            QuickActionStatus = $"5 ürün çekildi ({duration} ms)";
-            AddLog("GET", "/integration/product/sellers/{sellerId}/products?page=0&size=5", "200 OK", duration);
-
-            RateLimitUsed = Math.Min(RateLimitUsed + 1, RateLimitTotal);
-            RateLimitRemaining = RateLimitTotal - RateLimitUsed;
-            RateLimitPercent = (double)RateLimitUsed / RateLimitTotal * 100.0;
+            ProductCount = result.TotalCount;
+            QuickActionStatus = $"{result.Items.Count} ürün çekildi (toplam {result.TotalCount}) — {duration} ms";
+            AddLog("GET", "/api/v1/products?page=1&size=5", "200 OK", duration);
         }
         catch (OperationCanceledException)
         {
             QuickActionStatus = "İstek iptal edildi";
+        }
+        catch (Exception ex)
+        {
+            QuickActionStatus = $"Ürün çekme hatası: {ex.Message}";
         }
         finally
         {
@@ -182,7 +192,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         }
     }
 
-    // ── WPF013: Fetch Orders ─────────────────────────────────────────────────
+    // ── WPF013: Fetch Orders — real query via GetPlatformDashboardQuery ────────
     [RelayCommand]
     private async Task FetchOrders()
     {
@@ -193,36 +203,35 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         try
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            await Task.Delay(Random.Shared.Next(400, 1200), CancellationToken);
+            var result = await _mediator.Send(
+                new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol), CancellationToken);
             sw.Stop();
             int duration = (int)sw.ElapsedMilliseconds;
 
             RecentOrders.Clear();
-            var statuses = new[] { "Paketlendi", "Kargoda", "Teslim Edildi", "Beklemede", "Onaylandı" };
-            for (int i = 1; i <= 5; i++)
+            foreach (var o in result.RecentOrders)
             {
                 RecentOrders.Add(new PlatformOrderItem(
-                    $"TY-2024-{100 + i:D6}",
-                    DateTime.Now.AddHours(-i * 3).ToString("dd.MM.yyyy HH:mm"),
-                    $"Müşteri {i}",
-                    $"₺{Random.Shared.Next(150, 3500):N0}",
-                    statuses[i - 1]
-                ));
+                    o.OrderNumber,
+                    o.OrderDate.ToString("dd.MM.yyyy HH:mm"),
+                    o.CustomerName,
+                    o.Total.ToString("N2"),
+                    o.Status));
             }
 
             TotalCount = RecentOrders.Count;
-            OrderCount = RecentOrders.Count;
-            IsEmpty = false;
-            QuickActionStatus = $"5 sipariş çekildi ({duration} ms)";
+            OrderCount = result.OrderCount;
+            IsEmpty = RecentOrders.Count == 0;
+            QuickActionStatus = $"{RecentOrders.Count} sipariş çekildi (toplam {result.OrderCount}) — {duration} ms";
             AddLog("GET", "/order/sellers/{sellerId}/orders?status=Created&size=5", "200 OK", duration);
-
-            RateLimitUsed = Math.Min(RateLimitUsed + 1, RateLimitTotal);
-            RateLimitRemaining = RateLimitTotal - RateLimitUsed;
-            RateLimitPercent = (double)RateLimitUsed / RateLimitTotal * 100.0;
         }
         catch (OperationCanceledException)
         {
             QuickActionStatus = "İstek iptal edildi";
+        }
+        catch (Exception ex)
+        {
+            QuickActionStatus = $"Sipariş çekme hatası: {ex.Message}";
         }
         finally
         {
