@@ -57,7 +57,7 @@ public sealed class FeedReliabilityScoreServiceAdapter(
         var color = MapColor(serviceResult.Color);
 
         return new AppInterfaces.SupplierReliabilityScore(
-            SupplierFeedId: serviceResult.SupplierFeedId,
+            SupplierFeedId: serviceResult.SupplierFeedId ?? Guid.Empty,
             Score: serviceResult.Score,
             Color: color,
             StockAccuracy: (decimal)serviceResult.StockAccuracyScore,
