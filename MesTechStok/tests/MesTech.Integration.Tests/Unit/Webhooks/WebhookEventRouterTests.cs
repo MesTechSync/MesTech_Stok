@@ -113,7 +113,7 @@ public class WebhookEventRouterTests
         result.Should().Be("stock.updated");
         _publisherMock.Verify(p => p.Publish(
             It.Is<DomainEventNotification<StockChangedEvent>>(n =>
-                n.DomainEvent.Sku == "SKU-100" &&
+                n.DomainEvent.SKU == "SKU-100" &&
                 n.DomainEvent.NewQuantity == 50),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -134,7 +134,7 @@ public class WebhookEventRouterTests
         result.Should().Be("product.created");
         _publisherMock.Verify(p => p.Publish(
             It.Is<DomainEventNotification<ProductCreatedEvent>>(n =>
-                n.DomainEvent.Sku == "NEW-SKU" &&
+                n.DomainEvent.SKU == "NEW-SKU" &&
                 n.DomainEvent.Name == "Test Product"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -219,7 +219,7 @@ public class WebhookEventRouterTests
         result.Should().Be("return.created");
         _publisherMock.Verify(p => p.Publish(
             It.Is<DomainEventNotification<ReturnCreatedEvent>>(n =>
-                n.DomainEvent.PlatformType == PlatformType.Hepsiburada),
+                n.DomainEvent.Platform == PlatformType.Hepsiburada),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
