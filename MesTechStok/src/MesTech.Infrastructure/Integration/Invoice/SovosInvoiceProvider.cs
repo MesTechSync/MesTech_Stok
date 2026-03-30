@@ -18,6 +18,11 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// </summary>
 public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable, IEInvoiceProvider
 {
+    private static readonly JsonSerializerOptions s_camelCaseJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
     private readonly IUblTrXmlBuilder _ublBuilder;
@@ -230,10 +235,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 }).ToArray()
             }).ToArray();
             var payload = new { invoices = payloads };
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
@@ -454,10 +456,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 logoBase64 = template.LogoImage != null ? Convert.ToBase64String(template.LogoImage.ToArray()) : null,
                 signatureBase64 = template.SignatureImage != null ? Convert.ToBase64String(template.SignatureImage.ToArray()) : null
             };
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/api/invoices/template", content, ct).ConfigureAwait(false);
@@ -513,10 +512,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 scenario = document.Scenario.ToString(),
                 xmlBase64
             };
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
 
@@ -581,10 +577,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var payload = new { providerRef, reason };
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct).ConfigureAwait(false);
@@ -738,10 +731,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     {
         try
         {
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 

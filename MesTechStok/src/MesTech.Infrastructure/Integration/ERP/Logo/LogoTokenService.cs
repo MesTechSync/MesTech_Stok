@@ -15,6 +15,8 @@ namespace MesTech.Infrastructure.Integration.ERP.Logo;
 /// </summary>
 public sealed class LogoTokenService
 {
+    private static readonly JsonSerializerOptions s_caseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     private readonly HttpClient _httpClient; // Sentry: HTTP client with timeout config
     private readonly IMemoryCache _cache;
     private readonly ILogger<LogoTokenService> _logger; // Sentry: Structured logging
@@ -95,7 +97,7 @@ public sealed class LogoTokenService
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var tokenResponse = JsonSerializer.Deserialize<LogoTokenResponse>(responseJson, s_caseInsensitiveJson);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

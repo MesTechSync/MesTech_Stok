@@ -15,6 +15,8 @@ namespace MesTech.Infrastructure.Integration.ERP.Parasut;
 /// </summary>
 public sealed class ParasutTokenService
 {
+    private static readonly JsonSerializerOptions s_deserializeOptions = new() { MaxDepth = 32 };
+
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
     private readonly ILogger<ParasutTokenService> _logger;
@@ -102,7 +104,7 @@ public sealed class ParasutTokenService
             }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json, new JsonSerializerOptions { MaxDepth = 32 });
+            var tokenResponse = JsonSerializer.Deserialize<ParasutTokenResponse>(json, s_deserializeOptions);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {

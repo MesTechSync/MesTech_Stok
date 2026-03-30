@@ -27,6 +27,11 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
     public string ProviderName => "Parasut e-Fatura";
     public InvoiceProvider Provider => InvoiceProvider.Parasut;
 
+    private static readonly JsonSerializerOptions s_snakeCaseJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
+
     private static readonly MediaTypeHeaderValue JsonApiMediaType =
         new("application/vnd.api+json");
 
@@ -237,10 +242,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             var payload = new { data = dataArray };
 
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            });
+            var json = JsonSerializer.Serialize(payload, s_snakeCaseJson);
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = JsonApiMediaType;
 
@@ -380,10 +382,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            });
+            var json = JsonSerializer.Serialize(payload, s_snakeCaseJson);
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = JsonApiMediaType;
 
