@@ -3,7 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.InvoiceListAvaloniaView"
              x:DataType="vm:InvoiceListAvaloniaViewModel">
-<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
 
     <!-- Fatura Listesi — Arama, Filtre, DataGrid, Sayfalama -->
 
@@ -40,7 +40,7 @@
         <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="260" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
+                <TextBox x:Name="SearchBox" Width="260" Watermark="Fatura no veya alici ara..." AutomationProperties.Name="Fatura no veya alici ara..."
                          Text="{Binding SearchText}" FontSize="{StaticResource FontSizeBody}"/>
                 <ComboBox Width="140" ItemsSource="{Binding InvoiceTypes}"
                           SelectedItem="{Binding SelectedType}" AutomationProperties.Name="Type seciniz"/>

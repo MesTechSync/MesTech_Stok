@@ -32,8 +32,30 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     [ObservableProperty]
     private string _title = string.Empty;
 
-    /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.</summary>
-    public virtual async Task InitializeAsync() => await LoadAsync();
+    /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.
+    /// DB bağlantısı yokken crash önlemek için try-catch sarmalı.</summary>
+    public virtual async Task InitializeAsync()
+    {
+        try
+        {
+            await LoadAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            // View kapandı — normal
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Veri yuklenemedi: {ex.Message}";
+        }
+    }
+
+    /// <summary>Ctrl+F kısayolu ile arama TextBox'a focus iste. BaseView handle eder.</summary>
+    public event EventHandler? FocusSearchRequested;
+
+    [RelayCommand]
+    private void FocusSearch() => FocusSearchRequested?.Invoke(this, EventArgs.Empty);
 
     /// <summary>AXAML'dan bağlanabilen LoadData komutu. LoadAsync'i çağırır.</summary>
     [RelayCommand]

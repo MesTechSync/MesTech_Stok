@@ -17,14 +17,27 @@ public abstract class BaseView : UserControl
         base.OnAttachedToVisualTree(e);
         SubscribeEvents();
 
-        // ViewModel LoadAsync otomatik çağrısı
-        if (DataContext is ViewModelBase vmBase)
+        // ViewModel LoadAsync otomatik çağrısı — async void crash koruması
+        try
         {
-            await vmBase.InitializeAsync();
+            if (DataContext is ViewModelBase vmBase)
+            {
+                await vmBase.InitializeAsync();
+            }
+            else if (DataContext is ILoadable loadable)
+            {
+                await loadable.LoadAsync();
+            }
         }
-        else if (DataContext is ILoadable loadable)
+        catch (Exception ex)
         {
-            await loadable.LoadAsync();
+            // DB bağlantısı yokken crash önleme — hata ViewModel'e yansıtılır
+            System.Diagnostics.Debug.WriteLine($"[BaseView] InitializeAsync failed: {ex.Message}");
+            if (DataContext is ViewModelBase vm)
+            {
+                vm.HasError = true;
+                vm.ErrorMessage = $"Veri yuklenemedi: {ex.Message}";
+            }
         }
     }
 
@@ -42,8 +55,23 @@ public abstract class BaseView : UserControl
     }
 
     /// <summary>Override: Event handler'ları bağla (+=)</summary>
-    protected virtual void SubscribeEvents() { }
+    protected virtual void SubscribeEvents()
+    {
+        if (DataContext is ViewModelBase vm)
+            vm.FocusSearchRequested += OnFocusSearchRequested;
+    }
 
     /// <summary>Override: Event handler'ları çöz (-=)</summary>
-    protected virtual void UnsubscribeEvents() { }
+    protected virtual void UnsubscribeEvents()
+    {
+        if (DataContext is ViewModelBase vm)
+            vm.FocusSearchRequested -= OnFocusSearchRequested;
+    }
+
+    /// <summary>Ctrl+F kısayolu: x:Name="SearchBox" olan TextBox'a focus ver.</summary>
+    private void OnFocusSearchRequested(object? sender, EventArgs e)
+    {
+        var searchBox = this.FindControl<TextBox>("SearchBox");
+        searchBox?.Focus();
+    }
 }
