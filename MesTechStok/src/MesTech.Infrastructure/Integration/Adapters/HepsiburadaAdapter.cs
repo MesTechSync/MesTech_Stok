@@ -1211,6 +1211,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex) { _logger.LogWarning(ex, "Hepsiburada ping failed"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Hepsiburada ping failed");
+            return false;
+        }
     }
 }

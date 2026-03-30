@@ -1176,6 +1176,10 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex) { _logger.LogWarning(ex, "Ciceksepeti ping failed"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Ciceksepeti ping failed");
+            return false;
+        }
     }
 }

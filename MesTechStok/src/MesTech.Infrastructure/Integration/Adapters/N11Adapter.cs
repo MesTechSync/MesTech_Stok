@@ -1189,6 +1189,10 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex) { _logger.LogWarning(ex, "N11 ping failed"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "N11 ping failed");
+            return false;
+        }
     }
 }

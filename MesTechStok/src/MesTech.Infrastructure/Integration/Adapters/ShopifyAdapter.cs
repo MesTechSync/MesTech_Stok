@@ -1875,7 +1875,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex) { _logger.LogWarning(ex, "Shopify ping failed"); return false; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Shopify ping failed");
+            return false;
+        }
     }
 }
 
