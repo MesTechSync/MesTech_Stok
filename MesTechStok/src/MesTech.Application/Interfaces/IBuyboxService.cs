@@ -6,6 +6,15 @@ public interface IBuyboxService
         string sku, decimal currentPrice, string platformCode,
         CancellationToken ct = default);
 
+    /// <summary>
+    /// Rakip analizi — minSellerRating ile düşük puanlı satıcıları filtreler.
+    /// Sentos rekabet: "düşük puanlı satıcılarla rekabet etme" özelliği.
+    /// </summary>
+    Task<BuyboxAnalysis> AnalyzeCompetitorsAsync(
+        string sku, decimal currentPrice, string platformCode,
+        int minSellerRating,
+        CancellationToken ct = default);
+
     Task<IReadOnlyList<BuyboxPosition>> CheckBuyboxPositionsAsync(
         Guid tenantId, string platformCode,
         CancellationToken ct = default);

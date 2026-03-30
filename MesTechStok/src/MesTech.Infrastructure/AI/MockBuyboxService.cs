@@ -60,6 +60,37 @@ public sealed class MockBuyboxService : IBuyboxService
         return Task.FromResult(result);
     }
 
+    public async Task<BuyboxAnalysis> AnalyzeCompetitorsAsync(
+        string sku, decimal currentPrice, string platformCode,
+        int minSellerRating, CancellationToken ct = default)
+    {
+        var analysis = await AnalyzeCompetitorsAsync(sku, currentPrice, platformCode, ct)
+            .ConfigureAwait(false);
+
+        // minSellerRating filtresi: düşük puanlı satıcıları çıkar
+        var filtered = analysis.Competitors
+            .Where(c => c.SellerRating >= minSellerRating)
+            .ToList();
+
+        if (filtered.Count == 0)
+            return analysis; // Filtre sonrası rakip kalmadıysa orijinali döndür
+
+        var lowest = filtered.OrderBy(c => c.Price).First();
+        var suggestedPrice = analysis.HasBuybox
+            ? currentPrice
+            : Math.Round(lowest.Price - 1m, 2);
+
+        return new BuyboxAnalysis(
+            analysis.HasBuybox, currentPrice,
+            lowest.Price, lowest.SellerName,
+            filtered,
+            suggestedPrice,
+            $"{filtered.Count} rakip (min puan ≥{minSellerRating}). " +
+            (analysis.HasBuybox
+                ? "Buybox sizde."
+                : $"En düşük: {lowest.SellerName} ({lowest.Price:N2} TL)"));
+    }
+
     public Task<IReadOnlyList<BuyboxPosition>> CheckBuyboxPositionsAsync(
         Guid tenantId, string platformCode, CancellationToken ct = default)
     {

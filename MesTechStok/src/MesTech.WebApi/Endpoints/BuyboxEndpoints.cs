@@ -54,6 +54,28 @@ public static class BuyboxEndpoints
         .WithSummary("Platform bazlı tüm ürünlerin buybox pozisyonları")
         .Produces(200);
 
+        app.MapGet("/api/v1/buybox/analyze", async (
+            string sku,
+            decimal currentPrice,
+            string platformCode,
+            int? minSellerRating,
+            IBuyboxService buyboxService,
+            CancellationToken ct) =>
+        {
+            var result = minSellerRating.HasValue
+                ? await buyboxService.AnalyzeCompetitorsAsync(
+                    sku, currentPrice, platformCode, minSellerRating.Value, ct)
+                : await buyboxService.AnalyzeCompetitorsAsync(
+                    sku, currentPrice, platformCode, ct);
+            return Results.Ok(result);
+        })
+        .RequireAuthorization()
+        .RequireRateLimiting("PerApiKey")
+        .WithTags("Buybox")
+        .WithName("AnalyzeCompetitors")
+        .WithSummary("Rakip analizi — opsiyonel minSellerRating ile düşük puanlı satıcıları filtrele")
+        .Produces(200);
+
         app.MapGet("/api/v1/buybox/lost", async (
             Guid tenantId,
             IBuyboxService buyboxService,
