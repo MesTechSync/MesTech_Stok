@@ -53,6 +53,24 @@ public static class WebhookEndpoints
             if (string.IsNullOrWhiteSpace(body))
                 return Results.BadRequest(ApiResponse<object>.Fail("Empty webhook body", "EMPTY_BODY"));
 
+            // OWASP A08: Validate JSON structure before processing (prevent malformed payload injection)
+            try
+            {
+                using var jsonDoc = JsonDocument.Parse(body);
+                // Ensure root is object or array — reject primitives and malformed JSON
+                if (jsonDoc.RootElement.ValueKind != JsonValueKind.Object &&
+                    jsonDoc.RootElement.ValueKind != JsonValueKind.Array)
+                {
+                    return Results.BadRequest(ApiResponse<object>.Fail(
+                        "Webhook body must be a JSON object or array", "INVALID_JSON_STRUCTURE"));
+                }
+            }
+            catch (JsonException)
+            {
+                return Results.BadRequest(ApiResponse<object>.Fail(
+                    "Webhook body is not valid JSON", "INVALID_JSON"));
+            }
+
             string? signature = null;
             var normalizedPlatform = platform.ToLowerInvariant();
 
