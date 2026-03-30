@@ -69,11 +69,14 @@ public sealed class ExpirePointsWorker : ISyncJob
                     $"Expired {earnTx.Points} points from transaction {earnTx.Id}");
 
                 await _transactionRepo.AddAsync(expireTx, ct).ConfigureAwait(false);
+
+                // Idempotency guard (G086): per-transaction save — crash durumunda
+                // aynı earn tx tekrar GetExpirableEarnTransactionsAsync'te gelmez
+                await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
+
                 expiredCount++;
                 totalExpiredPoints += earnTx.Points;
             }
-
-            await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Expiration complete: {Count} transactions, {Points} total points expired",
