@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -35,8 +36,8 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
 
         await using var lockHandle = await _lockService.AcquireLockAsync(
             $"stock:product:{request.ProductId}",
-            expiry: TimeSpan.FromSeconds(30),
-            waitTimeout: TimeSpan.FromSeconds(10),
+            expiry: DomainConstants.StockLockExpiry,
+            waitTimeout: DomainConstants.StockLockWaitTimeout,
             cancellationToken).ConfigureAwait(false);
 
         if (lockHandle is null)

@@ -1,4 +1,5 @@
 ﻿using MesTech.Application.Interfaces;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -62,8 +63,8 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             foreach (var pid in sortedProductIds)
             {
                 var lockHandle = await _lockService.AcquireLockAsync(
-                    $"stock:product:{pid}", expiry: TimeSpan.FromSeconds(30),
-                    waitTimeout: TimeSpan.FromSeconds(10), ct).ConfigureAwait(false);
+                    $"stock:product:{pid}", expiry: DomainConstants.StockLockExpiry,
+                    waitTimeout: DomainConstants.StockLockWaitTimeout, ct).ConfigureAwait(false);
                 if (lockHandle is null)
                 {
                     _logger.LogWarning("Product lock alınamadı — SKU düşürme atlandı. ProductId={ProductId}", pid);

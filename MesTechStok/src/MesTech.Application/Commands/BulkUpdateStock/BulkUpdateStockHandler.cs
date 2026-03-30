@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Constants;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -45,8 +46,8 @@ public sealed class BulkUpdateStockHandler : IRequestHandler<BulkUpdateStockComm
             {
                 var lockHandle = await _lockService.AcquireLockAsync(
                     $"stock:product:{pid}",
-                    expiry: TimeSpan.FromSeconds(60),
-                    waitTimeout: TimeSpan.FromSeconds(15),
+                    expiry: DomainConstants.BulkStockLockExpiry,
+                    waitTimeout: DomainConstants.BulkStockLockWaitTimeout,
                     cancellationToken).ConfigureAwait(false);
 
                 if (lockHandle is null)
