@@ -23,7 +23,7 @@ using MesTech.Application.Features.Calendar.Commands.UpdateCalendarEvent;
 using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 using MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 using MesTech.Application.Features.Settings.Commands.UpdateStoreSettings;
-using MesTech.Application.Features.Tenant.Commands.UpdateTenant;
+using MesTech.Domain.Enums;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Validators;
@@ -57,8 +57,8 @@ public class UpdateSupplierValidatorTests2
 public class UpdateWarehouseValidatorTests
 {
     private readonly UpdateWarehouseValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateWarehouseCommand(Guid.NewGuid(), "Depo A", "WH-01")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateWarehouseCommand(Guid.Empty, "D", "W")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateWarehouseCommand(Guid.NewGuid(), Guid.NewGuid(), "Depo A", "WH-01", null, "Standard", true)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateWarehouseCommand(Guid.Empty, Guid.Empty, "D", "W", null, "Standard", true)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -66,8 +66,8 @@ public class UpdateWarehouseValidatorTests
 public class UpdateProductPriceValidatorTests
 {
     private readonly UpdateProductPriceValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateProductPriceCommand(Guid.NewGuid(), 99.90m)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateProductPriceCommand(Guid.Empty, 99.90m)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateProductPriceCommand { ProductId = Guid.NewGuid(), RecommendedPrice = 99.90m, TenantId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateProductPriceCommand { ProductId = Guid.Empty, RecommendedPrice = 99.90m, TenantId = Guid.NewGuid() }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -84,8 +84,8 @@ public class UpdateProductImageValidatorTests
 public class UpdateProductContentValidatorTests
 {
     private readonly UpdateProductContentValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateProductContentCommand(Guid.NewGuid(), "Yeni açıklama", "SEO başlık")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateProductContentCommand(Guid.Empty, "D", "S")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateProductContentCommand { ProductId = Guid.NewGuid(), GeneratedContent = "Yeni açıklama", AiProvider = "openai", TenantId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateProductContentCommand { ProductId = Guid.Empty, GeneratedContent = "D", AiProvider = "S", TenantId = Guid.NewGuid() }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -93,8 +93,8 @@ public class UpdateProductContentValidatorTests
 public class UpdateDocumentCategoryValidatorTests
 {
     private readonly UpdateDocumentCategoryValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateDocumentCategoryCommand(Guid.NewGuid(), "Faturalar")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateDocumentCategoryCommand(Guid.Empty, "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateDocumentCategoryCommand { DocumentId = Guid.NewGuid(), DocumentType = "Faturalar", Confidence = 0.9m, TenantId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateDocumentCategoryCommand { DocumentId = Guid.Empty, DocumentType = "N", Confidence = 0.5m, TenantId = Guid.NewGuid() }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -102,8 +102,8 @@ public class UpdateDocumentCategoryValidatorTests
 public class UpdateDocumentMetadataValidatorTests
 {
     private readonly UpdateDocumentMetadataValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateDocumentMetadataCommand(Guid.NewGuid(), "invoice.pdf", "Faturalar")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateDocumentMetadataCommand(Guid.Empty, "f", "c")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateDocumentMetadataCommand { DocumentId = Guid.NewGuid(), ProcessedJson = "{}", Confidence = 0.9m, TenantId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateDocumentMetadataCommand { DocumentId = Guid.Empty, ProcessedJson = "f", Confidence = 0.5m, TenantId = Guid.NewGuid() }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -111,8 +111,8 @@ public class UpdateDocumentMetadataValidatorTests
 public class UpdateStockForecastValidatorTests
 {
     private readonly UpdateStockForecastValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateStockForecastCommand(Guid.NewGuid(), 100, 30)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateStockForecastCommand(Guid.Empty, 100, 30)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateStockForecastCommand { ProductId = Guid.NewGuid(), PredictedDemand7d = 100, DaysUntilStockout = 30, TenantId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_ProductId() => _v.Validate(new UpdateStockForecastCommand { ProductId = Guid.Empty, PredictedDemand7d = 100, DaysUntilStockout = 30, TenantId = Guid.NewGuid() }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -120,8 +120,8 @@ public class UpdateStockForecastValidatorTests
 public class UpdateIncomeValidatorTests
 {
     private readonly UpdateIncomeValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateIncomeCommand(Guid.NewGuid(), "Güncel", null)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateIncomeCommand(Guid.Empty, "N", null)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateIncomeCommand(Guid.NewGuid(), "Güncel")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateIncomeCommand(Guid.Empty, "N")).IsValid.Should().BeFalse();
 }
 
 #endregion
@@ -133,8 +133,8 @@ public class UpdateIncomeValidatorTests
 public class UpdateChartOfAccountValidatorTests
 {
     private readonly UpdateChartOfAccountValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateChartOfAccountCommand(Guid.NewGuid(), Guid.NewGuid(), "120", "Alıcılar")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateChartOfAccountCommand(Guid.Empty, Guid.NewGuid(), "120", "A")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateChartOfAccountCommand(Guid.NewGuid(), "Alıcılar")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateChartOfAccountCommand(Guid.Empty, "A")).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -142,8 +142,8 @@ public class UpdateChartOfAccountValidatorTests
 public class UpdateCounterpartyValidatorTests
 {
     private readonly UpdateCounterpartyValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateCounterpartyCommand(Guid.NewGuid(), Guid.NewGuid(), "ABC Ltd.")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateCounterpartyCommand(Guid.Empty, Guid.NewGuid(), "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateCounterpartyCommand(Guid.NewGuid(), "ABC Ltd.")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateCounterpartyCommand(Guid.Empty, "N")).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -151,8 +151,8 @@ public class UpdateCounterpartyValidatorTests
 public class UpdateFixedAssetValidatorTests
 {
     private readonly UpdateFixedAssetValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateFixedAssetCommand(Guid.NewGuid(), Guid.NewGuid(), "Yazıcı")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateFixedAssetCommand(Guid.Empty, Guid.NewGuid(), "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateFixedAssetCommand(Guid.NewGuid(), Guid.NewGuid(), "Yazıcı", null, 5)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateFixedAssetCommand(Guid.Empty, Guid.NewGuid(), "N", null, 5)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -160,8 +160,8 @@ public class UpdateFixedAssetValidatorTests
 public class UpdateFixedExpenseValidatorTests
 {
     private readonly UpdateFixedExpenseValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateFixedExpenseCommand(Guid.NewGuid(), Guid.NewGuid(), "Kira", 15000m)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateFixedExpenseCommand(Guid.Empty, Guid.NewGuid(), "N", 0m)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateFixedExpenseCommand(Guid.NewGuid(), 15000m, true)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateFixedExpenseCommand(Guid.Empty, 0m, false)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -169,8 +169,8 @@ public class UpdateFixedExpenseValidatorTests
 public class UpdatePenaltyRecordValidatorTests
 {
     private readonly UpdatePenaltyRecordValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdatePenaltyRecordCommand(Guid.NewGuid(), Guid.NewGuid(), "Güncelleme")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdatePenaltyRecordCommand(Guid.Empty, Guid.NewGuid(), "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdatePenaltyRecordCommand(Guid.NewGuid(), PaymentStatus.Completed)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdatePenaltyRecordCommand(Guid.Empty, PaymentStatus.Pending)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -178,8 +178,8 @@ public class UpdatePenaltyRecordValidatorTests
 public class UpdatePlatformCommissionRateValidatorTests
 {
     private readonly UpdatePlatformCommissionRateValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdatePlatformCommissionRateCommand(Guid.NewGuid(), Guid.NewGuid(), 12.5m)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdatePlatformCommissionRateCommand(Guid.Empty, Guid.NewGuid(), 0m)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdatePlatformCommissionRateCommand(Guid.NewGuid(), 12.5m)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdatePlatformCommissionRateCommand(Guid.Empty, 0m)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -187,8 +187,8 @@ public class UpdatePlatformCommissionRateValidatorTests
 public class UpdateSalaryRecordValidatorTests
 {
     private readonly UpdateSalaryRecordValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateSalaryRecordCommand(Guid.NewGuid(), Guid.NewGuid(), "Düzeltme")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateSalaryRecordCommand(Guid.Empty, Guid.NewGuid(), "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateSalaryRecordCommand(Guid.NewGuid(), PaymentStatus.Completed)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateSalaryRecordCommand(Guid.Empty, PaymentStatus.Pending)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -196,8 +196,8 @@ public class UpdateSalaryRecordValidatorTests
 public class UpdateTaxRecordValidatorTests
 {
     private readonly UpdateTaxRecordValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateTaxRecordCommand(Guid.NewGuid(), Guid.NewGuid(), "KDV düzeltme")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateTaxRecordCommand(Guid.Empty, Guid.NewGuid(), "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateTaxRecordCommand(Guid.NewGuid(), true)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateTaxRecordCommand(Guid.Empty, false)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -205,8 +205,8 @@ public class UpdateTaxRecordValidatorTests
 public class RecordCargoExpenseValidatorTests
 {
     private readonly RecordCargoExpenseValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new RecordCargoExpenseCommand(Guid.NewGuid(), Guid.NewGuid(), 150m, "Yurtiçi")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new RecordCargoExpenseCommand(Guid.Empty, Guid.NewGuid(), 0m, "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new RecordCargoExpenseCommand(Guid.NewGuid(), "Yurtiçi", 150m, "ORD-001", "TR123")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new RecordCargoExpenseCommand(Guid.Empty, "N", 0m)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -214,8 +214,8 @@ public class RecordCargoExpenseValidatorTests
 public class RecordTaxWithholdingValidatorTests
 {
     private readonly RecordTaxWithholdingValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new RecordTaxWithholdingCommand(Guid.NewGuid(), 1500m, "KDV Tevkifatı")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new RecordTaxWithholdingCommand(Guid.Empty, 0m, "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new RecordTaxWithholdingCommand(Guid.NewGuid(), 1500m, 0.20m, "KDV Tevkifatı")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new RecordTaxWithholdingCommand(Guid.Empty, 0m, 0m, "N")).IsValid.Should().BeFalse();
 }
 
 #endregion
@@ -227,8 +227,8 @@ public class RecordTaxWithholdingValidatorTests
 public class UpdateCalendarEventValidatorTests
 {
     private readonly UpdateCalendarEventValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateCalendarEventCommand(Guid.NewGuid(), "Toplantı")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateCalendarEventCommand(Guid.Empty, "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateCalendarEventCommand(Guid.NewGuid(), true)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateCalendarEventCommand(Guid.Empty, false)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -236,8 +236,8 @@ public class UpdateCalendarEventValidatorTests
 public class GenerateTaxCalendarValidatorTests
 {
     private readonly GenerateTaxCalendarValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new GenerateTaxCalendarCommand(Guid.NewGuid(), 2026)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new GenerateTaxCalendarCommand(Guid.Empty, 2026)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new GenerateTaxCalendarCommand(2026, Guid.NewGuid())).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new GenerateTaxCalendarCommand(2026, Guid.Empty)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -254,8 +254,8 @@ public class UpdateProfileSettingsValidatorTests
 public class UpdateStoreSettingsValidatorTests
 {
     private readonly UpdateStoreSettingsValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateStoreSettingsCommand(Guid.NewGuid(), Guid.NewGuid())).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new UpdateStoreSettingsCommand(Guid.Empty, Guid.NewGuid())).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateStoreSettingsCommand(Guid.NewGuid(), "MesTech Store", "1234567890", "555-1234", "info@test.com", "Istanbul")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new UpdateStoreSettingsCommand(Guid.Empty, "N", null, null, null, null)).IsValid.Should().BeFalse();
 }
 
 #endregion

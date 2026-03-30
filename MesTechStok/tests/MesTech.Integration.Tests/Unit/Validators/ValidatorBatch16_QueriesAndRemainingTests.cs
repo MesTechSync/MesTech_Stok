@@ -26,6 +26,7 @@ using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.SeedDemoData;
 using MesTech.Application.Commands.SaveCompanySettings;
 using MesTech.Application.Commands.UpdateBotNotificationStatus;
+using MesTech.Domain.Accounting.Enums;
 using Xunit;
 
 namespace MesTech.Integration.Tests.Unit.Validators;
@@ -114,7 +115,7 @@ public class GetProfileSettingsValidatorTests
 {
     private readonly GetProfileSettingsValidator _v = new();
     [Fact] public void Valid() => _v.Validate(new GetProfileSettingsQuery(Guid.NewGuid())).IsValid.Should().BeTrue();
-    [Fact] public void Empty_UserId() => _v.Validate(new GetProfileSettingsQuery(Guid.Empty)).IsValid.Should().BeFalse();
+    [Fact] public void Empty_TenantId() => _v.Validate(new GetProfileSettingsQuery(Guid.Empty)).IsValid.Should().BeFalse();
 }
 
 #endregion
@@ -222,8 +223,8 @@ public class GetTenantValidatorTests
 public class ExportProductsValidatorTests
 {
     private readonly ExportProductsValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new ExportProductsCommand(Guid.NewGuid(), "xlsx")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new ExportProductsCommand(Guid.Empty, "xlsx")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new ExportProductsCommand(Format: "xlsx")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Format() => _v.Validate(new ExportProductsCommand(Format: "")).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -231,8 +232,8 @@ public class ExportProductsValidatorTests
 public class ExecuteBulkImportValidatorTests
 {
     private readonly ExecuteBulkImportValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new ExecuteBulkImportCommand(Guid.NewGuid(), Guid.NewGuid())).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new ExecuteBulkImportCommand(Guid.Empty, Guid.NewGuid())).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new ExecuteBulkImportCommand(new MemoryStream(new byte[] { 1, 2, 3 }), "products.xlsx")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_FileName() => _v.Validate(new ExecuteBulkImportCommand(new MemoryStream(new byte[] { 1 }), "")).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -240,8 +241,8 @@ public class ExecuteBulkImportValidatorTests
 public class ValidateBulkImportValidatorTests
 {
     private readonly ValidateBulkImportValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new ValidateBulkImportCommand(Guid.NewGuid(), new byte[] { 1, 2, 3 }, "products.xlsx")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new ValidateBulkImportCommand(Guid.Empty, new byte[] { 1 }, "f.xlsx")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new ValidateBulkImportCommand(new MemoryStream(new byte[] { 1, 2, 3 }), "products.xlsx")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_FileName() => _v.Validate(new ValidateBulkImportCommand(new MemoryStream(new byte[] { 1 }), "")).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -249,8 +250,8 @@ public class ValidateBulkImportValidatorTests
 public class UpdateProductValidatorTests2
 {
     private readonly UpdateProductValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateProductCommand(Guid.NewGuid(), "Ürün A", "SKU-001")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_Id() => _v.Validate(new UpdateProductCommand(Guid.Empty, "N", "S")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateProductCommand(Guid.NewGuid(), Name: "Product A")).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Id() => _v.Validate(new UpdateProductCommand(Guid.Empty, Name: "N")).IsValid.Should().BeFalse();
 }
 
 #endregion
@@ -262,8 +263,8 @@ public class UpdateProductValidatorTests2
 public class EarnPointsCommandValidatorTests
 {
     private readonly EarnPointsCommandValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new EarnPointsCommand(Guid.NewGuid(), Guid.NewGuid(), 100)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new EarnPointsCommand(Guid.Empty, Guid.NewGuid(), 100)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new EarnPointsCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 100m)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new EarnPointsCommand(Guid.Empty, Guid.NewGuid(), Guid.NewGuid(), 100m)).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -293,8 +294,7 @@ public class RedeemPointsCommandValidatorTests
 public class SeedDemoDataValidatorTests
 {
     private readonly SeedDemoDataValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new SeedDemoDataCommand(Guid.NewGuid())).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new SeedDemoDataCommand(Guid.Empty)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new SeedDemoDataCommand()).IsValid.Should().BeTrue();
 }
 
 [Trait("Category", "Unit")]
@@ -302,8 +302,8 @@ public class SeedDemoDataValidatorTests
 public class SaveCompanySettingsValidatorTests
 {
     private readonly SaveCompanySettingsValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new SaveCompanySettingsCommand(Guid.NewGuid(), "MesTech Ltd.")).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new SaveCompanySettingsCommand(Guid.Empty, "N")).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new SaveCompanySettingsCommand("MesTech Ltd.", null, null, null, null, new List<WarehouseInput>())).IsValid.Should().BeTrue();
+    [Fact] public void Empty_CompanyName() => _v.Validate(new SaveCompanySettingsCommand("", null, null, null, null, new List<WarehouseInput>())).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -311,8 +311,8 @@ public class SaveCompanySettingsValidatorTests
 public class UpdateBotNotificationStatusValidatorTests
 {
     private readonly UpdateBotNotificationStatusValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UpdateBotNotificationStatusCommand(Guid.NewGuid(), true)).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new UpdateBotNotificationStatusCommand(Guid.Empty, false)).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UpdateBotNotificationStatusCommand { TenantId = Guid.NewGuid(), Channel = "telegram", Recipient = "user1", Success = true }).IsValid.Should().BeTrue();
+    [Fact] public void Empty_Channel() => _v.Validate(new UpdateBotNotificationStatusCommand { TenantId = Guid.NewGuid(), Channel = "", Recipient = "user1", Success = false }).IsValid.Should().BeFalse();
 }
 
 [Trait("Category", "Unit")]
@@ -320,8 +320,8 @@ public class UpdateBotNotificationStatusValidatorTests
 public class UploadAccountingDocumentValidatorTests
 {
     private readonly UploadAccountingDocumentValidator _v = new();
-    [Fact] public void Valid() => _v.Validate(new UploadAccountingDocumentCommand(Guid.NewGuid(), "fatura.pdf", new byte[] { 1, 2 })).IsValid.Should().BeTrue();
-    [Fact] public void Empty_TenantId() => _v.Validate(new UploadAccountingDocumentCommand(Guid.Empty, "f", new byte[] { 1 })).IsValid.Should().BeFalse();
+    [Fact] public void Valid() => _v.Validate(new UploadAccountingDocumentCommand(Guid.NewGuid(), "fatura.pdf", "application/pdf", 1024, "/uploads/fatura.pdf", DocumentType.Invoice, DocumentSource.Upload)).IsValid.Should().BeTrue();
+    [Fact] public void Empty_TenantId() => _v.Validate(new UploadAccountingDocumentCommand(Guid.Empty, "f", "application/pdf", 100, "/uploads/f", DocumentType.Invoice, DocumentSource.Upload)).IsValid.Should().BeFalse();
 }
 
 #endregion
