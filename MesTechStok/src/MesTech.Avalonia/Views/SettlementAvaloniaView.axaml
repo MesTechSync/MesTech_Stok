@@ -1,0 +1,156 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.SettlementAvaloniaView"
+             x:DataType="vm:SettlementAvaloniaViewModel">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.KeyBindings>
+
+    <!-- Settlement (Hesap Kesimi) — platform bazlı ödeme mutabakatı -->
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Row 0: Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Hesap Kesimleri (Settlement)"
+                           Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri yenile (F5)"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}"
+                        FontWeight="SemiBold" Padding="16,8"
+                        CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Row 1: KPI Cards -->
+        <Border Grid.Row="1" Padding="16,12" Background="{DynamicResource MesBgPrimary}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <!-- Toplam Batch -->
+                <Border Grid.Column="0" Margin="4" Padding="16,12" CornerRadius="{StaticResource MesRadiusMd}"
+                        Background="{DynamicResource SurfaceCardBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Toplam Batch" FontSize="{StaticResource FontSizeCaption}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalBatches}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                    </StackPanel>
+                </Border>
+                <!-- Brüt Toplam -->
+                <Border Grid.Column="1" Margin="4" Padding="16,12" CornerRadius="{StaticResource MesRadiusMd}"
+                        Background="{DynamicResource SurfaceCardBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Brut Toplam" FontSize="{StaticResource FontSizeCaption}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalGrossText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
+                    </StackPanel>
+                </Border>
+                <!-- Komisyon -->
+                <Border Grid.Column="2" Margin="4" Padding="16,12" CornerRadius="{StaticResource MesRadiusMd}"
+                        Background="{DynamicResource SurfaceCardBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Komisyon Kesintisi" FontSize="{StaticResource FontSizeCaption}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalCommissionText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusDangerBrush}" />
+                    </StackPanel>
+                </Border>
+                <!-- Net Ödeme -->
+                <Border Grid.Column="3" Margin="4" Padding="16,12" CornerRadius="{StaticResource MesRadiusMd}"
+                        Background="{DynamicResource SurfaceCardBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Net Odeme" FontSize="{StaticResource FontSizeCaption}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBlock Text="{Binding TotalNetText}" FontSize="{StaticResource FontSizeH2}"
+                                   FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Filters -->
+        <Border Grid.Row="2" Padding="16,10" Background="{DynamicResource MesBgPrimary}"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Text="{Binding SearchText}" Watermark="Ara..."
+                         Width="200" ToolTip.Tip="Platform veya durum ile filtrele"
+                         AutomationProperties.Name="Arama" />
+                <ComboBox ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
+                          Width="160" ToolTip.Tip="Platform filtrele"
+                          AutomationProperties.Name="Platform" />
+                <DatePicker SelectedDate="{Binding FromDate}" ToolTip.Tip="Baslangic tarihi"
+                            AutomationProperties.Name="Baslangic" />
+                <DatePicker SelectedDate="{Binding ToDate}" ToolTip.Tip="Bitis tarihi"
+                            AutomationProperties.Name="Bitis" />
+                <Button Content="Filtrele" Command="{Binding FilterCommand}"
+                        ToolTip.Tip="Filtre uygula"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        Padding="12,6" CornerRadius="{StaticResource MesRadiusSm}" FontWeight="SemiBold" />
+            </StackPanel>
+        </Border>
+
+        <!-- Row 3: DataGrid -->
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Batches}" Margin="16"
+                  AutoGenerateColumns="False" CanUserSortColumns="True"
+                  CanUserResizeColumns="True" CanUserReorderColumns="True" IsReadOnly="True"
+                  GridLinesVisibility="Horizontal" BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120" />
+                <DataGridTextColumn Header="Donem Baslangic" Binding="{Binding PeriodStart, StringFormat=\{0:dd.MM.yyyy\}}" Width="120" />
+                <DataGridTextColumn Header="Donem Bitis" Binding="{Binding PeriodEnd, StringFormat=\{0:dd.MM.yyyy\}}" Width="120" />
+                <DataGridTextColumn Header="Brut" Binding="{Binding TotalGross, StringFormat=₺\{0:N2\}}" Width="120" />
+                <DataGridTextColumn Header="Komisyon" Binding="{Binding TotalCommission, StringFormat=₺\{0:N2\}}" Width="120" />
+                <DataGridTextColumn Header="Net" Binding="{Binding TotalNet, StringFormat=₺\{0:N2\}}" Width="120" />
+                <DataGridTextColumn Header="Satir" Binding="{Binding LineCount}" Width="60" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="100" />
+                <DataGridTextColumn Header="Import Tarihi" Binding="{Binding ImportedAt, StringFormat=\{0:dd.MM.yyyy HH:mm\}}" Width="140" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty State -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Hesap Kesimi Bulunamadi" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
+                <TextBlock Text="Henuz settlement verisi import edilmemis. Platform hesap kesim dosyasini yukleyin."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="3" IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
+            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
+                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
+                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
+                           TextWrapping="Wrap" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        ToolTip.Tip="Verileri tekrar yukle"
+                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsLoading}"
+                Background="{DynamicResource MesOverlayLight}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4" />
+                <TextBlock Text="Settlement verileri yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

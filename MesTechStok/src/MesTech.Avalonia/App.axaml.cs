@@ -200,6 +200,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ProjectsAvaloniaViewModel>();
                 services.AddTransient<PttAvmAvaloniaViewModel>();
                 services.AddTransient<ReportAvaloniaViewModel>();
+                services.AddTransient<SettlementAvaloniaViewModel>();
                 services.AddTransient<ShipmentAvaloniaViewModel>();
                 services.AddTransient<StoreManagementAvaloniaViewModel>();
                 services.AddTransient<SupplierAvaloniaViewModel>();

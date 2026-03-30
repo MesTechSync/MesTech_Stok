@@ -105,6 +105,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Projects" => _provider.GetService<ProjectsAvaloniaViewModel>(),
             "PttAvm" => _provider.GetService<PttAvmAvaloniaViewModel>(),
             "Report" => _provider.GetService<ReportAvaloniaViewModel>(),
+            "Settlement" => _provider.GetService<SettlementAvaloniaViewModel>(),
             "Shipment" => _provider.GetService<ShipmentAvaloniaViewModel>(),
             "StoreManagement" => _provider.GetService<StoreManagementAvaloniaViewModel>(),
             "Supplier" => _provider.GetService<SupplierAvaloniaViewModel>(),
