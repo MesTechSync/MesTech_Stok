@@ -33,6 +33,12 @@ public interface IMesaEventPublisher
     /// <summary>İzin onayı MESA Bot'a bildirir — WhatsApp bildirimi tetikler.</summary>
     Task PublishLeaveApprovedAsync(Guid leaveId, Guid employeeId,
         DateTime occurredAt, CancellationToken ct = default);
+
+    /// <summary>Banka ekstre import tamamlandı — MESA muhasebe AI'a bildirir.</summary>
+    Task PublishBankImportedAsync(Accounting.Events.FinanceBankImportedEvent evt, CancellationToken ct = default);
+
+    /// <summary>Yevmiye kaydı deftere işlendi — MESA muhasebe AI'a bildirir.</summary>
+    Task PublishLedgerPostedAsync(Accounting.Events.FinanceLedgerPostedEvent evt, CancellationToken ct = default);
 }
 
 public sealed class MesaEventPublisher : IMesaEventPublisher
@@ -195,6 +201,22 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         _logger.LogInformation(
             "[MOCK-MESA] LeaveApproved: LeaveId={LeaveId} EmployeeId={EmployeeId}",
             leaveId, employeeId);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishBankImportedAsync(Accounting.Events.FinanceBankImportedEvent evt, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] BankImported: Account={AccountId} Txn={TxnCount} [Tenant={TenantId}]",
+            evt.BankAccountId, evt.TransactionCount, evt.TenantId);
+        return Task.CompletedTask;
+    }
+
+    public Task PublishLedgerPostedAsync(Accounting.Events.FinanceLedgerPostedEvent evt, CancellationToken ct = default)
+    {
+        _logger.LogInformation(
+            "[MOCK-MESA] LedgerPosted: Entry={EntryId} Tutar={Amount} [Tenant={TenantId}]",
+            evt.JournalEntryId, evt.TotalAmount, evt.TenantId);
         return Task.CompletedTask;
     }
 }

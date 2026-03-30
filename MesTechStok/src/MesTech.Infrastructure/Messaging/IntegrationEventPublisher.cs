@@ -16,6 +16,11 @@ public interface IIntegrationEventPublisher
     Task PublishZeroStockDetectedAsync(Guid productId, string sku, int previousStock, CancellationToken ct = default);
     Task PublishStaleOrderDetectedAsync(Guid orderId, string orderNumber, string? platformCode, double hoursElapsed, CancellationToken ct = default);
     Task PublishPlatformDeactivatedAsync(Guid productId, string sku, string platformCode, CancellationToken ct = default);
+    Task PublishEInvoiceSentAsync(Guid invoiceId, string ettnNo, string providerId, decimal totalAmount, string currency, CancellationToken ct = default);
+    Task PublishEInvoiceCancelledAsync(Guid invoiceId, string ettnNo, string reason, CancellationToken ct = default);
+    Task PublishErpSyncCompletedAsync(string erpProvider, string entityType, Guid entityId, string? erpRef, bool success, CancellationToken ct = default);
+    Task PublishEbayOrderReceivedAsync(string ebayOrderId, string buyerUsername, decimal totalAmount, string currency, CancellationToken ct = default);
+    Task PublishCreditBalanceLowAsync(string providerId, int remainingCredits, int thresholdCredits, CancellationToken ct = default);
 }
 
 public sealed class IntegrationEventPublisher : IIntegrationEventPublisher
@@ -118,5 +123,50 @@ public sealed class IntegrationEventPublisher : IIntegrationEventPublisher
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation("PlatformDeactivated yayinlandi: {SKU} platform={Platform} [Tenant={TenantId}]",
             sku, platformCode, tenantId);
+    }
+
+    public async Task PublishEInvoiceSentAsync(Guid invoiceId, string ettnNo, string providerId, decimal totalAmount, string currency, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new EInvoiceSentIntegrationEvent(invoiceId, ettnNo, providerId, totalAmount, currency, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("EInvoiceSent yayinlandi: ETTN={Ettn} provider={Provider} tutar={Amount} [Tenant={TenantId}]",
+            ettnNo, providerId, totalAmount, tenantId);
+    }
+
+    public async Task PublishEInvoiceCancelledAsync(Guid invoiceId, string ettnNo, string reason, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new EInvoiceCancelledIntegrationEvent(invoiceId, ettnNo, reason, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("EInvoiceCancelled yayinlandi: ETTN={Ettn} sebep={Reason} [Tenant={TenantId}]",
+            ettnNo, reason, tenantId);
+    }
+
+    public async Task PublishErpSyncCompletedAsync(string erpProvider, string entityType, Guid entityId, string? erpRef, bool success, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new ErpSyncCompletedIntegrationEvent(erpProvider, entityType, entityId, erpRef, success, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("ErpSyncCompleted yayinlandi: {ErpProvider} {EntityType} basari={Success} [Tenant={TenantId}]",
+            erpProvider, entityType, success, tenantId);
+    }
+
+    public async Task PublishEbayOrderReceivedAsync(string ebayOrderId, string buyerUsername, decimal totalAmount, string currency, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new EbayOrderReceivedIntegrationEvent(ebayOrderId, buyerUsername, totalAmount, currency, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("EbayOrderReceived yayinlandi: {EbayOrderId} alici={Buyer} tutar={Amount} [Tenant={TenantId}]",
+            ebayOrderId, buyerUsername, totalAmount, tenantId);
+    }
+
+    public async Task PublishCreditBalanceLowAsync(string providerId, int remainingCredits, int thresholdCredits, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new CreditBalanceLowIntegrationEvent(providerId, remainingCredits, thresholdCredits, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogWarning("CreditBalanceLow yayinlandi: provider={Provider} kalan={Remaining}/{Threshold} [Tenant={TenantId}]",
+            providerId, remainingCredits, thresholdCredits, tenantId);
     }
 }

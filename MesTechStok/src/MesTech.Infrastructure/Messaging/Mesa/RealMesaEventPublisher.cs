@@ -98,4 +98,10 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
         DateTime occurredAt, CancellationToken ct = default)
         => PostEventAsync("hr.leave.approved",
             new { leaveId, employeeId, occurredAt }, ct);
+
+    public Task PublishBankImportedAsync(Accounting.Events.FinanceBankImportedEvent evt, CancellationToken ct = default)
+        => PostEventAsync("finance.bank.imported", evt, ct);
+
+    public Task PublishLedgerPostedAsync(Accounting.Events.FinanceLedgerPostedEvent evt, CancellationToken ct = default)
+        => PostEventAsync("finance.ledger.posted", evt, ct);
 }
