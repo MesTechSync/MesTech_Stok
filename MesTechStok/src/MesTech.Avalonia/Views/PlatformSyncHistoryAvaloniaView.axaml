@@ -1,0 +1,124 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             x:Class="MesTech.Avalonia.Views.PlatformSyncHistoryAvaloniaView"
+             x:DataType="vm:PlatformSyncHistoryAvaloniaViewModel"
+             AutomationProperties.Name="Platform Senkronizasyon Gecmisi">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Senkronizasyon Gecmisi" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} basarili / {1} hatali">
+                                    <Binding Path="SuccessCount" />
+                                    <Binding Path="FailCount" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding Platforms}" SelectedItem="{Binding SelectedPlatform}"
+                          Width="160" Margin="0,0,8,0" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Senkron Et" ToolTip.Tip="Secili platformu senkron et"
+                            Command="{Binding TriggerSyncCommand}"
+                            IsEnabled="{Binding !IsSyncing}"
+                            Background="{DynamicResource MesGreenSuccess}" Foreground="White" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile (F5)"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Sync Message -->
+        <Border Grid.Row="1" Padding="16,8" IsVisible="{Binding SyncMessage.Length}"
+                Background="{DynamicResource MesBgSurface}">
+            <TextBlock Text="{Binding SyncMessage}" FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
+                <TextBlock Text="Senkronizasyon gecmisi yukleniyor..."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesMutedGray}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Senkronizasyon gecmisi bulunamadi" FontSize="{StaticResource FontSizeTitle}"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
+                <TextBlock Text="Henuz senkronizasyon yapilmamis veya secili platform filtresi sonuc donmuyor"
+                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" Opacity="0.7" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error State -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding HasError}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeTitle}"
+                           Foreground="{DynamicResource MesErrorRed}" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
+                           MaxWidth="400" HorizontalAlignment="Center" />
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Sync History DataGrid -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding SyncHistory}"
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  Background="{DynamicResource MesBgPrimary}"
+                  Margin="16,8,16,16">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Platform" Binding="{Binding PlatformCode}" Width="120" />
+                <DataGridTextColumn Header="Yon" Binding="{Binding Direction}" Width="80" />
+                <DataGridTextColumn Header="Veri Tipi" Binding="{Binding EntityType}" Width="100" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding IsSuccess}" Width="80" />
+                <DataGridTextColumn Header="Islenen" Binding="{Binding ItemsProcessed}" Width="80" />
+                <DataGridTextColumn Header="Hatali" Binding="{Binding ItemsFailed}" Width="80" />
+                <DataGridTextColumn Header="Baslangic" Binding="{Binding StartedAt, StringFormat='{}{0:dd.MM HH:mm}'}" Width="120" />
+                <DataGridTextColumn Header="Sure" Binding="{Binding Duration}" Width="80" />
+                <DataGridTextColumn Header="Hata Mesaji" Binding="{Binding ErrorMessage}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Empty state for DataGrid -->
+        <TextBlock Grid.Row="2" Text="Senkronizasyon kaydi bulunamadi"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Margin="0,40" Opacity="0.5"
+                   FontSize="{StaticResource FontSizeSubtitle}"
+                   IsVisible="{Binding !SyncHistory.Count}" />
+    </Grid>
+</UserControl>

@@ -302,6 +302,8 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ViewModels.Accounting.FixedAssetAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Monitoring.StaleOrdersAvaloniaViewModel>();
                 services.AddTransient<ViewModels.Orders.OrderKanbanViewModel>();
+                services.AddTransient<StockTimelineAvaloniaViewModel>();
+                services.AddTransient<PlatformSyncHistoryAvaloniaViewModel>();
             })
             .Build();
 

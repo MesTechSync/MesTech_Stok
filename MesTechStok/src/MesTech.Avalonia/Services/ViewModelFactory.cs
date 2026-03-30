@@ -202,6 +202,10 @@ public sealed class ViewModelFactory : IViewModelFactory
             "StockUpdate" => _provider.GetService<StockUpdateAvaloniaViewModel>(),
             "TransferWizard" => _provider.GetService<TransferWizardAvaloniaViewModel>(),
             "WarehouseSummary" => _provider.GetService<WarehouseSummaryAvaloniaViewModel>(),
+            "StockTimeline" => _provider.GetService<StockTimelineAvaloniaViewModel>(),
+            "Quotation" => _provider.GetService<QuotationAvaloniaViewModel>(),
+            "Billing" => _provider.GetService<BillingAvaloniaViewModel>(),
+            "PlatformSyncHistory" => _provider.GetService<PlatformSyncHistoryAvaloniaViewModel>(),
             _ => null
         };
     }
