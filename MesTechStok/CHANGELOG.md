@@ -3,6 +3,14 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.33] - 2026-03-30
+
+### DEV6 v3.8 TUR1 — Sözleşme iç tutarlılık denetimi + yanlış pozitif temizliği
+- fix(docs): v3.8 sözleşme 10 hata düzeltmesi (git add -A, git stash çelişki, port referansları, BORÇ-M mapping, typo'lar)
+- docs(services): DemoModeService IgnoreQueryFilters kasıtlı kullanım belgelendi
+- fix(organizma): 7 yanlış pozitif KNOWN_ISSUES — ServiceLocator(2), IgnoreQueryFilters(1), meschain TODO(4)
+- docs(organizma): NEXT_ACTION.md 18 spam uyarısı temizlendi, checkpoint yazıldı
+
 ## [1.0.31] - 2026-03-30
 
 ### DEV4 v3.8 TUR1-2 — CORS hardening + CHANGELOG fix + v3.8 sözleşme audit
