@@ -207,7 +207,10 @@ builder.Services.AddCors(options => options.AddPolicy("SaaS", policy =>
     }
     else
     {
-        policy.WithOrigins("https://mestech.tr", "https://panel.mestech.tr", "https://app.mestech.tr")
+        // Production + Staging: restrict origins (OWASP A05 — security misconfiguration)
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[] { "https://mestech.tr", "https://panel.mestech.tr", "https://app.mestech.tr" };
+        policy.WithOrigins(allowedOrigins)
               .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
               .WithHeaders("Authorization", "Content-Type", "X-API-Key")
               .AllowCredentials();
