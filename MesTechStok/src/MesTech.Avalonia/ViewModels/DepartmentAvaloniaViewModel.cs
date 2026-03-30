@@ -2,21 +2,24 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Hr.Queries.GetDepartments;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class DepartmentAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<DepartmentItemVm> Departments { get; } = [];
 
-    public DepartmentAvaloniaViewModel(IMediator mediator)
+    public DepartmentAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -27,13 +30,20 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var result = await _mediator.Send(new GetDepartmentsQuery(tenantId), CancellationToken);
+
             Departments.Clear();
-            Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Yazilim Gelistirme", Manager = "Fatih Ilhan", EmployeeCount = 12, Status = "Aktif" });
-            Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Satis ve Pazarlama", Manager = "Mehmet Can", EmployeeCount = 8, Status = "Aktif" });
-            Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Insan Kaynaklari", Manager = "Ayse Kara", EmployeeCount = 4, Status = "Aktif" });
-            Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Finans", Manager = "Ali Kaya", EmployeeCount = 6, Status = "Aktif" });
-            Departments.Add(new DepartmentItemVm { Id = Guid.NewGuid(), Name = "Destek", Manager = "Zeynep Arslan", EmployeeCount = 10, Status = "Aktif" });
+            foreach (var d in result)
+            {
+                Departments.Add(new DepartmentItemVm
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    EmployeeCount = d.EmployeeCount,
+                    Status = d.IsActive ? "Aktif" : "Pasif"
+                });
+            }
             TotalCount = Departments.Count;
             IsEmpty = Departments.Count == 0;
         }
