@@ -1,7 +1,10 @@
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Services;
+using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Messaging.Mesa;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -25,6 +28,7 @@ public sealed class DailyProfitWorker : IAccountingJob
     private readonly IOrderRepository _orderRepository;
     private readonly ITenantProvider _tenantProvider;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
     private readonly ILogger<DailyProfitWorker> _logger;
 
     public DailyProfitWorker(
@@ -36,6 +40,7 @@ public sealed class DailyProfitWorker : IAccountingJob
         IOrderRepository orderRepository,
         ITenantProvider tenantProvider,
         IUnitOfWork unitOfWork,
+        IMediator mediator,
         ILogger<DailyProfitWorker> logger)
     {
         _profitCalculationService = profitCalculationService;
@@ -46,6 +51,7 @@ public sealed class DailyProfitWorker : IAccountingJob
         _orderRepository = orderRepository;
         _tenantProvider = tenantProvider;
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -121,6 +127,19 @@ public sealed class DailyProfitWorker : IAccountingJob
 
             await _profitReportRepository.AddAsync(report, ct).ConfigureAwait(false);
             await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+            // G516 FIX: DailySummaryGeneratedEvent raise — 2 handler bekliyor
+            await _mediator.Publish(
+                new DomainEventNotification<DailySummaryGeneratedEvent>(
+                    new DailySummaryGeneratedEvent(
+                        TenantId: tenantId,
+                        Date: today,
+                        OrderCount: orders.Count,
+                        Revenue: totalRevenue,
+                        StockAlerts: 0, // Stock alert count computed separately
+                        InvoiceCount: 0, // Invoice count computed separately
+                        OccurredAt: DateTime.UtcNow)),
+                ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] Gunluk kar/zarar raporu olusturuldu — Period: {Period}, " +
