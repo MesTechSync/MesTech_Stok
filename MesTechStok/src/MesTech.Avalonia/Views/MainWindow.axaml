@@ -690,6 +690,24 @@
                                     <TextBlock Text="Sync Durumu"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Sync Gecmisi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="PlatformSyncHistory">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Sync Gecmisi"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Baglanti Testi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="PlatformConnectionTest">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
+                                    <TextBlock Text="Baglanti Testi"/>
+                                </StackPanel>
+                            </Button>
 
                             <!-- 10b. DROPSHIPPING -->
                             <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
@@ -1430,6 +1448,12 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:PlatformSyncAvaloniaViewModel">
                             <views:PlatformSyncAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PlatformSyncHistoryAvaloniaViewModel">
+                            <views:PlatformSyncHistoryAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PlatformConnectionTestAvaloniaViewModel">
+                            <views:PlatformConnectionTestAvaloniaView />
                         </DataTemplate>
                         <DataTemplate DataType="vm:ProductVariantMatrixViewModel">
                             <views:ProductVariantMatrixView />
