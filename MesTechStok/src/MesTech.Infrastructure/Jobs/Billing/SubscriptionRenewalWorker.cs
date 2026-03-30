@@ -15,6 +15,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 public sealed class SubscriptionRenewalWorker
 {
     public const string JobId = "subscription-renewal";
+    private const string ServerInitiatedIp = "127.0.0.1";
 
     private readonly ITenantSubscriptionRepository _subscriptionRepository;
     private readonly IBillingInvoiceRepository _invoiceRepository;
@@ -79,7 +80,7 @@ public sealed class SubscriptionRenewalWorker
                         Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                         CardToken: null, // stored payment token — will be resolved by provider
                         ReturnUrl: string.Empty,
-                        CustomerIp: "127.0.0.1" /* server-initiated payment */),
+                        CustomerIp: ServerInitiatedIp),
                     ct).ConfigureAwait(false);
 
                 if (paymentResult.Success)
