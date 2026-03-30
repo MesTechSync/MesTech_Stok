@@ -82,16 +82,18 @@ public sealed class ParasutInvoiceSyncJob
 
                 invoice.MarkParasutSynced(salesId, eId);
 
+                // Idempotency guard (G086): her fatura sonrası kaydet — crash olursa
+                // Paraşüt'te fatura oluşmuş ama DB'de PendingSync kalır, tekrar gönderilir
+                await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+
                 _logger.LogInformation("Synced invoice {Number} → Paraşüt {SalesId}", invoice.InvoiceNumber, salesId);
             }
             catch (Exception ex)
             {
                 invoice.MarkParasutFailed(ex.Message);
+                await _db.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogError(ex, "Paraşüt sync failed for {Number}", invoice.InvoiceNumber);
             }
         }
-
-        if (pendingInvoices.Count > 0)
-            await _db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }
