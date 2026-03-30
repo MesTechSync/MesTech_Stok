@@ -81,6 +81,9 @@ public static class HangfireConfig
         services.AddScoped<GenericPlatformStockSyncJob>();
         services.AddScoped<CheckStaleOrdersJob>();
 
+        // Parasut invoice sync (DEV 3 — DI registration eksikti)
+        services.AddScoped<ParasutInvoiceSyncJob>();
+
         return services;
     }
 
