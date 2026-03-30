@@ -50,7 +50,8 @@ public sealed class AutoPriceUpdateWorker
     {
         _logger.LogInformation("[AutoPrice] Starting automatic price update cycle");
 
-        var tenants = await _tenantRepository.GetAllActiveAsync(ct).ConfigureAwait(false);
+        var allTenants = await _tenantRepository.GetAllAsync(ct).ConfigureAwait(false);
+        var tenants = allTenants.Where(t => t.IsActive).ToList();
         var totalUpdated = 0;
         var totalSkipped = 0;
 
@@ -134,7 +135,7 @@ public sealed class AutoPriceUpdateWorker
             }
 
             // Fiyat güncelle
-            product.UpdateSalePrice(optimization.RecommendedPrice);
+            product.UpdatePrice(optimization.RecommendedPrice);
             await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
