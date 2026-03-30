@@ -153,6 +153,14 @@ public sealed class Order : BaseEntity, ITenantEntity
             ExternalOrderId ?? OrderNumber,
             TotalAmount,
             DateTime.UtcNow));
+
+        RaiseDomainEvent(new OrderCompletedEvent(
+            Id,
+            TenantId,
+            OrderNumber,
+            TotalAmount,
+            CustomerName,
+            DateTime.UtcNow));
     }
 
     public void SetFinancials(decimal subTotal, decimal taxAmount, decimal totalAmount)
