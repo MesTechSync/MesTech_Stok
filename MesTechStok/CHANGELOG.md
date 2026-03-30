@@ -3,6 +3,14 @@
 All notable changes to the MesTechStok project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.34] - 2026-03-30
+
+### DEV4 v3.8 TUR3-4 — WebApi+Blazor security header eşitleme + COOP/CORP
+- fix(security): WebApi COOP+CORP+payment header eklendi (Blazor ile eşit, G118 KAPANDI) [PAYLAŞIM-DEV6]
+- fix(security): Blazor COOP+CORP+payment header eklendi (Spectre mitigation)
+- scan: Dockerfile 2/2 mükemmel (3-stage, Alpine, non-root, SHA256 pin)
+- scan: docker-compose 10 servis fully hardened, .dockerignore kapsamlı
+
 ## [1.0.33] - 2026-03-30
 
 ### DEV6 v3.8 TUR1 — Sözleşme iç tutarlılık denetimi + yanlış pozitif temizliği
