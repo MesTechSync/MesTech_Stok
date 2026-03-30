@@ -54,7 +54,6 @@
                 <DataGridTextColumn Header="Son Giris" Binding="{Binding LastLogin}" Width="150" />
             </DataGrid.Columns>
         </DataGrid>
-<!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Users.Count}" />
 
         <!-- Empty State -->
         <Border Grid.Row="2"

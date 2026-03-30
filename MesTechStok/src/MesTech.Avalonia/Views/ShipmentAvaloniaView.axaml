@@ -69,13 +69,6 @@
                 <DataGridTextColumn Header="Gonderim Tarihi" Binding="{Binding ShipDate}" Width="130" />
             </DataGrid.Columns>
         </DataGrid>
-        <!-- Empty State -->
-        <TextBlock Grid.Row="2" Text="Kayit bulunamadi"
-                   FontSize="{StaticResource FontSizeTitle}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Foreground="{DynamicResource MesMutedGray}"
-                   IsVisible="{Binding !Shipments.Count}"
-                   Opacity="0.5" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="3"

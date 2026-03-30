@@ -114,11 +114,5 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- Empty state for DataGrid -->
-        <TextBlock Grid.Row="2" Text="Senkronizasyon kaydi bulunamadi"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,40" Opacity="0.5"
-                   FontSize="{StaticResource FontSizeSubtitle}"
-                   IsVisible="{Binding !SyncHistory.Count}" />
     </Grid>
 </UserControl>

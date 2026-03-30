@@ -46,13 +46,6 @@
                 <DataGridTextColumn Header="Ürün Sayısı" Binding="{Binding ProductCount, StringFormat='{}{0:N0}'}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
-        <!-- Empty State -->
-        <TextBlock Grid.Row="1" Text="Kayit bulunamadi"
-                   FontSize="{StaticResource FontSizeTitle}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Foreground="{DynamicResource MesMutedGray}"
-                   IsVisible="{Binding !Feeds.Count}"
-                   Opacity="0.5" />
 
         <!-- Loading Overlay -->
         <Border Grid.Row="0" Grid.RowSpan="2"

@@ -55,14 +55,6 @@
             </DataGrid.Columns>
         </DataGrid>
         <!-- Empty State -->
-        <TextBlock Grid.Row="2" Text="Kayit bulunamadi"
-                   FontSize="{StaticResource FontSizeTitle}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Foreground="{DynamicResource MesMutedGray}"
-                   IsVisible="{Binding !Suppliers.Count}"
-                   Opacity="0.5" />
-
-        <!-- Empty State -->
         <Border Grid.Row="2"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
