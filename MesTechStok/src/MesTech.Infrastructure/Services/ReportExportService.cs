@@ -219,6 +219,10 @@ public sealed class ReportExportService : IReportExportService
         if (string.IsNullOrEmpty(value))
             return string.Empty;
 
+        // CSV injection guard — Excel formula prefix neutralization
+        if (value.Length > 0 && value[0] is '=' or '+' or '-' or '@' or '\t' or '\r')
+            value = $"'{value}";
+
         if (value.Contains(',') || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
             return $"\"{value.Replace("\"", "\"\"")}\"";
 
