@@ -17,13 +17,13 @@ public sealed class AutoCompetePriceHandler
     : IRequestHandler<AutoCompetePriceCommand, AutoCompetePriceResult>
 {
     private readonly IBuyboxService _buybox;
-    private readonly IIntegratorAdapterFactory _adapterFactory;
+    private readonly IAdapterFactory _adapterFactory;
     private readonly IProductRepository _productRepo;
     private readonly ILogger<AutoCompetePriceHandler> _logger;
 
     public AutoCompetePriceHandler(
         IBuyboxService buybox,
-        IIntegratorAdapterFactory adapterFactory,
+        IAdapterFactory adapterFactory,
         IProductRepository productRepo,
         ILogger<AutoCompetePriceHandler> logger)
     {
@@ -37,7 +37,7 @@ public sealed class AutoCompetePriceHandler
         AutoCompetePriceCommand request, CancellationToken cancellationToken)
     {
         // 1. Ürünü bul
-        var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken);
+        var product = await _productRepo.GetByIdAsync(request.ProductId);
         if (product is null)
             return AutoCompetePriceResult.Failure("Ürün bulunamadı");
 
@@ -80,9 +80,9 @@ public sealed class AutoCompetePriceHandler
                 $"Hesaplanan fiyat ({targetPrice:F2}) mevcut fiyattan ({currentPrice:F2}) yüksek veya eşit — değişiklik yok");
 
         // 5. Adapter üzerinden platforma push
-        var adapter = _adapterFactory.GetAdapter(request.PlatformCode);
-        if (adapter is null || !adapter.SupportsPriceUpdate)
-            return AutoCompetePriceResult.Failure($"{request.PlatformCode} fiyat güncelleme desteklemiyor");
+        var adapter = _adapterFactory.Resolve(request.PlatformCode);
+        if (adapter is null)
+            return AutoCompetePriceResult.Failure($"{request.PlatformCode} adapter bulunamadı");
 
         var pushed = await adapter.PushPriceUpdateAsync(request.ProductId, targetPrice, cancellationToken);
         if (!pushed)
