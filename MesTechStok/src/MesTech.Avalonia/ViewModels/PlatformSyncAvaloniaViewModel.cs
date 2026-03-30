@@ -31,20 +31,6 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
 
     private List<PlatformSyncItemDto> _allPlatforms = [];
 
-    private static readonly List<PlatformSyncItemDto> _mockPlatforms =
-    [
-        new() { Platform = "Trendyol", LastSync = "17.03.2026 14:30", Status = "Basarili", ProductCount = 1245, OrderCount = 89 },
-        new() { Platform = "Hepsiburada", LastSync = "17.03.2026 14:15", Status = "Basarili", ProductCount = 876, OrderCount = 45 },
-        new() { Platform = "N11", LastSync = "17.03.2026 13:45", Status = "Basarili", ProductCount = 654, OrderCount = 32 },
-        new() { Platform = "Ciceksepeti", LastSync = "17.03.2026 12:00", Status = "Hata", ProductCount = 432, OrderCount = 18 },
-        new() { Platform = "Amazon TR", LastSync = "17.03.2026 11:30", Status = "Basarili", ProductCount = 321, OrderCount = 27 },
-        new() { Platform = "eBay", LastSync = "16.03.2026 23:00", Status = "Basarili", ProductCount = 198, OrderCount = 12 },
-        new() { Platform = "Shopify", LastSync = "16.03.2026 22:45", Status = "Beklemede", ProductCount = 567, OrderCount = 34 },
-        new() { Platform = "WooCommerce", LastSync = "16.03.2026 20:00", Status = "Basarili", ProductCount = 234, OrderCount = 15 },
-        new() { Platform = "Pazarama", LastSync = "16.03.2026 18:30", Status = "Basarili", ProductCount = 145, OrderCount = 8 },
-        new() { Platform = "PttAvm", LastSync = "15.03.2026 16:00", Status = "Hata", ProductCount = 89, OrderCount = 3 },
-    ];
-
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -63,10 +49,6 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
                 ProductCount = s.StoreCount,
                 OrderCount = 0 // TODO: wire order count when available in DTO
             }).ToList();
-
-            // Fall back to mock data when query returns empty (no DB configured)
-            if (_allPlatforms.Count == 0)
-                _allPlatforms = [.._mockPlatforms];
 
             ApplyFilters();
         }

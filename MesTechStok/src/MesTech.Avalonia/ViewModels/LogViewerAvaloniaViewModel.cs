@@ -39,22 +39,6 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
 
     private readonly List<LogEntryItem> _allEntries = [];
 
-    private static readonly LogEntryItem[] _mockEntries =
-    [
-        new(DateTime.Now.AddMinutes(-1).ToString("dd.MM.yyyy HH:mm:ss"),  "Error",       "MesTech.Api",              "Trendyol siparis cekme basarisiz: 429 Too Many Requests",           "#EF4444"),
-        new(DateTime.Now.AddMinutes(-3).ToString("dd.MM.yyyy HH:mm:ss"),  "Warning",      "StockAvaloniaViewModel",   "Stok seviyesi kritik esige ulasti: SKU-00421",                       "#F59E0B"),
-        new(DateTime.Now.AddMinutes(-5).ToString("dd.MM.yyyy HH:mm:ss"),  "Information",  "Hangfire.Server",          "Job tamamlandi: SyncTrendyolOrders [elapsed: 4.2s]",                 "#3B82F6"),
-        new(DateTime.Now.AddMinutes(-7).ToString("dd.MM.yyyy HH:mm:ss"),  "Debug",        "EF Core",                  "Executing DbCommand [Parameters=[@p0='42']] SELECT * FROM Products", "#64748B"),
-        new(DateTime.Now.AddMinutes(-10).ToString("dd.MM.yyyy HH:mm:ss"), "Information",  "LoginAvaloniaViewModel",   "Kullanici giris yapti: admin@mestech.com",                           "#3B82F6"),
-        new(DateTime.Now.AddMinutes(-12).ToString("dd.MM.yyyy HH:mm:ss"), "Warning",      "RabbitMQ.Consumer",        "Mesaj isleme suresi asimi: OrderCreated [12.3s > 10s limit]",        "#F59E0B"),
-        new(DateTime.Now.AddMinutes(-15).ToString("dd.MM.yyyy HH:mm:ss"), "Error",        "InvoiceProvider.Sovos",    "e-Fatura gonderme hatasi: UBL-TR dogrulama basarisiz",               "#EF4444"),
-        new(DateTime.Now.AddMinutes(-18).ToString("dd.MM.yyyy HH:mm:ss"), "Information",  "BackupAvaloniaViewModel",  "Otomatik yedekleme baslatildi",                                      "#3B82F6"),
-        new(DateTime.Now.AddMinutes(-20).ToString("dd.MM.yyyy HH:mm:ss"), "Debug",        "MassTransit",              "Sending message OrderShipped to exchange mestech.orders",            "#64748B"),
-        new(DateTime.Now.AddMinutes(-25).ToString("dd.MM.yyyy HH:mm:ss"), "Information",  "N11Adapter",               "Urun fiyat guncelleme senkronizasyonu tamamlandi [47 urun]",         "#3B82F6"),
-        new(DateTime.Now.AddMinutes(-30).ToString("dd.MM.yyyy HH:mm:ss"), "Warning",      "PostgreSQL",               "Slow query detected: 3.8s — consider adding index on Orders.Date",  "#F59E0B"),
-        new(DateTime.Now.AddMinutes(-35).ToString("dd.MM.yyyy HH:mm:ss"), "Information",  "MinIO.Storage",            "Dosya yuklendi: invoice_2026_03_26.pdf [124 KB]",                   "#3B82F6"),
-    ];
-
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -86,10 +70,6 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
                     log.Action,
                     color));
             }
-
-            // Fall back to mock data when query returns empty (no DB configured)
-            if (_allEntries.Count == 0)
-                _allEntries.AddRange(_mockEntries);
 
             ApplyFilter();
         }
