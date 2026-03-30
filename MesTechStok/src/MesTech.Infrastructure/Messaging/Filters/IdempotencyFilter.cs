@@ -19,7 +19,14 @@ public sealed class IdempotencyFilter<T> : IFilter<ConsumeContext<T>>
 
     public async Task Send(ConsumeContext<T> context, IPipe<ConsumeContext<T>> next)
     {
-        var messageId = context.MessageId ?? Guid.NewGuid();
+        if (context.MessageId is not { } messageId)
+        {
+            _logger.LogWarning(
+                "Message without MessageId — idempotency check skipped. Type: {Type}",
+                typeof(T).Name);
+            await next.Send(context).ConfigureAwait(false);
+            return;
+        }
 
         if (await _store.IsProcessedAsync(messageId, context.CancellationToken).ConfigureAwait(false))
         {
