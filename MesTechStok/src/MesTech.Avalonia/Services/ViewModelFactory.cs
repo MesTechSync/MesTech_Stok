@@ -206,6 +206,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Quotation" => _provider.GetService<QuotationAvaloniaViewModel>(),
             "Billing" => _provider.GetService<BillingAvaloniaViewModel>(),
             "PlatformSyncHistory" => _provider.GetService<PlatformSyncHistoryAvaloniaViewModel>(),
+            "PlatformConnectionTest" => _provider.GetService<PlatformConnectionTestAvaloniaViewModel>(),
             _ => null
         };
     }
