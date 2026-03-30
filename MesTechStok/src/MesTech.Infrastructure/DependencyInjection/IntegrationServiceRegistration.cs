@@ -438,6 +438,7 @@ public static class IntegrationServiceRegistration
         // MUH-01: Settlement parsers — platform-specific settlement data parsers (Singleton — stateless)
         services.AddSingleton<ISettlementParser, TrendyolSettlementParser>();
         services.AddSingleton<ISettlementParser, AmazonSettlementParser>();
+        services.AddSingleton<ISettlementParser, AmazonEuSettlementParser>();
         services.AddSingleton<ISettlementParser, HepsiburadaSettlementParser>();
 
         // MUH-02: 5 new settlement parsers (Ciceksepeti, N11, Pazarama, OpenCart, eBay)
@@ -453,7 +454,7 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<ISettlementParser, WooCommerceSettlementParser>();
         services.AddSingleton<ISettlementParser, ZalandoSettlementParser>();
 
-        // Settlement parser factory — auto-discovers all registered ISettlementParser (14 total)
+        // Settlement parser factory — auto-discovers all registered ISettlementParser (15 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
         // Dalga 14 S3: Parasut options — sandbox toggle + environment-aware URLs
