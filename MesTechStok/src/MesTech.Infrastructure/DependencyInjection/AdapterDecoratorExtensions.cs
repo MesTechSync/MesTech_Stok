@@ -1,4 +1,4 @@
-using MesTech.Application.Interfaces;
+﻿using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
