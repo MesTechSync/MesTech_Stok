@@ -2,19 +2,22 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class KanbanBoardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ITenantProvider _tenantProvider;
 
     public ObservableCollection<TaskColumnVm> Columns { get; } = [];
 
-    public KanbanBoardAvaloniaViewModel(IMediator mediator)
+    public KanbanBoardAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -25,26 +28,31 @@ public partial class KanbanBoardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var board = await _mediator.Send(
+                new GetPipelineKanbanQuery(tenantId, PipelineId: Guid.Empty), CancellationToken);
+
             Columns.Clear();
-
-            var todo = new TaskColumnVm { Name = "Yapilacak", Color = "#3B82F6" };
-            todo.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "API dokumanlarini guncelle", Assignee = "Mehmet C.", Priority = "Orta", DueDate = DateTime.Now.AddDays(3) });
-            todo.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "Musteri raporu hazirla", Assignee = "Ayse K.", Priority = "Yuksek", DueDate = DateTime.Now.AddDays(1) });
-            todo.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "Test senaryolari yaz", Assignee = "Ali K.", Priority = "Dusuk", DueDate = DateTime.Now.AddDays(5) });
-            todo.TaskCount = todo.Tasks.Count;
-
-            var inProgress = new TaskColumnVm { Name = "Devam Eden", Color = "#F59E0B" };
-            inProgress.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "Trendyol entegrasyon testi", Assignee = "Fatih I.", Priority = "Yuksek", DueDate = DateTime.Now.AddDays(2) });
-            inProgress.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "UI/UX iyilestirme", Assignee = "Zeynep A.", Priority = "Orta", DueDate = DateTime.Now.AddDays(4) });
-            inProgress.TaskCount = inProgress.Tasks.Count;
-
-            var done = new TaskColumnVm { Name = "Tamamlandi", Color = "#10B981" };
-            done.Tasks.Add(new TaskCardVm { Id = Guid.NewGuid(), Title = "Veritabani yedekleme", Assignee = "Fatih I.", Priority = "Yuksek", DueDate = DateTime.Now.AddDays(-1) });
-            done.TaskCount = done.Tasks.Count;
-
-            Columns.Add(todo);
-            Columns.Add(inProgress);
-            Columns.Add(done);
+            foreach (var stage in board.Stages.OrderBy(s => s.Position))
+            {
+                var col = new TaskColumnVm
+                {
+                    Name = stage.Name,
+                    Color = stage.Color ?? "#3B82F6"
+                };
+                foreach (var deal in stage.Deals)
+                {
+                    col.Tasks.Add(new TaskCardVm
+                    {
+                        Id = deal.Id,
+                        Title = deal.Title,
+                        Assignee = deal.ContactName,
+                        DueDate = deal.ExpectedCloseDate,
+                    });
+                }
+                col.TaskCount = col.Tasks.Count;
+                Columns.Add(col);
+            }
 
             IsEmpty = Columns.Count == 0;
         }

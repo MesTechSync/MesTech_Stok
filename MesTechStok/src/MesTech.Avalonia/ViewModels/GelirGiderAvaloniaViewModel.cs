@@ -2,13 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class GelirGiderAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ITenantProvider _tenantProvider;
 
     // KPI
     [ObservableProperty] private string totalIncome = "0,00 TL";
@@ -32,9 +34,10 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> TypeFilters { get; } =
         ["Tumu", "Gelir", "Gider"];
 
-    public GelirGiderAvaloniaViewModel(IMediator mediator)
+    public GelirGiderAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -46,16 +49,20 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
         try
         {
 
-            _allItems =
-            [
-                new() { Date = "19.03.2026", Description = "Trendyol satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+4.520,00 TL", Amount = 4520 },
-                new() { Date = "18.03.2026", Description = "Aras Kargo gideri", Category = "Kargo", Type = "Gider", AmountFormatted = "-380,00 TL", Amount = -380 },
-                new() { Date = "18.03.2026", Description = "Hepsiburada satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+2.180,00 TL", Amount = 2180 },
-                new() { Date = "17.03.2026", Description = "Ofis kirasi", Category = "Genel Gider", Type = "Gider", AmountFormatted = "-6.500,00 TL", Amount = -6500 },
-                new() { Date = "17.03.2026", Description = "N11 satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+1.240,00 TL", Amount = 1240 },
-                new() { Date = "16.03.2026", Description = "Trendyol komisyon", Category = "Pazaryeri Komisyon", Type = "Gider", AmountFormatted = "-542,40 TL", Amount = -542.40m },
-                new() { Date = "16.03.2026", Description = "Amazon satis hasilati", Category = "Satis", Type = "Gelir", AmountFormatted = "+3.890,00 TL", Amount = 3890 },
-            ];
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var typeFilter = SelectedTypeFilter == "Tumu" ? null : SelectedTypeFilter;
+            var result = await _mediator.Send(
+                new GetIncomeExpenseListQuery(tenantId, Type: typeFilter, PageSize: 100), CancellationToken);
+
+            _allItems = result.Items.Select(i => new GelirGiderItemDto
+            {
+                Date = i.Date.ToString("dd.MM.yyyy"),
+                Description = i.Description,
+                Category = i.Source,
+                Type = i.Amount >= 0 ? "Gelir" : "Gider",
+                Amount = i.Amount,
+                AmountFormatted = i.Amount >= 0 ? $"+{i.Amount:N2} TL" : $"{i.Amount:N2} TL"
+            }).ToList();
 
             ApplyFilters();
 
