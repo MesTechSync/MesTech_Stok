@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 using MesTech.Application.DTOs;
@@ -84,7 +85,10 @@ public static class SystemEndpoints
             var expectedSecret = httpContext.RequestServices
                 .GetRequiredService<IConfiguration>()["Automation:WebhookSecret"];
 
-            if (!string.IsNullOrWhiteSpace(expectedSecret) && secret != expectedSecret)
+            if (!string.IsNullOrWhiteSpace(expectedSecret) &&
+                !CryptographicOperations.FixedTimeEquals(
+                    System.Text.Encoding.UTF8.GetBytes(secret ?? string.Empty),
+                    System.Text.Encoding.UTF8.GetBytes(expectedSecret)))
             {
                 logger.LogWarning("Automation webhook rejected: invalid secret from {Source}", source);
                 return Results.Json(
