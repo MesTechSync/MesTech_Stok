@@ -88,6 +88,10 @@ public static class HangfireConfig
         // KVKK data retention (G496 FIX — DI registration eksikti)
         services.AddScoped<DataRetentionJob>();
 
+        // Platform claim + price sync (G498 + G499 FIX)
+        services.AddScoped<GenericPlatformClaimSyncJob>();
+        services.AddScoped<GenericPlatformPriceSyncJob>();
+
         return services;
     }
 
@@ -372,6 +376,56 @@ public static class HangfireConfig
         {
             RecurringJob.AddOrUpdate<GenericPlatformOrderSyncJob>(
                 $"order-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
+
+        // ── 14-Platform İade Talebi Sync (GenericPlatformClaimSyncJob — G498 FIX) ──
+        // Trendyol hariç (kendi TrendyolClaimSyncJob'u var, 15dk frekans)
+        var platformClaimSchedules = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "*/30 * * * *"),
+            ("Ciceksepeti",  "*/30 * * * *"),
+            ("N11",          "*/30 * * * *"),
+            ("Amazon",       "0 * * * *"),
+            ("AmazonEu",     "0 * * * *"),
+            ("eBay",         "0 * * * *"),
+            ("Shopify",      "0 * * * *"),
+            ("WooCommerce",  "0 * * * *"),
+            ("Ozon",         "0 */2 * * *"),
+            ("Etsy",         "0 */2 * * *"),
+            ("Zalando",      "0 */2 * * *"),
+        };
+
+        foreach (var (code, cron) in platformClaimSchedules)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformClaimSyncJob>(
+                $"claim-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
+
+        // ── 14-Platform Fiyat Sync (GenericPlatformPriceSyncJob — G499 FIX) ──
+        // Trendyol hariç (kendi TrendyolPriceSyncJob'u var, 6 saat frekans)
+        var platformPriceSchedules = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "0 */6 * * *"),
+            ("Ciceksepeti",  "0 */6 * * *"),
+            ("N11",          "0 */6 * * *"),
+            ("Amazon",       "0 */6 * * *"),
+            ("AmazonEu",     "0 */6 * * *"),
+            ("eBay",         "0 */6 * * *"),
+            ("Shopify",      "0 */6 * * *"),
+            ("WooCommerce",  "0 */6 * * *"),
+            ("Ozon",         "0 */12 * * *"),
+            ("Etsy",         "0 */12 * * *"),
+            ("Zalando",      "0 */12 * * *"),
+        };
+
+        foreach (var (code, cron) in platformPriceSchedules)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformPriceSyncJob>(
+                $"price-sync-{code.ToLowerInvariant()}",
                 job => job.ExecuteAsync(code, CancellationToken.None),
                 cron);
         }
