@@ -1,6 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
-using MesTech.Application.Features.Product.Commands.CreateBulkProducts;
+using MesTech.Application.Commands.CreateBulkProducts;
 using MesTech.Application.Features.Product.Commands.ExecuteBulkImport;
 using MesTech.Application.Features.Product.Commands.ValidateBulkImport;
 using MesTech.Domain.Interfaces;
