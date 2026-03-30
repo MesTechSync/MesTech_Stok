@@ -155,7 +155,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         {
             try
             {
-                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, MaxDepth = 10 });
+                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, MaxDepth = 10, AllowTrailingCommas = false, ReadCommentHandling = JsonCommentHandling.Disallow });
                 if (items != null)
                 {
                     foreach (var item in items)

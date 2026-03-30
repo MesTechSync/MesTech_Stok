@@ -1,4 +1,4 @@
-using MesTech.Application.Interfaces;
+﻿using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.AI;
