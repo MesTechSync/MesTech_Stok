@@ -34,6 +34,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
     public BirFaturaProvider(HttpClient httpClient, ILogger<BirFaturaProvider> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 

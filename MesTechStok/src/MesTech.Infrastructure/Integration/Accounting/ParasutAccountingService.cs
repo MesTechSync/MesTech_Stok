@@ -33,6 +33,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
         ILogger<ParasutAccountingService> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _incomeRepository = incomeRepository ?? throw new ArgumentNullException(nameof(incomeRepository));
         _expenseRepository = expenseRepository ?? throw new ArgumentNullException(nameof(expenseRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

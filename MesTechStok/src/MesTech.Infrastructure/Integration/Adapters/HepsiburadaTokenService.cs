@@ -18,6 +18,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class HepsiburadaTokenService
 {
+    private static readonly JsonSerializerOptions s_caseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
     private readonly ILogger<HepsiburadaTokenService> _logger;
@@ -116,8 +118,7 @@ public sealed class HepsiburadaTokenService
             }
 
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var tokenResponse = JsonSerializer.Deserialize<HbTokenResponse>(json, options);
+            var tokenResponse = JsonSerializer.Deserialize<HbTokenResponse>(json, s_caseInsensitiveJson);
 
             if (tokenResponse is null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {
