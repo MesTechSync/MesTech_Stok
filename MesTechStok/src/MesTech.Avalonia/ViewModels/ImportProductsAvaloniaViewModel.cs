@@ -110,7 +110,6 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
             // Reset wizard to step 1 clean state
             ResetWizard();
         }
@@ -264,7 +263,8 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
         try
         {
-            // Simulate row-by-row processing (actual import needs EPPlus/CsvHelper)
+            // MOCK: Row-by-row progress simulation — replace with real EPPlus/CsvHelper
+            // parse + MediatR BulkImportProductsCommand when library is integrated.
             var totalItems = TotalRowCount > 0 ? TotalRowCount : 10;
             for (int i = 1; i <= totalItems; i++)
             {
