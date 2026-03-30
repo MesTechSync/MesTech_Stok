@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
+using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -106,10 +109,10 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to TestApiConnectionCommand via MediatR
-            await Task.CompletedTask;
+            // DEP: DEV1 — SaveApiSettingsCommand + TestApiConnectionCommand eksik (G495)
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
 
-            if (!string.IsNullOrWhiteSpace(ApiUrl) && ApiUrl.StartsWith("http"))
+            if (stores.Count > 0)
             {
                 ConnectionSuccess = true;
                 ConnectionMessage = "Baglanti basarili! API erisimi dogrulandi.";
@@ -143,7 +146,7 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Wire to SaveSettingsCommand via MediatR
+            // DEP: DEV1 — SaveApiSettingsCommand eksik. Tema _themeService ile kalıcı (G495)
             await Task.CompletedTask;
             IsSaved = true;
         }
@@ -190,16 +193,28 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to TestPlatformConnectionCommand via MediatR
-            await Task.CompletedTask;
-            if (SelectedCredential.IsConnected)
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var store = stores.FirstOrDefault(s =>
+                s.StoreName.Contains(SelectedCredential.Platform, StringComparison.OrdinalIgnoreCase) && s.IsActive);
+
+            if (store is null)
             {
-                await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: Baglanti basarili!", "Test Sonucu");
+                await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: Magaza bulunamadi — once magaza ekleyin.", "Test Sonucu");
+                return;
             }
-            else
-            {
-                await _dialog.ShowInfoAsync($"{SelectedCredential.Platform}: API anahtari yapilandirilmamis.", "Test Sonucu");
-            }
+
+            var result = await _mediator.Send(new TestStoreConnectionCommand(store.Id));
+            SelectedCredential.IsConnected = result.IsSuccess;
+            SelectedCredential.Status = result.IsSuccess ? "Bagli" : "Baglanti hatasi";
+
+            var msg = result.IsSuccess
+                ? $"{SelectedCredential.Platform}: Baglanti basarili ({(int)result.ResponseTime.TotalMilliseconds} ms)"
+                : $"{SelectedCredential.Platform}: {result.ErrorMessage ?? "API ulasilamiyor"}";
+            await _dialog.ShowInfoAsync(msg, "Test Sonucu");
+        }
+        catch (Exception ex)
+        {
+            await _dialog.ShowInfoAsync($"Test hatasi: {ex.Message}", "Baglanti Testi");
         }
         finally { IsLoading = false; }
     }
