@@ -13,7 +13,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 /// Gun 14: Son deneme, basarisizsa aboneligi iptal et.
 /// Her gun 04:00'te calisir.
 /// </summary>
-[AutomaticRetry(Attempts = 0)]
+[AutomaticRetry(Attempts = 2)]
 public sealed class DunningWorker
 {
     public const string JobId = "dunning-escalation";

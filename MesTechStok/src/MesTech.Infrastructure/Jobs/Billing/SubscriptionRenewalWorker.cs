@@ -1,4 +1,4 @@
-using Hangfire;
+﻿using Hangfire;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities.Billing;
 using MesTech.Domain.Interfaces;
@@ -11,7 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 /// Basarisiz odemeler PastDue'ya dusurulur ve DunningLog kaydedilir.
 /// Her gun 03:00'te calisir.
 /// </summary>
-[AutomaticRetry(Attempts = 0)]
+[AutomaticRetry(Attempts = 2)]
 public sealed class SubscriptionRenewalWorker
 {
     public const string JobId = "subscription-renewal";
@@ -58,6 +58,15 @@ public sealed class SubscriptionRenewalWorker
         foreach (var subscription in dueSubscriptions)
         {
             ct.ThrowIfCancellationRequested();
+
+            // Idempotency guard — aynı gün zaten yenilenmişse atla (G100: çift charge önleme)
+            if (subscription.NextBillingDate?.Date > today)
+            {
+                _logger.LogDebug(
+                    "[{JobId}] Abonelik bugün zaten yenilenmiş — atlanıyor: SubscriptionId={SubscriptionId}",
+                    JobId, subscription.Id);
+                continue;
+            }
 
             try
             {
