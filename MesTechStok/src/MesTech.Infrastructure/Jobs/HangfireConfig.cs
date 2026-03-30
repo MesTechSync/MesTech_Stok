@@ -77,8 +77,9 @@ public static class HangfireConfig
         // CRM — Loyalty points expiration worker
         services.AddScoped<ExpirePointsWorker>();
 
-        // Platform stock sync + stale order check (DEV 3 — DI registration eksikti)
+        // Platform stock sync + order sync + stale order check (DEV 3)
         services.AddScoped<GenericPlatformStockSyncJob>();
+        services.AddScoped<GenericPlatformOrderSyncJob>();
         services.AddScoped<CheckStaleOrdersJob>();
 
         // Parasut invoice sync (DEV 3 — DI registration eksikti)
@@ -331,6 +332,35 @@ public static class HangfireConfig
         {
             RecurringJob.AddOrUpdate<GenericPlatformStockSyncJob>(
                 $"stock-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
+
+        // ── 14-Platform Sipariş Sync (GenericPlatformOrderSyncJob — G497 FIX) ──
+        // Trendyol hariç (kendi TrendyolOrderSyncJob'u var, 5dk frekans)
+        var platformOrderSchedules = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "*/15 * * * *"),  // 15dk — yüksek hacim
+            ("Ciceksepeti",  "*/15 * * * *"),
+            ("N11",          "*/15 * * * *"),
+            ("Pazarama",     "*/30 * * * *"),
+            ("Amazon",       "*/15 * * * *"),
+            ("AmazonEu",     "*/30 * * * *"),
+            ("eBay",         "*/30 * * * *"),
+            ("Shopify",      "*/30 * * * *"),
+            ("WooCommerce",  "*/30 * * * *"),
+            ("Ozon",         "0 * * * *"),     // 1 saat
+            ("Etsy",         "0 * * * *"),
+            ("Zalando",      "0 * * * *"),
+            ("PttAVM",       "0 * * * *"),
+            // OpenCart → self-hosted, sipariş push yok
+            // Bitrix24 → CRM adapter, sipariş sync uygulanamaz
+        };
+
+        foreach (var (code, cron) in platformOrderSchedules)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformOrderSyncJob>(
+                $"order-sync-{code.ToLowerInvariant()}",
                 job => job.ExecuteAsync(code, CancellationToken.None),
                 cron);
         }
