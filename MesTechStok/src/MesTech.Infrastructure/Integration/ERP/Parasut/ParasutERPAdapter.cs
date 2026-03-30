@@ -90,19 +90,97 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
     public async Task<ErpSyncResult> SyncOrderAsync(Guid orderId, CancellationToken ct = default)
     {
         if (orderId == Guid.Empty) return ErpSyncResult.Fail("OrderId empty");
-        try { var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false); if (order is null) return ErpSyncResult.Fail("Not found"); await SetAuthHeaderAsync(ct).ConfigureAwait(false); var payload = new { data = new { type = "sales_invoices", attributes = new { item_type = "order", description = $"MesTech Order {order.OrderNumber}", issue_date = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), currency = "TRL" } } }; var (success, erpId, error) = await PostJsonApiWithRefAsync("sales_invoices", payload, ct).ConfigureAwait(false); return success ? ErpSyncResult.Ok(erpId!) : ErpSyncResult.Fail(error ?? "Unknown"); }
-        catch (Exception ex) { _logger.LogError(ex, "[ParasutERPAdapter] SyncOrder error"); return ErpSyncResult.Fail(ex.Message); }
+
+        try
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+            if (order is null) return ErpSyncResult.Fail("Not found");
+
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                data = new
+                {
+                    type = "sales_invoices",
+                    attributes = new
+                    {
+                        item_type = "order",
+                        description = $"MesTech Order {order.OrderNumber}",
+                        issue_date = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        currency = "TRL"
+                    }
+                }
+            };
+
+            var (success, erpId, error) = await PostJsonApiWithRefAsync("sales_invoices", payload, ct).ConfigureAwait(false);
+            return success ? ErpSyncResult.Ok(erpId!) : ErpSyncResult.Fail(error ?? "Unknown");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ParasutERPAdapter] SyncOrder error");
+            return ErpSyncResult.Fail(ex.Message);
+        }
     }
+
     public async Task<ErpSyncResult> SyncInvoiceAsync(Guid invoiceId, CancellationToken ct = default)
     {
         if (invoiceId == Guid.Empty) return ErpSyncResult.Fail("InvoiceId empty");
-        try { var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false); if (inv is null) return ErpSyncResult.Fail("Not found"); await SetAuthHeaderAsync(ct).ConfigureAwait(false); var payload = ParasutMappingProfile.MapInvoice(inv); var json = JsonSerializer.Serialize(payload, JsonOptions); var content = new StringContent(json, Encoding.UTF8, "application/vnd.api+json"); var response = await _httpClient.PostAsync($"{BaseUrl}/sales_invoices", content, ct).ConfigureAwait(false); if (response.IsSuccessStatusCode) { var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); var parsed = JsonSerializer.Deserialize<ParasutJsonApiResponse>(body, JsonOptions); return ErpSyncResult.Ok(parsed?.Data?.Id ?? ""); } return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode); }
-        catch (Exception ex) { _logger.LogError(ex, "[ParasutERPAdapter] SyncInvoice error"); return ErpSyncResult.Fail(ex.Message); }
+
+        try
+        {
+            var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            if (inv is null) return ErpSyncResult.Fail("Not found");
+
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var payload = ParasutMappingProfile.MapInvoice(inv);
+            var json = JsonSerializer.Serialize(payload, JsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+
+            var response = await _httpClient.PostAsync($"{BaseUrl}/sales_invoices", content, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var parsed = JsonSerializer.Deserialize<ParasutJsonApiResponse>(body, JsonOptions);
+                return ErpSyncResult.Ok(parsed?.Data?.Id ?? "");
+            }
+
+            return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ParasutERPAdapter] SyncInvoice error");
+            return ErpSyncResult.Fail(ex.Message);
+        }
     }
+
     public async Task<IReadOnlyList<ErpAccountDto>> GetAccountBalancesAsync(CancellationToken ct = default)
     {
-        try { await SetAuthHeaderAsync(ct).ConfigureAwait(false); var response = await _httpClient.GetAsync($"{BaseUrl}/contacts?page[size]=250", ct).ConfigureAwait(false); if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>(); var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(body, JsonOptions); if (parsed?.Data is null) return Array.Empty<ErpAccountDto>(); return parsed.Data.Select(item => { var attr = item.Attributes; _ = decimal.TryParse(attr?.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var bal); return new ErpAccountDto(attr?.Code ?? item.Id ?? "", attr?.Name ?? "", bal, "TRY"); }).ToArray(); }
-        catch (Exception ex) { _logger.LogError(ex, "[ParasutERPAdapter] GetAccountBalances error"); return Array.Empty<ErpAccountDto>(); }
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+
+            var response = await _httpClient.GetAsync($"{BaseUrl}/contacts?page[size]=250", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>();
+
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var parsed = JsonSerializer.Deserialize<ParasutJsonApiListResponse>(body, JsonOptions);
+            if (parsed?.Data is null) return Array.Empty<ErpAccountDto>();
+
+            return parsed.Data.Select(item =>
+            {
+                var attr = item.Attributes;
+                _ = decimal.TryParse(attr?.Balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var bal);
+                return new ErpAccountDto(attr?.Code ?? item.Id ?? "", attr?.Name ?? "", bal, "TRY");
+            }).ToArray();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ParasutERPAdapter] GetAccountBalances error");
+            return Array.Empty<ErpAccountDto>();
+        }
     }
     public Task<bool> PingAsync(CancellationToken ct = default) => TestConnectionAsync(ct);
 
