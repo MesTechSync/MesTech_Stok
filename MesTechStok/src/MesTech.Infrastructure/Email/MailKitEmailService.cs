@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using MailKit.Net.Smtp;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
