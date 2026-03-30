@@ -11,6 +11,7 @@ using MesTech.Application.Features.Product.Commands.AutoCompetePrice;
 using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
 using MesTech.Application.Features.Product.Queries.GetPlatformProducts;
 using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Features.Product.Queries.GetProductVariants;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.SearchProductsForImageMatch;
 using MesTech.Application.Queries.GetLowStockProducts;

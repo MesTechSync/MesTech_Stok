@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.PlaceOrder;
 using MesTech.Application.Commands.PushOrderToBitrix24;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
+using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Application.Features.Orders.Queries.GetOrdersByStatus;
 using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
