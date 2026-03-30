@@ -46,14 +46,23 @@ public sealed class IdempotencyFilter : IEndpointFilter
         {
             logger.LogInformation("Idempotency hit: key={Key}, returning cached response", idempotencyKey);
 
-            var cachedResponse = JsonSerializer.Deserialize<IdempotencyCacheEntry>(cached, JsonOptions);
-            if (cachedResponse is not null)
+            try
             {
-                httpContext.Response.StatusCode = cachedResponse.StatusCode;
-                httpContext.Response.ContentType = "application/json";
-                httpContext.Response.Headers["X-Idempotency-Replayed"] = "true";
-                await httpContext.Response.WriteAsync(cachedResponse.Body, httpContext.RequestAborted);
-                return null;
+                var cachedResponse = JsonSerializer.Deserialize<IdempotencyCacheEntry>(cached, JsonOptions);
+                if (cachedResponse is not null)
+                {
+                    httpContext.Response.StatusCode = cachedResponse.StatusCode;
+                    httpContext.Response.ContentType = "application/json";
+                    httpContext.Response.Headers["X-Idempotency-Replayed"] = "true";
+                    await httpContext.Response.WriteAsync(cachedResponse.Body, httpContext.RequestAborted);
+                    return null;
+                }
+            }
+            catch (JsonException ex)
+            {
+                // OWASP A08 guard: corrupted/poisoned cache entry — discard and re-execute
+                logger.LogWarning(ex, "Idempotency cache corrupted for key={Key}, discarding", idempotencyKey);
+                await cache.RemoveAsync(cacheKey, httpContext.RequestAborted);
             }
         }
 
