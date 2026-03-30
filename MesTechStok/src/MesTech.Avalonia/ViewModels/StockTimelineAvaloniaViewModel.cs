@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetStockMovements;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -31,19 +32,20 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
         try
         {
 
-            Movements.Clear();
-            var now = DateTime.Now;
+            var movements = await _mediator.Send(new GetStockMovementsQuery(), CancellationToken);
 
-            Movements.Add(new StockTimelineItemDto { Date = now.AddHours(-2), MovementType = "Sale", Quantity = -2, ResultStock = 40, Reason = "Trendyol #T-1234" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddHours(-8), MovementType = "Purchase", Quantity = 50, ResultStock = 42, Reason = "Tedarikci ABC" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-1).AddHours(-3), MovementType = "Transfer", Quantity = -15, ResultStock = -8, Reason = "Ana Depo > Depo 2" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-1).AddHours(-6), MovementType = "Sale", Quantity = -3, ResultStock = 23, Reason = "Hepsiburada #HB-5678" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-2).AddHours(-1), MovementType = "Return", Quantity = 1, ResultStock = 26, Reason = "Musteri iade" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-2).AddHours(-7), MovementType = "Adjustment", Quantity = 5, ResultStock = 25, Reason = "Sayim farki" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-3), MovementType = "Sale", Quantity = -10, ResultStock = 20, Reason = "N11 #N-9876" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-4), MovementType = "Purchase", Quantity = 100, ResultStock = 30, Reason = "Toplu alim — XYZ Ltd." });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-5), MovementType = "Transfer", Quantity = 20, ResultStock = -70, Reason = "Depo 2 > Ana Depo" });
-            Movements.Add(new StockTimelineItemDto { Date = now.AddDays(-6), MovementType = "Adjustment", Quantity = -2, ResultStock = -90, Reason = "Fire kayit" });
+            Movements.Clear();
+            foreach (var m in movements)
+            {
+                Movements.Add(new StockTimelineItemDto
+                {
+                    Date = m.Date,
+                    MovementType = m.MovementType,
+                    Quantity = m.Quantity,
+                    ResultStock = m.NewStock,
+                    Reason = m.Reason ?? m.DocumentNumber ?? string.Empty
+                });
+            }
 
             TotalCount = Movements.Count;
             IsEmpty = Movements.Count == 0;
