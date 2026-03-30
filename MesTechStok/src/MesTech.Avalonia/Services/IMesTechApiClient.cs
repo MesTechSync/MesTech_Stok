@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.Services;
@@ -43,10 +43,18 @@ public sealed class MesTechApiClient : IMesTechApiClient
 
     public async Task<T?> GetAsync<T>(string relativeUrl, CancellationToken ct = default)
     {
-        var response = await _client.GetAsync(relativeUrl, ct);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync(ct);
-        return JsonSerializer.Deserialize<T>(json, _jsonOptions);
+        try
+        {
+            var response = await _client.GetAsync(relativeUrl, ct);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync(ct);
+            return JsonSerializer.Deserialize<T>(json, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetAsync failed for {Url}", relativeUrl);
+            return default;
+        }
     }
 
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string relativeUrl, TRequest body, CancellationToken ct = default)
@@ -63,12 +71,20 @@ public sealed class MesTechApiClient : IMesTechApiClient
 
     public async Task<bool> PostAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default)
     {
+        try
+        {
         var content = new StringContent(
             JsonSerializer.Serialize(body, _jsonOptions),
             System.Text.Encoding.UTF8,
             "application/json");
         var response = await _client.PostAsync(relativeUrl, content, ct);
         return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PutAsync failed for {Url}", relativeUrl);
+            return false;
+        }
     }
 
     public async Task<bool> PutAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default)
