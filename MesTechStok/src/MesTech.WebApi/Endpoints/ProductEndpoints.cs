@@ -8,6 +8,7 @@ using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.UpdateProductImage;
 using MesTech.Application.Features.AI.Commands.GenerateProductDescription;
 using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
+using MesTech.Application.Features.Product.Queries.GetPlatformProducts;
 using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.SearchProductsForImageMatch;
@@ -295,6 +296,20 @@ public static class ProductEndpoints
         })
         .WithName("AnalyzeBuyboxCompetitors")
         .WithSummary("Tekil ürün rakip fiyat analizi ve önerilen fiyat")
+        .CacheOutput("Report120s");
+
+        // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
+        group.MapGet("/platform/{platformCode}", async (
+            string platformCode, int? page, int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetPlatformProductsQuery(platformCode, page ?? 1, pageSize ?? 50), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPlatformProducts")
+        .WithSummary("Platform ürün listesi — Trendyol, HB, N11 vb. adapter'dan çekilen ürünler")
+        .Produces(200)
         .CacheOutput("Report120s");
     }
 }

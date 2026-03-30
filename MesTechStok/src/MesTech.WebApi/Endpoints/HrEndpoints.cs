@@ -1,8 +1,10 @@
 using MediatR;
 using MesTech.Application.Features.Hr.Commands.ApproveLeave;
+using MesTech.Application.Features.Hr.Commands.CreateTimeEntry;
 using MesTech.Application.Features.Hr.Queries.GetDepartments;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
 using MesTech.Application.Features.Hr.Queries.GetLeaveRequests;
+using MesTech.Application.Features.Hr.Queries.GetTimeEntries;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -70,5 +72,32 @@ public static class HrEndpoints
         .WithSummary("İzin talepleri listesi — durum filtreli (G207)")
         .Produces(200).Produces(400)
         .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/hr/time-entries — zaman takip kayıtları
+        group.MapGet("/time-entries", async (
+            Guid tenantId, DateTime from, DateTime to,
+            Guid? userId, int? page, int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetTimeEntriesQuery(tenantId, from, to, userId, page ?? 1, pageSize ?? 50), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetTimeEntries")
+        .WithSummary("Zaman takip kayıtları — tarih aralığı ve kullanıcı filtreli")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // POST /api/v1/hr/time-entries — yeni zaman kaydı oluştur
+        group.MapPost("/time-entries", async (
+            CreateTimeEntryCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/hr/time-entries/{id}", new { id });
+        })
+        .WithName("CreateTimeEntry")
+        .WithSummary("Yeni zaman takip kaydı — görev, süre, faturalanabilir")
+        .Produces(201);
     }
 }

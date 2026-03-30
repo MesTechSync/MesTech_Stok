@@ -1,3 +1,5 @@
+using MediatR;
+using MesTech.Application.Features.SocialFeed.Commands.RefreshSocialFeed;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
@@ -117,6 +119,21 @@ public static class SocialFeedEndpoints
         })
         .WithName("ScheduleFeedRefresh")
         .WithSummary("Platform feed otomatik yenileme aralığını ayarla").Produces(200).Produces(400);
+    }
+
+        // POST /api/v1/social-feeds/refresh/{configId} — feed yenileme tetikle
+        group.MapPost("/refresh/{configId:guid}", async (
+            Guid configId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RefreshSocialFeedCommand(configId), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("RefreshSocialFeed")
+        .WithSummary("Sosyal feed yenileme tetikle — Google Merchant, Facebook Shop vb.")
+        .Produces(200).Produces(400);
     }
 
     /// <summary>Feed URL doğrulama istek gövdesi.</summary>

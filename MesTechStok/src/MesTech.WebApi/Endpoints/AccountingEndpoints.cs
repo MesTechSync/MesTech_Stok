@@ -5,6 +5,7 @@ using MesTech.Application.Commands.DeleteExpense;
 using MesTech.Application.Commands.UpdateExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateAccountingExpense;
 using MesTech.Application.Features.Accounting.Commands.CreateJournalEntry;
+using MesTech.Application.Features.Accounting.Queries.GetFixedAssets;
 using MesTech.Application.Features.Accounting.Commands.RunReconciliation;
 using MesTech.Application.Features.Accounting.Queries.GetAccountingExpenses;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
@@ -778,6 +779,18 @@ public static class AccountingEndpoints
         .WithName("UpdateCounterparty")
         .WithSummary("Karşı taraf bilgilerini güncelle").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+        // GET /api/v1/accounting/fixed-assets — sabit kıymet listesi
+        group.MapGet("/fixed-assets", async (
+            Guid tenantId, bool? isActive,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetFixedAssetsQuery(tenantId, isActive), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetFixedAssets")
+        .WithSummary("Sabit kıymet listesi — aktif/pasif filtreli, amortisman dahil")
+        .Produces(200)
+        .CacheOutput("Report120s");
     }
 
     // ── Request Records (G228-DEV6) ──
