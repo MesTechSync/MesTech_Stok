@@ -8,7 +8,6 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Application.Interfaces;
-using MediatR;
 using MesTech.Avalonia.Services;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +34,6 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     private readonly LoginAttemptTracker _tracker;
     private readonly LoginAuditLogger _auditLogger;
     private readonly IAuthService? _authService;
-    private readonly IMediator _mediator;
 
     // ═══ Background Image ═══
     // v1.1: Current image always at opacity 1.0 (no binding needed).
