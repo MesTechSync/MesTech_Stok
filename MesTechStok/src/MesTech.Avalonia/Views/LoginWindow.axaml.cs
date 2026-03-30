@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -236,7 +236,7 @@ public partial class LoginWindow : Window
             Directory.CreateDirectory(Path.GetDirectoryName(prefs)!);
             File.WriteAllText(prefs, JsonSerializer.Serialize(new { LastUsername = username }));
         }
-        catch { /* Tercih kaydı kritik değil */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] SaveRememberedUser failed: {ex.Message}"); }
     }
 
     private void LoadRememberedUser()

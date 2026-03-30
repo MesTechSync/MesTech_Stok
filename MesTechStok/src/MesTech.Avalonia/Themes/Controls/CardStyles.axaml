@@ -1,4 +1,5 @@
-<Styles xmlns="https://github.com/avaloniaui"
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:vm="clr-namespace:MesTech.Avalonia.ViewModels;assembly=MesTech.Avalonia"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <!-- ============================================================ -->
