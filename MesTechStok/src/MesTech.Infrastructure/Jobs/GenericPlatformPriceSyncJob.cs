@@ -58,7 +58,7 @@ public sealed class GenericPlatformPriceSyncJob
                 try
                 {
                     var pushed = await adapter.PushPriceUpdateAsync(
-                        product.Id, product.Price, ct).ConfigureAwait(false);
+                        product.Id, product.SalePrice, ct).ConfigureAwait(false);
 
                     if (pushed) synced++;
                     else skipped++;
