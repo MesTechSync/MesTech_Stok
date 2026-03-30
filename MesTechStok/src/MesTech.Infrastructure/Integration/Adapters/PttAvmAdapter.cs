@@ -34,8 +34,8 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
     // Username/Password -> Bearer token exchange
-    private string _username = string.Empty;
-    private string _password = string.Empty;
+    private string _username = Environment.GetEnvironmentVariable("PTTAVM_USERNAME") ?? string.Empty;
+    private string _password = Environment.GetEnvironmentVariable("PTTAVM_PASSWORD") ?? string.Empty;
     private string _accessToken = string.Empty;
     private DateTime _tokenExpiry = DateTime.MinValue;
     private string _baseUrl;

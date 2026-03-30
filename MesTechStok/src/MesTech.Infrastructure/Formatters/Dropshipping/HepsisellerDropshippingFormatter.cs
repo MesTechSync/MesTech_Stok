@@ -1,8 +1,8 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.Interfaces;
-
+using MesTech.Application.DTOs;
 namespace MesTech.Infrastructure.Formatters.Dropshipping;
 
 /// <summary>

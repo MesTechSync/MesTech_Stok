@@ -194,7 +194,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
                 ? si.GetString() : null;
 
             if (string.IsNullOrEmpty(trackingNo))
-                return ShipmentResult.Failed("Sendeo tracking number alinamadi");
+                return ShipmentResult.Failed($"Sendeo tracking number alinamadi — response: {content}");
 
             _logger.LogInformation("Sendeo shipment created: {TrackingNo}", trackingNo);
             return ShipmentResult.Succeeded(trackingNo, shipmentId ?? trackingNo);
