@@ -7,6 +7,7 @@ using MesTech.Application.Commands.DeleteProduct;
 using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.Commands.UpdateProductImage;
 using MesTech.Application.Features.AI.Commands.GenerateProductDescription;
+using MesTech.Application.Features.Product.Commands.AutoCompetePrice;
 using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
 using MesTech.Application.Features.Product.Queries.GetPlatformProducts;
 using MesTech.Application.Features.Product.Queries.GetProducts;
@@ -297,6 +298,20 @@ public static class ProductEndpoints
         .WithName("AnalyzeBuyboxCompetitors")
         .WithSummary("Tekil ürün rakip fiyat analizi ve önerilen fiyat")
         .CacheOutput("Report120s");
+
+        // POST /api/v1/products/auto-compete — otomatik fiyat rekabet (Buybox kazanma)
+        group.MapPost("/auto-compete", async (
+            AutoCompetePriceCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (!result.IsSuccess)
+                return Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+            return Results.Ok(result);
+        })
+        .WithName("AutoCompetePrice")
+        .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
+        .Produces(200).Produces(400);
 
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
         group.MapGet("/platform/{platformCode}", async (
