@@ -63,6 +63,24 @@ public sealed class DunningWorker
             {
                 var daysSincePastDue = GetDaysSincePastDue(subscription);
 
+                // Idempotency guard (G086): aynı milestone gününde birden fazla işlem yapma
+                var attemptCount = await _dunningLogRepository
+                    .GetAttemptCountAsync(subscription.Id, ct).ConfigureAwait(false);
+                var expectedAttempts = daysSincePastDue switch
+                {
+                    >= 14 => 3, // day3 + day7 + day14
+                    >= 7 => 2,  // day3 + day7
+                    >= 3 => 1,  // day3
+                    _ => 0
+                };
+                if (attemptCount >= expectedAttempts)
+                {
+                    _logger.LogDebug(
+                        "[{JobId}] SubscriptionId={SubscriptionId} — milestone zaten tamamlanmış (attempts={Attempts}, expected={Expected})",
+                        JobId, subscription.Id, attemptCount, expectedAttempts);
+                    continue;
+                }
+
                 _logger.LogDebug(
                     "[{JobId}] SubscriptionId={SubscriptionId}, DaysSincePastDue={Days}",
                     JobId, subscription.Id, daysSincePastDue);
