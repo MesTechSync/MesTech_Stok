@@ -87,6 +87,7 @@ public static class WebhookEndpoints
                 result.Error ?? "Webhook processing failed", "WEBHOOK_FAILED"));
         })
         .WithName("ReceiveWebhook")
+        .WithSummary("Platform webhook alıcı — DLQ destekli (Trendyol, HB, N11, vb.)")
         .WithDescription("Receives webhook notifications from marketplace platforms — failed webhooks saved to DLQ")
         .Produces(200)
         .Produces(400)
