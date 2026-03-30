@@ -132,6 +132,10 @@ public sealed class ReconciliationWorker : IAccountingJob
 
                     matchedTxIds.Add(bestTx.Id);
                     autoMatched++;
+
+                    // Idempotency guard (G086): per-match save — crash durumunda
+                    // eşleştirilen batch+tx tekrar GetUnmatchedAsync'te gelmez
+                    await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
                 }
                 else if (bestScore >= _scoringService.ReviewThreshold && bestTx != null)
                 {
@@ -147,6 +151,9 @@ public sealed class ReconciliationWorker : IAccountingJob
                     await _matchRepo.AddAsync(match, ct).ConfigureAwait(false);
                     matchedTxIds.Add(bestTx.Id);
                     needsReview++;
+
+                    // Per-match save (G086)
+                    await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
                     // MESA'ya bildir
                     await _publishEndpoint.Publish(new FinanceReconciliationPendingEvent(
