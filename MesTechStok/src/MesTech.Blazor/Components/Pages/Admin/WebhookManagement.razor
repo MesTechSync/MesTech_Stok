@@ -1,0 +1,422 @@
+@page "/admin/webhooks"
+@attribute [Authorize(Roles = "Admin")]
+@inject MesTechApiClient ApiClient
+@inject ILogger<WebhookManagement> Logger
+
+<PageTitle>MesTech - Webhook Yonetimi</PageTitle>
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<div class="d-flex align-items-center mb-4">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+       style="width: 48px; height: 48px; background-color: #2855AC;">
+    <i class="fas fa-satellite-dish text-white"></i>
+  </div>
+  <div>
+    <h3 class="mb-0" style="color: #2855AC;">Webhook Yonetimi</h3>
+    <small class="text-muted">Dead letter kuyrugu, basarisiz webhook'lar ve cozumleme</small>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <LoadingSpinner />
+}
+else
+{
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+
+  @if (!string.IsNullOrEmpty(successMessage))
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>@successMessage
+      <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+    </div>
+  }
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm mb-4 h-100">
+        <div class="card-body text-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+               style="width: 48px; height: 48px; background-color: #ffc10720;">
+            <i class="fas fa-clock text-warning fa-lg"></i>
+          </div>
+          <h4 class="mb-0 fw-bold">@pendingCount</h4>
+          <small class="text-muted">Bekleyen</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm mb-4 h-100">
+        <div class="card-body text-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+               style="width: 48px; height: 48px; background-color: #dc354520;">
+            <i class="fas fa-times-circle text-danger fa-lg"></i>
+          </div>
+          <h4 class="mb-0 fw-bold">@failedCount</h4>
+          <small class="text-muted">Basarisiz</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm mb-4 h-100">
+        <div class="card-body text-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+               style="width: 48px; height: 48px; background-color: #19875420;">
+            <i class="fas fa-check-circle text-success fa-lg"></i>
+          </div>
+          <h4 class="mb-0 fw-bold">@resolvedCount</h4>
+          <small class="text-muted">Cozulmus</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm mb-4 h-100">
+        <div class="card-body text-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+               style="width: 48px; height: 48px; background-color: #2855AC20;">
+            <i class="fas fa-database fa-lg" style="color: #2855AC;"></i>
+          </div>
+          <h4 class="mb-0 fw-bold">@totalCount</h4>
+          <small class="text-muted">Toplam</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0">
+        <i class="fas fa-filter me-2" style="color: #2855AC;"></i>Filtre
+      </h6>
+      <select class="form-select form-select-sm" style="width: 200px;" @onchange="OnStatusFilterChanged">
+        <option value="">Tumu</option>
+        <option value="Pending">Bekleyen</option>
+        <option value="Failed">Basarisiz</option>
+        <option value="Resolved">Cozulmus</option>
+        <option value="ManuallyResolved">Manuel Cozulmus</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Dead Letter Table -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <h6 class="mb-0">
+        <i class="fas fa-skull-crossbones me-2" style="color: #2855AC;"></i>Dead Letter Kuyrugu
+      </h6>
+      <span class="badge bg-secondary">@totalCount Kayit</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Platform</th>
+              <th>Olay Tipi</th>
+              <th class="d-none d-md-table-cell">Hata Mesaji</th>
+              <th class="text-center">Deneme</th>
+              <th class="text-center">Durum</th>
+              <th class="d-none d-lg-table-cell">Olusturulma</th>
+              <th class="text-end">Islem</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var item in deadLetters)
+            {
+              <tr>
+                <td>
+                  <span class="badge" style="background-color: @GetPlatformColor(item.Platform);">
+                    @item.Platform
+                  </span>
+                </td>
+                <td>
+                  <span class="fw-semibold">@item.EventType</span>
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <small class="text-muted" title="@item.ErrorMessage">
+                    @TruncateText(item.ErrorMessage, 80)
+                  </small>
+                </td>
+                <td class="text-center">
+                  <span class="fw-semibold">@item.AttemptCount</span>
+                  <small class="text-muted">/ @item.MaxAttempts</small>
+                </td>
+                <td class="text-center">
+                  <StatusBadge Text="@GetStatusText(item.Status)" Variant="@GetStatusVariant(item.Status)" />
+                </td>
+                <td class="d-none d-lg-table-cell">
+                  <small>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                </td>
+                <td class="text-end">
+                  @if (item.Status is "Pending" or "Failed")
+                  {
+                    <button class="btn btn-sm btn-outline-success"
+                            @onclick="() => ResolveItem(item.Id)"
+                            disabled="@isSubmitting"
+                            title="Cozumle">
+                      <i class="fas fa-check me-1"></i>Cozumle
+                    </button>
+                  }
+                  else
+                  {
+                    <small class="text-muted">—</small>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if ((deadLetters?.Count ?? 0) == 0 && !isLoading)
+        {
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-inbox fa-2x mb-2 d-block opacity-50"></i>
+            <span>Kayit bulunamadi.</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  @if (totalPages > 1)
+  {
+    <nav aria-label="Sayfa navigasyonu">
+      <ul class="pagination justify-content-center">
+        <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+          <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault>
+            <i class="fas fa-chevron-left"></i>
+          </a>
+        </li>
+        @for (int i = 1; i <= totalPages; i++)
+        {
+          var pageNum = i;
+          <li class="page-item @(pageNum == currentPage ? "active" : "")">
+            <a class="page-link" href="#" @onclick="() => GoToPage(pageNum)" @onclick:preventDefault>@pageNum</a>
+          </li>
+        }
+        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+          <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault>
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  }
+}
+
+@code {
+  private bool isLoading = true;
+  private bool _isDemoMode;
+  private bool isSubmitting;
+  private string? errorMessage;
+  private string? successMessage;
+
+  private int currentPage = 1;
+  private int pageSize = 20;
+  private int totalCount;
+  private int totalPages => (int)Math.Ceiling((double)totalCount / pageSize);
+  private string statusFilter = "";
+
+  private List<WebhookDeadLetterDto> deadLetters = [];
+
+  private int pendingCount;
+  private int failedCount;
+  private int resolvedCount;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadDataAsync();
+  }
+
+  private async Task LoadDataAsync()
+  {
+    isLoading = true;
+    try
+    {
+      var statusQuery = string.IsNullOrEmpty(statusFilter) ? "" : $"&status={statusFilter}";
+      var result = await ApiClient.SafeGetAsync<ApiResponse<PagedResponse<WebhookDeadLetterDto>>>(
+        $"webhooks/dead-letters?page={currentPage}&pageSize={pageSize}{statusQuery}");
+
+      if (result.IsSuccess && result.Data?.Data is not null)
+      {
+        _isDemoMode = false;
+        var pagedData = result.Data.Data;
+        deadLetters = pagedData.Items?.ToList() ?? [];
+        totalCount = pagedData.TotalCount;
+        CalculateCounts();
+      }
+      else
+      {
+        _isDemoMode = true;
+        LoadDemoData();
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogWarning(ex, "Webhook DLQ API fallback, using demo data");
+      _isDemoMode = true;
+      LoadDemoData();
+    }
+    finally
+    {
+      isLoading = false;
+      StateHasChanged();
+    }
+  }
+
+  private async Task ResolveItem(Guid id)
+  {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    errorMessage = null;
+    successMessage = null;
+
+    try
+    {
+      var result = await ApiClient.SafePostAsync<ApiResponse<StatusResponse>>(
+        $"webhooks/dead-letters/{id}/resolve?resolvedBy=admin", new { });
+
+      if (result.IsSuccess)
+      {
+        successMessage = "Webhook basariyla cozumlendi.";
+      }
+      else
+      {
+        // Demo mode — update locally
+        var item = deadLetters.FirstOrDefault(d => d.Id == id);
+        if (item is not null)
+        {
+          var idx = deadLetters.IndexOf(item);
+          deadLetters[idx] = item with { Status = "ManuallyResolved", ResolvedAt = DateTime.Now };
+        }
+        successMessage = "Webhook cozumlendi (demo mod).";
+      }
+
+      CalculateCounts();
+      StateHasChanged();
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Cozumleme hatasi: {ex.Message}";
+    }
+    finally
+    {
+      isSubmitting = false;
+    }
+  }
+
+  private async Task OnStatusFilterChanged(ChangeEventArgs e)
+  {
+    statusFilter = e.Value?.ToString() ?? "";
+    currentPage = 1;
+    await LoadDataAsync();
+  }
+
+  private async Task GoToPage(int page)
+  {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    await LoadDataAsync();
+  }
+
+  private void CalculateCounts()
+  {
+    pendingCount = deadLetters.Count(d => d.Status == "Pending");
+    failedCount = deadLetters.Count(d => d.Status == "Failed");
+    resolvedCount = deadLetters.Count(d => d.Status is "Resolved" or "ManuallyResolved");
+  }
+
+  private void LoadDemoData()
+  {
+    deadLetters =
+    [
+      new(Guid.NewGuid(), "Trendyol", "order.created", "{}", null,
+          "Connection timeout after 30s", 3, 5, DateTime.Now.AddMinutes(-10),
+          DateTime.Now.AddMinutes(20), "Pending", null, null,
+          DateTime.Now.AddHours(-2)),
+      new(Guid.NewGuid(), "HepsiBurada", "product.updated", "{}", null,
+          "Invalid signature: HMAC mismatch for payload hash", 5, 5,
+          DateTime.Now.AddMinutes(-5), null, "Failed", null, null,
+          DateTime.Now.AddHours(-6)),
+      new(Guid.NewGuid(), "Shopify", "order.fulfilled", "{}", null,
+          "Deserialization error: unexpected token at position 142", 2, 5,
+          DateTime.Now.AddMinutes(-30), DateTime.Now.AddMinutes(30),
+          "Pending", null, null, DateTime.Now.AddHours(-1)),
+      new(Guid.NewGuid(), "Amazon", "inventory.sync", "{}", null,
+          "Rate limit exceeded — 429 Too Many Requests", 5, 5,
+          DateTime.Now.AddHours(-1), null, "Failed", null, null,
+          DateTime.Now.AddDays(-1)),
+      new(Guid.NewGuid(), "N11", "order.cancelled", "{}", null,
+          null, 1, 5, DateTime.Now.AddHours(-3), null, "Resolved",
+          "admin", DateTime.Now.AddHours(-2), DateTime.Now.AddDays(-2)),
+      new(Guid.NewGuid(), "Trendyol", "claim.created", "{}", null,
+          "Duplicate event ID detected", 2, 5, DateTime.Now.AddHours(-4),
+          null, "ManuallyResolved", "admin", DateTime.Now.AddHours(-3),
+          DateTime.Now.AddDays(-3)),
+      new(Guid.NewGuid(), "WooCommerce", "product.deleted", "{}", null,
+          "Foreign key constraint violation on ProductId", 4, 5,
+          DateTime.Now.AddMinutes(-15), DateTime.Now.AddMinutes(45),
+          "Pending", null, null, DateTime.Now.AddHours(-4)),
+    ];
+    totalCount = deadLetters.Count;
+    CalculateCounts();
+  }
+
+  private static string GetPlatformColor(string platform) => platform switch
+  {
+    "Trendyol" => "#F27A1A",
+    "HepsiBurada" => "#FF6000",
+    "Shopify" => "#96bf48",
+    "Amazon" => "#FF9900",
+    "N11" => "#7B2D8E",
+    "WooCommerce" => "#96588A",
+    "eBay" => "#E53238",
+    "Etsy" => "#F1641E",
+    _ => "#6c757d"
+  };
+
+  private static string GetStatusVariant(string status) => status switch
+  {
+    "Pending" => "warning",
+    "Failed" => "danger",
+    "Resolved" => "success",
+    "ManuallyResolved" => "info",
+    _ => "secondary"
+  };
+
+  private static string GetStatusText(string status) => status switch
+  {
+    "Pending" => "Bekleyen",
+    "Failed" => "Basarisiz",
+    "Resolved" => "Cozulmus",
+    "ManuallyResolved" => "Manuel",
+    _ => status
+  };
+
+  private static string TruncateText(string? text, int maxLength)
+  {
+    if (string.IsNullOrEmpty(text)) return "—";
+    return text.Length <= maxLength ? text : text[..maxLength] + "...";
+  }
+
+  // ── DTOs ──
+
+  private record WebhookDeadLetterDto(
+    Guid Id, string Platform, string EventType, string RawBody,
+    string? Signature, string? ErrorMessage, int AttemptCount, int MaxAttempts,
+    DateTime? LastAttemptAt, DateTime? NextRetryAt, string Status,
+    string? ProcessedBy, DateTime? ResolvedAt, DateTime CreatedAt);
+
+  private record ApiResponse<T>(bool Success, T? Data, string? Error);
+  private record PagedResponse<T>(IEnumerable<T> Items, int TotalCount);
+  private record StatusResponse(string Status, string? EventType = null);
+}
