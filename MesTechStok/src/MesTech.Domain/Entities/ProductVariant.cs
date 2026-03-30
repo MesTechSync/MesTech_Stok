@@ -8,6 +8,8 @@ namespace MesTech.Domain.Entities;
 /// </summary>
 public sealed class ProductVariant : BaseEntity, ITenantEntity
 {
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = false };
+
     // ── ITenantEntity ──
     public Guid TenantId { get; set; }
 
@@ -41,7 +43,7 @@ public sealed class ProductVariant : BaseEntity, ITenantEntity
             _attributes = string.IsNullOrWhiteSpace(value)
                 ? new Dictionary<string, string>(StringComparer.Ordinal)
                 : new Dictionary<string, string>(
-                    JsonSerializer.Deserialize<Dictionary<string, string>>(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = false })
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(value, JsonOptions)
                     ?? new Dictionary<string, string>(StringComparer.Ordinal),
                     StringComparer.Ordinal);
         }
