@@ -1,4 +1,4 @@
-using MesTech.Application.Interfaces.Accounting;
+﻿using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
