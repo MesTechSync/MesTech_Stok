@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Commands.SaveImportTemplate;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -11,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private int totalCount;
 
@@ -23,9 +27,10 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<ImportTemplateDto> Templates { get; } = [];
     public ObservableCollection<ImportFieldMappingDto> EditMappings { get; } = [];
 
-    public ImportSettingsAvaloniaViewModel(IMediator mediator)
+    public ImportSettingsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -105,7 +110,13 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            // DEP: DEV1 — Replace with SaveImportTemplateCommand via MediatR (DEV 1 handler gerekli)
+            var mappings = EditMappings.ToDictionary(m => m.SourceColumn, m => m.TargetField);
+            await _mediator.Send(new SaveImportTemplateCommand(
+                _currentUser.TenantId,
+                EditTemplateName,
+                "CSV",
+                mappings));
+
             IsEditing = false;
             SaveCompleted = true;
             await LoadAsync();
