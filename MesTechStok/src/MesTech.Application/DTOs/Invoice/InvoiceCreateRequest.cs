@@ -1,4 +1,4 @@
-using MesTech.Domain.Enums;
+﻿using MesTech.Domain.Enums;
 
 namespace MesTech.Application.DTOs.Invoice;
 
@@ -11,9 +11,9 @@ public record InvoiceCreateRequest
     public PlatformType Platform { get; init; }
     public string PlatformOrderId { get; init; } = string.Empty;
     public InvoiceType Type { get; init; }
-#pragma warning disable NX0004 // NullForgiving: Required init property — populated by deserializer/constructor, never null at runtime
-    public InvoiceCustomerInfo Customer { get; init; } = null!;
-#pragma warning restore NX0004
+
+    public InvoiceCustomerInfo Customer { get; init; } = new InvoiceCustomerInfo(string.Empty, null, null, string.Empty, null, null);
+
     public IReadOnlyList<InvoiceCreateLine> Lines { get; init; } = [];
     public decimal TotalAmount { get; init; }
     public KdvRate DefaultKdv { get; init; }
