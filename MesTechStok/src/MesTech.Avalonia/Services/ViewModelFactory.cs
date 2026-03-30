@@ -35,7 +35,7 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Dashboard" => _provider.GetService<DashboardAvaloniaViewModel>(),
             "Leads" => _provider.GetService<LeadsAvaloniaViewModel>(),
             "Kanban" => _provider.GetService<KanbanAvaloniaViewModel>(),
-            "ProfitLoss" => _provider.GetService<MesTechStok.Desktop.ViewModels.Finance.ProfitLossViewModel>(),
+            "ProfitLoss" => _provider.GetService<ProfitLossAvaloniaViewModel>(),
             "Products" => _provider.GetService<ProductsAvaloniaViewModel>(),
             "Stock" => _provider.GetService<StockAvaloniaViewModel>(),
             "Orders" => _provider.GetService<OrdersAvaloniaViewModel>(),
@@ -208,6 +208,11 @@ public sealed class ViewModelFactory : IViewModelFactory
             "Billing" => _provider.GetService<BillingAvaloniaViewModel>(),
             "PlatformSyncHistory" => _provider.GetService<PlatformSyncHistoryAvaloniaViewModel>(),
             "PlatformConnectionTest" => _provider.GetService<PlatformConnectionTestAvaloniaViewModel>(),
+            // Accounting batch — FixedAsset, FixedExpense, Penalty, TaxRecord
+            "FixedAsset" => _provider.GetService<AcctVm.FixedAssetAvaloniaViewModel>(),
+            "FixedExpense" => _provider.GetService<AcctVm.FixedExpenseAvaloniaViewModel>(),
+            "Penalty" => _provider.GetService<AcctVm.PenaltyAvaloniaViewModel>(),
+            "TaxRecord" => _provider.GetService<AcctVm.TaxRecordAvaloniaViewModel>(),
             _ => null
         };
     }

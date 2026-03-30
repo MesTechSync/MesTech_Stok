@@ -222,6 +222,11 @@ public partial class MainWindowViewModel : ViewModelBase
             "StockUpdate" => "Stok Guncelleme",
             "TransferWizard" => "Transfer Sihirbazi",
             "WarehouseSummary" => "Depo Ozeti",
+            // Accounting batch
+            "FixedAsset" => "Duran Varliklar",
+            "FixedExpense" => "Sabit Giderler",
+            "Penalty" => "Ceza / Kesinti",
+            "TaxRecord" => "Vergi Kayitlari",
             _ => CurrentViewTitle
         };
     }
