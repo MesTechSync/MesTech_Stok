@@ -60,10 +60,12 @@
                     <TextBlock Text="Firma Bilgileri" FontWeight="SemiBold" FontSize="16" />
 
                     <TextBlock Text="Firma Adı *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding CompanyName}" Watermark="Örn: MesTech Yazılım A.Ş." />
+                    <TextBox Text="{Binding CompanyName}" Watermark="Örn: MesTech Yazılım A.Ş."
+                             ToolTip.Tip="Firmanızın resmi ticaret unvanını girin" />
 
                     <TextBlock Text="Vergi Numarası" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding TaxNumber}" Watermark="İsteğe bağlı" />
+                    <TextBox Text="{Binding TaxNumber}" Watermark="İsteğe bağlı"
+                             ToolTip.Tip="10 haneli vergi numarası veya 11 haneli TC kimlik no" />
 
                     <TextBlock Text="Admin Kullanıcı" FontWeight="SemiBold" FontSize="16" Margin="0,12,0,0" />
 
@@ -74,7 +76,8 @@
                     <TextBox Text="{Binding AdminEmail}" Watermark="admin@firma.com" />
 
                     <TextBlock Text="Şifre *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
-                    <TextBox Text="{Binding AdminPassword}" PasswordChar="●" Watermark="Min 8 karakter, 1 büyük harf, 1 rakam" />
+                    <TextBox Text="{Binding AdminPassword}" PasswordChar="●" Watermark="Min 8 karakter, 1 büyük harf, 1 rakam"
+                             ToolTip.Tip="Güçlü şifre: en az 8 karakter, 1 büyük harf, 1 rakam içermeli" />
 
                     <Grid ColumnDefinitions="*,*" Margin="0,4,0,0">
                         <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,6,0">
@@ -156,13 +159,15 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri" Command="{Binding PreviousStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=1}"
-                        Padding="16,10" CornerRadius="6" />
+                        Padding="16,10" CornerRadius="6"
+                        ToolTip.Tip="Önceki adıma dön" />
 
                 <!-- Step 1: Register button -->
                 <Button Grid.Column="2" Content="Kaydol ve Başla" Command="{Binding RegisterCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=1}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6" />
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        ToolTip.Tip="Firma ve admin bilgilerini kaydet, kuruluma başla" />
 
                 <!-- Steps 2-6: Next button -->
                 <Button Grid.Column="2" Content="Devam Et" Command="{Binding NextStepCommand}"
@@ -174,7 +179,8 @@
                 <Button Grid.Column="2" Content="Dashboard'a Git" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=7}"
                         Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="Bold" Padding="24,10" CornerRadius="6" />
+                        FontWeight="Bold" Padding="24,10" CornerRadius="6"
+                        ToolTip.Tip="Kurulumu tamamla ve ana panele git" />
             </Grid>
         </Border>
 
