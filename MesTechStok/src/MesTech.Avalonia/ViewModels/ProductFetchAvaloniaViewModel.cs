@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MesTech.Application.Features.Product.Queries.FetchProductFromPlatform;
 using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -77,16 +78,20 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEP: DEV1 — Replace with FetchProductFromPlatformQuery via MediatR (DEV 3 adapter)
+            var result = await _mediator.Send(
+                new FetchProductFromPlatformQuery(ProductUrl));
 
-            FetchedName = "Samsung Galaxy S24 Ultra 256GB";
-            FetchedPrice = 64_999.00m;
-            FetchedDescription = "Samsung Galaxy S24 Ultra, 256GB, Titanium Siyah, 200MP Kamera";
-            FetchedCategory = "Elektronik > Telefon > Akilli Telefon";
-            FetchedSKU = "SM-S928B-256-BK";
-            FetchedStock = 45;
-            FetchedImageUrl = "https://cdn.example.com/samsung-s24-ultra.jpg";
-            FetchedPlatform = "Trendyol";
+            if (result is null)
+                throw new InvalidOperationException("Platform'dan urun bilgisi alinamadi");
+
+            FetchedName = result.Title;
+            FetchedPrice = result.Price;
+            FetchedDescription = result.Description ?? string.Empty;
+            FetchedCategory = result.CategoryPath ?? string.Empty;
+            FetchedSKU = result.Barcode ?? string.Empty;
+            FetchedStock = 0; // Platform API stok bilgisini ayrı endpoint'ten çeker
+            FetchedImageUrl = result.ImageUrl ?? string.Empty;
+            FetchedPlatform = result.Platform;
             ProductLoaded = true;
         }
         catch (Exception ex)
