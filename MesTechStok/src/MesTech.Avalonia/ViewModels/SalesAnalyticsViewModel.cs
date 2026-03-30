@@ -73,13 +73,11 @@ public partial class SalesAnalyticsViewModel : ViewModelBase
     [RelayCommand]
     private void ExportExcel()
     {
-        System.Diagnostics.Debug.WriteLine("[SalesAnalytics] Excel export tetiklendi");
     }
 
     [RelayCommand]
     private void ExportPdf()
     {
-        System.Diagnostics.Debug.WriteLine("[SalesAnalytics] PDF export tetiklendi");
     }
 }
 

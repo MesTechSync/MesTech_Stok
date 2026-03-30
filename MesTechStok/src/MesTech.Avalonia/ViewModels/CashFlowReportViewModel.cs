@@ -78,13 +78,11 @@ public partial class CashFlowReportViewModel : ViewModelBase
     [RelayCommand]
     private void ExportExcel()
     {
-        System.Diagnostics.Debug.WriteLine("[CashFlowReport] Excel export tetiklendi");
     }
 
     [RelayCommand]
     private void ExportPdf()
     {
-        System.Diagnostics.Debug.WriteLine("[CashFlowReport] PDF export tetiklendi");
     }
 }
 

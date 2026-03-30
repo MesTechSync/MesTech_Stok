@@ -50,7 +50,6 @@ public partial class CommissionRatesViewModel : ViewModelBase
     [RelayCommand]
     private void SaveRate(CommissionRateItem rate)
     {
-        System.Diagnostics.Debug.WriteLine($"[Commission] Kaydet: {rate.PlatformName} %{rate.Rate}");
     }
 }
 

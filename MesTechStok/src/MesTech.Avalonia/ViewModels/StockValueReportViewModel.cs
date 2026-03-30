@@ -61,13 +61,11 @@ public partial class StockValueReportViewModel : ViewModelBase
     [RelayCommand]
     private void ExportExcel()
     {
-        System.Diagnostics.Debug.WriteLine("[StockValueReport] Excel export tetiklendi");
     }
 
     [RelayCommand]
     private void ExportPdf()
     {
-        System.Diagnostics.Debug.WriteLine("[StockValueReport] PDF export tetiklendi");
     }
 }
 

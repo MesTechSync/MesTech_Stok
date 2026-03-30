@@ -73,7 +73,6 @@ public partial class TrialBalanceViewModel : ViewModelBase
     [RelayCommand]
     private void ExportPdf()
     {
-        System.Diagnostics.Debug.WriteLine("[TrialBalance] PDF export tetiklendi");
     }
 }
 

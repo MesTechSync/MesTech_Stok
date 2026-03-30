@@ -140,7 +140,6 @@ public partial class IncomeExpenseListViewModel : ViewModelBase
     private void ExportExcel()
     {
         // Will export filtered data to Excel
-        System.Diagnostics.Debug.WriteLine("[IncomeExpenseList] Excel export requested");
     }
 
     [RelayCommand]

@@ -95,19 +95,16 @@ public partial class ProfitabilityReportViewModel : ViewModelBase
     [RelayCommand]
     private void ExportExcel()
     {
-        System.Diagnostics.Debug.WriteLine("[ProfitabilityReport] Excel export requested");
     }
 
     [RelayCommand]
     private void ExportPdf()
     {
-        System.Diagnostics.Debug.WriteLine("[ProfitabilityReport] PDF export requested");
     }
 
     [RelayCommand]
     private void ExportCsv()
     {
-        System.Diagnostics.Debug.WriteLine("[ProfitabilityReport] CSV export requested");
     }
 }
 
