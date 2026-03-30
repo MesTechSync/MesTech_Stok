@@ -34,7 +34,6 @@ public partial class WelcomeAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             WelcomeText = "Entegrator Stok Yonetim Sistemi";
             TotalProducts = "3,284";

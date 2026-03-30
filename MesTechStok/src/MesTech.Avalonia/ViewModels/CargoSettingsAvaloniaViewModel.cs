@@ -45,7 +45,6 @@ public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             // Settings loaded from persistence
         }
         catch (Exception ex)
@@ -68,7 +67,6 @@ public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             // Settings saved
         }
         catch (Exception ex)

@@ -47,7 +47,6 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             _allItems =
             [

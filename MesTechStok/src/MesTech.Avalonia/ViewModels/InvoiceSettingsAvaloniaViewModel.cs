@@ -53,7 +53,6 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
         }
         catch (Exception ex)
         {
@@ -75,7 +74,6 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
         }
         catch (Exception ex)
         {

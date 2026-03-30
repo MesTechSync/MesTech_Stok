@@ -32,7 +32,6 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
         IsEmpty = false;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             Providers.Clear();
             Providers.Add(new() { Provider = CargoProvider.YurticiKargo, IsConnected = true, LastShipmentText = "2 saat once", TodayStats = "24 gonderim", AvgDeliveryDays = 2.1 });

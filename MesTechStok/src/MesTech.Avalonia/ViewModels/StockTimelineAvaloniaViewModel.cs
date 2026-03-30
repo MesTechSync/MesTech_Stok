@@ -30,7 +30,6 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı // Will be replaced with GetStockMovementsQuery via MediatR
 
             Movements.Clear();
             var now = DateTime.Now;

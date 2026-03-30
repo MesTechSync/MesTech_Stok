@@ -30,7 +30,6 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
             Documents.Clear();
             Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "sozlesme_abc_ltd.pdf", Folder = "Sozlesmeler", Size = "245 KB", Type = "PDF", UploadedBy = "Fatih I.", UploadedAt = DateTime.Now.AddDays(-3) });
             Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "teklif_xyz_as.docx", Folder = "Teklifler", Size = "128 KB", Type = "DOCX", UploadedBy = "Mehmet C.", UploadedAt = DateTime.Now.AddDays(-5) });

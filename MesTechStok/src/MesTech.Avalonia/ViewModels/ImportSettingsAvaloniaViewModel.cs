@@ -36,7 +36,6 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             Templates.Clear();
             Templates.Add(new ImportTemplateDto { Name = "Trendyol XML Sablonu", FieldCount = 12, LastUsed = "19.03.2026", Format = "XML" });

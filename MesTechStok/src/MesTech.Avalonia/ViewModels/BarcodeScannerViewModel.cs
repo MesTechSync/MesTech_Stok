@@ -50,7 +50,6 @@ public partial class BarcodeScannerViewModel : ViewModelBase
         try
         {
             // Use existing GetProductByBarcodeQuery
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı // Simulate query — will be replaced with real MediatR call
 
             var found = LookupBarcode(barcode);
             stopwatch.Stop();

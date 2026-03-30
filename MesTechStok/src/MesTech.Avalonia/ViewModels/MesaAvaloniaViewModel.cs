@@ -33,7 +33,6 @@ public partial class MesaAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
 
             AiStatus = "Bagli";
             ModelVersion = "v2.1";
