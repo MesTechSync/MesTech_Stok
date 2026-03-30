@@ -2,17 +2,23 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using MesTech.Application.DTOs.Crm;
+using MesTech.Application.Features.Crm.Commands.CreateCampaign;
+using MesTech.Application.Features.Crm.Queries.GetActiveCampaigns;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// G105: Kampanya yönetim ekranı — aktif kampanyalar tablosu + oluşturma.
-/// GetCampaignsQuery DEV1'e bırakıldı — mock fallback ile UI hazır.
+/// MediatR wired: GetActiveCampaignsQuery + CreateCampaignCommand.
 /// </summary>
 public partial class CampaignAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<CampaignAvaloniaViewModel> _logger;
 
     [ObservableProperty] private int activeCampaignCount;
@@ -28,8 +34,10 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
     public ObservableCollection<CampaignDto> Campaigns { get; } = [];
     public ObservableCollection<string> Platforms { get; } = ["Tumu", "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama"];
 
-    public CampaignAvaloniaViewModel(ILogger<CampaignAvaloniaViewModel> logger)
+    public CampaignAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider, ILogger<CampaignAvaloniaViewModel> logger)
     {
+        _mediator = mediator;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
@@ -39,11 +47,12 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            // TODO: await _mediator.Send(new GetCampaignsQuery(Guid.Empty)) — DEV1 handler bekleniyor
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var result = await _mediator.Send(new GetActiveCampaignsQuery(tenantId), CancellationToken);
+
             Campaigns.Clear();
-            Campaigns.Add(new CampaignDto { Id = Guid.NewGuid(), Name = "Yaz Indirimi 2026", StartDate = DateTime.Now.AddDays(-5), EndDate = DateTime.Now.AddDays(25), DiscountPercent = 15, IsActive = true, ProductCount = 42 });
-            Campaigns.Add(new CampaignDto { Id = Guid.NewGuid(), Name = "Stok Eritme", StartDate = DateTime.Now.AddDays(-10), EndDate = DateTime.Now.AddDays(3), DiscountPercent = 30, IsActive = true, ProductCount = 18 });
-            Campaigns.Add(new CampaignDto { Id = Guid.NewGuid(), Name = "Yeni Sezon Tanitimi", StartDate = DateTime.Now.AddDays(5), EndDate = DateTime.Now.AddDays(20), DiscountPercent = 10, IsActive = false, ProductCount = 65 });
+            foreach (var c in result.Items)
+                Campaigns.Add(c);
 
             ActiveCampaignCount = Campaigns.Count(c => c.IsActive);
             TotalProductsInCampaign = Campaigns.Sum(c => c.ProductCount);
@@ -71,10 +80,18 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
             return;
         }
 
-        // TODO: await _mediator.Send(new CreateCampaignCommand(...)) — DEV1
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var campaignId = await _mediator.Send(new CreateCampaignCommand(
+            TenantId: tenantId,
+            Name: NewCampaignName,
+            StartDate: StartDate.DateTime,
+            EndDate: EndDate.DateTime,
+            DiscountPercent: DiscountPercent
+        ), CancellationToken);
+
         Campaigns.Add(new CampaignDto
         {
-            Id = Guid.NewGuid(),
+            Id = campaignId,
             Name = NewCampaignName,
             StartDate = StartDate.DateTime,
             EndDate = EndDate.DateTime,
