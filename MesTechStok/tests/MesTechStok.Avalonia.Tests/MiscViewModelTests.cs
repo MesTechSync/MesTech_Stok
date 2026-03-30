@@ -168,7 +168,7 @@ public class ExportAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new ExportAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new ExportAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -187,6 +187,8 @@ public class CampaignAvaloniaViewModelTests
     public void Constructor_ShouldInitialize()
     {
         var sut = new CampaignAvaloniaViewModel(
+            Mock.Of<IMediator>(),
+            Mock.Of<ITenantProvider>(),
             Mock.Of<ILogger<CampaignAvaloniaViewModel>>());
 
         sut.IsLoading.Should().BeFalse();

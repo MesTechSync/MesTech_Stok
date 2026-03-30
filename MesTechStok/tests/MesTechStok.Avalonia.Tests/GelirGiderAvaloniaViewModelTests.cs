@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,7 +16,8 @@ public class GelirGiderAvaloniaViewModelTests
     public GelirGiderAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new GelirGiderAvaloniaViewModel(_mediatorMock.Object);
+        var tenantMock = new Mock<ITenantProvider>();
+        _sut = new GelirGiderAvaloniaViewModel(_mediatorMock.Object, tenantMock.Object);
     }
 
     [Fact]
