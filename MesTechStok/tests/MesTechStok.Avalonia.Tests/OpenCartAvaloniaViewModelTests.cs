@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -12,7 +13,8 @@ public class OpenCartAvaloniaViewModelTests
     private static OpenCartAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new OpenCartAvaloniaViewModel(mediatorMock.Object);
+        var currentUserMock = new Mock<ICurrentUserService>();
+        return new OpenCartAvaloniaViewModel(mediatorMock.Object, currentUserMock.Object);
     }
 
     [Fact]
