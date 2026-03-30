@@ -77,6 +77,10 @@ public static class HangfireConfig
         // CRM — Loyalty points expiration worker
         services.AddScoped<ExpirePointsWorker>();
 
+        // Platform stock sync + stale order check (DEV 3 — DI registration eksikti)
+        services.AddScoped<GenericPlatformStockSyncJob>();
+        services.AddScoped<CheckStaleOrdersJob>();
+
         return services;
     }
 
