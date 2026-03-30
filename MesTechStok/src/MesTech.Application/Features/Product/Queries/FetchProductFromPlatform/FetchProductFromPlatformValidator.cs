@@ -10,7 +10,7 @@ public sealed class FetchProductFromPlatformValidator
         RuleFor(x => x.ProductUrl)
             .NotEmpty().WithMessage("Product URL is required")
             .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
-                         && (uri.Scheme == "https" || uri.Scheme == "http"))
+                         && (string.Equals(uri.Scheme, "https", StringComparison.Ordinal) || string.Equals(uri.Scheme, "http", StringComparison.Ordinal)))
             .WithMessage("Valid HTTP/HTTPS URL is required");
     }
 }
