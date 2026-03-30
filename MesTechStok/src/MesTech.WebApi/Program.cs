@@ -696,6 +696,10 @@ CustomerEndpoints.Map(app);
 DocumentEndpoints.Map(app);
 BuyboxEndpoints.Map(app);
 SupplierEndpoints.Map(app); // DEV6-TUR11: Tedarikçi CRUD
+MesaStatusEndpoint.Map(app); // DEV6-TUR13: MESA health
+CrmActivitiesEndpoint.Map(app); // DEV6-TUR13: CRM aktiviteler
+DocumentFoldersEndpoint.Map(app); // DEV6-TUR13: Belge klasörleri
+ImportTemplateEndpoint.Map(app); // DEV6-TUR13: Import şablon
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
