@@ -131,9 +131,6 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<SettingsAvaloniaViewModel>();
                 services.AddTransient<LoginAvaloniaViewModel>();
                 services.AddTransient<CategoryAvaloniaViewModel>();
-                // ProfitLossViewModel — compile-linked from WPF Desktop, zero changes
-                services.AddTransient<MesTechStok.Desktop.ViewModels.Finance.ProfitLossViewModel>();
-
                 // ViewModels — Dalga 11 batch expansion
                 services.AddTransient<ContactsAvaloniaViewModel>();
                 services.AddTransient<EmployeesAvaloniaViewModel>();
