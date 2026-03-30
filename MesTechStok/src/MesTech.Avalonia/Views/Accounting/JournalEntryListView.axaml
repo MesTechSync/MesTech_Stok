@@ -29,7 +29,7 @@
                    FontSize="{StaticResource FontSizeTitle}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Foreground="{DynamicResource MesMutedGray}"
-                   IsVisible="{Binding !JournalEntries.Count}"
+                   IsVisible="{Binding IsEmpty}"
                    Opacity="0.5" />
 
         <!-- Yevmiye DataGrid -->
