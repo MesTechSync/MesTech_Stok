@@ -29,11 +29,22 @@ public sealed class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSum
             .Where(w => w.TenantId == request.TenantId)
             .ToList();
 
+        if (tenantWarehouses.Count == 0)
+            return Array.Empty<WarehouseSummaryDto>();
+
+        // Batch fetch all products once, group by warehouse — eliminates N+1 query
+        var warehouseIds = tenantWarehouses.Select(w => w.Id).ToHashSet();
+        var allProducts = await _productRepo.GetAllAsync();
+        var productsByWarehouse = allProducts
+            .Where(p => p.WarehouseId.HasValue && warehouseIds.Contains(p.WarehouseId.Value))
+            .GroupBy(p => p.WarehouseId!.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         var result = new List<WarehouseSummaryDto>();
 
         foreach (var wh in tenantWarehouses)
         {
-            var products = await _productRepo.GetByWarehouseAsync(wh.Id, cancellationToken);
+            var products = productsByWarehouse.GetValueOrDefault(wh.Id) ?? [];
 
             var outOfStock = products.Count(p => p.Stock == 0);
             var critical = products.Count(p => p.Stock > 0 && p.Stock <= p.MinimumStock);
