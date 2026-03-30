@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
+using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 
@@ -86,45 +90,6 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         }
     }
 
-    private void LoadMockData()
-    {
-        // Products
-        Products.Clear();
-        Products.Add(new OpenCartProductItem { Sku = "OC-001", Name = "iPhone 15 Pro 256GB", Price = 45990m, Stock = 12, InMesTech = true });
-        Products.Add(new OpenCartProductItem { Sku = "OC-002", Name = "Samsung Galaxy S24", Price = 38500m, Stock = 8, InMesTech = true });
-        Products.Add(new OpenCartProductItem { Sku = "OC-003", Name = "Xiaomi Redmi Note 13", Price = 12999m, Stock = 25, InMesTech = false });
-        Products.Add(new OpenCartProductItem { Sku = "OC-004", Name = "Sony WH-1000XM5 Kulaklık", Price = 8750m, Stock = 5, InMesTech = true });
-        Products.Add(new OpenCartProductItem { Sku = "OC-005", Name = "Apple MacBook Air M3", Price = 79900m, Stock = 3, InMesTech = false });
-        Products.Add(new OpenCartProductItem { Sku = "OC-006", Name = "Logitech MX Master 3S", Price = 3299m, Stock = 18, InMesTech = true });
-
-        ProductCount = Products.Count;
-
-        // Orders
-        Orders.Clear();
-        Orders.Add(new OpenCartOrderItem { OrderNumber = "OC-20260317-001", OrderDate = "17.03.2026", CustomerName = "Ahmet Yilmaz", TotalAmount = "₺4.590,00", Status = "Onaylandi" });
-        Orders.Add(new OpenCartOrderItem { OrderNumber = "OC-20260317-002", OrderDate = "17.03.2026", CustomerName = "Fatma Demir", TotalAmount = "₺12.800,00", Status = "Kargoda" });
-        Orders.Add(new OpenCartOrderItem { OrderNumber = "OC-20260316-003", OrderDate = "16.03.2026", CustomerName = "Mehmet Kaya", TotalAmount = "₺38.500,00", Status = "Teslim Edildi" });
-        Orders.Add(new OpenCartOrderItem { OrderNumber = "OC-20260316-004", OrderDate = "16.03.2026", CustomerName = "Elif Celik", TotalAmount = "₺1.299,00", Status = "Beklemede" });
-        Orders.Add(new OpenCartOrderItem { OrderNumber = "OC-20260315-005", OrderDate = "15.03.2026", CustomerName = "Hasan Ozturk", TotalAmount = "₺7.890,00", Status = "Kargoda" });
-
-        OrderCount = Orders.Count(o => o.Status is "Beklemede" or "Onaylandi");
-        DailyRevenue = 16_690m;
-
-        // Category mappings
-        CategoryMappings.Clear();
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Electronics > Phones", MesTechCategory = "Elektronik > Telefon", IsMapped = true });
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Electronics > Computers", MesTechCategory = "Elektronik > Bilgisayar", IsMapped = true });
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Electronics > Audio", MesTechCategory = "Elektronik > Ses Sistemleri", IsMapped = true });
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Accessories > Cables", MesTechCategory = "", IsMapped = false });
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Home & Garden", MesTechCategory = "Ev & Yasam", IsMapped = true });
-        CategoryMappings.Add(new OpenCartCategoryMappingItem { PlatformCategory = "Sports & Outdoors", MesTechCategory = "", IsMapped = false });
-
-        TotalCount = Products.Count + Orders.Count;
-        IsConnected = true;
-        SyncStatus = "Hazir";
-        LastSyncTime = DateTime.Now.AddMinutes(-15).ToString("HH:mm");
-    }
-
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
@@ -134,9 +99,12 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
-            SyncStatus = "Tamamlandi";
+            var result = await _mediator.Send(new SyncPlatformCommand(
+                "OPENCART", MesTech.Domain.Enums.SyncDirection.Bidirectional));
+            SyncStatus = result.IsSuccess ? "Tamamlandi" : $"Hata: {result.ErrorMessage}";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
+            if (result.IsSuccess)
+                await LoadAsync();
         }
         catch (Exception ex)
         {
@@ -156,18 +124,22 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
-            // Demo: always success when URL+Key not empty
-            if (!string.IsNullOrWhiteSpace(StoreUrl) && !string.IsNullOrWhiteSpace(ApiKey))
-            {
-                ConnectionTestSuccess = true;
-                ConnectionTestResult = "Baglanti basarili! OpenCart v3.0.4.0";
-            }
-            else
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var store = stores.FirstOrDefault(s => s.PlatformType == PlatformType.OpenCart && s.IsActive);
+
+            if (store is null)
             {
                 ConnectionTestSuccess = false;
-                ConnectionTestResult = "URL veya API Key bos birakilamaz.";
+                ConnectionTestResult = "OpenCart magazasi bulunamadi — once magaza ekleyin.";
+                ConnectionTestRan = true;
+                return;
             }
+
+            var result = await _mediator.Send(new TestStoreConnectionCommand(store.Id));
+            ConnectionTestSuccess = result.IsSuccess;
+            ConnectionTestResult = result.IsSuccess
+                ? $"Baglanti basarili! ({(int)result.ResponseTime.TotalMilliseconds} ms)"
+                : $"Baglanti hatasi: {result.ErrorMessage ?? "API ulasilamiyor"}";
             ConnectionTestRan = true;
         }
         catch (Exception ex)
