@@ -594,6 +594,7 @@ CrmMessagesEndpoint.Map(app);
 CrmLeadsEndpoint.Map(app);
 CrmCustomersEndpoint.Map(app);
 FinanceEndpoints.Map(app);
+SettlementEndpoints.Map(app);
 SupplierFeedsEndpoints.Map(app);
 DropshippingPoolEndpoints.Map(app);
 AccountingEndpoints.Map(app);
