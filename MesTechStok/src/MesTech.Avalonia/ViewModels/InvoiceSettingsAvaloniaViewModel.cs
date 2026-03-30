@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Invoice.Queries.GetInvoiceSettings;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
 
     // E-Fatura
@@ -41,9 +44,10 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         "DTP (Digital Planet)"
     ];
 
-    public InvoiceSettingsAvaloniaViewModel(IMediator mediator)
+    public InvoiceSettingsAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -53,6 +57,14 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var settings = await _mediator.Send(new GetInvoiceSettingsQuery(tenantId), CancellationToken);
+
+            SelectedProvider = settings.DefaultProvider;
+            InvoicePrefix = settings.InvoicePrefix ?? "MES";
+            NextInvoiceNumber = settings.NextInvoiceNumber;
+            DefaultVatRate = (int)(settings.DefaultTaxRate * 100);
+            AutoCreateEArchive = settings.AutoApprove;
         }
         catch (Exception ex)
         {

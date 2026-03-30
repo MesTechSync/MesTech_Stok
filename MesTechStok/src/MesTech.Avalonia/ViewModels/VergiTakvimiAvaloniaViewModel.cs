@@ -2,12 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetTaxRecords;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private int totalCount;
 
@@ -34,9 +37,10 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> StatusFilters { get; } =
         ["Tumu", "Gecikmis", "Yaklasan", "Tamamlanan"];
 
-    public VergiTakvimiAvaloniaViewModel(IMediator mediator)
+    public VergiTakvimiAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -48,18 +52,30 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
         try
         {
 
-            _allItems =
-            [
-                new() { TaxName = "KDV Beyannamesi", DueDateFormatted = "26 Mart 2026", StatusText = "6 gun kaldi", AmountFormatted = "8.450,00 TL", StatusColor = "#DC2626" },
-                new() { TaxName = "Muhtasar Beyanname", DueDateFormatted = "26 Mart 2026", StatusText = "6 gun kaldi", AmountFormatted = "3.200,00 TL", StatusColor = "#DC2626" },
-                new() { TaxName = "SGK Prim Bildirge", DueDateFormatted = "31 Mart 2026", StatusText = "11 gun kaldi", AmountFormatted = "12.680,00 TL", StatusColor = "#D97706" },
-                new() { TaxName = "Gecici Vergi (1. Donem)", DueDateFormatted = "17 Mayis 2026", StatusText = "58 gun kaldi", AmountFormatted = "—", StatusColor = "#059669" },
-                new() { TaxName = "Kurumlar Vergisi", DueDateFormatted = "30 Nisan 2026", StatusText = "41 gun kaldi", AmountFormatted = "—", StatusColor = "#059669" },
-            ];
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
+            var records = await _mediator.Send(
+                new GetTaxRecordsQuery(tenantId, Year: year), CancellationToken);
+
+            var now = DateTime.Now;
+            _allItems = records.Select(r =>
+            {
+                var daysLeft = (r.DueDate - now).Days;
+                var statusColor = r.IsPaid ? "#059669" : daysLeft < 7 ? "#DC2626" : daysLeft < 30 ? "#D97706" : "#059669";
+                var statusText = r.IsPaid ? "Odendi" : daysLeft < 0 ? $"{-daysLeft} gun gecikti" : $"{daysLeft} gun kaldi";
+                return new TaxCalendarItemDto
+                {
+                    TaxName = $"{r.TaxType} ({r.Period})",
+                    DueDateFormatted = r.DueDate.ToString("dd MMMM yyyy"),
+                    StatusText = statusText,
+                    AmountFormatted = r.TaxAmount > 0 ? $"{r.TaxAmount:N2} TL" : "—",
+                    StatusColor = statusColor
+                };
+            }).ToList();
 
             OverdueCount = _allItems.Count(x => x.StatusColor == "#DC2626");
             UpcomingCount = _allItems.Count(x => x.StatusColor == "#D97706");
-            CompletedCount = 0;
+            CompletedCount = _allItems.Count(x => x.StatusColor == "#059669");
 
             ApplyFilters();
         }
