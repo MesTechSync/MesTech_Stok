@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -89,6 +90,29 @@ public sealed class Customer : BaseEntity, ITenantEntity
     public bool HasExceededCreditLimit => CreditLimit.HasValue && CurrentBalance > CreditLimit.Value;
 
     public string DisplayName => string.IsNullOrWhiteSpace(ContactPerson) ? Name : $"{Name} ({ContactPerson})";
+
+    // ── Factory ──
+
+    public static Customer Create(Guid tenantId, string name, string code, string? email = null, string? phone = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+
+        var customer = new Customer
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Name = name,
+            Code = code,
+            Email = email,
+            Phone = phone
+        };
+
+        customer.RaiseDomainEvent(new CustomerCreatedEvent(
+            customer.Id, tenantId, name, email, phone, DateTime.UtcNow));
+
+        return customer;
+    }
 
     public override string ToString() => $"[{Code}] {Name}";
 }
