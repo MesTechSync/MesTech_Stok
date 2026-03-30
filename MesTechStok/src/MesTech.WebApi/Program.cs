@@ -656,6 +656,7 @@ SystemEndpoints.Map(app);
 ProductImageEndpoints.Map(app);
 CustomerEndpoints.Map(app);
 DocumentEndpoints.Map(app);
+BuyboxEndpoints.Map(app);
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
