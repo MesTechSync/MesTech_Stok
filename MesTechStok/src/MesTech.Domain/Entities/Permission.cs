@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities;
 
-public sealed class Permission : BaseEntity
+public sealed class Permission : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Module { get; set; } = string.Empty;
     public string? Description { get; set; }
