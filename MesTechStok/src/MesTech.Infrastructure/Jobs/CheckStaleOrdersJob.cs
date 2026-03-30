@@ -1,6 +1,8 @@
 using MesTech.Application.Features.Notifications.Commands.SendNotification;
 using MesTech.Application.Features.Orders.Queries.GetStaleOrders;
+using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Messaging.Mesa;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Hangfire;
@@ -78,6 +80,21 @@ public sealed class CheckStaleOrdersJob
                                  string.Join("\n", warning.Select(o =>
                                      $"• #{o.OrderNumber} ({o.Platform}) — {o.Elapsed.TotalHours:F0}h"))
                     ), ct).ConfigureAwait(false);
+                }
+
+                // Zincir 11: Her stale order için domain event raise — handler'lar tetiklenir
+                foreach (var order in staleOrders)
+                {
+                    await _mediator.Publish(
+                        new DomainEventNotification<StaleOrderDetectedEvent>(
+                            new StaleOrderDetectedEvent(
+                                OrderId: order.OrderId,
+                                TenantId: tenant.Id,
+                                OrderNumber: order.OrderNumber,
+                                Platform: order.Platform,
+                                ElapsedSince: order.Elapsed,
+                                OccurredAt: DateTime.UtcNow)),
+                        ct).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
