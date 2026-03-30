@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Product.Commands.ExportProducts;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,10 +16,12 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class ExportAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
-    public ExportAvaloniaViewModel(IMediator mediator)
+    public ExportAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     // Data type checkboxes
@@ -86,11 +90,16 @@ public partial class ExportAvaloniaViewModel : ViewModelBase
 
                 if (selected[i] == "Ürünler")
                 {
-                    // Wire to real MediatR command for product export
                     _ = await _mediator.Send(
                         new ExportProductsCommand(Format: format), CancellationToken);
                 }
-                // TODO: Wire ExportOrders, ExportStock, ExportCustomers, ExportInvoices commands
+                else if (selected[i] == "Siparişler")
+                {
+                    var tenantId = _tenantProvider.GetCurrentTenantId();
+                    _ = await _mediator.Send(
+                        new ExportOrdersCommand(tenantId, DateTime.Now.AddDays(-30), DateTime.Now), CancellationToken);
+                }
+                // TODO: Wire ExportStock, ExportCustomers, ExportInvoices commands when handlers exist
 
                 ExportProgress = nextProgress;
             }
