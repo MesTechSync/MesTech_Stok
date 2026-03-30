@@ -12,6 +12,10 @@ public interface IIntegrationEventPublisher
     Task PublishInvoiceCreatedAsync(Guid invoiceId, Guid orderId, string invoiceNumber, decimal grandTotal, CancellationToken ct = default);
     Task PublishOrderShippedAsync(Guid orderId, string trackingNumber, string cargoProvider, CancellationToken ct = default);
     Task PublishProductUpdatedAsync(Guid productId, string sku, string updatedField, CancellationToken ct = default);
+    Task PublishShipmentCostRecordedAsync(Guid orderId, string trackingNumber, string cargoProvider, decimal shippingCost, CancellationToken ct = default);
+    Task PublishZeroStockDetectedAsync(Guid productId, string sku, int previousStock, CancellationToken ct = default);
+    Task PublishStaleOrderDetectedAsync(Guid orderId, string orderNumber, string? platformCode, double hoursElapsed, CancellationToken ct = default);
+    Task PublishPlatformDeactivatedAsync(Guid productId, string sku, string platformCode, CancellationToken ct = default);
 }
 
 public sealed class IntegrationEventPublisher : IIntegrationEventPublisher
@@ -78,5 +82,41 @@ public sealed class IntegrationEventPublisher : IIntegrationEventPublisher
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
         _logger.LogInformation("ProductUpdated yayinlandi: {SKU} alan={Field} [Tenant={TenantId}]",
             sku, updatedField, tenantId);
+    }
+
+    public async Task PublishShipmentCostRecordedAsync(Guid orderId, string trackingNumber, string cargoProvider, decimal shippingCost, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new ShipmentCostRecordedIntegrationEvent(orderId, trackingNumber, cargoProvider, shippingCost, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("ShipmentCostRecorded yayinlandi: {OrderId} kargo={Cargo} maliyet={Cost} [Tenant={TenantId}]",
+            orderId, cargoProvider, shippingCost, tenantId);
+    }
+
+    public async Task PublishZeroStockDetectedAsync(Guid productId, string sku, int previousStock, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new ZeroStockIntegrationEvent(productId, sku, previousStock, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("ZeroStockDetected yayinlandi: {SKU} onceki={PrevStock} [Tenant={TenantId}]",
+            sku, previousStock, tenantId);
+    }
+
+    public async Task PublishStaleOrderDetectedAsync(Guid orderId, string orderNumber, string? platformCode, double hoursElapsed, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new StaleOrderDetectedIntegrationEvent(orderId, orderNumber, platformCode, hoursElapsed, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("StaleOrderDetected yayinlandi: {OrderNumber} platform={Platform} saat={Hours} [Tenant={TenantId}]",
+            orderNumber, platformCode, hoursElapsed, tenantId);
+    }
+
+    public async Task PublishPlatformDeactivatedAsync(Guid productId, string sku, string platformCode, CancellationToken ct = default)
+    {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        var evt = new PlatformDeactivatedIntegrationEvent(productId, sku, platformCode, tenantId, DateTime.UtcNow);
+        await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _logger.LogInformation("PlatformDeactivated yayinlandi: {SKU} platform={Platform} [Tenant={TenantId}]",
+            sku, platformCode, tenantId);
     }
 }
