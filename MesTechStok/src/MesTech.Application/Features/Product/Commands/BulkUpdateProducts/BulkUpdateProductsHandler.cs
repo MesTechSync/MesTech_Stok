@@ -33,14 +33,17 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
         if (request.ProductIds is null || request.ProductIds.Count == 0)
             return 0;
 
+        // Batch fetch — eliminates N+1 query (was: foreach → GetByIdAsync per product)
+        var products = await _productRepository.GetByIdsAsync(request.ProductIds, cancellationToken);
+        var productMap = products.ToDictionary(p => p.Id);
+
         var updatedCount = 0;
 
         foreach (var productId in request.ProductIds)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var product = await _productRepository.GetByIdAsync(productId);
-            if (product is null)
+            if (!productMap.TryGetValue(productId, out var product))
             {
                 _logger.LogWarning("Ürün bulunamadı: {ProductId}", productId);
                 continue;

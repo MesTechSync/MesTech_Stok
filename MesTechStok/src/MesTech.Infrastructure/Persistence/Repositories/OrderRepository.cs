@@ -20,6 +20,17 @@ public sealed class OrderRepository : IOrderRepository
             .Include(o => o.OrderItems)
             .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id, ct).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Order>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.ToList();
+        if (idList.Count == 0) return [];
+        return await _context.Orders
+            .Include(o => o.OrderItems)
+            .Where(o => idList.Contains(o.Id))
+            .AsNoTracking()
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
     public async Task<Order?> GetByOrderNumberAsync(string orderNumber)
         => await _context.Orders
             .Include(o => o.OrderItems)

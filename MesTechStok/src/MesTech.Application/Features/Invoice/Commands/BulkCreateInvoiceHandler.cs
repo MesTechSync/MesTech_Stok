@@ -33,12 +33,15 @@ public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoice
         int successCount = 0;
         int failCount = 0;
 
+        // Batch fetch — eliminates N+1 query (was: foreach → GetByIdAsync per order)
+        var orders = await _orderRepository.GetByIdsAsync(request.OrderIds, cancellationToken).ConfigureAwait(false);
+        var orderMap = orders.ToDictionary(o => o.Id);
+
         foreach (var orderId in request.OrderIds)
         {
             try
             {
-                var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
-                if (order is null)
+                if (!orderMap.TryGetValue(orderId, out var order))
                 {
                     failCount++;
                     results.Add(new BulkInvoiceItemResultDto(
