@@ -121,8 +121,8 @@ builder.Services.AddCors(options =>
         var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
             ?? new[] { "http://localhost:3100", "http://localhost:3200" };
         policy.WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
+            .WithHeaders("Content-Type", "Authorization", "X-Requested-With", "X-API-Key")
+            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .AllowCredentials();
     });
 });
