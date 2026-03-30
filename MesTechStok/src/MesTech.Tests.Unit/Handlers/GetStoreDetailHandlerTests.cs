@@ -12,89 +12,164 @@ namespace MesTech.Tests.Unit.Handlers;
 public class GetStoreDetailHandlerTests
 {
     private readonly Mock<IStoreRepository> _storeRepoMock = new();
-    private readonly Mock<IStoreCredentialRepository> _credRepoMock = new();
+    private readonly Mock<IStoreCredentialRepository> _credentialRepoMock = new();
     private readonly Mock<ILogger<GetStoreDetailHandler>> _loggerMock = new();
     private readonly GetStoreDetailHandler _sut;
     private readonly Guid _tenantId = Guid.NewGuid();
+    private readonly Guid _storeId = Guid.NewGuid();
 
     public GetStoreDetailHandlerTests()
     {
-        _sut = new GetStoreDetailHandler(_storeRepoMock.Object, _credRepoMock.Object, _loggerMock.Object);
+        _sut = new GetStoreDetailHandler(
+            _storeRepoMock.Object,
+            _credentialRepoMock.Object,
+            _loggerMock.Object);
     }
 
     [Fact]
     public async Task Handle_StoreNotFound_ReturnsNull()
     {
-        _storeRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        // Arrange
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Store?)null);
 
-        var result = await _sut.Handle(
-            new GetStoreDetailQuery(_tenantId, Guid.NewGuid()), CancellationToken.None);
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
 
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task Handle_TenantMismatch_ReturnsNull()
+    public async Task Handle_StoreBelongsToDifferentTenant_ReturnsNull()
     {
-        var store = new Store { Id = Guid.NewGuid(), TenantId = Guid.NewGuid(), StoreName = "Test" };
-        _storeRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        // Arrange
+        var otherTenantId = Guid.NewGuid();
+        var store = CreateStore(otherTenantId);
+
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(store);
 
-        var result = await _sut.Handle(
-            new GetStoreDetailQuery(_tenantId, store.Id), CancellationToken.None);
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
 
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task Handle_ValidStore_ReturnsDetail()
+    public async Task Handle_StoreWithCredentials_ReturnsConfiguredStatus()
     {
-        var storeId = Guid.NewGuid();
-        var store = new Store
+        // Arrange
+        var store = CreateStore(_tenantId);
+        var credentials = new List<StoreCredential>
         {
-            Id = storeId,
-            TenantId = _tenantId,
-            StoreName = "Trendyol Mağaza",
-            PlatformType = PlatformType.Trendyol,
-            IsActive = true
+            new() { Id = Guid.NewGuid(), Key = "ApiKey", EncryptedValue = "enc-secret" }
         };
-        _storeRepoMock.Setup(r => r.GetByIdAsync(storeId, It.IsAny<CancellationToken>()))
+
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(store);
-        _credRepoMock.Setup(r => r.GetByStoreIdAsync(storeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<StoreCredential> { new() });
+        _credentialRepoMock.Setup(r => r.GetByStoreIdAsync(_storeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(credentials);
 
-        var result = await _sut.Handle(
-            new GetStoreDetailQuery(_tenantId, storeId), CancellationToken.None);
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
 
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Trendyol Mağaza");
+        result!.CredentialStatus.Should().Be("Configured");
+        result.StoreId.Should().Be(_storeId);
+        result.Name.Should().Be("Test Store");
         result.Platform.Should().Be("Trendyol");
-        result.CredentialStatus.Should().Be("Configured");
+        result.IsActive.Should().BeTrue();
+        result.WebhookStatus.Should().Be("Active");
     }
 
     [Fact]
-    public async Task Handle_NoCredentials_ShowsNotConfigured()
+    public async Task Handle_StoreWithoutCredentials_ReturnsNotConfiguredStatus()
     {
-        var storeId = Guid.NewGuid();
-        var store = new Store
-        {
-            Id = storeId,
-            TenantId = _tenantId,
-            StoreName = "Test",
-            PlatformType = PlatformType.N11,
-            IsActive = false
-        };
-        _storeRepoMock.Setup(r => r.GetByIdAsync(storeId, It.IsAny<CancellationToken>()))
+        // Arrange
+        var store = CreateStore(_tenantId);
+
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(store);
-        _credRepoMock.Setup(r => r.GetByStoreIdAsync(storeId, It.IsAny<CancellationToken>()))
+        _credentialRepoMock.Setup(r => r.GetByStoreIdAsync(_storeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StoreCredential>());
 
-        var result = await _sut.Handle(
-            new GetStoreDetailQuery(_tenantId, storeId), CancellationToken.None);
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
 
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
         result.Should().NotBeNull();
         result!.CredentialStatus.Should().Be("NotConfigured");
+    }
+
+    [Fact]
+    public async Task Handle_InactiveStore_ReturnsInactiveWebhookStatus()
+    {
+        // Arrange
+        var store = CreateStore(_tenantId);
+        store.IsActive = false;
+
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(store);
+        _credentialRepoMock.Setup(r => r.GetByStoreIdAsync(_storeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StoreCredential>());
+
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.IsActive.Should().BeFalse();
         result.WebhookStatus.Should().Be("Inactive");
     }
+
+    [Fact]
+    public async Task Handle_StoreWithProductMappings_ReturnsCorrectCount()
+    {
+        // Arrange
+        var store = CreateStore(_tenantId);
+        store.ProductMappings = new List<ProductPlatformMapping>
+        {
+            new() { Id = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid() }
+        };
+
+        _storeRepoMock.Setup(r => r.GetByIdAsync(_storeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(store);
+        _credentialRepoMock.Setup(r => r.GetByStoreIdAsync(_storeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StoreCredential>());
+
+        var query = new GetStoreDetailQuery(_tenantId, _storeId);
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.ProductCount.Should().Be(3);
+    }
+
+    private Store CreateStore(Guid tenantId) =>
+        new()
+        {
+            Id = _storeId,
+            TenantId = tenantId,
+            PlatformType = PlatformType.Trendyol,
+            StoreName = "Test Store",
+            IsActive = true,
+            UpdatedAt = DateTime.UtcNow
+        };
 }
