@@ -140,6 +140,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<ICrmLeadRepository, Crm.CrmLeadRepository>();
         services.AddScoped<ICrmContactRepository, Crm.CrmContactRepository>();
         services.AddScoped<ICrmDealRepository, Crm.CrmDealRepository>();
+        services.AddScoped<IActivityRepository, Crm.ActivityRepository>();
 
         // HR + Document + Pipeline Repositories (Dalga 8 H28)
         services.AddScoped<IDepartmentRepository, Hr.DepartmentRepository>();
