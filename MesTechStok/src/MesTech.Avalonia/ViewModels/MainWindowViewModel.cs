@@ -1,6 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Avalonia.Services;
+using MediatR;
 
 // ReSharper disable once RedundantUsingDirective — SubscriptionTier needed for TierChanged event signature
 namespace MesTech.Avalonia.ViewModels;

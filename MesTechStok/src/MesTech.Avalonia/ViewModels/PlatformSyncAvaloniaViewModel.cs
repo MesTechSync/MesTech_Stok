@@ -120,8 +120,8 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new SyncPlatformCommand(
-                platform.PlatformCode, MesTech.Domain.Enums.SyncDirection.Both));
-            platform.Status = result.Success ? "Basarili" : $"Hata: {result.ErrorMessage}";
+                platform.Platform, MesTech.Domain.Enums.SyncDirection.Bidirectional));
+            platform.Status = result.IsSuccess ? "Basarili" : $"Hata: {result.ErrorMessage}";
         }
         catch (Exception ex)
         {

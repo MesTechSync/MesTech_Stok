@@ -34,6 +34,7 @@ public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
     public override async Task LoadAsync()
     {
         IsLoading = true;
+        HasError = false;
         try
         {
             var result = await _mediator.Send(
@@ -53,6 +54,12 @@ public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
             OnPropertyChanged(nameof(Warning48hCount));
             OnPropertyChanged(nameof(Critical72hCount));
             IsEmpty = StaleOrders.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Gecikmiş sipariş verisi yüklenemedi: {ex.Message}";
+            IsEmpty = true;
         }
         finally
         {

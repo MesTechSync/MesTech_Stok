@@ -24,7 +24,7 @@ public partial class PlatformSyncHistoryAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string syncMessage = string.Empty;
     [ObservableProperty] private bool isSyncing;
 
-    public ObservableCollection<SyncHistoryItemDto> SyncHistory { get; } = [];
+    public ObservableCollection<MesTech.Application.Features.Platform.Queries.GetSyncHistory.SyncHistoryItemDto> SyncHistory { get; } = [];
 
     public ObservableCollection<string> Platforms { get; } =
     [
