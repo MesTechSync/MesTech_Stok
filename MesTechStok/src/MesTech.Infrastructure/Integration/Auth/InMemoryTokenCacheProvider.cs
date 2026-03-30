@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using MesTech.Application.Interfaces;
 
 namespace MesTech.Infrastructure.Integration.Auth;
