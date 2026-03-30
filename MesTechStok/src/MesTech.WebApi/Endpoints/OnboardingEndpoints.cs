@@ -76,6 +76,7 @@ public static class OnboardingEndpoints
         .WithName("RegisterTenant")
         .WithSummary("Yeni tenant kaydı — firma + admin kullanıcı + 14 gün trial + onboarding")
         .Produces(201).Produces(400)
-        .AllowAnonymous(); // Kayıt endpoint'i auth gerektirmez
+        .AllowAnonymous() // Kayıt endpoint'i auth gerektirmez
+        .RequireRateLimiting("RegistrationRateLimit"); // DEV6-TUR6: 10 req/min per IP — account enumeration prevention
     }
 }

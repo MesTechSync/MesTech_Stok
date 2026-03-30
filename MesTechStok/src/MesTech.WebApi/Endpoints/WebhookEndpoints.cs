@@ -111,6 +111,7 @@ public static class WebhookEndpoints
         .Produces(400)
         .Produces(422)
         .AllowAnonymous() // Webhook'lar platform'dan JWT olmadan gelir
+        .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR6: 60 req/min per IP — platform callback flood protection
         .WithMetadata(new RequestSizeLimitAttribute(1_048_576)); // G088 FIX: 1MB limit (tipik webhook 1-100KB)
 
         // GET /api/webhooks/dead-letters — DLQ list (admin)

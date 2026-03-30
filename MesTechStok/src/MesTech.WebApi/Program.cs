@@ -168,6 +168,28 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0
         });
     });
+    // Webhook receiver rate limit — 60 req/min per IP (platform callback flood protection, DEV6-TUR6)
+    options.AddPolicy("WebhookRateLimit", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter($"webhook:{ip}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 60,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+    // Registration rate limit — 10 req/min per IP (account enumeration prevention, DEV6-TUR6)
+    options.AddPolicy("RegistrationRateLimit", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter($"register:{ip}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
 });
 
 // ProblemDetails — RFC 7807 compliant error responses (A-M2-06)
