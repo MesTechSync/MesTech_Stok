@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Application.DTOs.Platform;
 using MesTech.Domain.Interfaces;
@@ -116,8 +117,16 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
             Platforms.Insert(index, platform);
         }
 
-        // TODO: Wire to SyncPlatformCommand when available
-        platform.Status = "Basarili";
+        try
+        {
+            var result = await _mediator.Send(new SyncPlatformCommand(
+                platform.PlatformCode, MesTech.Domain.Enums.SyncDirection.Both));
+            platform.Status = result.Success ? "Basarili" : $"Hata: {result.ErrorMessage}";
+        }
+        catch (Exception ex)
+        {
+            platform.Status = $"Hata: {ex.Message}";
+        }
         platform.LastSync = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
 
         if (index >= 0)
