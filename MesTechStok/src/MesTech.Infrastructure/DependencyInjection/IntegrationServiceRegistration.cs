@@ -447,8 +447,13 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<ISettlementParser, OpenCartSettlementParser>();
         services.AddSingleton<ISettlementParser, EbaySettlementParser>();
         services.AddSingleton<ISettlementParser, OzonSettlementParser>();
+        services.AddSingleton<ISettlementParser, PttAvmSettlementParser>();
+        services.AddSingleton<ISettlementParser, ShopifySettlementParser>();
+        services.AddSingleton<ISettlementParser, EtsySettlementParser>();
+        services.AddSingleton<ISettlementParser, WooCommerceSettlementParser>();
+        services.AddSingleton<ISettlementParser, ZalandoSettlementParser>();
 
-        // Settlement parser factory — auto-discovers all registered ISettlementParser (9 total)
+        // Settlement parser factory — auto-discovers all registered ISettlementParser (14 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
         // Dalga 14 S3: Parasut options — sandbox toggle + environment-aware URLs
