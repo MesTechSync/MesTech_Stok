@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetWarehouses;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +13,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class TransferWizardAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private IReadOnlyList<WarehouseListDto> _warehouseList = [];
 
     [ObservableProperty] private string transferStatus = string.Empty;
     [ObservableProperty] private string productSearchText = string.Empty;
@@ -50,12 +52,16 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // MediatR handler bağlantısı bekliyor — Task.Delay kaldırıldı
+            _warehouseList = await _mediator.Send(new GetWarehousesQuery(ActiveOnly: true));
 
             Warehouses.Clear();
-            Warehouses.Add("Ana Depo");
-            Warehouses.Add("Yedek Depo");
-            Warehouses.Add("Iade Depo");
+            foreach (var wh in _warehouseList)
+                Warehouses.Add(wh.Name);
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Depolar yuklenemedi: {ex.Message}";
         }
         finally
         {
@@ -104,6 +110,13 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
         ValidateTransfer();
     }
 
+    private Guid ResolveWarehouseId(string? name)
+    {
+        if (name is null) return Guid.Empty;
+        var wh = _warehouseList.FirstOrDefault(w => w.Name == name);
+        return wh?.Id ?? Guid.Empty;
+    }
+
     [RelayCommand]
     private async Task ExecuteTransfer()
     {
@@ -113,22 +126,45 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
         var itemsToTransfer = TransferItems.Where(i => i.TransferQuantity > 0).ToList();
         if (itemsToTransfer.Count == 0) { TransferStatus = "Transfer adedi girilmedi."; return; }
 
+        var sourceId = ResolveWarehouseId(SelectedSourceWarehouse);
+        var targetId = ResolveWarehouseId(SelectedTargetWarehouse);
+        if (sourceId == Guid.Empty || targetId == Guid.Empty)
+        {
+            TransferStatus = "Depo secimi gecersiz.";
+            return;
+        }
+
         IsLoading = true;
         TransferStatus = string.Empty;
+        int successCount = 0;
         try
         {
-            await Task.Delay(500); // Will be replaced with TransferStockCommand via MediatR
-
-            // Update source stocks (demo)
             foreach (var item in itemsToTransfer)
             {
-                item.SourceStock -= item.TransferQuantity;
-                item.TargetStock += item.TransferQuantity;
-                item.TransferQuantity = 0;
+                var result = await _mediator.Send(new Application.Commands.TransferStock.TransferStockCommand(
+                    ProductId: item.ProductId,
+                    SourceWarehouseId: sourceId,
+                    TargetWarehouseId: targetId,
+                    Quantity: item.TransferQuantity,
+                    Notes: $"Wizard transfer: {item.Sku}"
+                ));
+
+                if (result.IsSuccess)
+                {
+                    item.SourceStock = result.SourceRemainingStock;
+                    item.TargetStock = result.TargetNewStock;
+                    item.TransferQuantity = 0;
+                    successCount++;
+                }
+                else
+                {
+                    Warnings.Add($"{item.Sku}: {result.ErrorMessage}");
+                }
             }
 
-            TransferStatus = $"{itemsToTransfer.Count} urun basariyla transfer edildi.";
+            TransferStatus = $"{successCount}/{itemsToTransfer.Count} urun basariyla transfer edildi.";
             OnPropertyChanged(nameof(TransferSummary));
+            OnPropertyChanged(nameof(HasWarnings));
             ValidateTransfer();
         }
         catch (Exception ex)
@@ -181,6 +217,7 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
 
 public partial class TransferWizardItemDto : ObservableObject
 {
+    public Guid ProductId { get; set; }
     public string Sku { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
     [ObservableProperty] private int sourceStock;
