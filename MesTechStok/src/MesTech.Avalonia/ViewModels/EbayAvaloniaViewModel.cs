@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Commands.TriggerSync;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -71,10 +72,12 @@ public partial class EbayAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to TriggerPlatformSyncCommand when available
-            await Task.CompletedTask;
-            SyncStatus = "Tamamlandi";
+            var result = await _mediator.Send(
+                new TriggerSyncCommand(_currentUser.TenantId, "eBay"), CancellationToken);
+            SyncStatus = result.IsSuccess ? "Tamamlandi" : $"Hata: {result.ErrorMessage}";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
+            if (result.IsSuccess)
+                await LoadAsync();
         }
         catch (Exception ex)
         {
