@@ -2,12 +2,16 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class OpenCartAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     // Connection / KPI
     [ObservableProperty] private bool isConnected;
@@ -44,9 +48,10 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
     // Legacy compat (used by old AXAML binding)
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
 
-    public OpenCartAvaloniaViewModel(IMediator mediator)
+    public OpenCartAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -57,9 +62,18 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
-            LoadMockData();
-            IsEmpty = Products.Count == 0 && Orders.Count == 0;
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.OpenCart));
+            IsConnected = result.IsConnected;
+            ProductCount = result.ProductCount;
+            OrderCount = result.OrderCount;
+            DailyRevenue = result.DailyRevenue;
+            SyncStatus = result.SyncStatus;
+            LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
+            RecentOrders.Clear();
+            foreach (var o in result.RecentOrders)
+                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+            TotalCount = result.ProductCount + result.OrderCount;
+            IsEmpty = result.ProductCount == 0 && result.OrderCount == 0;
         }
         catch (Exception ex)
         {
