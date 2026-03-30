@@ -99,7 +99,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 
             try
             {
-                await Task.Delay(500); // Simulate API call
+                // TODO: Replace with CreateShipmentCommand via MediatR (DEV 1+3 handler gerekli)
                 order.Status = "Gonderildi";
                 order.TrackingNumber = $"TR{DateTime.Now:yyyyMMdd}{ProgressCurrent:D4}";
                 SuccessCount++;

@@ -39,7 +39,6 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100); // Simulate init
             // Set initial clean state — user will enter URL and click Fetch
             ProductUrl = string.Empty;
             ProductLoaded = false;
@@ -78,7 +77,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(1000);
+            // TODO: Replace with FetchProductFromPlatformQuery via MediatR (DEV 3 adapter)
 
             FetchedName = "Samsung Galaxy S24 Ultra 256GB";
             FetchedPrice = 64_999.00m;
@@ -108,7 +107,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            await Task.Delay(500);
+            // TODO: Replace with CreateProductCommand via MediatR (DEV 1 handler)
             SaveCompleted = true;
         }
         catch (Exception ex)

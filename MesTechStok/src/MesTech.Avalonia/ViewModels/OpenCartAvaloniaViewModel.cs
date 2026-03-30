@@ -57,7 +57,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            await Task.Delay(100);
+            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
             LoadMockData();
             IsEmpty = Products.Count == 0 && Orders.Count == 0;
         }
@@ -120,7 +120,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(100);
+            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
             SyncStatus = "Tamamlandi";
             LastSyncTime = DateTime.Now.ToString("HH:mm");
         }
@@ -142,7 +142,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(100);
+            // TODO: Replace mock with MediatR query (DEV 3 OpenCart adapter)
             // Demo: always success when URL+Key not empty
             if (!string.IsNullOrWhiteSpace(StoreUrl) && !string.IsNullOrWhiteSpace(ApiKey))
             {

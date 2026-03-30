@@ -73,8 +73,8 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(500); // Simulate print
-            // In production: send to printer based on SelectedFormat
+            // TODO: Replace with PrintShipmentLabelCommand via MediatR (production: printer service)
+            await Task.CompletedTask;
         }
         catch (Exception ex)
         {
@@ -90,8 +90,8 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            await Task.Delay(300); // Simulate download
-            // In production: save file based on SelectedFormat
+            // TODO: Replace with DownloadShipmentLabelCommand via MediatR (production: file export)
+            await Task.CompletedTask;
         }
         catch (Exception ex)
         {
