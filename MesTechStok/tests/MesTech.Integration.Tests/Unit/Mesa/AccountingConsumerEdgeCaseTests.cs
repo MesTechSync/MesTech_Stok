@@ -4,6 +4,7 @@ using MediatR;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
+using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
 using MesTech.Infrastructure.Messaging.Mesa.Consumers;
@@ -34,8 +35,6 @@ public class AccountingConsumerEdgeCaseTests
     public AccountingConsumerEdgeCaseTests()
     {
         _tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(_fallbackTenantId);
-        _monitor.Setup(m => m.RecordEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
         _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
     }
 
@@ -61,13 +60,15 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, _tenantProvider.Object, _uow.Object,
             Mock.Of<ILogger<AiDocumentExtractedConsumer>>());
 
-        var msg = new AiDocumentExtractedEvent
-        {
-            TenantId = Guid.Empty,
-            DocumentId = Guid.NewGuid(),
-            ExtractedData = "{}",
-            Confidence = 0.95
-        };
+        var msg = new AiDocumentExtractedEvent(
+            DocumentId: Guid.NewGuid(),
+            ProcessedJson: "{}",
+            Confidence: 0.95m,
+            ExtractedAmount: null,
+            ExtractedVKN: null,
+            ExtractedCategory: null,
+            TenantId: Guid.Empty,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _tenantProvider.Verify(t => t.GetCurrentTenantId(), Times.Once);
@@ -85,12 +86,12 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<AiEInvoiceDraftGeneratedConsumer>>());
 
-        var msg = new AiEInvoiceDraftGeneratedIntegrationEvent
-        {
-            TenantId = Guid.Empty,
-            OrderId = Guid.NewGuid(),
-            DraftJson = """{"invoiceNumber":"INV-001"}"""
-        };
+        var msg = new AiEInvoiceDraftGeneratedIntegrationEvent(
+            OrderId: Guid.NewGuid(),
+            SuggestedEttnNo: "INV-001",
+            SuggestedTotal: 1500.00m,
+            TenantId: Guid.Empty,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _tenantProvider.Verify(t => t.GetCurrentTenantId(), Times.Once);
@@ -108,12 +109,12 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<AiErpReconciliationDoneConsumer>>());
 
-        var msg = new AiErpReconciliationDoneIntegrationEvent
-        {
-            TenantId = Guid.Empty,
-            ReconciliationId = Guid.NewGuid(),
-            MatchCount = 42
-        };
+        var msg = new AiErpReconciliationDoneIntegrationEvent(
+            ErpProvider: "Parasut",
+            ReconciledCount: 42,
+            MismatchCount: 3,
+            TenantId: Guid.Empty,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _tenantProvider.Verify(t => t.GetCurrentTenantId(), Times.Once);
@@ -131,12 +132,12 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<BotEFaturaRequestedConsumer>>());
 
-        var msg = new BotEFaturaRequestedIntegrationEvent
-        {
-            TenantId = Guid.Empty,
-            OrderId = Guid.NewGuid(),
-            RequestedBy = "whatsapp-bot"
-        };
+        var msg = new BotEFaturaRequestedIntegrationEvent(
+            BotUserId: "whatsapp-bot",
+            OrderId: Guid.NewGuid(),
+            BuyerVkn: null,
+            TenantId: Guid.Empty,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _tenantProvider.Verify(t => t.GetCurrentTenantId(), Times.Once);
@@ -154,13 +155,14 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<DocumentClassifiedConsumer>>());
 
-        var msg = new AiDocumentClassifiedEvent
-        {
-            TenantId = Guid.Empty,
-            DocumentId = Guid.NewGuid(),
-            DocumentType = "invoice",
-            Confidence = 0.88
-        };
+        var msg = new AiDocumentClassifiedEvent(
+            DocumentId: Guid.NewGuid(),
+            DocumentType: "invoice",
+            Confidence: 0.88m,
+            ExtractedAmount: null,
+            ExtractedVKN: null,
+            TenantId: Guid.Empty,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _tenantProvider.Verify(t => t.GetCurrentTenantId(), Times.Once);
@@ -181,9 +183,12 @@ public class AccountingConsumerEdgeCaseTests
         var msg = new BotNotificationSentEvent
         {
             TenantId = Guid.NewGuid(),
-            NotificationId = Guid.NewGuid(),
             Channel = "email",
-            DeliveryStatus = "sent"
+            Recipient = "test@example.com",
+            TemplateName = "order_confirmation",
+            Content = "Your order has been confirmed.",
+            Success = true,
+            SentAt = DateTime.UtcNow
         };
 
         await consumer.Consume(MockContext(msg));
@@ -201,17 +206,17 @@ public class AccountingConsumerEdgeCaseTests
             _monitor.Object, leadRepo.Object, _uow.Object,
             Mock.Of<ILogger<MesaLeadScoredConsumer>>());
 
-        var msg = new MesaLeadScoredEvent
-        {
-            TenantId = Guid.NewGuid(),
-            LeadId = Guid.NewGuid(),
-            Score = 85,
-            Reasoning = "High engagement"
-        };
+        var leadId = Guid.NewGuid();
+        var msg = new MesaLeadScoredEvent(
+            LeadId: leadId,
+            Score: 85,
+            Reasoning: "High engagement",
+            TenantId: Guid.NewGuid(),
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         // Lead repo should be called
-        leadRepo.Verify(r => r.GetByIdAsync(msg.LeadId, It.IsAny<CancellationToken>()), Times.Once);
+        leadRepo.Verify(r => r.GetByIdAsync(leadId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══ MesaMeetingScheduledConsumer ═══
@@ -222,13 +227,15 @@ public class AccountingConsumerEdgeCaseTests
         var consumer = new MesaMeetingScheduledConsumer(
             _mediator.Object, Mock.Of<ILogger<MesaMeetingScheduledConsumer>>());
 
-        var msg = new MesaMeetingScheduledEvent
-        {
-            TenantId = Guid.NewGuid(),
-            LeadId = Guid.NewGuid(),
-            ScheduledAt = DateTime.UtcNow.AddDays(1),
-            Title = "Satış Görüşmesi"
-        };
+        var msg = new MesaMeetingScheduledEvent(
+            Title: "Satış Görüşmesi",
+            StartAt: DateTime.UtcNow.AddDays(1),
+            EndAt: DateTime.UtcNow.AddDays(1).AddHours(1),
+            Location: null,
+            AttendeeUserIds: Array.Empty<Guid>(),
+            TenantId: Guid.NewGuid(),
+            RelatedDealId: null,
+            OccurredAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);

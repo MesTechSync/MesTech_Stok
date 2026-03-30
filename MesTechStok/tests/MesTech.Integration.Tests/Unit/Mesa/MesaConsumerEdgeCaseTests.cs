@@ -28,8 +28,6 @@ public class MesaConsumerEdgeCaseTests
     public MesaConsumerEdgeCaseTests()
     {
         _tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(_fallbackTenantId);
-        _monitor.Setup(m => m.RecordEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
     }
 
     private static ConsumeContext<T> MockContext<T>(T message) where T : class
@@ -52,14 +50,14 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaAiContentConsumer>>());
 
-        var msg = new MesaAiContentGeneratedEvent
-        {
-            TenantId = Guid.Empty, // empty — should fallback
-            ProductId = Guid.NewGuid(),
-            SKU = "TEST-SKU",
-            GeneratedContent = "AI generated content",
-            AiProvider = "claude"
-        };
+        var msg = new MesaAiContentGeneratedEvent(
+            ProductId: Guid.NewGuid(),
+            SKU: "TEST-SKU",
+            GeneratedContent: "AI generated content",
+            Metadata: null,
+            AiProvider: "claude",
+            TenantId: Guid.Empty, // empty — should fallback
+            GeneratedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
 
@@ -79,14 +77,14 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaAiContentConsumer>>());
 
-        var msg = new MesaAiContentGeneratedEvent
-        {
-            TenantId = Guid.NewGuid(),
-            ProductId = Guid.NewGuid(),
-            SKU = "SKU-1",
-            GeneratedContent = "content",
-            AiProvider = "claude"
-        };
+        var msg = new MesaAiContentGeneratedEvent(
+            ProductId: Guid.NewGuid(),
+            SKU: "SKU-1",
+            GeneratedContent: "content",
+            Metadata: null,
+            AiProvider: "claude",
+            TenantId: Guid.NewGuid(),
+            GeneratedAt: DateTime.UtcNow);
 
         var act = async () => await consumer.Consume(MockContext(msg));
         await act.Should().ThrowAsync<InvalidOperationException>();
@@ -103,14 +101,15 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaAiPriceConsumer>>());
 
-        var msg = new MesaAiPriceOptimizationEvent
-        {
-            TenantId = Guid.Empty,
-            ProductId = Guid.NewGuid(),
-            SKU = "PRICE-SKU",
-            RecommendedPrice = 99.90m,
-            AiProvider = "gemini"
-        };
+        var msg = new MesaAiPriceRecommendedEvent(
+            ProductId: Guid.NewGuid(),
+            SKU: "PRICE-SKU",
+            RecommendedPrice: 99.90m,
+            MinPrice: 79.90m,
+            MaxPrice: 119.90m,
+            Reasoning: "gemini",
+            TenantId: Guid.Empty,
+            GeneratedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
 
@@ -128,15 +127,17 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaAiPriceOptimizedConsumer>>());
 
-        var msg = new MesaAiPriceOptimizedEvent
-        {
-            TenantId = Guid.NewGuid(),
-            ProductId = Guid.NewGuid(),
-            SKU = "OPT-SKU",
-            OptimizedPrice = 149.90m,
-            PreviousPrice = 129.90m,
-            Algorithm = "dynamic-pricing"
-        };
+        var msg = new MesaAiPriceOptimizedEvent(
+            ProductId: Guid.NewGuid(),
+            SKU: "OPT-SKU",
+            RecommendedPrice: 149.90m,
+            MinPrice: 119.90m,
+            MaxPrice: 179.90m,
+            CompetitorMinPrice: 129.90m,
+            Confidence: 0.85,
+            Reasoning: "dynamic-pricing",
+            TenantId: Guid.NewGuid(),
+            GeneratedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -153,14 +154,18 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaAiStockPredictedConsumer>>());
 
-        var msg = new MesaAiStockPredictedEvent
-        {
-            TenantId = Guid.Empty,
-            ProductId = Guid.NewGuid(),
-            SKU = "STOCK-SKU",
-            PredictedDemand7d = 150,
-            DaysUntilStockout = 7
-        };
+        var msg = new MesaAiStockPredictedEvent(
+            ProductId: Guid.NewGuid(),
+            SKU: "STOCK-SKU",
+            PredictedDemand7d: 150,
+            PredictedDemand14d: 300,
+            PredictedDemand30d: 600,
+            DaysUntilStockout: 7,
+            ReorderSuggestion: 200,
+            Confidence: 0.80,
+            Reasoning: null,
+            TenantId: Guid.Empty,
+            GeneratedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -177,13 +182,13 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaBotStatusConsumer>>());
 
-        var msg = new MesaBotNotificationStatusEvent
-        {
-            TenantId = Guid.NewGuid(),
-            NotificationId = Guid.NewGuid(),
-            DeliveryStatus = "delivered",
-            Platform = "telegram"
-        };
+        var msg = new MesaBotNotificationSentEvent(
+            Channel: "telegram",
+            Recipient: "+905551234567",
+            Success: true,
+            ErrorMessage: null,
+            TenantId: Guid.NewGuid(),
+            SentAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -200,12 +205,12 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaBotInvoiceRequestConsumer>>());
 
-        var msg = new MesaBotInvoiceRequestEvent
-        {
-            TenantId = Guid.Empty,
-            OrderId = Guid.NewGuid(),
-            RequestedBy = "bot-user"
-        };
+        var msg = new MesaBotInvoiceRequestedEvent(
+            CustomerPhone: "+905551234567",
+            OrderNumber: "ORD-001",
+            RequestChannel: "whatsapp",
+            TenantId: Guid.Empty,
+            RequestedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -222,13 +227,13 @@ public class MesaConsumerEdgeCaseTests
             _mediator.Object, _monitor.Object, _tenantProvider.Object,
             Mock.Of<ILogger<MesaBotReturnRequestConsumer>>());
 
-        var msg = new MesaBotReturnRequestEvent
-        {
-            TenantId = Guid.Empty,
-            OrderId = Guid.NewGuid(),
-            Reason = "Defective product",
-            RequestedBy = "bot-user"
-        };
+        var msg = new MesaBotReturnRequestedEvent(
+            CustomerPhone: "+905551234567",
+            OrderNumber: "ORD-002",
+            ReturnReason: "Defective product",
+            RequestChannel: "whatsapp",
+            TenantId: Guid.Empty,
+            RequestedAt: DateTime.UtcNow);
 
         await consumer.Consume(MockContext(msg));
         _mediator.Verify(m => m.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
