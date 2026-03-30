@@ -5,7 +5,10 @@ using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
 using MesTech.Application.Commands.TransferStock;
+using MesTech.Application.Features.Stock.Commands.CreateStockLot;
 using MesTech.Application.Features.Stock.Commands.StartStockCount;
+using MesTech.Application.Features.Stock.Queries.GetStockLots;
+using MesTech.Application.Features.Stock.Queries.GetStockPlacements;
 using MesTech.Application.Features.Stock.Queries.GetStockSummary;
 using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
 using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
@@ -212,5 +215,46 @@ public static class StockEndpoints
         .WithSummary("Stok sayım oturumu başlat")
         .Produces(201)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/stock/lots — stok lot listesi (FIFO sıralı)
+        group.MapGet("/lots", async (
+            Guid tenantId, int? limit,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockLotsQuery(tenantId, limit ?? 100), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockLots")
+        .WithSummary("Stok lot listesi — lot numarası, miktar, maliyet, son kullanma")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // POST /api/v1/stock/lots — yeni stok lot kaydı oluştur
+        group.MapPost("/lots", async (
+            CreateStockLotCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/stock/lots/{result.LotId}", result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("CreateStockLot")
+        .WithSummary("Yeni stok lot kaydı — lot numarası, miktar, birim maliyet, depo")
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
+        group.MapGet("/placements", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockPlacementsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockPlacements")
+        .WithSummary("Stok yerleşim listesi — depo, raf, bölge bazlı stok dağılımı")
+        .Produces(200)
+        .CacheOutput("Report120s");
     }
 }

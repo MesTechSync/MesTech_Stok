@@ -1,6 +1,9 @@
 using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Application.Features.Erp.Commands.CreateErpAccountMapping;
+using MesTech.Application.Features.Erp.Commands.DeleteErpAccountMapping;
 using MesTech.Application.Features.Erp.Commands.SyncOrderToErp;
+using MesTech.Application.Features.Erp.Queries.GetErpAccountMappings;
 using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
@@ -281,6 +284,46 @@ public static class ErpEndpoints
         .WithName("SyncOrderToErp")
         .WithSummary("Siparişi ERP sistemine senkronize et (Parasüt, Logo, vb.)")
         .Produces(200).Produces(400);
+        // GET /api/v1/erp/account-mappings — ERP hesap eşleştirme listesi
+        group.MapGet("/account-mappings", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetErpAccountMappingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetErpAccountMappings")
+        .WithSummary("ERP hesap eşleştirme listesi — MesTech ↔ ERP hesap kodu mapping")
+        .Produces(200)
+        .CacheOutput("Report120s");
+
+        // POST /api/v1/erp/account-mappings — yeni ERP hesap eşleştirmesi oluştur
+        group.MapPost("/account-mappings", async (
+            CreateErpAccountMappingCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/erp/account-mappings/{result.MappingId}", result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("CreateErpAccountMapping")
+        .WithSummary("Yeni ERP hesap eşleştirmesi oluştur — MesTech hesabını ERP hesabına bağla")
+        .Produces(201).Produces(400);
+
+        // DELETE /api/v1/erp/account-mappings/{id} — ERP hesap eşleştirmesini sil
+        group.MapDelete("/account-mappings/{id:guid}", async (
+            Guid id, Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteErpAccountMappingCommand(tenantId, id), ct);
+            return result
+                ? Results.NoContent()
+                : Results.NotFound(ApiResponse<object>.Fail("Eşleştirme bulunamadı", "NOT_FOUND"));
+        })
+        .WithName("DeleteErpAccountMapping")
+        .WithSummary("ERP hesap eşleştirmesini sil")
+        .Produces(204).Produces(404);
     }
 
     // ── Request DTOs ──────────────────────────────────────────────────
