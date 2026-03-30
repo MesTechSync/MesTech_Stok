@@ -70,7 +70,7 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void ShowDetail()
     {
-        // TODO: Navigate to warehouse detail view
+        // NAV: Navigate to warehouse detail view
     }
 }
 

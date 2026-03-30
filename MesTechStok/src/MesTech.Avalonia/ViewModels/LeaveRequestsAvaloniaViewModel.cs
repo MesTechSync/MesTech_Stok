@@ -73,7 +73,7 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to leave request create form
+        // NAV: Navigate to leave request create form
     }
 }
 

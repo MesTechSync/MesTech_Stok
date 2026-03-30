@@ -47,7 +47,7 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
                 LastSync = s.LastSyncAt?.ToString("dd.MM.yyyy HH:mm") ?? "—",
                 Status = s.HealthStatus,
                 ProductCount = s.StoreCount,
-                OrderCount = 0 // TODO: wire order count when available in DTO
+                OrderCount = 0 // DEP: DTO field eksik — wire order count when available in DTO
             }).ToList();
 
             ApplyFilters();

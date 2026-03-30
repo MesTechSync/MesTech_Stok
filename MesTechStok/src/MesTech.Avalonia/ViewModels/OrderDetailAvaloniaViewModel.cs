@@ -67,7 +67,7 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
                 IsEmpty = true;
             }
 
-            // TODO: OrderItems — line items query does not exist yet, keeping mock
+            // DEP: DEV1 — OrderItems — line items query does not exist yet, keeping mock
             OrderItems.Clear();
             OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Quantity = 1, UnitPrice = 54999.99m, LineTotal = 54999.99m });
             OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Kilif", Sku = "SKU-2001", Quantity = 2, UnitPrice = 299.90m, LineTotal = 599.80m });

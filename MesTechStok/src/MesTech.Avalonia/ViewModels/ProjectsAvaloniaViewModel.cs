@@ -73,7 +73,7 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to project create form
+        // NAV: Navigate to project create form
     }
 
     partial void OnSelectedStatusChanged(string? value)

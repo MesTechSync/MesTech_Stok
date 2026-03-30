@@ -62,6 +62,6 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to platform add wizard
+        // NAV: Navigate to platform add wizard
     }
 }

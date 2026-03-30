@@ -33,7 +33,7 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Wire to MediatR query when AuthenticateCommand is available
+            // DEP: DEV1 — Wire to MediatR query when AuthenticateCommand is available
             await Task.CompletedTask;
         }
         catch (Exception ex)

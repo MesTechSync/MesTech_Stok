@@ -33,7 +33,7 @@ public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
 
     public override Task LoadAsync()
     {
-        // TODO: Wire to GetCrmSettingsQuery when CRM settings CQRS is implemented
+        // DEP: DEV1 — Wire to GetCrmSettingsQuery when CRM settings CQRS is implemented
         return Task.CompletedTask;
     }
 
@@ -63,7 +63,7 @@ public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
         IsSaving = true;
         try
         {
-            // TODO: Wire to SaveCrmSettingsCommand when CRM settings CQRS is implemented
+            // DEP: DEV1 — Wire to SaveCrmSettingsCommand when CRM settings CQRS is implemented
             await _dialog.ShowInfoAsync("CRM ayarlari kaydedildi.", "MesTech CRM");
         }
         finally

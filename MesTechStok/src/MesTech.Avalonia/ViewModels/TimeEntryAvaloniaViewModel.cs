@@ -42,7 +42,7 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with GetTimeEntriesQuery when available — using employee list as scaffold
+            // DEP: DEV1 — Replace with GetTimeEntriesQuery when available — using employee list as scaffold
             var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
 
             TimeEntries.Clear();
@@ -86,7 +86,7 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: await _mediator.Send(new CreateTimeEntryCommand(...))
+            // DEP: DEV1 — await _mediator.Send(new CreateTimeEntryCommand(...))
             var dateStr = SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.ToString("dd.MM.yyyy");
             TimeEntries.Insert(0, new TimeEntryItemDto
             {

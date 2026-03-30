@@ -99,7 +99,7 @@ public partial class ExportAvaloniaViewModel : ViewModelBase
                     _ = await _mediator.Send(
                         new ExportOrdersCommand(tenantId, DateTime.Now.AddDays(-30), DateTime.Now), CancellationToken);
                 }
-                // TODO: Wire ExportStock, ExportCustomers, ExportInvoices commands when handlers exist
+                // DEP: DEV1 — Wire ExportStock, ExportCustomers, ExportInvoices commands when handlers exist
 
                 ExportProgress = nextProgress;
             }

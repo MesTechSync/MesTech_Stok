@@ -111,7 +111,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateInvoice()
     {
-        // TODO: Wire to CreateEInvoiceCommand via navigation or dialog — requires user input
+        // DEP: DEV1 — Wire to CreateEInvoiceCommand via navigation or dialog — requires user input
         // For now, refresh the list after external creation
         await LoadAsync();
     }

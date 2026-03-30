@@ -62,7 +62,7 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Upload()
     {
-        // TODO: Open file picker and upload document
+        // NAV: Open file picker and upload document
     }
 }
 

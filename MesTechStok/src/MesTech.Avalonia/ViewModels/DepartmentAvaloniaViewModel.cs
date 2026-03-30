@@ -64,7 +64,7 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to department create form or show dialog
+        // NAV: Navigate to department create form or show dialog
     }
 }
 

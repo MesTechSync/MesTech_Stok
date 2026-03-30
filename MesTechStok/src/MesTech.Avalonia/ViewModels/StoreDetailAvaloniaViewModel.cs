@@ -37,7 +37,7 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with GetStoreDetailQuery via MediatR (DEV 1 handler gerekli)
+            // DEP: DEV1 — Replace with GetStoreDetailQuery via MediatR (DEV 1 handler gerekli)
 
             StoreName = "Ana Magaza - Trendyol";
             PlatformName = "Trendyol";

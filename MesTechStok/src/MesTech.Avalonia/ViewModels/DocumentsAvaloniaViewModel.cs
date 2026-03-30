@@ -43,7 +43,7 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Upload()
     {
-        // TODO: File picker + upload via MediatR command
+        // NAV: File picker + upload via MediatR command
         await Task.CompletedTask;
     }
 

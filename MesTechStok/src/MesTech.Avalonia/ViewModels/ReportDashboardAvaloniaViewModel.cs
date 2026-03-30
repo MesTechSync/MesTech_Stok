@@ -139,7 +139,7 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         GeneratingMessage = "Excel dosyası hazırlanıyor...";
         try
         {
-            // TODO: Wire to ExportReportCommand (ClosedXML/EPPlus)
+            // DEP: DEV1 — Wire to ExportReportCommand (ClosedXML/EPPlus)
             await Task.CompletedTask;
             GeneratingMessage = "Excel aktarimi tamamlandi!";
         }

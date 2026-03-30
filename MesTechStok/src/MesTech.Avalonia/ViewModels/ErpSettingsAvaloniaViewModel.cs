@@ -146,7 +146,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: await _mediator.Send(new SaveErpSettingsCommand(...))
+            // DEP: DEV1 — await _mediator.Send(new SaveErpSettingsCommand(...))
         }
         catch (Exception ex)
         {
@@ -167,7 +167,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         ConnectionStatusColor = "#F59E0B";
         try
         {
-            // TODO: await _mediator.Send(new TestErpConnectionCommand(...))
+            // DEP: DEV1 — await _mediator.Send(new TestErpConnectionCommand(...))
             IsConnected = true;
             LastTestResult = "Baglanti basarili";
             ConnectionStatusColor = "#22C55E";

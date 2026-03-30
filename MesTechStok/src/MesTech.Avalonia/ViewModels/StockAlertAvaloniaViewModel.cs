@@ -99,13 +99,13 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void PlaceOrder(StockAlertItemDto? alert)
     {
-        // TODO: Navigate to order create with pre-filled product SKU
+        // NAV: Navigate to order create with pre-filled product SKU
     }
 
     [RelayCommand]
     private void ExecuteSecondaryAction(StockAlertItemDto? alert)
     {
-        // TODO: Execute secondary action (transfer/adjust) based on alert level
+        // NAV: Execute secondary action (transfer/adjust) based on alert level
     }
 }
 

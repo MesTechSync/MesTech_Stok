@@ -36,7 +36,7 @@ public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to GetEInvoiceByIdQuery when invoice ID is passed via navigation
+            // DEP: DEV1 — Wire to GetEInvoiceByIdQuery when invoice ID is passed via navigation
             PdfUrl = $"/invoices/{InvoiceNumber}.pdf";
             HasPdf = true;
             await Task.CompletedTask;
@@ -64,7 +64,7 @@ public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
             }
             else
             {
-                // TODO: Wire to real PDF generation service
+                // DEP: DEV1 — Wire to real PDF generation service
                 StatusMessage = "PDF servisi bagli degil — IInvoicePdfGenerator DI gerekli.";
             }
         }

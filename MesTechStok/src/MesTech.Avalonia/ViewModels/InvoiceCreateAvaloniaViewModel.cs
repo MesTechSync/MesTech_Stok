@@ -122,7 +122,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to CreateEInvoiceCommand via _mediator.Send() — requires full line mapping
+            // DEP: DEV1 — Wire to CreateEInvoiceCommand via _mediator.Send() — requires full line mapping
             await Task.CompletedTask;
             // Reset wizard
             CurrentStep = 1;

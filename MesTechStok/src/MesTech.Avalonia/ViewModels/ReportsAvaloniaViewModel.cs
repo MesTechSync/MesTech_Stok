@@ -73,7 +73,7 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
 
             // Revenue Report
             TotalRevenue = $"{dashboard.MonthlySalesAmount:N0} TL";
-            TotalExpenses = "—"; // TODO: wire to GetExpenseReportQuery when available
+            TotalExpenses = "—"; // DEP: DEV1 — wire to GetExpenseReportQuery when available
             NetProfit = "—";
 
             Summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";

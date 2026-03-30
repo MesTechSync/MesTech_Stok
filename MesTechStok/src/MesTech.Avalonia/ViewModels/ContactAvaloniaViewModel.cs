@@ -67,7 +67,7 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to contact create form or show dialog
+        // NAV: Navigate to contact create form or show dialog
     }
 
     partial void OnSearchTextChanged(string value)

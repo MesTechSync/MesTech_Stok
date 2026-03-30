@@ -72,7 +72,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Replace with PrintShipmentLabelCommand via MediatR (production: printer service)
+            // DEP: DEV1 — Replace with PrintShipmentLabelCommand via MediatR (production: printer service)
             await Task.CompletedTask;
         }
         catch (Exception ex)
@@ -89,7 +89,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Replace with DownloadShipmentLabelCommand via MediatR (production: file export)
+            // DEP: DEV1 — Replace with DownloadShipmentLabelCommand via MediatR (production: file export)
             await Task.CompletedTask;
         }
         catch (Exception ex)

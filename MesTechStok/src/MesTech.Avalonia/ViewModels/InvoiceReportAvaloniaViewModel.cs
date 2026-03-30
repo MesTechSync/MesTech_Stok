@@ -98,7 +98,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to ExportInvoiceReportCommand (Excel format) via _mediator.Send()
+            // DEP: DEV1 — Wire to ExportInvoiceReportCommand (Excel format) via _mediator.Send()
             await Task.CompletedTask;
         }
         finally { IsLoading = false; }
@@ -110,7 +110,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to ExportInvoiceReportCommand (PDF format) via _mediator.Send()
+            // DEP: DEV1 — Wire to ExportInvoiceReportCommand (PDF format) via _mediator.Send()
             await Task.CompletedTask;
         }
         finally { IsLoading = false; }

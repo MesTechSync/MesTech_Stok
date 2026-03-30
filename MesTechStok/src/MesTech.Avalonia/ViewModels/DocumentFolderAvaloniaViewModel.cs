@@ -61,7 +61,7 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to folder create dialog
+        // NAV: Navigate to folder create dialog
     }
 
     partial void OnSelectedFolderChanged(DocFolderItemVm? value)

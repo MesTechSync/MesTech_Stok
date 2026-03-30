@@ -81,7 +81,7 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void Add()
     {
-        // TODO: Navigate to deal create form or show dialog
+        // NAV: Navigate to deal create form or show dialog
     }
 }
 

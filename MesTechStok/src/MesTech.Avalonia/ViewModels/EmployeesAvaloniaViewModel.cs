@@ -61,7 +61,7 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // TODO: Open employee create dialog
+        // NAV: Open employee create dialog
         await Task.CompletedTask;
     }
 

@@ -63,7 +63,7 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // TODO: Open bank account create dialog
+        // NAV: Open bank account create dialog
         await Task.CompletedTask;
     }
 

@@ -118,7 +118,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // TODO: Wire to ExportReportCommand
+            // DEP: DEV1 — Wire to ExportReportCommand
         }
         catch (Exception ex)
         {

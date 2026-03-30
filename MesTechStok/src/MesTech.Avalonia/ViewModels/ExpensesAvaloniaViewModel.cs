@@ -62,7 +62,7 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // TODO: Open expense entry dialog
+        // NAV: Open expense entry dialog
         await Task.CompletedTask;
     }
 

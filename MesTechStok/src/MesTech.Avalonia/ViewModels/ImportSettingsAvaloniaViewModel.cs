@@ -105,7 +105,7 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            // TODO: Replace with SaveImportTemplateCommand via MediatR (DEV 1 handler gerekli)
+            // DEP: DEV1 — Replace with SaveImportTemplateCommand via MediatR (DEV 1 handler gerekli)
             IsEditing = false;
             SaveCompleted = true;
             await LoadAsync();

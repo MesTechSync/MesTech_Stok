@@ -49,7 +49,7 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // TODO: Open contact create dialog
+        // NAV: Open contact create dialog
         await Task.CompletedTask;
     }
 

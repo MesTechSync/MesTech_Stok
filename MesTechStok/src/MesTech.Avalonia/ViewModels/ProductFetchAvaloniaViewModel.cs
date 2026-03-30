@@ -77,7 +77,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // TODO: Replace with FetchProductFromPlatformQuery via MediatR (DEV 3 adapter)
+            // DEP: DEV1 — Replace with FetchProductFromPlatformQuery via MediatR (DEV 3 adapter)
 
             FetchedName = "Samsung Galaxy S24 Ultra 256GB";
             FetchedPrice = 64_999.00m;
@@ -107,7 +107,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         HasError = false;
         try
         {
-            // TODO: Replace with CreateProductCommand via MediatR (DEV 1 handler)
+            // DEP: DEV1 — Replace with CreateProductCommand via MediatR (DEV 1 handler)
             SaveCompleted = true;
         }
         catch (Exception ex)

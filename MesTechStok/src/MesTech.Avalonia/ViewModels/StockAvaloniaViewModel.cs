@@ -52,7 +52,7 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddMovement()
     {
-        // TODO: Open stock movement dialog
+        // NAV: Open stock movement dialog
         await Task.CompletedTask;
     }
 
