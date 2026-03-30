@@ -119,7 +119,6 @@ public static class SocialFeedEndpoints
         })
         .WithName("ScheduleFeedRefresh")
         .WithSummary("Platform feed otomatik yenileme aralığını ayarla").Produces(200).Produces(400);
-    }
 
         // POST /api/v1/social-feeds/refresh/{configId} — feed yenileme tetikle
         group.MapPost("/refresh/{configId:guid}", async (
