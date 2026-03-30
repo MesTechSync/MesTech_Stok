@@ -85,6 +85,9 @@ public static class HangfireConfig
         // Parasut invoice sync (DEV 3 — DI registration eksikti)
         services.AddScoped<ParasutInvoiceSyncJob>();
 
+        // KVKK data retention (G496 FIX — DI registration eksikti)
+        services.AddScoped<DataRetentionJob>();
+
         return services;
     }
 
@@ -286,6 +289,14 @@ public static class HangfireConfig
             "crm-expire-loyalty-points",
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Daily(2));
+
+        // === KVKK — Kişisel Veri Saklama Süresi Denetimi (G496 FIX) ===
+
+        // Her gece 03:00 — süresi dolan kişisel verileri anonimleştir
+        RecurringJob.AddOrUpdate<DataRetentionJob>(
+            "kvkk-data-retention",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(3));
 
         // === Billing — Abonelik Yenileme & Dunning ===
 
