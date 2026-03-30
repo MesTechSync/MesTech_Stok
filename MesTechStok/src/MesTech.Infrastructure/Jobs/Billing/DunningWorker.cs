@@ -17,6 +17,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 public sealed class DunningWorker
 {
     public const string JobId = "dunning-escalation";
+    private const string ServerInitiatedIp = "127.0.0.1";
 
     private readonly ITenantSubscriptionRepository _subscriptionRepository;
     private readonly IDunningLogRepository _dunningLogRepository;
@@ -169,7 +170,7 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: "127.0.0.1" /* server-initiated payment */),
+                    CustomerIp: ServerInitiatedIp),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;
@@ -238,7 +239,7 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: "127.0.0.1" /* server-initiated payment */),
+                    CustomerIp: ServerInitiatedIp),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;
