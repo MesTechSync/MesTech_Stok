@@ -50,6 +50,15 @@ public sealed record SyncResponse(Guid Id, int SyncedCount);
 /// <summary>Calendar generation response — { year: int, eventsCreated: int }.</summary>
 public sealed record CalendarGenerationResponse(int Year, int EventsCreated);
 
+/// <summary>Row version update response — { newRowVersion: uint }.</summary>
+public sealed record RowVersionResponse(byte[]? NewRowVersion);
+
+/// <summary>Deleted count response — { deletedCount: int }.</summary>
+public sealed record DeletedCountResponse(int DeletedCount);
+
+/// <summary>Supported platforms response — { platforms: list, count: int }.</summary>
+public sealed record SupportedPlatformsResponse(IReadOnlyList<string> Platforms, int Count);
+
 /// <summary>Chart.js compatible dataset — { labels: string[], datasets: ChartDataset[] }.</summary>
 public sealed record ChartResponse(string[] Labels, IReadOnlyList<ChartDataset> Datasets);
 

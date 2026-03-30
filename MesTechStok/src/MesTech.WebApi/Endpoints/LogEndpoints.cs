@@ -63,7 +63,7 @@ public static class LogEndpoints
         {
             var count = await mediator.Send(
                 new CleanOldLogsCommand(tenantId, daysToKeep ?? 90), ct);
-            return Results.Ok(new { deletedCount = count });
+            return Results.Ok(new MesTech.Application.DTOs.DeletedCountResponse(count));
         })
         .WithName("CleanOldLogs")
         .WithSummary("Eski log kayıtlarını temizle (varsayılan: 90 gün)")

@@ -59,7 +59,7 @@ public static class SettlementEndpoints
         group.MapGet("/platforms", (
             Application.Interfaces.Accounting.ISettlementParserFactory factory) =>
         {
-            return Results.Ok(new { platforms = factory.SupportedPlatforms, count = factory.SupportedPlatforms.Count });
+            return Results.Ok(new MesTech.Application.DTOs.SupportedPlatformsResponse(factory.SupportedPlatforms, factory.SupportedPlatforms.Count));
         })
         .WithName("GetSettlementPlatforms")
         .WithSummary("Desteklenen mutabakat platformları listesi")
