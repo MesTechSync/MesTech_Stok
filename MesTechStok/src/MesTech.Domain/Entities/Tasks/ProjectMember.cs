@@ -2,8 +2,9 @@ using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Entities.Tasks;
 
-public sealed class ProjectMember : BaseEntity
+public sealed class ProjectMember : BaseEntity, ITenantEntity
 {
+    public Guid TenantId { get; set; }
     public Guid ProjectId { get; private set; }
     public Guid UserId { get; private set; }
     public string Role { get; private set; } = "Member"; // Owner, Manager, Member, Viewer
@@ -12,6 +13,6 @@ public sealed class ProjectMember : BaseEntity
 
     private ProjectMember() { }
 
-    public static ProjectMember Create(Guid projectId, Guid userId, string role = "Member")
-        => new() { Id = Guid.NewGuid(), ProjectId = projectId, UserId = userId, Role = role, CreatedAt = DateTime.UtcNow };
+    public static ProjectMember Create(Guid tenantId, Guid projectId, Guid userId, string role = "Member")
+        => new() { Id = Guid.NewGuid(), TenantId = tenantId, ProjectId = projectId, UserId = userId, Role = role, CreatedAt = DateTime.UtcNow };
 }

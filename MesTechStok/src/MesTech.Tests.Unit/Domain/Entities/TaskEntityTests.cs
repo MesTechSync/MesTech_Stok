@@ -195,8 +195,10 @@ public class TaskEntityTests
     public void ProjectMember_Create_SetsDefaultMemberRole()
     {
         var projectId = Guid.NewGuid();
-        var member = ProjectMember.Create(projectId, UserId);
+        var tenantId = Guid.NewGuid();
+        var member = ProjectMember.Create(tenantId, projectId, UserId);
 
+        member.TenantId.Should().Be(tenantId);
         member.ProjectId.Should().Be(projectId);
         member.UserId.Should().Be(UserId);
         member.Role.Should().Be("Member");
@@ -205,7 +207,7 @@ public class TaskEntityTests
     [Fact]
     public void ProjectMember_Create_WithCustomRole_SetsRole()
     {
-        var member = ProjectMember.Create(Guid.NewGuid(), UserId, "Owner");
+        var member = ProjectMember.Create(Guid.NewGuid(), Guid.NewGuid(), UserId, "Owner");
 
         member.Role.Should().Be("Owner");
     }
