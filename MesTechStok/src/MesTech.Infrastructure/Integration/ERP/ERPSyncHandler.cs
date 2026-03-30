@@ -105,7 +105,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
 
         try
         {
-            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+            var order = await _orderRepository.GetByIdAsync(orderId, ct).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning("[ERPSync] Order not found: {OrderId}", orderId);
@@ -190,7 +190,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
     {
         _logger.LogInformation("[ERPSync] Hangfire retry: OrderId={OrderId}", orderId);
 
-        var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+        var order = await _orderRepository.GetByIdAsync(orderId, ct).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogWarning("[ERPSync] Retry: Order not found — {OrderId}", orderId);

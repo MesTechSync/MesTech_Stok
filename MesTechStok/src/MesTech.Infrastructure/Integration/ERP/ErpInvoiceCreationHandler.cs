@@ -109,7 +109,7 @@ public sealed class ErpInvoiceCreationHandler
             }
 
             // 5. Fetch order for customer + line item data
-            var order = await _orderRepo.GetByIdAsync(invoice.OrderId).ConfigureAwait(false);
+            var order = await _orderRepo.GetByIdAsync(invoice.OrderId, cancellationToken).ConfigureAwait(false);
 
             // 6. Create sync log entry
             var syncLog = ErpSyncLog.Create(

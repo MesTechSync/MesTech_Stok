@@ -45,7 +45,7 @@ public sealed class AutoShipmentService : IAutoShipmentService
         _logger.LogInformation("AutoShipment processing order {OrderId}", orderId);
 
         // Step 1: Load order from repository
-        var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+        var order = await _orderRepository.GetByIdAsync(orderId, ct).ConfigureAwait(false);
 
         if (order is null)
         {

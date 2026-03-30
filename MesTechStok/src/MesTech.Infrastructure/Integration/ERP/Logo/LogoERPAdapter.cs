@@ -288,7 +288,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+            var order = await _orderRepository.GetByIdAsync(orderId, ct).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning(

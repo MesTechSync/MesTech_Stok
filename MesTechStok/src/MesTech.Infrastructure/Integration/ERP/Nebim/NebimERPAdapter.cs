@@ -77,7 +77,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 #pragma warning disable CA1031 // Intentional: ERP sync failure must be returned, not propagated
         try
         {
-            var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false);
+            var order = await _orderRepository.GetByIdAsync(orderId, ct).ConfigureAwait(false);
             if (order is null)
             {
                 _logger.LogWarning(
