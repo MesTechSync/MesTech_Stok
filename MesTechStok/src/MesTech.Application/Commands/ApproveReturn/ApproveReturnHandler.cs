@@ -46,16 +46,23 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
         // Auto-restore stock: iade edilen urunlerin stogunu artir
         if (request.AutoRestoreStock && !returnRequest.StockRestored)
         {
+            var productIds = returnRequest.Lines
+                .Where(l => l.ProductId.HasValue && l.Quantity > 0)
+                .Select(l => l.ProductId!.Value)
+                .Distinct()
+                .ToList();
+
+            // Batch fetch — eliminates N+1 query
+            var products = (await _productRepo.GetByIdsAsync(productIds, cancellationToken))
+                .ToDictionary(p => p.Id);
+
             foreach (var line in returnRequest.Lines)
             {
-                if (line.ProductId.HasValue && line.Quantity > 0)
+                if (line.ProductId.HasValue && line.Quantity > 0
+                    && products.TryGetValue(line.ProductId.Value, out var product))
                 {
-                    var product = await _productRepo.GetByIdAsync(line.ProductId.Value);
-                    if (product is not null)
-                    {
-                        product.AdjustStock(line.Quantity, StockMovementType.StockIn);
-                        await _productRepo.UpdateAsync(product);
-                    }
+                    product.AdjustStock(line.Quantity, StockMovementType.StockIn);
+                    await _productRepo.UpdateAsync(product);
                 }
             }
 

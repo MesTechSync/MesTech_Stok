@@ -25,20 +25,9 @@ public sealed class MarkAllUserNotificationsReadHandler
         MarkAllUserNotificationsReadCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var unread = await _repository.GetUnreadByUserAsync(
-            request.TenantId,
-            request.UserId,
-            cancellationToken);
 
-        foreach (var notification in unread)
-        {
-            notification.MarkAsRead();
-            await _repository.UpdateAsync(notification, cancellationToken);
-        }
-
-        if (unread.Count > 0)
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return unread.Count;
+        // Bulk update — single SQL query instead of N+1 (fetch all + update each)
+        return await _repository.MarkAllAsReadAsync(
+            request.TenantId, request.UserId, cancellationToken);
     }
 }

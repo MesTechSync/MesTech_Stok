@@ -37,6 +37,12 @@ public interface IUserNotificationRepository
         Guid userId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Kullanicinin tum okunmamis bildirimlerini toplu okundu isaretler.
+    /// Tek SQL sorgusu ile — N+1 query yerine bulk update.
+    /// </summary>
+    Task<int> MarkAllAsReadAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+
     Task AddAsync(UserNotification notification, CancellationToken cancellationToken = default);
     Task UpdateAsync(UserNotification notification, CancellationToken cancellationToken = default);
 }

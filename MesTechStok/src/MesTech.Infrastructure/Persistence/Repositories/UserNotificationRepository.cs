@@ -45,6 +45,14 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
             .OrderByDescending(n => n.CreatedAt)
             .AsNoTracking().ToListAsync(cancellationToken);
 
+    public async Task<int> MarkAllAsReadAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+        => await _db.UserNotifications
+            .Where(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(n => n.IsRead, true)
+                .SetProperty(n => n.ReadAt, DateTime.UtcNow)
+                .SetProperty(n => n.UpdatedAt, DateTime.UtcNow), cancellationToken);
+
     public async Task AddAsync(UserNotification notification, CancellationToken cancellationToken = default)
         => await _db.UserNotifications.AddAsync(notification, cancellationToken);
 
