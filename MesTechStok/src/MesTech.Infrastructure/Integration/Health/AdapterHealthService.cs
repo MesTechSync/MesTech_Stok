@@ -15,15 +15,18 @@ public sealed class AdapterHealthService
 {
     private readonly IEnumerable<IIntegratorAdapter> _adapters;
     private readonly IEnumerable<IERPAdapter> _erpAdapters;
+    private readonly IEnumerable<ICargoAdapter> _cargoAdapters;
     private readonly ILogger<AdapterHealthService> _logger;
 
     public AdapterHealthService(
         IEnumerable<IIntegratorAdapter> adapters,
         IEnumerable<IERPAdapter> erpAdapters,
+        IEnumerable<ICargoAdapter> cargoAdapters,
         ILogger<AdapterHealthService> logger)
     {
         _adapters = adapters;
         _erpAdapters = erpAdapters;
+        _cargoAdapters = cargoAdapters;
         _logger = logger;
     }
 
@@ -31,7 +34,8 @@ public sealed class AdapterHealthService
     {
         var platformTasks = _adapters.Select(a => CheckSingleAdapterAsync(a, ct));
         var erpTasks = _erpAdapters.Select(a => CheckSingleErpAsync(a, ct));
-        var results = await Task.WhenAll(platformTasks.Concat(erpTasks)).ConfigureAwait(false);
+        var cargoTasks = _cargoAdapters.Select(a => CheckSingleCargoAsync(a, ct));
+        var results = await Task.WhenAll(platformTasks.Concat(erpTasks).Concat(cargoTasks)).ConfigureAwait(false);
 
         return new AdapterHealthReport
         {
@@ -117,6 +121,33 @@ public sealed class AdapterHealthService
             sw.Stop();
             _logger.LogWarning(ex, "ERP health check failed: {ERP}", erp.ERPName);
             return new AdapterHealthResult($"ERP:{erp.ERPName}", false, sw.ElapsedMilliseconds, $"Error: {ex.Message}");
+        }
+    }
+    private async Task<AdapterHealthResult> CheckSingleCargoAsync(
+        ICargoAdapter cargo, CancellationToken ct)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(10));
+
+            var isHealthy = await cargo.IsAvailableAsync(cts.Token).ConfigureAwait(false);
+            sw.Stop();
+            return new AdapterHealthResult(
+                $"Cargo:{cargo.Provider}", isHealthy, sw.ElapsedMilliseconds,
+                isHealthy ? "OK — available" : "Unreachable");
+        }
+        catch (OperationCanceledException)
+        {
+            sw.Stop();
+            return new AdapterHealthResult($"Cargo:{cargo.Provider}", false, sw.ElapsedMilliseconds, "Timeout (10s)");
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            _logger.LogWarning(ex, "Cargo health check failed: {Provider}", cargo.Provider);
+            return new AdapterHealthResult($"Cargo:{cargo.Provider}", false, sw.ElapsedMilliseconds, $"Error: {ex.Message}");
         }
     }
 }
