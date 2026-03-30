@@ -216,6 +216,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+    c.OperationFilter<MesTech.WebApi.Filters.SwaggerDefaultResponsesFilter>();
 });
 
 // CORS — environment-aware production config (A-M2-08)
