@@ -516,7 +516,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError(
+                        "Trendyol PullOrders page {Page} failed: {Status} — {FetchedCount} orders fetched so far (PARTIAL DATA). Error: {Error}",
+                        page, response.StatusCode, orders.Count, errorBody);
                     break;
                 }
 
