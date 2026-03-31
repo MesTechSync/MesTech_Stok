@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.Commands.CreateCustomer;
 using MesTech.Application.Commands.UpdateCustomer;
+using MesTech.Application.Features.Crm.Commands.ExportCustomers;
 using MesTech.Application.Queries.GetCustomersPaged;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -63,5 +64,21 @@ public static class CustomerEndpoints
         .WithSummary("Müşteri bilgilerini güncelle")
         .Produces(200)
         .Produces(400);
+
+        // POST /api/v1/customers/export — müşteri listesi dışa aktarım (G564)
+        group.MapPost("/export", async (
+            ExportCustomersCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (result.FileData.Length == 0)
+                return Results.Problem(detail: "Export produced no data", statusCode: 400);
+            return Results.File(result.FileData,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                result.FileName);
+        })
+        .WithName("ExportCustomers")
+        .WithSummary("Müşteri listesini Excel'e aktar (xlsx/csv)")
+        .Produces(200).Produces(400);
     }
 }
