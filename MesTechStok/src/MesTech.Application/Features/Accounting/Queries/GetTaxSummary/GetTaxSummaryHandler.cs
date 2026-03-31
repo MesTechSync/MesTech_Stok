@@ -18,7 +18,7 @@ public sealed class GetTaxSummaryHandler : IRequestHandler<GetTaxSummaryQuery, T
     public async Task<TaxSummaryDto> Handle(GetTaxSummaryQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var records = await _taxRecordRepo.GetByPeriodAsync(request.TenantId, request.Period, cancellationToken);
+        var records = await _taxRecordRepo.GetByPeriodAsync(request.TenantId, request.Period, cancellationToken).ConfigureAwait(false);
 
         return new TaxSummaryDto
         {

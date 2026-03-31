@@ -19,8 +19,8 @@ public sealed class CreateAccountingExpenseHandler : IRequestHandler<CreateAccou
         var expense = PersonalExpense.Create(
             request.TenantId, request.Title, request.Amount, request.ExpenseDate, request.Source, request.Category);
 
-        await _repository.AddAsync(expense, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(expense, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return expense.Id;
     }
 }

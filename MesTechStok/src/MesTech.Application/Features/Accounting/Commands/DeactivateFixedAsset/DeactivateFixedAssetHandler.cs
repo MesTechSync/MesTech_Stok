@@ -23,8 +23,8 @@ public sealed class DeactivateFixedAssetHandler : IRequestHandler<DeactivateFixe
 
         asset.Deactivate();
 
-        await _repository.UpdateAsync(asset, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(asset, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

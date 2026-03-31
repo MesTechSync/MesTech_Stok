@@ -35,31 +35,31 @@ public sealed class ApproveReconciliationHandler : IRequestHandler<ApproveReconc
 
         match.Approve(request.ReviewedBy.ToString());
 
-        await _matchRepo.UpdateAsync(match, cancellationToken);
+        await _matchRepo.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
 
         // Mark bank transaction as reconciled
         if (match.BankTransactionId.HasValue)
         {
-            var bankTx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken);
+            var bankTx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken).ConfigureAwait(false);
             if (bankTx != null)
             {
                 bankTx.MarkReconciled();
-                await _bankTxRepo.UpdateAsync(bankTx, cancellationToken);
+                await _bankTxRepo.UpdateAsync(bankTx, cancellationToken).ConfigureAwait(false);
             }
         }
 
         // Mark settlement batch as reconciled
         if (match.SettlementBatchId.HasValue)
         {
-            var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
+            var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken).ConfigureAwait(false);
             if (batch != null)
             {
                 batch.MarkReconciled();
-                await _settlementRepo.UpdateAsync(batch, cancellationToken);
+                await _settlementRepo.UpdateAsync(batch, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

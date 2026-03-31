@@ -41,18 +41,18 @@ public sealed class RunReconciliationHandler : IRequestHandler<RunReconciliation
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(request.TenantId, cancellationToken);
-        var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(request.TenantId, cancellationToken);
+        var unmatchedBatches = await _settlementRepo.GetUnmatchedAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
+        var unreconciledTxs = await _bankTxRepo.GetUnreconciledAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         var counters = new ReconciliationCounters();
         var matchedTxIds = new HashSet<Guid>();
 
         foreach (var batch in unmatchedBatches)
         {
-            await ProcessBatchAsync(batch, unreconciledTxs, matchedTxIds, counters, request.TenantId, cancellationToken);
+            await ProcessBatchAsync(batch, unreconciledTxs, matchedTxIds, counters, request.TenantId, cancellationToken).ConfigureAwait(false);
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new RunReconciliationResult
         {
@@ -76,13 +76,13 @@ public sealed class RunReconciliationHandler : IRequestHandler<RunReconciliation
 
         if (bestScore >= _scoringService.AutoMatchThreshold && bestTx != null)
         {
-            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.AutoMatched, batch, bestTx, matchedTxIds, cancellationToken);
+            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.AutoMatched, batch, bestTx, matchedTxIds, cancellationToken).ConfigureAwait(false);
             counters.AutoMatchedCount++;
             counters.AutoMatchedTotal += batch.TotalNet;
         }
         else if (bestScore >= _scoringService.ReviewThreshold && bestTx != null)
         {
-            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.NeedsReview, batch, bestTx, matchedTxIds, cancellationToken);
+            await CreateMatchAsync(tenantId, bestScore, ReconciliationStatus.NeedsReview, batch, bestTx, matchedTxIds, cancellationToken).ConfigureAwait(false);
             counters.NeedsReviewCount++;
             counters.NeedsReviewTotal += batch.TotalNet;
         }
@@ -140,15 +140,15 @@ public sealed class RunReconciliationHandler : IRequestHandler<RunReconciliation
             batch.Id,
             bestTx.Id);
 
-        await _matchRepo.AddAsync(match, cancellationToken);
+        await _matchRepo.AddAsync(match, cancellationToken).ConfigureAwait(false);
 
         bestTx.MarkReconciled();
-        await _bankTxRepo.UpdateAsync(bestTx, cancellationToken);
+        await _bankTxRepo.UpdateAsync(bestTx, cancellationToken).ConfigureAwait(false);
 
         if (status == ReconciliationStatus.AutoMatched)
         {
             batch.MarkReconciled();
-            await _settlementRepo.UpdateAsync(batch, cancellationToken);
+            await _settlementRepo.UpdateAsync(batch, cancellationToken).ConfigureAwait(false);
         }
 
         matchedTxIds.Add(bestTx.Id);

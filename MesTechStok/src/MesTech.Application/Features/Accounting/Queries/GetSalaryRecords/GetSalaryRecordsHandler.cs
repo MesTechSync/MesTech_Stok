@@ -15,7 +15,7 @@ public sealed class GetSalaryRecordsHandler : IRequestHandler<GetSalaryRecordsQu
     public async Task<IReadOnlyList<SalaryRecordDto>> Handle(GetSalaryRecordsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var records = await _repository.GetAllAsync(request.TenantId, request.Year, request.Month, cancellationToken);
+        var records = await _repository.GetAllAsync(request.TenantId, request.Year, request.Month, cancellationToken).ConfigureAwait(false);
         return records.Adapt<List<SalaryRecordDto>>().AsReadOnly();
     }
 }

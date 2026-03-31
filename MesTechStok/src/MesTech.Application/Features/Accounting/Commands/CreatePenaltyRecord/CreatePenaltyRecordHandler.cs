@@ -28,8 +28,8 @@ public sealed class CreatePenaltyRecordHandler : IRequestHandler<CreatePenaltyRe
             request.Currency,
             request.Notes);
 
-        await _repository.AddAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return record.Id;
     }
 }

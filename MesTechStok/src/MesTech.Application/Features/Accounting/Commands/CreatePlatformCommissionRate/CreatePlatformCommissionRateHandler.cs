@@ -33,8 +33,8 @@ public sealed class CreatePlatformCommissionRateHandler : IRequestHandler<Create
             Notes = request.Notes
         };
 
-        await _repository.AddAsync(commission, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(commission, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return commission.Id;
     }
 }

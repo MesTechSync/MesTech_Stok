@@ -15,14 +15,14 @@ public sealed class DeleteChartOfAccountHandler : IRequestHandler<DeleteChartOfA
     public async Task<bool> Handle(DeleteChartOfAccountCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var account = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var account = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (account == null) return false;
 
         // Domain guard: throws InvalidOperationException if IsSystem=true
         account.MarkDeleted(request.DeletedBy);
 
-        await _repository.UpdateAsync(account, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(account, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

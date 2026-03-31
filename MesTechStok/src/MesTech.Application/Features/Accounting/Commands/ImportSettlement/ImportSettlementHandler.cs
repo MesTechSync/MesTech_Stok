@@ -29,8 +29,8 @@ public sealed class ImportSettlementHandler : IRequestHandler<ImportSettlementCo
             batch.AddLine(settlementLine);
         }
 
-        await _repository.AddAsync(batch, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(batch, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return batch.Id;
     }
 }

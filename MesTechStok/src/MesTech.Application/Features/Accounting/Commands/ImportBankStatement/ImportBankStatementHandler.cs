@@ -39,8 +39,8 @@ public sealed class ImportBankStatementHandler : IRequestHandler<ImportBankState
 
         if (transactions.Count > 0)
         {
-            await _repository.AddRangeAsync(transactions, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _repository.AddRangeAsync(transactions, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return importedCount;

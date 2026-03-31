@@ -15,7 +15,7 @@ public sealed class GetFixedExpenseByIdHandler : IRequestHandler<GetFixedExpense
     public async Task<FixedExpenseDto?> Handle(GetFixedExpenseByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var expense = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var expense = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         return expense?.Adapt<FixedExpenseDto>();
     }
 }

@@ -30,10 +30,10 @@ public sealed class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuer
     public async Task<TrialBalanceDto> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var accounts = await _accountRepo.GetAllAsync(request.TenantId, isActive: true, cancellationToken);
+        var accounts = await _accountRepo.GetAllAsync(request.TenantId, isActive: true, cancellationToken).ConfigureAwait(false);
 
-        var openingLines = await GetPostedLinesAsync(request.TenantId, DateTime.MinValue, request.StartDate.AddDays(-1), cancellationToken);
-        var periodLines = await GetPostedLinesAsync(request.TenantId, request.StartDate, request.EndDate, cancellationToken);
+        var openingLines = await GetPostedLinesAsync(request.TenantId, DateTime.MinValue, request.StartDate.AddDays(-1), cancellationToken).ConfigureAwait(false);
+        var periodLines = await GetPostedLinesAsync(request.TenantId, request.StartDate, request.EndDate, cancellationToken).ConfigureAwait(false);
 
         var lines = BuildTrialBalanceLines(accounts, openingLines, periodLines);
         var sortedLines = lines.OrderBy(l => l.AccountCode, StringComparer.Ordinal).ToList();
@@ -58,7 +58,7 @@ public sealed class GetTrialBalanceHandler : IRequestHandler<GetTrialBalanceQuer
         DateTime to,
         CancellationToken cancellationToken)
     {
-        var entries = await _journalRepo.GetByDateRangeAsync(tenantId, from, to, cancellationToken);
+        var entries = await _journalRepo.GetByDateRangeAsync(tenantId, from, to, cancellationToken).ConfigureAwait(false);
         return entries
             .Where(e => e.IsPosted)
             .SelectMany(e => e.Lines)

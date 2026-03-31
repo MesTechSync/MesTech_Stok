@@ -21,7 +21,7 @@ public sealed class CreateAccountingBankAccountHandler : IRequestHandler<CreateA
             request.BankName, request.IBAN, request.AccountNumber, request.IsDefault, request.StoreId);
 
         // BankAccount DbSet — UnitOfWork SaveChanges ile kayit yapilir.
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return bankAccount.Id;
     }
 }

@@ -19,7 +19,7 @@ public sealed class GetSettlementBatchesHandler : IRequestHandler<GetSettlementB
 
         var batches = !string.IsNullOrWhiteSpace(request.Platform)
             ? await _repository.GetByPlatformAsync(request.TenantId, request.Platform, cancellationToken)
-            : await _repository.GetByDateRangeAsync(request.TenantId, from, to, cancellationToken);
+            : await _repository.GetByDateRangeAsync(request.TenantId, from, to, cancellationToken).ConfigureAwait(false);
 
         return batches.Select(b => new SettlementBatchDto
         {

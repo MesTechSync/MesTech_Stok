@@ -24,8 +24,8 @@ public sealed class CreateJournalEntryHandler : IRequestHandler<CreateJournalEnt
 
         entry.Validate();
 
-        await _repository.AddAsync(entry, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(entry, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return entry.Id;
     }
 }

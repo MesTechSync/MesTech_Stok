@@ -15,14 +15,14 @@ public sealed class UpdateChartOfAccountHandler : IRequestHandler<UpdateChartOfA
     public async Task<bool> Handle(UpdateChartOfAccountCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var account = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var account = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (account == null) return false;
 
         // Domain guard: throws if IsSystem=true
         account.UpdateName(request.Name);
 
-        await _repository.UpdateAsync(account, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(account, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

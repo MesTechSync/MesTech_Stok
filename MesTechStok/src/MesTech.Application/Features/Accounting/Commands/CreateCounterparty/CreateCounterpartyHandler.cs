@@ -20,8 +20,8 @@ public sealed class CreateCounterpartyHandler : IRequestHandler<CreateCounterpar
             request.TenantId, request.Name, request.CounterpartyType,
             request.VKN, request.Phone, request.Email, request.Address, request.Platform);
 
-        await _repository.AddAsync(counterparty, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(counterparty, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return counterparty.Id;
     }
 }

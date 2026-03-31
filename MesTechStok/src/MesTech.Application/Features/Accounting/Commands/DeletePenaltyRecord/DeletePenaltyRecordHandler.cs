@@ -20,7 +20,7 @@ public sealed class DeletePenaltyRecordHandler : IRequestHandler<DeletePenaltyRe
         record.IsDeleted = true;
         record.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

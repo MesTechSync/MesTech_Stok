@@ -54,7 +54,7 @@ public sealed class GetKdvDeclarationDraftHandler
         var periodEnd = periodStart.AddMonths(1);
 
         // 1. Fetch tax records for the period
-        var taxRecords = await _taxRecordRepo.GetByPeriodAsync(tenantId, period, cancellationToken);
+        var taxRecords = await _taxRecordRepo.GetByPeriodAsync(tenantId, period, cancellationToken).ConfigureAwait(false);
 
         // 2. Calculate Output KDV (Hesaplanan)
         var salesKdv = taxRecords

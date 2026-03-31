@@ -20,7 +20,7 @@ public sealed class UpdateTaxRecordHandler : IRequestHandler<UpdateTaxRecordComm
         if (request.MarkAsPaid)
             record.MarkAsPaid();
 
-        await _repository.UpdateAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

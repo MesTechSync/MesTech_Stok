@@ -14,7 +14,7 @@ public sealed class GetCounterpartiesHandler : IRequestHandler<GetCounterparties
     public async Task<IReadOnlyList<CounterpartyDto>> Handle(GetCounterpartiesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var items = await _repository.GetAllAsync(request.TenantId, request.Type, request.IsActive, cancellationToken);
+        var items = await _repository.GetAllAsync(request.TenantId, request.Type, request.IsActive, cancellationToken).ConfigureAwait(false);
         return items.Select(c => new CounterpartyDto
         {
             Id = c.Id,

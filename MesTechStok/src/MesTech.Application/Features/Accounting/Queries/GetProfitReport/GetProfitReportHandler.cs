@@ -19,7 +19,7 @@ public sealed class GetProfitReportHandler : IRequestHandler<GetProfitReportQuer
     public async Task<ProfitReportDto?> Handle(GetProfitReportQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var reports = await _repository.GetByPeriodAsync(request.TenantId, request.Period, request.Platform, cancellationToken);
+        var reports = await _repository.GetByPeriodAsync(request.TenantId, request.Period, request.Platform, cancellationToken).ConfigureAwait(false);
         var report = reports.Count > 0 ? reports[0] : null;
 
         if (report == null) return null;

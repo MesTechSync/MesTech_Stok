@@ -19,8 +19,8 @@ public sealed class CreateFinancialGoalHandler : IRequestHandler<CreateFinancial
         var goal = FinancialGoal.Create(
             request.TenantId, request.Title, request.TargetAmount, request.StartDate, request.EndDate);
 
-        await _repository.AddAsync(goal, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(goal, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return goal.Id;
     }
 }

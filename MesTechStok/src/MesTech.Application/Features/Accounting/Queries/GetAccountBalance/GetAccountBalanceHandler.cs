@@ -20,10 +20,10 @@ public sealed class GetAccountBalanceHandler : IRequestHandler<GetAccountBalance
     public async Task<AccountBalanceDto?> Handle(GetAccountBalanceQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var account = await _accountRepo.GetByIdAsync(request.AccountId, cancellationToken);
+        var account = await _accountRepo.GetByIdAsync(request.AccountId, cancellationToken).ConfigureAwait(false);
         if (account == null) return null;
 
-        var entries = await _journalRepo.GetByAccountIdAsync(request.TenantId, request.AccountId, cancellationToken);
+        var entries = await _journalRepo.GetByAccountIdAsync(request.TenantId, request.AccountId, cancellationToken).ConfigureAwait(false);
 
         var totalDebit = entries.SelectMany(e => e.Lines)
             .Where(l => l.AccountId == request.AccountId)

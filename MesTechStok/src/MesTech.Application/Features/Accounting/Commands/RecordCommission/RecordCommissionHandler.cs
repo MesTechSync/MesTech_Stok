@@ -21,8 +21,8 @@ public sealed class RecordCommissionHandler : IRequestHandler<RecordCommissionCo
             request.CommissionRate, request.CommissionAmount, request.ServiceFee,
             request.OrderId, request.Category);
 
-        await _repository.AddAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return record.Id;
     }
 }
