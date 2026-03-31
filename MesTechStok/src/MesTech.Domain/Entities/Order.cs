@@ -216,6 +216,42 @@ public sealed class Order : BaseEntity, ITenantEntity
     // === Factory Methods ===
 
     /// <summary>
+    /// Manuel sipariş girişi — stok etkisi yok, Pending statüsünde oluşturulur.
+    /// </summary>
+    public static Order CreateManual(
+        Guid tenantId,
+        Guid customerId,
+        string customerName,
+        string? customerEmail,
+        string orderType,
+        string? notes = null,
+        DateTime? requiredDate = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
+
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            OrderNumber = $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpperInvariant()}",
+            CustomerId = customerId,
+            CustomerName = customerName,
+            CustomerEmail = customerEmail,
+            Type = orderType,
+            Notes = notes,
+            OrderDate = DateTime.UtcNow,
+            RequiredDate = requiredDate,
+            Status = OrderStatus.Pending,
+            PaymentStatus = "Pending"
+        };
+
+        order.RaiseDomainEvent(new OrderPlacedEvent(
+            order.Id, tenantId, order.OrderNumber, customerId, 0m, DateTime.UtcNow));
+
+        return order;
+    }
+
+    /// <summary>
     /// Platform siparis verisi ile Order olusturur.
     /// Adapter'dan gelen veriler icin kullanilir.
     /// </summary>

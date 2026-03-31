@@ -16,17 +16,20 @@ namespace MesTech.Integration.Tests.Unit.Stock;
 [Trait("Group", "Order")]
 public class CreateOrderHandlerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
     private readonly Mock<IOrderRepository> _orderRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     public CreateOrderHandlerTests()
     {
         _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>())).Returns(Task.CompletedTask);
         _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(TestTenantId);
     }
 
     private CreateOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _uow.Object);
+        new(_orderRepo.Object, _uow.Object, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_ValidCommand_CreatesOrderAndReturnsSuccess()
