@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MesTech.Infrastructure.Security;
 using Polly;
 using Polly.Retry;
@@ -25,16 +26,19 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenCartAdapter> _logger;
+    private readonly OpenCartOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private string _apiToken = string.Empty;
     private bool _isConfigured;
 
-    public OpenCartAdapter(HttpClient httpClient, ILogger<OpenCartAdapter> logger)
+    public OpenCartAdapter(HttpClient httpClient, ILogger<OpenCartAdapter> logger,
+        IOptions<OpenCartOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(60); // OpenCart self-hosted — slow servers common, 60s prevents false timeout
+        _options = options?.Value ?? new OpenCartOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions

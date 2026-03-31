@@ -14,5 +14,5 @@ public sealed class OpenCartOptions
         Justification = "Explicit false default documents intent for configuration binding.")]
     public bool Enabled { get; set; } = false;
 
-    public int HttpTimeoutSeconds { get; set; } = 30;
+    public int HttpTimeoutSeconds { get; set; } = 60;
 }

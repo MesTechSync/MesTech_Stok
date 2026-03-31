@@ -9,6 +9,7 @@ using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -26,6 +27,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
     private readonly ILogger<HepsiburadaAdapter> _logger;
+    private readonly HepsiburadaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -36,10 +38,11 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private bool _isConfigured;
 
     public HepsiburadaAdapter(HttpClient httpClient, ILogger<HepsiburadaAdapter> logger,
-        HepsiburadaTokenService? tokenService = null)
+        HepsiburadaTokenService? tokenService = null, IOptions<HepsiburadaOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new HepsiburadaOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenService = tokenService;
 

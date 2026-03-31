@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -22,6 +23,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<SendeoCargoAdapter> _logger;
+    private readonly SendeoCargoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
@@ -30,10 +32,12 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
     private string _apiKey = string.Empty;
     private bool _isConfigured;
 
-    public SendeoCargoAdapter(HttpClient httpClient, ILogger<SendeoCargoAdapter> logger)
+    public SendeoCargoAdapter(HttpClient httpClient, ILogger<SendeoCargoAdapter> logger,
+        IOptions<SendeoCargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new SendeoCargoOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
