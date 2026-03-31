@@ -176,10 +176,13 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
 
         // Phase B: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo)
+        if (configuration is not null)
+            services.Configure<MngKargoOptions>(configuration.GetSection(MngKargoOptions.Section));
         services.AddScoped<ICargoAdapter>(sp =>
             new MngKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.MngKargo),
-                sp.GetRequiredService<ILogger<MngKargoAdapter>>()));
+                sp.GetRequiredService<ILogger<MngKargoAdapter>>(),
+                sp.GetService<IOptions<MngKargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new PttKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttKargo),

@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -24,6 +25,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<MngKargoAdapter> _logger;
+    private readonly MngKargoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
@@ -34,10 +36,12 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
     private string _customerCode = string.Empty;
     private bool _isConfigured;
 
-    public MngKargoAdapter(HttpClient httpClient, ILogger<MngKargoAdapter> logger)
+    public MngKargoAdapter(HttpClient httpClient, ILogger<MngKargoAdapter> logger,
+        IOptions<MngKargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new MngKargoOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions
@@ -121,7 +125,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         // Store encoded credentials for per-request auth (thread-safe)
         _basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_apiKey}:{_apiSecret}"));
 
-        var baseUrl = credentials.GetValueOrDefault("BaseUrl", "https://apizone.mngkargo.com.tr/");
+        var baseUrl = credentials.GetValueOrDefault("BaseUrl", _options.BaseUrl);
         if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedUri) ||
             (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
             throw new ArgumentException($"Invalid MngKargo base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
