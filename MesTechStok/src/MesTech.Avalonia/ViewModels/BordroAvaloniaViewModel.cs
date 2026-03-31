@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetSalaryRecords;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
 using MesTech.Domain.Interfaces;
 
@@ -47,19 +48,22 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
+            var monthIndex = Months.IndexOf(SelectedMonth) + 1;
+            int.TryParse(SelectedYear, out var year);
+            var salaries = await _mediator.Send(new GetSalaryRecordsQuery(
+                _currentUser.TenantId, year > 0 ? year : null, monthIndex > 0 ? monthIndex : null));
 
-            _allItems = employees.Select(e => new PayrollItemDto
+            _allItems = salaries.Select(s => new PayrollItemDto
             {
-                EmployeeName = $"{e.EmployeeCode} — {e.JobTitle}",
-                Gross = 0,
-                Net = 0,
-                GrossFormatted = "—",
-                SgkEmployeeFormatted = "—",
-                SgkEmployerFormatted = "—",
-                IncomeTaxFormatted = "—",
-                StampTaxFormatted = "—",
-                NetFormatted = "—"
+                EmployeeName = s.EmployeeName,
+                Gross = s.GrossSalary,
+                Net = s.GrossSalary - s.SGKEmployee - s.IncomeTax - s.StampTax,
+                GrossFormatted = $"{s.GrossSalary:N2} TL",
+                SgkEmployeeFormatted = $"{s.SGKEmployee:N2} TL",
+                SgkEmployerFormatted = $"{s.SGKEmployer:N2} TL",
+                IncomeTaxFormatted = $"{s.IncomeTax:N2} TL",
+                StampTaxFormatted = $"{s.StampTax:N2} TL",
+                NetFormatted = $"{s.GrossSalary - s.SGKEmployee - s.IncomeTax - s.StampTax:N2} TL"
             }).ToList();
 
             var gross = _allItems.Sum(x => x.Gross);
