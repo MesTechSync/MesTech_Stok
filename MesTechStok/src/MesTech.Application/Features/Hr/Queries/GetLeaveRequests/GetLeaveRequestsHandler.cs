@@ -12,9 +12,9 @@ public sealed class GetLeaveRequestsHandler
         => _leaveRepo = leaveRepo;
 
     public async Task<IReadOnlyList<LeaveRequestDto>> Handle(
-        GetLeaveRequestsQuery request, CancellationToken ct)
+        GetLeaveRequestsQuery request, CancellationToken cancellationToken)
     {
-        var leaves = await _leaveRepo.GetByTenantAsync(request.TenantId, request.Status, ct).ConfigureAwait(false);
+        var leaves = await _leaveRepo.GetByTenantAsync(request.TenantId, request.Status, cancellationToken).ConfigureAwait(false);
 
         return leaves.Select(l => new LeaveRequestDto
         {

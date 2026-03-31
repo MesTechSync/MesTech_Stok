@@ -26,13 +26,13 @@ public sealed class TriggerBackupHandler
     }
 
     public async Task<TriggerBackupResult> Handle(
-        TriggerBackupCommand request, CancellationToken ct)
+        TriggerBackupCommand request, CancellationToken cancellationToken)
     {
         var fileName = $"backup_{request.TenantId:N}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bak";
         var entry = BackupEntry.Create(request.TenantId, fileName);
 
-        await _backupRepo.AddAsync(entry, ct).ConfigureAwait(false);
-        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+        await _backupRepo.AddAsync(entry, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new TriggerBackupResult(entry.Id, fileName, entry.Status);
     }
