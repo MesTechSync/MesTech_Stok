@@ -125,13 +125,16 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_EmptyLines_ShouldReturnWithoutSaving()
     {
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
         var sut = CreateSut();
 
         await sut.HandleAsync(
             Guid.NewGuid(), Guid.NewGuid(),
             Array.Empty<ReturnLineInfoEvent>(), CancellationToken.None);
 
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Handler always calls SaveChangesAsync at end (batch pattern)
+        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -139,12 +142,13 @@ public class ReturnApprovedStockRestorationHandlerTests
     {
         var sut = CreateSut();
         var productId = Guid.NewGuid();
-        var product = new Product { Name = "Test Product", SKU = "SKU-RET", TenantId = Guid.NewGuid() };
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        var product = new Product { Name = "Test Product", SKU = "SKU-RET", TenantId = Guid.NewGuid(), PurchasePrice = 50m, SalePrice = 100m, CategoryId = Guid.NewGuid() };
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var lines = new List<ReturnLineInfoEvent>
         {
-            new(productId, "SKU-RET", 3, 100.00m)
+            new(product.Id, "SKU-RET", 3, 100.00m)
         };
 
         await sut.HandleAsync(

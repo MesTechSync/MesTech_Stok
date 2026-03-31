@@ -194,18 +194,20 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_RestoresStock()
     {
-        var productId = Guid.NewGuid();
         var product = new Product
         {
-            Name = "İade Ürün", SKU = "RET-001", Stock = 10,
-            MinimumStock = 5, SalePrice = 100m, IsActive = true
+            Name = "İade Ürün", SKU = "RET-001",
+            MinimumStock = 5, SalePrice = 100m, PurchasePrice = 50m,
+            CategoryId = Guid.NewGuid(), IsActive = true
         };
+        product.AdjustStock(10, StockMovementType.StockIn);
 
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var lines = new List<ReturnLineInfoEvent>
         {
-            new(productId, "RET-001", 3, 100m)
+            new(product.Id, "RET-001", 3, 100m)
         };
 
         await _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), lines, CancellationToken.None);
@@ -217,7 +219,8 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_ProductNotFound_SkipsLine()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var lines = new List<ReturnLineInfoEvent>
         {
