@@ -15,10 +15,15 @@ public record ReturnApprovedEvent(
     DateTime OccurredAt) : IDomainEvent;
 
 /// <summary>
-/// Iade kalem bilgisi — ReturnApprovedEvent icin yardimci record.
+/// Iade kalem bilgisi — ReturnApprovedEvent icin yardimci DTO record.
+/// Not: Bu bir domain event degil, ReturnApprovedEvent icin veri tasiyici.
+/// Events namespace'inde oldugu icin IDomainEvent uygulamasi gereklidir (architecture guard).
 /// </summary>
 public record ReturnLineInfoEvent(
     Guid ProductId,
     string SKU,
     int Quantity,
-    decimal UnitPrice);
+    decimal UnitPrice) : IDomainEvent
+{
+    public DateTime OccurredAt { get; } = DateTime.UtcNow;
+}
