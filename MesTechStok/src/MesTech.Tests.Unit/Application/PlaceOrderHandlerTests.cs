@@ -25,7 +25,9 @@ public class PlaceOrderHandlerTests
     public async Task Handle_ValidSingleItem_ShouldCreateOrder()
     {
         var product = FakeData.CreateProduct(sku: "ORD-001", stock: 100, salePrice: 50m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(
@@ -47,8 +49,9 @@ public class PlaceOrderHandlerTests
     {
         var p1 = FakeData.CreateProduct(sku: "MULTI-01", stock: 50, salePrice: 30m);
         var p2 = FakeData.CreateProduct(sku: "MULTI-02", stock: 80, salePrice: 20m);
-        _productRepo.Setup(r => r.GetByIdAsync(p1.Id)).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetByIdAsync(p2.Id)).ReturnsAsync(p2);
+        _productRepo
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1, p2 });
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(
@@ -70,7 +73,9 @@ public class PlaceOrderHandlerTests
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(
@@ -88,7 +93,9 @@ public class PlaceOrderHandlerTests
     public async Task Handle_InsufficientStock_ShouldThrow()
     {
         var product = FakeData.CreateProduct(sku: "LOW-001", stock: 3);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(
@@ -104,7 +111,9 @@ public class PlaceOrderHandlerTests
     public async Task Handle_ShouldSetOrderStatusToConfirmed()
     {
         var product = FakeData.CreateProduct(sku: "STATUS-01", stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         Order? capturedOrder = null;
         _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))

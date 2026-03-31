@@ -15,12 +15,21 @@ public class BulkUpdateHandlerTests
 {
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public BulkUpdateHandlerTests()
+    {
+        // Default: lock service returns a disposable handle (lock acquired)
+        _lockService
+            .Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private BulkUpdatePriceHandler CreatePriceHandler() =>
         new(_productRepo.Object, _unitOfWork.Object);
 
     private BulkUpdateStockHandler CreateStockHandler() =>
-        new(_productRepo.Object, _unitOfWork.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<BulkUpdateStockHandler>>());
+        new(_productRepo.Object, _unitOfWork.Object, _lockService.Object, Mock.Of<ILogger<BulkUpdateStockHandler>>());
 
     // ── BulkUpdatePrice Tests ──
 
@@ -29,8 +38,9 @@ public class BulkUpdateHandlerTests
     {
         var p1 = FakeData.CreateProduct(sku: "SKU-P001", salePrice: 100m);
         var p2 = FakeData.CreateProduct(sku: "SKU-P002", salePrice: 200m);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-P001")).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-P002")).ReturnsAsync(p2);
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1, p2 });
 
         var command = new BulkUpdatePriceCommand(
         [
@@ -52,8 +62,9 @@ public class BulkUpdateHandlerTests
     public async Task BulkUpdatePrice_OneValidOneUnknownSku_ShouldReturn1Success1Failure()
     {
         var p1 = FakeData.CreateProduct(sku: "SKU-P003", salePrice: 100m);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-P003")).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetBySKUAsync("UNKNOWN-SKU")).ReturnsAsync((Product?)null);
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1 });
 
         var command = new BulkUpdatePriceCommand(
         [
@@ -73,6 +84,10 @@ public class BulkUpdateHandlerTests
     [Fact]
     public async Task BulkUpdatePrice_PriceZeroOrNegative_ShouldFailWithValidationReason()
     {
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdatePriceCommand(
         [
             new BulkUpdatePriceItem("SKU-P004", 0m)
@@ -84,13 +99,15 @@ public class BulkUpdateHandlerTests
         result.FailedCount.Should().Be(1);
         result.Failures[0].Sku.Should().Be("SKU-P004");
         result.Failures[0].Reason.Should().Contain("greater than 0");
-        _productRepo.Verify(r => r.GetBySKUAsync(It.IsAny<string>()), Times.Never,
-            "Repository should not be called when price is invalid");
     }
 
     [Fact]
     public async Task BulkUpdatePrice_NegativePrice_ShouldFailWithValidationReason()
     {
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdatePriceCommand(
         [
             new BulkUpdatePriceItem("SKU-P005", -10m)
@@ -107,6 +124,10 @@ public class BulkUpdateHandlerTests
     [Fact]
     public async Task BulkUpdatePrice_EmptyList_ShouldReturnZeroCounts()
     {
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdatePriceCommand([]);
 
         var result = await CreatePriceHandler().Handle(command, CancellationToken.None);
@@ -114,7 +135,6 @@ public class BulkUpdateHandlerTests
         result.SuccessCount.Should().Be(0);
         result.FailedCount.Should().Be(0);
         result.Failures.Should().BeEmpty();
-        _productRepo.Verify(r => r.GetBySKUAsync(It.IsAny<string>()), Times.Never);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -125,8 +145,9 @@ public class BulkUpdateHandlerTests
     {
         var p1 = FakeData.CreateProduct(sku: "SKU-S001", stock: 10);
         var p2 = FakeData.CreateProduct(sku: "SKU-S002", stock: 20);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-S001")).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-S002")).ReturnsAsync(p2);
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1, p2 });
 
         var command = new BulkUpdateStockCommand(
         [
@@ -147,7 +168,9 @@ public class BulkUpdateHandlerTests
     [Fact]
     public async Task BulkUpdateStock_UnknownSku_ShouldFailWithSkuNotFound()
     {
-        _productRepo.Setup(r => r.GetBySKUAsync("GHOST-SKU")).ReturnsAsync((Product?)null);
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var command = new BulkUpdateStockCommand(
         [
@@ -165,6 +188,10 @@ public class BulkUpdateHandlerTests
     [Fact]
     public async Task BulkUpdateStock_NegativeStock_ShouldFailWithNegativeReason()
     {
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdateStockCommand(
         [
             new BulkUpdateStockItem("SKU-S003", -5)
@@ -176,13 +203,15 @@ public class BulkUpdateHandlerTests
         result.FailedCount.Should().Be(1);
         result.Failures[0].Sku.Should().Be("SKU-S003");
         result.Failures[0].Reason.Should().Contain("negative");
-        _productRepo.Verify(r => r.GetBySKUAsync(It.IsAny<string>()), Times.Never,
-            "Repository should not be called when stock is invalid");
     }
 
     [Fact]
     public async Task BulkUpdateStock_EmptyList_ShouldReturnZeroCounts()
     {
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdateStockCommand([]);
 
         var result = await CreateStockHandler().Handle(command, CancellationToken.None);
@@ -190,7 +219,6 @@ public class BulkUpdateHandlerTests
         result.SuccessCount.Should().Be(0);
         result.FailedCount.Should().Be(0);
         result.Failures.Should().BeEmpty();
-        _productRepo.Verify(r => r.GetBySKUAsync(It.IsAny<string>()), Times.Never);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -198,7 +226,9 @@ public class BulkUpdateHandlerTests
     public async Task BulkUpdateStock_ZeroStock_ShouldSucceed()
     {
         var p1 = FakeData.CreateProduct(sku: "SKU-S004", stock: 50);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-S004")).ReturnsAsync(p1);
+        _productRepo
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1 });
 
         var command = new BulkUpdateStockCommand(
         [

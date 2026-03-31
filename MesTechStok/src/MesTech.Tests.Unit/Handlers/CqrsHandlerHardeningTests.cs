@@ -140,6 +140,10 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task PlaceOrderHandler_EmptyItems_HandlesGracefully()
     {
+        _productRepoMock
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var stockCalc = new StockCalculationService();
         var handler = new PlaceOrderHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
@@ -266,7 +270,7 @@ public class CqrsHandlerHardeningTests
         };
         order.MarkAsShipped("TR12345", CargoProvider.YurticiKargo);
         var orderId = order.Id; // use auto-generated Id
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
 
         var handler = new AutoShipOrderHandler(
             _orderRepoMock.Object, _autoShipmentServiceMock.Object,
@@ -607,6 +611,10 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task BulkUpdatePriceHandler_EmptyItems_ReturnsZeroCounts()
     {
+        _productRepoMock
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var handler = new BulkUpdatePriceHandler(_productRepoMock.Object, _uowMock.Object);
 
         var command = new BulkUpdatePriceCommand(
@@ -633,7 +641,16 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task BulkUpdateStockHandler_NegativeStock_ReportsFailure()
     {
-        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object, new Mock<MesTech.Application.Interfaces.IDistributedLockService>().Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<BulkUpdateStockHandler>.Instance);
+        _productRepoMock
+            .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
+        var lockMock = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        lockMock
+            .Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+
+        var handler = new BulkUpdateStockHandler(_productRepoMock.Object, _uowMock.Object, lockMock.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<BulkUpdateStockHandler>.Instance);
 
         var command = new BulkUpdateStockCommand(
             Items: new[] { new BulkUpdateStockItem("SKU-001", -10) });
@@ -663,7 +680,7 @@ public class CqrsHandlerHardeningTests
     }
 
     [Fact]
-    public async Task ImportBankStatementHandler_ZeroAmountTransaction_Succeeds()
+    public async Task ImportBankStatementHandler_ZeroAmountTransaction_ThrowsArgumentOutOfRange()
     {
         var handler = new ImportBankStatementHandler(_bankTxRepoMock.Object, _uowMock.Object);
 
@@ -675,9 +692,9 @@ public class CqrsHandlerHardeningTests
                 new(DateTime.UtcNow, 0m, "Zero amount", null, null)
             });
 
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.Should().Be(1);
+        // Domain entity BankTransaction.Create rejects zero amounts
+        var act = () => handler.Handle(command, CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 
     // ------------ 17. CreateCounterparty (CreateCustomer/CreateContact) ------------
