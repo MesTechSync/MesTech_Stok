@@ -2,13 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Documents.Queries.GetDocuments;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string? selectedType;
@@ -17,9 +19,10 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DocumentItemVm> Documents { get; } = [];
     public string[] TypeOptions { get; } = ["Tumu", "PDF", "DOCX", "XLSX", "PNG"];
 
-    public DocumentManagerAvaloniaViewModel(IMediator mediator)
+    public DocumentManagerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -30,13 +33,22 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var result = await _mediator.Send(new GetDocumentsQuery(_currentUser.TenantId));
             Documents.Clear();
-            Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "sozlesme_abc_ltd.pdf", Folder = "Sozlesmeler", Size = "245 KB", Type = "PDF", UploadedBy = "Fatih I.", UploadedAt = DateTime.Now.AddDays(-3) });
-            Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "teklif_xyz_as.docx", Folder = "Teklifler", Size = "128 KB", Type = "DOCX", UploadedBy = "Mehmet C.", UploadedAt = DateTime.Now.AddDays(-5) });
-            Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "fatura_2026_001.pdf", Folder = "Faturalar", Size = "89 KB", Type = "PDF", UploadedBy = "Ayse K.", UploadedAt = DateTime.Now.AddDays(-1) });
-            Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "stok_raporu_mart.xlsx", Folder = "Raporlar", Size = "512 KB", Type = "XLSX", UploadedBy = "Ali K.", UploadedAt = DateTime.Now.AddDays(-2) });
-            Documents.Add(new DocumentItemVm { Id = Guid.NewGuid(), Name = "logo_mestech.png", Folder = "Genel", Size = "34 KB", Type = "PNG", UploadedBy = "Fatih I.", UploadedAt = DateTime.Now.AddDays(-30) });
-            TotalCount = Documents.Count;
+            foreach (var doc in result.Documents)
+            {
+                Documents.Add(new DocumentItemVm
+                {
+                    Id = doc.Id,
+                    Name = doc.FileName,
+                    Folder = "—",
+                    Size = "—",
+                    Type = doc.MimeType ?? "—",
+                    UploadedBy = "—",
+                    UploadedAt = DateTime.Now
+                });
+            }
+            TotalCount = result.TotalCount;
             IsEmpty = Documents.Count == 0;
         }
         catch (Exception ex)
