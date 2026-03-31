@@ -46,7 +46,7 @@ public partial class WelcomeWindow : Window
 
         // Clock timer — every second
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _clockTimer.Tick += (_, _) => _vm.UpdateClock();
+        _clockTimer.Tick += OnClockTimerTick;
         _clockTimer.Start();
 
         // Image rotation timer — every 8 seconds
@@ -119,8 +119,12 @@ public partial class WelcomeWindow : Window
         Close();
     }
 
+    private void OnClockTimerTick(object? sender, EventArgs e) => _vm?.UpdateClock();
+
     private void StopTimers()
     {
+        if (_clockTimer is not null) _clockTimer.Tick -= OnClockTimerTick;
+        if (_imageTimer is not null) _imageTimer.Tick -= OnImageTimerTick;
         _clockTimer?.Stop();
         _imageTimer?.Stop();
         _transitionTimer?.Stop();
