@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetExpenseReport;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Stock.Queries.GetStockSummary;
 using MesTech.Domain.Interfaces;
@@ -73,8 +74,10 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
 
             // Revenue Report
             TotalRevenue = $"{dashboard.MonthlySalesAmount:N0} TL";
-            TotalExpenses = "—"; // DEP: DEV1 — wire to GetExpenseReportQuery when available
-            NetProfit = "—";
+            var expenses = await _mediator.Send(new GetExpenseReportQuery(
+                _currentUser.TenantId, DateTime.Now.AddMonths(-1), DateTime.Now));
+            TotalExpenses = $"{expenses.TotalExpenses:N0} TL";
+            NetProfit = $"{dashboard.MonthlySalesAmount - expenses.TotalExpenses:N0} TL";
 
             Summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
         }
