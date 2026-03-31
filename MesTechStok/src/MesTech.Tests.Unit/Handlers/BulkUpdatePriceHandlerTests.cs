@@ -24,7 +24,8 @@ public class BulkUpdatePriceHandlerTests
     public async Task Handle_ValidPrice_UpdatesAndSaves()
     {
         var product = new Product { SKU = "SKU-P1", SalePrice = 100m };
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-P1")).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var command = new BulkUpdatePriceCommand(
             new[] { new BulkUpdatePriceItem("SKU-P1", 150m) });
@@ -39,6 +40,9 @@ public class BulkUpdatePriceHandlerTests
     [Fact]
     public async Task Handle_ZeroPrice_ReturnsFailure()
     {
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdatePriceCommand(
             new[] { new BulkUpdatePriceItem("SKU-Z", 0m) });
 
@@ -51,6 +55,9 @@ public class BulkUpdatePriceHandlerTests
     [Fact]
     public async Task Handle_NegativePrice_ReturnsFailure()
     {
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var command = new BulkUpdatePriceCommand(
             new[] { new BulkUpdatePriceItem("SKU-N", -10m) });
 
@@ -62,7 +69,8 @@ public class BulkUpdatePriceHandlerTests
     [Fact]
     public async Task Handle_SkuNotFound_ReturnsFailure()
     {
-        _productRepo.Setup(r => r.GetBySKUAsync("GHOST")).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var command = new BulkUpdatePriceCommand(
             new[] { new BulkUpdatePriceItem("GHOST", 99m) });
