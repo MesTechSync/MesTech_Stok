@@ -7,7 +7,7 @@ namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
 /// <summary>
 /// Amazon EU settlement parser — aynı SP-API TSV formatını kullanır.
 /// AmazonTR parser'ı delegate eder, sadece Platform property farklı.
-/// Settlement 14/16 → 15/16 (Bitrix24 CRM — settlement uygulanamaz).
+/// Settlement 15/15 (Bitrix24 CRM — settlement uygulanamaz).
 /// </summary>
 public sealed class AmazonEuSettlementParser : ISettlementParser
 {
@@ -22,6 +22,9 @@ public sealed class AmazonEuSettlementParser : ISettlementParser
 
     public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
         => _inner.ParseAsync(rawData, format, ct);
+
+    public Task<SettlementBatch> ParseAsync(Guid tenantId, Stream rawData, string format, CancellationToken ct = default)
+        => _inner.ParseAsync(tenantId, rawData, format, ct);
 
     public Task<IReadOnlyList<SettlementLine>> ParseLinesAsync(SettlementBatch batch, CancellationToken ct = default)
         => _inner.ParseLinesAsync(batch, ct);
