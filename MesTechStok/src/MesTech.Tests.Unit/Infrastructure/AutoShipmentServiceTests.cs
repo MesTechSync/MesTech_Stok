@@ -41,14 +41,18 @@ public class AutoShipmentServiceTests
         _cargoAdapterMock = new Mock<ICargoAdapter>();
         _shipmentAdapterMock = new Mock<IShipmentCapableAdapter>();
 
-        // Default: return an order for any GetByIdAsync call
+        // Default: return an order for any GetByIdAsync call (both overloads)
+        var testOrder = new Order
+        {
+            CustomerName = "Test Customer",
+            SourcePlatform = PlatformType.Trendyol
+        };
         _orderRepoMock
             .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new Order
-            {
-                CustomerName = "Test Customer",
-                SourcePlatform = PlatformType.Trendyol
-            });
+            .ReturnsAsync(testOrder);
+        _orderRepoMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(testOrder);
 
         _sut = new AutoShipmentService(
             _selectorMock.Object,
