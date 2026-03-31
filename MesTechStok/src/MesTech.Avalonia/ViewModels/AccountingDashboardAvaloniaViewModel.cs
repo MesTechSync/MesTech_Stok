@@ -3,6 +3,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
 using MesTech.Domain.Interfaces;
 
@@ -19,6 +20,8 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string totalExpense = "0,00 TL";
     [ObservableProperty] private string netProfit = "0,00 TL";
     [ObservableProperty] private string balance = "0,00 TL";
+    [ObservableProperty] private string totalAssets = "0,00 TL";
+    [ObservableProperty] private string totalLiabilities = "0,00 TL";
     [ObservableProperty] private string lastUpdated = "--:--";
 
     public ObservableCollection<AccountingTransactionDto> RecentTransactions { get; } = [];
@@ -50,6 +53,15 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
             NetProfit = profit.ToString("N2", TrCulture) + " TL";
             Balance = (revenue - summary.TotalExpenses).ToString("N2", TrCulture) + " TL";
             LastUpdated = now.ToString("HH:mm:ss");
+
+            // Balance sheet KPIs (G540 orphan wire)
+            try
+            {
+                var bs = await _mediator.Send(new GetBalanceSheetQuery(_currentUser.TenantId, now));
+                TotalAssets = bs.Assets.Total.ToString("N2", TrCulture) + " TL";
+                TotalLiabilities = bs.Liabilities.Total.ToString("N2", TrCulture) + " TL";
+            }
+            catch { /* Balance sheet optional — ignore if handler not ready */ }
 
             RecentTransactions.Clear();
             foreach (var p in summary.SalesByPlatform)
