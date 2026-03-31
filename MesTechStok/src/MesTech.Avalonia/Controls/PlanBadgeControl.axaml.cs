@@ -102,6 +102,7 @@ public partial class PlanBadgeControl : UserControl
 
     protected override void OnDetachedFromVisualTree(global::Avalonia.VisualTreeAttachmentEventArgs e)
     {
+        Loaded -= OnLoaded;
         if (_featureGate is not null)
             _featureGate.TierChanged -= OnTierChanged;
         base.OnDetachedFromVisualTree(e);
