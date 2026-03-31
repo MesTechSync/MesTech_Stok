@@ -137,7 +137,7 @@ public class GoogleMerchantFeedAdapterTests : IntegrationTestBase
     // ════ 4. GenerateFeed_PriceFormat_TRY ════
 
     [Fact]
-    public async Task GenerateFeed_PriceFormat_TRY()
+    public void GenerateFeed_PriceFormat_TRY()
     {
         // Arrange — build XML using the same static helpers as the adapter
         var product = new Product

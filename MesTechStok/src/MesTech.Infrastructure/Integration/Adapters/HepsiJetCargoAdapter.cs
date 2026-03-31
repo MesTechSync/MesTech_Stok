@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -23,6 +24,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<HepsiJetCargoAdapter> _logger;
+    private readonly HepsiJetCargoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
@@ -35,10 +37,12 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     private DateTime _tokenExpiry = DateTime.MinValue;
     private bool _isConfigured;
 
-    public HepsiJetCargoAdapter(HttpClient httpClient, ILogger<HepsiJetCargoAdapter> logger)
+    public HepsiJetCargoAdapter(HttpClient httpClient, ILogger<HepsiJetCargoAdapter> logger,
+        IOptions<HepsiJetCargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new HepsiJetCargoOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions

@@ -328,7 +328,7 @@ public class RemainingQueryTests
     }
 
     [Fact]
-    public async Task GetQuotationByIdHandler_NullRepo_ThrowsArgumentNullException()
+    public void GetQuotationByIdHandler_NullRepo_ThrowsArgumentNullException()
     {
         var act = () => new GetQuotationByIdHandler(null!);
         act.Should().Throw<ArgumentNullException>();

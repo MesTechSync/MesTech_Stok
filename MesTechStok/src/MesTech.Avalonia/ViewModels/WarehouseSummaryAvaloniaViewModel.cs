@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Queries.GetWarehouseSummary;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,15 +16,17 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private int totalWarehouses;
 
     public ObservableCollection<WarehouseSummaryCardDto> WarehouseCards { get; } = [];
 
-    public WarehouseSummaryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public WarehouseSummaryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -68,9 +71,9 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void ShowDetail()
+    private async Task ShowDetail()
     {
-        // NAV: Navigate to warehouse detail view
+        await _dialog.ShowInfoAsync("Depo detay sayfasi yakinda aktif olacak.", "MesTech");
     }
 }
 

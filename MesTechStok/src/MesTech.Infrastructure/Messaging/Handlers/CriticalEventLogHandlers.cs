@@ -12,11 +12,16 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public sealed class OrderShippedLogHandler : INotificationHandler<DomainEventNotification<OrderShippedEvent>>
 {
     private readonly IMediator _mediator;
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<OrderShippedLogHandler> _logger;
 
-    public OrderShippedLogHandler(IMediator mediator, ILogger<OrderShippedLogHandler> logger)
+    public OrderShippedLogHandler(
+        IMediator mediator,
+        IIntegrationEventPublisher publisher,
+        ILogger<OrderShippedLogHandler> logger)
     {
         _mediator = mediator;
+        _publisher = publisher;
         _logger = logger;
     }
 
@@ -26,6 +31,10 @@ public sealed class OrderShippedLogHandler : INotificationHandler<DomainEventNot
         _logger.LogInformation(
             "[Event] OrderShipped — OrderId={OrderId}, Tracking={Tracking}, Provider={Provider}",
             e.OrderId, e.TrackingNumber, e.CargoProvider);
+
+        await _publisher.PublishOrderShippedAsync(
+            e.OrderId, e.TrackingNumber, e.CargoProvider.ToString(), ct)
+            .ConfigureAwait(false);
 
         try
         {

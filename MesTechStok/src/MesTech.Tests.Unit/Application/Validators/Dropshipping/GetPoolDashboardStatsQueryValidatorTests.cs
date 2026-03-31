@@ -1,0 +1,22 @@
+using FluentAssertions;
+using MesTech.Application.Features.Dropshipping.Queries;
+using Xunit;
+
+namespace MesTech.Tests.Unit.Application.Validators.Dropshipping;
+
+[Trait("Category", "Unit")]
+[Trait("Feature", "Validators")]
+public class GetPoolDashboardStatsQueryValidatorTests
+{
+    private readonly GetPoolDashboardStatsQueryValidator _sut = new();
+
+    [Fact]
+    public async Task ValidInput_ShouldPass()
+    {
+        var input = CreateValidQuery();
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeTrue();
+    }
+
+    private static GetPoolDashboardStatsQuery CreateValidQuery() => new();
+}

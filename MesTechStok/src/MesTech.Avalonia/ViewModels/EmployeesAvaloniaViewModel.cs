@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -14,6 +15,7 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
     private List<EmployeeDto> _allEmployees = [];
 
     [ObservableProperty] private ObservableCollection<EmployeeDto> employees = [];
@@ -21,10 +23,11 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
 
-    public EmployeesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public EmployeesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
         Title = "Calisanlar";
     }
 
@@ -61,8 +64,7 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // NAV: Open employee create dialog
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     [RelayCommand]

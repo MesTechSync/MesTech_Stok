@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Documents.Queries.GetDocuments;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -14,15 +15,17 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private ObservableCollection<DocumentListDto> documents = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string summary = string.Empty;
 
-    public DocumentsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public DocumentsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
         Title = "Belgeler";
     }
 
@@ -43,8 +46,7 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Upload()
     {
-        // NAV: File picker + upload via MediatR command
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     [RelayCommand]

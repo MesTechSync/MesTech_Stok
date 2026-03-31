@@ -211,17 +211,22 @@ public sealed class EInvoiceCreatedBridgeHandler
 }
 
 /// <summary>
-/// EInvoiceCancelledEvent → E-fatura iptal loglama + bildirim.
+/// EInvoiceCancelledEvent → E-fatura iptal loglama + bildirim + integration publish.
 /// </summary>
 public sealed class EInvoiceCancelledBridgeHandler
     : INotificationHandler<DomainEventNotification<EInvoiceCancelledEvent>>
 {
     private readonly IMediator _mediator;
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<EInvoiceCancelledBridgeHandler> _logger;
 
-    public EInvoiceCancelledBridgeHandler(IMediator mediator, ILogger<EInvoiceCancelledBridgeHandler> logger)
+    public EInvoiceCancelledBridgeHandler(
+        IMediator mediator,
+        IIntegrationEventPublisher publisher,
+        ILogger<EInvoiceCancelledBridgeHandler> logger)
     {
         _mediator = mediator;
+        _publisher = publisher;
         _logger = logger;
     }
 
@@ -231,6 +236,10 @@ public sealed class EInvoiceCancelledBridgeHandler
         _logger.LogWarning(
             "[Event] EInvoiceCancelled — EInvoiceId={EInvoiceId}, ETTN={ETTN}, Reason={Reason}",
             e.EInvoiceId, e.EttnNo, e.Reason);
+
+        await _publisher.PublishEInvoiceCancelledAsync(
+            e.EInvoiceId, e.EttnNo, e.Reason, ct)
+            .ConfigureAwait(false);
 
         try
         {
@@ -256,18 +265,27 @@ public sealed class EInvoiceCancelledBridgeHandler
 public sealed class EInvoiceSentBridgeHandler
     : INotificationHandler<DomainEventNotification<EInvoiceSentEvent>>
 {
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<EInvoiceSentBridgeHandler> _logger;
 
-    public EInvoiceSentBridgeHandler(ILogger<EInvoiceSentBridgeHandler> logger)
-        => _logger = logger;
+    public EInvoiceSentBridgeHandler(
+        IIntegrationEventPublisher publisher,
+        ILogger<EInvoiceSentBridgeHandler> logger)
+    {
+        _publisher = publisher;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<EInvoiceSentEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<EInvoiceSentEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] EInvoiceSent — EInvoiceId={EInvoiceId}, ETTN={ETTN}, ProviderRef={Ref}",
             e.EInvoiceId, e.EttnNo, e.ProviderRef);
-        return Task.CompletedTask;
+
+        await _publisher.PublishEInvoiceSentAsync(
+            e.EInvoiceId, e.EttnNo, e.ProviderRef ?? "unknown", 0m, "TRY", ct)
+            .ConfigureAwait(false);
     }
 }
 
@@ -282,18 +300,27 @@ public sealed class EInvoiceSentBridgeHandler
 public sealed class ProductUpdatedBridgeHandler
     : INotificationHandler<DomainEventNotification<ProductUpdatedEvent>>
 {
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<ProductUpdatedBridgeHandler> _logger;
 
-    public ProductUpdatedBridgeHandler(ILogger<ProductUpdatedBridgeHandler> logger)
-        => _logger = logger;
+    public ProductUpdatedBridgeHandler(
+        IIntegrationEventPublisher publisher,
+        ILogger<ProductUpdatedBridgeHandler> logger)
+    {
+        _publisher = publisher;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<ProductUpdatedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<ProductUpdatedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] ProductUpdated — ProductId={ProductId}, SKU={SKU}",
             e.ProductId, e.SKU);
-        return Task.CompletedTask;
+
+        await _publisher.PublishProductUpdatedAsync(
+            e.ProductId, e.SKU, "general", ct)
+            .ConfigureAwait(false);
     }
 }
 

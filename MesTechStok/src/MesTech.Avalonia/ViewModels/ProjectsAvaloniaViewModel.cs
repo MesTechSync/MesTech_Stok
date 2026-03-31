@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Tasks.Queries.GetProjects;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,6 +12,7 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -20,10 +22,11 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<ProjectItemVm> Projects { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Planlandi", "Devam Ediyor", "Tamamlandi", "Beklemede"];
 
-    public ProjectsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public ProjectsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -71,9 +74,9 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to project create form
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     partial void OnSelectedStatusChanged(string? value)

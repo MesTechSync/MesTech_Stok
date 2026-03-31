@@ -2,13 +2,17 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Documents.Queries.GetDocumentFolders;
+using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly IDialogService _dialog;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private DocFolderItemVm? selectedFolder;
     [ObservableProperty] private int totalCount;
@@ -16,9 +20,11 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DocFolderItemVm> Folders { get; } = [];
     public ObservableCollection<DocFileItemVm> Files { get; } = [];
 
-    public DocumentFolderAvaloniaViewModel(IMediator mediator)
+    public DocumentFolderAvaloniaViewModel(IMediator mediator, IDialogService dialog, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _dialog = dialog;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -29,19 +35,20 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var result = await _mediator.Send(new GetDocumentFoldersQuery(_currentUser.TenantId));
             Folders.Clear();
             Files.Clear();
-
-            Folders.Add(new DocFolderItemVm { Id = Guid.NewGuid(), Name = "Sozlesmeler", FileCount = 12, Icon = "F" });
-            Folders.Add(new DocFolderItemVm { Id = Guid.NewGuid(), Name = "Teklifler", FileCount = 8, Icon = "F" });
-            Folders.Add(new DocFolderItemVm { Id = Guid.NewGuid(), Name = "Faturalar", FileCount = 45, Icon = "F" });
-            Folders.Add(new DocFolderItemVm { Id = Guid.NewGuid(), Name = "Raporlar", FileCount = 6, Icon = "F" });
-
-            Files.Add(new DocFileItemVm { Id = Guid.NewGuid(), Name = "sozlesme_abc_ltd.pdf", Size = "245 KB", ModifiedAt = DateTime.Now.AddDays(-3), Type = "PDF" });
-            Files.Add(new DocFileItemVm { Id = Guid.NewGuid(), Name = "teklif_xyz_as.docx", Size = "128 KB", ModifiedAt = DateTime.Now.AddDays(-5), Type = "DOCX" });
-            Files.Add(new DocFileItemVm { Id = Guid.NewGuid(), Name = "fatura_2026_001.pdf", Size = "89 KB", ModifiedAt = DateTime.Now.AddDays(-1), Type = "PDF" });
-
-            TotalCount = Folders.Count;
+            foreach (var f in result.Folders)
+            {
+                Folders.Add(new DocFolderItemVm
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    FileCount = f.DocumentCount,
+                    Icon = "F"
+                });
+            }
+            TotalCount = result.TotalCount;
             IsEmpty = Folders.Count == 0 && Files.Count == 0;
         }
         catch (Exception ex)
@@ -59,9 +66,9 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to folder create dialog
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     partial void OnSelectedFolderChanged(DocFolderItemVm? value)

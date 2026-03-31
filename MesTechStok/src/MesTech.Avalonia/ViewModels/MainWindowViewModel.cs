@@ -11,7 +11,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// Uses IViewModelFactory (proper DI) instead of raw IServiceProvider (ServiceLocator).
 /// FeatureGateService controls sidebar item visibility per subscription tier.
 /// </summary>
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, INavigationService
 {
     [ObservableProperty]
     private ObservableObject? currentView;
@@ -230,6 +230,9 @@ public partial class MainWindowViewModel : ViewModelBase
             _ => CurrentViewTitle
         };
     }
+
+    // INavigationService implementation — delegates to existing NavigateTo
+    Task INavigationService.NavigateToAsync(string viewName) => NavigateTo(viewName);
 
     protected override void OnDispose()
     {

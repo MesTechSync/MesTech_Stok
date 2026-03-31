@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -22,6 +23,7 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ArasKargoAdapter> _logger;
+    private readonly ArasKargoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(15, 15);
@@ -31,10 +33,12 @@ public sealed class ArasKargoAdapter : ICargoAdapter, ICargoRateProvider
     private string _userAgent = string.Empty;
     private bool _isConfigured;
 
-    public ArasKargoAdapter(HttpClient httpClient, ILogger<ArasKargoAdapter> logger)
+    public ArasKargoAdapter(HttpClient httpClient, ILogger<ArasKargoAdapter> logger,
+        IOptions<ArasKargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new ArasKargoOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _jsonOptions = new JsonSerializerOptions

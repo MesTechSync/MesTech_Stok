@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Documents.Queries.GetDocuments;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,6 +12,7 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string? selectedType;
@@ -19,10 +21,11 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DocumentItemVm> Documents { get; } = [];
     public string[] TypeOptions { get; } = ["Tumu", "PDF", "DOCX", "XLSX", "PNG"];
 
-    public DocumentManagerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public DocumentManagerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -72,9 +75,9 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Upload()
+    private async Task Upload()
     {
-        // NAV: Open file picker and upload document
+        await _dialog.ShowInfoAsync("Dosya yukleme yakinda aktif olacak.", "MesTech");
     }
 }
 

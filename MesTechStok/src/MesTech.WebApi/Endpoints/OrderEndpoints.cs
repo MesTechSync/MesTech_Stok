@@ -1,8 +1,10 @@
 using MesTech.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
+using MesTech.Application.Commands.CancelOrder;
 using MesTech.Application.Commands.PlaceOrder;
 using MesTech.Application.Commands.PushOrderToBitrix24;
+using MesTech.Application.Commands.UpdateOrderStatus;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
@@ -138,5 +140,43 @@ public static class OrderEndpoints
         .WithSummary("Siparişleri Excel'e aktar (tarih + platform filtresi)")
         .Produces(200)
         .Produces(400);
+
+        // PUT /api/v1/orders/{id}/status — sipariş durumu güncelle (G528)
+        group.MapPut("/{id:guid}/status", async (
+            Guid id,
+            UpdateOrderStatusCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            if (id != command.OrderId)
+                return Results.BadRequest(ApiResponse<object>.Fail("Route ID and body OrderId mismatch"));
+
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("updated", $"Order {id} status changed to {command.NewStatus}"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("UpdateOrderStatus")
+        .WithSummary("Sipariş durumu güncelle — Place/Ship/Deliver/Complete akışı")
+        .Produces<StatusResponse>(200)
+        .Produces(400);
+
+        // POST /api/v1/orders/{id}/cancel — sipariş iptal (G528)
+        group.MapPost("/{id:guid}/cancel", async (
+            Guid id,
+            CancelOrderRequest? request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new CancelOrderCommand(id, request?.Reason), ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("cancelled", $"Order {id} cancelled"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("CancelOrder")
+        .WithSummary("Sipariş iptal et — iade süreci başlatır")
+        .Produces<StatusResponse>(200)
+        .Produces(400);
     }
+
+    public record CancelOrderRequest(string? Reason);
 }

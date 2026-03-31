@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Hr.Queries.GetDepartments;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,15 +12,17 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<DepartmentItemVm> Departments { get; } = [];
 
-    public DepartmentAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    public DepartmentAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider, IDialogService dialog)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -62,9 +65,9 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to department create form or show dialog
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 }
 

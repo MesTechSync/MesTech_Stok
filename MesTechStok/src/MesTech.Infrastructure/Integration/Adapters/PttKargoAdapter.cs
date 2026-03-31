@@ -7,6 +7,7 @@ using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -25,6 +26,7 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PttKargoAdapter> _logger;
+    private readonly PttKargoOptions _options;
     private readonly SimpleSoapClient _soapClient;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -39,10 +41,12 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
 
     private static readonly XNamespace PttNs = "http://ws.ptt.gov.tr/";
 
-    public PttKargoAdapter(HttpClient httpClient, ILogger<PttKargoAdapter> logger)
+    public PttKargoAdapter(HttpClient httpClient, ILogger<PttKargoAdapter> logger,
+        IOptions<PttKargoOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new PttKargoOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _soapClient = new SimpleSoapClient(httpClient, logger);
 

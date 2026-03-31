@@ -62,20 +62,26 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Trendyol),
                 sp.GetRequiredService<ILogger<TrendyolAdapter>>(),
                 sp.GetService<IOptions<TrendyolOptions>>()));
+        if (configuration is not null)
+            services.Configure<OpenCartOptions>(configuration.GetSection(OpenCartOptions.Section));
         services.AddSingleton<OpenCartAdapter>(sp =>
             new OpenCartAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.OpenCart),
-                sp.GetRequiredService<ILogger<OpenCartAdapter>>()));
+                sp.GetRequiredService<ILogger<OpenCartAdapter>>(),
+                sp.GetService<IOptions<OpenCartOptions>>()));
 
         // Multi-registration: each adapter also registered as IIntegratorAdapter
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<TrendyolAdapter>());
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OpenCartAdapter>());
 
         // Dalga 3: Ciceksepeti + Hepsiburada marketplace adapters
+        if (configuration is not null)
+            services.Configure<CiceksepetiOptions>(configuration.GetSection(CiceksepetiOptions.Section));
         services.AddSingleton<CiceksepetiAdapter>(sp =>
             new CiceksepetiAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ciceksepeti),
-                sp.GetRequiredService<ILogger<CiceksepetiAdapter>>()));
+                sp.GetRequiredService<ILogger<CiceksepetiAdapter>>(),
+                sp.GetService<IOptions<CiceksepetiOptions>>()));
 
         // K1c-02: HepsiburadaTokenService — OAuth token management (55-min cache, auto-refresh)
         services.AddSingleton<HepsiburadaTokenService>(sp =>
@@ -86,11 +92,14 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<ILogger<HepsiburadaTokenService>>()));
 
         // K1c-03: HepsiburadaAdapter now receives HepsiburadaTokenService for OAuth token auth
+        if (configuration is not null)
+            services.Configure<HepsiburadaOptions>(configuration.GetSection(HepsiburadaOptions.Section));
         services.AddSingleton<HepsiburadaAdapter>(sp =>
             new HepsiburadaAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Hepsiburada),
                 sp.GetRequiredService<ILogger<HepsiburadaAdapter>>(),
-                sp.GetRequiredService<HepsiburadaTokenService>()));
+                sp.GetRequiredService<HepsiburadaTokenService>(),
+                sp.GetService<IOptions<HepsiburadaOptions>>()));
 
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<CiceksepetiAdapter>());
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<HepsiburadaAdapter>());
@@ -121,11 +130,14 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<AmazonEuAdapter>());
 
         // Dalga 7: Bitrix24 CRM adapter — OAuth2, deal/contact sync, batch API
+        if (configuration is not null)
+            services.Configure<Bitrix24Options>(configuration.GetSection(Bitrix24Options.Section));
         services.AddSingleton<Bitrix24Adapter>(sp =>
             new Bitrix24Adapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Bitrix24),
                 sp.GetRequiredService<ILogger<Bitrix24Adapter>>(),
-                sp.GetRequiredService<IHttpClientFactory>()));
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetService<IOptions<Bitrix24Options>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
         services.AddSingleton<IBitrix24Adapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
 
@@ -169,18 +181,30 @@ public static class IntegrationServiceRegistration
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.YurticiKargo),
                 sp.GetRequiredService<ILogger<YurticiKargoAdapter>>(),
                 sp.GetService<IOptions<YurticiKargoOptions>>()));
+        if (configuration is not null)
+        {
+            services.Configure<ArasKargoOptions>(configuration.GetSection(ArasKargoOptions.Section));
+            services.Configure<SuratKargoOptions>(configuration.GetSection(SuratKargoOptions.Section));
+        }
         services.AddScoped<ICargoAdapter>(sp =>
             new ArasKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.ArasKargo),
-                sp.GetRequiredService<ILogger<ArasKargoAdapter>>()));
+                sp.GetRequiredService<ILogger<ArasKargoAdapter>>(),
+                sp.GetService<IOptions<ArasKargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new SuratKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.SuratKargo),
-                sp.GetRequiredService<ILogger<SuratKargoAdapter>>()));
+                sp.GetRequiredService<ILogger<SuratKargoAdapter>>(),
+                sp.GetService<IOptions<SuratKargoOptions>>()));
 
         // Phase B: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo)
         if (configuration is not null)
+        {
             services.Configure<MngKargoOptions>(configuration.GetSection(MngKargoOptions.Section));
+            services.Configure<PttKargoOptions>(configuration.GetSection(PttKargoOptions.Section));
+            services.Configure<HepsiJetCargoOptions>(configuration.GetSection(HepsiJetCargoOptions.Section));
+            services.Configure<SendeoCargoOptions>(configuration.GetSection(SendeoCargoOptions.Section));
+        }
         services.AddScoped<ICargoAdapter>(sp =>
             new MngKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.MngKargo),
@@ -189,15 +213,18 @@ public static class IntegrationServiceRegistration
         services.AddScoped<ICargoAdapter>(sp =>
             new PttKargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttKargo),
-                sp.GetRequiredService<ILogger<PttKargoAdapter>>()));
+                sp.GetRequiredService<ILogger<PttKargoAdapter>>(),
+                sp.GetService<IOptions<PttKargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new HepsiJetCargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.HepsiJet),
-                sp.GetRequiredService<ILogger<HepsiJetCargoAdapter>>()));
+                sp.GetRequiredService<ILogger<HepsiJetCargoAdapter>>(),
+                sp.GetService<IOptions<HepsiJetCargoOptions>>()));
         services.AddScoped<ICargoAdapter>(sp =>
             new SendeoCargoAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Sendeo),
-                sp.GetRequiredService<ILogger<SendeoCargoAdapter>>()));
+                sp.GetRequiredService<ILogger<SendeoCargoAdapter>>(),
+                sp.GetService<IOptions<SendeoCargoOptions>>()));
 
         // Decorator: wrap all IIntegratorAdapter registrations with Prometheus instrumentation
         services.DecorateAllIntegratorAdapters();

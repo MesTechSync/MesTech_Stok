@@ -1,7 +1,10 @@
 using MesTech.Application.DTOs;
 using MesTech.Application.Commands.CreateSupplier;
+using MesTech.Application.Commands.DeleteSupplier;
 using MesTech.Application.Commands.UpdateSupplier;
+using MesTech.Application.Queries.GetSupplierById;
 using MesTech.Application.Queries.GetSuppliers;
+using MesTech.Application.Queries.GetSuppliersPaged;
 using MediatR;
 
 namespace MesTech.WebApi.Endpoints;
@@ -57,5 +60,48 @@ public static class SupplierEndpoints
         .WithSummary("Tedarikçi bilgilerini güncelle")
         .Produces(200)
         .Produces(400);
+
+        // GET /api/v1/suppliers/{id} — tedarikçi detayı (G529)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetSupplierByIdQuery(id), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetSupplierById")
+        .WithSummary("Tedarikçi detay bilgisi")
+        .Produces(200)
+        .Produces(404);
+
+        // GET /api/v1/suppliers/paged — sayfalı tedarikçi listesi (G529)
+        group.MapGet("/paged", async (
+            string? searchTerm,
+            int? page,
+            int? pageSize,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetSuppliersPagedQuery(searchTerm, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 200)), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetSuppliersPaged")
+        .WithSummary("Sayfalı tedarikçi listesi — arama destekli")
+        .Produces<PagedSupplierResult>(200);
+
+        // DELETE /api/v1/suppliers/{id} — tedarikçi sil (G529)
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteSupplierCommand(id), ct);
+            return result
+                ? Results.Ok(new StatusResponse("deleted", $"Supplier {id} deleted"))
+                : Results.NotFound();
+        })
+        .WithName("DeleteSupplier")
+        .WithSummary("Tedarikçi sil (soft-delete)")
+        .Produces<StatusResponse>(200)
+        .Produces(404);
     }
 }

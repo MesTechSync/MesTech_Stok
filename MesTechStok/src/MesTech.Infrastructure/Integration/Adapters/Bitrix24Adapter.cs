@@ -9,6 +9,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -27,6 +28,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
     private readonly ILogger<Bitrix24Adapter> _logger;
+    private readonly Bitrix24Options _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -37,12 +39,14 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private string _portalDomain = string.Empty;
     private bool _isConfigured;
 
-    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger, IHttpClientFactory? httpClientFactory = null)
+    public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger,
+        IHttpClientFactory? httpClientFactory = null, IOptions<Bitrix24Options>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new Bitrix24Options();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
         _jsonOptions = new JsonSerializerOptions
         {

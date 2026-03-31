@@ -72,9 +72,10 @@ public class SealedAndImmutabilityTests
             .GetResult();
 
         // Allow up to 10 unsealed entities (BaseEntity descendants that use inheritance)
-        var failCount = result.FailingTypeNames?.Count() ?? 0;
+        var failingNames = result.FailingTypeNames?.ToList() ?? [];
+        var failCount = failingNames.Count;
         failCount.Should().BeLessThan(10,
-            $"Most domain entities should be sealed. Unsealed ({failCount}): {string.Join(", ", result.FailingTypeNames?.Take(10) ?? [])}");
+            $"Most domain entities should be sealed. Unsealed ({failCount}): {string.Join(", ", failingNames.Take(10))}");
     }
 
     // ── 4. Command records should not have mutable properties ────────────────

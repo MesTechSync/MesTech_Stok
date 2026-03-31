@@ -75,7 +75,7 @@ public class InvoiceCancelledReversalHandlerTests
     /// Bu test, bug düzeltildiğinde handler'a taxRate parametresi eklenince güncellenmelidir.
     /// </summary>
     [Fact(DisplayName = "G068: Hardcoded 20% tax causes wrong split for 8% invoice")]
-    public async Task G068_HardcodedTaxRate_ProducesWrongSplitFor8Percent()
+    public void G068_HardcodedTaxRate_ProducesWrongSplitFor8Percent()
     {
         // 1080 TL fatura = 1000 net + 80 KDV (%8)
         // Bug: handler 0.20m kullanıyor → net=900, KDV=180 hesaplar

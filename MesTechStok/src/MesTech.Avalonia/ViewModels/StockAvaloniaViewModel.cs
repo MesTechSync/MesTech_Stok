@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Stock.Queries.GetStockSummary;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -13,6 +14,7 @@ public partial class StockAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private int totalProducts;
     [ObservableProperty] private int totalCount;
@@ -23,10 +25,11 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalUnits;
     [ObservableProperty] private string summary = string.Empty;
 
-    public StockAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public StockAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
         Title = "Stok Yonetimi";
     }
 
@@ -52,8 +55,7 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddMovement()
     {
-        // NAV: Open stock movement dialog
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Stok hareketi ekle yakinda aktif olacak.", "MesTech");
     }
 
     [RelayCommand]

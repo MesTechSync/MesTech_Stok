@@ -18,7 +18,7 @@ public class SupplierFeedSyncJobTests
     private const string SkipReason = "Integration setup gerekli: Testcontainers (PostgreSQL) + WireMock (feed URL) + IFeedParserFactory. Job implementasyonu mevcut — test altyapısı bekliyor.";
 
     [Fact(Skip = SkipReason)]
-    public async Task SyncJob_WithValidFeed_CreatesProducts()
+    public void SyncJob_WithValidFeed_CreatesProducts()
     {
         // Setup:
         // 1. WireMock: serve sample XML feed at /feed/test.xml
@@ -33,7 +33,7 @@ public class SupplierFeedSyncJobTests
     }
 
     [Fact(Skip = SkipReason)]
-    public async Task SyncJob_WithStockZero_DeactivatesProduct()
+    public void SyncJob_WithStockZero_DeactivatesProduct()
     {
         // Setup:
         // 1. Existing product with Stock > 0
@@ -47,7 +47,7 @@ public class SupplierFeedSyncJobTests
     }
 
     [Fact(Skip = SkipReason)]
-    public async Task SyncJob_WithRestock_ReactivatesProduct()
+    public void SyncJob_WithRestock_ReactivatesProduct()
     {
         // Setup:
         // 1. Existing product with IsActive = false, Stock = 0
@@ -61,7 +61,7 @@ public class SupplierFeedSyncJobTests
     }
 
     [Fact(Skip = SkipReason)]
-    public async Task SyncJob_WithMarkup_AppliesPriceCorrectly()
+    public void SyncJob_WithMarkup_AppliesPriceCorrectly()
     {
         // Setup:
         // 1. SupplierFeed: UsePercentMarkup = true, PriceMarkupPercent = 30
@@ -77,7 +77,7 @@ public class SupplierFeedSyncJobTests
     }
 
     [Fact(Skip = SkipReason)]
-    public async Task SyncJob_PublishesEvent()
+    public void SyncJob_PublishesEvent()
     {
         // Setup:
         // 1. Valid feed + SupplierFeed entity
