@@ -1182,3 +1182,51 @@ public sealed class SubscriptionPlanChangedBridgeHandler
 }
 
 #endregion
+
+#region Katalog & Tedarik (DEV6 TUR19 — son 2 orphan event)
+
+/// <summary>
+/// CategoryCreatedEvent → Kategori oluşturma loglama.
+/// DEV6 TUR19: G462 orphan event kapatma.
+/// </summary>
+public sealed class CategoryCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<CategoryCreatedEvent>>
+{
+    private readonly ILogger<CategoryCreatedBridgeHandler> _logger;
+
+    public CategoryCreatedBridgeHandler(ILogger<CategoryCreatedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<CategoryCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] CategoryCreated — CategoryId={CategoryId}, Name={Name}, Code={Code}, TenantId={TenantId}",
+            e.CategoryId, e.CategoryName, e.Code, e.TenantId);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// SupplierCreatedEvent → Tedarikçi oluşturma loglama.
+/// DEV6 TUR19: G462 orphan event kapatma.
+/// </summary>
+public sealed class SupplierCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<SupplierCreatedEvent>>
+{
+    private readonly ILogger<SupplierCreatedBridgeHandler> _logger;
+
+    public SupplierCreatedBridgeHandler(ILogger<SupplierCreatedBridgeHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(DomainEventNotification<SupplierCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] SupplierCreated — SupplierId={SupplierId}, Name={Name}, Code={Code}, TenantId={TenantId}",
+            e.SupplierId, e.SupplierName, e.Code, e.TenantId);
+        return Task.CompletedTask;
+    }
+}
+
+#endregion
