@@ -43,7 +43,7 @@ public sealed class LogoTokenService
         _username = configuration["ERP:Logo:Username"] ?? string.Empty;
         _password = configuration["ERP:Logo:Password"] ?? string.Empty;
         _firmId = configuration["ERP:Logo:FirmId"] ?? string.Empty;
-        _baseUrl = configuration["ERP:Logo:BaseUrl"] ?? "https://localhost/logo-rest/api/";
+        _baseUrl = configuration["ERP:Logo:BaseUrl"] ?? string.Empty;
     }
 
     /// <summary>
