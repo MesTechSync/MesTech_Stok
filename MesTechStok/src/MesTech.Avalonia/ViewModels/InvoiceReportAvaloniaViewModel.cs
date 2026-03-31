@@ -25,6 +25,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
     }
 
     // Period filter
+    [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private DateTimeOffset fromDate = new(new DateTime(2026, 3, 1));
     [ObservableProperty] private DateTimeOffset toDate = new(new DateTime(2026, 3, 19));
     [ObservableProperty] private string selectedPlatform = "Tumu";

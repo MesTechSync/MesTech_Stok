@@ -13,6 +13,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
+    [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private bool hasReportResult;
 
     // Config

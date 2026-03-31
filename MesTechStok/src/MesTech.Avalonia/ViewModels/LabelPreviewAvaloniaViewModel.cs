@@ -18,6 +18,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
 
 
     // Label data
+    [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private Guid shipmentId;
     [ObservableProperty] private string trackingNumber = string.Empty;
     [ObservableProperty] private string cargoProvider = string.Empty;
