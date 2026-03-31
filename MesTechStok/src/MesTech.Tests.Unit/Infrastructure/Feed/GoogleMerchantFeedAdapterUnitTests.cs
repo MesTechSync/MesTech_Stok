@@ -28,7 +28,7 @@ public class GoogleMerchantFeedAdapterUnitTests
     // ── ValidateFeed edge cases ──
 
     [Fact]
-    public async Task ValidateFeed_NullUrl_ReturnsInvalid()
+    public void ValidateFeed_NullUrl_ReturnsInvalid()
     {
         // Verify the validation logic directly — empty/null is rejected
         var errors = new List<string>();
@@ -41,7 +41,7 @@ public class GoogleMerchantFeedAdapterUnitTests
     }
 
     [Fact]
-    public async Task ValidateFeed_RelativeUrl_ReturnsInvalid()
+    public void ValidateFeed_RelativeUrl_ReturnsInvalid()
     {
         // Adapter uses Uri.TryCreate with UriKind.Absolute
         var isValid = Uri.TryCreate("/relative/path.xml", UriKind.Absolute, out _);

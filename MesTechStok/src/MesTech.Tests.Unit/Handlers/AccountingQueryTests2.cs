@@ -193,7 +193,7 @@ public class AccountingQueryTests2
     // ── ValidateBalanceSheetHandler ──
 
     [Fact]
-    public async Task ValidateBalanceSheetHandler_CanBeConstructed()
+    public void ValidateBalanceSheetHandler_CanBeConstructed()
     {
         var sut = new ValidateBalanceSheetHandler(
             new Mock<IChartOfAccountsRepository>().Object,
@@ -206,7 +206,7 @@ public class AccountingQueryTests2
     // ── ValidateTrialBalanceHandler ──
 
     [Fact]
-    public async Task ValidateTrialBalanceHandler_CanBeConstructed()
+    public void ValidateTrialBalanceHandler_CanBeConstructed()
     {
         var sut = new ValidateTrialBalanceHandler(
             new Mock<MesTech.Domain.Interfaces.IJournalEntryRepository>().Object,
