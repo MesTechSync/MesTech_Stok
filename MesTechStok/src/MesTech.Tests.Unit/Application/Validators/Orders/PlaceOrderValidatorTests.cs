@@ -62,9 +62,9 @@ public class PlaceOrderValidatorTests
     }
 
     [Fact]
-    public async Task Notes_WhenExceeds500Chars_ShouldFail()
+    public async Task Notes_WhenExceeds2000Chars_ShouldFail()
     {
-        var cmd = CreateValidCommand() with { Notes = new string('N', 501) };
+        var cmd = CreateValidCommand() with { Notes = new string('N', 2001) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Notes");

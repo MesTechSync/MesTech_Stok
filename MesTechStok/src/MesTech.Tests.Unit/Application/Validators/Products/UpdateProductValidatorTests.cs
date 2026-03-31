@@ -37,18 +37,18 @@ public class UpdateProductValidatorTests
     }
 
     [Fact]
-    public async Task Description_WhenExceeds500Chars_ShouldFail()
+    public async Task Description_WhenExceeds2000Chars_ShouldFail()
     {
-        var cmd = CreateValidCommand() with { Description = new string('D', 501) };
+        var cmd = CreateValidCommand() with { Description = new string('D', 2001) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Description");
     }
 
     [Fact]
-    public async Task Brand_WhenExceeds500Chars_ShouldFail()
+    public async Task Brand_WhenExceeds200Chars_ShouldFail()
     {
-        var cmd = CreateValidCommand() with { Brand = new string('B', 501) };
+        var cmd = CreateValidCommand() with { Brand = new string('B', 201) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Brand");
