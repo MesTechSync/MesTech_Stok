@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
+using MesTech.Application.Features.Platform.Queries.GetOpenCartProducts;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Domain.Enums;
@@ -78,6 +79,24 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
                 RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
             TotalCount = result.ProductCount + result.OrderCount;
             IsEmpty = result.ProductCount == 0 && result.OrderCount == 0;
+
+            // Load Products tab via MediatR
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var store = stores.FirstOrDefault(s => s.PlatformType == PlatformType.OpenCart && s.IsActive);
+            if (store is not null)
+            {
+                var products = await _mediator.Send(new GetOpenCartProductsQuery(_currentUser.TenantId, store.Id));
+                Products.Clear();
+                foreach (var p in products.Products)
+                    Products.Add(new OpenCartProductItem
+                    {
+                        Sku = p.SKU,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Stock = p.Quantity,
+                        InMesTech = true
+                    });
+            }
         }
         catch (Exception ex)
         {
