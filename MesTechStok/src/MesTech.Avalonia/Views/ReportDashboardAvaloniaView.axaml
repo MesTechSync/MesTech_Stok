@@ -86,6 +86,10 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <TextBlock Text="Rapor kategorisi bulunamadı"
+                                   HorizontalAlignment="Center" Margin="0,24"
+                                   Opacity="0.5" FontSize="{StaticResource FontSizeSubtitle}"
+                                   IsVisible="{Binding !ReportCategories.Count}" />
                     </ScrollViewer>
                 </Grid>
             </Border>
