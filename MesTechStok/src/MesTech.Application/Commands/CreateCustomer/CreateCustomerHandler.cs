@@ -8,33 +8,40 @@ public sealed class CreateCustomerHandler : IRequestHandler<CreateCustomerComman
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
-    public CreateCustomerHandler(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+    public CreateCustomerHandler(
+        ICustomerRepository customerRepository,
+        IUnitOfWork unitOfWork,
+        ITenantProvider tenantProvider)
     {
         _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<CustomerCommandResult> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = new Customer
-        {
-            Name = request.Name,
-            Code = request.Code,
-            CustomerType = request.CustomerType,
-            ContactPerson = request.ContactPerson,
-            Email = request.Email,
-            Phone = request.Phone,
-            BillingAddress = request.BillingAddress,
-            ShippingAddress = request.ShippingAddress,
-            City = request.City,
-            TaxNumber = request.TaxNumber,
-            TaxOffice = request.TaxOffice,
-            PaymentTermDays = request.PaymentTermDays,
-            IsActive = request.IsActive,
-        };
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+
+        var customer = Customer.Create(
+            tenantId,
+            request.Name,
+            request.Code,
+            request.Email,
+            request.Phone);
+
+        customer.CustomerType = request.CustomerType;
+        customer.ContactPerson = request.ContactPerson;
+        customer.BillingAddress = request.BillingAddress;
+        customer.ShippingAddress = request.ShippingAddress;
+        customer.City = request.City;
+        customer.TaxNumber = request.TaxNumber;
+        customer.TaxOffice = request.TaxOffice;
+        customer.PaymentTermDays = request.PaymentTermDays;
+        customer.IsActive = request.IsActive;
 
         await _customerRepository.AddAsync(customer).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

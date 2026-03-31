@@ -9,13 +9,16 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Category", "Unit")]
 public class CreateCustomerHandlerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
     private readonly Mock<ICustomerRepository> _customerRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
     private readonly CreateCustomerHandler _sut;
 
     public CreateCustomerHandlerTests()
     {
-        _sut = new CreateCustomerHandler(_customerRepoMock.Object, _uowMock.Object);
+        _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(TestTenantId);
+        _sut = new CreateCustomerHandler(_customerRepoMock.Object, _uowMock.Object, _tenantProviderMock.Object);
     }
 
     [Fact]
@@ -57,9 +60,20 @@ public class CreateCustomerHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ValidCommand_SetsTenantIdFromProvider()
+    {
+        var cmd = new CreateCustomerCommand("Tenant Test", "MUS-003");
+
+        await _sut.Handle(cmd, CancellationToken.None);
+
+        _customerRepoMock.Verify(r => r.AddAsync(It.Is<Customer>(c =>
+            c.TenantId == TestTenantId)), Times.Once);
+    }
+
+    [Fact]
     public void Constructor_NullRepository_Throws()
     {
-        var act = () => new CreateCustomerHandler(null!, _uowMock.Object);
+        var act = () => new CreateCustomerHandler(null!, _uowMock.Object, _tenantProviderMock.Object);
         act.Should().Throw<ArgumentNullException>();
     }
 }
