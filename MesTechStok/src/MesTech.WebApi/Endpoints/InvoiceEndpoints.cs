@@ -3,6 +3,8 @@ using MesTech.Application.Commands.SendInvoice;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Features.Invoice.Commands;
+using MesTech.Application.Features.Invoice.Commands.ExportInvoiceReport;
+using MesTech.Application.Features.Invoice.Commands.ExportInvoices;
 using MesTech.Application.Features.Invoice.Queries;
 using MesTech.Application.Features.Invoice.Queries.GetInvoiceSettings;
 using MesTech.Application.Interfaces;
@@ -149,5 +151,38 @@ public static class InvoiceEndpoints
         .Produces(200)
         .Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // POST /api/v1/invoices/export — fatura listesi dışa aktarım (G564)
+        group.MapPost("/export", async (
+            ExportInvoicesCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (result.FileData.Length == 0)
+                return Results.Problem(detail: "Export produced no data", statusCode: 400);
+            return Results.File(result.FileData,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                result.FileName);
+        })
+        .WithName("ExportInvoices")
+        .WithSummary("Fatura listesini Excel'e aktar")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/invoices/report/export — fatura raporu dışa aktarım (G564)
+        group.MapPost("/report/export", async (
+            ExportInvoiceReportCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (result.FileData.Length == 0)
+                return Results.Problem(detail: "Report export produced no data", statusCode: 400);
+            var contentType = command.Format.ToLowerInvariant() == "pdf"
+                ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return Results.File(result.FileData, contentType, result.FileName);
+        })
+        .WithName("ExportInvoiceReport")
+        .WithSummary("Fatura raporu dışa aktar — Excel veya PDF")
+        .Produces(200).Produces(400);
     }
 }

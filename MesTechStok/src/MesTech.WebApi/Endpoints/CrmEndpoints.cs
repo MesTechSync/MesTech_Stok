@@ -3,6 +3,8 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Commands.SyncBitrix24Contacts;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
+using MesTech.Application.Features.Crm.Commands.SaveCrmSettings;
+using MesTech.Application.Features.Crm.Queries.GetCrmSettings;
 using MesTech.Application.Features.Crm.Commands.UpdateDealStage;
 using MesTech.Application.Features.Crm.Commands.WinDeal;
 using MesTech.Application.Features.Crm.Commands.LoseDeal;
@@ -280,5 +282,31 @@ public static class CrmEndpoints
         .WithSummary("Sayfalanmış tedarikçi listesi (arama destekli)")
         .Produces(200)
         .CacheOutput("Lookup60s");
+
+        // GET /api/v1/crm/settings — CRM ayarları (G564)
+        group.MapGet("/settings", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetCrmSettingsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCrmSettings")
+        .WithSummary("CRM ayarları — auto-assign, pipeline, lead score threshold")
+        .Produces<CrmSettingsDto>(200);
+
+        // POST /api/v1/crm/settings — CRM ayarları kaydet (G564)
+        group.MapPost("/settings", async (
+            SaveCrmSettingsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("saved", "CRM settings saved"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SaveCrmSettings")
+        .WithSummary("CRM ayarları kaydet — lead scoring, pipeline, email tracking")
+        .Produces<StatusResponse>(200).Produces(400);
     }
 }
