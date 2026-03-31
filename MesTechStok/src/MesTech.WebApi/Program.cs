@@ -196,6 +196,17 @@ builder.Services.AddRateLimiter(options =>
 // ProblemDetails — RFC 7807 compliant error responses (A-M2-06)
 builder.Services.AddProblemDetails();
 
+// API Versioning — URL-based /api/v1/ + header-based api-version (G475)
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = Asp.Versioning.ApiVersionReader.Combine(
+        new Asp.Versioning.UrlSegmentApiVersionReader(),
+        new Asp.Versioning.HeaderApiVersionReader("X-Api-Version"));
+});
+
 // OpenAPI + Scalar — modern API documentation (G476: Swashbuckle→Scalar migration)
 builder.Services.AddOpenApi("v1", options =>
 {

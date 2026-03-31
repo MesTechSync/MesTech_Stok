@@ -21,6 +21,7 @@
     </PackageReference>
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="Asp.Versioning.Http" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Scalar.AspNetCore" />
     <!-- GHSA-5crp fix: pin Newtonsoft.Json 13.0.3 via CPM to override transitive 11.0.1 from MassTransit -->
