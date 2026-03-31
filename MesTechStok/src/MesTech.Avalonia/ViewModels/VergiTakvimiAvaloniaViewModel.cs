@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetTaxRecords;
+using MesTech.Application.Features.Accounting.Queries.GetTaxSummary;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -18,6 +19,7 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int overdueCount;
     [ObservableProperty] private int upcomingCount;
     [ObservableProperty] private int completedCount;
+    [ObservableProperty] private string taxSummaryText = "—";
 
     // Filters
     [ObservableProperty] private string selectedMonth = "Mart";
@@ -76,6 +78,15 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
             OverdueCount = _allItems.Count(x => x.StatusColor == "#DC2626");
             UpcomingCount = _allItems.Count(x => x.StatusColor == "#D97706");
             CompletedCount = _allItems.Count(x => x.StatusColor == "#059669");
+
+            // Tax summary KPI (G540 orphan wire)
+            try
+            {
+                var period = $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}";
+                var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period));
+                TaxSummaryText = $"Toplam: {summary.TotalTax:N2} TL | Odenmis: {summary.TotalPaid:N2} TL";
+            }
+            catch { TaxSummaryText = "—"; }
 
             ApplyFilters();
         }
