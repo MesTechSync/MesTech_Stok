@@ -18,7 +18,8 @@ public record FeedGenerationRequest(
     Guid StoreId,
     IReadOnlyList<string>? CategoryFilter,
     string Currency = "TRY",
-    string Language = "tr");
+    string Language = "tr",
+    string StoreUrl = "https://mestech.app");
 
 public record FeedGenerationResult(
     bool Success,

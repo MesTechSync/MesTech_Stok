@@ -162,7 +162,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             new XElement("availability", availability),
             new XElement("condition", condition),
             new XElement("price", $"{price.ToString("F2", CultureInfo.InvariantCulture)} {currency}"),
-            new XElement("link", $"https://mestech.app/products/{product.SKU}"),
+            new XElement("link", $"{request.StoreUrl.TrimEnd('/')}/products/{product.SKU}"),
             new XElement("image_link", product.ImageUrl ?? string.Empty),
             new XElement("brand", product.Brand ?? "MesTech"));
     }
@@ -171,7 +171,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     {
         var channel = new XElement("channel",
             new XElement("title", "MesTech Facebook Shop Feed"),
-            new XElement("link", "https://mestech.app"),
+            new XElement("link", request.StoreUrl),
             new XElement("description", $"Urun katalogu — {DateTime.UtcNow:yyyy-MM-dd}"),
             new XElement("language", request.Language ?? "tr"),
             items);

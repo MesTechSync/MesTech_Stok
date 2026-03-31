@@ -161,7 +161,7 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
             new XElement(G + "id", product.SKU),
             new XElement(G + "title", Sanitize(product.Name, 150)),
             new XElement(G + "description", Sanitize(product.Description ?? product.Name, 5000)),
-            new XElement(G + "link", BuildProductUrl(product)),
+            new XElement(G + "link", BuildProductUrl(product, request.StoreUrl)),
             new XElement(G + "image_link", product.ImageUrl ?? string.Empty),
             new XElement(G + "availability", availability),
             new XElement(G + "condition", condition),
@@ -191,7 +191,7 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     {
         var channel = new XElement("channel",
             new XElement("title", "MesTech Google Merchant Feed"),
-            new XElement("link", "https://mestech.app"),
+            new XElement("link", request.StoreUrl),
             new XElement("description", $"Urun katalogu — {DateTime.UtcNow:yyyy-MM-dd}"),
             new XElement("language", request.Language ?? "tr"),
             items);
@@ -212,8 +212,8 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
         return Encoding.UTF8.GetString(ms.ToArray());
     }
 
-    private static string BuildProductUrl(Product product)
-        => $"https://mestech.app/products/{product.SKU}";
+    private static string BuildProductUrl(Product product, string storeUrl = "https://mestech.app")
+        => $"{storeUrl.TrimEnd('/')}/products/{product.SKU}";
 
     private static string Sanitize(string? value, int maxLength)
     {
