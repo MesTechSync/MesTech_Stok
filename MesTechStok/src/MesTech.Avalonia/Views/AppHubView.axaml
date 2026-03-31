@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.AppHubView"
+             x:Name="RootAppHubView"
              x:DataType="vm:AppHubViewModel"
              AutomationProperties.Name="Ana Sayfa Hub Karsilama Ekrani">
 <UserControl.KeyBindings>
