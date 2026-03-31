@@ -21,6 +21,12 @@
         </StackPanel>
     </Border>
 
+    <!-- Empty State -->
+    <Border IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="40">
+        <TextBlock Text="Hub verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                   HorizontalAlignment="Center" Opacity="0.6" />
+    </Border>
+
     <!-- Error State -->
     <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
             CornerRadius="{StaticResource MesRadiusBase}" Padding="20" Margin="20"
