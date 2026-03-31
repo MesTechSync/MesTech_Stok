@@ -106,7 +106,9 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"[Dashboard] Auto-refresh hatasi: {ex.Message}");
+#endif
         }
     }
 
@@ -246,8 +248,10 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
     private void ShowPriceLossDetails()
     {
         // Zarar detay sayfasına navigate — MainWindow sidebar ile entegre
+#if DEBUG
         System.Diagnostics.Debug.WriteLine(
             $"[Dashboard] Zarar uyarı detay: {PriceLossCount} ürün");
+#endif
     }
 
     [RelayCommand]
