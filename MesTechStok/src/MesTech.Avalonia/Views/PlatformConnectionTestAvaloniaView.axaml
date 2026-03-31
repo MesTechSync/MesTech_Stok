@@ -76,6 +76,7 @@
                            Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
                            MaxWidth="400" HorizontalAlignment="Center" />
                 <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
+                        ToolTip.Tip="Tekrar dene"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>

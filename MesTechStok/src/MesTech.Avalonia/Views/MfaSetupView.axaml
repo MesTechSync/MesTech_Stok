@@ -111,6 +111,7 @@
                              TextAlignment="Center" Watermark="000000"
                              CornerRadius="{StaticResource MesRadiusMd}" />
                     <Button Content="Dogrula" Command="{Binding VerifyCodeCommand}"
+                            ToolTip.Tip="TOTP kodunu dogrula"
                             Padding="20,10" VerticalAlignment="Center"
                             Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                             FontWeight="SemiBold" CornerRadius="{StaticResource MesRadiusMd}" />

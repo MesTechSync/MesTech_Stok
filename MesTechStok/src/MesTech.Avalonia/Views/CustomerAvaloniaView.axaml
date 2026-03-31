@@ -44,6 +44,7 @@
                             <Button Content="{Binding Label}"
                                     Command="{Binding $parent[UserControl].((vm:CustomerAvaloniaViewModel)DataContext).FilterSegmentCommand}"
                                     CommandParameter="{Binding Key}"
+                                    ToolTip.Tip="{Binding Label}"
                                     Padding="12,6"
                                     CornerRadius="4"
                                     FontSize="{StaticResource FontSizeSmall}"

@@ -213,14 +213,17 @@
                         <!-- G116: Theme switcher with 3 options + visual indicator -->
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="☀ Acik" Padding="16,10" CornerRadius="12"
+                                    ToolTip.Tip="Acik tema"
                                     FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
                                     Command="{Binding SetThemeCommand}" CommandParameter="Light"
                                     Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesDarkSlate}" />
                             <Button Content="🌙 Koyu" Padding="16,10" CornerRadius="12"
+                                    ToolTip.Tip="Koyu tema"
                                     FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
                                     Command="{Binding SetThemeCommand}" CommandParameter="Dark"
                                     Background="{DynamicResource MesDarkSlate}" Foreground="{DynamicResource MesBgPrimary}" />
                             <Button Content="💻 Sistem" Padding="16,10" CornerRadius="12"
+                                    ToolTip.Tip="Sistem temasini kullan"
                                     FontWeight="SemiBold" FontSize="{StaticResource FontSizeSmall}"
                                     Command="{Binding SetThemeCommand}" CommandParameter="System"
                                     Background="{DynamicResource MesPrimaryBlue}" Foreground="White" />

@@ -49,6 +49,7 @@
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Bitis:"/>
                 <Button Command="{Binding RefreshCommand}" Background="Transparent"
+                        ToolTip.Tip="Verileri yenile"
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">
                     <PathIcon Data="{StaticResource IconRefresh}" Width="18" Height="18"

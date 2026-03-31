@@ -180,7 +180,8 @@
                 <Button Grid.Column="2" Content="Devam Et" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource BetweenConverter}, ConverterParameter=2-6}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6" />
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        ToolTip.Tip="Sonraki adima devam et" />
 
                 <!-- Step 7: Go to Dashboard -->
                 <Button Grid.Column="2" Content="Dashboard'a Git" Command="{Binding NextStepCommand}"
