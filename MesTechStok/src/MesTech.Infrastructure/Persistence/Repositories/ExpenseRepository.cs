@@ -19,6 +19,7 @@ public sealed class ExpenseRepository : IExpenseRepository
         => await _context.Expenses
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Expense>> GetByDateRangeAsync(DateTime from, DateTime to, Guid? tenantId = null)
@@ -26,6 +27,7 @@ public sealed class ExpenseRepository : IExpenseRepository
             .Where(e => e.Date >= from && e.Date <= to)
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Expense>> GetByTypeAsync(ExpenseType type, Guid? tenantId = null)
@@ -33,6 +35,7 @@ public sealed class ExpenseRepository : IExpenseRepository
             .Where(e => e.ExpenseType == type)
             .Where(e => tenantId == null || e.TenantId == tenantId.Value)
             .OrderByDescending(e => e.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Expense expense)

@@ -19,6 +19,7 @@ public sealed class IncomeRepository : IIncomeRepository
         => await _context.Incomes
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Income>> GetByDateRangeAsync(DateTime from, DateTime to, Guid? tenantId = null)
@@ -26,6 +27,7 @@ public sealed class IncomeRepository : IIncomeRepository
             .Where(i => i.Date >= from && i.Date <= to)
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Income>> GetByTypeAsync(IncomeType type, Guid? tenantId = null)
@@ -33,6 +35,7 @@ public sealed class IncomeRepository : IIncomeRepository
             .Where(i => i.IncomeType == type)
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Income income)
