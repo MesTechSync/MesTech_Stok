@@ -216,6 +216,7 @@
           <!-- Action links -->
           <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
             <Button Content="Giris Yap"
+                    ToolTip.Tip="Kullanici adi ve sifre ile giris yap"
                     Command="{Binding ToggleLoginModeCommand}"
                     Background="#33FFFFFF" Foreground="White"
                     FontSize="12" FontWeight="SemiBold"
@@ -229,6 +230,7 @@
               </Button.Transitions>
             </Button>
             <Button Content="Demo ile Kesfet"
+                    ToolTip.Tip="Demo hesabiyla uygulamayi kesfet"
                     Command="{Binding DemoLoginCommand}"
                     Background="Transparent" Foreground="#CCFFFFFF"
                     FontSize="12" FontWeight="SemiBold"
@@ -242,6 +244,7 @@
               </Button.Transitions>
             </Button>
             <Button Content="Esc"
+                    ToolTip.Tip="Pencereyi kapat (Esc)"
                     Command="{Binding CloseCommand}"
                     Background="Transparent" Foreground="#66FFFFFF"
                     FontSize="11" Padding="10,6" CornerRadius="16"
