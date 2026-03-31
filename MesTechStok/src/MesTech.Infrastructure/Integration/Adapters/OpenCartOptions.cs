@@ -8,7 +8,7 @@ public sealed class OpenCartOptions
 
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
         Justification = "Configuration binding requires string type.")]
-    public string BaseUrl { get; set; } = "https://localhost";
+    public string BaseUrl { get; set; } = string.Empty;
 
     [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily",
         Justification = "Explicit false default documents intent for configuration binding.")]
