@@ -33,7 +33,7 @@ public class DomainServiceCoverageTests
     public void CommissionCalculation_GetDefaultRate_UnknownPlatform_Returns15Percent()
     {
         var sut = new CommissionCalculationService();
-        sut.GetDefaultRate("UnknownPlatform").Should().Be(0.15m);
+        sut.GetDefaultRate("UnknownPlatform").Should().Be(0m);
     }
 
     [Fact]

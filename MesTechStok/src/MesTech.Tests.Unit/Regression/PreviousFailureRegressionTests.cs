@@ -77,17 +77,18 @@ public class PreviousFailureRegressionTests
     #region CargoProvider — member count guard
 
     [Fact]
-    public void CargoProvider_ShouldHave11Members_IncludingDHLAndFedEx()
+    public void CargoProvider_ShouldHave12Members_IncludingDHLAndFedEx()
     {
-        // Regression: CargoProvider enum must have exactly 11 members
-        // None + 10 providers (YurticiKargo..FedEx)
+        // Regression: CargoProvider enum must have exactly 12 members
+        // None + 10 providers (YurticiKargo..FedEx) + Other
         var values = Enum.GetValues<CargoProvider>();
 
-        values.Should().HaveCount(11);
+        values.Should().HaveCount(12);
         values.Should().Contain(CargoProvider.DHL);
         values.Should().Contain(CargoProvider.FedEx);
         values.Should().Contain(CargoProvider.None);
         values.Should().Contain(CargoProvider.YurticiKargo);
+        values.Should().Contain(CargoProvider.Other);
     }
 
     [Fact]
