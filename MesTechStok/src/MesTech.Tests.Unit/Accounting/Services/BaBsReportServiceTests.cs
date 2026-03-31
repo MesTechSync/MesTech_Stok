@@ -99,7 +99,7 @@ public class BaBsReportServiceTests
     }
 
     [Fact]
-    public async Task GenerateBaBsReport_MinimumThreshold_Is5000()
+    public void GenerateBaBsReport_MinimumThreshold_Is5000()
     {
         BaBsReportService.MinimumThreshold.Should().Be(5_000m);
     }
