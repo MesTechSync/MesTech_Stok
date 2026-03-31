@@ -95,6 +95,7 @@ appsettings.user.json
 !MesTechStok/src/MesTech.WebApi/appsettings.json
 !MesTechStok/src/MesTech.WebApi/appsettings.Production.json
 !MesTechStok/global.json
+!MesTechStok/src/MesTech.Blazor/appsettings.json
 
 # Coverage reports (CI artifact, not source)
 **/coverage-report*/
