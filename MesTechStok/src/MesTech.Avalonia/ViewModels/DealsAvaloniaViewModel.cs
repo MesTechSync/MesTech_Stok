@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetDeals;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,6 +12,7 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
 
     [ObservableProperty] private string searchText = string.Empty;
@@ -21,10 +23,11 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DealListItemVm> Deals { get; } = [];
     public string[] StageOptions { get; } = ["Tumu", "Ilk Iletisim", "Teklif Verildi", "Muzakere", "Kazanildi", "Kaybedildi"];
 
-    public DealsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public DealsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -79,9 +82,9 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to deal create form or show dialog
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 }
 

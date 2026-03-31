@@ -2,12 +2,14 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly IDialogService _dialog;
 
 
     [ObservableProperty] private DocFolderItemVm? selectedFolder;
@@ -16,9 +18,10 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     public ObservableCollection<DocFolderItemVm> Folders { get; } = [];
     public ObservableCollection<DocFileItemVm> Files { get; } = [];
 
-    public DocumentFolderAvaloniaViewModel(IMediator mediator)
+    public DocumentFolderAvaloniaViewModel(IMediator mediator, IDialogService dialog)
     {
         _mediator = mediator;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -59,9 +62,9 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to folder create dialog
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     partial void OnSelectedFolderChanged(DocFolderItemVm? value)

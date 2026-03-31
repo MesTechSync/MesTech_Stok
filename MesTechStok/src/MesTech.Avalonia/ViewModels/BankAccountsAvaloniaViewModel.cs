@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Finance.Queries.GetBankAccounts;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -14,6 +15,7 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
     private List<BankAccountDto> _allAccounts = [];
 
     [ObservableProperty] private ObservableCollection<BankAccountDto> accounts = [];
@@ -22,10 +24,11 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private decimal totalBalance;
 
-    public BankAccountsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public BankAccountsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
         Title = "Banka Hesaplari";
     }
 
@@ -63,8 +66,7 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // NAV: Open bank account create dialog
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     [RelayCommand]

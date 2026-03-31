@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Queries.GetExpenses;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,6 +16,7 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
     private List<ExpenseDto> _allExpenses = [];
 
     [ObservableProperty] private ObservableCollection<ExpenseDto> expenses = [];
@@ -23,10 +25,11 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
 
-    public ExpensesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public ExpensesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
         Title = "Giderler";
     }
 
@@ -62,8 +65,7 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        // NAV: Open expense entry dialog
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     [RelayCommand]

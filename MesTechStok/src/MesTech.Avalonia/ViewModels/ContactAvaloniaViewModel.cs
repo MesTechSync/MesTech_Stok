@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetContactsPaged;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -11,16 +12,18 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<ContactItemVm> Contacts { get; } = [];
 
-    public ContactAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    public ContactAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider, IDialogService dialog)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -65,9 +68,9 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to contact create form or show dialog
+        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
     }
 
     partial void OnSearchTextChanged(string value)
