@@ -11,7 +11,7 @@ public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuer
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IAdapterFactory _adapterFactory;
-    private readonly ILogger<GetPlatformListHandler> _logger = null!;
+    private readonly ILogger<GetPlatformListHandler> _logger;
 
     private static readonly Dictionary<PlatformType, (string Name, string Color, string AuthType)> PlatformMeta = new()
     {

@@ -58,6 +58,14 @@ public class BulkScreenshotLayer15Tests
         services.AddSingleton<ITenantProvider>(new HeadlessTestTenantProvider());
         services.AddSingleton<ICurrentUserService, HeadlessTestUserService>();
 
+        // Avalonia UI stub servisleri — headless'ta pencere/dialog yok
+        services.AddSingleton<MesTech.Avalonia.Services.IDialogService, Infrastructure.HeadlessDialogService>();
+        services.AddSingleton<MesTech.Avalonia.Services.IThemeService, Infrastructure.HeadlessThemeService>();
+        services.AddSingleton<MesTech.Avalonia.Services.IFilePickerService, Infrastructure.HeadlessFilePickerService>();
+        services.AddSingleton<MesTech.Avalonia.Services.INavigationService, Infrastructure.HeadlessNavigationService>();
+        services.AddSingleton<MesTech.Avalonia.Services.IFeatureGateService, Infrastructure.HeadlessFeatureGateService>();
+        services.AddSingleton<MesTech.Avalonia.Services.INotificationService, Infrastructure.HeadlessNotificationService>();
+
         // EF Core — TestPostgresFactory connection string ile
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
@@ -82,6 +90,10 @@ public class BulkScreenshotLayer15Tests
 
         // ViewModels — MesTech.Avalonia assembly'den tüm ViewModel'leri otomatik kaydet
         RegisterAllViewModels(services);
+
+        // IViewModelFactory — ServiceProvider gerektirir, son kayıt
+        services.AddSingleton<MesTech.Avalonia.Services.IViewModelFactory>(sp =>
+            new Infrastructure.HeadlessViewModelFactory(sp));
 
         return services.BuildServiceProvider();
     }
