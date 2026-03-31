@@ -20,6 +20,12 @@ public static class TestSeedDataFactory
     {
         if (await db.Set<Product>().AnyAsync()) return; // idempotent
 
+        // ── Tenant (FK zorunlu — tüm entity'lerin TenantId'si buna referans verir) ──
+        var tenant = new Tenant { Name = "MesTech Test Tenant", IsActive = true };
+        typeof(MesTech.Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(tenant, TestTenantId);
+        db.Set<Tenant>().Add(tenant);
+        await db.SaveChangesAsync(); // Tenant önce kaydedilmeli — FK constraint
+
         // ── Categories (hiyerarşik) ──
         var catElektronik = Category.Create(TestTenantId, "Elektronik", "ELK");
         var catGiyim = Category.Create(TestTenantId, "Giyim", "GYM");

@@ -961,7 +961,7 @@ public class AppDbContext : DbContext
             e.Property(j => j.ReferenceNumber).HasMaxLength(100);
             e.HasIndex(j => j.TenantId).HasDatabaseName("IX_JournalEntries_TenantId");
             e.HasIndex(j => new { j.TenantId, j.EntryDate }).HasDatabaseName("IX_JournalEntries_Tenant_Date");
-            e.HasIndex(j => new { j.TenantId, j.ReferenceNumber }).IsUnique().HasFilter("[ReferenceNumber] IS NOT NULL").HasDatabaseName("IX_JournalEntries_Tenant_Reference");
+            e.HasIndex(j => new { j.TenantId, j.ReferenceNumber }).IsUnique().HasFilter("\"ReferenceNumber\" IS NOT NULL").HasDatabaseName("IX_JournalEntries_Tenant_Reference");
             e.HasMany(j => j.Lines).WithOne(l => l.JournalEntry).HasForeignKey(l => l.JournalEntryId).OnDelete(DeleteBehavior.Cascade);
         });
 
