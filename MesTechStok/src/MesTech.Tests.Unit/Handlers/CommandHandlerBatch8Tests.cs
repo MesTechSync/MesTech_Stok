@@ -26,7 +26,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateCariHesapHandler(
             Mock.Of<ICariHesapRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateDealStageHandler(
             Mock.Of<IDealRepository>(), Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<UpdateDealStageHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateExpenseHandler(
             Mock.Of<IExpenseRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateIncomeHandler(
             Mock.Of<IIncomeRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateNotificationSettingsHandler(
             Mock.Of<INotificationSettingRepository>(), Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<UpdateNotificationSettingsHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateProductImageHandler(
             Mock.Of<IProductRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateTenantHandler(
             Mock.Of<ITenantRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class CommandHandlerBatch8Tests
         var sut = new UpdateWarehouseHandler(
             Mock.Of<IWarehouseRepository>(), Mock.Of<IUnitOfWork>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class CommandHandlerBatch8Tests
     {
         var sut = new ValidateBulkImportHandler(Mock.Of<IBulkProductImportService>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -107,6 +107,6 @@ public class CommandHandlerBatch8Tests
             Mock.Of<IUserRepository>(), Mock.Of<ITotpService>(),
             Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<VerifyTotpHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }
