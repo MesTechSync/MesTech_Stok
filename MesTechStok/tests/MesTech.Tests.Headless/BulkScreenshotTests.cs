@@ -78,11 +78,16 @@ public class BulkScreenshotTests
             }
             catch (Exception ex)
             {
+                // Inner exception'i de kaydet — TargetInvocationException gercek hatanin ambalaji
+                var innerMsg = ex.InnerException != null
+                    ? $"\n\nINNER: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}\n{ex.InnerException.StackTrace}"
+                    : "";
                 File.WriteAllText(
                     Path.Combine(viewsDir, $"{viewType.Name}_ERROR.txt"),
-                    $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}"
+                    $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}{innerMsg}"
                 );
-                errors.Add($"{viewType.Name}: {ex.GetType().Name} — {ex.Message}");
+                var displayMsg = ex.InnerException?.Message ?? ex.Message;
+                errors.Add($"{viewType.Name}: {ex.GetType().Name} — {displayMsg}");
                 failed++;
             }
         }
