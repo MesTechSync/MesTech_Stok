@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
+using MesTech.Application.Features.Settings.Commands.SaveApiSettings;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Avalonia.Services;
@@ -146,9 +147,18 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEP: DEV1 — SaveApiSettingsCommand eksik. Tema _themeService ile kalıcı (G495)
-            await Task.CompletedTask;
-            IsSaved = true;
+            var result = await _mediator.Send(new SaveApiSettingsCommand(
+                _currentUser.TenantId,
+                ApiUrl,
+                null,
+                60,
+                true));
+            IsSaved = result.IsSuccess;
+            if (!result.IsSuccess)
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "API ayarlari kaydedilemedi.";
+            }
         }
         catch (Exception ex)
         {
