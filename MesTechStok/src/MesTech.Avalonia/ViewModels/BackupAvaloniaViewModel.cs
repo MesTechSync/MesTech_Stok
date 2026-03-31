@@ -2,19 +2,23 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.System.Queries.GetBackupHistory;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Backup management ViewModel — MediatR hazır, handler oluşturulunca gerçek veriye geçecek.
+/// Backup management ViewModel — MediatR wired to GetBackupHistoryQuery.
 /// </summary>
 public partial class BackupAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
+    private readonly ICurrentUserService _currentUser;
 
-    public BackupAvaloniaViewModel(ISender mediator)
+    public BackupAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [ObservableProperty] private bool isBackingUp;
@@ -41,10 +45,17 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEV1-DEPENDENCY: GetBackupHistoryQuery handler oluşturulunca gerçek veriye geçecek
-            // var history = await _mediator.Send(new GetBackupHistoryQuery(tenantId));
+            var history = await _mediator.Send(new GetBackupHistoryQuery(_currentUser.TenantId));
             BackupHistory.Clear();
-            // Handler hazır olana kadar boş liste — mock data kaldırıldı
+            foreach (var entry in history)
+            {
+                BackupHistory.Add(new BackupHistoryItem(
+                    entry.CreatedAt.ToString("dd.MM.yyyy HH:mm"),
+                    "Full",
+                    $"{entry.SizeBytes / (1024.0 * 1024):F1} MB",
+                    "—",
+                    entry.Status));
+            }
         }
         catch (Exception ex)
         {
