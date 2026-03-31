@@ -149,7 +149,7 @@ builder.Services.AddHealthChecks()
                 HostName = builder.Configuration["RabbitMQ:Host"] ?? "localhost",
                 Port = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672"),
                 UserName = builder.Configuration["RabbitMQ:Username"] ?? "guest",
-                Password = builder.Configuration["RabbitMQ:Password"]
+                Password = builder.Configuration["RabbitMQ:Password"] ?? "guest"
             };
             return factory.CreateConnectionAsync().GetAwaiter().GetResult();
         },

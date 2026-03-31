@@ -10,7 +10,6 @@ using MesTech.Application.Queries.GetInventoryPaged;
 using MesTech.Application.Queries.GetKarZarar;
 using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
 using MesTech.Application.Features.System.LaunchReadiness;
-using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Application.Interfaces.Erp;
 using MesTech.Domain.Interfaces;
