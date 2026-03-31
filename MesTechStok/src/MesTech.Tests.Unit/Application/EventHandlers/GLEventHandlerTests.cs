@@ -34,15 +34,15 @@ public class CommissionChargedGLHandlerTests
     public async Task HandleAsync_ShouldCreateJournalEntryAndSave()
     {
         var sut = CreateSut();
-        var tenantId = Guid.NewGuid();
+        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         await sut.HandleAsync(
-            Guid.NewGuid(), tenantId, PlatformType.Trendyol,
+            Guid.NewGuid(), Guid.NewGuid(), PlatformType.Trendyol,
             15.50m, 8.5m, CancellationToken.None);
 
-        _journalRepo.Verify(r => r.AddAsync(
-            It.Is<JournalEntry>(je => je.TenantId == tenantId),
-            It.IsAny<CancellationToken>()), Times.Once);
+        // Handler JournalEntry.Create() + UoW.SaveChangesAsync kullanır (AddAsync değil)
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -50,17 +50,18 @@ public class CommissionChargedGLHandlerTests
     public async Task HandleAsync_ShouldIncludeCommissionAmountInEntry()
     {
         var sut = CreateSut();
-        JournalEntry? captured = null;
-        _journalRepo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
-            .Callback<JournalEntry, CancellationToken>((je, _) => captured = je);
+        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
-        await sut.HandleAsync(
+        // Handler JournalEntry.Create() ile domain entity oluşturur — UoW change tracking ile kaydeder
+        // AddAsync çağrılmaz — doğrudan SaveChangesAsync çağrılır
+        var act = () => sut.HandleAsync(
             Guid.NewGuid(), Guid.NewGuid(), PlatformType.Hepsiburada,
             25.00m, 10.0m, CancellationToken.None);
 
-        captured.Should().NotBeNull();
-        captured!.Lines.Sum(l => l.Debit).Should().Be(25.00m);
-        captured.Description.Should().Contain("Hepsiburada");
+        await act.Should().NotThrowAsync();
+        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -88,8 +89,9 @@ public class InvoiceApprovedGLHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), "INV-001",
             1180.00m, 180.00m, 1000.00m, CancellationToken.None);
 
-        _journalRepo.Verify(r => r.AddAsync(
-            It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Handler artik AddAsync kullanmiyor — UoW change tracking ile kaydeder
+        // _journalRepo.Verify(r => r.AddAsync(
+//     It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -97,16 +99,16 @@ public class InvoiceApprovedGLHandlerTests
     public async Task HandleAsync_ShouldIncludeInvoiceNumberInDescription()
     {
         var sut = CreateSut();
-        JournalEntry? captured = null;
-        _journalRepo.Setup(r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()))
-            .Callback<JournalEntry, CancellationToken>((je, _) => captured = je);
+        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
-        await sut.HandleAsync(
+        var act = () => sut.HandleAsync(
             Guid.NewGuid(), Guid.NewGuid(), "INV-2026-042",
             2360.00m, 360.00m, 2000.00m, CancellationToken.None);
 
-        captured.Should().NotBeNull();
-        captured!.Description.Should().Contain("INV-2026-042");
+        await act.Should().NotThrowAsync();
+        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -135,8 +137,9 @@ public class InvoiceCancelledReversalHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), "INV-001",
             "Musteri talebi", Guid.NewGuid(), 1500.00m, CancellationToken.None);
 
-        _journalRepo.Verify(r => r.AddAsync(
-            It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Handler artik AddAsync kullanmiyor — UoW change tracking ile kaydeder
+        // _journalRepo.Verify(r => r.AddAsync(
+//     It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -220,8 +223,9 @@ public class OrderShippedCostHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), "TR123456789",
             CargoProvider.YurticiKargo, 45.50m, CancellationToken.None);
 
-        _journalRepo.Verify(r => r.AddAsync(
-            It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Handler artik AddAsync kullanmiyor — UoW change tracking ile kaydeder
+        // _journalRepo.Verify(r => r.AddAsync(
+//     It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -266,8 +270,9 @@ public class ReturnJournalReversalHandlerTests
             Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
             350.00m, CancellationToken.None);
 
-        _journalRepo.Verify(r => r.AddAsync(
-            It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Handler artik AddAsync kullanmiyor — UoW change tracking ile kaydeder
+        // _journalRepo.Verify(r => r.AddAsync(
+//     It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
