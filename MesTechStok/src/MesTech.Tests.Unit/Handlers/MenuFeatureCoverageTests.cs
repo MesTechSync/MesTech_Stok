@@ -26,7 +26,7 @@ public class MenuFeatureCoverageTests
     [Fact]
     public async Task GetCargoTrackingList_NullRequest_Throws()
     {
-        var sut = new GetCargoTrackingListHandler(Mock.Of<IOrderRepository>());
+        var sut = new GetCargoTrackingListHandler(Mock.Of<IOrderRepository>(), Microsoft.Extensions.Logging.Abstractions.NullLogger<GetCargoTrackingListHandler>.Instance);
         var act = () => sut.Handle(null!, CancellationToken.None);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }

@@ -279,7 +279,7 @@ public class MiscHandlerTests
     {
         var storeRepo = new Mock<IStoreRepository>();
         var adapterFactory = new Mock<IAdapterFactory>();
-        var sut = new GetPlatformSyncStatusHandler(storeRepo.Object, adapterFactory.Object);
+        var sut = new GetPlatformSyncStatusHandler(storeRepo.Object, adapterFactory.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<GetPlatformSyncStatusHandler>.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -294,7 +294,7 @@ public class MiscHandlerTests
         storeRepo.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Store>());
 
-        var sut = new GetPlatformSyncStatusHandler(storeRepo.Object, adapterFactory.Object);
+        var sut = new GetPlatformSyncStatusHandler(storeRepo.Object, adapterFactory.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<GetPlatformSyncStatusHandler>.Instance);
         var query = new GetPlatformSyncStatusQuery(_tenantId);
 
         var result = await sut.Handle(query, CancellationToken.None);
