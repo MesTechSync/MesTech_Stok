@@ -24,8 +24,8 @@ public sealed class PlaceDropshipOrderHandler : IRequestHandler<PlaceDropshipOrd
 
         order.PlaceWithSupplier(request.SupplierOrderRef);
 
-        await _repository.AddAsync(order, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(order, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return order.Id;
     }
 }

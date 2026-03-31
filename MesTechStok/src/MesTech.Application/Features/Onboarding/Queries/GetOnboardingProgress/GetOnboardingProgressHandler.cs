@@ -13,7 +13,7 @@ public sealed class GetOnboardingProgressHandler : IRequestHandler<GetOnboarding
     public async Task<OnboardingProgressDto?> Handle(GetOnboardingProgressQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var progress = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var progress = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         if (progress is null) return null;
 
         return new OnboardingProgressDto

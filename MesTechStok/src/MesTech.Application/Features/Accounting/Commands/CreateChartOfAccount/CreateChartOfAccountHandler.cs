@@ -17,7 +17,7 @@ public sealed class CreateChartOfAccountHandler : IRequestHandler<CreateChartOfA
     {
         ArgumentNullException.ThrowIfNull(request);
         // Check for duplicate code within tenant
-        var existing = await _repository.GetByCodeAsync(request.TenantId, request.Code, cancellationToken);
+        var existing = await _repository.GetByCodeAsync(request.TenantId, request.Code, cancellationToken).ConfigureAwait(false);
         if (existing != null)
             throw new InvalidOperationException($"Account code '{request.Code}' already exists.");
 
@@ -29,8 +29,8 @@ public sealed class CreateChartOfAccountHandler : IRequestHandler<CreateChartOfA
             request.ParentId,
             request.Level);
 
-        await _repository.AddAsync(account, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(account, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return account.Id;
     }
 }

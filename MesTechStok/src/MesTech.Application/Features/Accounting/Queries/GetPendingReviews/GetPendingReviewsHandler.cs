@@ -36,7 +36,7 @@ public sealed class GetPendingReviewsHandler : IRequestHandler<GetPendingReviews
 
         foreach (var match in matches)
         {
-            var dto = await EnrichMatchAsync(match, cancellationToken);
+            var dto = await EnrichMatchAsync(match, cancellationToken).ConfigureAwait(false);
             items.Add(dto);
         }
 
@@ -69,7 +69,7 @@ public sealed class GetPendingReviewsHandler : IRequestHandler<GetPendingReviews
 
         if (match.SettlementBatchId.HasValue)
         {
-            var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken);
+            var batch = await _settlementRepo.GetByIdAsync(match.SettlementBatchId.Value, cancellationToken).ConfigureAwait(false);
             if (batch != null)
             {
                 dto = dto with
@@ -84,7 +84,7 @@ public sealed class GetPendingReviewsHandler : IRequestHandler<GetPendingReviews
 
         if (match.BankTransactionId.HasValue)
         {
-            var tx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken);
+            var tx = await _bankTxRepo.GetByIdAsync(match.BankTransactionId.Value, cancellationToken).ConfigureAwait(false);
             if (tx != null)
             {
                 dto = dto with

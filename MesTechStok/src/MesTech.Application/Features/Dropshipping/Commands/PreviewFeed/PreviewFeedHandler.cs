@@ -35,7 +35,7 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken);
+        var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken).ConfigureAwait(false);
         if (feed is null)
             throw new InvalidOperationException($"SupplierFeed {request.FeedSourceId} not found.");
 
@@ -43,7 +43,7 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
         if (parser is null)
             return new FeedPreviewDto { Warnings = { $"No parser available for feed format: {feed.Format}" } };
 
-        var (parseResult, downloadError) = await DownloadAndParseAsync(feed.FeedUrl, parser, cancellationToken);
+        var (parseResult, downloadError) = await DownloadAndParseAsync(feed.FeedUrl, parser, cancellationToken).ConfigureAwait(false);
         if (downloadError is not null)
         {
             _logger.LogError("Failed to download/parse feed {FeedId}: {Error}", request.FeedSourceId, downloadError);
@@ -53,7 +53,7 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
         if (parseResult is null)
             return new FeedPreviewDto { Warnings = { "Parse result was empty." } };
 
-        return await BuildPreviewAsync(feed, parseResult, cancellationToken);
+        return await BuildPreviewAsync(feed, parseResult, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<(FeedParseResult? Result, string? Error)> DownloadAndParseAsync(
@@ -64,7 +64,7 @@ public sealed class PreviewFeedHandler : IRequestHandler<PreviewFeedCommand, Fee
             using var httpClient = _httpClientFactory.CreateClient("FeedDownload");
             using var stream = await httpClient.GetStreamAsync(new Uri(feedUrl), cancellationToken).ConfigureAwait(false);
             var mapping = new FeedFieldMapping(null, null, null, null, null, null, null, null);
-            var result = await parser.ParseAsync(stream, mapping, cancellationToken);
+            var result = await parser.ParseAsync(stream, mapping, cancellationToken).ConfigureAwait(false);
             return (result, null);
         }
         catch (HttpRequestException ex)

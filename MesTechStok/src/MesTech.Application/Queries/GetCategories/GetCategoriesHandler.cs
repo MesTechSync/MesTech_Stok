@@ -17,7 +17,7 @@ public sealed class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, I
         ArgumentNullException.ThrowIfNull(request);
         var categories = request.ActiveOnly
             ? await _categoryRepository.GetActiveAsync()
-            : await _categoryRepository.GetAllAsync();
+            : await _categoryRepository.GetAllAsync().ConfigureAwait(false);
 
         return categories.Select(c => new CategoryListDto
         {

@@ -25,8 +25,8 @@ public sealed class CreateTimeEntryHandler : IRequestHandler<CreateTimeEntryComm
             request.IsBillable,
             request.HourlyRate);
 
-        await _repository.AddAsync(entry, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(entry, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return entry.Id;
     }

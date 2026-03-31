@@ -14,7 +14,7 @@ public sealed class GetDealsHandler : IRequestHandler<GetDealsQuery, GetDealsRes
         ArgumentNullException.ThrowIfNull(req);
         var deals = req.PipelineId.HasValue
             ? await _repository.GetByPipelineAsync(req.TenantId, req.PipelineId.Value, req.Status, cancellationToken)
-            : await _repository.GetByTenantPagedAsync(req.TenantId, req.Status, req.Page, req.PageSize, cancellationToken);
+            : await _repository.GetByTenantPagedAsync(req.TenantId, req.Status, req.Page, req.PageSize, cancellationToken).ConfigureAwait(false);
 
         return new GetDealsResult
         {

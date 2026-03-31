@@ -80,8 +80,8 @@ public sealed class CloseCashRegisterHandler : IRequestHandler<CloseCashRegister
 
         // Mark register as closed for the day by deactivating
         // In production, a CashRegisterCloseLog entity would track daily closes
-        await _cashRegisterRepo.UpdateAsync(cashRegister, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _cashRegisterRepo.UpdateAsync(cashRegister, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CloseCashRegisterResult(
             CashRegisterId: cashRegister.Id,

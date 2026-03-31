@@ -18,8 +18,8 @@ public sealed class CreateWorkTaskHandler : IRequestHandler<CreateWorkTaskComman
         var task = WorkTask.Create(request.TenantId, request.Title, request.Priority,
             request.ProjectId, request.MilestoneId, request.AssignedToUserId, request.CreatedByUserId,
             request.DueDate, request.EstimatedMinutes, request.OrderId, request.CrmContactId, request.ProductId);
-        await _repository.AddAsync(task, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(task, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return task.Id;
     }
 }

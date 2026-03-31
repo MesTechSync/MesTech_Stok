@@ -11,7 +11,7 @@ public sealed class GetStockTransfersHandler : IRequestHandler<GetStockTransfers
 
     public async Task<IReadOnlyList<StockTransferItemDto>> Handle(GetStockTransfersQuery request, CancellationToken cancellationToken)
     {
-        var movements = await _movementRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken);
+        var movements = await _movementRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken).ConfigureAwait(false);
 
         return movements.Select(m => new StockTransferItemDto
         {

@@ -33,7 +33,7 @@ public sealed class SaveErpSettingsHandler : IRequestHandler<SaveErpSettingsComm
 #pragma warning disable CA1031 // Catch general exception — return structured error
         try
         {
-            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
             if (settings is null)
             {
@@ -47,7 +47,7 @@ public sealed class SaveErpSettingsHandler : IRequestHandler<SaveErpSettingsComm
                     StockSyncPeriodMinutes = request.StockSyncPeriodMinutes,
                     PriceSyncPeriodMinutes = request.PriceSyncPeriodMinutes
                 };
-                await _settingsRepo.AddAsync(settings, cancellationToken);
+                await _settingsRepo.AddAsync(settings, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -56,10 +56,10 @@ public sealed class SaveErpSettingsHandler : IRequestHandler<SaveErpSettingsComm
                 settings.AutoSyncInvoice = request.AutoSyncInvoice;
                 settings.StockSyncPeriodMinutes = request.StockSyncPeriodMinutes;
                 settings.PriceSyncPeriodMinutes = request.PriceSyncPeriodMinutes;
-                await _settingsRepo.UpdateAsync(settings, cancellationToken);
+                await _settingsRepo.UpdateAsync(settings, cancellationToken).ConfigureAwait(false);
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "ERP ayarlari kaydedildi: Tenant={TenantId}, Provider={Provider}, AutoStock={AutoStock}",

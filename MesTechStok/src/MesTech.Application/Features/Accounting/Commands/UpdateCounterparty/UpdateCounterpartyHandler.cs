@@ -15,13 +15,13 @@ public sealed class UpdateCounterpartyHandler : IRequestHandler<UpdateCounterpar
     public async Task<bool> Handle(UpdateCounterpartyCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var counterparty = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var counterparty = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (counterparty == null) return false;
 
         counterparty.Update(request.Name, request.VKN, request.Phone, request.Email, request.Address, request.Platform);
 
-        await _repository.UpdateAsync(counterparty, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(counterparty, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

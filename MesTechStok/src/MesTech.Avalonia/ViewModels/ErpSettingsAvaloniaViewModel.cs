@@ -2,7 +2,10 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Commands.SaveErpSettings;
+using MesTech.Application.Features.Settings.Commands.TestErpConnection;
 using MesTech.Application.Features.Settings.Queries.GetErpSettings;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -16,6 +19,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
+    [ObservableProperty] private string _statusMessage = string.Empty;
 
     // Provider selection
     [ObservableProperty] private string selectedErpProvider = "Yok";
@@ -146,7 +150,15 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — await _mediator.Send(new SaveErpSettingsCommand(...))
+            var provider = Enum.TryParse<ErpProvider>(SelectedErpProvider, out var p) ? p : ErpProvider.None;
+            await _mediator.Send(new SaveErpSettingsCommand(
+                _currentUser.TenantId,
+                provider,
+                AutoSyncStock,
+                AutoSyncInvoice,
+                StockSyncPeriodMinutes,
+                PriceSyncPeriodMinutes));
+            StatusMessage = "ERP ayarlari kaydedildi.";
         }
         catch (Exception ex)
         {
@@ -167,10 +179,11 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         ConnectionStatusColor = "#F59E0B";
         try
         {
-            // DEP: DEV1 — await _mediator.Send(new TestErpConnectionCommand(...))
-            IsConnected = true;
-            LastTestResult = "Baglanti basarili";
-            ConnectionStatusColor = "#22C55E";
+            var provider = Enum.TryParse<ErpProvider>(SelectedErpProvider, out var p) ? p : ErpProvider.None;
+            var result = await _mediator.Send(new TestErpConnectionCommand(_currentUser.TenantId, provider));
+            IsConnected = result.IsSuccess;
+            LastTestResult = result.Message;
+            ConnectionStatusColor = result.IsSuccess ? "#22C55E" : "#EF4444";
         }
         catch (Exception ex)
         {

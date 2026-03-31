@@ -19,7 +19,7 @@ public sealed class DeactivateCampaignHandler : IRequestHandler<DeactivateCampai
             ?? throw new InvalidOperationException($"Campaign '{request.CampaignId}' not found.");
 
         campaign.Deactivate();
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

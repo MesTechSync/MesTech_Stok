@@ -44,7 +44,7 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             "OrderPlaced → stok düşürme başlıyor. OrderId={OrderId}, OrderNumber={OrderNumber}",
             orderId, orderNumber);
 
-        var order = await _orderRepo.GetByIdAsync(orderId, ct);
+        var order = await _orderRepo.GetByIdAsync(orderId, ct).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogError("Order {OrderId} bulunamadı — stok düşürme atlandı", orderId);
@@ -76,7 +76,7 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
             }
 
             // Lock'lar alındı — ürünleri yeniden yükle (stale data önleme)
-            var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct);
+            var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct).ConfigureAwait(false);
             var productMap = products.ToDictionary(p => p.Id);
 
             var failures = new List<string>();
@@ -116,7 +116,7 @@ public sealed class OrderPlacedStockDeductionHandler : IOrderPlacedEventHandler
 #pragma warning restore CA1031
             }
 
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             if (failures.Count > 0)
             {

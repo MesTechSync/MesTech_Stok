@@ -35,8 +35,8 @@ public sealed class CreateStockLotHandler : IRequestHandler<CreateStockLotComman
                 request.SupplierId, request.SupplierName,
                 request.ExpiryDate, request.Notes);
 
-            await _lotRepo.AddAsync(lot, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _lotRepo.AddAsync(lot, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("StockLot created: {LotId} — {LotNumber}, Qty={Qty}",
                 lot.Id, request.LotNumber, request.Quantity);

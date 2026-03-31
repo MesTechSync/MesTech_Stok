@@ -59,7 +59,7 @@ public sealed class ProfitabilityReportHandler
             .Distinct()
             .ToList();
 
-        var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
+        var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken).ConfigureAwait(false);
         var productCosts = products.ToDictionary(p => p.Id, p => p.PurchasePrice);
 
         // Her siparis icin kar hesapla

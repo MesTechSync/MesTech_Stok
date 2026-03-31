@@ -26,7 +26,7 @@ public sealed class EnableMfaHandler : IRequestHandler<EnableMfaCommand, EnableM
 
     public async Task<EnableMfaResult> Handle(EnableMfaCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.GetByIdAsync(request.UserId);
+        var user = await _userRepo.GetByIdAsync(request.UserId).ConfigureAwait(false);
         if (user is null)
             return new EnableMfaResult { ErrorMessage = "Kullanici bulunamadi" };
 
@@ -37,8 +37,8 @@ public sealed class EnableMfaHandler : IRequestHandler<EnableMfaCommand, EnableM
         var qrUri = _totpService.GenerateQrCodeUri(secret, user.Email ?? user.Username);
 
         user.TotpSecret = secret;
-        await _userRepo.UpdateAsync(user);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _userRepo.UpdateAsync(user).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("MFA setup baslatildi: UserId={UserId}", request.UserId);
 

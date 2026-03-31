@@ -11,7 +11,7 @@ public sealed class GetSyncHistoryHandler : IRequestHandler<GetSyncHistoryQuery,
 
     public async Task<IReadOnlyList<SyncHistoryItemDto>> Handle(GetSyncHistoryQuery request, CancellationToken cancellationToken)
     {
-        var logs = await _syncLogRepo.GetRecentAsync(request.TenantId, request.Count, request.PlatformFilter, cancellationToken);
+        var logs = await _syncLogRepo.GetRecentAsync(request.TenantId, request.Count, request.PlatformFilter, cancellationToken).ConfigureAwait(false);
 
         return logs.Select(l => new SyncHistoryItemDto
         {

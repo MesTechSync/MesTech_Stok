@@ -13,7 +13,7 @@ public sealed class GetStockLotsHandler
     public async Task<IReadOnlyList<StockLotDto>> Handle(
         GetStockLotsQuery request, CancellationToken cancellationToken)
     {
-        var lots = await _repo.GetByTenantAsync(request.TenantId, request.Limit, cancellationToken);
+        var lots = await _repo.GetByTenantAsync(request.TenantId, request.Limit, cancellationToken).ConfigureAwait(false);
 
         return lots
             .OrderByDescending(l => l.ReceivedAt)

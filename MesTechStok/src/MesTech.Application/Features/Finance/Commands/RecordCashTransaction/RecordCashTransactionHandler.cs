@@ -26,8 +26,8 @@ public sealed class RecordCashTransactionHandler : IRequestHandler<RecordCashTra
             _ => throw new InvalidOperationException($"Desteklenmeyen islem tipi: {request.Type}")
         };
 
-        await _cashRegisterRepo.UpdateAsync(cashRegister, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _cashRegisterRepo.UpdateAsync(cashRegister, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return tx.Id;
     }
 }

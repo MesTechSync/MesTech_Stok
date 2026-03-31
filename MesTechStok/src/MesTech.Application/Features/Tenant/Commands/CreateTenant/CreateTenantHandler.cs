@@ -22,8 +22,8 @@ public sealed class CreateTenantHandler : IRequestHandler<CreateTenantCommand, G
             TaxNumber = request.TaxNumber,
             IsActive = true
         };
-        await _repo.AddAsync(tenant, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repo.AddAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return tenant.Id;
     }
 }

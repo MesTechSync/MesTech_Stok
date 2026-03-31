@@ -52,8 +52,8 @@ public sealed class LowStockNotificationHandler : ILowStockNotificationHandler
             "LowStockAlert",
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Stok uyarısı bildirimi oluşturuldu — SKU={SKU}, ProductId={ProductId}",

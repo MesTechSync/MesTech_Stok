@@ -21,8 +21,8 @@ public sealed class UploadAccountingDocumentHandler : IRequestHandler<UploadAcco
             request.StoragePath, request.DocumentType, request.DocumentSource,
             request.CounterpartyId, request.Amount, request.ExtractedData);
 
-        await _repository.AddAsync(document, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(document, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return document.Id;
     }
 }

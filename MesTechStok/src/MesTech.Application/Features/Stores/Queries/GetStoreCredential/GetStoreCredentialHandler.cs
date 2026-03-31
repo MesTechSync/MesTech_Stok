@@ -29,11 +29,11 @@ public sealed class GetStoreCredentialHandler : IRequestHandler<GetStoreCredenti
         GetStoreCredentialQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null)
             return null;
 
-        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
+        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (credentials.Count == 0)
             return null;
 

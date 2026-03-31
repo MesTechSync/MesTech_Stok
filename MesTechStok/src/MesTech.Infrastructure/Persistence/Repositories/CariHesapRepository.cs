@@ -20,12 +20,14 @@ public sealed class CariHesapRepository : ICariHesapRepository
             .Where(c => c.Type == type)
             .Where(c => tenantId == null || c.TenantId == tenantId.Value)
             .OrderBy(c => c.Name)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<CariHesap>> GetAllAsync(Guid? tenantId = null)
         => await _context.CariHesaplar
             .Where(c => tenantId == null || c.TenantId == tenantId.Value)
             .OrderBy(c => c.Name)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(CariHesap cariHesap)

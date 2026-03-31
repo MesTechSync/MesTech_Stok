@@ -27,7 +27,7 @@ public sealed class ConvertQuotationToInvoiceHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var quotation = await _quotationRepository.GetByIdWithLinesAsync(request.QuotationId);
+        var quotation = await _quotationRepository.GetByIdWithLinesAsync(request.QuotationId).ConfigureAwait(false);
         if (quotation is null)
             return new ConvertQuotationToInvoiceResult
             {
@@ -51,9 +51,9 @@ public sealed class ConvertQuotationToInvoiceHandler
             };
         }
 
-        await _invoiceRepository.AddAsync(invoice);
-        await _quotationRepository.UpdateAsync(quotation);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);
+        await _quotationRepository.UpdateAsync(quotation).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new ConvertQuotationToInvoiceResult
         {

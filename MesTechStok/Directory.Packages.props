@@ -59,6 +59,7 @@
     <!-- DEV 4 G478: Scalar replaces Swashbuckle UI (.NET 9 recommended) -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.0.36" />
+    <PackageVersion Include="Asp.Versioning.Http" Version="8.1.0" />
   </ItemGroup>
   <ItemGroup Label="Infrastructure">
     <!-- GHSA-4cv2 fix: override transitive dep from WireMock.Net → Handlebars.Net.Helpers.DynamicLinq -->

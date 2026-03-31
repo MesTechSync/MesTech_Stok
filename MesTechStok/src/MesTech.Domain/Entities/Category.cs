@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -25,6 +26,28 @@ public sealed class Category : BaseEntity, ITenantEntity
 
     private readonly List<Category> _subCategories = new();
     public IReadOnlyCollection<Category> SubCategories => _subCategories.AsReadOnly();
+
+    // ── Factory ──
+
+    public static Category Create(Guid tenantId, string name, string code, bool isActive = true)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+
+        var category = new Category
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Name = name,
+            Code = code,
+            IsActive = isActive
+        };
+
+        category.RaiseDomainEvent(new CategoryCreatedEvent(
+            category.Id, tenantId, name, code, DateTime.UtcNow));
+
+        return category;
+    }
 
     public override string ToString() => $"[{Code}] {Name}";
 }

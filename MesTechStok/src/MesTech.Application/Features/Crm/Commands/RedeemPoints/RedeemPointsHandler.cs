@@ -64,8 +64,8 @@ public sealed class RedeemPointsHandler : IRequestHandler<RedeemPointsCommand, R
             LoyaltyTransactionType.Redeem,
             $"Redeemed {request.PointsToRedeem} points");
 
-        await _transactionRepo.AddAsync(transaction, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _transactionRepo.AddAsync(transaction, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // 5. Calculate discount: PointsToRedeem / 100 = TL discount
         var discountAmount = request.PointsToRedeem / 100m;

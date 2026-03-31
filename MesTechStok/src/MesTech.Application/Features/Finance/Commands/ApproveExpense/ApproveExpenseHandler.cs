@@ -17,7 +17,7 @@ public sealed class ApproveExpenseHandler : IRequestHandler<ApproveExpenseComman
             ?? throw new InvalidOperationException($"Expense {request.ExpenseId} not found.");
 
         expense.Approve(request.ApproverUserId);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

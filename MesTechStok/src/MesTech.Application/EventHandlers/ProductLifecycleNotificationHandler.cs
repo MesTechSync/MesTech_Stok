@@ -36,21 +36,21 @@ public sealed class ProductLifecycleNotificationHandler : IProductLifecycleNotif
     {
         _logger.LogInformation("ProductUpdated → bildirim. SKU={SKU}", sku);
         await CreateNotificationAsync(tenantId, "ProductUpdated",
-            $"Ürün güncellendi — SKU: {sku}", ct);
+            $"Ürün güncellendi — SKU: {sku}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleActivatedAsync(Guid productId, Guid tenantId, string sku, CancellationToken ct)
     {
         _logger.LogInformation("ProductActivated → bildirim. SKU={SKU}", sku);
         await CreateNotificationAsync(tenantId, "ProductActivated",
-            $"Ürün aktifleştirildi — SKU: {sku}", ct);
+            $"Ürün aktifleştirildi — SKU: {sku}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleDeactivatedAsync(Guid productId, Guid tenantId, string sku, string reason, CancellationToken ct)
     {
         _logger.LogWarning("ProductDeactivated → bildirim. SKU={SKU}, Reason={Reason}", sku, reason);
         await CreateNotificationAsync(tenantId, "ProductDeactivated",
-            $"Ürün pasifleştirildi — SKU: {sku}, Sebep: {reason}", ct);
+            $"Ürün pasifleştirildi — SKU: {sku}, Sebep: {reason}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)
@@ -62,7 +62,7 @@ public sealed class ProductLifecycleNotificationHandler : IProductLifecycleNotif
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

@@ -17,7 +17,7 @@ public sealed class AcceptQuotationHandler : IRequestHandler<AcceptQuotationComm
     public async Task<AcceptQuotationResult> Handle(AcceptQuotationCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var quotation = await _quotationRepository.GetByIdAsync(request.QuotationId);
+        var quotation = await _quotationRepository.GetByIdAsync(request.QuotationId).ConfigureAwait(false);
         if (quotation is null)
             return new AcceptQuotationResult { IsSuccess = false, ErrorMessage = "Quotation not found." };
 
@@ -30,8 +30,8 @@ public sealed class AcceptQuotationHandler : IRequestHandler<AcceptQuotationComm
             return new AcceptQuotationResult { IsSuccess = false, ErrorMessage = ex.Message };
         }
 
-        await _quotationRepository.UpdateAsync(quotation);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _quotationRepository.UpdateAsync(quotation).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new AcceptQuotationResult { IsSuccess = true };
     }

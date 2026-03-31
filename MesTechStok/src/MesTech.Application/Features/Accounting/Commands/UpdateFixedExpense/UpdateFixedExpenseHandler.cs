@@ -28,7 +28,7 @@ public sealed class UpdateFixedExpenseHandler : IRequestHandler<UpdateFixedExpen
                 expense.Deactivate();
         }
 
-        await _repository.UpdateAsync(expense, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(expense, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

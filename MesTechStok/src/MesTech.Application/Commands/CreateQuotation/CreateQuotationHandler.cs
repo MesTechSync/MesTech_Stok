@@ -52,8 +52,8 @@ public sealed class CreateQuotationHandler : IRequestHandler<CreateQuotationComm
             }
         }
 
-        await _quotationRepository.AddAsync(quotation);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _quotationRepository.AddAsync(quotation).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateQuotationResult
         {

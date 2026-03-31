@@ -18,7 +18,7 @@ public sealed class ListFixedAssetsHandler : IRequestHandler<ListFixedAssetsQuer
     public async Task<IReadOnlyList<FixedAssetDto>> Handle(ListFixedAssetsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var assets = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken);
+        var assets = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken).ConfigureAwait(false);
         return assets.Select(a => new FixedAssetDto
         {
             Id = a.Id,

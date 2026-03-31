@@ -14,7 +14,7 @@ public sealed class GetAccountingExpensesHandler : IRequestHandler<GetAccounting
     public async Task<IReadOnlyList<AccountingExpenseDto>> Handle(GetAccountingExpensesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var expenses = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, request.Source, cancellationToken);
+        var expenses = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, request.Source, cancellationToken).ConfigureAwait(false);
         return expenses.Select(e => new AccountingExpenseDto
         {
             Id = e.Id,

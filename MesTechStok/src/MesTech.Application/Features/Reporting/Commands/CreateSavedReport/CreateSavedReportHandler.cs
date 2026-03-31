@@ -37,8 +37,8 @@ public sealed class CreateSavedReportHandler : IRequestHandler<CreateSavedReport
             request.FilterJson,
             request.CreatedByUserId);
 
-        await _savedReportRepository.AddAsync(savedReport, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _savedReportRepository.AddAsync(savedReport, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Kaydedilmis rapor olusturuldu: Id={ReportId}, Name={Name}, Type={ReportType}",

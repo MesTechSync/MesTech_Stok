@@ -27,6 +27,6 @@ public sealed class GetFifoCOGSHandler : IRequestHandler<GetFifoCOGSQuery, IRead
             return new[] { result };
         }
 
-        return await _fifoService.CalculateAllCOGSAsync(request.TenantId, cancellationToken);
+        return await _fifoService.CalculateAllCOGSAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
     }
 }

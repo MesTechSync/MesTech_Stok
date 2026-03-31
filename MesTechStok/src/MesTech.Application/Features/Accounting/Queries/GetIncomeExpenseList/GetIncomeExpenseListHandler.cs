@@ -27,8 +27,8 @@ public sealed class GetIncomeExpenseListHandler
         var from = request.From ?? DateTime.MinValue;
         var to = request.To ?? DateTime.UtcNow;
 
-        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId);
-        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId);
+        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
+        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
 
         var items = incomes
             .Select(i => new IncomeExpenseItemDto(i.Id, i.Description, i.Amount, "Income", i.Source.ToString(), i.Date, i.OrderId))

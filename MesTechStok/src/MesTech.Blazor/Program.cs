@@ -68,6 +68,7 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddSource("MesTech.Application.Handlers")
+        .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
         {
             opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:3317");

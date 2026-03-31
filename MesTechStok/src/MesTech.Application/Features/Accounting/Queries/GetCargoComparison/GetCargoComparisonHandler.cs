@@ -34,7 +34,7 @@ public sealed class GetCargoComparisonHandler
 
         foreach (var adapter in allAdapters)
         {
-            var item = await BuildComparisonItemAsync(adapter, request, cancellationToken);
+            var item = await BuildComparisonItemAsync(adapter, request, cancellationToken).ConfigureAwait(false);
             items.Add(item);
         }
 
@@ -72,7 +72,7 @@ public sealed class GetCargoComparisonHandler
             }
 
             if (adapter is ICargoRateProvider rateProvider)
-                return await GetRateItemAsync(adapter, rateProvider, request, cancellationToken);
+                return await GetRateItemAsync(adapter, rateProvider, request, cancellationToken).ConfigureAwait(false);
 
             return new CargoComparisonItem
             {

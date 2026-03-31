@@ -19,7 +19,7 @@ public sealed class DeleteExpenseHandler : IRequestHandler<DeleteExpenseCommand>
         expense.IsDeleted = true;
         expense.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(expense);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(expense).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

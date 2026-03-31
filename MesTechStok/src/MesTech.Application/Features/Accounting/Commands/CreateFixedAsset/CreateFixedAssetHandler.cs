@@ -30,8 +30,8 @@ public sealed class CreateFixedAssetHandler : IRequestHandler<CreateFixedAssetCo
             method: request.Method,
             description: request.Description);
 
-        await _repository.AddAsync(asset, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(asset, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return asset.Id;
     }
 }

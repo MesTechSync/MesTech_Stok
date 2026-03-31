@@ -28,8 +28,8 @@ public sealed class RejectReconciliationHandler : IRequestHandler<RejectReconcil
 
         match.Reject(request.ReviewedBy.ToString());
 
-        await _matchRepo.UpdateAsync(match, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _matchRepo.UpdateAsync(match, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return Unit.Value;
     }

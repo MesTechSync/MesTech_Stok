@@ -13,7 +13,7 @@ public sealed class GetSubscriptionPlansHandler : IRequestHandler<GetSubscriptio
     public async Task<IReadOnlyList<SubscriptionPlanDto>> Handle(GetSubscriptionPlansQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var plans = await _repository.GetActiveAsync(cancellationToken);
+        var plans = await _repository.GetActiveAsync(cancellationToken).ConfigureAwait(false);
         return plans.Select(p => new SubscriptionPlanDto
         {
             Id = p.Id,

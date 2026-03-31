@@ -33,7 +33,7 @@ public sealed class UpdatePoolProductReliabilityCommandHandler(
         // K1d-06: Güvenilirlik skorunu ve renk sınıflandırmasını entity üzerinde güncelle
         poolProduct.UpdateReliability(req.NewScore, (int)req.NewColor);
 
-        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken);
+        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

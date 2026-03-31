@@ -2,13 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetCrmActivities;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class ActivityAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string? selectedFilter;
     [ObservableProperty] private int totalCount;
@@ -16,9 +18,10 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
     public ObservableCollection<ActivityItemVm> Activities { get; } = [];
     public string[] FilterOptions { get; } = ["Tumu", "Arama", "Toplanti", "E-posta", "Not", "Gorev"];
 
-    public ActivityAvaloniaViewModel(IMediator mediator)
+    public ActivityAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -29,32 +32,22 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId));
             Activities.Clear();
-            Activities.Add(new ActivityItemVm
+            foreach (var a in result.Activities)
             {
-                Id = Guid.NewGuid(), Type = "Arama", Subject = "ABC Ltd ile gorusme",
-                Description = "Teklif detaylari konusuldu", ContactName = "Ahmet Yilmaz",
-                ActivityDate = DateTime.Now.AddHours(-2), CreatedBy = "Fatih I."
-            });
-            Activities.Add(new ActivityItemVm
-            {
-                Id = Guid.NewGuid(), Type = "E-posta", Subject = "Teklif gonderimi",
-                Description = "Fiyat listesi mail ile iletildi", ContactName = "Fatma Demir",
-                ActivityDate = DateTime.Now.AddHours(-5), CreatedBy = "Mehmet C."
-            });
-            Activities.Add(new ActivityItemVm
-            {
-                Id = Guid.NewGuid(), Type = "Toplanti", Subject = "Demo sunumu",
-                Description = "Urun demo'su yapildi, olumlu donus", ContactName = "Ali Kaya",
-                ActivityDate = DateTime.Now.AddDays(-1), CreatedBy = "Fatih I."
-            });
-            Activities.Add(new ActivityItemVm
-            {
-                Id = Guid.NewGuid(), Type = "Not", Subject = "Musteri notu",
-                Description = "Butce onay sureci devam ediyor", ContactName = "Zeynep Arslan",
-                ActivityDate = DateTime.Now.AddDays(-2), CreatedBy = "Ayse K."
-            });
-            TotalCount = Activities.Count;
+                Activities.Add(new ActivityItemVm
+                {
+                    Id = a.Id,
+                    Type = a.Type.ToString(),
+                    Subject = a.Subject,
+                    Description = a.Description,
+                    ContactName = a.ContactName,
+                    ActivityDate = a.OccurredAt,
+                    CreatedBy = "—"
+                });
+            }
+            TotalCount = result.TotalCount;
             IsEmpty = Activities.Count == 0;
         }
         catch (Exception ex)

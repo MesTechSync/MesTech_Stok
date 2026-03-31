@@ -66,7 +66,7 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
             $"REV-{invoiceNumber}");
 
         // G137 FIX: Gerçek KDV tutarını faturadan çek — hardcoded %20 MALİ HATA (G137)
-        var invoice = await _invoiceRepo.GetByIdAsync(invoiceId);
+        var invoice = await _invoiceRepo.GetByIdAsync(invoiceId).ConfigureAwait(false);
         var taxAmount = invoice?.TaxTotal ?? Math.Round(grandTotal * 0.20m / 1.20m, 2);
         var netAmount = grandTotal - taxAmount;
 

@@ -22,12 +22,14 @@ public sealed class QuotationRepository : IQuotationRepository
     public async Task<IReadOnlyList<Quotation>> GetAllAsync()
         => await _context.Quotations
             .OrderByDescending(q => q.QuotationDate)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Quotation>> GetByStatusAsync(QuotationStatus status)
         => await _context.Quotations
             .Where(q => q.Status == status)
             .OrderByDescending(q => q.QuotationDate)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Quotation quotation)

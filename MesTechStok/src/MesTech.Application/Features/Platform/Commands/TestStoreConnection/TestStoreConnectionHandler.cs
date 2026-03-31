@@ -37,7 +37,7 @@ public sealed class TestStoreConnectionHandler
         ArgumentNullException.ThrowIfNull(request);
         var sw = Stopwatch.StartNew();
 
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null)
         {
             return new ConnectionTestResultDto
@@ -73,7 +73,7 @@ public sealed class TestStoreConnectionHandler
 
         try
         {
-            var result = await adapter.TestConnectionAsync(credentialDict, cancellationToken);
+            var result = await adapter.TestConnectionAsync(credentialDict, cancellationToken).ConfigureAwait(false);
             result.ResponseTime = sw.Elapsed;
             return result;
         }

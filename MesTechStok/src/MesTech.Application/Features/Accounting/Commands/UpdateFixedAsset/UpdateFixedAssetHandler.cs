@@ -24,8 +24,8 @@ public sealed class UpdateFixedAssetHandler : IRequestHandler<UpdateFixedAssetCo
 
         asset.Update(request.Name, request.Description, request.UsefulLifeYears);
 
-        await _repository.UpdateAsync(asset, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(asset, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

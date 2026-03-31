@@ -52,8 +52,8 @@ public sealed class InvoiceCreatedNotificationHandler : IInvoiceCreatedNotificat
             "InvoiceCreated",
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Fatura bildirimi oluşturuldu — InvoiceId={InvoiceId}", invoiceId);

@@ -18,7 +18,7 @@ public sealed class GetServiceHealthHandler
     public async Task<IReadOnlyList<ServiceHealthDto>> Handle(
         GetServiceHealthQuery request, CancellationToken cancellationToken)
     {
-        var results = await _healthService.CheckAllAsync(cancellationToken);
+        var results = await _healthService.CheckAllAsync(cancellationToken).ConfigureAwait(false);
 
         return results
             .Select(r => new ServiceHealthDto

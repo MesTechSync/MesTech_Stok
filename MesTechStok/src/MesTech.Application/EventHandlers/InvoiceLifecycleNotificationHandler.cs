@@ -37,28 +37,28 @@ public sealed class InvoiceLifecycleNotificationHandler : IInvoiceLifecycleNotif
     {
         _logger.LogInformation("InvoiceAccepted → bildirim. Invoice={Inv}, Total={Total}", invoiceNumber, grandTotal);
         await CreateNotificationAsync(tenantId, "InvoiceAccepted",
-            $"Fatura kabul edildi — #{invoiceNumber}, Tutar: {grandTotal:C2}", ct);
+            $"Fatura kabul edildi — #{invoiceNumber}, Tutar: {grandTotal:C2}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleRejectedAsync(Guid invoiceId, Guid tenantId, string invoiceNumber, CancellationToken ct)
     {
         _logger.LogWarning("InvoiceRejected → bildirim. Invoice={Inv}", invoiceNumber);
         await CreateNotificationAsync(tenantId, "InvoiceRejected",
-            $"Fatura reddedildi — #{invoiceNumber}. Yeniden düzenleme gerekli.", ct);
+            $"Fatura reddedildi — #{invoiceNumber}. Yeniden düzenleme gerekli.", ct).ConfigureAwait(false);
     }
 
     public async Task HandleSentAsync(Guid invoiceId, Guid tenantId, Guid orderId, string? gibInvoiceId, CancellationToken ct)
     {
         _logger.LogInformation("InvoiceSent → bildirim. InvoiceId={Id}, GIB={GIB}", invoiceId, gibInvoiceId);
         await CreateNotificationAsync(tenantId, "InvoiceSent",
-            $"Fatura gönderildi — GİB No: {gibInvoiceId ?? "bekliyor"}", ct);
+            $"Fatura gönderildi — GİB No: {gibInvoiceId ?? "bekliyor"}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleGeneratedForERPAsync(Guid invoiceId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation("InvoiceGeneratedForERP → bildirim. InvoiceId={Id}", invoiceId);
         await CreateNotificationAsync(tenantId, "InvoiceGeneratedForERP",
-            $"Fatura ERP için hazırlandı — ID: {invoiceId}", ct);
+            $"Fatura ERP için hazırlandı — ID: {invoiceId}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)
@@ -70,7 +70,7 @@ public sealed class InvoiceLifecycleNotificationHandler : IInvoiceLifecycleNotif
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

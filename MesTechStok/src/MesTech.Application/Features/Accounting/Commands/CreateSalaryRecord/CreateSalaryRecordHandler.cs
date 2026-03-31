@@ -29,8 +29,8 @@ public sealed class CreateSalaryRecordHandler : IRequestHandler<CreateSalaryReco
             request.EmployeeId,
             request.Notes);
 
-        await _repository.AddAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return record.Id;
     }
 }

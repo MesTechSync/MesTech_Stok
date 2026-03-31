@@ -18,7 +18,7 @@ public sealed class GetCalendarEventsHandler : IRequestHandler<GetCalendarEvents
         var from = request.From ?? DateTime.UtcNow.AddMonths(-1);
         var to = request.To ?? DateTime.UtcNow.AddMonths(3);
 
-        var events = await _repository.GetByDateRangeAsync(request.TenantId, from, to, cancellationToken);
+        var events = await _repository.GetByDateRangeAsync(request.TenantId, from, to, cancellationToken).ConfigureAwait(false);
         return events.Adapt<List<CalendarEventDto>>().AsReadOnly();
     }
 }

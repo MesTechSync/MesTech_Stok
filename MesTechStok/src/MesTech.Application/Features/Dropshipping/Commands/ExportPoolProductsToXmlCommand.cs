@@ -44,7 +44,7 @@ public sealed class ExportPoolProductsToXmlCommandHandler(
         var stream = await xmlExport.ExportProductsAsync(exportDtos, cancellationToken);
 
         using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms, cancellationToken);
+        await stream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
         return ms.ToArray();
     }
 

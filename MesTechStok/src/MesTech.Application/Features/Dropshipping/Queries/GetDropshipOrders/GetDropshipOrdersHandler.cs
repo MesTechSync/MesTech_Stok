@@ -14,7 +14,7 @@ public sealed class GetDropshipOrdersHandler : IRequestHandler<GetDropshipOrders
     public async Task<IReadOnlyList<DropshipOrderDto>> Handle(GetDropshipOrdersQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var items = await _repository.GetByTenantAsync(request.TenantId, cancellationToken);
+        var items = await _repository.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return items.Select(o => new DropshipOrderDto
         {
             Id = o.Id,

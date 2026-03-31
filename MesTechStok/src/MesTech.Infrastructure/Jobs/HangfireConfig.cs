@@ -4,6 +4,7 @@ using MesTech.Infrastructure.Integration.Jobs;
 using MesTech.Infrastructure.Jobs.Accounting;
 using MesTech.Infrastructure.Jobs.Billing;
 using MesTech.Infrastructure.Jobs.Crm;
+using MesTech.Infrastructure.Jobs.Pricing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -91,6 +92,9 @@ public static class HangfireConfig
         // Platform claim + price sync (G498 + G499 FIX)
         services.AddScoped<GenericPlatformClaimSyncJob>();
         services.AddScoped<GenericPlatformPriceSyncJob>();
+
+        // Pricing — Buybox recovery auto-price update (G506 FIX)
+        services.AddScoped<AutoPriceUpdateWorker>();
 
         return services;
     }
@@ -435,5 +439,13 @@ public static class HangfireConfig
             "fulfillment-stock-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/30 * * * *");
+
+        // === Pricing — Buybox Recovery (G506 FIX) ===
+
+        // Her 30 dakika — buybox kaybedilen ürünlerde otomatik fiyat güncelleme
+        RecurringJob.AddOrUpdate<AutoPriceUpdateWorker>(
+            AutoPriceUpdateWorker.JobId,
+            job => job.ExecuteAsync(CancellationToken.None),
+            AutoPriceUpdateWorker.CronExpression);
     }
 }

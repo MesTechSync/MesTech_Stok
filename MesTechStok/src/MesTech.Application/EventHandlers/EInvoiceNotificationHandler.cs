@@ -36,21 +36,21 @@ public sealed class EInvoiceNotificationHandler : IEInvoiceNotificationHandler
     {
         _logger.LogInformation("EInvoiceCreated → bildirim. ETTN={ETTN}", ettnNo);
         await CreateNotificationAsync(tenantId, "EInvoiceCreated",
-            $"E-Fatura oluşturuldu — ETTN: {ettnNo}", ct);
+            $"E-Fatura oluşturuldu — ETTN: {ettnNo}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleSentAsync(Guid eInvoiceId, Guid tenantId, string ettnNo, string? providerRef, CancellationToken ct)
     {
         _logger.LogInformation("EInvoiceSent → bildirim. ETTN={ETTN}, Ref={Ref}", ettnNo, providerRef);
         await CreateNotificationAsync(tenantId, "EInvoiceSent",
-            $"E-Fatura gönderildi — ETTN: {ettnNo}, Provider Ref: {providerRef ?? "N/A"}", ct);
+            $"E-Fatura gönderildi — ETTN: {ettnNo}, Provider Ref: {providerRef ?? "N/A"}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleCancelledAsync(Guid eInvoiceId, Guid tenantId, string ettnNo, string reason, CancellationToken ct)
     {
         _logger.LogWarning("EInvoiceCancelled → bildirim. ETTN={ETTN}, Reason={Reason}", ettnNo, reason);
         await CreateNotificationAsync(tenantId, "EInvoiceCancelled",
-            $"E-Fatura iptal edildi — ETTN: {ettnNo}, Sebep: {reason}", ct);
+            $"E-Fatura iptal edildi — ETTN: {ettnNo}, Sebep: {reason}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)
@@ -62,7 +62,7 @@ public sealed class EInvoiceNotificationHandler : IEInvoiceNotificationHandler
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

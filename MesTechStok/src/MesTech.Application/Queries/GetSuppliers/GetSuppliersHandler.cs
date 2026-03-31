@@ -17,7 +17,7 @@ public sealed class GetSuppliersHandler : IRequestHandler<GetSuppliersQuery, IRe
         ArgumentNullException.ThrowIfNull(request);
         var suppliers = request.ActiveOnly
             ? await _supplierRepository.GetActiveAsync()
-            : await _supplierRepository.GetAllAsync();
+            : await _supplierRepository.GetAllAsync().ConfigureAwait(false);
 
         return suppliers.Select(s => new SupplierListDto
         {

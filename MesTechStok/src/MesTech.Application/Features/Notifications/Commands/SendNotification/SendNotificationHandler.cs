@@ -46,8 +46,8 @@ public sealed class SendNotificationHandler : IRequestHandler<SendNotificationCo
             request.TemplateName,
             request.Content);
 
-        await _notificationLogRepository.AddAsync(log, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _notificationLogRepository.AddAsync(log, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[Notification] NotificationLog olusturuldu: Id={LogId}, Channel={Channel}, Recipient={Recipient}",

@@ -37,7 +37,7 @@ public sealed class TestStoreCredentialHandler : IRequestHandler<TestStoreCreden
         TestStoreCredentialCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null)
         {
             return new CredentialTestResult
@@ -61,7 +61,7 @@ public sealed class TestStoreCredentialHandler : IRequestHandler<TestStoreCreden
         }
 
         // Load and decrypt credentials
-        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
+        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (credentials.Count == 0)
         {
             return new CredentialTestResult
@@ -89,7 +89,7 @@ public sealed class TestStoreCredentialHandler : IRequestHandler<TestStoreCreden
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeoutMs);
 
-            var result = await adapter.TestConnectionAsync(decryptedFields, cts.Token);
+            var result = await adapter.TestConnectionAsync(decryptedFields, cts.Token).ConfigureAwait(false);
             sw.Stop();
 
             return new CredentialTestResult

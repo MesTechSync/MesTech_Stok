@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Shipping.Commands.PrintShipmentLabel;
+using MesTech.Application.Features.Shipping.Queries.DownloadShipmentLabel;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -11,9 +14,11 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
 
     // Label data
+    [ObservableProperty] private Guid shipmentId;
     [ObservableProperty] private string trackingNumber = string.Empty;
     [ObservableProperty] private string cargoProvider = string.Empty;
     [ObservableProperty] private string senderName = string.Empty;
@@ -30,9 +35,10 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
 
     public List<string> Formats { get; } = ["PDF", "ZPL", "PNG"];
 
-    public LabelPreviewAvaloniaViewModel(IMediator mediator)
+    public LabelPreviewAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -72,8 +78,9 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Replace with PrintShipmentLabelCommand via MediatR (production: printer service)
-            await Task.CompletedTask;
+            var result = await _mediator.Send(new PrintShipmentLabelCommand(
+                _currentUser.TenantId, ShipmentId));
+            StatusMessage = result.IsSuccess ? "Etiket yaziciya gonderildi." : result.ErrorMessage ?? "Yazdir hatasi";
         }
         catch (Exception ex)
         {
@@ -89,8 +96,20 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Replace with DownloadShipmentLabelCommand via MediatR (production: file export)
-            await Task.CompletedTask;
+            var result = await _mediator.Send(new DownloadShipmentLabelQuery(
+                _currentUser.TenantId, ShipmentId, TrackingNumber));
+            if (result.LabelData.Length > 0)
+            {
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                Directory.CreateDirectory(dir);
+                var filePath = Path.Combine(dir, result.FileName);
+                await File.WriteAllBytesAsync(filePath, result.LabelData);
+                StatusMessage = $"Etiket indirildi: {filePath}";
+            }
+            else
+            {
+                StatusMessage = "Etiket verisi bos — indirilemedi.";
+            }
         }
         catch (Exception ex)
         {

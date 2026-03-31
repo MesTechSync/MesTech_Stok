@@ -26,8 +26,8 @@ public sealed class CreateDealHandler : IRequestHandler<CreateDealCommand, Guid>
             request.AssignedToUserId,
             request.StoreId);
 
-        await _repository.AddAsync(deal, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(deal, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return deal.Id;
     }
 }

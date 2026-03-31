@@ -8,6 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Auth;
 using MesTech.Infrastructure.DependencyInjection;
@@ -94,6 +95,7 @@ builder.Services.AddOpenTelemetry()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation(opt => opt.SetDbStatementForText = true)
         .AddSource("MesTech.Application.Handlers")
+        .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
         {
             opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
@@ -195,28 +197,43 @@ builder.Services.AddRateLimiter(options =>
 // ProblemDetails — RFC 7807 compliant error responses (A-M2-06)
 builder.Services.AddProblemDetails();
 
-// Swagger/OpenAPI — API documentation with API Key auth support
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// API Versioning — URL-based /api/v1/ + header-based api-version (G475)
+builder.Services.AddApiVersioning(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MesTech API", Version = "v1" });
-    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = Asp.Versioning.ApiVersionReader.Combine(
+        new Asp.Versioning.UrlSegmentApiVersionReader(),
+        new Asp.Versioning.HeaderApiVersionReader("X-Api-Version"));
+});
+
+// OpenAPI + Scalar — modern API documentation (G476: Swashbuckle→Scalar migration)
+builder.Services.AddOpenApi("v1", options =>
+{
+    options.AddDocumentTransformer((document, context, ct) =>
     {
-        In = ParameterLocation.Header,
-        Name = "X-API-Key",
-        Type = SecuritySchemeType.ApiKey
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        document.Info = new OpenApiInfo { Title = "MesTech API", Version = "v1" };
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes["ApiKey"] = new OpenApiSecurityScheme
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
-            },
-            Array.Empty<string>()
-        }
+            In = ParameterLocation.Header,
+            Name = "X-API-Key",
+            Type = SecuritySchemeType.ApiKey
+        };
+        return Task.CompletedTask;
     });
-    c.OperationFilter<MesTech.WebApi.Filters.SwaggerDefaultResponsesFilter>();
+    options.AddOperationTransformer((operation, context, ct) =>
+    {
+        // Default responses — 401, 429, 500 (replaces SwaggerDefaultResponsesFilter)
+        operation.Responses.TryAdd("401", new OpenApiResponse
+            { Description = "Unauthorized — Geçersiz veya eksik API key / JWT token" });
+        operation.Responses.TryAdd("429", new OpenApiResponse
+            { Description = "Too Many Requests — Rate limit aşıldı. Retry-After header'ına bakın." });
+        operation.Responses.TryAdd("500", new OpenApiResponse
+            { Description = "Internal Server Error — Beklenmeyen sunucu hatası (RFC 7807 ProblemDetails)" });
+        return Task.CompletedTask;
+    });
 });
 
 // CORS — environment-aware production config (A-M2-08)
@@ -507,14 +524,16 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// G102 FIX: Swagger JSON — Development only (production API structure exposure = OWASP risk)
+// G476: Scalar API Reference — Development only (production API structure exposure = OWASP risk)
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MesTech API v1");
-        c.RoutePrefix = "swagger";
+        options
+            .WithTitle("MesTech API")
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
 
@@ -700,6 +719,7 @@ MesaStatusEndpoint.Map(app); // DEV6-TUR13: MESA health
 CrmActivitiesEndpoint.Map(app); // DEV6-TUR13: CRM aktiviteler
 DocumentFoldersEndpoint.Map(app); // DEV6-TUR13: Belge klasörleri
 ImportTemplateEndpoint.Map(app); // DEV6-TUR13: Import şablon
+OpenCartProductsEndpoint.Map(app); // DEV6-TUR15: G519 OpenCart ürünler
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

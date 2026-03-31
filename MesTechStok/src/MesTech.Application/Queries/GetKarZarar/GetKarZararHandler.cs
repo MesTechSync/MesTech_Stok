@@ -18,8 +18,8 @@ public sealed class GetKarZararHandler : IRequestHandler<GetKarZararQuery, KarZa
     public async Task<KarZararDto> Handle(GetKarZararQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var incomes = await _incomeRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId);
-        var expenses = await _expenseRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId);
+        var incomes = await _incomeRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId).ConfigureAwait(false);
+        var expenses = await _expenseRepository.GetByDateRangeAsync(request.From, request.To, request.TenantId).ConfigureAwait(false);
 
         var toplamGelir = incomes.Sum(i => i.Amount);
         var toplamGider = expenses.Sum(e => e.Amount);

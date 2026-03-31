@@ -22,8 +22,8 @@ public sealed class CreateCalendarEventHandler : IRequestHandler<CreateCalendarE
         foreach (var userId in request.AttendeeUserIds ?? [])
             ev.AddAttendee(userId);
 
-        await _repository.AddAsync(ev, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(ev, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return ev.Id;
     }
 }

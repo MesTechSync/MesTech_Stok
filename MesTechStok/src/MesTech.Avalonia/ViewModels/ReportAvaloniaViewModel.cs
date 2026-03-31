@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -118,7 +119,15 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Wire to ExportReportCommand
+            var result = await _mediator.Send(new ExportReportCommand(
+                _currentUser.TenantId, "general", "xlsx"));
+            if (result.FileData.Length > 0)
+            {
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                Directory.CreateDirectory(dir);
+                await File.WriteAllBytesAsync(Path.Combine(dir, result.FileName), result.FileData);
+                StatusMessage = $"Excel raporu kaydedildi ({result.ExportedCount} kayit).";
+            }
         }
         catch (Exception ex)
         {

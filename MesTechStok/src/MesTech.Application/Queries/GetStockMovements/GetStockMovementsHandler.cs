@@ -24,13 +24,13 @@ public sealed class GetStockMovementsHandler : IRequestHandler<GetStockMovements
         ArgumentNullException.ThrowIfNull(request);
         if (request.ProductId.HasValue)
         {
-            var movements = await _movementRepository.GetByProductIdAsync(request.ProductId.Value);
+            var movements = await _movementRepository.GetByProductIdAsync(request.ProductId.Value).ConfigureAwait(false);
             return movements.Adapt<List<StockMovementDto>>().AsReadOnly();
         }
 
         if (request.From.HasValue && request.To.HasValue)
         {
-            var movements = await _movementRepository.GetByDateRangeAsync(request.From.Value, request.To.Value);
+            var movements = await _movementRepository.GetByDateRangeAsync(request.From.Value, request.To.Value).ConfigureAwait(false);
             return movements.Adapt<List<StockMovementDto>>().AsReadOnly();
         }
 

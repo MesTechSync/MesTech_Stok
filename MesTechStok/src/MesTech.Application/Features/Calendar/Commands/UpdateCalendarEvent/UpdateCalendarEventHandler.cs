@@ -24,6 +24,6 @@ public sealed class UpdateCalendarEventHandler : IRequestHandler<UpdateCalendarE
                 ev.MarkAsIncomplete();
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

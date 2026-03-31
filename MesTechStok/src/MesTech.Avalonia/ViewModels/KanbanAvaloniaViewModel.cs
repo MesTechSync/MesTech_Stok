@@ -85,7 +85,9 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"[KanbanAvaloniaViewModel] LoadAsync error: {ex.Message}");
+#endif
             InitDefaultStages();
         }
         finally

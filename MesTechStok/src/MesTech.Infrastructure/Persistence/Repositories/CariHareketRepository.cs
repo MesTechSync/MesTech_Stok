@@ -14,12 +14,14 @@ public sealed class CariHareketRepository : ICariHareketRepository
         => await _context.CariHareketler
             .Where(h => h.CariHesapId == cariHesapId)
             .OrderByDescending(h => h.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<CariHareket>> GetByDateRangeAsync(Guid cariHesapId, DateTime from, DateTime to)
         => await _context.CariHareketler
             .Where(h => h.CariHesapId == cariHesapId && h.Date >= from && h.Date <= to)
             .OrderByDescending(h => h.Date)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(CariHareket hareket)

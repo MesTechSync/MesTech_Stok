@@ -21,7 +21,7 @@ public sealed class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSum
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var warehouses = await _warehouseRepo.GetAllAsync();
+        var warehouses = await _warehouseRepo.GetAllAsync().ConfigureAwait(false);
         if (warehouses.Count == 0)
             return Array.Empty<WarehouseSummaryDto>();
 
@@ -34,7 +34,7 @@ public sealed class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSum
 
         // Batch fetch all products once, group by warehouse — eliminates N+1 query
         var warehouseIds = tenantWarehouses.Select(w => w.Id).ToHashSet();
-        var allProducts = await _productRepo.GetAllAsync();
+        var allProducts = await _productRepo.GetAllAsync().ConfigureAwait(false);
         var productsByWarehouse = allProducts
             .Where(p => p.WarehouseId.HasValue && warehouseIds.Contains(p.WarehouseId.Value))
             .GroupBy(p => p.WarehouseId!.Value)

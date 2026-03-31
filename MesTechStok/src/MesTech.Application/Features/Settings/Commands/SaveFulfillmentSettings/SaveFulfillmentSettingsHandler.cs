@@ -39,7 +39,7 @@ public sealed class SaveFulfillmentSettingsHandler
                 "Fulfillment ayarlari kaydedildi: Tenant={TenantId}, FbaAutoReplenish={Fba}, HepsiAutoReplenish={Hepsi}",
                 request.TenantId, request.FbaAutoReplenish, request.HepsiAutoReplenish);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return SaveFulfillmentSettingsResult.Success();
         }
         catch (Exception ex)

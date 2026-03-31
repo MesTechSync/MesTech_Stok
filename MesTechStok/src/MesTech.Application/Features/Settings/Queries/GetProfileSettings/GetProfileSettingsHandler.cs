@@ -11,7 +11,7 @@ public sealed class GetProfileSettingsHandler : IRequestHandler<GetProfileSettin
 
     public async Task<ProfileSettingsDto?> Handle(GetProfileSettingsQuery request, CancellationToken cancellationToken)
     {
-        var t = await _repo.GetByIdAsync(request.TenantId, cancellationToken);
+        var t = await _repo.GetByIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return t is null ? null : new ProfileSettingsDto(t.Name, t.TaxNumber, t.IsActive);
     }
 }

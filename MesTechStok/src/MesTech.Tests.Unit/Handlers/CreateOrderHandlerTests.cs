@@ -9,13 +9,16 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Category", "Unit")]
 public class CreateOrderHandlerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
     private readonly Mock<IOrderRepository> _orderRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
     private readonly CreateOrderHandler _sut;
 
     public CreateOrderHandlerTests()
     {
-        _sut = new CreateOrderHandler(_orderRepoMock.Object, _uowMock.Object);
+        _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(TestTenantId);
+        _sut = new CreateOrderHandler(_orderRepoMock.Object, _uowMock.Object, _tenantProviderMock.Object);
     }
 
     [Fact]
@@ -31,7 +34,8 @@ public class CreateOrderHandlerTests
 
         _orderRepoMock.Verify(r => r.AddAsync(It.Is<Order>(o =>
             o.CustomerName == "Test Müşteri" &&
-            o.Type == "MANUAL")), Times.Once);
+            o.Type == "MANUAL" &&
+            o.TenantId == TestTenantId)), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -57,14 +61,14 @@ public class CreateOrderHandlerTests
     [Fact]
     public void Constructor_NullRepository_ThrowsArgumentNullException()
     {
-        var act = () => new CreateOrderHandler(null!, _uowMock.Object);
+        var act = () => new CreateOrderHandler(null!, _uowMock.Object, _tenantProviderMock.Object);
         act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
     public void Constructor_NullUnitOfWork_ThrowsArgumentNullException()
     {
-        var act = () => new CreateOrderHandler(_orderRepoMock.Object, null!);
+        var act = () => new CreateOrderHandler(_orderRepoMock.Object, null!, _tenantProviderMock.Object);
         act.Should().Throw<ArgumentNullException>();
     }
 }

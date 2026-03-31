@@ -20,7 +20,7 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
     {
         ArgumentNullException.ThrowIfNull(request);
         // Duplicate SKU kontrolü
-        var existing = await _productRepository.GetBySKUAsync(request.SKU);
+        var existing = await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
         if (existing != null)
             return new CreateProductResult { IsSuccess = false, ErrorMessage = $"SKU '{request.SKU}' already exists." };
 
@@ -43,8 +43,8 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
         };
 
         product.MarkAsCreated();
-        await _productRepository.AddAsync(product);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _productRepository.AddAsync(product).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateProductResult
         {

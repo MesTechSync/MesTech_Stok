@@ -17,7 +17,7 @@ public sealed class DeleteProductHandler : IRequestHandler<DeleteProductCommand,
     public async Task<DeleteProductResult> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var product = await _productRepository.GetByIdAsync(request.ProductId);
+        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
         if (product == null)
         {
             return new DeleteProductResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
@@ -29,8 +29,8 @@ public sealed class DeleteProductHandler : IRequestHandler<DeleteProductCommand,
         if (product.PlatformMappings.Count > 0)
             return new DeleteProductResult { IsSuccess = false, ErrorMessage = $"Product is mapped to {product.PlatformMappings.Count} platforms — remove mappings first." };
 
-        await _productRepository.DeleteAsync(request.ProductId);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _productRepository.DeleteAsync(request.ProductId).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new DeleteProductResult { IsSuccess = true };
     }

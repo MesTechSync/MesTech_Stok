@@ -35,14 +35,14 @@ public sealed class ExpenseNotificationHandler : IExpenseNotificationHandler
     {
         _logger.LogInformation("ExpenseApproved → bildirim. ExpenseId={Id}, ApprovedBy={User}", expenseId, approvedByUserId);
         await CreateNotificationAsync(tenantId, "ExpenseApproved",
-            $"Gider onaylandı — ID: {expenseId}", ct);
+            $"Gider onaylandı — ID: {expenseId}", ct).ConfigureAwait(false);
     }
 
     public async Task HandlePaidAsync(Guid expenseId, Guid tenantId, Guid bankAccountId, CancellationToken ct)
     {
         _logger.LogInformation("ExpensePaid → bildirim. ExpenseId={Id}, BankAccount={Bank}", expenseId, bankAccountId);
         await CreateNotificationAsync(tenantId, "ExpensePaid",
-            $"Gider ödendi — ID: {expenseId}, Banka Hesabı: {bankAccountId}", ct);
+            $"Gider ödendi — ID: {expenseId}, Banka Hesabı: {bankAccountId}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)
@@ -54,7 +54,7 @@ public sealed class ExpenseNotificationHandler : IExpenseNotificationHandler
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

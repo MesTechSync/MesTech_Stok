@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -122,8 +123,22 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Wire to CreateEInvoiceCommand via _mediator.Send() — requires full line mapping
-            await Task.CompletedTask;
+            var scenario = SelectedType == "e-Arsiv" ? EInvoiceScenario.EArchive : EInvoiceScenario.Basic;
+            var type = EInvoiceType.Sales;
+            var selectedOrder = Orders.FirstOrDefault(o => o.IsSelected);
+            var orderId = Guid.TryParse(selectedOrder?.OrderId, out var oid) ? oid : (Guid?)null;
+            await _mediator.Send(new CreateEInvoiceCommand(
+                orderId,
+                RecipientVkn,
+                RecipientName,
+                null,
+                scenario,
+                type,
+                DateTime.Now,
+                "TRY",
+                [],
+                SelectedProvider));
+            StatusMessage = "E-Fatura olusturuldu.";
             // Reset wizard
             CurrentStep = 1;
             UpdateWizardState();

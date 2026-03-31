@@ -17,7 +17,7 @@ public sealed class UpdateJournalEntryHandler : IRequestHandler<UpdateJournalEnt
     public async Task<UpdateJournalEntryResult> Handle(
         UpdateJournalEntryCommand request, CancellationToken cancellationToken)
     {
-        var entry = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var entry = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (entry is null)
             return new UpdateJournalEntryResult { IsSuccess = false, ErrorMessage = "Journal entry not found." };
 
@@ -47,8 +47,8 @@ public sealed class UpdateJournalEntryHandler : IRequestHandler<UpdateJournalEnt
 
         entry.Validate();
 
-        await _repository.UpdateAsync(entry, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(entry, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new UpdateJournalEntryResult
         {

@@ -70,8 +70,8 @@ public sealed class CreateEInvoiceHandler : IRequestHandler<CreateEInvoiceComman
             payable: payable,
             currency: request.CurrencyCode);
 
-        await _repository.AddAsync(doc, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(doc, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return doc.Id;
     }

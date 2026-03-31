@@ -17,13 +17,13 @@ public sealed class StartOnboardingHandler : IRequestHandler<StartOnboardingComm
         ArgumentNullException.ThrowIfNull(request);
 
         // Zaten baslamissa engelle
-        var existing = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var existing = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
             throw new InvalidOperationException("Bu tenant icin onboarding zaten baslamis.");
 
         var progress = OnboardingProgress.Start(request.TenantId);
-        await _repository.AddAsync(progress, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(progress, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return progress.Id;
     }
 }

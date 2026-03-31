@@ -28,7 +28,7 @@ public sealed class CreateSubscriptionHandler : IRequestHandler<CreateSubscripti
             ?? throw new InvalidOperationException($"Plan bulunamadi: {request.PlanId}");
 
         // Mevcut aktif abonelik varsa engelle
-        var existing = await _subscriptionRepo.GetActiveByTenantIdAsync(request.TenantId, cancellationToken);
+        var existing = await _subscriptionRepo.GetActiveByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
             throw new InvalidOperationException("Tenant'in zaten aktif bir aboneligi var.");
 
@@ -36,8 +36,8 @@ public sealed class CreateSubscriptionHandler : IRequestHandler<CreateSubscripti
             ? TenantSubscription.StartTrial(request.TenantId, request.PlanId, plan.TrialDays)
             : TenantSubscription.Activate(request.TenantId, request.PlanId, request.Period);
 
-        await _subscriptionRepo.AddAsync(subscription, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _subscriptionRepo.AddAsync(subscription, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return subscription.Id;
     }
 }

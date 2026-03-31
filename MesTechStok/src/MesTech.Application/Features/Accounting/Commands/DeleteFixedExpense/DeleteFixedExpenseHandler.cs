@@ -20,7 +20,7 @@ public sealed class DeleteFixedExpenseHandler : IRequestHandler<DeleteFixedExpen
         expense.IsDeleted = true;
         expense.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(expense, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(expense, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

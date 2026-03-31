@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
+using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -62,6 +64,19 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     ];
 
     public ObservableCollection<BulkPreviewRowDto> BulkPreviewRows { get; } = [];
+    public List<Guid> SelectedProductIds { get; set; } = [];
+
+    private static BulkUpdateAction MapAction(string action) => action switch
+    {
+        "Fiyat artir (%)" => BulkUpdateAction.PriceIncreasePercent,
+        "Fiyat azalt (%)" => BulkUpdateAction.PriceDecreasePercent,
+        "Fiyat sabitle" => BulkUpdateAction.PriceSetFixed,
+        "Stok ayarla" => BulkUpdateAction.StockSet,
+        "Durum degistir (Aktif)" => BulkUpdateAction.StatusActivate,
+        "Durum degistir (Pasif)" => BulkUpdateAction.StatusDeactivate,
+        "Kategori degistir" => BulkUpdateAction.CategoryAssign,
+        _ => BulkUpdateAction.PriceSetFixed
+    };
 
     public BulkProductAvaloniaViewModel(IMediator mediator)
     {
@@ -187,9 +202,11 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
 
         try
         {
-            // DEV1-DEPENDENCY: BulkUpdateProductsCommand needs BulkUpdateAction enum + product ID selection
-            await Task.CompletedTask;
-            BulkUpdateStatusText = $"{SelectedProductCount} urun guncelleme icin DEV 1 handler bekleniyor";
+            var action = MapAction(SelectedBulkAction);
+            object? value = decimal.TryParse(BulkActionValue, out var v) ? v : BulkActionValue;
+            var updated = await _mediator.Send(new BulkUpdateProductsCommand(
+                SelectedProductIds, action, value));
+            BulkUpdateStatusText = $"{updated} / {SelectedProductIds.Count} urun guncellendi";
         }
         catch (Exception ex)
         {

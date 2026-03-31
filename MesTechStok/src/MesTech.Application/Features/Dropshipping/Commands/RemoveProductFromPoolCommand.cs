@@ -31,7 +31,7 @@ public sealed class RemoveProductFromPoolCommandHandler(
         poolProduct.DeletedAt = DateTime.UtcNow;
         poolProduct.DeletedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await poolRepo.RemovePoolProductAsync(poolProduct, cancellationToken);
+        await poolRepo.RemovePoolProductAsync(poolProduct, cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

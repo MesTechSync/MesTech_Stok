@@ -17,7 +17,7 @@ public sealed class GetShipmentStatusHandler : IRequestHandler<GetShipmentStatus
             ?? throw new InvalidOperationException(
                 $"No cargo adapter registered for provider {request.Provider}.");
 
-        var trackingResult = await adapter.TrackShipmentAsync(request.TrackingNumber, cancellationToken);
+        var trackingResult = await adapter.TrackShipmentAsync(request.TrackingNumber, cancellationToken).ConfigureAwait(false);
 
         return new ShipmentStatusDto
         {

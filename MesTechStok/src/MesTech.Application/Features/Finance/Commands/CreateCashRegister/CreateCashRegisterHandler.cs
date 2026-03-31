@@ -18,8 +18,8 @@ public sealed class CreateCashRegisterHandler : IRequestHandler<CreateCashRegist
         var cashRegister = CashRegister.Create(
             request.TenantId, request.Name, request.CurrencyCode,
             request.IsDefault, request.OpeningBalance);
-        await _repository.AddAsync(cashRegister, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(cashRegister, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return cashRegister.Id;
     }
 }

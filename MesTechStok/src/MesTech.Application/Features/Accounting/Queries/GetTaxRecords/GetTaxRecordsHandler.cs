@@ -15,7 +15,7 @@ public sealed class GetTaxRecordsHandler : IRequestHandler<GetTaxRecordsQuery, I
     public async Task<IReadOnlyList<TaxRecordDto>> Handle(GetTaxRecordsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var records = await _repository.GetAllAsync(request.TenantId, request.TaxType, request.Year, cancellationToken);
+        var records = await _repository.GetAllAsync(request.TenantId, request.TaxType, request.Year, cancellationToken).ConfigureAwait(false);
         return records.Adapt<List<TaxRecordDto>>().AsReadOnly();
     }
 }

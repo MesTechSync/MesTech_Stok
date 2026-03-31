@@ -54,8 +54,8 @@ public sealed class StaleOrderNotificationHandler : IStaleOrderNotificationHandl
             "StaleOrderAlert",
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Gecikmiş sipariş bildirimi oluşturuldu — OrderId={OrderId}, OrderNumber={OrderNumber}, Elapsed={ElapsedHours}h",

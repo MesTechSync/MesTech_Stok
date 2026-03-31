@@ -5,6 +5,7 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Features.Reporting.Queries.GetSavedReports;
 using MesTech.Application.Features.Reports.PlatformSalesReport;
 using MesTech.Domain.Interfaces;
@@ -139,9 +140,15 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
         GeneratingMessage = "Excel dosyası hazırlanıyor...";
         try
         {
-            // DEP: DEV1 — Wire to ExportReportCommand (ClosedXML/EPPlus)
-            await Task.CompletedTask;
-            GeneratingMessage = "Excel aktarimi tamamlandi!";
+            var result = await _mediator.Send(new ExportReportCommand(
+                _currentUser.TenantId, "dashboard", "xlsx"));
+            if (result.FileData.Length > 0)
+            {
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                Directory.CreateDirectory(dir);
+                await File.WriteAllBytesAsync(Path.Combine(dir, result.FileName), result.FileData);
+            }
+            GeneratingMessage = $"Excel aktarimi tamamlandi ({result.ExportedCount} kayit)!";
         }
         catch (Exception ex)
         {

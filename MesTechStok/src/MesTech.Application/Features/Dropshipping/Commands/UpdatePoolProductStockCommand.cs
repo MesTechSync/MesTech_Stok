@@ -33,7 +33,7 @@ public sealed class UpdatePoolProductStockCommandHandler(
         poolProduct.UpdatePrice(req.NewPrice);
         poolProduct.UpdatedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken);
+        await poolRepo.UpdatePoolProductAsync(poolProduct, cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

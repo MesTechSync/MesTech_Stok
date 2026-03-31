@@ -23,7 +23,7 @@ public sealed class GetStockValueReportHandler
 
         var products = request.CategoryFilter.HasValue
             ? await _productRepository.GetByCategoryAsync(request.CategoryFilter.Value)
-            : await _productRepository.GetAllAsync();
+            : await _productRepository.GetAllAsync().ConfigureAwait(false);
 
         var items = products
             .Where(p => p.Stock > 0)

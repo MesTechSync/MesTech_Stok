@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Product.Commands.ExportProducts;
+using MesTech.Application.Features.Stock.Commands.ExportStock;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -99,7 +100,12 @@ public partial class ExportAvaloniaViewModel : ViewModelBase
                     _ = await _mediator.Send(
                         new ExportOrdersCommand(tenantId, DateTime.Now.AddDays(-30), DateTime.Now), CancellationToken);
                 }
-                // DEP: DEV1 — Wire ExportStock, ExportCustomers, ExportInvoices commands when handlers exist
+                else if (selected[i] == "Stok")
+                {
+                    var tenantId = _tenantProvider.GetCurrentTenantId();
+                    _ = await _mediator.Send(
+                        new ExportStockCommand(tenantId, format), CancellationToken);
+                }
 
                 ExportProgress = nextProgress;
             }

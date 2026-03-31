@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
+using MesTech.Application.Features.Settings.Commands.SaveApiSettings;
+using MesTech.Application.Features.Settings.Commands.TestApiConnection;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
 using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Avalonia.Services;
@@ -109,19 +111,12 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — SaveApiSettingsCommand + TestApiConnectionCommand eksik (G495)
-            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
-
-            if (stores.Count > 0)
-            {
-                ConnectionSuccess = true;
-                ConnectionMessage = "Baglanti basarili! API erisimi dogrulandi.";
-            }
-            else
-            {
-                ConnectionSuccess = false;
-                ConnectionMessage = "Baglanti basarisiz. Gecerli bir API URL giriniz.";
-            }
+            var result = await _mediator.Send(new TestApiConnectionCommand(
+                _currentUser.TenantId, ApiUrl));
+            ConnectionSuccess = result.IsSuccess;
+            ConnectionMessage = result.IsSuccess
+                ? $"Baglanti basarili! ({result.ResponseTimeMs}ms, HTTP {result.StatusCode})"
+                : $"Baglanti basarisiz: {result.Message}";
 
             IsConnectionTested = true;
         }
@@ -146,9 +141,18 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEP: DEV1 — SaveApiSettingsCommand eksik. Tema _themeService ile kalıcı (G495)
-            await Task.CompletedTask;
-            IsSaved = true;
+            var result = await _mediator.Send(new SaveApiSettingsCommand(
+                _currentUser.TenantId,
+                ApiUrl,
+                null,
+                60,
+                true));
+            IsSaved = result.IsSuccess;
+            if (!result.IsSuccess)
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "API ayarlari kaydedilemedi.";
+            }
         }
         catch (Exception ex)
         {

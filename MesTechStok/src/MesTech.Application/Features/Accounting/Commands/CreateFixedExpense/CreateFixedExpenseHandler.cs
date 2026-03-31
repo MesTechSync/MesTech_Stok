@@ -28,8 +28,8 @@ public sealed class CreateFixedExpenseHandler : IRequestHandler<CreateFixedExpen
             request.SupplierId,
             request.Notes);
 
-        await _repository.AddAsync(expense, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(expense, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return expense.Id;
     }
 }

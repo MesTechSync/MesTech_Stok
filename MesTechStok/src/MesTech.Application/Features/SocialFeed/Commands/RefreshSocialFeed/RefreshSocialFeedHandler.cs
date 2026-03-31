@@ -37,7 +37,7 @@ public sealed class RefreshSocialFeedHandler
         {
             var msg = $"No adapter for platform {config.Platform}.";
             config.RecordError(msg);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return new RefreshSocialFeedResult { IsSuccess = false, ErrorMessage = msg };
         }
 
@@ -66,7 +66,7 @@ public sealed class RefreshSocialFeedHandler
                     "SocialFeed generated — Config={ConfigId}, Items={Count}, Url={Url}",
                     config.Id, result.ItemCount, result.FeedUrl);
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return new RefreshSocialFeedResult
                 {
                     IsSuccess = true,
@@ -79,7 +79,7 @@ public sealed class RefreshSocialFeedHandler
                 ? string.Join("; ", result.Errors)
                 : "Feed generation failed";
             config.RecordError(errorMsg);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return new RefreshSocialFeedResult { IsSuccess = false, ErrorMessage = errorMsg };
         }
@@ -88,7 +88,7 @@ public sealed class RefreshSocialFeedHandler
         {
             _logger.LogError(ex, "SocialFeed refresh failed — Config={ConfigId}", config.Id);
             config.RecordError(ex.Message);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return new RefreshSocialFeedResult { IsSuccess = false, ErrorMessage = ex.Message };
         }
     }

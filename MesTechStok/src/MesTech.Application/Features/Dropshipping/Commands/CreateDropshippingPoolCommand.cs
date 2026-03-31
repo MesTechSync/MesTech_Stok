@@ -43,7 +43,7 @@ public sealed class CreateDropshippingPoolCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await poolRepo.AddAsync(pool, cancellationToken);
+        await poolRepo.AddAsync(pool, cancellationToken).ConfigureAwait(false);
         return pool.Id;
     }
 }

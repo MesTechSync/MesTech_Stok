@@ -18,7 +18,7 @@ public sealed class GetErpDashboardHandler : IRequestHandler<GetErpDashboardQuer
     public async Task<ErpDashboardDto> Handle(GetErpDashboardQuery request, CancellationToken cancellationToken)
     {
         var today = DateTime.UtcNow.Date;
-        var pendingRetries = await _syncRepo.GetPendingRetriesAsync(request.TenantId, DateTime.UtcNow, cancellationToken);
+        var pendingRetries = await _syncRepo.GetPendingRetriesAsync(request.TenantId, DateTime.UtcNow, cancellationToken).ConfigureAwait(false);
 
         return new ErpDashboardDto(
             ConnectedProviders: 0,

@@ -41,7 +41,7 @@ public sealed class ImportFromFeedHandler : IRequestHandler<ImportFromFeedComman
         ArgumentNullException.ThrowIfNull(request);
         var result = new ImportResultDto();
 
-        var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken);
+        var feed = await _feedRepository.GetByIdAsync(request.FeedSourceId, cancellationToken).ConfigureAwait(false);
         if (feed is null)
             throw new InvalidOperationException($"SupplierFeed {request.FeedSourceId} not found.");
 
@@ -52,7 +52,7 @@ public sealed class ImportFromFeedHandler : IRequestHandler<ImportFromFeedComman
             return result;
         }
 
-        var (parseResult, downloadError) = await DownloadAndParseAsync(feed.FeedUrl, parser, cancellationToken);
+        var (parseResult, downloadError) = await DownloadAndParseAsync(feed.FeedUrl, parser, cancellationToken).ConfigureAwait(false);
         if (downloadError is not null)
         {
             _logger.LogError("Failed to download/parse feed {FeedId}: {Error}", request.FeedSourceId, downloadError);
@@ -66,7 +66,7 @@ public sealed class ImportFromFeedHandler : IRequestHandler<ImportFromFeedComman
             return result;
         }
 
-        await ImportProductsAsync(feed, parseResult, request, result, cancellationToken);
+        await ImportProductsAsync(feed, parseResult, request, result, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "ImportFromFeed {FeedId}: Imported {Count}/{Total}, Skipped {Skipped}",
@@ -83,7 +83,7 @@ public sealed class ImportFromFeedHandler : IRequestHandler<ImportFromFeedComman
             using var httpClient = _httpClientFactory.CreateClient("FeedDownload");
             using var stream = await httpClient.GetStreamAsync(new Uri(feedUrl), cancellationToken).ConfigureAwait(false);
             var mapping = new FeedFieldMapping(null, null, null, null, null, null, null, null);
-            var result = await parser.ParseAsync(stream, mapping, cancellationToken);
+            var result = await parser.ParseAsync(stream, mapping, cancellationToken).ConfigureAwait(false);
             return (result, null);
         }
         catch (HttpRequestException ex)
@@ -124,8 +124,8 @@ public sealed class ImportFromFeedHandler : IRequestHandler<ImportFromFeedComman
 
         if (newProducts.Count > 0)
         {
-            await _productRepository.AddRangeAsync(newProducts, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _productRepository.AddRangeAsync(newProducts, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

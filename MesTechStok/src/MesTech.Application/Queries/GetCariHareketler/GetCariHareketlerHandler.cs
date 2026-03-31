@@ -19,11 +19,11 @@ public sealed class GetCariHareketlerHandler : IRequestHandler<GetCariHareketler
         ArgumentNullException.ThrowIfNull(request);
         if (request.From.HasValue && request.To.HasValue)
         {
-            var byRange = await _cariHareketRepository.GetByDateRangeAsync(request.CariHesapId, request.From.Value, request.To.Value);
+            var byRange = await _cariHareketRepository.GetByDateRangeAsync(request.CariHesapId, request.From.Value, request.To.Value).ConfigureAwait(false);
             return byRange.Adapt<List<CariHareketDto>>().AsReadOnly();
         }
 
-        var all = await _cariHareketRepository.GetByCariHesapIdAsync(request.CariHesapId);
+        var all = await _cariHareketRepository.GetByCariHesapIdAsync(request.CariHesapId).ConfigureAwait(false);
         return all.Adapt<List<CariHareketDto>>().AsReadOnly();
     }
 }

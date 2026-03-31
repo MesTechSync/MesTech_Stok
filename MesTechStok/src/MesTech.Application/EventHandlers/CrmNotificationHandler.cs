@@ -39,41 +39,41 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
     public async Task HandleDealWonAsync(Guid dealId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation("DealWon → bildirim. DealId={Id}", dealId);
-        await CreateNotificationAsync(tenantId, "DealWon", $"Anlaşma kazanıldı — ID: {dealId}", ct);
+        await CreateNotificationAsync(tenantId, "DealWon", $"Anlaşma kazanıldı — ID: {dealId}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleDealLostAsync(Guid dealId, Guid tenantId, string? reason, CancellationToken ct)
     {
         _logger.LogWarning("DealLost → bildirim. DealId={Id}, Reason={Reason}", dealId, reason);
         await CreateNotificationAsync(tenantId, "DealLost",
-            $"Anlaşma kaybedildi — ID: {dealId}, Sebep: {reason ?? "belirtilmedi"}", ct);
+            $"Anlaşma kaybedildi — ID: {dealId}, Sebep: {reason ?? "belirtilmedi"}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleDealStageChangedAsync(Guid dealId, Guid tenantId, string newStage, CancellationToken ct)
     {
         _logger.LogInformation("DealStageChanged → bildirim. DealId={Id}, Stage={Stage}", dealId, newStage);
         await CreateNotificationAsync(tenantId, "DealStageChanged",
-            $"Anlaşma aşaması değişti — ID: {dealId}, Yeni Aşama: {newStage}", ct);
+            $"Anlaşma aşaması değişti — ID: {dealId}, Yeni Aşama: {newStage}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleLeadConvertedAsync(Guid leadId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation("LeadConverted → bildirim. LeadId={Id}", leadId);
-        await CreateNotificationAsync(tenantId, "LeadConverted", $"Lead dönüştürüldü — ID: {leadId}", ct);
+        await CreateNotificationAsync(tenantId, "LeadConverted", $"Lead dönüştürüldü — ID: {leadId}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleLeadScoredAsync(Guid leadId, Guid tenantId, int score, CancellationToken ct)
     {
         _logger.LogInformation("LeadScored → bildirim. LeadId={Id}, Score={Score}", leadId, score);
         await CreateNotificationAsync(tenantId, "LeadScored",
-            $"Lead puanlandı — ID: {leadId}, Puan: {score}", ct);
+            $"Lead puanlandı — ID: {leadId}, Puan: {score}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleCalendarEventCreatedAsync(Guid eventId, Guid tenantId, string title, CancellationToken ct)
     {
         _logger.LogInformation("CalendarEventCreated → bildirim. EventId={Id}, Title={Title}", eventId, title);
         await CreateNotificationAsync(tenantId, "CalendarEventCreated",
-            $"Takvim etkinliği oluşturuldu — {title}", ct);
+            $"Takvim etkinliği oluşturuldu — {title}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)
@@ -85,7 +85,7 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

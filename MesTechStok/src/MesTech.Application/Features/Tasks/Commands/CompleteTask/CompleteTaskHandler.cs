@@ -17,7 +17,7 @@ public sealed class CompleteTaskHandler : IRequestHandler<CompleteTaskCommand, U
             ?? throw new InvalidOperationException($"WorkTask {request.TaskId} not found.");
 
         task.Complete(request.UserId);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

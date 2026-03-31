@@ -112,7 +112,7 @@ public class BackupAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new BackupAvaloniaViewModel(Mock.Of<ISender>());
+        var sut = new BackupAvaloniaViewModel(Mock.Of<ISender>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

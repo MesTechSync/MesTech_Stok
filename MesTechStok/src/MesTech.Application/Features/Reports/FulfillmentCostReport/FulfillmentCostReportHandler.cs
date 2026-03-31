@@ -39,7 +39,7 @@ public sealed class FulfillmentCostReportHandler
             bool isAvailable;
             try
             {
-                isAvailable = await provider.IsAvailableAsync(cancellationToken);
+                isAvailable = await provider.IsAvailableAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ public sealed class FulfillmentCostReportHandler
 #pragma warning disable CA1031 // Intentional broad catch — report returns zero-cost fallback on query failure
             try
             {
-                var orders = await provider.GetFulfillmentOrdersAsync(request.StartDate, cancellationToken);
+                var orders = await provider.GetFulfillmentOrdersAsync(request.StartDate, cancellationToken).ConfigureAwait(false);
                 var periodOrders = orders
                     .Where(o => o.ShippedDate >= request.StartDate && o.ShippedDate <= request.EndDate)
                     .ToList();

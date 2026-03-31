@@ -16,6 +16,7 @@ public enum CargoProvider
     UPS = 7,
     Sendeo = 8,
     DHL = 9,
-    FedEx = 10
+    FedEx = 10,
+    Other = 99
 }
 

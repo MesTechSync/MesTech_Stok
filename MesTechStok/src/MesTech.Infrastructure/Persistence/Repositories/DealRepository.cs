@@ -26,6 +26,7 @@ public sealed class DealRepository : IDealRepository
         => await _context.Deals
             .Where(d => d.TenantId == tenantId)
             .OrderByDescending(d => d.CreatedAt)
+            .Take(5000) // G560: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(Deal deal)

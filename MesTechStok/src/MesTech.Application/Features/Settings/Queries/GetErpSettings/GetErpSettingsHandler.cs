@@ -20,8 +20,8 @@ public sealed class GetErpSettingsHandler : IRequestHandler<GetErpSettingsQuery,
 
     public async Task<ErpSettingsDto> Handle(GetErpSettingsQuery request, CancellationToken cancellationToken)
     {
-        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
-        var recentLogs = await _syncLogRepo.GetByTenantPagedAsync(request.TenantId, page: 1, pageSize: 10, cancellationToken);
+        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
+        var recentLogs = await _syncLogRepo.GetByTenantPagedAsync(request.TenantId, page: 1, pageSize: 10, cancellationToken).ConfigureAwait(false);
 
         return new ErpSettingsDto
         {

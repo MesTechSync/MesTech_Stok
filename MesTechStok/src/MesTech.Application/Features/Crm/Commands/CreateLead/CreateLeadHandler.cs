@@ -25,8 +25,8 @@ public sealed class CreateLeadHandler : IRequestHandler<CreateLeadCommand, Guid>
             request.StoreId,
             request.AssignedToUserId);
 
-        await _repository.AddAsync(lead, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(lead, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return lead.Id;
     }
 }

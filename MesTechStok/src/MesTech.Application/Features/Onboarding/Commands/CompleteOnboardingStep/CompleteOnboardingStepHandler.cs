@@ -19,8 +19,8 @@ public sealed class CompleteOnboardingStepHandler : IRequestHandler<CompleteOnbo
             ?? throw new InvalidOperationException("Onboarding bulunamadi. Once StartOnboarding cagirin.");
 
         progress.CompleteCurrentStep();
-        await _repository.UpdateAsync(progress, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(progress, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

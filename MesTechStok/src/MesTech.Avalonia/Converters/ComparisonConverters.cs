@@ -31,7 +31,7 @@ public class GreaterThanConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-public class BetweenConverter : IMultiValueConverter
+public class BetweenConverter : IMultiValueConverter, IValueConverter
 {
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -40,4 +40,17 @@ public class BetweenConverter : IMultiValueConverter
             return val >= min && val <= max;
         return false;
     }
+
+    // Single-value binding: Converter={StaticResource BetweenConverter}, ConverterParameter=2-6
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int val || parameter is not string range) return false;
+        var parts = range.Split('-');
+        if (parts.Length == 2 && int.TryParse(parts[0], out var min) && int.TryParse(parts[1], out var max))
+            return val >= min && val <= max;
+        return false;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }

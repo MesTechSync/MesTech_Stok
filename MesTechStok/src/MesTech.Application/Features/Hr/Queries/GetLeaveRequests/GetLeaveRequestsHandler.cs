@@ -14,7 +14,7 @@ public sealed class GetLeaveRequestsHandler
     public async Task<IReadOnlyList<LeaveRequestDto>> Handle(
         GetLeaveRequestsQuery request, CancellationToken ct)
     {
-        var leaves = await _leaveRepo.GetByTenantAsync(request.TenantId, request.Status, ct);
+        var leaves = await _leaveRepo.GetByTenantAsync(request.TenantId, request.Status, ct).ConfigureAwait(false);
 
         return leaves.Select(l => new LeaveRequestDto
         {

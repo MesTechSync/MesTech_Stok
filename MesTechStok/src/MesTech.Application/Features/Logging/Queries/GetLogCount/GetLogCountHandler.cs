@@ -15,6 +15,6 @@ public sealed class GetLogCountHandler : IRequestHandler<GetLogCountQuery, long>
     public async Task<long> Handle(GetLogCountQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return await _repo.GetCountAsync(request.TenantId, request.Category, cancellationToken);
+        return await _repo.GetCountAsync(request.TenantId, request.Category, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -40,7 +40,7 @@ public sealed class BulkCreateProductsHandler : IRequestHandler<BulkCreateProduc
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var existingProducts = await _productRepository.GetBySKUsAsync(incomingSkus, cancellationToken);
+        var existingProducts = await _productRepository.GetBySKUsAsync(incomingSkus, cancellationToken).ConfigureAwait(false);
         var existingSkuSet = new HashSet<string>(
             existingProducts.Select(p => p.SKU),
             StringComparer.OrdinalIgnoreCase);
@@ -100,7 +100,7 @@ public sealed class BulkCreateProductsHandler : IRequestHandler<BulkCreateProduc
                 if (input.Quantity != 0)
                     product.AdjustStock(input.Quantity, Domain.Enums.StockMovementType.Purchase, "Toplu import");
 
-                await _productRepository.AddAsync(product);
+                await _productRepository.AddAsync(product).ConfigureAwait(false);
                 successCount++;
             }
 #pragma warning disable CA1031 // Catch general exception — batch processing must not abort on single item failure
@@ -114,7 +114,7 @@ public sealed class BulkCreateProductsHandler : IRequestHandler<BulkCreateProduc
 
         if (successCount > 0)
         {
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         _logger.LogInformation(

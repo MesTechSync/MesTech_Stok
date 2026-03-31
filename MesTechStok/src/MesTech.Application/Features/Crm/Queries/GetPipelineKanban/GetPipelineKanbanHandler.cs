@@ -18,7 +18,7 @@ public sealed class GetPipelineKanbanHandler : IRequestHandler<GetPipelineKanban
         var pipeline = await _pipelineRepo.GetByIdWithStagesAsync(req.PipelineId, cancellationToken)
             ?? throw new InvalidOperationException($"Pipeline {req.PipelineId} not found.");
 
-        var deals = await _dealRepo.GetByPipelineAsync(req.TenantId, req.PipelineId, DealStatus.Open, cancellationToken);
+        var deals = await _dealRepo.GetByPipelineAsync(req.TenantId, req.PipelineId, DealStatus.Open, cancellationToken).ConfigureAwait(false);
 
         return new KanbanBoardDto
         {

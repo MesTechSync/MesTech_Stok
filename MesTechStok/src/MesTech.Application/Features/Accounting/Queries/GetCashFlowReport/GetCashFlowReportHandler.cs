@@ -15,9 +15,9 @@ public sealed class GetCashFlowReportHandler : IRequestHandler<GetCashFlowReport
     public async Task<CashFlowReportDto> Handle(GetCashFlowReportQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var entries = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, ct: cancellationToken);
-        var totalInflow = await _repository.GetTotalByDirectionAsync(request.TenantId, CashFlowDirection.Inflow, request.From, request.To, cancellationToken);
-        var totalOutflow = await _repository.GetTotalByDirectionAsync(request.TenantId, CashFlowDirection.Outflow, request.From, request.To, cancellationToken);
+        var entries = await _repository.GetByDateRangeAsync(request.TenantId, request.From, request.To, ct: cancellationToken).ConfigureAwait(false);
+        var totalInflow = await _repository.GetTotalByDirectionAsync(request.TenantId, CashFlowDirection.Inflow, request.From, request.To, cancellationToken).ConfigureAwait(false);
+        var totalOutflow = await _repository.GetTotalByDirectionAsync(request.TenantId, CashFlowDirection.Outflow, request.From, request.To, cancellationToken).ConfigureAwait(false);
 
         return new CashFlowReportDto
         {

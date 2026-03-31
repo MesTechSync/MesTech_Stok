@@ -50,8 +50,8 @@ public sealed class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipPr
                 "SyncDropshipProducts — Supplier {SupplierId} has no API endpoint, recording sync only",
                 request.SupplierId);
             supplier.RecordSync();
-            await _supplierRepo.UpdateAsync(supplier, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _supplierRepo.UpdateAsync(supplier, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return 0;
         }
 
@@ -69,13 +69,13 @@ public sealed class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipPr
             _logger.LogWarning(
                 "SyncDropshipProducts — No products returned from supplier {SupplierId}", request.SupplierId);
             supplier.RecordSync();
-            await _supplierRepo.UpdateAsync(supplier, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _supplierRepo.UpdateAsync(supplier, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return 0;
         }
 
         // 2. Get existing dropship products for this supplier
-        var existingProducts = await _productRepo.GetBySupplierAsync(request.SupplierId, cancellationToken);
+        var existingProducts = await _productRepo.GetBySupplierAsync(request.SupplierId, cancellationToken).ConfigureAwait(false);
         var existingByExtId = existingProducts.ToDictionary(
             p => p.ExternalProductId, StringComparer.OrdinalIgnoreCase);
 
@@ -106,7 +106,7 @@ public sealed class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipPr
                 }
                 if (changed)
                 {
-                    await _productRepo.UpdateAsync(existing, cancellationToken);
+                    await _productRepo.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
                     syncedCount++;
                 }
             }
@@ -128,11 +128,11 @@ public sealed class SyncDropshipProductsHandler : IRequestHandler<SyncDropshipPr
         }
 
         if (toAdd.Count > 0)
-            await _productRepo.AddRangeAsync(toAdd, cancellationToken);
+            await _productRepo.AddRangeAsync(toAdd, cancellationToken).ConfigureAwait(false);
 
         supplier.RecordSync();
-        await _supplierRepo.UpdateAsync(supplier, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _supplierRepo.UpdateAsync(supplier, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "SyncDropshipProducts — Synced {Count} products for supplier {SupplierName} " +

@@ -19,8 +19,8 @@ public sealed class RecordCargoExpenseHandler : IRequestHandler<RecordCargoExpen
         var expense = CargoExpense.Create(
             request.TenantId, request.CarrierName, request.Cost, request.OrderId, request.TrackingNumber);
 
-        await _repository.AddAsync(expense, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(expense, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return expense.Id;
     }
 }

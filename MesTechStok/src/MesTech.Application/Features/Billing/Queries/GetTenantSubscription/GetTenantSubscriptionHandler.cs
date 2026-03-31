@@ -13,7 +13,7 @@ public sealed class GetTenantSubscriptionHandler : IRequestHandler<GetTenantSubs
     public async Task<TenantSubscriptionDto?> Handle(GetTenantSubscriptionQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sub = await _repository.GetActiveByTenantIdAsync(request.TenantId, cancellationToken);
+        var sub = await _repository.GetActiveByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         if (sub is null) return null;
 
         return new TenantSubscriptionDto

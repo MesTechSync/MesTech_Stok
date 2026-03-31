@@ -23,7 +23,7 @@ public sealed class UpdateSalaryRecordHandler : IRequestHandler<UpdateSalaryReco
         else
             record.UpdatePaymentStatus(request.PaymentStatus);
 
-        await _repository.UpdateAsync(record, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(record, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

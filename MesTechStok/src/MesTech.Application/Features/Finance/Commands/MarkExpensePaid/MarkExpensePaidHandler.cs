@@ -17,7 +17,7 @@ public sealed class MarkExpensePaidHandler : IRequestHandler<MarkExpensePaidComm
             ?? throw new InvalidOperationException($"Expense {request.ExpenseId} not found.");
 
         expense.MarkAsPaid(request.BankAccountId);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

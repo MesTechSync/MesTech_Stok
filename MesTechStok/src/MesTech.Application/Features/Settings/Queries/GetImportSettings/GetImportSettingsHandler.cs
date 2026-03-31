@@ -12,7 +12,7 @@ public sealed class GetImportSettingsHandler : IRequestHandler<GetImportSettings
 
     public async Task<ImportSettingsDto> Handle(GetImportSettingsQuery request, CancellationToken cancellationToken)
     {
-        var templates = await _templateRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var templates = await _templateRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         return new ImportSettingsDto
         {

@@ -19,7 +19,7 @@ public sealed class ListOrdersHandler : IRequestHandler<ListOrdersQuery, IReadOn
         var from = request.From ?? DateTime.UtcNow.AddDays(-30);
         var to = request.To ?? DateTime.UtcNow;
 
-        var orders = await _orderRepository.GetByDateRangeAsync(from, to);
+        var orders = await _orderRepository.GetByDateRangeAsync(from, to).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(request.Status))
         {

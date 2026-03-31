@@ -40,12 +40,14 @@ public sealed class OrderRepository : IOrderRepository
         => await _context.Orders
             .Where(o => o.CustomerId == customerId)
             .OrderByDescending(o => o.OrderDate)
+            .Take(1000) // G485: pagination guard — unbounded query protection
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(DateTime from, DateTime to)
         => await _context.Orders
             .Where(o => o.OrderDate >= from && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(
@@ -55,6 +57,7 @@ public sealed class OrderRepository : IOrderRepository
                      && o.OrderDate >= from
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeWithItemsAsync(
@@ -65,6 +68,7 @@ public sealed class OrderRepository : IOrderRepository
                      && o.OrderDate >= from
                      && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
+            .Take(5000) // G485: pagination guard — includes OrderItems
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Order order)
@@ -84,6 +88,7 @@ public sealed class OrderRepository : IOrderRepository
                      && o.OrderDate < cutoffDate
                      && o.ShippedAt == null)
             .OrderBy(o => o.OrderDate)
+            .Take(1000) // G485: pagination guard — stale order batch limit
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)

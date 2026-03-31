@@ -23,7 +23,7 @@ public sealed class GetCommissionSummaryHandler : IRequestHandler<GetCommissionS
 
         foreach (var platform in platforms)
         {
-            var records = await _repository.GetByPlatformAsync(request.TenantId, platform, request.From, request.To, cancellationToken);
+            var records = await _repository.GetByPlatformAsync(request.TenantId, platform, request.From, request.To, cancellationToken).ConfigureAwait(false);
             if (records.Count == 0) continue;
 
             var platformTotal = records.Sum(r => r.CommissionAmount);

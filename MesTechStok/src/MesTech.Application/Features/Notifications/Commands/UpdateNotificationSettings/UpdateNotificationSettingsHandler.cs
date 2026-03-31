@@ -36,8 +36,8 @@ public sealed class UpdateNotificationSettingsHandler : IRequestHandler<UpdateNo
         {
             ApplyUpdates(existing, request);
             existing.MarkUpdated();
-            await _repository.UpdateAsync(existing, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _repository.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[NotificationSettings] Guncellendi: UserId={UserId}, Channel={Channel}, IsEnabled={IsEnabled}",
@@ -59,8 +59,8 @@ public sealed class UpdateNotificationSettingsHandler : IRequestHandler<UpdateNo
         ApplyUpdates(setting, request);
         setting.MarkUpdated();
 
-        await _repository.AddAsync(setting, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(setting, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[NotificationSettings] Olusturuldu: UserId={UserId}, Channel={Channel}, IsEnabled={IsEnabled}",

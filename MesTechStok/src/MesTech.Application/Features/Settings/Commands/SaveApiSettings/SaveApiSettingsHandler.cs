@@ -33,7 +33,7 @@ public sealed class SaveApiSettingsHandler : IRequestHandler<SaveApiSettingsComm
 #pragma warning disable CA1031 // Catch general exception — return structured error
         try
         {
-            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
             if (settings is null)
             {
@@ -42,14 +42,14 @@ public sealed class SaveApiSettingsHandler : IRequestHandler<SaveApiSettingsComm
                     TenantId = request.TenantId,
                     CompanyName = "Default"
                 };
-                await _settingsRepo.AddAsync(settings, cancellationToken);
+                await _settingsRepo.AddAsync(settings, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await _settingsRepo.UpdateAsync(settings, cancellationToken);
+                await _settingsRepo.UpdateAsync(settings, cancellationToken).ConfigureAwait(false);
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "API ayarlari kaydedildi: Tenant={TenantId}, BaseUrl={BaseUrl}, RateLimit={RateLimit}/min",

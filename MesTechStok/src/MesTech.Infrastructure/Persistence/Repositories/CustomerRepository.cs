@@ -17,12 +17,13 @@ public sealed class CustomerRepository : ICustomerRepository
         => await _context.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync()
-        => await _context.Customers.OrderBy(c => c.Name).AsNoTracking().ToListAsync();
+        => await _context.Customers.OrderBy(c => c.Name).Take(5000).AsNoTracking().ToListAsync(); // G485
 
     public async Task<IReadOnlyList<Customer>> GetActiveAsync()
         => await _context.Customers
             .Where(c => c.IsActive)
             .OrderBy(c => c.Name)
+            .Take(5000) // G485
             .AsNoTracking().ToListAsync();
 
     public async Task AddAsync(Customer customer)

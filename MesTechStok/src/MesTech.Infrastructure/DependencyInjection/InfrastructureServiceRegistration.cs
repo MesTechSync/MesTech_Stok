@@ -632,6 +632,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.ReturnApprovedStockRestorationHandler>();
         services.AddScoped<Application.EventHandlers.IReturnJournalReversalHandler,
             Application.EventHandlers.ReturnJournalReversalHandler>();
+        services.AddScoped<Application.EventHandlers.IReturnApprovedRefundHandler,
+            Application.EventHandlers.ReturnApprovedRefundHandler>();
         services.AddScoped<Application.EventHandlers.IZeroStockEventHandler,
             Application.EventHandlers.ZeroStockDetectedEventHandler>();
 

@@ -31,8 +31,8 @@ public sealed class CreateExpenseHandler : IRequestHandler<CreateExpenseCommand,
         };
         expense.SetAmount(request.Amount);
 
-        await _expenseRepository.AddAsync(expense);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return expense.Id;
     }

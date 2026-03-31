@@ -32,7 +32,7 @@ public sealed class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand,
 
     public async Task<AutoShipResult> Handle(AutoShipOrderCommand request, CancellationToken cancellationToken)
     {
-        var orderOrNull = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+        var orderOrNull = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken).ConfigureAwait(false);
 
         var validationError = ValidateOrder(orderOrNull, request);
         if (validationError is not null)
@@ -59,8 +59,8 @@ public sealed class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand,
 
         var trackingNumber = shipmentResult.TrackingNumber ?? string.Empty;
         order.MarkAsShipped(trackingNumber, recommendation.Provider);
-        await _orderRepository.UpdateAsync(order);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return AutoShipResult.Succeeded(
             trackingNumber,

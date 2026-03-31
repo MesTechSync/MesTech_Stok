@@ -17,7 +17,7 @@ public sealed class GetEInvoiceByIdHandler : IRequestHandler<GetEInvoiceByIdQuer
     public async Task<EInvoiceDto?> Handle(GetEInvoiceByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken);
+        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken).ConfigureAwait(false);
         return doc is null ? null : MapToDto(doc);
     }
 

@@ -15,7 +15,7 @@ public sealed class GetPenaltyRecordByIdHandler : IRequestHandler<GetPenaltyReco
     public async Task<PenaltyRecordDto?> Handle(GetPenaltyRecordByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var record = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var record = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         return record?.Adapt<PenaltyRecordDto>();
     }
 }

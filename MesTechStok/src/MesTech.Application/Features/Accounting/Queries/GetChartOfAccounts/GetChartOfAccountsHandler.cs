@@ -14,7 +14,7 @@ public sealed class GetChartOfAccountsHandler : IRequestHandler<GetChartOfAccoun
     public async Task<IReadOnlyList<ChartOfAccountsDto>> Handle(GetChartOfAccountsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var accounts = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken);
+        var accounts = await _repository.GetAllAsync(request.TenantId, request.IsActive, cancellationToken).ConfigureAwait(false);
         return accounts.Select(a => new ChartOfAccountsDto
         {
             Id = a.Id,

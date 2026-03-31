@@ -38,7 +38,7 @@ public sealed class TestErpConnectionHandler
         try
         {
             var adapter = _adapterFactory.GetAdapter(request.ErpProvider);
-            var isAlive = await adapter.PingAsync(cancellationToken);
+            var isAlive = await adapter.PingAsync(cancellationToken).ConfigureAwait(false);
             sw.Stop();
 
             if (isAlive)

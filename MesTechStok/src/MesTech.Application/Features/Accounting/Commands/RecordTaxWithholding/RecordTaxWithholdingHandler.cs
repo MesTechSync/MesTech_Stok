@@ -19,8 +19,8 @@ public sealed class RecordTaxWithholdingHandler : IRequestHandler<RecordTaxWithh
         var withholding = TaxWithholding.Create(
             request.TenantId, request.TaxExclusiveAmount, request.Rate, request.TaxType, request.InvoiceId);
 
-        await _repository.AddAsync(withholding, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(withholding, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return withholding.Id;
     }
 }

@@ -15,7 +15,7 @@ public sealed class UpdatePlatformCommissionRateHandler : IRequestHandler<Update
     public async Task<bool> Handle(UpdatePlatformCommissionRateCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var commission = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var commission = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (commission == null) return false;
 
         if (request.Rate.HasValue)
@@ -43,8 +43,8 @@ public sealed class UpdatePlatformCommissionRateHandler : IRequestHandler<Update
 
         commission.UpdatedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(commission, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(commission, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }
