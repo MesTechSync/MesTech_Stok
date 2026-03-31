@@ -24,6 +24,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         _tenantProvider = tenantProvider;
     }
 
+    [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private int currentStep = 1;
 
     // Step 1: Order selection
@@ -123,8 +124,8 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            var scenario = SelectedType == "e-Arsiv" ? EInvoiceScenario.EArchive : EInvoiceScenario.Basic;
-            var type = EInvoiceType.Sales;
+            var scenario = SelectedType == "e-Arsiv" ? EInvoiceScenario.EARSIVFATURA : EInvoiceScenario.TEMELFATURA;
+            var type = EInvoiceType.SATIS;
             var selectedOrder = Orders.FirstOrDefault(o => o.IsSelected);
             var orderId = Guid.TryParse(selectedOrder?.OrderId, out var oid) ? oid : (Guid?)null;
             await _mediator.Send(new CreateEInvoiceCommand(

@@ -18,6 +18,7 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
 
 
     // Amazon FBA
+    [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private string fbaApiKey = string.Empty;
     [ObservableProperty] private string fbaApiSecret = string.Empty;
     [ObservableProperty] private string fbaSellerId = string.Empty;
