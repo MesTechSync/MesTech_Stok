@@ -2,6 +2,7 @@ using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using AcctType = MesTech.Domain.Accounting.Enums.AccountType;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,16 +84,16 @@ public static class TestSeedDataFactory
 
         // ── GL Hesap Planı ──
         db.Set<ChartOfAccounts>().AddRange(
-            ChartOfAccounts.Create(TestTenantId, "100", "Kasa", AccountType.Asset),
-            ChartOfAccounts.Create(TestTenantId, "120", "Alıcılar", AccountType.Asset),
-            ChartOfAccounts.Create(TestTenantId, "150", "Stoklar", AccountType.Asset),
-            ChartOfAccounts.Create(TestTenantId, "320", "Satıcılar", AccountType.Liability),
-            ChartOfAccounts.Create(TestTenantId, "391", "Hesaplanan KDV", AccountType.Liability),
-            ChartOfAccounts.Create(TestTenantId, "600", "Yurtiçi Satışlar", AccountType.Revenue),
-            ChartOfAccounts.Create(TestTenantId, "610", "Satıştan İadeler", AccountType.Revenue),
-            ChartOfAccounts.Create(TestTenantId, "760", "Pazarlama Giderleri", AccountType.Expense),
-            ChartOfAccounts.Create(TestTenantId, "770", "Genel Yönetim Giderleri", AccountType.Expense),
-            ChartOfAccounts.Create(TestTenantId, "689", "Diğer Olağandışı Giderler", AccountType.Expense));
+            ChartOfAccounts.Create(TestTenantId, "100", "Kasa", AcctType.Asset),
+            ChartOfAccounts.Create(TestTenantId, "120", "Alıcılar", AcctType.Asset),
+            ChartOfAccounts.Create(TestTenantId, "150", "Stoklar", AcctType.Asset),
+            ChartOfAccounts.Create(TestTenantId, "320", "Satıcılar", AcctType.Liability),
+            ChartOfAccounts.Create(TestTenantId, "391", "Hesaplanan KDV", AcctType.Liability),
+            ChartOfAccounts.Create(TestTenantId, "600", "Yurtiçi Satışlar", AcctType.Revenue),
+            ChartOfAccounts.Create(TestTenantId, "610", "Satıştan İadeler", AcctType.Revenue),
+            ChartOfAccounts.Create(TestTenantId, "760", "Pazarlama Giderleri", AcctType.Expense),
+            ChartOfAccounts.Create(TestTenantId, "770", "Genel Yönetim Giderleri", AcctType.Expense),
+            ChartOfAccounts.Create(TestTenantId, "689", "Diğer Olağandışı Giderler", AcctType.Expense));
 
         await db.SaveChangesAsync();
     }
@@ -116,18 +117,20 @@ public static class TestSeedDataFactory
 
     private static OrderItem CreateOrderItem(Guid orderId, Guid productId, string name, string sku, int qty, decimal unitPrice)
     {
-        return new OrderItem
+        var item = new OrderItem
         {
             OrderId = orderId,
             ProductId = productId,
             ProductName = name,
             ProductSKU = sku,
-            Quantity = qty,
-            UnitPrice = unitPrice,
-            TotalPrice = qty * unitPrice,
-            TaxRate = 20m,
-            TaxAmount = qty * unitPrice * 0.20m
+            TaxRate = 20m
         };
+        // internal set properties — reflection ile ata
+        typeof(OrderItem).GetProperty("Quantity")!.SetValue(item, qty);
+        typeof(OrderItem).GetProperty("UnitPrice")!.SetValue(item, unitPrice);
+        typeof(OrderItem).GetProperty("TotalPrice")!.SetValue(item, qty * unitPrice);
+        typeof(OrderItem).GetProperty("TaxAmount")!.SetValue(item, qty * unitPrice * 0.20m);
+        return item;
     }
 
     private static StockMovement CreateStockMovement(Guid productId, Guid tenantId, StockMovementType type, int qty, string note)
@@ -136,10 +139,9 @@ public static class TestSeedDataFactory
         {
             TenantId = tenantId,
             ProductId = productId,
-            MovementType = type,
+            MovementType = type.ToString(),
             Quantity = qty,
-            Note = note,
-            MovementDate = DateTime.UtcNow.AddDays(-15),
+            Notes = note,
             CreatedAt = DateTime.UtcNow.AddDays(-15)
         };
     }
