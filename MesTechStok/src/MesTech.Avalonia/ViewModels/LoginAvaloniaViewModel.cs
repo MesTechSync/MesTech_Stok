@@ -26,25 +26,13 @@ public partial class LoginAvaloniaViewModel : ViewModelBase
         _authService = authService;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
-        IsLoading = true;
         HasError = false;
         ErrorMessage = string.Empty;
-        try
-        {
-            // DEP: DEV1 — Wire to MediatR query when AuthenticateCommand is available
-            await Task.CompletedTask;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Giris ekrani yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        IsAuthenticated = false;
+        WelcomeMessage = string.Empty;
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
