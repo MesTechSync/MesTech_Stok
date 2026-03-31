@@ -18,6 +18,8 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class RealFormatTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     // ── Trendyol Real Hakedis JSON Structure ──
 
     [Fact]
@@ -77,7 +79,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(trendyolJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.Should().NotBeNull();
@@ -136,7 +138,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(hbJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.Should().NotBeNull();
@@ -188,7 +190,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(n11Xml));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "xml");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "xml");
 
         // Assert
         batch.Should().NotBeNull();
@@ -243,7 +245,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.Should().NotBeNull();
@@ -286,7 +288,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(pzJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.Should().NotBeNull();
@@ -337,7 +339,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ocJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.Should().NotBeNull();
@@ -582,7 +584,7 @@ public class RealFormatTests
             new Mock<ILogger<CiceksepetiSettlementParser>>().Object);
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csJson));
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Act
         var lines = await parser.ParseLinesAsync(batch);
@@ -623,7 +625,7 @@ public class RealFormatTests
             new Mock<ILogger<PazaramaSettlementParser>>().Object);
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(pzJson));
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Act
         var lines = await parser.ParseLinesAsync(batch);
@@ -675,7 +677,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(emptyJson));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "json");
 
         // Assert
         batch.TotalGross.Should().Be(0m);
@@ -700,7 +702,7 @@ public class RealFormatTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(emptyXml));
 
         // Act
-        var batch = await parser.ParseAsync(stream, "xml");
+        var batch = await parser.ParseAsync(TestTenantId, stream, "xml");
 
         // Assert
         batch.TotalGross.Should().Be(0m);

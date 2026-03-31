@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class HepsiburadaSettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly HepsiburadaSettlementParser _sut;
     private readonly Mock<ILogger<HepsiburadaSettlementParser>> _loggerMock = new();
 
@@ -66,7 +67,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("Hepsiburada");
@@ -103,7 +104,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         // Summary values should be used, not line item sums
         batch.TotalGross.Should().Be(9999m);
@@ -133,7 +134,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(500m);
         batch.TotalCommission.Should().Be(90m);
@@ -153,7 +154,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(0m);
         batch.TotalCommission.Should().Be(0m);
@@ -166,7 +167,7 @@ public class HepsiburadaSettlementParserTests
         var json = """{ "data": null }""";
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -194,7 +195,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(1);
@@ -221,7 +222,7 @@ public class HepsiburadaSettlementParserTests
     [Fact]
     public async Task ParseAsync_WithNullStream_ShouldThrow()
     {
-        var act = async () => await _sut.ParseAsync(null!, "json");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "json");
 
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -258,7 +259,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(2);
@@ -280,7 +281,7 @@ public class HepsiburadaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().BeOnOrBefore(batch.PeriodEnd);
     }

@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class MT940ParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly MT940Parser _sut;
     private readonly Mock<ILogger<MT940Parser>> _loggerMock = new();
     private readonly Guid _bankAccountId = Guid.NewGuid();

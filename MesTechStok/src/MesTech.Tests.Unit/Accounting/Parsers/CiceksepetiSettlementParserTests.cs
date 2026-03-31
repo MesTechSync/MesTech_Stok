@@ -13,6 +13,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class CiceksepetiSettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly CiceksepetiSettlementParser _sut;
     private readonly Mock<ILogger<CiceksepetiSettlementParser>> _loggerMock = new();
 
@@ -65,7 +66,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("Ciceksepeti");
@@ -85,7 +86,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -98,7 +99,7 @@ public class CiceksepetiSettlementParserTests
     {
         var json = "null";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -130,7 +131,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(1);
@@ -180,7 +181,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(1500.50m);
         batch.TotalCommission.Should().Be(225.08m);
@@ -227,7 +228,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(600m);
         batch.TotalCommission.Should().Be(85m);
@@ -258,7 +259,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().Be(new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc));
         batch.PeriodEnd.Should().Be(new DateTime(2026, 3, 14, 0, 0, 0, DateTimeKind.Utc));
@@ -286,14 +287,14 @@ public class CiceksepetiSettlementParserTests
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
         // ParseAsync should not throw (hash is computed internally)
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         batch.Should().NotBeNull();
     }
 
     [Fact]
     public async Task ParseAsync_NullRawData_ThrowsArgumentNull()
     {
-        var act = async () => await _sut.ParseAsync(null!, "json");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "json");
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -326,7 +327,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().Be(new DateTime(2026, 3, 10, 0, 0, 0, DateTimeKind.Utc));
         batch.PeriodEnd.Should().Be(new DateTime(2026, 3, 10, 0, 0, 0, DateTimeKind.Utc));
@@ -348,7 +349,7 @@ public class CiceksepetiSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(2);
