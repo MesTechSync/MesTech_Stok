@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentInventoryView"
+             x:Name="FulfillmentInventoryView"
              x:DataType="vm:FulfillmentInventoryViewModel">
 <UserControl.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />

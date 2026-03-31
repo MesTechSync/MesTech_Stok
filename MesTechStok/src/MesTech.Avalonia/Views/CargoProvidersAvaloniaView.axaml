@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.CargoProvidersAvaloniaView"
+             x:Name="CargoProvidersAvaloniaView"
              x:DataType="vm:CargoProvidersAvaloniaViewModel"
              AutomationProperties.Name="Kargo Firmalari">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

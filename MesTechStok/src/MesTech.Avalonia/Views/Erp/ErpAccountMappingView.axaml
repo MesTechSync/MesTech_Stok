@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Erp"
              x:Class="MesTech.Avalonia.Views.Erp.ErpAccountMappingView"
+             x:Name="ErpAccountMappingView"
              x:DataType="vm:ErpAccountMappingViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              x:Class="MesTech.Avalonia.Views.Accounting.CommissionRatesView"
+             x:Name="CommissionRatesView"
              x:DataType="vm:CommissionRatesViewModel"
              AutomationProperties.Name="Komisyon Oranlari">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>

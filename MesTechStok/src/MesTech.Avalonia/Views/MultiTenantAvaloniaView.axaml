@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.MultiTenantAvaloniaView"
+             x:Name="MultiTenantAvaloniaView"
              x:DataType="vm:MultiTenantAvaloniaViewModel"
              AutomationProperties.Name="Multi-Tenant Yonetimi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

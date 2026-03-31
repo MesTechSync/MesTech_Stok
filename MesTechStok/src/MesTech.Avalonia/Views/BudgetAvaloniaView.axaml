@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="MesTech.Avalonia.Views.BudgetAvaloniaView"
+             x:Name="BudgetAvaloniaView"
              x:DataType="vm:BudgetAvaloniaViewModel"
              xmlns:vm="clr-namespace:MesTech.Avalonia.ViewModels">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

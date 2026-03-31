@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
              x:Class="MesTech.Avalonia.Views.ProductVariantMatrixView"
+             x:Name="ProductVariantMatrixView"
              x:DataType="vm:ProductVariantMatrixViewModel">
 
     <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>

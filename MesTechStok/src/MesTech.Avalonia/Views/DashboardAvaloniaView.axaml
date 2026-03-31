@@ -4,6 +4,7 @@
              xmlns:controls="using:MesTech.Avalonia.Controls"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
+             x:Name="DashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 

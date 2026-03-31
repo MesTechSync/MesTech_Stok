@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              x:Class="MesTech.Avalonia.Views.ReportDashboardAvaloniaView"
+             x:Name="ReportDashboardAvaloniaView"
              x:DataType="vm:ReportDashboardAvaloniaViewModel">
     <UserControl.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              x:Class="MesTech.Avalonia.Views.Accounting.IncomeExpenseListView"
+             x:Name="IncomeExpenseListView"
              x:DataType="vm:IncomeExpenseListViewModel">
 
     <UserControl.KeyBindings>
