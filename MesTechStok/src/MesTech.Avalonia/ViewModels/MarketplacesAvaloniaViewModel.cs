@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Application.DTOs.Platform;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,6 +16,7 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private string summary = "Pazaryeri yonetimi ekrani — Dalga 11 sonrasi aktif edilecek.";
     [ObservableProperty] private int platformCount = 10;
@@ -22,10 +24,11 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<string> platforms = new();
     [ObservableProperty] private string? selectedPlatform;
 
-    public MarketplacesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public MarketplacesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -60,8 +63,8 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
     private async Task Refresh() => await LoadAsync();
 
     [RelayCommand]
-    private void Add()
+    private async Task Add()
     {
-        // NAV: Navigate to platform add wizard
+        await _dialog.ShowInfoAsync("Platform ekleme sihirbazi yakinda aktif olacak.", "MesTech");
     }
 }
