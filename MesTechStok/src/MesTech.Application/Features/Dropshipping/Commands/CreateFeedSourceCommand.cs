@@ -60,7 +60,7 @@ public sealed class CreateFeedSourceCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await feedRepo.AddAsync(feed, cancellationToken);
+        await feedRepo.AddAsync(feed, cancellationToken).ConfigureAwait(false);
         return feed.Id;
     }
 }

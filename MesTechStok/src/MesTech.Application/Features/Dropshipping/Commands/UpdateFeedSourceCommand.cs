@@ -57,7 +57,7 @@ public sealed class UpdateFeedSourceCommandHandler(
         feed.UpdatedAt = DateTime.UtcNow;
         feed.UpdatedBy = currentUser.UserId?.ToString() ?? "system";
 
-        await feedRepo.UpdateAsync(feed, cancellationToken);
+        await feedRepo.UpdateAsync(feed, cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

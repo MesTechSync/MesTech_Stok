@@ -50,7 +50,7 @@ public sealed class AddProductToPoolCommandHandler(
             CreatedBy = currentUser.UserId?.ToString() ?? "system"
         };
 
-        await poolRepo.AddPoolProductAsync(poolProduct, cancellationToken);
+        await poolRepo.AddPoolProductAsync(poolProduct, cancellationToken).ConfigureAwait(false);
         return poolProduct.Id;
     }
 }

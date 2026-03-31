@@ -50,7 +50,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         // 1. Tenant kisisel bilgilerini anonimlesttir
         tenant.Name = "ANONIM";
         tenant.TaxNumber = null;
-        await _tenantRepo.UpdateAsync(tenant, cancellationToken);
+        await _tenantRepo.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
         anonymized++;
 
         _logger.LogInformation("KVKK: Tenant {TenantId} bilgileri anonimlestirildi.", request.TenantId);
@@ -78,7 +78,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
             var credentials = await _credentialRepo.GetByStoreIdAsync(store.Id, cancellationToken);
             foreach (var credential in credentials)
             {
-                await _credentialRepo.DeleteAsync(credential, cancellationToken);
+                await _credentialRepo.DeleteAsync(credential, cancellationToken).ConfigureAwait(false);
                 credentialDeleteCount++;
                 anonymized++;
             }
@@ -99,7 +99,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         {
             order.CustomerName = "ANONIM";
             order.CustomerEmail = null;
-            await _orderRepo.UpdateAsync(order);
+            await _orderRepo.UpdateAsync(order).ConfigureAwait(false);
             anonymized++;
         }
 
@@ -115,7 +115,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
             affectedRecordCount: anonymized,
             isSuccess: true,
             details: $"Tenant+{tenant.Users.Count} user+{credentialDeleteCount} credential+{orders.Count} order anonimlestirildi");
-        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken);
+        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken).ConfigureAwait(false);
 
         _logger.LogWarning(
             "KVKK TAMAMLANDI: TenantId={TenantId}, RequestedBy={UserId}, Reason={Reason}, " +
@@ -123,7 +123,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
             request.TenantId, request.RequestedByUserId, request.Reason,
             anonymized, DateTime.UtcNow);
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new DeletePersonalDataResult(true, anonymized, DateTime.UtcNow);
     }

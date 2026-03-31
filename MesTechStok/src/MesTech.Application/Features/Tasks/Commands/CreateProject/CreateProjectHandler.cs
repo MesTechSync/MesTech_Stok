@@ -17,8 +17,8 @@ public sealed class CreateProjectHandler : IRequestHandler<CreateProjectCommand,
         ArgumentNullException.ThrowIfNull(request);
         var project = Project.Create(request.TenantId, request.Name, request.OwnerUserId,
             request.Description, request.StartDate, request.DueDate, request.Color);
-        await _repository.AddAsync(project, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(project, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return project.Id;
     }
 }

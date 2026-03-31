@@ -132,8 +132,8 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
             affectedRecordCount: allUsers.Count + stores.Count + orders.Count + productCount,
             isSuccess: true,
             details: $"Users={allUsers.Count}, Stores={stores.Count}, Orders={orders.Count}, Products={productCount}");
-        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _kvkkAuditRepo.AddAsync(auditLog, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "KVKK export tamamlandi: TenantId={TenantId}, Users={Users}, Stores={Stores}, Orders={Orders}, Products={Products}",

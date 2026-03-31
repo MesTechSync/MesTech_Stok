@@ -58,9 +58,9 @@ public sealed class PullProductFromPoolCommandHandler(
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockIn);
 
-        await movementRepo.AddAsync(movement);
-        await productRepo.UpdateAsync(product);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await movementRepo.AddAsync(movement).ConfigureAwait(false);
+        await productRepo.UpdateAsync(product).ConfigureAwait(false);
+        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
     }

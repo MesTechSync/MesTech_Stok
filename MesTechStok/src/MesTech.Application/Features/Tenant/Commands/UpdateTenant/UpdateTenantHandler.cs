@@ -16,8 +16,8 @@ public sealed class UpdateTenantHandler : IRequestHandler<UpdateTenantCommand, b
         tenant.Name = request.Name;
         tenant.TaxNumber = request.TaxNumber;
         tenant.IsActive = request.IsActive;
-        await _repo.UpdateAsync(tenant, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repo.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

@@ -31,8 +31,8 @@ public sealed class TriggerBackupHandler
         var fileName = $"backup_{request.TenantId:N}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bak";
         var entry = BackupEntry.Create(request.TenantId, fileName);
 
-        await _backupRepo.AddAsync(entry, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _backupRepo.AddAsync(entry, ct).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         return new TriggerBackupResult(entry.Id, fileName, entry.Status);
     }

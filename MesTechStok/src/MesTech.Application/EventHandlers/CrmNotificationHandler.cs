@@ -46,14 +46,14 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
     {
         _logger.LogWarning("DealLost → bildirim. DealId={Id}, Reason={Reason}", dealId, reason);
         await CreateNotificationAsync(tenantId, "DealLost",
-            $"Anlaşma kaybedildi — ID: {dealId}, Sebep: {reason ?? "belirtilmedi"}", ct);
+            $"Anlaşma kaybedildi — ID: {dealId}, Sebep: {reason ?? "belirtilmedi"}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleDealStageChangedAsync(Guid dealId, Guid tenantId, string newStage, CancellationToken ct)
     {
         _logger.LogInformation("DealStageChanged → bildirim. DealId={Id}, Stage={Stage}", dealId, newStage);
         await CreateNotificationAsync(tenantId, "DealStageChanged",
-            $"Anlaşma aşaması değişti — ID: {dealId}, Yeni Aşama: {newStage}", ct);
+            $"Anlaşma aşaması değişti — ID: {dealId}, Yeni Aşama: {newStage}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleLeadConvertedAsync(Guid leadId, Guid tenantId, CancellationToken ct)
@@ -66,14 +66,14 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
     {
         _logger.LogInformation("LeadScored → bildirim. LeadId={Id}, Score={Score}", leadId, score);
         await CreateNotificationAsync(tenantId, "LeadScored",
-            $"Lead puanlandı — ID: {leadId}, Puan: {score}", ct);
+            $"Lead puanlandı — ID: {leadId}, Puan: {score}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleCalendarEventCreatedAsync(Guid eventId, Guid tenantId, string title, CancellationToken ct)
     {
         _logger.LogInformation("CalendarEventCreated → bildirim. EventId={Id}, Title={Title}", eventId, title);
         await CreateNotificationAsync(tenantId, "CalendarEventCreated",
-            $"Takvim etkinliği oluşturuldu — {title}", ct);
+            $"Takvim etkinliği oluşturuldu — {title}", ct).ConfigureAwait(false);
     }
 
     private async Task CreateNotificationAsync(Guid tenantId, string template, string content, CancellationToken ct)

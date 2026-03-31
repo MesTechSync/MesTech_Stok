@@ -31,8 +31,8 @@ public sealed class MarkUserNotificationReadHandler
 
         notification.MarkAsRead();
 
-        await _repository.UpdateAsync(notification, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(notification, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
     }
