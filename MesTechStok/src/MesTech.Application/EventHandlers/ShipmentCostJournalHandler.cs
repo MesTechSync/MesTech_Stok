@@ -46,8 +46,8 @@ public sealed class ShipmentCostJournalHandler : IShipmentCostJournalHandler
         var expense = CargoExpense.Create(
             tenantId, cargoProvider, shippingCost, orderId.ToString(), trackingNumber);
 
-        await _cargoExpenseRepo.AddAsync(expense, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _cargoExpenseRepo.AddAsync(expense, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Kargo gider kaydı oluşturuldu — ExpenseId={ExpenseId}, Order={OrderId}, Cost={ShippingCost}",

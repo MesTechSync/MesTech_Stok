@@ -35,7 +35,7 @@ public sealed class ZeroStockDetectedEventHandler : IZeroStockEventHandler
             "ZeroStockDetected → ürün pasife alınıyor. ProductId={ProductId}, SKU={SKU}, TenantId={TenantId}",
             productId, sku, tenantId);
 
-        var product = await _productRepo.GetByIdAsync(productId);
+        var product = await _productRepo.GetByIdAsync(productId).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogError(
@@ -57,6 +57,6 @@ public sealed class ZeroStockDetectedEventHandler : IZeroStockEventHandler
             "Product {SKU} deactivated due to zero stock. ProductId={ProductId}, TenantId={TenantId}",
             sku, productId, tenantId);
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

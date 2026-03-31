@@ -30,8 +30,8 @@ public sealed class CreateIncomeHandler : IRequestHandler<CreateIncomeCommand, G
         };
         income.SetAmount(request.Amount);
 
-        await _incomeRepository.AddAsync(income);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _incomeRepository.AddAsync(income).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return income.Id;
     }

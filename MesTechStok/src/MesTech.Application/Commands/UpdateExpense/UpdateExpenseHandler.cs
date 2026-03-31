@@ -22,7 +22,7 @@ public sealed class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
         if (request.Note is not null) expense.Note = request.Note;
         // PaymentStatus: use domain methods (MarkAsProcessing/MarkAsCompleted/Cancel) instead of direct set
 
-        await _repository.UpdateAsync(expense);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(expense).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

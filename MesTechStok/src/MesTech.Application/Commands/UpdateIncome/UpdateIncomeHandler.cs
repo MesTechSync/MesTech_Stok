@@ -21,7 +21,7 @@ public sealed class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
         if (request.IncomeType.HasValue) income.IncomeType = request.IncomeType.Value;
         if (request.Note is not null) income.Note = request.Note;
 
-        await _repository.UpdateAsync(income);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(income).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -29,8 +29,8 @@ public sealed class CreateCariHesapHandler : IRequestHandler<CreateCariHesapComm
             Address = request.Address,
         };
 
-        await _cariHesapRepository.AddAsync(cariHesap);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _cariHesapRepository.AddAsync(cariHesap).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return cariHesap.Id;
     }

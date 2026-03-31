@@ -39,7 +39,7 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
     public async Task HandleDealWonAsync(Guid dealId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation("DealWon → bildirim. DealId={Id}", dealId);
-        await CreateNotificationAsync(tenantId, "DealWon", $"Anlaşma kazanıldı — ID: {dealId}", ct);
+        await CreateNotificationAsync(tenantId, "DealWon", $"Anlaşma kazanıldı — ID: {dealId}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleDealLostAsync(Guid dealId, Guid tenantId, string? reason, CancellationToken ct)
@@ -59,7 +59,7 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
     public async Task HandleLeadConvertedAsync(Guid leadId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation("LeadConverted → bildirim. LeadId={Id}", leadId);
-        await CreateNotificationAsync(tenantId, "LeadConverted", $"Lead dönüştürüldü — ID: {leadId}", ct);
+        await CreateNotificationAsync(tenantId, "LeadConverted", $"Lead dönüştürüldü — ID: {leadId}", ct).ConfigureAwait(false);
     }
 
     public async Task HandleLeadScoredAsync(Guid leadId, Guid tenantId, int score, CancellationToken ct)
@@ -85,7 +85,7 @@ public sealed class CrmNotificationHandler : ICrmNotificationHandler
             template,
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

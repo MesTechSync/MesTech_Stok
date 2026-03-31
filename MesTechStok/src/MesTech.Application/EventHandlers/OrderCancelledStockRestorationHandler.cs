@@ -44,7 +44,7 @@ public sealed class OrderCancelledStockRestorationHandler : IOrderCancelledStock
             "OrderCancelled → stok geri yükleme başlıyor. OrderId={OrderId}, Reason={Reason}",
             orderId, reason);
 
-        var order = await _orderRepo.GetByIdAsync(orderId, ct);
+        var order = await _orderRepo.GetByIdAsync(orderId, ct).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogError("Order {OrderId} bulunamadı — stok geri y��kleme atlandı", orderId);
@@ -71,7 +71,7 @@ public sealed class OrderCancelledStockRestorationHandler : IOrderCancelledStock
                 lockHandles.Add(lockHandle);
             }
 
-            var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct);
+            var products = await _productRepo.GetByIdsAsync(sortedProductIds, ct).ConfigureAwait(false);
             var productMap = products.ToDictionary(p => p.Id);
 
             foreach (var item in order.OrderItems)
@@ -100,7 +100,7 @@ public sealed class OrderCancelledStockRestorationHandler : IOrderCancelledStock
 #pragma warning restore CA1031
             }
 
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "OrderCancelled stok geri yükleme tamamlandı — OrderId={OrderId}, {ItemCount} kalem",

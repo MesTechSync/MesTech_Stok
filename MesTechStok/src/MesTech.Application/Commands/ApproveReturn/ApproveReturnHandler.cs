@@ -30,7 +30,7 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId);
+        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId).ConfigureAwait(false);
         if (returnRequest is null)
             return new ApproveReturnResult
             {
@@ -62,7 +62,7 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
                     && products.TryGetValue(line.ProductId.Value, out var product))
                 {
                     product.AdjustStock(line.Quantity, StockMovementType.StockIn);
-                    await _productRepo.UpdateAsync(product);
+                    await _productRepo.UpdateAsync(product).ConfigureAwait(false);
                 }
             }
 
@@ -70,8 +70,8 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
             stockRestored = true;
         }
 
-        await _returnRepo.UpdateAsync(returnRequest);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _returnRepo.UpdateAsync(returnRequest).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new ApproveReturnResult
         {

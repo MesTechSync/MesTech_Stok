@@ -19,7 +19,7 @@ public sealed class DeleteIncomeHandler : IRequestHandler<DeleteIncomeCommand>
         income.IsDeleted = true;
         income.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(income);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(income).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -28,8 +28,8 @@ public sealed class GetProductDbStatusHandler
 #pragma warning disable CA1031 // Catch general exception — return safe fallback
         try
         {
-            var totalCount = await _productRepo.GetCountAsync();
-            var allProducts = await _productRepo.GetAllAsync();
+            var totalCount = await _productRepo.GetCountAsync().ConfigureAwait(false);
+            var allProducts = await _productRepo.GetAllAsync().ConfigureAwait(false);
 
             var activeCount = allProducts.Count(p => p.IsActive);
 

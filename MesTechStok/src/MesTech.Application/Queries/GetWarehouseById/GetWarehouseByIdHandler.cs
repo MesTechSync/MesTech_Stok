@@ -11,7 +11,7 @@ public sealed class GetWarehouseByIdHandler : IRequestHandler<GetWarehouseByIdQu
 
     public async Task<WarehouseListDto?> Handle(GetWarehouseByIdQuery request, CancellationToken cancellationToken)
     {
-        var w = await _repo.GetByIdAsync(request.WarehouseId);
+        var w = await _repo.GetByIdAsync(request.WarehouseId).ConfigureAwait(false);
         if (w is null) return null;
 
         return new WarehouseListDto

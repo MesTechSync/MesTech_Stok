@@ -53,8 +53,8 @@ public sealed class PriceLossDetectedEventHandler : IPriceLossDetectedEventHandl
             "PriceLossAlert",
             content);
 
-        await _notificationRepo.AddAsync(notification, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _notificationRepo.AddAsync(notification, ct).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Zarar uyarısı bildirimi oluşturuldu — SKU={SKU}, ProductId={ProductId}, LossPerUnit={LossPerUnit}",
