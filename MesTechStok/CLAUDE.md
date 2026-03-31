@@ -17,6 +17,12 @@
 # ╚═══════════════════════════════════════════════════════════════╝
 # MesTechStok — Claude Code Instructions
 
+## .NET SDK KURALI (31 Mart 2026)
+- Proje .NET 9.0 hedefler. `global.json` ile sabitlenmiştir.
+- .NET 10/Preview SDK YASAK — build crash nedeni.
+- `dotnet --version` → 9.0.xxx olmali. 10.x gorursen DURMA, Komutan'a bildir.
+- Hicbir csproj'da `net10.0` OLMAYACAK.
+
 ## Project Overview
 MesTechStok is a multi-layer enterprise stock management platform with Avalonia desktop (cross-platform), Blazor web, WPF desktop, and HTML dashboard frontends.
 
