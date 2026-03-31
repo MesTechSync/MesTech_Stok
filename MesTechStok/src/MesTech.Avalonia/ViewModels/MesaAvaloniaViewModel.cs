@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Health.Queries.GetMesaStatus;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -33,12 +34,12 @@ public partial class MesaAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-
-            AiStatus = "Bagli";
-            ModelVersion = "v2.1";
-            PredictionCount = 1247;
-            Accuracy = "%94.3";
-            LastUpdated = DateTime.Now.ToString("HH:mm:ss");
+            var mesaStatus = await _mediator.Send(new GetMesaStatusQuery());
+            AiStatus = mesaStatus.IsConnected ? "Bagli" : "Bagli Degil";
+            ModelVersion = mesaStatus.Version ?? "—";
+            PredictionCount = mesaStatus.ActiveConsumers;
+            Accuracy = mesaStatus.ResponseTimeMs.HasValue ? $"{mesaStatus.ResponseTimeMs}ms" : "—";
+            LastUpdated = mesaStatus.LastHeartbeat?.ToString("HH:mm:ss") ?? DateTime.Now.ToString("HH:mm:ss");
 
             AiTools.Clear();
             AiTools.Add(new MesaToolVm { Name = "Stok Tahmin", Description = "Gelecek 30 gun stok ihtiyaci tahmini", Status = "Aktif", Icon = "S" });

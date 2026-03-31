@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
+using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 using MesTech.Domain.Interfaces;
 
@@ -19,6 +20,7 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string currentPlan = "Pro";
     [ObservableProperty] private string monthlyFee = "0,00 TL";
     [ObservableProperty] private string nextBillingDate = "-";
+    [ObservableProperty] private int availablePlanCount;
 
     // Filters
     [ObservableProperty] private string searchText = string.Empty;
@@ -65,6 +67,15 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
                 MonthlyFee = _allItems[0].AmountFormatted;
 
             IsEmpty = _allItems.Count == 0;
+
+            // Subscription plans (G540 orphan wire)
+            try
+            {
+                var plans = await _mediator.Send(new GetSubscriptionPlansQuery());
+                AvailablePlanCount = plans.Count;
+            }
+            catch { AvailablePlanCount = 0; }
+
             ApplyFilters();
         }
         catch (Exception ex)

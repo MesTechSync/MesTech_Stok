@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
+using MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -18,6 +19,7 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string salesVat = "0,00 TL";
     [ObservableProperty] private string purchaseVat = "0,00 TL";
     [ObservableProperty] private string netVat = "0,00 TL";
+    [ObservableProperty] private int withholdingRateCount;
 
     // Filters
     [ObservableProperty] private string selectedPeriodType = "Aylik";
@@ -81,6 +83,15 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
             ];
 
             IsEmpty = report.HesaplananKdv == 0 && report.IndirilecekKdv == 0;
+
+            // Withholding rates (G540 orphan wire)
+            try
+            {
+                var rates = await _mediator.Send(new GetWithholdingRatesQuery());
+                WithholdingRateCount = rates.Count;
+            }
+            catch { WithholdingRateCount = 0; }
+
             ApplyFilters();
         }
         catch (Exception ex)

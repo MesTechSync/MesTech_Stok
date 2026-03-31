@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -35,6 +36,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
     // Auto-order settings
     [ObservableProperty] private bool isAutoOrderEnabled;
     [ObservableProperty] private decimal autoOrderThreshold = 5;
+    [ObservableProperty] private int supplierCount;
 
     public ObservableCollection<DropshipSupplierPerformanceDto> Suppliers { get; } = [];
     public ObservableCollection<DropshipProfitableProductDto> TopProfitableProducts { get; } = [];
@@ -92,6 +94,10 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
             TopProfitableProducts.Clear();
 
             IsEmpty = Suppliers.Count == 0;
+
+            // Supplier count from dedicated query
+            var suppliers = await _mediator.Send(new GetDropshipSuppliersQuery(_currentUser.TenantId));
+            SupplierCount = suppliers.Count;
 
             // Auto-order defaults
             IsAutoOrderEnabled = true;

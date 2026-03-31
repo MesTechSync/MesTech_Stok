@@ -1,6 +1,9 @@
 using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.SaveCompanySettings;
+using MesTech.Application.Features.Settings.Commands.SaveApiSettings;
+using MesTech.Application.Features.Settings.Commands.SaveErpSettings;
+using MesTech.Application.Features.Settings.Commands.SaveFulfillmentSettings;
 using MesTech.Application.Features.Settings.Commands.UpdateProfileSettings;
 using MesTech.Application.Features.Settings.Commands.UpdateStoreSettings;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
@@ -188,5 +191,47 @@ public static class SettingsEndpoints
         .WithName("UpdateUserSettings")
         .WithSummary("Kullanıcı ayarlarını güncelle (profil alias)")
         .Produces(204).Produces(400);
+
+        // POST /api/v1/settings/api — API ayarları kaydet (G564)
+        group.MapPost("/api", async (
+            SaveApiSettingsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("saved", "API settings saved"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SaveApiSettings")
+        .WithSummary("API ayarları kaydet — base URL, webhook secret, rate limit, CORS")
+        .Produces<StatusResponse>(200).Produces(400);
+
+        // POST /api/v1/settings/erp — ERP ayarları kaydet (G564)
+        group.MapPost("/erp", async (
+            SaveErpSettingsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("saved", "ERP settings saved"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SaveErpSettings")
+        .WithSummary("ERP entegrasyon ayarları kaydet — Parasut/Logo/Netsis")
+        .Produces<StatusResponse>(200).Produces(400);
+
+        // POST /api/v1/settings/fulfillment — Fulfillment ayarları kaydet (G564)
+        group.MapPost("/fulfillment", async (
+            SaveFulfillmentSettingsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("saved", "Fulfillment settings saved"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SaveFulfillmentSettings")
+        .WithSummary("Fulfillment ayarları — FBA/Hepsilojistik auto-replenish")
+        .Produces<StatusResponse>(200).Produces(400);
     }
 }

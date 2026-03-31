@@ -5,6 +5,7 @@ using MediatR;
 using MesTech.Application.DTOs.Fulfillment;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentInventory;
 using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentOrders;
+using MesTech.Application.Features.Fulfillment.Queries.GetFulfillmentShipments;
 
 namespace MesTech.Avalonia.ViewModels;
 

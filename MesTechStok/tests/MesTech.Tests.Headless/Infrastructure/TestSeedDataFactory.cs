@@ -1,6 +1,7 @@
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Entities.Calendar;
 using MesTech.Domain.Enums;
 using AcctType = MesTech.Domain.Accounting.Enums.AccountType;
 using MesTech.Infrastructure.Persistence;
@@ -19,6 +20,12 @@ public static class TestSeedDataFactory
     public static async Task SeedAsync(AppDbContext db)
     {
         if (await db.Set<Product>().AnyAsync()) return; // idempotent
+
+        // ── Tenant (FK zorunlu — tüm entity'lerin TenantId'si buna referans verir) ──
+        var tenant = new Tenant { Name = "MesTech Test Tenant", IsActive = true };
+        typeof(MesTech.Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(tenant, TestTenantId);
+        db.Set<Tenant>().Add(tenant);
+        await db.SaveChangesAsync(); // Tenant önce kaydedilmeli — FK constraint
 
         // ── Categories (hiyerarşik) ──
         var catElektronik = Category.Create(TestTenantId, "Elektronik", "ELK");
@@ -82,6 +89,37 @@ public static class TestSeedDataFactory
             NotificationLog.Create(TestTenantId, NotificationChannel.Push, "dashboard", "LowStock", "USB-C Kablo stok düşük"),
             NotificationLog.Create(TestTenantId, NotificationChannel.Email, "ahmet@test.com", "ShipmentTracking", "Kargonuz yola çıktı"));
 
+        // ── CariHesap (OnMuhasebe) ──
+        var cari1 = new CariHesap { TenantId = TestTenantId, Name = "Ahmet Yılmaz", Type = CariHesapType.Musteri, Phone = "05301234567", Email = "ahmet@test.com" };
+        var cari2 = new CariHesap { TenantId = TestTenantId, Name = "ABC Elektronik AŞ", Type = CariHesapType.Tedarikci, Phone = "02121234567", TaxNumber = "1234567890" };
+        var cari3 = new CariHesap { TenantId = TestTenantId, Name = "Genel Kasa", Type = CariHesapType.HerIkisi };
+        db.Set<CariHesap>().AddRange(cari1, cari2, cari3);
+
+        // ── CariHareket ──
+        db.Set<CariHareket>().AddRange(
+            new CariHareket { TenantId = TestTenantId, CariHesapId = cari1.Id, Amount = 65149.97m, Direction = CariDirection.Borc, Description = "Sipariş #1 faturası", Date = DateTime.UtcNow.AddDays(-10) },
+            new CariHareket { TenantId = TestTenantId, CariHesapId = cari1.Id, Amount = 65149.97m, Direction = CariDirection.Alacak, Description = "Tahsilat — havale", Date = DateTime.UtcNow.AddDays(-5) },
+            new CariHareket { TenantId = TestTenantId, CariHesapId = cari2.Id, Amount = 38999.94m, Direction = CariDirection.Alacak, Description = "Stok alımı faturası", Date = DateTime.UtcNow.AddDays(-20) },
+            new CariHareket { TenantId = TestTenantId, CariHesapId = cari2.Id, Amount = 38999.94m, Direction = CariDirection.Borc, Description = "Ödeme — EFT", Date = DateTime.UtcNow.AddDays(-8) },
+            new CariHareket { TenantId = TestTenantId, CariHesapId = cari3.Id, Amount = 1500m, Direction = CariDirection.Borc, Description = "Kasa gideri", Date = DateTime.UtcNow.AddDays(-3) });
+
+        // ── PlatformCommission (komisyon oranları) ──
+        db.Set<PlatformCommission>().AddRange(
+            new PlatformCommission { TenantId = TestTenantId, Platform = PlatformType.Trendyol, Rate = 8.0m, CategoryName = "Elektronik", IsActive = true },
+            new PlatformCommission { TenantId = TestTenantId, Platform = PlatformType.Hepsiburada, Rate = 10.0m, CategoryName = "Genel", IsActive = true },
+            new PlatformCommission { TenantId = TestTenantId, Platform = PlatformType.N11, Rate = 7.0m, CategoryName = "Giyim", IsActive = true });
+
+        // ── ReturnRequest (iade talepleri) ──
+        var ret1 = ReturnRequest.Create(order1.Id, TestTenantId, PlatformType.Trendyol, ReturnReason.DefectiveProduct, "Ahmet Yılmaz", "Ürün arızalı");
+        var ret2 = ReturnRequest.Create(order3.Id, TestTenantId, PlatformType.Hepsiburada, ReturnReason.WrongSize, "Mehmet Kaya", "Yanlış beden");
+        db.Set<ReturnRequest>().AddRange(ret1, ret2);
+
+        // ── CalendarEvent ──
+        db.Set<CalendarEvent>().AddRange(
+            CalendarEvent.Create(TestTenantId, "Haftalık Stok Toplantısı", DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(1).AddHours(1), EventType.Meeting, description: "Stok durumu değerlendirme"),
+            CalendarEvent.Create(TestTenantId, "Trendyol Kampanya Bitiş", DateTime.UtcNow.AddDays(3), DateTime.UtcNow.AddDays(3), EventType.Deadline, description: "İndirim kampanyası sona eriyor"),
+            CalendarEvent.Create(TestTenantId, "Fatura Kontrol Hatırlatma", DateTime.UtcNow.AddDays(7), DateTime.UtcNow.AddDays(7).AddMinutes(30), EventType.Reminder, description: "Aylık fatura mutabakatı"));
+
         // ── GL Hesap Planı ──
         db.Set<ChartOfAccounts>().AddRange(
             ChartOfAccounts.Create(TestTenantId, "100", "Kasa", AcctType.Asset),
@@ -94,6 +132,9 @@ public static class TestSeedDataFactory
             ChartOfAccounts.Create(TestTenantId, "760", "Pazarlama Giderleri", AcctType.Expense),
             ChartOfAccounts.Create(TestTenantId, "770", "Genel Yönetim Giderleri", AcctType.Expense),
             ChartOfAccounts.Create(TestTenantId, "689", "Diğer Olağandışı Giderler", AcctType.Expense));
+
+        // ── AccessLog (LogViewer seed — DEV4 Grup C) ──
+        SeedAccessLogs(db);
 
         await db.SaveChangesAsync();
     }
@@ -131,6 +172,22 @@ public static class TestSeedDataFactory
         typeof(OrderItem).GetProperty("TotalPrice")!.SetValue(item, qty * unitPrice);
         typeof(OrderItem).GetProperty("TaxAmount")!.SetValue(item, qty * unitPrice * 0.20m);
         return item;
+    }
+
+    /// <summary>Seed AccessLog entries for LogViewerAvaloniaView (DEV4 Grup C).</summary>
+    private static void SeedAccessLogs(AppDbContext db)
+    {
+        var now = DateTime.UtcNow;
+        var userId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+        db.Set<AccessLog>().AddRange(
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Login", Resource = "Auth/Login", IsAllowed = true, AccessTime = now.AddHours(-3), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Error: NullReferenceException in ProductSync", Resource = "Platform/Sync", IsAllowed = true, AccessTime = now.AddHours(-2), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Warning: Rate limit approaching", Resource = "Integration/Trendyol", IsAllowed = true, AccessTime = now.AddMinutes(-90), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Export stock report", Resource = "Reports/StockExport", IsAllowed = true, AccessTime = now.AddMinutes(-60), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Debug: Cache invalidated", Resource = "Cache/Products", IsAllowed = true, AccessTime = now.AddMinutes(-30), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Create invoice INV-2026-0042", Resource = "Invoice/Create", IsAllowed = true, AccessTime = now.AddMinutes(-15), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Error: Connection timeout to RabbitMQ", Resource = "Messaging/RabbitMQ", IsAllowed = false, AccessTime = now.AddMinutes(-5), IpAddress = "192.168.1.10" }
+        );
     }
 
     private static StockMovement CreateStockMovement(Guid productId, Guid tenantId, StockMovementType type, int qty, string note)

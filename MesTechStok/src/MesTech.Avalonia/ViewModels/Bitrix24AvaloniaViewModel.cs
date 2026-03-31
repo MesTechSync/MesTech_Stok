@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetBitrix24Deals;
 using MesTech.Application.Features.Crm.Queries.GetBitrix24Pipeline;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,7 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalDeals;
     [ObservableProperty] private decimal totalValue;
     [ObservableProperty] private string? stageFilter;
+    [ObservableProperty] private int dealCount;
 
     public ObservableCollection<PipelineStageItem> Stages { get; } = [];
 
@@ -73,6 +75,14 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
             IsEmpty = Stages.Count == 0;
+
+            // Deals count (G540 orphan wire)
+            try
+            {
+                var deals = await _mediator.Send(new GetBitrix24DealsQuery(_currentUser.TenantId));
+                DealCount = deals.TotalCount;
+            }
+            catch { DealCount = 0; }
         }
     }
 

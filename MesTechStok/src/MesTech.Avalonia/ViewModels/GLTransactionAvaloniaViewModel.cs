@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
 using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
 using MesTech.Domain.Interfaces;
 
@@ -23,17 +24,7 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
     public ObservableCollection<GLTransactionItemDto> Transactions { get; } = [];
     private List<GLTransactionItemDto> _allItems = [];
 
-    public ObservableCollection<string> Accounts { get; } =
-    [
-        "Tum Hesaplar",
-        "100 - Kasa",
-        "102 - Bankalar",
-        "120 - Alicilar",
-        "320 - Saticilar",
-        "600 - Yurtici Satislar",
-        "621 - Satilan Mal Maliyeti",
-        "770 - Genel Yonetim Giderleri"
-    ];
+    public ObservableCollection<string> Accounts { get; } = ["Tum Hesaplar"];
 
     public GLTransactionAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -49,6 +40,14 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            // Load chart of accounts for filter dropdown
+            var accounts = await _mediator.Send(new GetChartOfAccountsQuery(_currentUser.TenantId));
+            if (Accounts.Count <= 1)
+            {
+                foreach (var a in accounts)
+                    Accounts.Add($"{a.Code} - {a.Name}");
+            }
+
             var from = StartDate?.DateTime ?? DateTime.Today.AddMonths(-1);
             var to = EndDate?.DateTime ?? DateTime.Today;
             var entries = await _mediator.Send(new GetJournalEntriesQuery(_currentUser.TenantId, from, to));
