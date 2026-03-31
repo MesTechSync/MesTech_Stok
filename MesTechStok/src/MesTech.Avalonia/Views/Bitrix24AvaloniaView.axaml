@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.Bitrix24AvaloniaView"
-             x:Name="Bitrix24AvaloniaView"
              x:DataType="vm:Bitrix24AvaloniaViewModel"
              AutomationProperties.Name="Bitrix24 CRM Pipeline Yonetimi">
 <UserControl.KeyBindings>

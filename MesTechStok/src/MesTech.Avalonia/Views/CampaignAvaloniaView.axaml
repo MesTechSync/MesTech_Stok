@@ -3,7 +3,6 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:dto="using:MesTech.Application.DTOs.Crm"
              x:Class="MesTech.Avalonia.Views.CampaignAvaloniaView"
-             x:Name="CampaignAvaloniaView"
              x:DataType="vm:CampaignAvaloniaViewModel"
              AutomationProperties.Name="Kampanya Yonetim Ekrani">
 <UserControl.KeyBindings>

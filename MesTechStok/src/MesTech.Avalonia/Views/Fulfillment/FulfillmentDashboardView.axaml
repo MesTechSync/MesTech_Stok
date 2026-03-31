@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentDashboardView"
-             x:Name="FulfillmentDashboardView"
              x:DataType="vm:FulfillmentDashboardViewModel"
              AutomationProperties.Name="Fulfillment Dashboard">
 <UserControl.KeyBindings>

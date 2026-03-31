@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.CrmDashboardAvaloniaView"
-             x:Name="CrmDashboardAvaloniaView"
              x:DataType="vm:CrmDashboardAvaloniaViewModel"
              AutomationProperties.Name="CRM Paneli">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

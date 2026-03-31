@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.AboutAvaloniaView"
-             x:Name="AboutAvaloniaView"
              x:DataType="vm:AboutAvaloniaViewModel"
              AutomationProperties.Name="Hakkinda Sayfasi">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

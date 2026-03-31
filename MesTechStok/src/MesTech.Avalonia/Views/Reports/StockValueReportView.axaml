@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.Reports.StockValueReportView"
-             x:Name="StockValueReportView"
              x:DataType="vm:StockValueReportViewModel"
              AutomationProperties.Name="Stok Deger Raporu">
 <UserControl.KeyBindings>

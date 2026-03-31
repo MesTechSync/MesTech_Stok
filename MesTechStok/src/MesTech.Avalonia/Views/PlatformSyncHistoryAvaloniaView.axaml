@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.PlatformSyncHistoryAvaloniaView"
-             x:Name="PlatformSyncHistoryAvaloniaView"
              x:DataType="vm:PlatformSyncHistoryAvaloniaViewModel"
              AutomationProperties.Name="Platform Senkronizasyon Gecmisi">
 <UserControl.KeyBindings>

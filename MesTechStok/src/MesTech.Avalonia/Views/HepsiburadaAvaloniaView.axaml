@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              x:Class="MesTech.Avalonia.Views.HepsiburadaAvaloniaView"
-             x:Name="HepsiburadaAvaloniaView"
              x:DataType="vm:HepsiburadaAvaloniaViewModel"
              AutomationProperties.Name="Hepsiburada Entegrasyonu">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>

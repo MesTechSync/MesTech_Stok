@@ -3,7 +3,6 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              x:Class="MesTech.Avalonia.Views.ReportDashboardAvaloniaView"
-             x:Name="ReportDashboardAvaloniaView"
              x:DataType="vm:ReportDashboardAvaloniaViewModel">
     <UserControl.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
@@ -54,42 +53,44 @@
 
                     <!-- Category + children list -->
                     <ScrollViewer Grid.Row="1">
-                        <ItemsControl ItemsSource="{Binding ReportCategories}" Padding="8,8">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:ReportCategoryItem">
-                                    <StackPanel Spacing="2" Margin="0,0,0,8">
-                                        <!-- Category header -->
-                                        <Border Padding="10,8" CornerRadius="{StaticResource MesRadiusBase}"
-                                                Background="{DynamicResource MesBgSurface}">
-                                            <TextBlock Text="{Binding CategoryName}"
-                                                       FontSize="{StaticResource FontSizeSmall}"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource MesSlateGray}" />
-                                        </Border>
-                                        <!-- Child items -->
-                                        <ItemsControl ItemsSource="{Binding Children}" Margin="8,2,0,0">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <Button Content="{Binding}"
-                                                            HorizontalAlignment="Stretch"
-                                                            HorizontalContentAlignment="Left"
-                                                            Padding="10,7"
-                                                            CornerRadius="{StaticResource MesRadiusBase}"
-                                                            Background="Transparent"
-                                                            Foreground="{DynamicResource MesDarkSlate}"
-                                                            FontSize="{StaticResource FontSizeBody}"
-                                                            Margin="0,1" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Text="Rapor kategorisi bulunamadı"
-                                   HorizontalAlignment="Center" Margin="0,24"
-                                   Opacity="0.5" FontSize="{StaticResource FontSizeSubtitle}"
-                                   IsVisible="{Binding !ReportCategories.Count}" />
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding ReportCategories}" Padding="8,8">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ReportCategoryItem">
+                                        <StackPanel Spacing="2" Margin="0,0,0,8">
+                                            <!-- Category header -->
+                                            <Border Padding="10,8" CornerRadius="{StaticResource MesRadiusBase}"
+                                                    Background="{DynamicResource MesBgSurface}">
+                                                <TextBlock Text="{Binding CategoryName}"
+                                                           FontSize="{StaticResource FontSizeSmall}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource MesSlateGray}" />
+                                            </Border>
+                                            <!-- Child items -->
+                                            <ItemsControl ItemsSource="{Binding Children}" Margin="8,2,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Button Content="{Binding}"
+                                                                HorizontalAlignment="Stretch"
+                                                                HorizontalContentAlignment="Left"
+                                                                Padding="10,7"
+                                                                CornerRadius="{StaticResource MesRadiusBase}"
+                                                                Background="Transparent"
+                                                                Foreground="{DynamicResource MesDarkSlate}"
+                                                                FontSize="{StaticResource FontSizeBody}"
+                                                                Margin="0,1" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="Rapor kategorisi bulunamadı"
+                                       HorizontalAlignment="Center" Margin="0,24"
+                                       Opacity="0.5" FontSize="{StaticResource FontSizeSubtitle}"
+                                       IsVisible="{Binding !ReportCategories.Count}" />
+                        </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </Border>
