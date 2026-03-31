@@ -7,6 +7,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 
@@ -24,6 +25,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
     private readonly ILogger<N11Adapter> _logger;
     private readonly ResiliencePipeline _retryPipeline;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly N11Options _options;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
@@ -46,10 +48,12 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
     private const string SettlementServicePath = "/ws/SettlementService.wsdl";
     private const string BrandServicePath = "/ws/BrandService.wsdl";
 
-    public N11Adapter(ILogger<N11Adapter> logger, IHttpClientFactory httpClientFactory)
+    public N11Adapter(ILogger<N11Adapter> logger, IHttpClientFactory httpClientFactory,
+        IOptions<N11Options>? options = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _options = options?.Value ?? new N11Options();
 
         // NOT: SimpleSoapClient zaten Polly retry (2 attempt, exp backoff) iceriyor.
         // Cift retry onlemek icin burada SADECE circuit breaker ekliyoruz.
@@ -353,7 +357,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
         {
             var appKey = credentials.GetValueOrDefault("N11AppKey", "");
             var appSecret = credentials.GetValueOrDefault("N11AppSecret", "");
-            var baseUrl = credentials.GetValueOrDefault("N11BaseUrl", "https://api.n11.com");
+            var baseUrl = credentials.GetValueOrDefault("N11BaseUrl", _options.BaseUrl);
 
             if (string.IsNullOrWhiteSpace(appKey) || string.IsNullOrWhiteSpace(appSecret))
             {

@@ -127,6 +127,8 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IBitrix24Adapter>(sp => sp.GetRequiredService<Bitrix24Adapter>());
 
         // Dalga 5: N11 SOAP adapter — Singleton (IAdapterFactory is singleton)
+        if (configuration is not null)
+            services.Configure<N11Options>(configuration.GetSection(N11Options.Section));
         services.AddSingleton<N11Adapter>();
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<N11Adapter>());
 
