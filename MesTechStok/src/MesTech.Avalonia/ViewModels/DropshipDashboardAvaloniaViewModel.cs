@@ -36,7 +36,6 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
     // Auto-order settings
     [ObservableProperty] private bool isAutoOrderEnabled;
     [ObservableProperty] private decimal autoOrderThreshold = 5;
-    [ObservableProperty] private int supplierCount;
 
     public ObservableCollection<DropshipSupplierPerformanceDto> Suppliers { get; } = [];
     public ObservableCollection<DropshipProfitableProductDto> TopProfitableProducts { get; } = [];
