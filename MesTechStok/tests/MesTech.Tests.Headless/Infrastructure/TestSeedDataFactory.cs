@@ -133,6 +133,9 @@ public static class TestSeedDataFactory
             ChartOfAccounts.Create(TestTenantId, "770", "Genel Yönetim Giderleri", AcctType.Expense),
             ChartOfAccounts.Create(TestTenantId, "689", "Diğer Olağandışı Giderler", AcctType.Expense));
 
+        // ── AccessLog (LogViewer seed — DEV4 Grup C) ──
+        SeedAccessLogs(db);
+
         await db.SaveChangesAsync();
     }
 
@@ -169,6 +172,22 @@ public static class TestSeedDataFactory
         typeof(OrderItem).GetProperty("TotalPrice")!.SetValue(item, qty * unitPrice);
         typeof(OrderItem).GetProperty("TaxAmount")!.SetValue(item, qty * unitPrice * 0.20m);
         return item;
+    }
+
+    /// <summary>Seed AccessLog entries for LogViewerAvaloniaView (DEV4 Grup C).</summary>
+    private static void SeedAccessLogs(AppDbContext db)
+    {
+        var now = DateTime.UtcNow;
+        var userId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+        db.Set<AccessLog>().AddRange(
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Login", Resource = "Auth/Login", IsAllowed = true, AccessTime = now.AddHours(-3), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Error: NullReferenceException in ProductSync", Resource = "Platform/Sync", IsAllowed = true, AccessTime = now.AddHours(-2), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Warning: Rate limit approaching", Resource = "Integration/Trendyol", IsAllowed = true, AccessTime = now.AddMinutes(-90), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Export stock report", Resource = "Reports/StockExport", IsAllowed = true, AccessTime = now.AddMinutes(-60), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Debug: Cache invalidated", Resource = "Cache/Products", IsAllowed = true, AccessTime = now.AddMinutes(-30), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Create invoice INV-2026-0042", Resource = "Invoice/Create", IsAllowed = true, AccessTime = now.AddMinutes(-15), IpAddress = "192.168.1.10" },
+            new AccessLog { TenantId = TestTenantId, UserId = userId, Action = "Error: Connection timeout to RabbitMQ", Resource = "Messaging/RabbitMQ", IsAllowed = false, AccessTime = now.AddMinutes(-5), IpAddress = "192.168.1.10" }
+        );
     }
 
     private static StockMovement CreateStockMovement(Guid productId, Guid tenantId, StockMovementType type, int qty, string note)
