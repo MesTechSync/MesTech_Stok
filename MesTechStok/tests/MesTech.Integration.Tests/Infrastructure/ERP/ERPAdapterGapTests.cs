@@ -6,6 +6,7 @@ using MesTech.Infrastructure.Integration.ERP.BizimHesap;
 using MesTech.Infrastructure.Integration.ERP.ERPNext;
 using MesTech.Infrastructure.Integration.ERP.Parasut;
 using MesTech.Integration.Tests.Helpers;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -40,8 +41,8 @@ public class ERPAdapterGapTests
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["BizimHesap:BaseUrl"] = "https://api.bizimhesap.com",
-                ["BizimHesap:ApiKey"] = "test-key"
+                ["ERP:BizimHesap:BaseUrl"] = "https://api.bizimhesap.com",
+                ["ERP:BizimHesap:ApiKey"] = "test-key"
             }).Build();
 
         var client = new BizimHesapApiClient(
@@ -60,8 +61,8 @@ public class ERPAdapterGapTests
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["BizimHesap:BaseUrl"] = "https://api.bizimhesap.com",
-                ["BizimHesap:ApiKey"] = "test-key"
+                ["ERP:BizimHesap:BaseUrl"] = "https://api.bizimhesap.com",
+                ["ERP:BizimHesap:ApiKey"] = "test-key"
             }).Build();
 
         var client = new BizimHesapApiClient(
@@ -73,7 +74,7 @@ public class ERPAdapterGapTests
 
         // Act & Assert — null/empty order should be handled
         var result = await adapter.SyncOrderAsync(Guid.Empty, CancellationToken.None);
-        result.IsSuccess.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
 
     // ═══════════════════════════════════════
@@ -83,11 +84,14 @@ public class ERPAdapterGapTests
     [Fact]
     public void Parasut_Constructor_DoesNotThrow()
     {
-        var tokenService = new Mock<ParasutTokenService>(
-            CreateHttpClient(), Mock.Of<ILogger<ParasutTokenService>>());
+        var tokenService = new ParasutTokenService(
+            CreateHttpClient(),
+            new MemoryCache(new MemoryCacheOptions()),
+            new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build(),
+            Mock.Of<ILogger<ParasutTokenService>>());
 
         var adapter = new ParasutERPAdapter(
-            CreateHttpClient(), tokenService.Object,
+            CreateHttpClient(), tokenService,
             _orderRepo.Object, _invoiceRepo.Object,
             Mock.Of<ILogger<ParasutERPAdapter>>());
 
@@ -97,16 +101,19 @@ public class ERPAdapterGapTests
     [Fact]
     public async Task Parasut_SyncOrder_EmptyGuid_ReturnsFailed()
     {
-        var tokenService = new Mock<ParasutTokenService>(
-            CreateHttpClient(), Mock.Of<ILogger<ParasutTokenService>>());
+        var tokenService = new ParasutTokenService(
+            CreateHttpClient(),
+            new MemoryCache(new MemoryCacheOptions()),
+            new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build(),
+            Mock.Of<ILogger<ParasutTokenService>>());
 
         var adapter = new ParasutERPAdapter(
-            CreateHttpClient(), tokenService.Object,
+            CreateHttpClient(), tokenService,
             _orderRepo.Object, _invoiceRepo.Object,
             Mock.Of<ILogger<ParasutERPAdapter>>());
 
         var result = await adapter.SyncOrderAsync(Guid.Empty, CancellationToken.None);
-        result.IsSuccess.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
 
     // ═══════════════════════════════════════
@@ -120,7 +127,8 @@ public class ERPAdapterGapTests
         {
             BaseUrl = "https://erpnext.test.com",
             ApiKey = "test-key",
-            ApiSecret = "test-secret"
+            ApiSecret = "test-secret",
+            Enabled = true
         });
 
         var adapter = new ERPNextRestAdapter(
@@ -140,7 +148,8 @@ public class ERPAdapterGapTests
         {
             BaseUrl = "https://erpnext.test.com",
             ApiKey = "test-key",
-            ApiSecret = "test-secret"
+            ApiSecret = "test-secret",
+            Enabled = true
         });
 
         var adapter = new ERPNextRestAdapter(
@@ -148,7 +157,7 @@ public class ERPAdapterGapTests
             Mock.Of<ILogger<ERPNextRestAdapter>>(),
             options);
 
-        var result = await adapter.PingAsync(CancellationToken.None);
+        var result = await adapter.TestConnectionAsync(CancellationToken.None);
         result.Should().BeFalse();
     }
 
@@ -161,7 +170,8 @@ public class ERPAdapterGapTests
         {
             BaseUrl = "https://erpnext.test.com",
             ApiKey = "test-key",
-            ApiSecret = "test-secret"
+            ApiSecret = "test-secret",
+            Enabled = true
         });
 
         var adapter = new ERPNextRestAdapter(
@@ -169,7 +179,7 @@ public class ERPAdapterGapTests
             Mock.Of<ILogger<ERPNextRestAdapter>>(),
             options);
 
-        var result = await adapter.PingAsync(CancellationToken.None);
+        var result = await adapter.TestConnectionAsync(CancellationToken.None);
         result.Should().BeTrue();
     }
 }

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Features.Product.Commands.BulkCreateProducts;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -36,7 +37,7 @@ public class BulkCreateProductsHandlerTests
 
         _productRepoMock
             .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Product>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Product>());
 
         _uowMock
             .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -52,7 +53,7 @@ public class BulkCreateProductsHandlerTests
         result.Errors.Should().BeEmpty();
 
         _productRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<Domain.Entities.Product>()),
+            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>()),
             Times.Exactly(2));
 
         _uowMock.Verify(
@@ -64,7 +65,7 @@ public class BulkCreateProductsHandlerTests
     public async Task Handle_DuplicateSKUInDatabase_ReportsError()
     {
         // Arrange
-        var existingProduct = new Domain.Entities.Product { SKU = "SKU-DUP", Name = "Existing" };
+        var existingProduct = new global::MesTech.Domain.Entities.Product { SKU = "SKU-DUP", Name = "Existing" };
 
         var products = new List<BulkProductInput>
         {
@@ -75,7 +76,7 @@ public class BulkCreateProductsHandlerTests
 
         _productRepoMock
             .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Product> { existingProduct });
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Product> { existingProduct });
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -88,7 +89,7 @@ public class BulkCreateProductsHandlerTests
             .And.Contain("zaten mevcut");
 
         _productRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<Domain.Entities.Product>()),
+            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>()),
             Times.Never);
 
         _uowMock.Verify(
@@ -110,7 +111,7 @@ public class BulkCreateProductsHandlerTests
 
         _productRepoMock
             .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Product>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Product>());
 
         _uowMock
             .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -141,7 +142,7 @@ public class BulkCreateProductsHandlerTests
 
         _productRepoMock
             .Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Product>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Product>());
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);

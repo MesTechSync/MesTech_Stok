@@ -85,6 +85,21 @@ public partial class PlanBadgeControl : UserControl
         }
     }
 
+    protected override void OnPointerPressed(global::Avalonia.Input.PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if (_featureGate is null) return;
+
+        // Cycle through tiers: Light → Pro → Ultra → Light
+        var next = _featureGate.CurrentTier switch
+        {
+            SubscriptionTier.Light => SubscriptionTier.Pro,
+            SubscriptionTier.Pro => SubscriptionTier.Ultra,
+            _ => SubscriptionTier.Light
+        };
+        _featureGate.SetTier(next);
+    }
+
     protected override void OnDetachedFromVisualTree(global::Avalonia.VisualTreeAttachmentEventArgs e)
     {
         if (_featureGate is not null)

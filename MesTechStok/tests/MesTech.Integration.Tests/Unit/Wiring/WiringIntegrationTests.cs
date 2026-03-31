@@ -133,7 +133,7 @@ public class WiringIntegrationTests
         customer.DomainEvents.Should().ContainSingle(e => e is CustomerCreatedEvent);
         var evt = customer.DomainEvents.OfType<CustomerCreatedEvent>().Single();
         evt.TenantId.Should().Be(tenantId);
-        evt.Name.Should().Be("Test Müşteri");
+        evt.CustomerName.Should().Be("Test Müşteri");
     }
 
     [Fact]
@@ -186,22 +186,36 @@ public class WiringIntegrationTests
 
     private static Order CreateShippedOrder()
     {
-        var order = Order.Create(
-            Guid.NewGuid(), // tenantId
-            "ORD-001",      // orderNumber
-            "Müşteri Test", // customerName
-            1000m);         // totalAmount
+        var tenantId = Guid.NewGuid();
+        var items = new List<OrderItem>
+        {
+            new() { Id = Guid.NewGuid(), TenantId = tenantId, ProductId = Guid.NewGuid(), ProductName = "Test Ürün", ProductSKU = "TST-001", Quantity = 1, UnitPrice = 1000m, TotalPrice = 1000m }
+        };
 
-        // Move through workflow: Created → Processing → Shipped
-        order.MarkAsProcessing();
-        order.Ship("TRK-123", CargoProvider.YurticiKargo);
+        var order = Order.CreateFromPlatform(
+            tenantId,
+            "ORD-001",
+            PlatformType.Trendyol,
+            "Müşteri Test",
+            null,
+            items);
+
+        // Move through workflow: Pending → Confirmed → Shipped
+        order.Place();
+        order.MarkAsShipped("TRK-123", CargoProvider.YurticiKargo);
         return order;
     }
 
     private static Order CreateProcessingOrder()
     {
-        var order = Order.Create(Guid.NewGuid(), "ORD-002", "Test", 500m);
-        order.MarkAsProcessing();
+        var tenantId = Guid.NewGuid();
+        var items = new List<OrderItem>
+        {
+            new() { Id = Guid.NewGuid(), TenantId = tenantId, ProductId = Guid.NewGuid(), ProductName = "Test Ürün", ProductSKU = "TST-002", Quantity = 1, UnitPrice = 500m, TotalPrice = 500m }
+        };
+
+        var order = Order.CreateFromPlatform(tenantId, "ORD-002", PlatformType.Trendyol, "Test", null, items);
+        order.Place(); // Pending → Confirmed (not Shipped)
         return order;
     }
 }

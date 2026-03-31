@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
+using MesTech.Application.Features.Stores.Queries.GetStoreDetail;
 using MesTech.Application.Queries.GetStoresByTenant;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -61,5 +62,19 @@ public static class StoreEndpoints
         })
         .WithName("TestStoreConnection")
         .WithSummary("Mağaza API bağlantı testi").Produces(200).Produces(400);
+
+        // GET /api/v1/admin/stores/{id} — mağaza detayı (P1 — DEV6 TUR11)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new GetStoreDetailQuery(tenantId, id), ct);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
+        })
+        .WithName("GetStoreDetail")
+        .WithSummary("Mağaza detay — platform credential + sync durumu")
+        .Produces<StoreDetailDto>(200)
+        .Produces(404);
     }
 }
