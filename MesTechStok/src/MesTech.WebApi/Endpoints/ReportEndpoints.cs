@@ -1,8 +1,10 @@
 using MesTech.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
+using MesTech.Application.Features.Accounting.Queries.GetExpenseReport;
 using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Features.Calendar.Commands.GenerateTaxCalendar;
 using MesTech.Application.Features.Finance.Queries.GetProfitLoss;
 using MesTech.Application.Features.Reports.PlatformSalesReport;
@@ -442,6 +444,9 @@ public static class ReportEndpoints
         .WithSummary("Satış analiz raporu — platform bazlı gelir, adet, trend")
         .Produces(200)
         .CacheOutput("Report120s");
+
+        // G564 endpoints
+        MapG564Endpoints(group);
     }
 
     private static async Task<IResult> ExportResult<T>(
@@ -468,5 +473,42 @@ public static class ReportEndpoints
                 $"{title.Replace(' ', '_')}_{DateTime.UtcNow:yyyyMMdd}.csv"),
             _ => Results.Problem(detail: "Desteklenen formatlar: pdf, xlsx, csv", statusCode: 400)
         };
+    }
+
+    // ── G564 ENDPOINT'LER ──
+
+    // GET /api/v1/reports/expenses — gider raporu (G564)
+    private static void MapG564Endpoints(RouteGroupBuilder group)
+    {
+        group.MapGet("/expenses", async (
+            Guid tenantId,
+            DateTime from,
+            DateTime to,
+            string? category,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetExpenseReportQuery(tenantId, from, to, category), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetExpenseReport")
+        .WithSummary("Gider raporu — tarih aralığı + kategori filtresi")
+        .Produces<ExpenseReportDto>(200);
+
+        // POST /api/v1/reports/export — genel rapor dışa aktarım (G564)
+        group.MapPost("/export", async (
+            ExportReportCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            if (result.FileData.Length == 0)
+                return Results.Problem(detail: "Report export produced no data", statusCode: 400);
+            return Results.File(result.FileData,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                result.FileName);
+        })
+        .WithName("ExportReport")
+        .WithSummary("Genel rapor dışa aktar — rapor tipi + format + parametreler")
+        .Produces(200).Produces(400);
     }
 }
