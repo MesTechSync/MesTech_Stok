@@ -1,3 +1,4 @@
+#pragma warning disable CS1998
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;

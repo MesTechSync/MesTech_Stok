@@ -1,3 +1,4 @@
+#pragma warning disable CS1998
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;

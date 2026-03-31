@@ -1,3 +1,4 @@
+#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia.Platform.Storage;

@@ -68,7 +68,7 @@ public partial class OnboardingWizardAvaloniaViewModel : ViewModelBase
             }
 
             // G540: V5 readiness check
-            try { _ = await _mediator.Send(new GetV5ReadinessCheckQuery()); } catch { }
+            try { _ = await _mediator.Send(new GetV5ReadinessCheckQuery(TenantId)); } catch { }
         }
         catch (Exception ex)
         {
