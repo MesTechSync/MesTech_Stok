@@ -8,6 +8,12 @@ namespace MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 
 public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDataQuery, PersonalDataExportDto>
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ITenantRepository _tenantRepo;
     private readonly IStoreRepository _storeRepo;
     private readonly IOrderRepository _orderRepo;
@@ -117,11 +123,7 @@ public sealed class ExportPersonalDataHandler : IRequestHandler<ExportPersonalDa
             }
         };
 
-        var json = JsonSerializer.Serialize(exportData, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        var json = JsonSerializer.Serialize(exportData, s_jsonOptions);
 
         // KVKK denetim kaydı — yasal zorunluluk (defense in depth)
         var auditLog = KvkkAuditLog.Create(
