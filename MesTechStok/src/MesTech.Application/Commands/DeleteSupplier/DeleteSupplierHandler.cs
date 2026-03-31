@@ -24,7 +24,7 @@ public sealed class DeleteSupplierHandler : IRequestHandler<DeleteSupplierComman
         if (supplier is null)
             return false;
 
-        _supplierRepository.Remove(supplier);
+        await _supplierRepository.DeleteAsync(request.SupplierId).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
