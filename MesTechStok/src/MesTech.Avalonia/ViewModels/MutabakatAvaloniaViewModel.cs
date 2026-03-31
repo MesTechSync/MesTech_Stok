@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
+using MesTech.Application.Features.Accounting.Queries.GetReconciliationMatches;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -17,6 +18,7 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string matchedCount = "0";
     [ObservableProperty] private string unmatchedCount = "0";
     [ObservableProperty] private string matchScoreText = "%0";
+    [ObservableProperty] private int pendingMatchCount;
 
     // Filters
     [ObservableProperty] private string searchText = string.Empty;
@@ -65,6 +67,15 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
                 _allItems.Add(new() { Date = DateTime.Now.ToString("dd.MM.yyyy"), Reference = "ESLESMEDI", Source = "Sistem", Description = $"{dashboard.UnmatchedCount} kayit eslesmedi", AmountFormatted = $"{dashboard.UnmatchedTotal:N2} TL", Status = "Eslesmedi" });
 
             IsEmpty = total == 0;
+
+            // Reconciliation matches (G540 orphan wire)
+            try
+            {
+                var matches = await _mediator.Send(new GetReconciliationMatchesQuery(_currentUser.TenantId));
+                PendingMatchCount = matches.Count;
+            }
+            catch { PendingMatchCount = 0; }
+
             ApplyFilters();
         }
         catch (Exception ex)
