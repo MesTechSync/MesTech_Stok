@@ -353,6 +353,19 @@ public static class ProductEndpoints
         .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
         .Produces(200).Produces(400);
 
+        // POST /api/v1/products/auto-compete/bulk — toplu otomatik fiyat rekabet
+        group.MapPost("/auto-compete/bulk", async (
+            BulkAutoCompetePriceCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("BulkAutoCompetePrice")
+        .WithSummary("Toplu otomatik fiyat rekabet — tenant'ın tüm ürünleri veya platform bazlı Buybox kazanma")
+        .Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
+
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
         group.MapGet("/platform/{platformCode}", async (
             string platformCode, int? page, int? pageSize,
