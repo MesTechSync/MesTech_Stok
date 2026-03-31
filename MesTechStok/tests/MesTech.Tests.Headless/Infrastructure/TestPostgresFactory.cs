@@ -13,7 +13,7 @@ namespace MesTech.Tests.Headless.Infrastructure;
 public class TestPostgresFactory : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:17-alpine")
+        .WithImage("postgres:17")
         .WithDatabase("mestech_headless_test")
         .WithUsername("headless_user")
         .WithPassword("headless_pass")
