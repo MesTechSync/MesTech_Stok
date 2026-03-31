@@ -700,6 +700,7 @@ MesaStatusEndpoint.Map(app); // DEV6-TUR13: MESA health
 CrmActivitiesEndpoint.Map(app); // DEV6-TUR13: CRM aktiviteler
 DocumentFoldersEndpoint.Map(app); // DEV6-TUR13: Belge klasörleri
 ImportTemplateEndpoint.Map(app); // DEV6-TUR13: Import şablon
+OpenCartProductsEndpoint.Map(app); // DEV6-TUR15: G519 OpenCart ürünler
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");

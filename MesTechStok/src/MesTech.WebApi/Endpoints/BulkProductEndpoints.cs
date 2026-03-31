@@ -2,6 +2,7 @@ using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
+using MesTech.Application.Features.Product.Commands.BulkCreateProducts;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.WebApi.Endpoints;
@@ -182,6 +183,20 @@ public static class BulkProductEndpoints
         })
         .WithName("BulkUpdateProducts")
         .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400);
+
+        // POST /api/v1/products/bulk/create — JSON ile toplu ürün oluşturma
+        // DEV6 TUR15: G519 — handler-endpoint gap kapatma
+        group.MapPost("/create", async (
+            BulkCreateProductsCommand command,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("BulkCreateProducts")
+        .WithSummary("JSON payload ile toplu ürün oluştur")
+        .Produces<BulkCreateProductsResult>(200).Produces(400);
     }
 
     /// <summary>
