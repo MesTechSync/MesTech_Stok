@@ -207,13 +207,16 @@ public sealed class ZeroStockApplicationBridge
     : INotificationHandler<DomainEventNotification<ZeroStockDetectedEvent>>
 {
     private readonly IZeroStockEventHandler _handler;
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<ZeroStockApplicationBridge> _logger;
 
     public ZeroStockApplicationBridge(
         IZeroStockEventHandler handler,
+        IIntegrationEventPublisher publisher,
         ILogger<ZeroStockApplicationBridge> logger)
     {
         _handler = handler;
+        _publisher = publisher;
         _logger = logger;
     }
 
@@ -226,6 +229,45 @@ public sealed class ZeroStockApplicationBridge
             "[Bridge] ZeroStockDetected → Application: SKU={SKU}", e.SKU);
 
         await _handler.HandleAsync(e.ProductId, e.SKU, e.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _publisher.PublishZeroStockDetectedAsync(
+            e.ProductId, e.SKU, e.PreviousStock, cancellationToken)
+            .ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Zincir 11: StaleOrderDetectedEvent → Integration event publish.
+/// Job zaten MediatR Publish ile domain event fırlatıyor,
+/// bu bridge integration event'i dış tüketicilere yayınlar.
+/// </summary>
+public sealed class StaleOrderIntegrationBridge
+    : INotificationHandler<DomainEventNotification<StaleOrderDetectedEvent>>
+{
+    private readonly IIntegrationEventPublisher _publisher;
+    private readonly ILogger<StaleOrderIntegrationBridge> _logger;
+
+    public StaleOrderIntegrationBridge(
+        IIntegrationEventPublisher publisher,
+        ILogger<StaleOrderIntegrationBridge> logger)
+    {
+        _publisher = publisher;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<StaleOrderDetectedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug(
+            "[Bridge] StaleOrderDetected → Integration: Order={OrderNumber}, Elapsed={Hours}h",
+            e.OrderNumber, e.ElapsedSince.TotalHours);
+
+        await _publisher.PublishStaleOrderDetectedAsync(
+            e.OrderId, e.OrderNumber, e.Platform?.ToString(),
+            e.ElapsedSince.TotalHours, cancellationToken)
             .ConfigureAwait(false);
     }
 }
