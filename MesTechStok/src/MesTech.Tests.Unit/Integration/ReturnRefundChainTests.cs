@@ -79,6 +79,8 @@ public class ReturnRefundChainTests
         return rr;
     }
 
+    private readonly List<Product> _registeredProducts = new();
+
     private Product CreateProduct(string sku, int stock, decimal salePrice)
     {
         var product = new Product
@@ -90,7 +92,11 @@ public class ReturnRefundChainTests
             PurchasePrice = salePrice * 0.6m,
             CategoryId = Guid.NewGuid()
         };
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _registeredProducts.Add(product);
+        // Handler uses batch GetByIdsAsync — return all registered products
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IEnumerable<Guid> ids, CancellationToken _) =>
+                _registeredProducts.Where(p => ids.Contains(p.Id)).ToList());
         _productRepo.Setup(r => r.UpdateAsync(product)).Returns(Task.CompletedTask);
         return product;
     }
@@ -212,7 +218,7 @@ public class ReturnRefundChainTests
         // No UoW call
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never());
         // No product lookups
-        _productRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never());
+        _productRepo.Verify(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Fact]
@@ -238,7 +244,8 @@ public class ReturnRefundChainTests
 
         var existingProduct = CreateProduct("EXISTS", 10, 100m);
 
-        _productRepo.Setup(r => r.GetByIdAsync(missingProductId)).ReturnsAsync((Product?)null);
+        // GetByIdsAsync already set up by CreateProduct — returns only registered products
+        // missingProductId won't match any registered product
 
         var lines = new List<ReturnLineInfoEvent>
         {

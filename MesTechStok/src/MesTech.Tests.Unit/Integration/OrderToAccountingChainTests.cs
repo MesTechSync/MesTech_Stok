@@ -68,6 +68,8 @@ public class OrderToAccountingChainTests
             _uow.Object, Mock.Of<IJournalEntryRepository>(), NullLogger<OrderShippedCostHandler>.Instance);
     }
 
+    private readonly List<Product> _registeredProducts = new();
+
     /// <summary>
     /// Creates a product and registers it in the mock repository.
     /// Returns the product so callers can use product.Id for command items.
@@ -83,7 +85,11 @@ public class OrderToAccountingChainTests
             PurchasePrice = price * 0.6m,
             CategoryId = Guid.NewGuid()
         };
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _registeredProducts.Add(product);
+        // Handler uses batch GetByIdsAsync — return all registered products matching requested ids
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IEnumerable<Guid> ids, CancellationToken _) =>
+                _registeredProducts.Where(p => ids.Contains(p.Id)).ToList());
         return product;
     }
 
@@ -266,7 +272,9 @@ public class OrderToAccountingChainTests
     public async Task Chain_ProductNotFound_PlaceOrderFails_NoDownstreamHandlersCalled()
     {
         var missingProductId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingProductId)).ReturnsAsync((Product?)null);
+        // Handler uses GetByIdsAsync — return empty list for missing product
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var command = new PlaceOrderCommand(
             Guid.NewGuid(), "Ghost Customer", "ghost@test.com", null,

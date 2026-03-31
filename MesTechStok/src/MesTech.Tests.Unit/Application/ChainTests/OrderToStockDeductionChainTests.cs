@@ -19,13 +19,21 @@ public class OrderToStockDeductionChainTests
     private readonly Mock<IOrderRepository> _orderRepoMock = new();
     private readonly Mock<IProductRepository> _productRepoMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+    private readonly Mock<IDistributedLockService> _lockServiceMock = new();
     private readonly Mock<ILogger<OrderPlacedStockDeductionHandler>> _loggerMock = new();
+
+    public OrderToStockDeductionChainTests()
+    {
+        // Default lock mock — always grants lock
+        _lockServiceMock
+            .Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     [Fact]
     public async Task Handle_WhenOrderPlaced_ShouldDeductStockFromProducts()
     {
         // Arrange
-        var productId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
 
         var product = new Product
@@ -40,7 +48,7 @@ public class OrderToStockDeductionChainTests
 
         var orderItem = new OrderItem
         {
-            ProductId = productId,
+            ProductId = product.Id,
             ProductSKU = "TST-001",
             ProductName = "Test Urun",
             Quantity = 3,
@@ -57,15 +65,16 @@ public class OrderToStockDeductionChainTests
         };
         order.AddItem(orderItem);
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object,
             _productRepoMock.Object,
             _unitOfWorkMock.Object,
-            Mock.Of<IDistributedLockService>(),
+            _lockServiceMock.Object,
             _loggerMock.Object);
 
         // Act
@@ -81,28 +90,26 @@ public class OrderToStockDeductionChainTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order?)null);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var handler = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object,
             _productRepoMock.Object,
             _unitOfWorkMock.Object,
-            Mock.Of<IDistributedLockService>(),
+            _lockServiceMock.Object,
             _loggerMock.Object);
 
         // Act & Assert — handler gracefully returns, does not throw
         await handler.Invoking(h => h.HandleAsync(orderId, "ORD-MISSING", CancellationToken.None))
             .Should().NotThrowAsync();
 
-        _productRepoMock.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
+        _productRepoMock.Verify(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_WhenMultipleItems_ShouldDeductAllProducts()
     {
         // Arrange
-        var product1Id = Guid.NewGuid();
-        var product2Id = Guid.NewGuid();
         var orderId = Guid.NewGuid();
         var tenantId = Guid.NewGuid();
 
@@ -110,17 +117,17 @@ public class OrderToStockDeductionChainTests
         var product2 = new Product { SKU = "P2", Name = "Urun 2", Stock = 30, MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
 
         var order = new Order { OrderNumber = "ORD-002", TenantId = tenantId, CustomerId = Guid.NewGuid() };
-        order.AddItem(new OrderItem { ProductId = product1Id, ProductSKU = "P1", ProductName = "Urun 1", Quantity = 5, UnitPrice = 10, TotalPrice = 50, TenantId = tenantId });
-        order.AddItem(new OrderItem { ProductId = product2Id, ProductSKU = "P2", ProductName = "Urun 2", Quantity = 10, UnitPrice = 20, TotalPrice = 200, TenantId = tenantId });
+        order.AddItem(new OrderItem { ProductId = product1.Id, ProductSKU = "P1", ProductName = "Urun 1", Quantity = 5, UnitPrice = 10, TotalPrice = 50, TenantId = tenantId });
+        order.AddItem(new OrderItem { ProductId = product2.Id, ProductSKU = "P2", ProductName = "Urun 2", Quantity = 10, UnitPrice = 20, TotalPrice = 200, TenantId = tenantId });
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
-        _productRepoMock.Setup(r => r.GetByIdAsync(product1Id)).ReturnsAsync(product1);
-        _productRepoMock.Setup(r => r.GetByIdAsync(product2Id)).ReturnsAsync(product2);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product1, product2 });
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _unitOfWorkMock.Object, Mock.Of<IDistributedLockService>(), _loggerMock.Object);
+            _unitOfWorkMock.Object, _lockServiceMock.Object, _loggerMock.Object);
 
         // Act
         await handler.HandleAsync(orderId, "ORD-002", CancellationToken.None);
