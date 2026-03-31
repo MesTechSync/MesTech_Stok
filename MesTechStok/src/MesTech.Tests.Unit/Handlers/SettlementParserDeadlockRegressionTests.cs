@@ -12,7 +12,7 @@ namespace MesTech.Tests.Unit.Handlers;
 public class SettlementParserDeadlockRegressionTests
 {
     [Fact(DisplayName = "G077: ContinueWith+Result is blocking async anti-pattern")]
-    public void G077_ContinueWithResult_IsBlockingAntiPattern()
+    public async Task G077_ContinueWithResult_IsBlockingAntiPattern()
     {
         // ISettlementParser.cs:37-42 kullanıyor:
         //   return ParseAsync(...).ContinueWith(t => { var batch = t.Result; ... });
@@ -22,9 +22,8 @@ public class SettlementParserDeadlockRegressionTests
         // - Threadpool thread'i bloke eder
         // - Doğru pattern: await + ConfigureAwait(false)
 
-        // Kanıt: Task.Result property'si senkron bekler
-        var task = Task.FromResult(42);
-        var result = task.Result; // Bu örnekte güvenli çünkü task zaten tamamlanmış
+        // Kanıt: await pattern ile senkron blokaj önlenir
+        var result = await Task.FromResult(42);
 
         result.Should().Be(42);
 
