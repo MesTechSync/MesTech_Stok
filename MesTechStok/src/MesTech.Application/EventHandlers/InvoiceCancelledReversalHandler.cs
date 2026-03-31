@@ -83,6 +83,7 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
         entry.Validate();
         entry.Post();
 
+        await _journalRepo.AddAsync(entry, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
