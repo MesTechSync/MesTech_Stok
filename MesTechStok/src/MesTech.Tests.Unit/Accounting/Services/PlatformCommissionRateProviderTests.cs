@@ -22,6 +22,8 @@ public class PlatformCommissionRateProviderTests
     private readonly Mock<ILogger<PlatformCommissionRateProvider>> _loggerMock;
     private readonly PlatformCommissionRateProvider _sut;
 
+    private static readonly Guid TestTenantId = Guid.Empty;
+
     public PlatformCommissionRateProviderTests()
     {
         _repoMock = new Mock<ISettlementBatchRepository>();
@@ -55,7 +57,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Trendyol", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Trendyol", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Trendyol", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0.12m); // 1200/10000 = 0.12
@@ -71,7 +73,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Hepsiburada", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Hepsiburada", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Hepsiburada", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0.18m); // 900/5000 = 0.18
@@ -86,7 +88,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Amazon", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Amazon", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Amazon", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0.15m); // 3000/20000 = 0.15
@@ -101,7 +103,7 @@ public class PlatformCommissionRateProviderTests
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
         var before = DateTime.UtcNow.AddHours(5.9);
-        var result = await _sut.GetRateAsync("Trendyol", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Trendyol", null);
         var after = DateTime.UtcNow.AddHours(6.1);
 
         result.Should().NotBeNull();
@@ -120,7 +122,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Pazarama", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch>());
 
-        var result = await _sut.GetRateAsync("Pazarama", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Pazarama", null);
 
         result.Should().BeNull();
     }
@@ -132,7 +134,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "N11", It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<SettlementBatch>)new List<SettlementBatch>());
 
-        var result = await _sut.GetRateAsync("N11", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "N11", null);
 
         result.Should().BeNull();
     }
@@ -149,7 +151,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Trendyol", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Trendyol", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Trendyol", null);
 
         result.Should().BeNull();
     }
@@ -162,7 +164,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Hepsiburada", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Hepsiburada", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Hepsiburada", null);
 
         result.Should().BeNull();
     }
@@ -175,7 +177,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Ciceksepeti", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Ciceksepeti", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Ciceksepeti", null);
 
         result.Should().BeNull();
     }
@@ -188,7 +190,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Pazarama", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { batch });
 
-        var result = await _sut.GetRateAsync("Pazarama", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Pazarama", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0m);
@@ -208,7 +210,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Trendyol", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { oldBatch, newBatch });
 
-        var result = await _sut.GetRateAsync("Trendyol", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Trendyol", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0.10m, "en son batch secilmeli");
@@ -224,7 +226,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), "Amazon", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SettlementBatch> { newBatch, oldBatch });
 
-        var result = await _sut.GetRateAsync("Amazon", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Amazon", null);
 
         result.Should().NotBeNull();
         result!.Rate.Should().Be(0.12m);
@@ -241,7 +243,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("DB baglanti hatasi"));
 
-        var result = await _sut.GetRateAsync("Trendyol", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Trendyol", null);
 
         result.Should().BeNull();
     }
@@ -253,7 +255,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TimeoutException("Query suresi asildi"));
 
-        var result = await _sut.GetRateAsync("Hepsiburada", null);
+        var result = await _sut.GetRateAsync(TestTenantId, "Hepsiburada", null);
 
         result.Should().BeNull();
     }
@@ -265,7 +267,7 @@ public class PlatformCommissionRateProviderTests
         _repoMock.Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException());
 
-        var act = () => _sut.GetRateAsync("Trendyol", null);
+        var act = () => _sut.GetRateAsync(TestTenantId, "Trendyol", null);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
@@ -278,7 +280,7 @@ public class PlatformCommissionRateProviderTests
     [Fact]
     public async Task GetRateAsync_NullPlatform_ThrowsArgumentException()
     {
-        var act = () => _sut.GetRateAsync(null!, null);
+        var act = () => _sut.GetRateAsync(TestTenantId, null!, null);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -287,7 +289,7 @@ public class PlatformCommissionRateProviderTests
     [Fact]
     public async Task GetRateAsync_EmptyPlatform_ThrowsArgumentException()
     {
-        var act = () => _sut.GetRateAsync("", null);
+        var act = () => _sut.GetRateAsync(TestTenantId, "", null);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
