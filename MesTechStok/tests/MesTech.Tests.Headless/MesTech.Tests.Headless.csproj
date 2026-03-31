@@ -19,10 +19,13 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MesTech.Avalonia\MesTech.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
