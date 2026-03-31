@@ -294,7 +294,7 @@ public class GetPlatformListHandlerTests
     private readonly Guid _tenantId = Guid.NewGuid();
 
     private GetPlatformListHandler CreateHandler() =>
-        new(_storeRepo.Object, _adapterFactory.Object);
+        new(_storeRepo.Object, _adapterFactory.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<GetPlatformListHandler>.Instance);
 
     [Fact]
     public async Task Handle_NoStores_ShouldReturnAllPlatformsWithZeroCounts()
@@ -362,7 +362,7 @@ public class GetPlatformSyncStatusHandlerTests
     private readonly Guid _tenantId = Guid.NewGuid();
 
     private GetPlatformSyncStatusHandler CreateHandler() =>
-        new(_storeRepo.Object, _adapterFactory.Object);
+        new(_storeRepo.Object, _adapterFactory.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<GetPlatformSyncStatusHandler>.Instance);
 
     [Fact]
     public async Task Handle_NoStoresForAnyPlatform_ShouldReturnEmptyList()
