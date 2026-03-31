@@ -56,6 +56,20 @@ public static class MassTransitConfig
             bus.AddConsumer<AiErpReconciliationDoneConsumer>();
             bus.AddConsumer<BotEFaturaRequestedConsumer>();
 
+            // MESA Outbound Audit Consumers — loopback monitoring (DEV6-TUR15 G515)
+            bus.AddConsumer<MesaProductCreatedAuditConsumer>();
+            bus.AddConsumer<MesaStockLowAuditConsumer>();
+            bus.AddConsumer<MesaOrderReceivedAuditConsumer>();
+            bus.AddConsumer<MesaPriceChangedAuditConsumer>();
+            bus.AddConsumer<MesaInvoiceGeneratedAuditConsumer>();
+            bus.AddConsumer<MesaInvoiceCancelledAuditConsumer>();
+            bus.AddConsumer<MesaReturnCreatedAuditConsumer>();
+            bus.AddConsumer<MesaReturnResolvedAuditConsumer>();
+            bus.AddConsumer<MesaBuyboxLostAuditConsumer>();
+            bus.AddConsumer<MesaSupplierFeedSyncedAuditConsumer>();
+            bus.AddConsumer<MesaDailySummaryAuditConsumer>();
+            bus.AddConsumer<MesaSyncErrorAuditConsumer>();
+
             bus.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(rabbitHost, rabbitPort, "/", h =>
