@@ -237,4 +237,39 @@ public sealed class ZeroStockApplicationBridge
     }
 }
 
+/// <summary>
+/// Zincir 11: StaleOrderDetectedEvent → Integration event publish.
+/// Job zaten MediatR Publish ile domain event fırlatıyor,
+/// bu bridge integration event'i dış tüketicilere yayınlar.
+/// </summary>
+public sealed class StaleOrderIntegrationBridge
+    : INotificationHandler<DomainEventNotification<StaleOrderDetectedEvent>>
+{
+    private readonly IIntegrationEventPublisher _publisher;
+    private readonly ILogger<StaleOrderIntegrationBridge> _logger;
+
+    public StaleOrderIntegrationBridge(
+        IIntegrationEventPublisher publisher,
+        ILogger<StaleOrderIntegrationBridge> logger)
+    {
+        _publisher = publisher;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<StaleOrderDetectedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug(
+            "[Bridge] StaleOrderDetected → Integration: Order={OrderNumber}, Elapsed={Hours}h",
+            e.OrderNumber, e.ElapsedSince.TotalHours);
+
+        await _publisher.PublishStaleOrderDetectedAsync(
+            e.OrderId, e.OrderNumber, e.Platform?.ToString(),
+            e.ElapsedSince.TotalHours, cancellationToken)
+            .ConfigureAwait(false);
+    }
+}
+
 // InvoiceApprovedGLBridge + InvoiceCancelledReversalBridge → AccountingEventBridgeHandlers.cs (canonical)
