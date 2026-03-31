@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -17,6 +18,7 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string totalOutflow = "0,00 TL";
     [ObservableProperty] private string netCashFlow = "0,00 TL";
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string trendSummary = "—";
 
     // Filters
     [ObservableProperty] private string selectedPeriodType = "Aylik";
@@ -74,6 +76,15 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = _allItems.Count == 0;
+
+            // Cash flow trend (G540 orphan wire)
+            try
+            {
+                var trend = await _mediator.Send(new GetCashFlowTrendQuery(_currentUser.TenantId));
+                TrendSummary = $"{trend.MonthlyData.Count} ay trend | Net: {trend.MonthlyData.LastOrDefault()?.NetFlow:N0} TL";
+            }
+            catch { TrendSummary = "—"; }
+
             ApplyFilters();
         }
         catch (Exception ex)
