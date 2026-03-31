@@ -42,7 +42,13 @@ public class QueryHandlerBatch5Tests
     [Fact]
     public async Task GetAuditLogs_ReturnsEmptyList()
     {
-        var sut = new GetAuditLogsHandler(Mock.Of<IAccessLogRepository>());
+        var repo = new Mock<IAccessLogRepository>();
+        repo.Setup(r => r.GetPagedAsync(
+                It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+                It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<AccessLog>().AsReadOnly());
+        var sut = new GetAuditLogsHandler(repo.Object);
         var query = new GetAuditLogsQuery(_tenantId);
         var result = await sut.Handle(query, CancellationToken.None);
         result.Should().BeEmpty();

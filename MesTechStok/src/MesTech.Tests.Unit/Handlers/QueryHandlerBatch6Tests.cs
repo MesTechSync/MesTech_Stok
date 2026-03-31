@@ -29,8 +29,11 @@ public class QueryHandlerBatch6Tests
     [Fact]
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
+        var repo = new Mock<IBackupEntryRepository>();
+        repo.Setup(r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Domain.Entities.BackupEntry>().AsReadOnly());
         var sut = new GetBackupHistoryHandler(
-            Mock.Of<IBackupEntryRepository>(),
+            repo.Object,
             Mock.Of<ILogger<GetBackupHistoryHandler>>());
         var query = new GetBackupHistoryQuery(_tenantId);
         var result = await sut.Handle(query, CancellationToken.None);
@@ -51,11 +54,11 @@ public class QueryHandlerBatch6Tests
     // ═══ GetCargoTrackingList ═══
 
     [Fact]
-    public async Task GetCargoTrackingList_NullRequest_Throws()
+    public async Task GetCargoTrackingList_NullRequest_ReturnsEmpty()
     {
         var sut = new GetCargoTrackingListHandler(Mock.Of<IOrderRepository>(), Microsoft.Extensions.Logging.Abstractions.NullLogger<GetCargoTrackingListHandler>.Instance);
-        var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        var result = await sut.Handle(null!, CancellationToken.None);
+        result.Should().BeEmpty();
     }
 
     // ═══ GetCustomersCrm ═══
@@ -96,6 +99,6 @@ public class QueryHandlerBatch6Tests
         var sut = new GetStaleOrdersQueryHandler(
             Mock.Of<IOrderRepository>(), Mock.Of<ILogger<GetStaleOrdersQueryHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

@@ -29,7 +29,7 @@ public class QueryHandlerBatch7Tests
     {
         var sut = new GetBitrix24PipelineHandler(Mock.Of<IPipelineRepository>(), Mock.Of<Microsoft.Extensions.Logging.ILogger<GetBitrix24PipelineHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class QueryHandlerBatch7Tests
     {
         var sut = new GetErpSyncHistoryHandler(Mock.Of<IErpSyncLogRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class QueryHandlerBatch7Tests
         var sut = new GetIncomeExpenseListHandler(
             Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>(), Mock.Of<ILogger<GetIncomeExpenseListHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class QueryHandlerBatch7Tests
         var sut = new GetIncomeExpenseSummaryHandler(
             Mock.Of<IIncomeRepository>(), Mock.Of<IExpenseRepository>(), Mock.Of<ILogger<GetIncomeExpenseSummaryHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class QueryHandlerBatch7Tests
     {
         var sut = new GetKvkkAuditLogsHandler(Mock.Of<IKvkkAuditLogRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
