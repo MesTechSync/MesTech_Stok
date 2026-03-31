@@ -3,6 +3,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Platform.Queries.GetPlatformList;
 
@@ -10,6 +11,7 @@ public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuer
 {
     private readonly IStoreRepository _storeRepository;
     private readonly IAdapterFactory _adapterFactory;
+    private readonly ILogger<GetPlatformListHandler> _logger = null!;
 
     private static readonly Dictionary<PlatformType, (string Name, string Color, string AuthType)> PlatformMeta = new()
     {
@@ -30,10 +32,12 @@ public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuer
 
     public GetPlatformListHandler(
         IStoreRepository storeRepository,
-        IAdapterFactory adapterFactory)
+        IAdapterFactory adapterFactory,
+        ILogger<GetPlatformListHandler> logger)
     {
         _storeRepository = storeRepository;
         _adapterFactory = adapterFactory;
+        _logger = logger;
     }
 
     public async Task<List<PlatformCardDto>> Handle(
@@ -41,8 +45,18 @@ public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuer
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var allStores = await _storeRepository
-            .GetByTenantIdAsync(request.TenantId, cancellationToken);
+
+        IReadOnlyList<Domain.Entities.Store> allStores;
+        try
+        {
+            allStores = await _storeRepository
+                .GetByTenantIdAsync(request.TenantId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "DB unavailable for PlatformList — returning empty list");
+            return new List<PlatformCardDto>();
+        }
 
         var result = new List<PlatformCardDto>();
 
