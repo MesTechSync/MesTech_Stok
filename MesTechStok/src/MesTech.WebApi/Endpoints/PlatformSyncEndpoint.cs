@@ -138,6 +138,19 @@ public static class PlatformSyncEndpoint
         .WithSummary("Zalando ürün senkronizasyonu başlat (G437)")
         .Produces(200).Produces(400);
 
+        // POST /api/v1/platforms/sync/pttavm — sync PTT AVM products
+        group.MapPost("/sync/pttavm", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("pttavm", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncPttAvmProducts")
+        .WithSummary("PTT AVM ürün senkronizasyonu başlat")
+        .Produces(200).Produces(400);
+
         // POST /api/v1/platforms/map-product — map product to platform category
         group.MapPost("/map-product", async (
             MapProductToPlatformCommand command,

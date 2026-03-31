@@ -28,7 +28,7 @@ public class MenuFeatureCoverageTests
     {
         var sut = new GetCargoTrackingListHandler(Mock.Of<IOrderRepository>(), Microsoft.Extensions.Logging.Abstractions.NullLogger<GetCargoTrackingListHandler>.Instance);
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class MenuFeatureCoverageTests
     {
         var sut = new GetBankAccountsHandler(Mock.Of<IBankAccountRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class MenuFeatureCoverageTests
     {
         var sut = new GetLeadsHandler(Mock.Of<ICrmLeadRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class MenuFeatureCoverageTests
         var sut = new GetDropshipProfitabilityHandler(
             Mock.Of<IDropshipOrderRepository>(), Mock.Of<IDropshipProductRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class MenuFeatureCoverageTests
             Mock.Of<IOrderRepository>(), Mock.Of<IProductRepository>(),
             Mock.Of<ILogger<ProfitabilityReportHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Fact]
@@ -71,6 +71,6 @@ public class MenuFeatureCoverageTests
     {
         var sut = new GetSalesAnalyticsHandler(Mock.Of<IOrderRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

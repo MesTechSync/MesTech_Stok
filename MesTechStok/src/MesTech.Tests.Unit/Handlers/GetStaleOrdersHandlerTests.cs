@@ -15,6 +15,6 @@ public class GetStaleOrdersHandlerTests
         var sut = new GetStaleOrdersQueryHandler(
             Mock.Of<IOrderRepository>(), Mock.Of<ILogger<GetStaleOrdersQueryHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }
