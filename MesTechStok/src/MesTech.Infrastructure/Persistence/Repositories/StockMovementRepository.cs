@@ -17,18 +17,21 @@ public sealed class StockMovementRepository : IStockMovementRepository
         => await _context.StockMovements
             .Where(m => productIds.Contains(m.ProductId))
             .OrderBy(m => m.Date).ThenBy(m => m.CreatedAt)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId)
         => await _context.StockMovements
             .Where(m => m.ProductId == productId)
             .OrderByDescending(m => m.Date)
+            .Take(2000) // G485: pagination guard
             .AsNoTracking().ToListAsync();
 
     public async Task<IReadOnlyList<StockMovement>> GetByDateRangeAsync(DateTime from, DateTime to)
         => await _context.StockMovements
             .Where(m => m.Date >= from && m.Date <= to)
             .OrderByDescending(m => m.Date)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync();
 
     public async Task<IReadOnlyList<StockMovement>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)
