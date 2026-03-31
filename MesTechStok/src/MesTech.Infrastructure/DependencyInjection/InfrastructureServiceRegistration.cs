@@ -636,6 +636,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.ReturnApprovedRefundHandler>();
         services.AddScoped<Application.EventHandlers.IZeroStockEventHandler,
             Application.EventHandlers.ZeroStockDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOversellingAttemptedEventHandler,
+            Application.EventHandlers.OversellingAttemptedEventHandler>();
 
         // Muhasebe GL handler'lar (repo-enriched bridges):
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,

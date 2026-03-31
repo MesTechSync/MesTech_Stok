@@ -124,9 +124,13 @@ public sealed class Product : BaseEntity, ITenantEntity
 
     public void AdjustStock(int quantity, StockMovementType movementType, string? reason = null)
     {
-        // Guard: stok çıkışında negatife düşmeyi engelle
+        // Guard: stok çıkışında negatife düşmeyi engelle — Z15 overselling koruma
         if (quantity < 0 && Stock + quantity < 0)
+        {
+            RaiseDomainEvent(new OversellingAttemptedEvent(
+                Id, TenantId, SKU, Stock, Math.Abs(quantity), reason, DateTime.UtcNow));
             throw new InsufficientStockException(SKU, Stock, Math.Abs(quantity));
+        }
 
         var previousStock = Stock;
         Stock += quantity;
