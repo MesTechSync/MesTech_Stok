@@ -712,7 +712,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     async Task IWebhookCapableAdapter.ProcessWebhookPayloadAsync(string payload, CancellationToken ct)
         => await ProcessWebhookPayloadAsync(payload, null, ct).ConfigureAwait(false);
 
-    public async Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
+    public Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
     {
         try
         {
@@ -721,12 +721,12 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             // The actual processing is delegated to WebhookReceiverService
 
             _logger.LogInformation("Bitrix24 webhook payload received ({Length} bytes)", payload?.Length ?? 0);
-            return true;
+            return Task.FromResult(true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Bitrix24 ProcessWebhookPayloadAsync failed");
-            return false;
+            return Task.FromResult(false);
         }
     }
 

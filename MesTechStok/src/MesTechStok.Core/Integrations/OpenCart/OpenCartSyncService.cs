@@ -605,13 +605,13 @@ namespace MesTechStok.Core.Integrations.OpenCart
             return result;
         }
 
-        public async Task<bool> StartAutoSyncAsync(TimeSpan interval)
+        public Task<bool> StartAutoSyncAsync(TimeSpan interval)
         {
             if (interval < TimeSpan.FromSeconds(10)) interval = TimeSpan.FromSeconds(10);
             if (_autoSyncTask != null && !_autoSyncTask.IsCompleted)
             {
                 _logger.LogWarning("Auto sync already running");
-                return false;
+                return Task.FromResult(false);
             }
             _autoSyncCts = new CancellationTokenSource();
             var token = _autoSyncCts.Token;
@@ -635,7 +635,7 @@ namespace MesTechStok.Core.Integrations.OpenCart
                 }
                 _logger.LogInformation("Auto sync loop terminated");
             }, token);
-            return true;
+            return Task.FromResult(true);
         }
 
         public async Task<bool> StopAutoSyncAsync()

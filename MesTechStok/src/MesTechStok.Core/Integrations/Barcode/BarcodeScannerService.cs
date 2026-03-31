@@ -165,7 +165,7 @@ namespace MesTechStok.Core.Integrations.Barcode
             return await ConnectDeviceAsync(deviceId);
         }
 
-        public async Task<bool> UpdateScannerSettingsAsync(BarcodeScannerSettings settings)
+        public Task<bool> UpdateScannerSettingsAsync(BarcodeScannerSettings settings)
         {
             try
             {
@@ -173,7 +173,7 @@ namespace MesTechStok.Core.Integrations.Barcode
 
                 // Gerçek implementasyonda buraya cihaza özel konfigürasyon komutları gelecek
 
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -183,16 +183,16 @@ namespace MesTechStok.Core.Integrations.Barcode
                     Exception = ex,
                     ErrorType = BarcodeErrorType.SoftwareError
                 });
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<BarcodeScannerSettings?> GetScannerSettingsAsync()
+        public Task<BarcodeScannerSettings?> GetScannerSettingsAsync()
         {
-            return _currentSettings;
+            return Task.FromResult(_currentSettings);
         }
 
-        public async Task<bool> SendTestBarcodeAsync(string barcode)
+        public Task<bool> SendTestBarcodeAsync(string barcode)
         {
             try
             {
@@ -207,7 +207,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                 };
 
                 OnBarcodeScanned(eventArgs);
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -217,7 +217,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                     Exception = ex,
                     ErrorType = BarcodeErrorType.SoftwareError
                 });
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -338,14 +338,14 @@ namespace MesTechStok.Core.Integrations.Barcode
             }
         }
 
-        public async Task<bool> DisconnectDeviceAsync(string deviceId)
+        public Task<bool> DisconnectDeviceAsync(string deviceId)
         {
             try
             {
                 lock (_lockObject)
                 {
                     if (!_connectedDevices.ContainsKey(deviceId))
-                        return false;
+                        return Task.FromResult(false);
 
                     var device = _connectedDevices[deviceId];
 
@@ -370,7 +370,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                     });
                 }
 
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -380,7 +380,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                     Exception = ex,
                     ErrorType = BarcodeErrorType.DeviceNotConnected
                 });
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -392,28 +392,28 @@ namespace MesTechStok.Core.Integrations.Barcode
             }
         }
 
-        public async Task<bool> TestDeviceAsync(string deviceId)
+        public Task<bool> TestDeviceAsync(string deviceId)
         {
             try
             {
                 if (!_connectedDevices.ContainsKey(deviceId))
-                    return false;
+                    return Task.FromResult(false);
 
                 var device = _connectedDevices[deviceId];
 
                 if (device.DeviceType == BarcodeDeviceType.SerialPort.ToString() && _serialPorts.ContainsKey(deviceId))
                 {
                     var serialPort = _serialPorts[deviceId];
-                    return serialPort.IsOpen;
+                    return Task.FromResult(serialPort.IsOpen);
                 }
 
-                return device.IsConnected;
+                return Task.FromResult(device.IsConnected);
             }
             catch (Exception ex)
             {
                 // Intentionally swallowed — device test is a read-only health check; any exception means device is not testable.
                 _ = ex;
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -455,34 +455,35 @@ namespace MesTechStok.Core.Integrations.Barcode
             return result;
         }
 
-        public async Task<BarcodeDeviceInfo?> GetDeviceInfoAsync(string deviceId)
+        public Task<BarcodeDeviceInfo?> GetDeviceInfoAsync(string deviceId)
         {
-            return _connectedDevices.TryGetValue(deviceId, out var info) ? info : null;
+            return Task.FromResult(_connectedDevices.TryGetValue(deviceId, out var info) ? info : (BarcodeDeviceInfo?)null);
         }
 
-        public async Task<bool> SetDeviceConfigurationAsync(string deviceId, BarcodeDeviceConfiguration config)
+        public Task<bool> SetDeviceConfigurationAsync(string deviceId, BarcodeDeviceConfiguration config)
         {
             try
             {
                 if (!_connectedDevices.TryGetValue(deviceId, out var device))
-                    return false;
+                    return Task.FromResult(false);
 
                 device.Configuration = config;
 
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 // Intentionally swallowed — configuration update is best-effort; caller receives false on failure.
                 _ = ex;
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<BarcodeDeviceConfiguration?> GetDeviceConfigurationAsync(string deviceId)
+        public Task<BarcodeDeviceConfiguration?> GetDeviceConfigurationAsync(string deviceId)
         {
             var device = _connectedDevices.TryGetValue(deviceId, out var d) ? d : null;
-            return device?.Configuration ?? new BarcodeDeviceConfiguration();
+            BarcodeDeviceConfiguration? result = device?.Configuration ?? new BarcodeDeviceConfiguration();
+            return Task.FromResult(result);
         }
 
         public bool IsScanning => _isScanning;
