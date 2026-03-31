@@ -81,7 +81,7 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
             try
             {
                 var trend = await _mediator.Send(new GetCashFlowTrendQuery(_currentUser.TenantId));
-                TrendSummary = $"{trend.MonthlyData.Count} ay trend | Net: {trend.MonthlyData.LastOrDefault()?.NetFlow:N0} TL";
+                TrendSummary = $"{trend.Months.Count} ay trend | Kümülatif: {trend.CumulativeNet:N0} TL";
             }
             catch { TrendSummary = "—"; }
 
