@@ -15,18 +15,18 @@ public sealed class GetFulfillmentDashboardHandler : IRequestHandler<GetFulfillm
         _logger = logger;
     }
 
-    public async Task<FulfillmentDashboardDto> Handle(GetFulfillmentDashboardQuery request, CancellationToken cancellationToken)
+    public Task<FulfillmentDashboardDto> Handle(GetFulfillmentDashboardQuery request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Fulfillment dashboard sorgulanıyor — TenantId={TenantId}", request.TenantId);
 
         // Ürün sayıları — fulfillment center bazlı istatistik
-        return new FulfillmentDashboardDto(
+        return Task.FromResult(new FulfillmentDashboardDto(
             TotalProducts: 0,
             FbaProducts: 0,
             HlProducts: 0,
             OwnWarehouseProducts: 0,
             PendingShipments: 0,
             InTransitShipments: 0,
-            DeliveredToday: 0);
+            DeliveredToday: 0));
     }
 }
