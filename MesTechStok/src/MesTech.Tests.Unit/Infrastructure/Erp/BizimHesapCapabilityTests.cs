@@ -60,17 +60,17 @@ public class BizimHesapCapabilityTests
     }
 
     [Fact]
-    public void WaybillCapable_NotImplemented()
+    public void WaybillCapable_Implemented()
     {
         var adapter = CreateAdapter();
-        (adapter is IErpWaybillCapable).Should().BeFalse("BizimHesap does not support waybill operations");
+        (adapter is IErpWaybillCapable).Should().BeTrue("BizimHesap now implements IErpWaybillCapable");
     }
 
     [Fact]
-    public void BankCapable_NotImplemented()
+    public void BankCapable_Implemented()
     {
         var adapter = CreateAdapter();
-        (adapter is IErpBankCapable).Should().BeFalse("BizimHesap does not support bank operations");
+        (adapter is IErpBankCapable).Should().BeTrue("BizimHesap now implements IErpBankCapable");
     }
 
     [Fact]

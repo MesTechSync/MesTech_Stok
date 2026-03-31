@@ -401,12 +401,12 @@ public class FeedReliabilityScoreServiceTests
     }
 
     [Fact]
-    public void Calculate_WithoutFeedId_SupplierFeedIdIsEmpty()
+    public void Calculate_WithoutFeedId_SupplierFeedIdIsNull()
     {
-        // Calculate() overloadu Guid.Empty kullanır
+        // Calculate() overload passes null for supplierFeedId
         var result = FeedReliabilityScoreService.Calculate(PerfectInput());
 
-        result.SupplierFeedId.Should().Be(Guid.Empty);
+        result.SupplierFeedId.Should().BeNull();
     }
 
     // ─────────────────────────────────────────────────────────────
