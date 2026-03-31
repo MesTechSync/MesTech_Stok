@@ -19,6 +19,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
+    [ObservableProperty] private string _statusMessage = string.Empty;
 
     // Provider selection
     [ObservableProperty] private string selectedErpProvider = "Yok";

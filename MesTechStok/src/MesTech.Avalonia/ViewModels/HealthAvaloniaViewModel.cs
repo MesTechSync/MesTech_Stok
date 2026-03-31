@@ -21,6 +21,8 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private DispatcherTimer? _autoRefreshTimer;
 
+    [ObservableProperty] private string _statusMessage = string.Empty;
+
     // KPI metrics
     [ObservableProperty] private string lastUpdated = "--:--";
     [ObservableProperty] private int cpuUsage;
