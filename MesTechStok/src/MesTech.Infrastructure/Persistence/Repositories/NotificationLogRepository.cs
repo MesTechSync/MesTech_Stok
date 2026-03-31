@@ -17,6 +17,8 @@ public sealed class NotificationLogRepository : INotificationLogRepository
     public async Task<IReadOnlyList<NotificationLog>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.NotificationLogs
             .Where(n => n.TenantId == tenantId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(1000) // G560: pagination guard — use GetPagedAsync for full list
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<(IReadOnlyList<NotificationLog> Items, int TotalCount)> GetPagedAsync(

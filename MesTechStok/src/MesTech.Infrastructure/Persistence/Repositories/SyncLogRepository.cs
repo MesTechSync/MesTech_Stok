@@ -19,6 +19,7 @@ public sealed class SyncLogRepository : ISyncLogRepository
             .Where(s => s.TenantId == tenantId)
             .GroupBy(s => s.PlatformCode)
             .Select(g => g.OrderByDescending(s => s.StartedAt).First())
+            .Take(100) // G560: max 100 platforms
             .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -31,6 +32,7 @@ public sealed class SyncLogRepository : ISyncLogRepository
             .Where(s => s.TenantId == tenantId
                      && !s.IsSuccess
                      && s.StartedAt >= since)
+            .Take(5000) // G560: pagination guard
             .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 }
