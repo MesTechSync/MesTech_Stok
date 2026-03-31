@@ -16,7 +16,7 @@ public static class SeedEndpoints
         if (!app.Environment.IsDevelopment())
             return;
 
-        var group = app.MapGroup("/api").WithTags("Seed");
+        var group = app.MapGroup("/api").WithTags("Seed").RequireRateLimiting("SystemRateLimit");
 
         // POST /api/seed — seed demo tenant with sample data
         group.MapPost("/seed", async (
