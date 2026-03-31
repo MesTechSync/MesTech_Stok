@@ -113,7 +113,8 @@ public class InvoiceTests
     [Fact]
     public void MarkAsAccepted_ShouldSetStatusAndAcceptedAt()
     {
-        var invoice = new Invoice();
+        var invoice = new Invoice { InvoiceNumber = "INV-ACC-001" };
+        invoice.MarkAsSent("GIB-001", "https://example.com/inv.pdf");
 
         invoice.MarkAsAccepted();
 
@@ -124,7 +125,8 @@ public class InvoiceTests
     [Fact]
     public void MarkAsRejected_ShouldSetStatusToRejected()
     {
-        var invoice = new Invoice();
+        var invoice = new Invoice { InvoiceNumber = "INV-REJ-001" };
+        invoice.MarkAsSent("GIB-002", "https://example.com/inv2.pdf");
 
         invoice.MarkAsRejected();
 

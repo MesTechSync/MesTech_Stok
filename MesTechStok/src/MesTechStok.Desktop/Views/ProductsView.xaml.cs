@@ -145,12 +145,13 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async Task SetupAuthorizationsAsync()
+        private Task SetupAuthorizationsAsync()
         {
             // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
             CanCreateProducts = CanEditProducts = CanDeleteProducts = CanUpdateStock = CanUpdatePrice = true;
             ApplyRbacToContextMenus();
+            return Task.CompletedTask;
         }
 
         private void ApplyRbacToContextMenus()
@@ -1369,7 +1370,7 @@ namespace MesTechStok.Desktop.Views
             catch (Exception ex) { GlobalLogger.Instance.LogError($"[ProductsView] BarcodeSvcOnBarcodeScanned handler: {ex.Message}"); }
         }
 
-        private async void AddProduct_Click(object sender, RoutedEventArgs e)
+        private void AddProduct_Click(object sender, RoutedEventArgs e)
         {
             try
             {

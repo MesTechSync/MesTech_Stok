@@ -865,11 +865,11 @@ namespace MesTechStok.Desktop.Views
         /// <summary>
         /// AI kullanım istatistiklerini güncelle
         /// </summary>
-        private async Task UpdateAIUsageStatisticsAsync()
+        private Task UpdateAIUsageStatisticsAsync()
         {
             try
             {
-                if (_aiService == null) return;
+                if (_aiService == null) return Task.CompletedTask;
 
                 var today = DateTime.Today;
                 var monthStart = new DateTime(today.Year, today.Month, 1);
@@ -904,6 +904,7 @@ namespace MesTechStok.Desktop.Views
                 // TotalCostText.Text = "$0.00";
                 // SuccessRateText.Text = "0.0%";
             }
+            return Task.CompletedTask;
         }
 
         private string GetProviderIcon(string providerName)

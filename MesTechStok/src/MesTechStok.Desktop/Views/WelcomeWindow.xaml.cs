@@ -1110,7 +1110,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void DeleteImage(string imagePath)
+        private void DeleteImage(string imagePath)
         {
             try
             {

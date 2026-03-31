@@ -892,7 +892,7 @@ namespace MesTechStok.Desktop.ViewModels
 
         // STOK YERLEŞİM SİSTEMİ Command'ları
         [RelayCommand]
-        private async Task ShowStockPlacement()
+        private Task ShowStockPlacement()
         {
             NavigationTimingService.Instance.StartTiming("STOK YERLEŞİM SİSTEMİ");
             try
@@ -916,6 +916,7 @@ namespace MesTechStok.Desktop.ViewModels
                 MessageBox.Show($"STOK YERLEŞİM SİSTEMİ yükleme hatası: {ex.Message}", "Hata",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            return Task.CompletedTask;
         }
 
         [RelayCommand]
@@ -1227,24 +1228,24 @@ namespace MesTechStok.Desktop.ViewModels
             }
         }
 
-        private async Task<bool> CheckServiceHealthAsync<T>(T service, string serviceName) where T : class
+        private Task<bool> CheckServiceHealthAsync<T>(T service, string serviceName) where T : class
         {
             try
             {
                 if (service == null)
                 {
                     _logger.LogWarning($"{serviceName} servisi null - sağlık kontrolü atlandı");
-                    return false;
+                    return Task.FromResult(false);
                 }
 
                 // Basit servis sağlık kontrolü - gerçek implementasyonda daha detaylı olacak
                 _logger.LogInformation($"{serviceName} servis sağlık kontrolü tamamlandı");
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{serviceName} servis sağlık kontrolü hatası");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -1332,7 +1333,7 @@ namespace MesTechStok.Desktop.ViewModels
         }
 
         [RelayCommand]
-        private async Task GetMobileWarehouseStatusAsync()
+        private Task GetMobileWarehouseStatusAsync()
         {
             try
             {
@@ -1367,6 +1368,7 @@ namespace MesTechStok.Desktop.ViewModels
                 GlobalLogger.Instance.LogError($"Mobil depo durumu hatası: {ex.Message}", "MainViewModel");
                 ToastManager.ShowError($"Mobil depo hatası: {ex.Message}", "Hata");
             }
+            return Task.CompletedTask;
         }
 
         [RelayCommand]

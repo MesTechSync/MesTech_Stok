@@ -60,7 +60,7 @@ public class AccountingPerformanceTests
 
         // Act
         var sw = Stopwatch.StartNew();
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(_tenantId, stream, "json");
         var lines = await parser.ParseLinesAsync(batch);
         sw.Stop();
 
@@ -103,7 +103,7 @@ public class AccountingPerformanceTests
 
         // Act
         var sw = Stopwatch.StartNew();
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(_tenantId, stream, "json");
         var lines = await parser.ParseLinesAsync(batch);
         sw.Stop();
 
@@ -238,7 +238,7 @@ public class AccountingPerformanceTests
 
         // Act
         var sw = Stopwatch.StartNew();
-        var batch = await parser.ParseAsync(stream, "xml");
+        var batch = await parser.ParseAsync(_tenantId, stream, "xml");
         var lines = await parser.ParseLinesAsync(batch);
         sw.Stop();
 
@@ -281,7 +281,7 @@ public class AccountingPerformanceTests
 
         // Act
         var sw = Stopwatch.StartNew();
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(_tenantId, stream, "json");
         var lines = await parser.ParseLinesAsync(batch);
         sw.Stop();
 

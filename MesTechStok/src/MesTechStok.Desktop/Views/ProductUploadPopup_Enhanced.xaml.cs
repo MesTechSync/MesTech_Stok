@@ -84,7 +84,7 @@ namespace MesTechStok.Desktop.Views
             Close();
         }
 
-        private async void SaveButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (_isSaving) return;
             _isSaving = true;

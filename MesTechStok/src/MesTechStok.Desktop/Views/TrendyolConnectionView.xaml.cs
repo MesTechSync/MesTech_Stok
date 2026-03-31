@@ -121,7 +121,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void PushStock_Click(object sender, RoutedEventArgs e)
+        private void PushStock_Click(object sender, RoutedEventArgs e)
         {
             if (_adapter == null) { AddLogEntry("HATA: TrendyolAdapter bulunamadi."); return; }
 

@@ -121,13 +121,13 @@ public class BankTransactionTests
     }
 
     [Fact]
-    public void Create_WithZeroAmount_ShouldSucceed()
+    public void Create_WithZeroAmount_ShouldThrow()
     {
-        var tx = BankTransaction.Create(
+        var act = () => BankTransaction.Create(
             _tenantId, _bankAccountId, DateTime.UtcNow,
             0m, "Zero transaction");
 
-        tx.Amount.Should().Be(0m);
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]

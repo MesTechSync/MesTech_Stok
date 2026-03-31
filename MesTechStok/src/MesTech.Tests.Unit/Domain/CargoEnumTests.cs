@@ -10,8 +10,8 @@ public class CargoEnumTests
     [Fact]
     public void CargoProvider_ShouldHave9Members()
     {
-        // DHL=9, FedEx=10 added — expected count is now 11
-        Enum.GetValues<CargoProvider>().Should().HaveCount(11);
+        // DHL=9, FedEx=10, Other=99 added — expected count is now 12
+        Enum.GetValues<CargoProvider>().Should().HaveCount(12);
     }
 
     [Theory]

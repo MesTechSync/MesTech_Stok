@@ -230,7 +230,7 @@ namespace MesTechStok.Desktop
             }
         }
 
-        private async System.Threading.Tasks.Task ApplyMenuVisibilityAsync()
+        private System.Threading.Tasks.Task ApplyMenuVisibilityAsync()
         {
             // Security: SimpleSecurityService integration pending
             // Şu anda tüm menüler görünür
@@ -251,6 +251,7 @@ namespace MesTechStok.Desktop
             {
                 System.Diagnostics.Debug.WriteLine($"ApplyMenuVisibility error: {ex.Message}");
             }
+            return System.Threading.Tasks.Task.CompletedTask;
         }
 
         private async System.Threading.Tasks.Task UpdateNavBadgesAsync()
@@ -1729,7 +1730,7 @@ namespace MesTechStok.Desktop
             }
         }
 
-        private async void LogoutButton_Click(object sender, RoutedEventArgs e)
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
