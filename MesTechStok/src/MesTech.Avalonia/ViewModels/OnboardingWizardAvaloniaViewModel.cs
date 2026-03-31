@@ -4,6 +4,7 @@ using MediatR;
 using MesTech.Application.Features.Onboarding.Commands.CompleteOnboardingStep;
 using MesTech.Application.Features.Onboarding.Commands.RegisterTenant;
 using MesTech.Application.Features.Onboarding.Queries.GetOnboardingProgress;
+using MesTech.Application.Features.Onboarding.Queries.GetV5ReadinessCheck;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -65,6 +66,9 @@ public partial class OnboardingWizardAvaloniaViewModel : ViewModelBase
                     UpdateStepTitle();
                 }
             }
+
+            // G540: V5 readiness check
+            try { _ = await _mediator.Send(new GetV5ReadinessCheckQuery()); } catch { }
         }
         catch (Exception ex)
         {
