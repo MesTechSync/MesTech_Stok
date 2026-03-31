@@ -165,6 +165,40 @@ public sealed class ReturnApprovedJournalBridge
 }
 
 /// <summary>
+/// Zincir 5c: ReturnApprovedEvent → Ödeme iadesi (refund).
+/// </summary>
+public sealed class ReturnApprovedRefundBridge
+    : INotificationHandler<DomainEventNotification<ReturnApprovedEvent>>
+{
+    private readonly IReturnApprovedRefundHandler _handler;
+    private readonly ILogger<ReturnApprovedRefundBridge> _logger;
+
+    public ReturnApprovedRefundBridge(
+        IReturnApprovedRefundHandler handler,
+        ILogger<ReturnApprovedRefundBridge> logger)
+    {
+        _handler = handler;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<ReturnApprovedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+        var totalRefundAmount = e.Lines.Sum(l => l.Quantity * l.UnitPrice);
+        _logger.LogDebug(
+            "[Bridge] ReturnApproved → Refund: ReturnId={ReturnId}, RefundAmount={Amount}",
+            e.ReturnRequestId, totalRefundAmount);
+
+        await _handler.HandleAsync(
+            e.ReturnRequestId, e.OrderId, e.TenantId,
+            totalRefundAmount, cancellationToken)
+            .ConfigureAwait(false);
+    }
+}
+
+/// <summary>
 /// Zincir 8: ZeroStockDetectedEvent → Platform pasif.
 /// Not: ZeroStockPlatformDeactivationHandler zaten Infrastructure'da var ve platform
 ///      deaktivasyonunu yapar. Bu bridge Application handler'ı çağırır — bildirim/loglama.
