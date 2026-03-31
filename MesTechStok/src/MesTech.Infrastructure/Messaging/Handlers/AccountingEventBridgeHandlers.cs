@@ -119,15 +119,18 @@ public sealed class OrderShippedCostBridge
 {
     private readonly IOrderShippedCostHandler _handler;
     private readonly IShipmentCostRepository _shipmentCostRepo;
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<OrderShippedCostBridge> _logger;
 
     public OrderShippedCostBridge(
         IOrderShippedCostHandler handler,
         IShipmentCostRepository shipmentCostRepo,
+        IIntegrationEventPublisher publisher,
         ILogger<OrderShippedCostBridge> logger)
     {
         _handler = handler;
         _shipmentCostRepo = shipmentCostRepo;
+        _publisher = publisher;
         _logger = logger;
     }
 
@@ -153,6 +156,10 @@ public sealed class OrderShippedCostBridge
         await _handler.HandleAsync(
             e.OrderId, e.TenantId, e.TrackingNumber,
             e.CargoProvider, totalCost,
+            cancellationToken).ConfigureAwait(false);
+
+        await _publisher.PublishShipmentCostRecordedAsync(
+            e.OrderId, e.TrackingNumber, e.CargoProvider.ToString(), totalCost,
             cancellationToken).ConfigureAwait(false);
     }
 }

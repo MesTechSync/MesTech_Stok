@@ -207,13 +207,16 @@ public sealed class ZeroStockApplicationBridge
     : INotificationHandler<DomainEventNotification<ZeroStockDetectedEvent>>
 {
     private readonly IZeroStockEventHandler _handler;
+    private readonly IIntegrationEventPublisher _publisher;
     private readonly ILogger<ZeroStockApplicationBridge> _logger;
 
     public ZeroStockApplicationBridge(
         IZeroStockEventHandler handler,
+        IIntegrationEventPublisher publisher,
         ILogger<ZeroStockApplicationBridge> logger)
     {
         _handler = handler;
+        _publisher = publisher;
         _logger = logger;
     }
 
@@ -226,6 +229,10 @@ public sealed class ZeroStockApplicationBridge
             "[Bridge] ZeroStockDetected → Application: SKU={SKU}", e.SKU);
 
         await _handler.HandleAsync(e.ProductId, e.SKU, e.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _publisher.PublishZeroStockDetectedAsync(
+            e.ProductId, e.SKU, e.PreviousStock, cancellationToken)
             .ConfigureAwait(false);
     }
 }
