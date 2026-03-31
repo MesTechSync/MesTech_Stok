@@ -71,6 +71,7 @@ public sealed class CommissionChargedGLHandler : ICommissionChargedGLHandler
         entry.Validate();
         entry.Post();
 
+        await _journalRepo.AddAsync(entry, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
