@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Invoice.Commands.ExportInvoiceReport;
 using MesTech.Application.Features.Invoice.Queries;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,9 +16,12 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
-    public InvoiceReportAvaloniaViewModel(IMediator mediator)
+    private readonly ICurrentUserService _currentUser;
+
+    public InvoiceReportAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     // Period filter
@@ -98,8 +103,10 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Wire to ExportInvoiceReportCommand (Excel format) via _mediator.Send()
-            await Task.CompletedTask;
+            var result = await _mediator.Send(new ExportInvoiceReportCommand(
+                _currentUser.TenantId, "xlsx"));
+            await SaveExportFile(result.FileData, result.FileName);
+            StatusMessage = $"Excel raporu kaydedildi ({result.ExportedCount} fatura).";
         }
         finally { IsLoading = false; }
     }
@@ -110,10 +117,20 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — Wire to ExportInvoiceReportCommand (PDF format) via _mediator.Send()
-            await Task.CompletedTask;
+            var result = await _mediator.Send(new ExportInvoiceReportCommand(
+                _currentUser.TenantId, "pdf"));
+            await SaveExportFile(result.FileData, result.FileName);
+            StatusMessage = $"PDF raporu kaydedildi ({result.ExportedCount} fatura).";
         }
         finally { IsLoading = false; }
+    }
+
+    private static async Task SaveExportFile(byte[] data, string fileName)
+    {
+        if (data.Length == 0) return;
+        var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+        Directory.CreateDirectory(dir);
+        await File.WriteAllBytesAsync(Path.Combine(dir, fileName), data);
     }
 }
 
