@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -78,6 +79,29 @@ public sealed class Supplier : BaseEntity, ITenantEntity
     public void UnmarkAsPreferred() => IsPreferred = false;
 
     public bool HasExceededCreditLimit => CreditLimit.HasValue && CurrentBalance > CreditLimit.Value;
+
+    // ── Factory ──
+
+    public static Supplier Create(Guid tenantId, string name, string code, string? email = null, string? phone = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+
+        var supplier = new Supplier
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Name = name,
+            Code = code,
+            Email = email,
+            Phone = phone
+        };
+
+        supplier.RaiseDomainEvent(new SupplierCreatedEvent(
+            supplier.Id, tenantId, name, code, DateTime.UtcNow));
+
+        return supplier;
+    }
 
     public override string ToString() => $"[{Code}] {Name}";
 }

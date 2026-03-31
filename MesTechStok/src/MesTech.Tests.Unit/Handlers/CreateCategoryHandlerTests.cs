@@ -9,13 +9,16 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Category", "Unit")]
 public class CreateCategoryHandlerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
     private readonly Mock<ICategoryRepository> _categoryRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
     private readonly CreateCategoryHandler _sut;
 
     public CreateCategoryHandlerTests()
     {
-        _sut = new CreateCategoryHandler(_categoryRepoMock.Object, _uowMock.Object);
+        _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(TestTenantId);
+        _sut = new CreateCategoryHandler(_categoryRepoMock.Object, _uowMock.Object, _tenantProviderMock.Object);
     }
 
     [Fact]
@@ -54,7 +57,7 @@ public class CreateCategoryHandlerTests
     [Fact]
     public void Constructor_NullRepository_Throws()
     {
-        var act = () => new CreateCategoryHandler(null!, _uowMock.Object);
+        var act = () => new CreateCategoryHandler(null!, _uowMock.Object, _tenantProviderMock.Object);
         act.Should().Throw<ArgumentNullException>();
     }
 }

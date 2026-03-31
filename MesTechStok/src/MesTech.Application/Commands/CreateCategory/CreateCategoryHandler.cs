@@ -8,23 +8,29 @@ public sealed class CreateCategoryHandler : IRequestHandler<CreateCategoryComman
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
-    public CreateCategoryHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+    public CreateCategoryHandler(
+        ICategoryRepository categoryRepository,
+        IUnitOfWork unitOfWork,
+        ITenantProvider tenantProvider)
     {
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<CategoryCommandResult> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var category = new Category
-        {
-            Name = request.Name,
-            Code = request.Code,
-            IsActive = request.IsActive,
-        };
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+
+        var category = Category.Create(
+            tenantId,
+            request.Name,
+            request.Code,
+            request.IsActive);
 
         await _categoryRepository.AddAsync(category).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

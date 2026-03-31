@@ -9,13 +9,16 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Category", "Unit")]
 public class CreateSupplierHandlerTests
 {
+    private static readonly Guid TestTenantId = Guid.NewGuid();
     private readonly Mock<ISupplierRepository> _supplierRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
     private readonly CreateSupplierHandler _sut;
 
     public CreateSupplierHandlerTests()
     {
-        _sut = new CreateSupplierHandler(_supplierRepoMock.Object, _uowMock.Object);
+        _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(TestTenantId);
+        _sut = new CreateSupplierHandler(_supplierRepoMock.Object, _uowMock.Object, _tenantProviderMock.Object);
     }
 
     [Fact]
@@ -65,7 +68,7 @@ public class CreateSupplierHandlerTests
     [Fact]
     public void Constructor_NullRepository_Throws()
     {
-        var act = () => new CreateSupplierHandler(null!, _uowMock.Object);
+        var act = () => new CreateSupplierHandler(null!, _uowMock.Object, _tenantProviderMock.Object);
         act.Should().Throw<ArgumentNullException>();
     }
 }
