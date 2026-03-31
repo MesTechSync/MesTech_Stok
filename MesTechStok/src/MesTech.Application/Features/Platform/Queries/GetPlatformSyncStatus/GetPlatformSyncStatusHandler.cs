@@ -3,6 +3,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 
@@ -12,6 +13,7 @@ public sealed class GetPlatformSyncStatusHandler
     private readonly IStoreRepository _storeRepository;
     private readonly IAdapterFactory _adapterFactory;
     private readonly IPlatformHealthProvider? _healthProvider;
+    private readonly ILogger<GetPlatformSyncStatusHandler> _logger;
 
     private static readonly Dictionary<PlatformType, string> PlatformNames = new()
     {
@@ -33,10 +35,12 @@ public sealed class GetPlatformSyncStatusHandler
     public GetPlatformSyncStatusHandler(
         IStoreRepository storeRepository,
         IAdapterFactory adapterFactory,
+        ILogger<GetPlatformSyncStatusHandler> logger,
         IPlatformHealthProvider? healthProvider = null)
     {
         _storeRepository = storeRepository;
         _adapterFactory = adapterFactory;
+        _logger = logger;
         _healthProvider = healthProvider;
     }
 
@@ -45,8 +49,18 @@ public sealed class GetPlatformSyncStatusHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var allStores = await _storeRepository
-            .GetByTenantIdAsync(request.TenantId, cancellationToken);
+
+        IReadOnlyList<Domain.Entities.Store> allStores;
+        try
+        {
+            allStores = await _storeRepository
+                .GetByTenantIdAsync(request.TenantId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "DB unavailable for PlatformSyncStatus — returning empty list");
+            return new List<PlatformSyncStatusDto>();
+        }
 
         var result = new List<PlatformSyncStatusDto>();
 
