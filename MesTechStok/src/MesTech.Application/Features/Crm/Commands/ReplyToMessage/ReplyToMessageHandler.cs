@@ -20,7 +20,7 @@ public sealed class ReplyToMessageHandler : IRequestHandler<ReplyToMessageComman
             ?? throw new InvalidOperationException($"Message {request.MessageId} not found.");
 
         message.SetReply(request.Reply, request.RepliedBy);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return Unit.Value;
     }

@@ -19,6 +19,6 @@ public sealed class DeleteCalendarEventHandler : IRequestHandler<DeleteCalendarE
         ev.IsDeleted = true;
         ev.DeletedAt = DateTime.UtcNow;
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

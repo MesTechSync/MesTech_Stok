@@ -37,7 +37,7 @@ public sealed class AutoCompetePriceHandler
         AutoCompetePriceCommand request, CancellationToken cancellationToken)
     {
         // 1. Ürünü bul
-        var product = await _productRepo.GetByIdAsync(request.ProductId);
+        var product = await _productRepo.GetByIdAsync(request.ProductId).ConfigureAwait(false);
         if (product is null)
             return AutoCompetePriceResult.Failure("Ürün bulunamadı");
 
@@ -84,7 +84,7 @@ public sealed class AutoCompetePriceHandler
         if (adapter is null)
             return AutoCompetePriceResult.Failure($"{request.PlatformCode} adapter bulunamadı");
 
-        var pushed = await adapter.PushPriceUpdateAsync(request.ProductId, targetPrice, cancellationToken);
+        var pushed = await adapter.PushPriceUpdateAsync(request.ProductId, targetPrice, cancellationToken).ConfigureAwait(false);
         if (!pushed)
             return AutoCompetePriceResult.Failure("Fiyat platforma gönderilemedi — adapter hatası");
 

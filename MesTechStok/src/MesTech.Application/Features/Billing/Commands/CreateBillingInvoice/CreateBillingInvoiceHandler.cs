@@ -16,15 +16,15 @@ public sealed class CreateBillingInvoiceHandler : IRequestHandler<CreateBillingI
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var seq = await _invoiceRepo.GetNextSequenceAsync(cancellationToken);
+        var seq = await _invoiceRepo.GetNextSequenceAsync(cancellationToken).ConfigureAwait(false);
         var invoiceNumber = BillingInvoice.GenerateInvoiceNumber(seq);
 
         var invoice = BillingInvoice.Create(
             request.TenantId, request.SubscriptionId, invoiceNumber,
             request.Amount, request.CurrencyCode, request.TaxRate, request.DueDays);
 
-        await _invoiceRepo.AddAsync(invoice, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _invoiceRepo.AddAsync(invoice, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return invoice.Id;
     }
 }

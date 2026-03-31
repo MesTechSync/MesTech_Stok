@@ -11,7 +11,7 @@ public sealed class GetGeneralSettingsHandler : IRequestHandler<GetGeneralSettin
 
     public async Task<GeneralSettingsDto?> Handle(GetGeneralSettingsQuery request, CancellationToken cancellationToken)
     {
-        var t = await _repo.GetByIdAsync(request.TenantId, cancellationToken);
+        var t = await _repo.GetByIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return t is null ? null : new GeneralSettingsDto(t.Name, "TRY", "tr-TR", "Europe/Istanbul");
     }
 }

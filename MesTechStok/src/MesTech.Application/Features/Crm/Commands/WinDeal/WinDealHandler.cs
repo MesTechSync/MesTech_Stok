@@ -17,7 +17,7 @@ public sealed class WinDealHandler : IRequestHandler<WinDealCommand, Unit>
             ?? throw new InvalidOperationException($"Deal {request.DealId} not found.");
 
         deal.MarkAsWon(request.OrderId);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

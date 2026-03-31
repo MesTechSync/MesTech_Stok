@@ -17,7 +17,7 @@ public sealed class ApproveLeaveHandler : IRequestHandler<ApproveLeaveCommand, U
             ?? throw new InvalidOperationException($"Leave {request.LeaveId} not found.");
 
         leave.Approve(request.ApproverUserId);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

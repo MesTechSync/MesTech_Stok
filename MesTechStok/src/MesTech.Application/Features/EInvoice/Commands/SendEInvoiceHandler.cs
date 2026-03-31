@@ -27,14 +27,14 @@ public sealed class SendEInvoiceHandler : IRequestHandler<SendEInvoiceCommand, b
     public async Task<bool> Handle(SendEInvoiceCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken);
+        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken).ConfigureAwait(false);
         if (doc is null)
         {
             _logger.LogWarning("EInvoice {Id} bulunamadi — send islemi atlanadi.", request.EInvoiceId);
             return false;
         }
 
-        var result = await _eInvoiceProvider.SendAsync(doc, cancellationToken);
+        var result = await _eInvoiceProvider.SendAsync(doc, cancellationToken).ConfigureAwait(false);
 
         if (!result.Success)
         {
@@ -43,8 +43,8 @@ public sealed class SendEInvoiceHandler : IRequestHandler<SendEInvoiceCommand, b
         }
 
         doc.MarkAsSent(result.ProviderRef, result.CreditUsed);
-        await _repository.UpdateAsync(doc, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(doc, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("EInvoice {Id} basariyla gonderildi. ProviderRef={Ref}", request.EInvoiceId, result.ProviderRef);
         return true;

@@ -24,7 +24,7 @@ public sealed class GetStoreDetailHandler : IRequestHandler<GetStoreDetailQuery,
     public async Task<StoreDetailDto?> Handle(
         GetStoreDetailQuery request, CancellationToken cancellationToken)
     {
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null)
             return null;
 
@@ -36,7 +36,7 @@ public sealed class GetStoreDetailHandler : IRequestHandler<GetStoreDetailQuery,
             return null;
         }
 
-        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
+        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         var credentialStatus = credentials.Count > 0 ? "Configured" : "NotConfigured";
 
         var productCount = store.ProductMappings?.Count ?? 0;

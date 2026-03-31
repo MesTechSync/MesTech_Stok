@@ -13,7 +13,7 @@ public sealed class GetErpAccountMappingsHandler
     public async Task<IReadOnlyList<ErpAccountMappingDto>> Handle(
         GetErpAccountMappingsQuery request, CancellationToken cancellationToken)
     {
-        var mappings = await _repo.GetByTenantAsync(request.TenantId, cancellationToken);
+        var mappings = await _repo.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         return mappings
             .OrderBy(m => m.MesTechAccountCode, StringComparer.Ordinal)

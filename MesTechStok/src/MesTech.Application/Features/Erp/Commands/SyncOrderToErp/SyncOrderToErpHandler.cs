@@ -38,13 +38,13 @@ public sealed class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpComman
             entityType: "Order",
             entityId: request.OrderId);
 
-        await _syncLogRepository.AddAsync(log, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _syncLogRepository.AddAsync(log, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
             var adapter = _adapterFactory.GetAdapter(request.Provider);
-            var result = await adapter.SyncOrderAsync(request.OrderId, cancellationToken);
+            var result = await adapter.SyncOrderAsync(request.OrderId, cancellationToken).ConfigureAwait(false);
 
             if (result.Success)
             {
@@ -56,8 +56,8 @@ public sealed class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpComman
                 log.MarkFailure(result.ErrorMessage ?? "Bilinmeyen hata");
             }
 
-            await _syncLogRepository.UpdateAsync(log, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _syncLogRepository.UpdateAsync(log, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return result;
         }
@@ -65,8 +65,8 @@ public sealed class SyncOrderToErpHandler : IRequestHandler<SyncOrderToErpComman
         catch (Exception ex)
         {
             log.MarkFailure(ex.Message);
-            await _syncLogRepository.UpdateAsync(log, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _syncLogRepository.UpdateAsync(log, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return ErpSyncResult.Fail(ex.Message);
         }

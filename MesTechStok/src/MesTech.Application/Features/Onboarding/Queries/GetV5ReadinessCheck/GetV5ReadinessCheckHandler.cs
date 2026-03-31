@@ -37,7 +37,7 @@ public sealed class GetV5ReadinessCheckHandler
         GetV5ReadinessCheckQuery request, CancellationToken cancellationToken)
     {
         // Temel onboarding kontrolü
-        var progress = await _onboardingRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var progress = await _onboardingRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         var basicCompleted = progress?.IsCompleted ?? false;
 
         var features = new List<V5FeatureCheckDto>();

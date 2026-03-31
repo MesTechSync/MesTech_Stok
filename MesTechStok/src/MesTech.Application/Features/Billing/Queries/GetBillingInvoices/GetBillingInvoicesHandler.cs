@@ -13,7 +13,7 @@ public sealed class GetBillingInvoicesHandler : IRequestHandler<GetBillingInvoic
     public async Task<IReadOnlyList<BillingInvoiceDto>> Handle(GetBillingInvoicesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var invoices = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var invoices = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return invoices.Select(i => new BillingInvoiceDto
         {
             Id = i.Id,

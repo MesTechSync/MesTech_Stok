@@ -11,7 +11,7 @@ public sealed class GetOrderListHandler : IRequestHandler<GetOrderListQuery, IRe
 
     public async Task<IReadOnlyList<OrderListItemDto>> Handle(GetOrderListQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken);
+        var orders = await _orderRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken).ConfigureAwait(false);
 
         return orders.Select(o => new OrderListItemDto
         {

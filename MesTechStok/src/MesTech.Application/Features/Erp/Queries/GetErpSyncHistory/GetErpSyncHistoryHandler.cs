@@ -11,6 +11,6 @@ public sealed class GetErpSyncHistoryHandler : IRequestHandler<GetErpSyncHistory
 
     public async Task<IReadOnlyList<ErpSyncLog>> Handle(GetErpSyncHistoryQuery request, CancellationToken cancellationToken)
     {
-        return await _repo.GetByTenantPagedAsync(request.TenantId, request.Page, request.PageSize, cancellationToken);
+        return await _repo.GetByTenantPagedAsync(request.TenantId, request.Page, request.PageSize, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -33,8 +33,8 @@ public sealed class CreateCampaignHandler : IRequestHandler<CreateCampaignComman
             }
         }
 
-        await _repository.AddAsync(campaign, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(campaign, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return campaign.Id;
     }
 }

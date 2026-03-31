@@ -27,11 +27,11 @@ public sealed class CreateErpAccountMappingHandler
         CreateErpAccountMappingCommand request, CancellationToken cancellationToken)
     {
         // Duplicate check — ayni MesTech veya ERP kodu zaten eslesmis mi?
-        var existingByMesTech = await _repo.FindByMesTechCodeAsync(request.TenantId, request.MesTechCode, cancellationToken);
+        var existingByMesTech = await _repo.FindByMesTechCodeAsync(request.TenantId, request.MesTechCode, cancellationToken).ConfigureAwait(false);
         if (existingByMesTech is not null)
             return CreateErpAccountMappingResult.Failure($"MesTech hesabi '{request.MesTechCode}' zaten eslesmis.");
 
-        var existingByErp = await _repo.FindByErpCodeAsync(request.TenantId, request.ErpCode, cancellationToken);
+        var existingByErp = await _repo.FindByErpCodeAsync(request.TenantId, request.ErpCode, cancellationToken).ConfigureAwait(false);
         if (existingByErp is not null)
             return CreateErpAccountMappingResult.Failure($"ERP hesabi '{request.ErpCode}' zaten eslesmis.");
 
@@ -40,8 +40,8 @@ public sealed class CreateErpAccountMappingHandler
             request.MesTechCode, request.MesTechName, request.MesTechType,
             request.ErpCode, request.ErpName);
 
-        await _repo.AddAsync(mapping, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repo.AddAsync(mapping, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("ErpAccountMapping created: {MesTechCode} ↔ {ErpCode}", request.MesTechCode, request.ErpCode);
 

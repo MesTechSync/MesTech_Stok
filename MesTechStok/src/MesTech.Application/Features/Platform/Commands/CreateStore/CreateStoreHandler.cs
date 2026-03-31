@@ -51,7 +51,7 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
             UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
         };
 
-        await _storeRepository.AddAsync(store, cancellationToken);
+        await _storeRepository.AddAsync(store, cancellationToken).ConfigureAwait(false);
 
         // 2. Save encrypted credentials
         var credentialDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -66,11 +66,11 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
                 CreatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName,
                 UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
             };
-            await _credentialRepository.AddAsync(credential, cancellationToken);
+            await _credentialRepository.AddAsync(credential, cancellationToken).ConfigureAwait(false);
             credentialDict[kvp.Key] = kvp.Value;
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // 3. Test connection via adapter
         var adapter = _adapterFactory.Resolve(request.PlatformType);
@@ -84,8 +84,8 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
                 if (!testResult.IsSuccess)
                 {
                     // Rollback: delete store and credentials
-                    await _storeRepository.DeleteAsync(store, cancellationToken);
-                    await _uow.SaveChangesAsync(cancellationToken);
+                    await _storeRepository.DeleteAsync(store, cancellationToken).ConfigureAwait(false);
+                    await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                     _logger.LogWarning(
                         "Connection test failed for Store {StoreName} ({Platform}): {Error}",
@@ -103,8 +103,8 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
 #pragma warning restore CA1031
             {
                 // Rollback on exception
-                await _storeRepository.DeleteAsync(store, cancellationToken);
-                await _uow.SaveChangesAsync(cancellationToken);
+                await _storeRepository.DeleteAsync(store, cancellationToken).ConfigureAwait(false);
+                await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                 _logger.LogError(ex,
                     "Connection test threw for Store {StoreName} ({Platform})",

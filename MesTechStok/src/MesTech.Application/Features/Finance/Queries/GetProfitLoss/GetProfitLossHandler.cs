@@ -20,7 +20,7 @@ public sealed class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, P
         var end = start.AddMonths(1).AddTicks(-1);
 
         // Revenue from orders (IOrderRepository.GetByDateRangeAsync does not take tenantId)
-        var orders = await _orderRepo.GetByDateRangeAsync(start, end);
+        var orders = await _orderRepo.GetByDateRangeAsync(start, end).ConfigureAwait(false);
         var tenantOrders = orders.Where(o => o.TenantId == request.TenantId).ToList();
 
         var totalRevenue = tenantOrders
@@ -43,7 +43,7 @@ public sealed class GetProfitLossHandler : IRequestHandler<GetProfitLossQuery, P
         var totalExpenses = await _expenseRepo.GetTotalByDateRangeAsync(
             request.TenantId, start, end, cancellationToken);
 
-        var expenses = await _expenseRepo.GetByTenantAsync(request.TenantId, null, cancellationToken);
+        var expenses = await _expenseRepo.GetByTenantAsync(request.TenantId, null, cancellationToken).ConfigureAwait(false);
         var expenseByCategory = expenses
             .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end
                      && e.Status != ExpenseStatus.Rejected

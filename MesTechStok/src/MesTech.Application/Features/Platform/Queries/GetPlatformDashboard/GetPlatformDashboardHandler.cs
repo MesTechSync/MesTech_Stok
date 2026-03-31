@@ -32,7 +32,7 @@ public sealed class GetPlatformDashboardHandler
     public async Task<PlatformDashboardDto> Handle(
         GetPlatformDashboardQuery request, CancellationToken cancellationToken)
     {
-        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         var platformStore = stores.FirstOrDefault(s =>
             s.PlatformType == request.Platform && s.IsActive);
 
@@ -47,7 +47,7 @@ public sealed class GetPlatformDashboardHandler
         }
 
         // Product count via platform mappings
-        var productCount = await _mappingRepo.CountByStoreIdAsync(platformStore.Id, cancellationToken);
+        var productCount = await _mappingRepo.CountByStoreIdAsync(platformStore.Id, cancellationToken).ConfigureAwait(false);
 
         // Recent orders (last 30 days)
         var since = DateTime.UtcNow.AddDays(-30);

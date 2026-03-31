@@ -27,8 +27,8 @@ public sealed class GetSupplierPerformanceHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var suppliers = await _supplierRepository.GetByTenantAsync(request.TenantId, cancellationToken);
-        var allOrders = await _orderRepository.GetByTenantAsync(request.TenantId, cancellationToken);
+        var suppliers = await _supplierRepository.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
+        var allOrders = await _orderRepository.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         var from = request.From ?? DateTime.MinValue;
         var to = request.To ?? DateTime.MaxValue;

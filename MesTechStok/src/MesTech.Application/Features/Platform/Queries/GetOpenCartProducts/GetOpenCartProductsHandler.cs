@@ -32,7 +32,7 @@ public sealed class GetOpenCartProductsHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null || store.TenantId != request.TenantId || store.PlatformType != PlatformType.OpenCart)
         {
             _logger.LogWarning(
@@ -63,7 +63,7 @@ public sealed class GetOpenCartProductsHandler
             };
         }
 
-        var allProducts = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
+        var allProducts = await _productRepository.GetByIdsAsync(productIds, cancellationToken).ConfigureAwait(false);
 
         // Apply search filter
         var filtered = allProducts.AsEnumerable();

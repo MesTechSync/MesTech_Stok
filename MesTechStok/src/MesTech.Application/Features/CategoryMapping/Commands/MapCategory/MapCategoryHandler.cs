@@ -38,8 +38,8 @@ public sealed class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Gui
             existing.UpdatedAt = DateTime.UtcNow;
             existing.UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName;
 
-            await _mappingRepository.UpdateAsync(existing, cancellationToken);
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _mappingRepository.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return existing.Id;
         }
 
@@ -55,8 +55,8 @@ public sealed class MapCategoryHandler : IRequestHandler<MapCategoryCommand, Gui
             UpdatedBy = MesTech.Domain.Constants.DomainConstants.SystemUserName
         };
 
-        await _mappingRepository.AddAsync(mapping, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _mappingRepository.AddAsync(mapping, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return mapping.Id;
     }
 }

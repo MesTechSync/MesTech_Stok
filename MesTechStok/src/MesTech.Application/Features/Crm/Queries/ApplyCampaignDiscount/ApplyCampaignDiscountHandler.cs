@@ -17,7 +17,7 @@ public sealed class ApplyCampaignDiscountHandler : IRequestHandler<ApplyCampaign
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var campaigns = await _repository.GetActiveByProductIdAsync(request.ProductId, cancellationToken);
+        var campaigns = await _repository.GetActiveByProductIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
 
         var activeCampaigns = campaigns
             .Where(c => c.IsCurrentlyActive())

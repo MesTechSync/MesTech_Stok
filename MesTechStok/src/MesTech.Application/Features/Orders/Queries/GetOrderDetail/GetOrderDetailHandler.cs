@@ -17,7 +17,7 @@ public sealed class GetOrderDetailHandler : IRequestHandler<GetOrderDetailQuery,
 
     public async Task<OrderDetailDto?> Handle(GetOrderDetailQuery request, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+        var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken).ConfigureAwait(false);
         if (order is null) return null;
 
         if (order.TenantId != request.TenantId)

@@ -43,8 +43,8 @@ public sealed class SaveImportTemplateHandler : IRequestHandler<SaveImportTempla
                 template.AddMapping(mapping.Key, mapping.Value);
             }
 
-            await _templateRepo.AddAsync(template, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _templateRepo.AddAsync(template, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "Import sablonu kaydedildi: {TemplateId}, Ad: {Name}, Format: {Format}, Kolon: {Count}",

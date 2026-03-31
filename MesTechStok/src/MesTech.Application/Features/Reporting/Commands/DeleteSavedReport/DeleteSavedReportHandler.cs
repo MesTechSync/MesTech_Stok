@@ -29,7 +29,7 @@ public sealed class DeleteSavedReportHandler : IRequestHandler<DeleteSavedReport
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var report = await _savedReportRepository.GetByIdAsync(request.ReportId, cancellationToken);
+        var report = await _savedReportRepository.GetByIdAsync(request.ReportId, cancellationToken).ConfigureAwait(false);
 
         if (report is null || report.TenantId != request.TenantId)
         {
@@ -39,8 +39,8 @@ public sealed class DeleteSavedReportHandler : IRequestHandler<DeleteSavedReport
             return false;
         }
 
-        await _savedReportRepository.DeleteAsync(report, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _savedReportRepository.DeleteAsync(report, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Kaydedilmis rapor silindi: Id={ReportId}, Name={Name}",

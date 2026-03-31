@@ -23,8 +23,8 @@ public sealed class CreateDropshipSupplierHandler : IRequestHandler<CreateDropsh
             request.MarkupType,
             request.MarkupValue);
 
-        await _repository.AddAsync(supplier, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(supplier, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return supplier.Id;
     }
 }

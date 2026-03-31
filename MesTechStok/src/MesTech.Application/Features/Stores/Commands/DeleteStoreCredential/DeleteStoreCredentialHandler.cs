@@ -23,7 +23,7 @@ public sealed class DeleteStoreCredentialHandler : IRequestHandler<DeleteStoreCr
     public async Task<bool> Handle(DeleteStoreCredentialCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
+        var credentials = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (credentials.Count == 0)
             return false;
 
@@ -32,10 +32,10 @@ public sealed class DeleteStoreCredentialHandler : IRequestHandler<DeleteStoreCr
             cred.IsDeleted = true;
             cred.DeletedAt = DateTime.UtcNow;
             cred.DeletedBy = request.DeletedBy;
-            await _credentialRepository.UpdateAsync(cred, cancellationToken);
+            await _credentialRepository.UpdateAsync(cred, cancellationToken).ConfigureAwait(false);
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Soft-deleted {Count} credential(s) for Store {StoreId}",

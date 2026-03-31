@@ -22,8 +22,8 @@ public sealed class LinkDropshipProductHandler : IRequestHandler<LinkDropshipPro
 
         product.LinkToProduct(request.MesTechProductId);
 
-        await _repository.UpdateAsync(product, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

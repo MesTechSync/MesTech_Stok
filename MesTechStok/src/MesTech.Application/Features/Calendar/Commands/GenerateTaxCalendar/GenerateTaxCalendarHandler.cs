@@ -48,7 +48,7 @@ public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCale
                 EventType.Deadline,
                 isAllDay: true,
                 description: $"{year} yili {month}. ay KDV beyannamesi son teslim tarihi.");
-            await _repository.AddAsync(ev, cancellationToken);
+            await _repository.AddAsync(ev, cancellationToken).ConfigureAwait(false);
             count++;
         }
 
@@ -71,7 +71,7 @@ public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCale
                 EventType.Deadline,
                 isAllDay: true,
                 description: $"{year} yili {pt.Label} gecici vergi beyannamesi son teslim tarihi.");
-            await _repository.AddAsync(ev, cancellationToken);
+            await _repository.AddAsync(ev, cancellationToken).ConfigureAwait(false);
             count++;
         }
 
@@ -87,7 +87,7 @@ public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCale
                 EventType.Deadline,
                 isAllDay: true,
                 description: $"{year} yili {month}. ay SGK prim bildirgeleri son teslim tarihi.");
-            await _repository.AddAsync(ev, cancellationToken);
+            await _repository.AddAsync(ev, cancellationToken).ConfigureAwait(false);
             count++;
         }
 
@@ -106,7 +106,7 @@ public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCale
                 EventType.Deadline,
                 isAllDay: true,
                 description: $"{year} yili {month}. ay Ba-Bs formlari son teslim tarihi.");
-            await _repository.AddAsync(ev, cancellationToken);
+            await _repository.AddAsync(ev, cancellationToken).ConfigureAwait(false);
             count++;
         }
 
@@ -120,10 +120,10 @@ public sealed class GenerateTaxCalendarHandler : IRequestHandler<GenerateTaxCale
             EventType.Deadline,
             isAllDay: true,
             description: $"{year} yili yillik gelir vergisi beyannamesi son teslim tarihi.");
-        await _repository.AddAsync(annualEvent, cancellationToken);
+        await _repository.AddAsync(annualEvent, cancellationToken).ConfigureAwait(false);
         count++;
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return count;
     }
 

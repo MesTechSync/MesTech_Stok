@@ -13,7 +13,7 @@ public sealed class GetCashRegistersHandler : IRequestHandler<GetCashRegistersQu
     public async Task<IReadOnlyList<CashRegisterDto>> Handle(GetCashRegistersQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var registers = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var registers = await _repository.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return registers.Select(r => new CashRegisterDto
         {
             Id = r.Id,

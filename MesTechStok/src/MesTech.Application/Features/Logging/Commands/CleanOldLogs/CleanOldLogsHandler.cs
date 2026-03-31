@@ -20,7 +20,7 @@ public sealed class CleanOldLogsHandler : IRequestHandler<CleanOldLogsCommand, i
         ArgumentNullException.ThrowIfNull(request);
 
         var cutoffDate = DateTime.UtcNow.AddDays(-request.DaysToKeep);
-        var deletedCount = await _repo.DeleteOlderThanAsync(request.TenantId, cutoffDate, cancellationToken);
+        var deletedCount = await _repo.DeleteOlderThanAsync(request.TenantId, cutoffDate, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Log cleanup: {DeletedCount} entries older than {CutoffDate} deleted for tenant {TenantId}",

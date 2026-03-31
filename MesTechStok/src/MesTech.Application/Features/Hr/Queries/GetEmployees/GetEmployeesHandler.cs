@@ -12,7 +12,7 @@ public sealed class GetEmployeesHandler : IRequestHandler<GetEmployeesQuery, IRe
     public async Task<IReadOnlyList<EmployeeDto>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var employees = await _employees.GetByTenantAsync(request.TenantId, request.Status, cancellationToken);
+        var employees = await _employees.GetByTenantAsync(request.TenantId, request.Status, cancellationToken).ConfigureAwait(false);
         return employees.Select(e => new EmployeeDto
         {
             Id = e.Id,

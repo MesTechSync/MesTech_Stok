@@ -17,7 +17,7 @@ public sealed class LoseDealHandler : IRequestHandler<LoseDealCommand, Unit>
             ?? throw new InvalidOperationException($"Deal {request.DealId} not found.");
 
         deal.MarkAsLost(request.Reason);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

@@ -16,13 +16,13 @@ public sealed class UpdateProfileSettingsHandler : IRequestHandler<UpdateProfile
 
     public async Task<bool> Handle(UpdateProfileSettingsCommand request, CancellationToken cancellationToken)
     {
-        var tenant = await _repo.GetByIdAsync(request.TenantId, cancellationToken);
+        var tenant = await _repo.GetByIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         if (tenant is null) return false;
 
         tenant.Name = request.Name;
         tenant.TaxNumber = request.TaxNumber;
-        await _repo.UpdateAsync(tenant, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repo.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

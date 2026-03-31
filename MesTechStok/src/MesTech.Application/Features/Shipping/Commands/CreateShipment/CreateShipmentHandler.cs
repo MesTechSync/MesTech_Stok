@@ -28,7 +28,7 @@ public sealed class CreateShipmentHandler : IRequestHandler<CreateShipmentComman
     public async Task<CreateShipmentResult> Handle(
         CreateShipmentCommand request, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+        var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken).ConfigureAwait(false);
         if (order is null)
             return CreateShipmentResult.Failed($"Order {request.OrderId} not found.");
 
@@ -58,7 +58,7 @@ public sealed class CreateShipmentHandler : IRequestHandler<CreateShipmentComman
             Notes = request.Notes
         };
 
-        var result = await adapter.CreateShipmentAsync(shipmentRequest, cancellationToken);
+        var result = await adapter.CreateShipmentAsync(shipmentRequest, cancellationToken).ConfigureAwait(false);
 
         if (!result.Success)
         {
@@ -70,8 +70,8 @@ public sealed class CreateShipmentHandler : IRequestHandler<CreateShipmentComman
 
         var trackingNumber = result.TrackingNumber ?? string.Empty;
         order.MarkAsShipped(trackingNumber, request.CargoProvider);
-        await _orderRepository.UpdateAsync(order);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Shipment created for order {OrderId} via {Provider}, tracking: {Tracking}",

@@ -22,8 +22,8 @@ public sealed class CancelSubscriptionHandler : IRequestHandler<CancelSubscripti
             throw new InvalidOperationException("Abonelik bu tenant'a ait degil.");
 
         subscription.Cancel(request.Reason);
-        await _repository.UpdateAsync(subscription, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(subscription, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Unit.Value;
     }
 }

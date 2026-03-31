@@ -34,7 +34,7 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
             return 0;
 
         // Batch fetch — eliminates N+1 query (was: foreach → GetByIdAsync per product)
-        var products = await _productRepository.GetByIdsAsync(request.ProductIds, cancellationToken);
+        var products = await _productRepository.GetByIdsAsync(request.ProductIds, cancellationToken).ConfigureAwait(false);
         var productMap = products.ToDictionary(p => p.Id);
 
         var updatedCount = 0;
@@ -53,7 +53,7 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
             {
                 ApplyAction(product, request.Action, request.Value);
                 product.UpdatedAt = DateTime.UtcNow;
-                await _productRepository.UpdateAsync(product);
+                await _productRepository.UpdateAsync(product).ConfigureAwait(false);
                 updatedCount++;
             }
 #pragma warning disable CA1031 // Catch general exception — batch processing must not abort on single item failure
@@ -67,7 +67,7 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
 
         if (updatedCount > 0)
         {
-            await _uow.SaveChangesAsync(cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         _logger.LogInformation(

@@ -15,7 +15,7 @@ public sealed class GetActiveCampaignsHandler : IRequestHandler<GetActiveCampaig
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var campaigns = await _repository.GetActiveByTenantAsync(request.TenantId, cancellationToken);
+        var campaigns = await _repository.GetActiveByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         var activeCampaigns = campaigns
             .Where(c => c.IsCurrentlyActive())

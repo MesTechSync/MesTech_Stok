@@ -26,6 +26,6 @@ public sealed class ExportProductsHandler : IRequestHandler<ExportProductsComman
             request.InStock,
             request.Format);
 
-        return await _importService.ExportProductsAsync(options, cancellationToken);
+        return await _importService.ExportProductsAsync(options, cancellationToken).ConfigureAwait(false);
     }
 }

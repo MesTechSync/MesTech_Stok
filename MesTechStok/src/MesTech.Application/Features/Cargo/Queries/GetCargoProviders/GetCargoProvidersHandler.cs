@@ -28,7 +28,7 @@ public sealed class GetCargoProvidersHandler : IRequestHandler<GetCargoProviders
             var isAvailable = false;
             try
             {
-                isAvailable = await adapter.IsAvailableAsync(cancellationToken);
+                isAvailable = await adapter.IsAvailableAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

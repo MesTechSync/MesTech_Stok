@@ -14,7 +14,7 @@ public sealed class GetDropshipProductsHandler : IRequestHandler<GetDropshipProd
     public async Task<IReadOnlyList<DropshipProductDto>> Handle(GetDropshipProductsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var items = await _repository.GetByTenantAsync(request.TenantId, request.IsLinked, cancellationToken);
+        var items = await _repository.GetByTenantAsync(request.TenantId, request.IsLinked, cancellationToken).ConfigureAwait(false);
         return items.Select(p => new DropshipProductDto
         {
             Id = p.Id,

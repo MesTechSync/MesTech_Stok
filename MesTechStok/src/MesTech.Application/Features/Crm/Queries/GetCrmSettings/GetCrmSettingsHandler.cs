@@ -25,7 +25,7 @@ public sealed class GetCrmSettingsHandler : IRequestHandler<GetCrmSettingsQuery,
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (settings is null)
         {

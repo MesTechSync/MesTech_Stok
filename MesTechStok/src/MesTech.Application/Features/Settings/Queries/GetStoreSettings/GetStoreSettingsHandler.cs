@@ -16,8 +16,8 @@ public sealed class GetStoreSettingsHandler : IRequestHandler<GetStoreSettingsQu
 
     public async Task<StoreSettingsDto> Handle(GetStoreSettingsQuery request, CancellationToken cancellationToken)
     {
-        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
-        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
+        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
         return new StoreSettingsDto
         {

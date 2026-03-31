@@ -33,7 +33,7 @@ public sealed class SaveCrmSettingsHandler : IRequestHandler<SaveCrmSettingsComm
 #pragma warning disable CA1031 // Catch general exception — return structured error
         try
         {
-            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+            var settings = await _settingsRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
             if (settings is null)
             {
@@ -43,15 +43,15 @@ public sealed class SaveCrmSettingsHandler : IRequestHandler<SaveCrmSettingsComm
                     CompanyName = "Default",
                     AutoSyncStock = request.AutoAssignLeads
                 };
-                await _settingsRepo.AddAsync(settings, cancellationToken);
+                await _settingsRepo.AddAsync(settings, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 settings.AutoSyncStock = request.AutoAssignLeads;
-                await _settingsRepo.UpdateAsync(settings, cancellationToken);
+                await _settingsRepo.UpdateAsync(settings, cancellationToken).ConfigureAwait(false);
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "CRM ayarlari kaydedildi: Tenant={TenantId}, AutoAssign={AutoAssign}, Threshold={Threshold}",

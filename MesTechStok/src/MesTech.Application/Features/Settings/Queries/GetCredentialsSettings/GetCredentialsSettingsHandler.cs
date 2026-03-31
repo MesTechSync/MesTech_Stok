@@ -11,7 +11,7 @@ public sealed class GetCredentialsSettingsHandler : IRequestHandler<GetCredentia
 
     public async Task<CredentialsSettingsDto> Handle(GetCredentialsSettingsQuery request, CancellationToken cancellationToken)
     {
-        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken);
+        var stores = await _storeRepo.GetByTenantIdAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         var platforms = stores.Where(s => s.IsActive).Select(s => s.PlatformType.ToString()).Distinct().OrderBy(p => p).ToList();
         return new CredentialsSettingsDto(platforms);
     }

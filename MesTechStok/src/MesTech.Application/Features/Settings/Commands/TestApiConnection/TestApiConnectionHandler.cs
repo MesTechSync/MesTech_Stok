@@ -38,7 +38,7 @@ public sealed class TestApiConnectionHandler
             using var client = _httpClientFactory.CreateClient("ApiConnectionTest");
             client.Timeout = TimeSpan.FromSeconds(10);
 
-            using var response = await client.GetAsync(uri, cancellationToken);
+            using var response = await client.GetAsync(uri, cancellationToken).ConfigureAwait(false);
             sw.Stop();
 
             var statusCode = (int)response.StatusCode;

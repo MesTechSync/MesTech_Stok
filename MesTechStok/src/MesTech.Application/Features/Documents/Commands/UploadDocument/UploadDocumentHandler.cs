@@ -70,8 +70,8 @@ public sealed class UploadDocumentHandler : IRequestHandler<UploadDocumentComman
             if (request.InvoiceId.HasValue) document.LinkToInvoice(request.InvoiceId.Value);
             if (request.ProductId.HasValue) document.LinkToProduct(request.ProductId.Value);
 
-            await _docRepo.AddAsync(document, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _docRepo.AddAsync(document, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("Document uploaded: {DocId} — {FileName}", document.Id, request.FileName);
 

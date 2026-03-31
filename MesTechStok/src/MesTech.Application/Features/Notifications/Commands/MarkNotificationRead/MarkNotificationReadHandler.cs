@@ -22,15 +22,15 @@ public sealed class MarkNotificationReadHandler : IRequestHandler<MarkNotificati
     public async Task<bool> Handle(MarkNotificationReadCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var notification = await _repository.GetByIdAsync(request.NotificationId, cancellationToken);
+        var notification = await _repository.GetByIdAsync(request.NotificationId, cancellationToken).ConfigureAwait(false);
 
         if (notification == null || notification.TenantId != request.TenantId)
             return false;
 
         notification.MarkAsRead();
 
-        await _repository.UpdateAsync(notification, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(notification, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
     }

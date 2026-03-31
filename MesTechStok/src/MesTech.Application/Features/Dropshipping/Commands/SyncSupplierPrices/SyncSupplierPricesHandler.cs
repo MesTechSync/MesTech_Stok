@@ -97,17 +97,17 @@ public sealed class SyncSupplierPricesHandler : IRequestHandler<SyncSupplierPric
             // DropshipProduct fiyatını güncelle
             dropshipProduct.UpdatePrice(feedItem.Price.Value);
             dropshipProduct.ApplyMarkup(supplier.MarkupType, supplier.MarkupValue);
-            await _productRepository.UpdateAsync(dropshipProduct, cancellationToken);
+            await _productRepository.UpdateAsync(dropshipProduct, cancellationToken).ConfigureAwait(false);
 
             // Linked ürünse ana Product.PurchasePrice'ı da güncelle
             if (dropshipProduct.IsLinked && dropshipProduct.ProductId.HasValue)
             {
-                var mainProduct = await _mainProductRepository.GetByIdAsync(dropshipProduct.ProductId.Value);
+                var mainProduct = await _mainProductRepository.GetByIdAsync(dropshipProduct.ProductId.Value).ConfigureAwait(false);
                 if (mainProduct is not null)
                 {
                     mainProduct.PurchasePrice = feedItem.Price.Value;
                     mainProduct.UpdatedAt = DateTime.UtcNow;
-                    await _mainProductRepository.UpdateAsync(mainProduct);
+                    await _mainProductRepository.UpdateAsync(mainProduct).ConfigureAwait(false);
                 }
             }
 
@@ -117,8 +117,8 @@ public sealed class SyncSupplierPricesHandler : IRequestHandler<SyncSupplierPric
         if (updated > 0)
         {
             supplier.RecordSync();
-            await _supplierRepository.UpdateAsync(supplier, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _supplierRepository.UpdateAsync(supplier, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return new PriceSyncResultDto

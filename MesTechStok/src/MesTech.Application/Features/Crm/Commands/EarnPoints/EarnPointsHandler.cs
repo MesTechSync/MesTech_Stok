@@ -47,10 +47,10 @@ public sealed class EarnPointsHandler : IRequestHandler<EarnPointsCommand, EarnP
             LoyaltyTransactionType.Earn,
             $"Order {request.OrderId} — {request.OrderAmount:N2} TL");
 
-        await _transactionRepo.AddAsync(transaction, cancellationToken);
+        await _transactionRepo.AddAsync(transaction, cancellationToken).ConfigureAwait(false);
 
         // 4. Save and return earned points
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new EarnPointsResult
         {

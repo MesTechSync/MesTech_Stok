@@ -20,7 +20,7 @@ public sealed class GetNotificationSettingsHandler
         GetNotificationSettingsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var settings = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+        var settings = await _repository.GetByUserIdAsync(request.UserId, cancellationToken).ConfigureAwait(false);
 
         var dtos = settings.Select(s => new NotificationSettingDto
         {

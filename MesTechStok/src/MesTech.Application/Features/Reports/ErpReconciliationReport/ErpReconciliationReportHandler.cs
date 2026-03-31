@@ -60,7 +60,7 @@ public sealed class ErpReconciliationReportHandler
         DTOs.ERP.ErpAccountDto[] erpAccounts;
         try
         {
-            var accounts = await adapter.GetAccountBalancesAsync(cancellationToken);
+            var accounts = await adapter.GetAccountBalancesAsync(cancellationToken).ConfigureAwait(false);
             erpAccounts = accounts.ToArray();
         }
         catch (Exception ex)

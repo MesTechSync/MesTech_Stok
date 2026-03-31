@@ -22,12 +22,12 @@ public sealed class DeleteErpAccountMappingHandler : IRequestHandler<DeleteErpAc
 
     public async Task<bool> Handle(DeleteErpAccountMappingCommand request, CancellationToken cancellationToken)
     {
-        var mapping = await _repo.GetByIdAsync(request.MappingId, cancellationToken);
+        var mapping = await _repo.GetByIdAsync(request.MappingId, cancellationToken).ConfigureAwait(false);
         if (mapping is null || mapping.TenantId != request.TenantId)
             return false;
 
         _repo.Remove(mapping);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("ErpAccountMapping deleted: {MesTechCode} ↔ {ErpCode}",
             mapping.MesTechAccountCode, mapping.ErpAccountCode);

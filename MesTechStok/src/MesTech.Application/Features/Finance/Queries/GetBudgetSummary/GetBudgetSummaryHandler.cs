@@ -21,7 +21,7 @@ public sealed class GetBudgetSummaryHandler : IRequestHandler<GetBudgetSummaryQu
         var end = start.AddMonths(1).AddTicks(-1);
 
         // Financial goals as budget targets
-        var goals = await _goalRepo.GetActiveAsync(request.TenantId, cancellationToken);
+        var goals = await _goalRepo.GetActiveAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         var activeGoals = goals
             .Where(g => !g.IsDeleted && g.EndDate >= start)
             .ToList();
@@ -29,7 +29,7 @@ public sealed class GetBudgetSummaryHandler : IRequestHandler<GetBudgetSummaryQu
         var totalBudget = activeGoals.Sum(g => g.TargetAmount);
 
         // Actual spending
-        var expenses = await _expenseRepo.GetByTenantAsync(request.TenantId, null, cancellationToken);
+        var expenses = await _expenseRepo.GetByTenantAsync(request.TenantId, null, cancellationToken).ConfigureAwait(false);
         var periodExpenses = expenses
             .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end
                      && e.Status != ExpenseStatus.Rejected

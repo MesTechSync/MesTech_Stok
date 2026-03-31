@@ -23,21 +23,21 @@ public sealed class CancelEInvoiceHandler : IRequestHandler<CancelEInvoiceComman
     public async Task<bool> Handle(CancelEInvoiceCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken);
+        var doc = await _repository.GetByIdAsync(request.EInvoiceId, cancellationToken).ConfigureAwait(false);
         if (doc is null)
             return false;
 
         // If already sent with a provider reference, cancel at provider first
         if (!string.IsNullOrWhiteSpace(doc.ProviderRef))
         {
-            var cancelled = await _eInvoiceProvider.CancelAsync(doc.ProviderRef, request.Reason, cancellationToken);
+            var cancelled = await _eInvoiceProvider.CancelAsync(doc.ProviderRef, request.Reason, cancellationToken).ConfigureAwait(false);
             if (!cancelled)
                 return false;
         }
 
         doc.Cancel(request.Reason, cancelledBy: MesTech.Domain.Constants.DomainConstants.SystemUserName);
-        await _repository.UpdateAsync(doc, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.UpdateAsync(doc, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
     }

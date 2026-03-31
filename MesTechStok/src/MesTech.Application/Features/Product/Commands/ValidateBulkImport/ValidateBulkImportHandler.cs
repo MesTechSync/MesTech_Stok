@@ -35,6 +35,6 @@ public sealed class ValidateBulkImportHandler : IRequestHandler<ValidateBulkImpo
                 [new ImportRowError(0, "File", "Sadece .xlsx ve .xls dosyaları desteklenir.")]);
         }
 
-        return await _importService.ValidateExcelAsync(request.FileStream, cancellationToken);
+        return await _importService.ValidateExcelAsync(request.FileStream, cancellationToken).ConfigureAwait(false);
     }
 }

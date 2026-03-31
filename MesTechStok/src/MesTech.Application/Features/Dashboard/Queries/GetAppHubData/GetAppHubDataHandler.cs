@@ -28,13 +28,13 @@ public sealed class GetAppHubDataHandler
         var healthTask = _mediator.Send(new GetServiceHealthQuery(), ct);
         var orderCountTask = _orderRepo.GetCountAsync();
 
-        await Task.WhenAll(productTask, inventoryTask, invoiceTask, healthTask, orderCountTask);
+        await Task.WhenAll(productTask, inventoryTask, invoiceTask, healthTask, orderCountTask).ConfigureAwait(false);
 
-        var products = await productTask;
-        var inventory = await inventoryTask;
-        var invoices = await invoiceTask;
-        var health = await healthTask;
-        var totalOrders = await orderCountTask;
+        var products = await productTask.ConfigureAwait(false);
+        var inventory = await inventoryTask.ConfigureAwait(false);
+        var invoices = await invoiceTask.ConfigureAwait(false);
+        var health = await healthTask.ConfigureAwait(false);
+        var totalOrders = await orderCountTask.ConfigureAwait(false);
 
         return new AppHubDataDto
         {

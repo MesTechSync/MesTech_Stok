@@ -38,8 +38,8 @@ public sealed class CreateLogEntryHandler : IRequestHandler<CreateLogEntryComman
             MachineName = request.MachineName ?? Environment.MachineName
         };
 
-        await _repo.AddAsync(entry, cancellationToken);
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _repo.AddAsync(entry, cancellationToken).ConfigureAwait(false);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         LogLevel logLevel = request.Level switch
         {

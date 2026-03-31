@@ -32,20 +32,20 @@ public sealed class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCreden
     {
         ArgumentNullException.ThrowIfNull(request);
         // Verify store exists and belongs to the tenant
-        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken);
+        var store = await _storeRepository.GetByIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         if (store is null)
             throw new InvalidOperationException($"Store {request.StoreId} not found.");
         if (store.TenantId != request.TenantId)
             throw new UnauthorizedAccessException($"Store {request.StoreId} does not belong to tenant {request.TenantId}.");
 
         // Delete existing credentials for this store (upsert semantics)
-        var existing = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
+        var existing = await _credentialRepository.GetByStoreIdAsync(request.StoreId, cancellationToken).ConfigureAwait(false);
         foreach (var cred in existing)
         {
             cred.IsDeleted = true;
             cred.DeletedAt = DateTime.UtcNow;
             cred.DeletedBy = "system";
-            await _credentialRepository.UpdateAsync(cred, cancellationToken);
+            await _credentialRepository.UpdateAsync(cred, cancellationToken).ConfigureAwait(false);
         }
 
         // Save new encrypted credentials
@@ -62,12 +62,12 @@ public sealed class SaveStoreCredentialHandler : IRequestHandler<SaveStoreCreden
                 UpdatedBy = "system"
             };
 
-            await _credentialRepository.AddAsync(credential, cancellationToken);
+            await _credentialRepository.AddAsync(credential, cancellationToken).ConfigureAwait(false);
 
             firstId ??= credential.Id;
         }
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Saved {FieldCount} credential fields for Store {StoreId} (Platform: {Platform}, Type: {Type})",

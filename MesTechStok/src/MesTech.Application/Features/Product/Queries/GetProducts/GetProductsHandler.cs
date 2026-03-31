@@ -19,7 +19,7 @@ public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, Paged
             ? await _productRepo.SearchAsync(request.SearchTerm)
             : request.CategoryId.HasValue
                 ? await _productRepo.GetByCategoryAsync(request.CategoryId.Value)
-                : await _productRepo.GetAllAsync();
+                : await _productRepo.GetAllAsync().ConfigureAwait(false);
 
         var filtered = allProducts.AsEnumerable();
 

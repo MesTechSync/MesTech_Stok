@@ -15,7 +15,7 @@ public sealed class GetCalendarEventByIdHandler : IRequestHandler<GetCalendarEve
     public async Task<CalendarEventDto?> Handle(GetCalendarEventByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var ev = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var ev = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         return ev?.Adapt<CalendarEventDto>();
     }
 }
