@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
+using MesTech.Application.Features.Billing.Queries.GetSubscriptionUsage;
+using MesTech.Application.Features.Billing.Queries.GetUserFeatures;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 using MesTech.Domain.Interfaces;
 
@@ -75,6 +77,8 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
                 AvailablePlanCount = plans.Count;
             }
             catch { AvailablePlanCount = 0; }
+            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId)); } catch { }
+            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId)); } catch { }
 
             ApplyFilters();
         }

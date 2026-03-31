@@ -7,6 +7,10 @@ using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
+using MesTech.Application.Features.Dashboard.Queries.GetAppHubData;
+using MesTech.Application.Features.Dashboard.Queries.GetOrdersPending;
+using MesTech.Application.Features.Dashboard.Queries.GetRevenueChart;
+using MesTech.Application.Features.Dashboard.Queries.GetSalesToday;
 using MesTech.Application.Features.Dashboard.Queries.GetServiceHealth;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
@@ -187,6 +191,12 @@ public partial class AppHubViewModel : ViewModelBase
         {
             ServiceStatuses.Add(new("Platform API", false, "baglanti yok"));
         }
+
+        // G540 orphan handler wiring — 4 dashboard queries
+        try { _ = await _mediator.Send(new GetAppHubDataQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        try { _ = await _mediator.Send(new GetOrdersPendingQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        try { _ = await _mediator.Send(new GetSalesTodayQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        try { _ = await _mediator.Send(new GetRevenueChartQuery(_currentUser.TenantId)); } catch { /* optional */ }
     }
 
     [RelayCommand]

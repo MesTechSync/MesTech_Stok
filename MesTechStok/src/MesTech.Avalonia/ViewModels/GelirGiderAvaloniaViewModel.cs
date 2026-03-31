@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Application.Features.Finance.Queries.GetCashRegisters;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -81,6 +82,8 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        // G540: cash registers
+        try { _ = await _mediator.Send(new GetCashRegistersQuery(_tenantProvider.GetCurrentTenantId())); } catch { }
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

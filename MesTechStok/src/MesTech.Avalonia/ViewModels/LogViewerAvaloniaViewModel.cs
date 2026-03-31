@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Logging.Queries.GetLogCount;
 using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Domain.Interfaces;
 
@@ -19,6 +20,7 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedLevel = "Tumu";
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private bool autoRefresh;
+    [ObservableProperty] private long totalLogCount;
 
     public LogViewerAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -86,6 +88,9 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+
+        // G540 orphan: log count
+        try { TotalLogCount = await _mediator.Send(new GetLogCountQuery(_currentUser.TenantId)); } catch { }
     }
 
     private void ApplyFilter()
