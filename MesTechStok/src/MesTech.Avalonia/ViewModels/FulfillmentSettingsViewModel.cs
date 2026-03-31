@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Settings.Commands.SaveFulfillmentSettings;
 using MesTech.Application.Features.Settings.Queries.GetFulfillmentSettings;
 using MesTech.Domain.Interfaces;
 
@@ -80,7 +81,9 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // DEP: DEV1 — await _mediator.Send(new SaveFulfillmentSettingsCommand(...))
+            await _mediator.Send(new SaveFulfillmentSettingsCommand(
+                _currentUser.TenantId, FbaAutoReplenish, HepsiAutoReplenish));
+            StatusMessage = "Fulfillment ayarlari kaydedildi.";
         }
         catch (Exception ex)
         {
