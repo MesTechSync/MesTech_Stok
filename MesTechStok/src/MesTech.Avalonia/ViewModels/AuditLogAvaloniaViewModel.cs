@@ -2,19 +2,23 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.System.Queries.GetAuditLogs;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Audit Log ViewModel — MediatR hazır, handler oluşturulunca gerçek veriye geçecek.
+/// Audit Log ViewModel — MediatR wired to GetAuditLogsQuery.
 /// </summary>
 public partial class AuditLogAvaloniaViewModel : ViewModelBase
 {
     private readonly ISender _mediator;
+    private readonly ICurrentUserService _currentUser;
 
-    public AuditLogAvaloniaViewModel(ISender mediator)
+    public AuditLogAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [ObservableProperty] private string exportMessage = string.Empty;
@@ -51,10 +55,28 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            // DEV1-DEPENDENCY: GetAuditLogsQuery handler oluşturulunca gerçek veriye geçecek
-            // await _mediator.Send(new GetAuditLogsQuery(tenantId, startDate, endDate, selectedUser, selectedAction));
+            var userFilter = SelectedUser == "Tumu" ? null : SelectedUser;
+            var actionFilter = SelectedAction == "Tumu" ? null : SelectedAction;
+            var logs = await _mediator.Send(new GetAuditLogsQuery(
+                _currentUser.TenantId,
+                StartDate.DateTime,
+                EndDate.DateTime,
+                userFilter,
+                actionFilter));
+
             LogEntries.Clear();
-            // Handler hazır olana kadar boş liste — mock data kaldırıldı
+            foreach (var log in logs)
+            {
+                LogEntries.Add(new AuditLogEntry(
+                    log.AccessTime.ToString("dd.MM.yyyy HH:mm:ss"),
+                    log.UserId.ToString(),
+                    log.Action,
+                    log.Resource,
+                    log.Id.ToString(),
+                    log.AdditionalInfo ?? "—",
+                    log.IpAddress ?? "—",
+                    log.UserAgent ?? "—"));
+            }
 
             IsEmpty = LogEntries.Count == 0;
         }
