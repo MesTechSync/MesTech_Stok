@@ -20,6 +20,7 @@ public static class MesaStatusEndpoint
         .WithName("GetMesaStatus")
         .WithSummary("MESA OS bridge bağlantı durumu — AI/Bot servis health")
         .WithTags("Health")
-        .RequireRateLimiting("HealthRateLimit");
+        .RequireRateLimiting("HealthRateLimit")
+        .Produces(200);
     }
 }
