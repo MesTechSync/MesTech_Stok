@@ -16,6 +16,9 @@ public sealed class Camt053Parser : IBankStatementParser
 {
     private const string Camt053Namespace = "urn:iso:std:iso:20022:tech:xsd:camt.053.001.08";
 
+    /// <summary>Placeholder tenantId — overwritten by BankStatementImportService.ImportAsync().</summary>
+    private static readonly Guid ParserPlaceholderTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     private readonly ILogger<Camt053Parser> _logger;
 
     public string Format => "CAMT053";
@@ -156,7 +159,7 @@ public sealed class Camt053Parser : IBankStatementParser
         }
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
+            tenantId: ParserPlaceholderTenantId, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate,
             amount: amount,

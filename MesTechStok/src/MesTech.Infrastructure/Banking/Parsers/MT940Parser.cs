@@ -14,6 +14,9 @@ namespace MesTech.Infrastructure.Banking.Parsers;
 /// </summary>
 public partial class MT940Parser : IBankStatementParser
 {
+    /// <summary>Placeholder tenantId — overwritten by BankStatementImportService.ImportAsync().</summary>
+    private static readonly Guid ParserPlaceholderTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     private readonly ILogger<MT940Parser> _logger;
 
     public string Format => "MT940";
@@ -205,7 +208,7 @@ public partial class MT940Parser : IBankStatementParser
         var idempotencyKey = ComputeIdempotencyKey(bankAccountId, dateStr, amountStr, reference);
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
+            tenantId: ParserPlaceholderTenantId, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate,
             amount: amount,

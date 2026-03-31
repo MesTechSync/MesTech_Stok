@@ -14,6 +14,9 @@ namespace MesTech.Infrastructure.Banking.Parsers;
 /// </summary>
 public sealed class CsvStatementParser : IBankStatementParser
 {
+    /// <summary>Placeholder tenantId — overwritten by BankStatementImportService.ImportAsync().</summary>
+    private static readonly Guid ParserPlaceholderTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     private readonly ILogger<CsvStatementParser> _logger;
 
     public string Format => "CSV";
@@ -169,7 +172,7 @@ public sealed class CsvStatementParser : IBankStatementParser
             reference ?? description);
 
         return BankTransaction.Create(
-            tenantId: Guid.Empty, // Overwritten by BankStatementImportService.ImportAsync()
+            tenantId: ParserPlaceholderTenantId, // Overwritten by BankStatementImportService.ImportAsync()
             bankAccountId: bankAccountId,
             transactionDate: transactionDate.Value,
             amount: amount.Value,
