@@ -95,6 +95,7 @@ builder.Services.AddOpenTelemetry()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation(opt => opt.SetDbStatementForText = true)
         .AddSource("MesTech.Application.Handlers")
+        .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
         {
             opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
