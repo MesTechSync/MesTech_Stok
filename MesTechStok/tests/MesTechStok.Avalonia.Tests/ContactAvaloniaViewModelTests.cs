@@ -14,7 +14,7 @@ public class ContactAvaloniaViewModelTests
     {
         var mediatorMock = new Mock<IMediator>();
         var tenantMock = new Mock<ITenantProvider>();
-        return new ContactAvaloniaViewModel(mediatorMock.Object, tenantMock.Object);
+        return new ContactAvaloniaViewModel(mediatorMock.Object, tenantMock.Object, Mock.Of<MesTech.Avalonia.Services.IDialogService>());
     }
 
     [Fact]

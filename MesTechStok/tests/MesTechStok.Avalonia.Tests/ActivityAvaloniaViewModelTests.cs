@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -11,7 +12,7 @@ public class ActivityAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private ActivityAvaloniaViewModel CreateSut() => new(_mediatorMock.Object);
+    private ActivityAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

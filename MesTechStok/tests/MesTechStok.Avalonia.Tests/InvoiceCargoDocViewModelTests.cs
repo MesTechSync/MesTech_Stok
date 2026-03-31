@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -38,7 +39,8 @@ public class DocumentsAvaloniaViewModelTests
     {
         var sut = new DocumentsAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
@@ -57,7 +59,8 @@ public class BankAccountsAvaloniaViewModelTests
     {
         var sut = new BankAccountsAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
@@ -74,7 +77,7 @@ public class DepartmentAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new DepartmentAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>());
+        var sut = new DepartmentAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>(), Mock.Of<IDialogService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
@@ -93,7 +96,8 @@ public class EmployeesAvaloniaViewModelTests
     {
         var sut = new EmployeesAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
@@ -110,7 +114,7 @@ public class WarehouseSummaryAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new WarehouseSummaryAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
+        var sut = new WarehouseSummaryAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>(), Mock.Of<IDialogService>());
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
