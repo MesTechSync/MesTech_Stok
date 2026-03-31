@@ -12,6 +12,7 @@ using MesTech.Application.Features.Product.Queries.GetBuyboxStatus;
 using MesTech.Application.Features.Product.Queries.GetPlatformProducts;
 using MesTech.Application.Features.Product.Commands.ExportProducts;
 using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Features.Product.Commands.SaveProductVariants;
 using MesTech.Application.Features.Product.Queries.GetProductVariants;
 using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.SearchProductsForImageMatch;
@@ -96,6 +97,25 @@ public static class ProductEndpoints
         .WithName("GetProductVariants")
         .WithSummary("Ürün varyant matrisi — renk/beden kombinasyonları + stok")
         .Produces<ProductVariantMatrixDto>(200)
+        .Produces(400);
+
+        // POST /api/v1/products/{id}/variants — varyant kaydet/güncelle (G562)
+        group.MapPost("/{id:guid}/variants", async (
+            Guid id,
+            SaveProductVariantsCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            if (id != command.ProductId)
+                return Results.BadRequest(ApiResponse<object>.Fail("Route ID and body ProductId mismatch"));
+
+            var result = await mediator.Send(command, ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("SaveProductVariants")
+        .WithSummary("Ürün varyantlarını toplu kaydet/güncelle — renk/beden/fiyat/stok")
+        .Produces<SaveProductVariantsResult>(200)
         .Produces(400);
 
         // POST /api/v1/products — create a new product
