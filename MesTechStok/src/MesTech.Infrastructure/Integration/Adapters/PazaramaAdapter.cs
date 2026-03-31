@@ -9,6 +9,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -30,6 +31,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory? _httpClientFactory;
     private readonly ILogger<PazaramaAdapter> _logger;
+    private readonly PazaramaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
@@ -38,10 +40,12 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private OAuth2AuthProvider? _authProvider;
     private bool _isConfigured;
 
-    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger, IHttpClientFactory? httpClientFactory = null)
+    public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger,
+        IHttpClientFactory? httpClientFactory = null, IOptions<PazaramaOptions>? options = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        _options = options?.Value ?? new PazaramaOptions();
+        _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -145,7 +149,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             tokenEndpoint = !string.IsNullOrEmpty(baseUrl)
                 ? $"{baseUrl.TrimEnd('/')}/connect/token"
-                : "https://isortagimgiris.pazarama.com/connect/token";
+                : _options.TokenUrl;
         }
 
         var tokenHttpClient = _httpClientFactory?.CreateClient("PazaramaToken")

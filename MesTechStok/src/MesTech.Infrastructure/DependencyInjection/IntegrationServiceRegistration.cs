@@ -96,11 +96,14 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<HepsiburadaAdapter>());
 
         // Dalga 4: Pazarama marketplace adapter — OAuth2, async batch, 2-stage cargo
+        if (configuration is not null)
+            services.Configure<PazaramaOptions>(configuration.GetSection(PazaramaOptions.Section));
         services.AddSingleton<PazaramaAdapter>(sp =>
             new PazaramaAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Pazarama),
                 sp.GetRequiredService<ILogger<PazaramaAdapter>>(),
-                sp.GetRequiredService<IHttpClientFactory>()));
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetService<IOptions<PazaramaOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PazaramaAdapter>());
 
         // Dalga 6: Amazon TR (SP-API) — LWA OAuth2, catalog, orders, feeds
