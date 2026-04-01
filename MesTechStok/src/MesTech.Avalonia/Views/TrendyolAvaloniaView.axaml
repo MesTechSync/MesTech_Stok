@@ -348,10 +348,14 @@
             <Grid RowDefinitions="Auto,*">
                 <Border Grid.Row="0" Padding="20,14"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="*,Auto">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
                         <TextBlock Text="Son Siparisler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MesDarkSlate}" />
-                        <TextBlock Grid.Column="1"
+                                   Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Text="{Binding SearchText}" Watermark="Ara..." AutomationProperties.Name="Ara..."
+                                 Width="240" Padding="10,8"
+                                 CornerRadius="{StaticResource MesRadiusMd}"
+                                 FontSize="{StaticResource FontSizeBody}" Margin="12,0" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2"
                                    Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
                                    FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" VerticalAlignment="Center" />
                     </Grid>

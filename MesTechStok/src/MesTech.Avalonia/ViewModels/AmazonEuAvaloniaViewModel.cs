@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -21,6 +22,9 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string syncStatus = "Bekliyor";
     [ObservableProperty] private string lastSyncTime = "-";
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<PlatformOrderItem> _allOrders = [];
 
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
 
@@ -45,11 +49,10 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
             DailyRevenue = result.DailyRevenue;
             SyncStatus = result.SyncStatus;
             LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
-            RecentOrders.Clear();
+            _allOrders.Clear();
             foreach (var o in result.RecentOrders)
-                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status, PlatformType.AmazonEu));
-            TotalCount = RecentOrders.Count;
-            IsEmpty = RecentOrders.Count == 0;
+                _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status, PlatformType.AmazonEu));
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -60,6 +63,22 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        RecentOrders.Clear();
+        var filtered = _allOrders.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(o =>
+                o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered) RecentOrders.Add(item);
+        TotalCount = RecentOrders.Count;
+        IsEmpty = RecentOrders.Count == 0;
     }
 
     [RelayCommand]

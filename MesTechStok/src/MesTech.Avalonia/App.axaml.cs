@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MediatR;
@@ -186,7 +186,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<OpenCartAvaloniaViewModel>();
                 services.AddTransient<OrderDetailAvaloniaViewModel>();
                 services.AddTransient<OrderListAvaloniaViewModel>();
-                services.AddTransient<OzonAvaloniaViewModel>();
+                // services.AddTransient<OzonAvaloniaViewModel>(); // TODO: OzonAvaloniaViewModel not yet implemented
                 services.AddTransient<ProductDescriptionAIViewModel>();
                 services.AddTransient<EtsyAvaloniaViewModel>();
                 services.AddTransient<ShopifyAvaloniaViewModel>();
