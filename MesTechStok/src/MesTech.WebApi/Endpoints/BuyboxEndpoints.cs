@@ -238,9 +238,10 @@ public static class BuyboxEndpoints
         .WithSummary("Auto-price schedule configuration — cron, son çalışma, durum");
 
         app.MapPost("/api/v1/pricing/auto-trigger", (
-            ILogger<BuyboxEndpoints> logger,
+            ILoggerFactory loggerFactory,
             CancellationToken _) =>
         {
+            var logger = loggerFactory.CreateLogger("BuyboxEndpoints");
             try
             {
                 var jobId = BackgroundJob.Enqueue<AutoPriceUpdateWorker>(
