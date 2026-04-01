@@ -50,10 +50,11 @@ public class OrderConfirmedRevenueHandlerTests
     [Fact]
     public async Task HandleAsync_ZeroAmount_StillCreatesRecord()
     {
+        // Handler skips income creation when totalAmount <= 0 (guard clause)
         var act = () => _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-002", 0m, null, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Once);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Never);
     }
 }
 
