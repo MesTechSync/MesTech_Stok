@@ -56,7 +56,10 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, Mock.Of<IOrderRepository>(), Mock.Of<IUnitOfWork>(), logger.Object);
+        var orderRepo = new Mock<IOrderRepository>();
+        orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Domain.Entities.Order>());
+        var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -67,7 +70,10 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, Mock.Of<IOrderRepository>(), Mock.Of<IUnitOfWork>(), logger.Object);
+        var orderRepo = new Mock<IOrderRepository>();
+        orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Domain.Entities.Order>());
+        var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
         var cmd = new BulkCreateInvoiceCommand(new List<Guid>(), InvoiceProvider.Sovos);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -82,8 +88,20 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
-        var sut = new BulkCreateInvoiceHandler(repo.Object, Mock.Of<IOrderRepository>(), Mock.Of<IUnitOfWork>(), logger.Object);
+        var orderRepo = new Mock<IOrderRepository>();
         var orderIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+        var orders = orderIds.Select(id => new Domain.Entities.Order
+        {
+            Id = id,
+            OrderNumber = $"ORD-{id.ToString("N")[..8]}",
+            TenantId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(),
+            CustomerName = "Test Customer",
+            OrderDate = DateTime.UtcNow
+        }).ToList();
+        orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<Domain.Entities.Order>)orders);
+        var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
         var cmd = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
