@@ -127,14 +127,7 @@ public class AvaloniaDialogService : IDialogService
             global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             return null;
 
-        // P0 FIX: desktop.MainWindow kapalı olabilir (WelcomeWindow→MainWindow geçişi).
-        // Önce aktif açık pencereyi bul.
-        foreach (var w in desktop.Windows)
-        {
-            if (w is { IsVisible: true })
-                return w;
-        }
-
-        return desktop.MainWindow;
+        // KÖK-5 FIX: WindowHelper safe resolution — desktop.MainWindow stale olabilir.
+        return Helpers.WindowHelper.GetActiveWindow();
     }
 }
