@@ -13,19 +13,25 @@ namespace MesTech.Infrastructure.Messaging;
 /// </summary>
 public sealed class DlqMonitorService
 {
+    /// <summary>Auto-reprocess threshold — bu sayinin altindaki mesajlar otomatik retry edilir.</summary>
+    private const int AutoReprocessThreshold = 10;
+
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMesaBotService _bot;
+    private readonly DlqReprocessService _reprocessService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DlqMonitorService> _logger;
 
     public DlqMonitorService(
         IHttpClientFactory httpClientFactory,
         IMesaBotService bot,
+        DlqReprocessService reprocessService,
         IConfiguration configuration,
         ILogger<DlqMonitorService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _bot = bot;
+        _reprocessService = reprocessService;
         _configuration = configuration;
         _logger = logger;
     }
@@ -77,11 +83,35 @@ public sealed class DlqMonitorService
                         "[DLQ Monitor] DLQ mesaji tespit edildi: Queue={Queue}, Depth={Depth}",
                         name, messageCount);
 
+                    // DEV3 TUR7: Auto-reprocess — threshold altinda otomatik retry
+                    if (messageCount <= AutoReprocessThreshold)
+                    {
+                        try
+                        {
+                            var result = await _reprocessService.ReprocessAsync(
+                                name, maxMessages: messageCount, ct).ConfigureAwait(false);
+                            _logger.LogInformation(
+                                "[DLQ Monitor] Auto-reprocess: Queue={Queue}, Reprocessed={Reprocessed}, Failed={Failed}",
+                                name, result.Reprocessed, result.Failed);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "[DLQ Monitor] Auto-reprocess failed: Queue={Queue}", name);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError(
+                            "[DLQ Monitor] DLQ depth {Depth} exceeds auto-reprocess threshold ({Threshold}). Manuel mudahale gerekli: Queue={Queue}",
+                            messageCount, AutoReprocessThreshold, name);
+                    }
+
                     try
                     {
                         await _bot.SendTelegramAlertAsync(
                             "mestech-alerts",
-                            $"⚠️ DLQ ALARM: {name} queue'sunda {messageCount} basarisiz mesaj var!",
+                            $"⚠️ DLQ ALARM: {name} queue'sunda {messageCount} basarisiz mesaj var!" +
+                            (messageCount <= AutoReprocessThreshold ? " (auto-reprocess tetiklendi)" : " (MANUEL MÜDAHALE GEREKLİ)"),
                             TelegramAlertLevel.Warning,
                             ct).ConfigureAwait(false);
                     }
