@@ -94,6 +94,16 @@ public static class InfrastructureServiceRegistration
                 sp.GetRequiredService<SlowQueryInterceptor>());
         });
 
+        // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
+        // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        services.AddDbContextFactory<AppDbContext>((sp, options) =>
+        {
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(3);
+            });
+        }, ServiceLifetime.Singleton);
+
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
