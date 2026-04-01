@@ -94,7 +94,8 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation(opt => opt.SetDbStatementForText = true)
-        .AddRedisInstrumentation()
+        // AddRedisInstrumentation removed: OpenTelemetry.Instrumentation.StackExchangeRedis
+        // 1.11.0 yanked from nuget.org (1 Nisan 2026). Re-add when stable version available.
         .AddSource("MesTech.Application.Handlers")
         .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
