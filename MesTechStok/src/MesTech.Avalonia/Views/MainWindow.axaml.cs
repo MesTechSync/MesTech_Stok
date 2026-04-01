@@ -48,6 +48,17 @@ public partial class MainWindow : Window
 
         // Sidebar starts collapsed (icon-only) — apply initial state after layout
         Opened += (_, _) => ApplySidebarState();
+
+        // DEV2-01: Highlight active sidebar button when navigation changes
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is MainWindowViewModel vm)
+                vm.PropertyChanged += (_, args) =>
+                {
+                    if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem))
+                        HighlightSidebarButton(vm.SelectedMenuItem);
+                };
+        };
     }
 
     public void SetCurrentUser(string username)
@@ -271,6 +282,31 @@ public partial class MainWindow : Window
                     if (sp.Children[1] is TextBlock label)
                         label.IsVisible = _sidebarExpanded;
                 }
+            }
+        }
+    }
+
+    /// <summary>DEV2-01: Highlight active sidebar button by switching CSS class.</summary>
+    private void HighlightSidebarButton(string viewName)
+    {
+        var sidebar = SidebarPanel?.FindControl<ScrollViewer>("SidebarScroll");
+        if (sidebar?.Content is not StackPanel stack) return;
+
+        foreach (var child in stack.Children)
+        {
+            if (child is not Button btn) continue;
+            var param = btn.CommandParameter as string;
+            if (param == viewName)
+            {
+                btn.Classes.Remove("sidebar-btn");
+                if (!btn.Classes.Contains("sidebar-btn-active"))
+                    btn.Classes.Add("sidebar-btn-active");
+            }
+            else
+            {
+                btn.Classes.Remove("sidebar-btn-active");
+                if (!btn.Classes.Contains("sidebar-btn"))
+                    btn.Classes.Add("sidebar-btn");
             }
         }
     }

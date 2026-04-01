@@ -19,6 +19,12 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
     [ObservableProperty]
     private string currentViewTitle = "Dashboard";
 
+    [ObservableProperty]
+    private string selectedMenuItem = "AppHub";
+
+    [ObservableProperty]
+    private string breadcrumb = "Ana Sayfa";
+
     private readonly IViewModelFactory _viewModelFactory;
     private readonly IFeatureGateService _featureGate;
 
@@ -75,6 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
         {
             (CurrentView as IDisposable)?.Dispose();
             CurrentView = resolved;
+            SelectedMenuItem = viewName;
             // G040 FIX: Trigger data loading for the new view
             if (resolved is ViewModelBase vmBase)
             {
@@ -229,6 +236,25 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "TaxRecord" => "Vergi Kayitlari",
             _ => CurrentViewTitle
         };
+
+        // DEV2-03: Breadcrumb güncelle
+        var category = viewName switch
+        {
+            "AppHub" or "Dashboard" => "Ana Sayfa",
+            "Products" or "ImportProducts" or "BulkProduct" or "ProductVariantMatrix" or "ProductFetch" or "ProductDescriptionAI" => "Urunler",
+            "Orders" or "OrderList" or "OrderDetail" or "OrderKanban" => "Siparisler",
+            "Stock" or "Inventory" or "StockMovement" or "StockPlacement" or "StockLot" or "StockTransfer" or "StockAlert" or "StockUpdate" or "StockTimeline" or "Warehouse" or "WarehouseSummary" => "Stok",
+            "Category" or "CategoryMapping" => "Kategoriler",
+            "CargoTracking" or "CargoProviders" or "BulkShipment" or "LabelPreview" or "Shipment" or "Cargo" => "Kargo",
+            "ReturnList" or "ReturnDetail" => "Iadeler",
+            "InvoiceManagement" or "InvoiceList" or "InvoiceCreate" or "BulkInvoice" or "InvoiceProviders" or "InvoiceReport" or "InvoicePdf" or "EInvoice" => "E-Fatura",
+            "ProfitLoss" or "Expenses" or "BankAccounts" or "CariHesaplar" or "NakitAkis" or "Quotation" or "Billing" or "Budget" => "Finans",
+            "JournalEntries" or "TrialBalance" or "CommissionRates" or "AccountingDashboard" or "GLTransaction" or "KarZarar" or "GelirGider" or "KarlilikAnalizi" or "KdvRapor" or "Mutabakat" or "Komisyon" or "VergiTakvimi" or "SabitGiderler" or "Bordro" or "FixedAsset" or "FixedExpense" or "Penalty" or "TaxRecord" => "Muhasebe",
+            "Trendyol" or "Hepsiburada" or "N11" or "Ciceksepeti" or "Amazon" or "AmazonEu" or "Ebay" or "Ozon" or "Etsy" or "Shopify" or "WooCommerce" or "Zalando" or "PttAvm" or "Pazarama" or "OpenCart" or "Bitrix24" => "Pazaryerleri",
+            "Settings" or "CargoSettings" or "ErpSettings" or "InvoiceSettings" or "CrmSettings" or "NotificationSettings" or "StoreSettings" or "ImportSettings" => "Ayarlar",
+            _ => "Diger"
+        };
+        Breadcrumb = category == "Ana Sayfa" ? "Ana Sayfa" : $"Ana Sayfa > {category} > {CurrentViewTitle}";
     }
 
     // INavigationService implementation — delegates to existing NavigateTo
