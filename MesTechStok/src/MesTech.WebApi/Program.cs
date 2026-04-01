@@ -20,6 +20,9 @@ using MesTech.WebApi.Hubs;
 using Prometheus;
 using Serilog;
 
+// KÖK-3 FIX: Npgsql Legacy Timestamp — DateTime.Now/Local → timestamp with time zone uyumu
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Kestrel request + connection limits — prevent resource exhaustion (KEŞİF-DEV6 + DEV4-TUR25)

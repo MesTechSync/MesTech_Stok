@@ -55,6 +55,10 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // KÖK-3 FIX: Npgsql Legacy Timestamp — DateTime.Now (Kind=Local/Unspecified)
+        // PostgreSQL timestamp with time zone'a yazılabilir. 6+ ekran canlanır.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
         try
         {
         _host = Host.CreateDefaultBuilder()
