@@ -14,6 +14,9 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string? selectedFilter;
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<ActivityItemVm> _allActivities = [];
 
     public ObservableCollection<ActivityItemVm> Activities { get; } = [];
     public string[] FilterOptions { get; } = ["Tumu", "Arama", "Toplanti", "E-posta", "Not", "Gorev"];
@@ -22,6 +25,26 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
     {
         _mediator = mediator;
         _currentUser = currentUser;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allActivities
+            : _allActivities.Where(a =>
+                a.Type.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                a.Subject.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (a.Description ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                a.CreatedBy.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Activities.Clear();
+        foreach (var a in filtered)
+            Activities.Add(a);
+
+        TotalCount = Activities.Count;
+        IsEmpty = Activities.Count == 0;
     }
 
     public override async Task LoadAsync()
@@ -33,10 +56,10 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId));
-            Activities.Clear();
+            _allActivities.Clear();
             foreach (var a in result.Activities)
             {
-                Activities.Add(new ActivityItemVm
+                _allActivities.Add(new ActivityItemVm
                 {
                     Id = a.Id,
                     Type = a.Type.ToString(),
@@ -47,8 +70,7 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
                     CreatedBy = "—"
                 });
             }
-            TotalCount = result.TotalCount;
-            IsEmpty = Activities.Count == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {

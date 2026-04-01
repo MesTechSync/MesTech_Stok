@@ -14,12 +14,33 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<SupplierFeedItemDto> _allFeeds = [];
 
     public ObservableCollection<SupplierFeedItemDto> Feeds { get; } = [];
 
     public SupplierFeedListAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allFeeds
+            : _allFeeds.Where(f =>
+                f.FeedName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                f.FeedType.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Feeds.Clear();
+        foreach (var f in filtered)
+            Feeds.Add(f);
+
+        TotalCount = Feeds.Count;
+        IsEmpty = TotalCount == 0;
     }
 
     public override async Task LoadAsync()
@@ -32,10 +53,10 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
         {
             var result = await _mediator.Send(new GetFeedSourcesQuery());
 
-            Feeds.Clear();
+            _allFeeds.Clear();
             foreach (var f in result.Items)
             {
-                Feeds.Add(new SupplierFeedItemDto
+                _allFeeds.Add(new SupplierFeedItemDto
                 {
                     FeedName = f.Name,
                     FeedType = f.Format,
@@ -45,8 +66,7 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = Feeds.Count;
-            IsEmpty = TotalCount == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {

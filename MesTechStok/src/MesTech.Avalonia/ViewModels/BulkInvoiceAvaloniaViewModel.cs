@@ -32,6 +32,9 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool selectAll;
     [ObservableProperty] private string selectedProvider = "Sovos";
     [ObservableProperty] private bool showResults;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<BulkInvoiceOrderDto> _allOrders = [];
 
     public ObservableCollection<BulkInvoiceOrderDto> Orders { get; } = [];
     public ObservableCollection<string> ErrorDetails { get; } = [];
@@ -40,6 +43,24 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
     [
         "Sovos", "GIB Portal", "Foriba", "Logo e-Fatura"
     ];
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allOrders
+            : _allOrders.Where(o =>
+                o.OrderId.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Orders.Clear();
+        foreach (var o in filtered)
+            Orders.Add(o);
+
+        UpdateSelectedCount();
+        IsEmpty = Orders.Count == 0;
+    }
 
     public override async Task LoadAsync()
     {
@@ -52,10 +73,10 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
             var orderList = await _mediator.Send(
                 new GetOrderListQuery(tenantId, 100), CancellationToken);
 
-            Orders.Clear();
+            _allOrders.Clear();
             foreach (var o in orderList)
             {
-                Orders.Add(new()
+                _allOrders.Add(new()
                 {
                     Id = o.Id,
                     OrderId = o.OrderNumber,
@@ -66,8 +87,7 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            UpdateSelectedCount();
-            IsEmpty = Orders.Count == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {

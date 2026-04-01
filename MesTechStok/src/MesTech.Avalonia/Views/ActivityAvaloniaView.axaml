@@ -32,6 +32,10 @@
                 <ComboBox Width="160" PlaceholderText="Aktivite tipi"
                           ItemsSource="{Binding FilterOptions}"
                           SelectedItem="{Binding SelectedFilter}"  AutomationProperties.Name="Aktivite tipi"/>
+                <TextBox Width="280" Watermark="Ara: tip, aciklama, kullanici..."
+                         AutomationProperties.Name="Ara: tip, aciklama, kullanici..."
+                         Text="{Binding SearchText}"
+                         FontSize="{StaticResource FontSizeBody}" Padding="10,8" VerticalAlignment="Center" />
             </StackPanel>
         </Border>
 

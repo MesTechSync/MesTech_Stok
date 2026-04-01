@@ -20,6 +20,9 @@ public partial class BarcodeReaderViewModel : ViewModelBase
     [ObservableProperty] private string barcodeInput = string.Empty;
     [ObservableProperty] private bool isEmpty = true;
     [ObservableProperty] private string statusMessage = string.Empty;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<BarcodeReadItem> _allScannedItems = [];
 
     public ObservableCollection<BarcodeReadItem> ScannedItems { get; } = [];
 
@@ -28,6 +31,23 @@ public partial class BarcodeReaderViewModel : ViewModelBase
     public BarcodeReaderViewModel(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allScannedItems
+            : _allScannedItems.Where(i =>
+                i.Barcode.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                i.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        ScannedItems.Clear();
+        foreach (var item in filtered)
+            ScannedItems.Add(item);
+
+        IsEmpty = ScannedItems.Count == 0;
     }
 
     public override Task LoadAsync()
@@ -53,7 +73,7 @@ public partial class BarcodeReaderViewModel : ViewModelBase
             var product = await _mediator.Send(new GetProductByBarcodeQuery(barcode), CancellationToken);
 
             // Check if already in list
-            var existing = ScannedItems.FirstOrDefault(x =>
+            var existing = _allScannedItems.FirstOrDefault(x =>
                 string.Equals(x.Barcode, barcode, StringComparison.OrdinalIgnoreCase));
 
             if (existing is not null)
@@ -66,7 +86,7 @@ public partial class BarcodeReaderViewModel : ViewModelBase
                 var productName = product?.Name ?? $"Barkod Urun ({barcode})";
                 var expectedStock = product?.Stock ?? 0;
 
-                ScannedItems.Insert(0, new BarcodeReadItem
+                _allScannedItems.Insert(0, new BarcodeReadItem
                 {
                     Barcode = barcode,
                     ProductName = productName,
@@ -75,6 +95,8 @@ public partial class BarcodeReaderViewModel : ViewModelBase
                     Difference = 1 - expectedStock
                 });
             }
+
+            ApplyFilter();
 
             StatusMessage = $"{ScannedItems.Count} kalem — {ScanMode} modu";
         }
@@ -92,12 +114,12 @@ public partial class BarcodeReaderViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveCount()
     {
-        if (ScannedItems.Count == 0) return;
+        if (_allScannedItems.Count == 0) return;
         IsLoading = true;
         try
         {
             // Log each scanned barcode via MediatR command
-            foreach (var item in ScannedItems)
+            foreach (var item in _allScannedItems)
             {
                 await _mediator.Send(new CreateBarcodeScanLogCommand(
                     Barcode: item.Barcode,
@@ -106,7 +128,7 @@ public partial class BarcodeReaderViewModel : ViewModelBase
                     IsValid: true,
                     RawLength: item.Barcode.Length), CancellationToken);
             }
-            StatusMessage = $"{ScannedItems.Count} kalem kaydedildi — {ScanMode}";
+            StatusMessage = $"{_allScannedItems.Count} kalem kaydedildi — {ScanMode}";
         }
         finally
         {
@@ -117,6 +139,7 @@ public partial class BarcodeReaderViewModel : ViewModelBase
     [RelayCommand]
     private void Clear()
     {
+        _allScannedItems.Clear();
         ScannedItems.Clear();
         StatusMessage = string.Empty;
         IsEmpty = true;

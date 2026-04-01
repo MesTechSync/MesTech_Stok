@@ -24,6 +24,12 @@
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <TextBox Width="220" Watermark="Ara: urun, hareket tipi, tarih..."
+                             AutomationProperties.Name="Ara: urun, hareket tipi, tarih..."
+                             Text="{Binding SearchText}"
+                             FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                             Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}"
+                             CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center" />
                     <Button Content="Son 7 Gun" Command="{Binding FilterWeekCommand}"
                             ToolTip.Tip="Son 7 Gun"
                             Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}" Padding="10,6" CornerRadius="{StaticResource MesRadiusBase}" />

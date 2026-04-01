@@ -15,12 +15,35 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<StockTimelineItemDto> _allMovements = [];
 
     public ObservableCollection<StockTimelineItemDto> Movements { get; } = [];
 
     public StockTimelineAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allMovements
+            : _allMovements.Where(m =>
+                m.Reason.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                m.MovementType.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                m.TypeText.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                m.DateText.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Movements.Clear();
+        foreach (var m in filtered)
+            Movements.Add(m);
+
+        TotalCount = Movements.Count;
+        IsEmpty = Movements.Count == 0;
     }
 
     public override async Task LoadAsync()
@@ -34,10 +57,10 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 
             var movements = await _mediator.Send(new GetStockMovementsQuery(), CancellationToken);
 
-            Movements.Clear();
+            _allMovements.Clear();
             foreach (var m in movements)
             {
-                Movements.Add(new StockTimelineItemDto
+                _allMovements.Add(new StockTimelineItemDto
                 {
                     Date = m.Date,
                     MovementType = m.MovementType,
@@ -47,8 +70,7 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = Movements.Count;
-            IsEmpty = Movements.Count == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {

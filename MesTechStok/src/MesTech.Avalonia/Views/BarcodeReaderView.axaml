@@ -39,7 +39,7 @@
             </Grid>
         </Border>
 
-        <!-- Row 1: Mode Selector (4 RadioButtons) -->
+        <!-- Row 1: Mode Selector (4 RadioButtons) + Search -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -59,6 +59,12 @@
                 <RadioButton Content="Transfer"
                              GroupName="ScanMode"
                              Padding="12,6" />
+                <TextBox Width="220" Watermark="Ara: barkod, urun adi..."
+                         AutomationProperties.Name="Ara: barkod, urun adi..."
+                         Text="{Binding SearchText}"
+                         FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                         CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center"
+                         Margin="16,0,0,0" />
             </StackPanel>
         </Border>
 

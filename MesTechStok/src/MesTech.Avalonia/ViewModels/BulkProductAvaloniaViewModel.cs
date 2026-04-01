@@ -28,6 +28,9 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool updateExistingProducts = true;
     [ObservableProperty] private bool skipErrors;
     [ObservableProperty] private string previewValidationSummary = string.Empty;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<ImportPreviewRowDto> _allPreviewRows = [];
 
     public ObservableCollection<ColumnMappingDto> ColumnMappings { get; } = [];
     public ObservableCollection<ImportPreviewRowDto> PreviewRows { get; } = [];
@@ -84,6 +87,21 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
+    partial void OnSearchTextChanged(string value) => ApplyPreviewFilter();
+
+    private void ApplyPreviewFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allPreviewRows
+            : _allPreviewRows.Where(r =>
+                r.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        PreviewRows.Clear();
+        foreach (var r in filtered)
+            PreviewRows.Add(r);
+    }
+
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -122,12 +140,13 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "E - Kategori", SampleData = "Elektronik", MesTechField = "Category" });
 
         // Demo preview rows
-        PreviewRows.Clear();
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 1, ProductName = "Samsung Galaxy S24", Sku = "SGS24-128-BLK", Price = 42_999.00m, Stock = 25, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 2, ProductName = "iPhone 15 Pro", Sku = "IP15P-256-TIT", Price = 64_999.00m, Stock = 12, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 3, ProductName = "Xiaomi 14", Sku = "XI14-256-WHT", Price = 28_999.00m, Stock = 38, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 4, ProductName = "", Sku = "NONAME-001", Price = 0m, Stock = 5, ValidationStatus = "Hata: Ad bos" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 5, ProductName = "Huawei P60", Sku = "HWP60-128-BLK", Price = 19_999.00m, Stock = 0, ValidationStatus = "Uyari: Stok 0" });
+        _allPreviewRows.Clear();
+        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 1, ProductName = "Samsung Galaxy S24", Sku = "SGS24-128-BLK", Price = 42_999.00m, Stock = 25, ValidationStatus = "Gecerli" });
+        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 2, ProductName = "iPhone 15 Pro", Sku = "IP15P-256-TIT", Price = 64_999.00m, Stock = 12, ValidationStatus = "Gecerli" });
+        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 3, ProductName = "Xiaomi 14", Sku = "XI14-256-WHT", Price = 28_999.00m, Stock = 38, ValidationStatus = "Gecerli" });
+        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 4, ProductName = "", Sku = "NONAME-001", Price = 0m, Stock = 5, ValidationStatus = "Hata: Ad bos" });
+        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 5, ProductName = "Huawei P60", Sku = "HWP60-128-BLK", Price = 19_999.00m, Stock = 0, ValidationStatus = "Uyari: Stok 0" });
+        ApplyPreviewFilter();
 
         PreviewValidationSummary = "3 gecerli, 1 hata, 1 uyari";
     }

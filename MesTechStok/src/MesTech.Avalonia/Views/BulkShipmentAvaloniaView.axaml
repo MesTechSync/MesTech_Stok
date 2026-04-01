@@ -43,6 +43,11 @@
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Tumunu Sec" IsChecked="{Binding SelectAll}" VerticalAlignment="Center" />
+                <TextBox Width="220" Watermark="Ara: siparis no, musteri..."
+                         AutomationProperties.Name="Ara: siparis no, musteri..."
+                         Text="{Binding SearchText}"
+                         FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                         CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center" />
                 <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}" Padding="12,6" />
             </StackPanel>
         </Border>

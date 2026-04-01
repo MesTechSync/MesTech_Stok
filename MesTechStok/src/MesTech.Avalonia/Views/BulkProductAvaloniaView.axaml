@@ -14,8 +14,16 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="Toplu Urun Islemleri" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Toplu Urun Islemleri" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBox Width="220" Watermark="Ara: urun adi, SKU..."
+                             AutomationProperties.Name="Ara: urun adi, SKU..."
+                             Text="{Binding SearchText}"
+                             FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                             Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}"
+                             CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center" />
+                </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
