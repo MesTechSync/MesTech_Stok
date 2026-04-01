@@ -99,6 +99,8 @@ public class GetWarehouseSummaryHandlerTests
     [Fact]
     public async Task Handle_ReturnsEmptyList()
     {
+        _warehouseRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse>().AsReadOnly());
+
         var result = await _sut.Handle(
             new GetWarehouseSummaryQuery(Guid.NewGuid()), CancellationToken.None);
 
