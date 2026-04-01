@@ -118,7 +118,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiKaydetResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiKaydetResponse>
   <barkodNo>PTT0098765432</barkodNo>
   <gonderiId>GND-001234</gonderiId>
   <sonuc>BASARILI</sonuc>
@@ -247,7 +247,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiSorgulaResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiSorgulaResponse>
   <durumKodu>04</durumKodu>
   <tahminiTeslimTarihi>2026-03-20</tahminiTeslimTarihi>
   <HareketVO>
@@ -328,7 +328,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiSorgulaResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiSorgulaResponse>
   <durumKodu>05</durumKodu>
   <tahminiTeslimTarihi>2026-03-18</tahminiTeslimTarihi>
   <HareketVO>
@@ -385,7 +385,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiIptalResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiIptalResponse>
   <sonuc>BASARILI</sonuc>
   <mesaj>Gonderi basariyla iptal edildi</mesaj>
 </gonderiIptalResponse>")));
@@ -448,7 +448,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse($@"
-<etiketAlResponse xmlns=""http://ws.ptt.gov.tr/"">
+<etiketAlResponse>
   <etiketData>{base64}</etiketData>
   <format>PDF</format>
 </etiketAlResponse>")));
@@ -482,7 +482,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<etiketAlResponse xmlns=""http://ws.ptt.gov.tr/"">
+<etiketAlResponse>
   <mesaj>Etiket henuz hazirlanmadi</mesaj>
 </etiketAlResponse>")));
 
@@ -512,7 +512,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiSorgulaResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiSorgulaResponse>
   <durumKodu>01</durumKodu>
   <mesaj>Ping basarili</mesaj>
 </gonderiSorgulaResponse>")));
@@ -599,7 +599,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
                 .WithBody(SoapOkResponse(@"
-<gonderiKaydetResponse xmlns=""http://ws.ptt.gov.tr/"">
+<gonderiKaydetResponse>
   <barkodNo>PTT-CONCURRENT-001</barkodNo>
   <gonderiId>GND-CONC-001</gonderiId>
   <sonuc>BASARILI</sonuc>
