@@ -47,8 +47,8 @@ public partial class IncomeExpenseDashboardViewModel : ViewModelBase
 
             await Task.WhenAll(summaryTask, listTask);
 
-            var summary = summaryTask.Result;
-            var list = listTask.Result;
+            var summary = await summaryTask;
+            var list = await listTask;
 
             RecentTransactions.Clear();
 

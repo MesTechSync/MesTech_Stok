@@ -58,8 +58,8 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
 
             await Task.WhenAll(dashboardTask, stockTask);
 
-            var dashboard = dashboardTask.Result;
-            var stock = stockTask.Result;
+            var dashboard = await dashboardTask;
+            var stock = await stockTask;
 
             // Sales Report
             TotalSales = $"{dashboard.MonthlySalesAmount:N0} TL";
