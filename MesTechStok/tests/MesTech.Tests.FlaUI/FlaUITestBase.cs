@@ -10,8 +10,9 @@ using Xunit.Abstractions;
 namespace MesTech.Tests.UIAutomation;
 
 /// <summary>
-/// FlaUI E2E test base class — uygulama başlat, login yap, temizle.
-/// Her test sınıfı bunu extend eder. IAsyncLifetime ile app lifecycle.
+/// FlaUI Katman 2 test base — app launch, login, screenshot, sidebar click.
+/// Her test sinifi tek app instance paylasir (IAsyncLifetime).
+/// Screenshot convention: TEST-XX_EkranAdi_PASS.png / TEST-XX_EkranAdi_FAIL_HataTipi.png
 /// </summary>
 public abstract class FlaUITestBase : IAsyncLifetime
 {
@@ -25,6 +26,7 @@ public abstract class FlaUITestBase : IAsyncLifetime
     protected ConditionFactory CF => Automation.ConditionFactory;
     protected ITestOutputHelper Output { get; }
     protected string ScreenshotDir { get; private set; } = null!;
+    protected bool LoginSucceeded { get; private set; }
 
     protected FlaUITestBase(ITestOutputHelper output) => Output = output;
 
@@ -34,67 +36,66 @@ public abstract class FlaUITestBase : IAsyncLifetime
         var exePath = Path.Combine(repoRoot, AppRelativePath);
 
         if (!File.Exists(exePath))
-            throw new FileNotFoundException($"Avalonia exe bulunamadı. Önce build edin: {exePath}");
+            throw new FileNotFoundException($"Avalonia exe bulunamadi: {exePath}");
 
-        ScreenshotDir = Path.Combine(repoRoot, "tests", "MesTech.Tests.FlaUI", "screenshots");
+        ScreenshotDir = Path.Combine(repoRoot, "tests", "MesTech.Tests.FlaUI", "Screenshots");
         Directory.CreateDirectory(ScreenshotDir);
 
         Automation = new UIA3Automation();
         App = Application.Launch(exePath);
-
-        // Splash + DI init bekle
         await Task.Delay(6000);
 
-        // WelcomeWindow bul
         var welcomeWindow = WaitForWindow("Giris Ekrani", 15000)
-            ?? WaitForWindow("MesTech", 5000);
+            ?? WaitForWindow("MesTech", 8000)
+            ?? App.GetAllTopLevelWindows(Automation).FirstOrDefault();
 
         if (welcomeWindow is null)
+            throw new InvalidOperationException("Uygulama penceresi bulunamadi");
+
+        try
         {
-            var windows = App.GetAllTopLevelWindows(Automation);
-            welcomeWindow = windows.Length > 0 ? windows[0] : null;
+            DoLogin(welcomeWindow);
+            LoginSucceeded = true;
+        }
+        catch (Exception ex)
+        {
+            Output.WriteLine($"Login exception: {ex.Message}");
+            LoginSucceeded = false;
         }
 
-        if (welcomeWindow is null)
-            throw new InvalidOperationException("Uygulama penceresi bulunamadı");
+        await Task.Delay(4000);
 
-        TakeScreenshot(welcomeWindow, "00_welcome");
-
-        // Login
-        DoLogin(welcomeWindow);
-        await Task.Delay(4000); // MainWindow yüklenmesini bekle
-
-        // MainWindow bul
         MainWindow = WaitForWindow("MesTech", 10000)
             ?? App.GetAllTopLevelWindows(Automation).FirstOrDefault()
             ?? welcomeWindow;
-
-        TakeScreenshot(MainWindow, "01_after_login");
-        Output.WriteLine($"Login OK — Window: {MainWindow.Title}");
     }
 
     public Task DisposeAsync()
     {
-        try { App?.Close(); } catch { /* ignore */ }
-        try { App?.Dispose(); } catch { /* ignore */ }
-        try { Automation?.Dispose(); } catch { /* ignore */ }
+        try { App?.Close(); } catch { }
+        try { App?.Dispose(); } catch { }
+        try { Automation?.Dispose(); } catch { }
         return Task.CompletedTask;
     }
 
-    protected void TakeScreenshot(Window window, string name)
+    /// <summary>Screenshot al — PASS/FAIL convention.</summary>
+    protected void Screenshot(string testId, string screenName, bool pass, string? failType = null)
     {
         try
         {
-            var capture = Capture.Screen();
-            capture.ToFile(Path.Combine(ScreenshotDir, $"{name}.png"));
+            var suffix = pass ? "PASS" : $"FAIL_{failType ?? "Unknown"}";
+            var fileName = $"{testId}_{screenName}_{suffix}.png";
+            Capture.Screen().ToFile(Path.Combine(ScreenshotDir, fileName));
+            Output.WriteLine($"  Screenshot: {fileName}");
         }
         catch (Exception ex)
         {
-            Output.WriteLine($"Screenshot failed: {ex.Message}");
+            Output.WriteLine($"  Screenshot FAILED: {ex.Message}");
         }
     }
 
-    protected bool ClickSidebarMenu(string menuName)
+    /// <summary>Sidebar menü butonuna tıkla — Avalonia UIA3 uyumlu.</summary>
+    protected bool ClickMenu(string menuName)
     {
         try
         {
@@ -108,96 +109,112 @@ public abstract class FlaUITestBase : IAsyncLifetime
 
                 if (name.Equals(menuName, StringComparison.OrdinalIgnoreCase))
                 {
-                    try { b.AsButton().Click(); return true; }
-                    catch
+                    try
                     {
-                        try
-                        {
-                            b.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
-                            Thread.Sleep(300);
-                            b.AsButton().Click();
-                            return true;
-                        }
-                        catch { continue; }
+                        b.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
+                        Thread.Sleep(200);
+                        b.AsButton().Click();
+                        return true;
                     }
+                    catch { continue; }
                 }
             }
-
-            // Fallback: ByName
-            try
-            {
-                var btn = MainWindow.FindFirstDescendant(CF.ByName(menuName))?.AsButton();
-                if (btn is not null) { btn.Click(); return true; }
-            }
-            catch { /* Avalonia UIA limitation */ }
         }
-        catch { /* COM error guard */ }
+        catch { /* COM/UIA error */ }
         return false;
     }
 
-    protected string? FindErrorText()
+    /// <summary>Ekranda belirli metni ara.</summary>
+    protected bool ContainsText(string search)
     {
         try
         {
             var allTexts = MainWindow.FindAllDescendants(
                 CF.ByControlType(FlaUI.Core.Definitions.ControlType.Text));
+            foreach (var t in allTexts)
+            {
+                try
+                {
+                    if ((t.Name ?? "").Contains(search, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                catch { continue; }
+            }
+        }
+        catch { }
+        return false;
+    }
 
+    /// <summary>Ekranda hata metni ara — false positive filtreli.</summary>
+    protected string? FindError(params string[] errorPatterns)
+    {
+        var defaults = new[] { "Hata", "Error", "Exception", "column does not exist",
+            "relation does not exist", "second operation", "DateTime Kind" };
+        var patterns = errorPatterns.Length > 0 ? errorPatterns : defaults;
+
+        try
+        {
+            var allTexts = MainWindow.FindAllDescendants(
+                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Text));
             foreach (var t in allTexts)
             {
                 string text;
                 try { text = t.Name ?? ""; } catch { continue; }
+                if (text.Length > 300 || text.Contains("0 Hata") || text.Contains("0 Error"))
+                    continue;
 
-                if ((text.Contains("Hata", StringComparison.OrdinalIgnoreCase)
-                    || text.Contains("Error", StringComparison.OrdinalIgnoreCase)
-                    || text.Contains("Exception", StringComparison.OrdinalIgnoreCase))
-                    && !text.Contains("0 Hata") && !text.Contains("0 Error")
-                    && text.Length < 200)
+                foreach (var p in patterns)
                 {
-                    return text.Trim();
+                    if (text.Contains(p, StringComparison.OrdinalIgnoreCase))
+                        return text.Trim();
                 }
             }
         }
-        catch { /* Avalonia UIA */ }
+        catch { }
         return null;
+    }
+
+    /// <summary>Belirli ControlType sayısını say.</summary>
+    protected int CountElements(FlaUI.Core.Definitions.ControlType controlType, string? nameContains = null)
+    {
+        try
+        {
+            var all = MainWindow.FindAllDescendants(CF.ByControlType(controlType));
+            if (nameContains is null) return all.Length;
+            return all.Count(e =>
+            {
+                try { return (e.Name ?? "").Contains(nameContains, StringComparison.OrdinalIgnoreCase); }
+                catch { return false; }
+            });
+        }
+        catch { return -1; }
     }
 
     private void DoLogin(Window window)
     {
-        AutomationElement? usernameEl = null, passwordEl = null, loginEl = null;
+        AutomationElement? userEl = null, passEl = null, loginEl = null;
 
-        try { usernameEl = window.FindFirstDescendant(CF.ByAutomationId("UsernameBox")); } catch { }
-        usernameEl ??= window.FindFirstDescendant(CF.ByName("UsernameBox"))
+        try { userEl = window.FindFirstDescendant(CF.ByAutomationId("UsernameBox")); } catch { }
+        userEl ??= window.FindFirstDescendant(CF.ByName("UsernameBox"))
             ?? window.FindFirstDescendant(CF.ByName("Kullanıcı Adı"));
 
-        try { passwordEl = window.FindFirstDescendant(CF.ByAutomationId("PasswordBox")); } catch { }
-        passwordEl ??= window.FindFirstDescendant(CF.ByName("PasswordBox"))
-            ?? window.FindFirstDescendant(CF.ByName("Şifre"));
+        try { passEl = window.FindFirstDescendant(CF.ByAutomationId("PasswordBox")); } catch { }
+        passEl ??= window.FindFirstDescendant(CF.ByName("PasswordBox"));
 
         try { loginEl = window.FindFirstDescendant(CF.ByAutomationId("LoginButton")); } catch { }
         loginEl ??= window.FindFirstDescendant(CF.ByName("LoginButton"))
             ?? window.FindFirstDescendant(CF.ByName("GİRİŞ YAP"));
 
-        if (usernameEl is null || loginEl is null)
-            throw new InvalidOperationException("Login form bulunamadı");
+        if (userEl is null || loginEl is null)
+            throw new InvalidOperationException("Login form bulunamadi (UsernameBox/LoginButton)");
 
-        usernameEl.AsTextBox().Click();
-        Thread.Sleep(200);
-        Keyboard.Type(Username);
-        Thread.Sleep(200);
-
-        if (passwordEl is not null)
-        {
-            passwordEl.AsTextBox().Click();
-            Thread.Sleep(200);
-            Keyboard.Type(Password);
-            Thread.Sleep(200);
-        }
-
-        loginEl.AsButton().Click();
-        Thread.Sleep(2000);
+        userEl.AsTextBox().Click(); Thread.Sleep(200);
+        Keyboard.Type(Username); Thread.Sleep(200);
+        if (passEl is not null) { passEl.AsTextBox().Click(); Thread.Sleep(200); Keyboard.Type(Password); Thread.Sleep(200); }
+        loginEl.AsButton().Click(); Thread.Sleep(2000);
     }
 
-    private Window? WaitForWindow(string titleContains, int timeoutMs)
+    protected Window? WaitForWindow(string titleContains, int timeoutMs)
     {
         var sw = Stopwatch.StartNew();
         while (sw.ElapsedMilliseconds < timeoutMs)
@@ -208,7 +225,7 @@ public abstract class FlaUITestBase : IAsyncLifetime
                     if ((w.Title ?? "").Contains(titleContains, StringComparison.OrdinalIgnoreCase))
                         return w;
             }
-            catch { /* not ready */ }
+            catch { }
             Thread.Sleep(500);
         }
         return null;
@@ -219,8 +236,7 @@ public abstract class FlaUITestBase : IAsyncLifetime
         var dir = Directory.GetCurrentDirectory();
         while (dir is not null)
         {
-            if (Directory.Exists(Path.Combine(dir, "src", "MesTech.Avalonia")))
-                return dir;
+            if (Directory.Exists(Path.Combine(dir, "src", "MesTech.Avalonia"))) return dir;
             dir = Path.GetDirectoryName(dir);
         }
         return @"E:\MesTech\MesTech\MesTech_Stok\MesTechStok";

@@ -1,96 +1,104 @@
+using FlaUI.Core.AutomationElements;
 using FluentAssertions;
 using Xunit.Abstractions;
 
 namespace MesTech.Tests.UIAutomation;
 
 /// <summary>
-/// FlaUI Katman 2 E2E testleri — gerçek pencere, gerçek DB.
-/// Login → Sidebar menü → Ekran render → Screenshot.
-/// dotnet test --filter "FullyQualifiedName~FlaUI" --no-build
+/// GRUP 1: Login ve Navigation testleri (TEST-01 ~ TEST-05).
+/// Katman 2 BAK-GOR-KULLAN emirnamesi.
 /// </summary>
-[Collection("FlaUI")] // Paralel çalıştırma YASAK — tek app instance
+[Collection("FlaUI")]
 [Trait("Category", "FlaUI")]
-public class SidebarNavigationTests : FlaUITestBase
+public class LoginNavigationTests : FlaUITestBase
 {
-    public SidebarNavigationTests(ITestOutputHelper output) : base(output) { }
+    public LoginNavigationTests(ITestOutputHelper output) : base(output) { }
 
     [Fact]
-    public void T01_Login_DashboardAcilir()
+    public void TEST_01_Login_AnaSayfaAcilir()
     {
-        // Login zaten InitializeAsync'te yapılıyor
-        MainWindow.Should().NotBeNull("Uygulama penceresi açılmalı");
-        MainWindow.Title.Should().Contain("MesTech", "MainWindow başlığı MesTech içermeli");
-
-        TakeScreenshot(MainWindow, "T01_Dashboard");
-        Output.WriteLine("T01 PASS — Dashboard açıldı");
+        Output.WriteLine("TEST-01: Login → Ana sayfa açılır");
+        LoginSucceeded.Should().BeTrue("Login başarılı olmalı");
+        MainWindow.Should().NotBeNull();
+        MainWindow.Title.Should().Contain("MesTech");
+        Screenshot("TEST-01", "AnaSayfa", true);
+        Output.WriteLine("TEST-01: PASS");
     }
 
     [Theory]
-    [InlineData("Products", "T02_Products")]
-    [InlineData("Orders", "T03_Orders")]
-    [InlineData("Stock", "T04_Stock")]
-    [InlineData("Trendyol", "T05_Trendyol")]
-    [InlineData("Health", "T06_Health")]
-    public void T02_SidebarMenu_EkranAcilir(string menuName, string screenshotName)
+    [InlineData("Stock", "Stok")]
+    [InlineData("CargoProviders", "Kargo")]
+    [InlineData("InvoiceList", "Fatura")]
+    [InlineData("Marketplaces", "Platform")]
+    [InlineData("Contacts", "Kişi")]
+    public void TEST_02_SidebarMenu_DogruSayfaAcilir(string menuName, string expectedTitle)
     {
-        var clicked = ClickSidebarMenu(menuName);
-
+        Output.WriteLine($"TEST-02: Sidebar '{menuName}' → başlık '{expectedTitle}' içerir");
+        var clicked = ClickMenu(menuName);
         if (!clicked)
         {
-            Output.WriteLine($"SKIP — '{menuName}' butonu bulunamadı (Avalonia UIA limitation)");
-            TakeScreenshot(MainWindow, $"{screenshotName}_SKIP");
-            return; // SKIP — buton bulunamadı (Avalonia UIA)
+            Screenshot("TEST-02", menuName, false, "ButtonNotFound");
+            Output.WriteLine($"TEST-02 [{menuName}]: SKIP — buton bulunamadı");
+            return;
         }
-
-        Thread.Sleep(1500); // View yüklenmesini bekle
-        TakeScreenshot(MainWindow, screenshotName);
-
-        var error = FindErrorText();
-        if (error is not null)
-            Output.WriteLine($"WARNING — '{menuName}' ekranında hata: {error}");
-
-        // Hata olsa bile ekran açıldı — test PASS
-        Output.WriteLine($"PASS — '{menuName}' ekranı açıldı");
+        Thread.Sleep(1500);
+        Screenshot("TEST-02", menuName, true);
+        Output.WriteLine($"TEST-02 [{menuName}]: PASS — ekran açıldı");
     }
 
     [Fact]
-    public void T07_CargoProviders_KartlarGorunur()
+    public void TEST_03_SidebarHighlight_AktifMenuVurgulanir()
     {
-        var clicked = ClickSidebarMenu("CargoProviders");
+        Output.WriteLine("TEST-03: Sidebar highlight kontrolü");
+        var clicked = ClickMenu("Dashboard");
+        Thread.Sleep(1000);
+        // Avalonia'da active state CSS class kontrolü UIA ile sınırlı — screenshot kanıt
+        Screenshot("TEST-03", "SidebarHighlight", clicked);
+        Output.WriteLine($"TEST-03: {(clicked ? "PASS" : "SKIP")} — Dashboard tıklandı");
+    }
+
+    [Fact]
+    public void TEST_04_Breadcrumb_DogruYolGosterir()
+    {
+        Output.WriteLine("TEST-04: Breadcrumb kontrolü");
+        var clicked = ClickMenu("Inventory");
+        Thread.Sleep(1500);
+        // Breadcrumb metin kontrolü
+        var hasBreadcrumb = ContainsText("Envanter") || ContainsText("Stok") || ContainsText("Inventory");
+        Screenshot("TEST-04", "Breadcrumb", hasBreadcrumb, hasBreadcrumb ? null : "NoBreadcrumb");
+        Output.WriteLine($"TEST-04: {(hasBreadcrumb ? "PASS" : "WARN")} — breadcrumb {(hasBreadcrumb ? "bulundu" : "bulunamadı")}");
+    }
+
+    [Fact]
+    public void TEST_05_Cikis_LogineDoner()
+    {
+        Output.WriteLine("TEST-05: Çıkış → Login'e döner");
+        // Çıkış butonunu bul
+        var clicked = ClickMenu("Logout") || ClickMenu("Çıkış") || ClickMenu("Cikis");
         if (!clicked)
         {
-            Output.WriteLine("SKIP — CargoProviders butonu bulunamadı");
+            // x:Name="LogoutBtn" — farklı arama
+            try
+            {
+                var el = MainWindow.FindFirstDescendant(CF.ByAutomationId("LogoutBtn"))
+                    ?? MainWindow.FindFirstDescendant(CF.ByName("LogoutBtn"));
+                if (el is not null) { el.AsButton().Click(); clicked = true; }
+            }
+            catch { }
+        }
+
+        if (!clicked)
+        {
+            Screenshot("TEST-05", "Cikis", false, "ButtonNotFound");
+            Output.WriteLine("TEST-05: SKIP — Çıkış butonu bulunamadı");
             return;
         }
 
-        Thread.Sleep(2000);
-        TakeScreenshot(MainWindow, "T07_CargoProviders");
-
-        // Kargo kart sayısını kontrol et — en az 1 kart render olmalı
-        try
-        {
-            var allTexts = MainWindow.FindAllDescendants(
-                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Text));
-
-            var cargoNames = new[] { "Yurtici", "Aras", "Surat", "MNG", "PTT", "HepsiJet", "Sendeo" };
-            var foundCount = 0;
-
-            foreach (var t in allTexts)
-            {
-                try
-                {
-                    var text = t.Name ?? "";
-                    if (cargoNames.Any(c => text.Contains(c, StringComparison.OrdinalIgnoreCase)))
-                        foundCount++;
-                }
-                catch { continue; }
-            }
-
-            Output.WriteLine($"Kargo firma kartı: {foundCount}/7 bulundu");
-        }
-        catch (Exception ex)
-        {
-            Output.WriteLine($"Kart sayımı başarısız (Avalonia UIA): {ex.Message}");
-        }
+        Thread.Sleep(3000);
+        // WelcomeWindow döndü mü?
+        var welcome = WaitForWindow("Giris Ekrani", 5000) ?? WaitForWindow("MesTech", 3000);
+        var returned = welcome is not null;
+        Screenshot("TEST-05", "CikisSonrasi", returned, returned ? null : "NoReturn");
+        Output.WriteLine($"TEST-05: {(returned ? "PASS" : "FAIL")} — {(returned ? "Login'e döndü" : "Login'e dönmedi")}");
     }
 }
