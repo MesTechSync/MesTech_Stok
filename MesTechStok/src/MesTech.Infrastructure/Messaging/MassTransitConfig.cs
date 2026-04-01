@@ -237,8 +237,8 @@ public static class MassTransitConfig
                 // İ-13: Event version header — tüm outbound mesajlara uygulanır
                 cfg.UsePublishFilter(typeof(EventVersionPublishFilter<>), context);
 
-                // G543: MassTransit OpenTelemetry — consumer/publish span'lari Jaeger'a gonderilir
-                cfg.UseOpenTelemetry();
+                // G543: MassTransit 8.x — OpenTelemetry otomatik (AddInstrumentation built-in)
+                // UseOpenTelemetry() 8.4'te mevcut değil — instrumentation DI seviyesinde sağlanır
 
                 cfg.ConfigureEndpoints(context);
             });
