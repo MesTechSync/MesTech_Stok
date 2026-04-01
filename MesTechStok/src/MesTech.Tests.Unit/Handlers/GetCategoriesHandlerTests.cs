@@ -21,6 +21,6 @@ public class GetCategoriesHandlerTests
         var result = await sut.Handle(query, CancellationToken.None);
 
         result.Should().BeEmpty();
-        repo.Verify(r => r.GetAllAsync(), Times.Once);
+        repo.Verify(r => r.GetActiveAsync(), Times.Once);
     }
 }
