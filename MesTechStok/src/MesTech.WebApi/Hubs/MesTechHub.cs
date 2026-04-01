@@ -117,6 +117,30 @@ public class MesTechHub : Hub
         });
     }
 
+    /// <summary>
+    /// Pricing event push — buybox kaybı veya otomatik fiyat güncellemesi.
+    /// Client event: "PricingEvent" → { eventType, sku, oldPrice, newPrice, reason, timestamp }
+    /// </summary>
+    public static async Task PushPricingEvent(
+        IHubContext<MesTechHub> hubContext,
+        string tenantId,
+        string eventType,
+        string sku,
+        decimal? oldPrice = null,
+        decimal? newPrice = null,
+        string? reason = null)
+    {
+        await hubContext.Clients.Group($"tenant-{tenantId}").SendAsync("PricingEvent", new
+        {
+            eventType,
+            sku,
+            oldPrice,
+            newPrice,
+            reason,
+            timestamp = DateTime.UtcNow
+        });
+    }
+
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation(

@@ -15,7 +15,8 @@ public sealed class SignalRNotificationBridge :
     INotificationHandler<DomainEventNotification<OrderReceivedEvent>>,
     INotificationHandler<DomainEventNotification<LowStockDetectedEvent>>,
     INotificationHandler<DomainEventNotification<InvoiceCreatedEvent>>,
-    INotificationHandler<DomainEventNotification<OrderCancelledEvent>>
+    INotificationHandler<DomainEventNotification<OrderCancelledEvent>>,
+    INotificationHandler<DomainEventNotification<BuyboxLostEvent>>
 {
     private readonly IDashboardNotifier _notifier;
     private readonly ILogger<SignalRNotificationBridge> _logger;
@@ -83,5 +84,18 @@ public sealed class SignalRNotificationBridge :
             e.PlatformOrderId,
             e.Reason ?? "Order cancelled via webhook",
             cancellationToken);
+    }
+
+    public async Task Handle(
+        DomainEventNotification<BuyboxLostEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "SignalR bridge: BuyboxLost → broadcast: sku={SKU}, current={Current}, competitor={Competitor}",
+            e.SKU, e.CurrentPrice, e.CompetitorPrice);
+
+        await _notifier.NotifyBuyboxLostAsync(
+            e.TenantId, e.SKU, e.CurrentPrice, e.CompetitorPrice, e.CompetitorName, cancellationToken);
     }
 }
