@@ -278,7 +278,7 @@ public static class CrmEndpoints
                 new GetSuppliersPagedQuery(safeSearch, page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
-        .WithName("GetSuppliersPaged")
+        .WithName("GetCrmSuppliersPaged")
         .WithSummary("Sayfalanmış tedarikçi listesi (arama destekli)")
         .Produces(200)
         .CacheOutput("Lookup60s");

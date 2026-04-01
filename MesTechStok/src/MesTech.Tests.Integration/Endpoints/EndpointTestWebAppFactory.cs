@@ -1,15 +1,21 @@
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MesTech.Infrastructure.Persistence;
 
 namespace MesTech.Tests.Integration.Endpoints;
 
 /// <summary>
 /// WebApplicationFactory for endpoint hardening tests (Sprint 1 DEV-H1).
-/// Uses InMemory EF Core and mocked external services for test isolation.
+/// Uses InMemory EF Core, test auth handler, and stub health checks for test isolation.
 /// Mirrors the pattern from tests/MesTech.Integration.Tests/Api/MesTechWebApplicationFactory.cs
 /// </summary>
 public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
@@ -19,6 +25,9 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
 
     /// <summary>JWT secret (>= 32 chars) for test token generation.</summary>
     public const string TestJwtSecret = "TestJwtSecret_EndpointHardening_Min32Chars!!";
+
+    /// <summary>Authentication scheme used by test handler.</summary>
+    public const string TestAuthScheme = "TestScheme";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -49,8 +58,9 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
         builder.UseSetting("ApiSecurity:ValidApiKeys:0", TestApiKey);
         builder.UseSetting("ApiSecurity:HeaderName", "X-API-Key");
         builder.UseSetting("ApiSecurity:BypassPaths:0", "/health");
-        builder.UseSetting("ApiSecurity:BypassPaths:1", "/metrics");
-        builder.UseSetting("ApiSecurity:BypassPaths:2", "/api/v1/auth");
+        builder.UseSetting("ApiSecurity:BypassPaths:1", "/health/ready");
+        builder.UseSetting("ApiSecurity:BypassPaths:2", "/metrics");
+        builder.UseSetting("ApiSecurity:BypassPaths:3", "/api/v1/auth");
         builder.UseSetting("ConnectionStrings:PostgreSQL", "InMemory=true");
         builder.UseSetting("ConnectionStrings:Redis", "localhost:3679");
 
@@ -85,6 +95,19 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
             if (redisDescriptor != null)
                 services.Remove(redisDescriptor);
             services.AddDistributedMemoryCache();
+
+            // ── Test Authentication: auto-authenticate when X-API-Key header is present ──
+            // Override default auth with a test scheme that accepts API key as identity.
+            services.AddAuthentication(TestAuthScheme)
+                .AddScheme<AuthenticationSchemeOptions, TestApiKeyAuthHandler>(
+                    TestAuthScheme, _ => { });
+
+            // ── Stub Health Checks: remove infra checks that need PG/Redis/RabbitMQ ──
+            var healthDescriptors = services.Where(d =>
+                d.ServiceType.FullName?.Contains("IHealthCheck") == true)
+                .ToList();
+            foreach (var descriptor in healthDescriptors)
+                services.Remove(descriptor);
         });
     }
 
@@ -117,5 +140,42 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("Mesa__Advisory__UseReal", null);
 
         base.Dispose(disposing);
+    }
+}
+
+/// <summary>
+/// Test authentication handler that authenticates requests with a valid X-API-Key header.
+/// Requests without the header are not authenticated (returns NoResult → 401).
+/// </summary>
+internal sealed class TestApiKeyAuthHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        if (!Request.Headers.TryGetValue("X-API-Key", out var apiKey) ||
+            string.IsNullOrWhiteSpace(apiKey))
+        {
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
+
+        if (apiKey != EndpointTestWebAppFactory.TestApiKey)
+        {
+            return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
+        }
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, "smoke-test-user"),
+            new Claim(ClaimTypes.NameIdentifier, "00000000-0000-0000-0000-000000000099"),
+            new Claim("tenant_id", "00000000-0000-0000-0000-000000000001"),
+        };
+        var identity = new ClaimsIdentity(claims, EndpointTestWebAppFactory.TestAuthScheme);
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, EndpointTestWebAppFactory.TestAuthScheme);
+
+        return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }

@@ -263,7 +263,7 @@ public static class ProductEndpoints
                 new GetBuyboxStatusQuery(tenantId, productId, platformCode), ct);
             return Results.Ok(result);
         })
-        .WithName("GetBuyboxStatus")
+        .WithName("GetProductBuyboxStatus")
         .WithSummary("Ürün buybox pozisyon durumu")
         .Produces(200)
         .CacheOutput("Report120s");
@@ -311,7 +311,7 @@ public static class ProductEndpoints
             var result = await buybox.CheckBuyboxPositionsAsync(tenantId, platformCode, ct);
             return Results.Ok(result);
         })
-        .WithName("GetBuyboxPositions")
+        .WithName("GetProductBuyboxPositions")
         .WithSummary("Tüm ürünlerin buybox pozisyon listesi")
         .CacheOutput("Report120s");
 
@@ -323,7 +323,7 @@ public static class ProductEndpoints
             var result = await buybox.GetLostBuyboxesAsync(tenantId, ct);
             return Results.Ok(result);
         })
-        .WithName("GetLostBuyboxes")
+        .WithName("GetProductLostBuyboxes")
         .WithSummary("Buybox kaybedilen ürün listesi")
         .CacheOutput("Report120s");
 
@@ -394,7 +394,7 @@ public static class ProductEndpoints
             var fileName = $"products_export_{DateTime.UtcNow:yyyyMMdd}.{command.Format}";
             return Results.File(result, contentType, fileName);
         })
-        .WithName("ExportProducts")
+        .WithName("ExportProductsAdvanced")
         .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
         .Produces(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);

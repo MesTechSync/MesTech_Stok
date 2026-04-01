@@ -254,7 +254,7 @@ public static class AccountingEndpoints
                 new GetSettlementBatchesQuery(tenantId, from, to, platform), ct);
             return Results.Ok(result);
         })
-        .WithName("GetSettlementBatches")
+        .WithName("GetAccountingSettlementBatches")
         .WithSummary("Hakediş partileri (tarih + platform filtresi)")
         .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
@@ -645,7 +645,7 @@ public static class AccountingEndpoints
                 new GetKdvReportQuery(tenantId, year, month), ct);
             return Results.Ok(result);
         })
-        .WithName("GetKdvReport")
+        .WithName("GetAccountingKdvReport")
         .WithSummary("KDV raporu — hesaplanan/indirilecek/ödenecek KDV + beyanname son tarih (G424)")
         .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
