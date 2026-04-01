@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels.Accounting;
 
@@ -13,6 +14,7 @@ namespace MesTech.Avalonia.ViewModels.Accounting;
 public partial class JournalEntryListViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private DateTimeOffset? fromDate = DateTimeOffset.Now.AddMonths(-1);
     [ObservableProperty] private DateTimeOffset? toDate = DateTimeOffset.Now;
@@ -23,9 +25,10 @@ public partial class JournalEntryListViewModel : ViewModelBase
 
     public ObservableCollection<JournalEntryItem> JournalEntries { get; } = [];
 
-    public JournalEntryListViewModel(IMediator mediator)
+    public JournalEntryListViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -37,7 +40,7 @@ public partial class JournalEntryListViewModel : ViewModelBase
             var from = FromDate?.DateTime ?? DateTime.Now.AddMonths(-1);
             var to = ToDate?.DateTime ?? DateTime.Now;
             var results = await _mediator.Send(
-                new GetJournalEntriesQuery(Guid.Empty, from, to), CancellationToken);
+                new GetJournalEntriesQuery(_tenantProvider.GetCurrentTenantId(), from, to), CancellationToken);
 
             foreach (var dto in results)
             {
