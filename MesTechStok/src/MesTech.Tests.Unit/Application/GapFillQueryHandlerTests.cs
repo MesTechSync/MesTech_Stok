@@ -167,7 +167,11 @@ public class GapFillQueryHandlerTests
     [Fact]
     public async Task GetStockMovements_NoFilter_ReturnsEmpty()
     {
-        // Handler returns empty list when no filter specified — by design
+        // Handler now calls GetRecentAsync when no filter specified
+        _movementRepo.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
+
         var result = await MovementsHandler().Handle(
             new GetStockMovementsQuery(), CancellationToken.None);
 
