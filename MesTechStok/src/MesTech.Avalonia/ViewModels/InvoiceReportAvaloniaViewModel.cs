@@ -126,12 +126,12 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
         finally { IsLoading = false; }
     }
 
-    private static async Task SaveExportFile(byte[] data, string fileName)
+    private static async Task SaveExportFile(ReadOnlyMemory<byte> data, string fileName)
     {
         if (data.Length == 0) return;
         var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
         Directory.CreateDirectory(dir);
-        await File.WriteAllBytesAsync(Path.Combine(dir, fileName), data);
+        await File.WriteAllBytesAsync(Path.Combine(dir, fileName), data.ToArray());
     }
 }
 
