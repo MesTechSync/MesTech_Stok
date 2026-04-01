@@ -639,6 +639,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IOversellingAttemptedEventHandler,
             Application.EventHandlers.OversellingAttemptedEventHandler>();
 
+        // Background job + SocialFeed config:
+        services.AddSingleton<Domain.Interfaces.IBackgroundJobService,
+            Services.HangfireBackgroundJobService>();
+        services.AddScoped<Domain.Interfaces.ISocialFeedConfigurationRepository,
+            Persistence.Repositories.SocialFeedConfigurationRepository>();
+
         // Muhasebe GL handler'lar (repo-enriched bridges):
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,
             Application.EventHandlers.InvoiceApprovedGLHandler>();
