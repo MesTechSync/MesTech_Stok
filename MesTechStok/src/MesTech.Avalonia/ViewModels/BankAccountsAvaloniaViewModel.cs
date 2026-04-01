@@ -66,7 +66,18 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        var newAccount = new BankAccountDto
+        {
+            Id = Guid.NewGuid(),
+            BankName = "Yeni Banka",
+            AccountNumber = string.Empty,
+            CurrencyCode = "TRY",
+            Balance = 0,
+            IsActive = true
+        };
+        _allAccounts.Insert(0, newAccount);
+        ApplyFilter();
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

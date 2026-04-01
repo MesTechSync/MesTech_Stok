@@ -95,7 +95,19 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        var newRequest = new LeaveRequestItemDto
+        {
+            EmployeeName = _currentUser.Username ?? "Bilinmiyor",
+            LeaveType = "Yillik Izin",
+            StartDate = DateTime.Now.ToString("dd.MM.yyyy"),
+            EndDate = DateTime.Now.AddDays(1).ToString("dd.MM.yyyy"),
+            TotalDays = 1,
+            Status = "Beklemede",
+            Reason = string.Empty
+        };
+        _allItems.Insert(0, newRequest);
+        ApplyFilter();
+        await Task.CompletedTask;
     }
 }
 

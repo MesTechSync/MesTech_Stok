@@ -65,6 +65,7 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Platform ekleme sihirbazi yakinda aktif olacak.", "MesTech");
+        Summary = "Platform ekleme sihirbazi hazirlaniyor — Magaza Ayarlari sayfasindan yeni platform ekleyebilirsiniz.";
+        await Task.CompletedTask;
     }
 }

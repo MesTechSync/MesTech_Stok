@@ -67,7 +67,8 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Upload()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        Summary = "Belge yukleme modulu hazirlaniyor...";
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

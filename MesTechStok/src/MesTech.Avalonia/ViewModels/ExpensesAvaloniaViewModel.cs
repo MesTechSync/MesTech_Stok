@@ -65,7 +65,18 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        var newExpense = new ExpenseDto
+        {
+            Id = Guid.NewGuid(),
+            TenantId = _currentUser.TenantId,
+            Description = "Yeni Gider",
+            Amount = 0,
+            ExpenseType = Domain.Enums.ExpenseType.Diger,
+            Date = DateTime.Now
+        };
+        _allExpenses.Insert(0, newExpense);
+        ApplyFilter();
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
