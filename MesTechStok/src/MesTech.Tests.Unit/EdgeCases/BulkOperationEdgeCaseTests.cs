@@ -28,12 +28,23 @@ public class BulkOperationEdgeCaseTests
     private readonly Mock<IInvoiceRepository> _invoiceRepo = new();
     private readonly Mock<IOrderRepository> _orderRepo = new();
 
+    public BulkOperationEdgeCaseTests()
+    {
+        // Default: lock service always returns a valid disposable handle
+        _lockService
+            .Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
+
     #region BulkUpdateStockHandler
 
     [Fact]
     public async Task BulkUpdateStock_EmptyItemsList_ReturnsSuccessWithZeroCount()
     {
         // Arrange
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: Array.Empty<BulkUpdateStockItem>());
 
@@ -55,12 +66,11 @@ public class BulkOperationEdgeCaseTests
             .Select(i => new BulkUpdateStockItem($"SKU-{i:D4}", i))
             .ToList();
 
-        foreach (var item in items)
-        {
-            var product = CreateFakeProduct(item.Sku, stock: 0);
-            _productRepo.Setup(r => r.GetBySKUAsync(item.Sku))
-                .ReturnsAsync(product);
-        }
+        var products = items.Select(item => CreateFakeProduct(item.Sku, stock: 0)).ToList();
+
+        // Batch query mock — GetBySKUsAsync returns all products at once
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<Product>)products);
 
         var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: items);
@@ -83,6 +93,9 @@ public class BulkOperationEdgeCaseTests
         {
             new("SKU-001", -5) // negative stock
         };
+
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var handler = new BulkUpdateStockHandler(_productRepo.Object, _unitOfWork.Object, _lockService.Object, NullLogger<BulkUpdateStockHandler>.Instance);
         var command = new BulkUpdateStockCommand(Items: items);
@@ -122,8 +135,9 @@ public class BulkOperationEdgeCaseTests
         };
 
         var validProduct = CreateFakeProduct("SKU-VALID", stock: 10);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-VALID")).ReturnsAsync(validProduct);
-        _productRepo.Setup(r => r.GetBySKUAsync("SKU-MISSING")).ReturnsAsync((Product?)null);
+        // Batch query mock — only SKU-VALID is found
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { validProduct });
 
         var handler = new BulkUpdatePriceHandler(_productRepo.Object, _unitOfWork.Object);
         var command = new BulkUpdatePriceCommand(Items: items);
@@ -142,6 +156,9 @@ public class BulkOperationEdgeCaseTests
     public async Task BulkUpdatePrice_EmptyItemsList_ReturnsZeroSuccess()
     {
         // Arrange
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
+
         var handler = new BulkUpdatePriceHandler(_productRepo.Object, _unitOfWork.Object);
         var command = new BulkUpdatePriceCommand(Items: Array.Empty<BulkUpdatePriceItem>());
 
@@ -159,6 +176,9 @@ public class BulkOperationEdgeCaseTests
     {
         // Arrange — price == 0 should fail (must be > 0)
         var items = new List<BulkUpdatePriceItem> { new("SKU-001", 0m) };
+
+        _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var handler = new BulkUpdatePriceHandler(_productRepo.Object, _unitOfWork.Object);
         var command = new BulkUpdatePriceCommand(Items: items);
@@ -179,6 +199,9 @@ public class BulkOperationEdgeCaseTests
     public async Task BulkCreateInvoice_EmptyBatch_ReturnsZeroCounts()
     {
         // Arrange
+        _orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Order>());
+
         var logger = NullLogger<BulkCreateInvoiceHandler>.Instance;
         var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, _orderRepo.Object, _unitOfWork.Object, logger);
         var command = new BulkCreateInvoiceCommand(
@@ -199,9 +222,14 @@ public class BulkOperationEdgeCaseTests
     public async Task BulkCreateInvoice_SingleOrder_ReturnsOneSuccess()
     {
         // Arrange
+        var orderId = Guid.NewGuid();
+        var order = CreateFakeOrder(orderId);
+
+        _orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Order> { order });
+
         var logger = NullLogger<BulkCreateInvoiceHandler>.Instance;
         var handler = new BulkCreateInvoiceHandler(_invoiceRepo.Object, _orderRepo.Object, _unitOfWork.Object, logger);
-        var orderId = Guid.NewGuid();
         var command = new BulkCreateInvoiceCommand(
             OrderIds: new List<Guid> { orderId },
             Provider: InvoiceProvider.Sovos);
@@ -247,6 +275,19 @@ public class BulkOperationEdgeCaseTests
             CategoryId = Guid.NewGuid(),
             TenantId = Guid.NewGuid(),
             CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    private static Order CreateFakeOrder(Guid orderId)
+    {
+        return new Order
+        {
+            Id = orderId,
+            OrderNumber = $"ORD-{orderId.ToString("N")[..8]}",
+            TenantId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(),
+            CustomerName = "Test Customer",
+            OrderDate = DateTime.UtcNow
         };
     }
 
