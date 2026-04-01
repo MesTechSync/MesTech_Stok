@@ -114,7 +114,9 @@ public class IdempotencyFilterTests
         var key = "order-123";
         var (context, httpContext) = CreateContext("POST", key);
 
-        var cachedEntry = JsonSerializer.Serialize(new { StatusCode = 201, Body = "{\"id\":\"abc\"}" });
+        // Must use CamelCase to match the filter's JsonOptions used for deserialization
+        var cacheJsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var cachedEntry = JsonSerializer.Serialize(new { StatusCode = 201, Body = "{\"id\":\"abc\"}" }, cacheJsonOptions);
         _cacheMock
             .Setup(c => c.GetAsync($"idempotency:{key}", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Encoding.UTF8.GetBytes(cachedEntry));
