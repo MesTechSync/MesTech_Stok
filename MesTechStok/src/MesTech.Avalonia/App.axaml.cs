@@ -186,7 +186,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<OpenCartAvaloniaViewModel>();
                 services.AddTransient<OrderDetailAvaloniaViewModel>();
                 services.AddTransient<OrderListAvaloniaViewModel>();
-                // services.AddTransient<OzonAvaloniaViewModel>(); // TODO: OzonAvaloniaViewModel not yet implemented
+                services.AddTransient<OzonAvaloniaViewModel>();
                 services.AddTransient<ProductDescriptionAIViewModel>();
                 services.AddTransient<EtsyAvaloniaViewModel>();
                 services.AddTransient<ShopifyAvaloniaViewModel>();
