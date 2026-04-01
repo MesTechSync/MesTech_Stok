@@ -13,6 +13,8 @@ public sealed class StoreConfiguration : IEntityTypeConfiguration<Store>
         builder.HasKey(s => s.Id);
         builder.Property(s => s.StoreName).IsRequired().HasMaxLength(200);
         builder.Property(s => s.ExternalStoreId).HasMaxLength(100);
+        builder.Property(s => s.CurrentAccountBalance).HasColumnType("numeric(18,2)");
+        builder.Property(s => s.LastSettlementDate);
         builder.HasIndex(s => new { s.TenantId, s.PlatformType, s.StoreName }).IsUnique();
 
         builder.HasOne(s => s.Tenant)

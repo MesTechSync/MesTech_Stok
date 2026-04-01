@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using MesTech.Application.Features.Reports.InventoryValuationReport;
+using FluentAssertions;
+using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -32,25 +32,24 @@ public class GetStockValueReportHandlerTests
         var query = new GetStockValueReportQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);
 
-        result.Items.Should().HaveCount(2); // Stock=0 excluded
+        result.TopValueProducts.Should().HaveCount(2); // Stock=0 excluded
+        result.TotalProducts.Should().Be(3);
+        result.ZeroStockProducts.Should().Be(1);
+        result.TotalValue.Should().Be(10 * 100m + 5 * 60m); // 1300
+        result.TotalCostValue.Should().Be(10 * 50m + 5 * 30m); // 650
     }
 
     [Fact]
-    public async Task Handle_WithCategoryFilter_QueriesByCategory()
+    public async Task Handle_EmptyProducts_ReturnsZeros()
     {
-        var categoryId = Guid.NewGuid();
-        var products = new List<Product>
-        {
-            new() { Id = Guid.NewGuid(), Name = "Filtered", SKU = "F-1", Stock = 3, PurchasePrice = 10m, SalePrice = 20m }
-        };
-        _productRepoMock.Setup(r => r.GetByCategoryAsync(categoryId)).ReturnsAsync(products.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
 
-        var query = new GetStockValueReportQuery(_tenantId, CategoryFilter: categoryId);
+        var query = new GetStockValueReportQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);
 
-        result.Items.Should().HaveCount(1);
-        _productRepoMock.Verify(r => r.GetByCategoryAsync(categoryId), Times.Once);
-        _productRepoMock.Verify(r => r.GetAllAsync(), Times.Never);
+        result.TopValueProducts.Should().BeEmpty();
+        result.TotalProducts.Should().Be(0);
+        result.TotalValue.Should().Be(0);
     }
 
     [Fact]
