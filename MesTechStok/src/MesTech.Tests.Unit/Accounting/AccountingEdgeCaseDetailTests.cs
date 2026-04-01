@@ -301,8 +301,8 @@ public class AccountingEdgeCaseDetailTests
         var priceWithKdv = pricing.CalculatePriceWithTax(basePrice, taxRate);
         var kdvAmount = Math.Round(basePrice * taxRate, 2);
 
-        // Assert — 99.99 * 1.18 = 117.9882
-        priceWithKdv.Should().Be(117.9882m);
+        // Assert — 99.99 * 1.18 = 117.9882, PricingService rounds to 2 decimal places → 117.99
+        priceWithKdv.Should().Be(117.99m);
         kdvAmount.Should().Be(18.00m); // 99.99 * 0.18 = 17.9982 ~ 18.00
     }
 
