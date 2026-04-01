@@ -10,6 +10,14 @@ public class GetInvoiceReportHandlerTests
 {
     private readonly Mock<IInvoiceRepository> _repository = new();
     private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Guid _tenantId = Guid.NewGuid();
+
+    public GetInvoiceReportHandlerTests()
+    {
+        _tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(_tenantId);
+        _repository.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Domain.Entities.Invoice>());
+    }
 
     private GetInvoiceReportHandler CreateHandler() =>
         new(_repository.Object, _tenantProvider.Object);
