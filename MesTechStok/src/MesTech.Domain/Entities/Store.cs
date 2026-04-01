@@ -13,6 +13,7 @@ public sealed class Store : BaseEntity, ITenantEntity
     public string StoreName { get; set; } = string.Empty;
     public string? ExternalStoreId { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool AutoSyncInvoice { get; set; }
 
     // ── Muhasebe Modulu (MUH-01) ──
     public decimal? CurrentAccountBalance { get; set; }

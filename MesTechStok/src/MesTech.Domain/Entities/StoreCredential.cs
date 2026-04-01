@@ -11,6 +11,7 @@ public sealed class StoreCredential : BaseEntity, ITenantEntity
     public Guid StoreId { get; set; }
     public string Key { get; set; } = string.Empty;
     public string EncryptedValue { get; set; } = string.Empty;
+    public string? EncryptedCredential { get; set; }
 
     // Navigation
     public Store Store { get; set; } = null!;
