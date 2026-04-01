@@ -16,7 +16,7 @@ public class GetInvoiceReportHandlerTests
     {
         _tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(_tenantId);
         _repository.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Invoice>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Invoice>());
     }
 
     private GetInvoiceReportHandler CreateHandler() =>
