@@ -1,7 +1,6 @@
 using FluentAssertions;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
-using MesTech.Domain.Events;
 using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
@@ -166,6 +165,6 @@ public class StockMovementTests
         act.Should().Throw<InsufficientStockException>();
         product.Stock.Should().Be(10); // Stock unchanged
         // OversellingAttemptedEvent is raised before the throw
-        product.DomainEvents.Should().ContainSingle(e => e is Domain.Events.OversellingAttemptedEvent);
+        product.DomainEvents.Should().ContainSingle(e => e is global::MesTech.Domain.Events.OversellingAttemptedEvent);
     }
 }
