@@ -3,9 +3,11 @@ using MesTech.Application.Features.Dashboard.Queries.GetLowStockAlerts;
 using MesTech.Application.Features.Dashboard.Queries.GetPendingInvoices;
 using MesTech.Application.Features.Dashboard.Queries.GetRecentOrders;
 using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
-using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Moq;
+using DomainOrder = MesTech.Domain.Entities.Order;
+using DomainProduct = MesTech.Domain.Entities.Product;
+using DomainInvoice = MesTech.Domain.Entities.Invoice;
 
 namespace MesTech.Tests.Unit.Application.Dashboard;
 
@@ -33,10 +35,10 @@ public class GetSalesChartDataHandlerTests
     public async Task Handle_ShouldReturnSalesChartData()
     {
         var orderRepo = new Mock<IOrderRepository>();
-        var orders = new List<Order>().AsReadOnly();
+        IReadOnlyList<DomainOrder> orders = new List<DomainOrder>();
         orderRepo.Setup(r => r.GetByDateRangeAsync(
                 It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(orders);
+            .Returns(Task.FromResult(orders));
 
         var handler = new GetSalesChartDataHandler(orderRepo.Object);
         var query = new GetSalesChartDataQuery(Guid.NewGuid());
@@ -68,9 +70,9 @@ public class GetLowStockAlertsHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnAlertList()
     {
-        var products = new List<Product>().AsReadOnly();
+        IReadOnlyList<DomainProduct> products = new List<DomainProduct>();
         _productRepo.Setup(r => r.GetLowStockAsync())
-            .ReturnsAsync(products);
+            .Returns(Task.FromResult(products));
 
         var handler = new GetLowStockAlertsHandler(_productRepo.Object);
         var query = new GetLowStockAlertsQuery(Guid.NewGuid());
@@ -101,9 +103,9 @@ public class GetPendingInvoicesHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnPendingInvoiceList()
     {
-        var invoices = new List<Invoice>().AsReadOnly();
+        IReadOnlyList<DomainInvoice> invoices = new List<DomainInvoice>();
         _invoiceRepo.Setup(r => r.GetFailedAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(invoices);
+            .Returns(Task.FromResult(invoices));
 
         var handler = new GetPendingInvoicesHandler(_invoiceRepo.Object);
         var query = new GetPendingInvoicesQuery(Guid.NewGuid());
@@ -134,10 +136,10 @@ public class GetRecentOrdersHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnRecentOrderList()
     {
-        var orders = new List<Order>().AsReadOnly();
+        IReadOnlyList<DomainOrder> orders = new List<DomainOrder>();
         _orderRepo.Setup(r => r.GetByDateRangeAsync(
                 It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(orders);
+            .Returns(Task.FromResult(orders));
 
         var handler = new GetRecentOrdersHandler(_orderRepo.Object);
         var query = new GetRecentOrdersQuery(Guid.NewGuid());
