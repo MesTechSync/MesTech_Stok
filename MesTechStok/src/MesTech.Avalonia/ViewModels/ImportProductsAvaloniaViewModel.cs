@@ -122,6 +122,7 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = PreviewRows.Count == 0 && ImportErrors.Count == 0;
         }
     }
 

@@ -83,6 +83,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = Variants.Count == 0;
         }
     }
 

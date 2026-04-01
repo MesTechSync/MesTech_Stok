@@ -101,6 +101,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = PreviewRows.Count == 0;
         }
     }
 
