@@ -58,7 +58,7 @@ public class InvoiceHandlerTests
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
         var orderRepo = new Mock<IOrderRepository>();
         orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Order>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Order>());
         var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
@@ -72,7 +72,7 @@ public class InvoiceHandlerTests
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
         var orderRepo = new Mock<IOrderRepository>();
         orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Domain.Entities.Order>());
+            .ReturnsAsync(new List<global::MesTech.Domain.Entities.Order>());
         var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
         var cmd = new BulkCreateInvoiceCommand(new List<Guid>(), InvoiceProvider.Sovos);
 
@@ -90,7 +90,7 @@ public class InvoiceHandlerTests
         var logger = new Mock<ILogger<BulkCreateInvoiceHandler>>();
         var orderRepo = new Mock<IOrderRepository>();
         var orderIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var orders = orderIds.Select(id => new Domain.Entities.Order
+        var orders = orderIds.Select(id => new global::MesTech.Domain.Entities.Order
         {
             Id = id,
             OrderNumber = $"ORD-{id.ToString("N")[..8]}",
@@ -100,7 +100,7 @@ public class InvoiceHandlerTests
             OrderDate = DateTime.UtcNow
         }).ToList();
         orderRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<Domain.Entities.Order>)orders);
+            .ReturnsAsync((IReadOnlyList<global::MesTech.Domain.Entities.Order>)orders);
         var sut = new BulkCreateInvoiceHandler(repo.Object, orderRepo.Object, Mock.Of<IUnitOfWork>(), logger.Object);
         var cmd = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
 
