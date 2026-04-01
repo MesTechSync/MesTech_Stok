@@ -41,4 +41,11 @@ public sealed class TrendyolOptions
     /// 20s = 11s (max RetryAfter) + 5s (slow request margin) + 4s (safety buffer).
     /// </summary>
     public int HttpTimeoutSeconds { get; set; } = 20;
+
+    /// <summary>
+    /// Max concurrent API requests (SemaphoreSlim limit).
+    /// Trendyol API: 50 req/10s — 100 allows burst queueing with retry.
+    /// Override via config: Integrations:Trendyol:MaxConcurrentRequests
+    /// </summary>
+    public int MaxConcurrentRequests { get; set; } = 100;
 }

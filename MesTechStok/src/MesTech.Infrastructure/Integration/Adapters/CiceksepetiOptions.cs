@@ -16,5 +16,8 @@ public sealed class CiceksepetiOptions
 
     public int HttpTimeoutSeconds { get; set; } = 30;
 
+    /// <summary>Max concurrent API requests (SemaphoreSlim limit). Override via config.</summary>
+    public int MaxConcurrentRequests { get; set; } = 10;
+
     public string ApiKeyHeaderName { get; set; } = "x-api-key";
 }
