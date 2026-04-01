@@ -56,11 +56,13 @@ public sealed class GetPlatformSyncStatusHandler
             allStores = await _storeRepository
                 .GetByTenantIdAsync(request.TenantId, cancellationToken);
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "DB unavailable for PlatformSyncStatus — returning empty list");
             return new List<PlatformSyncStatusDto>();
         }
+#pragma warning restore CA1031
 
         var result = new List<PlatformSyncStatusDto>();
 

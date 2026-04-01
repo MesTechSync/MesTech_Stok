@@ -75,6 +75,7 @@ public sealed class BulkAutoCompetePriceHandler
                     else
                         failed++;
                 }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex,
@@ -83,6 +84,7 @@ public sealed class BulkAutoCompetePriceHandler
                     failed++;
                     details.Add(AutoCompetePriceResult.Failure($"Exception: {ex.Message}"));
                 }
+#pragma warning restore CA1031
             }
         }
 
