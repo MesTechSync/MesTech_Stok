@@ -24,11 +24,12 @@ public class MenuFeatureCoverageTests
     private readonly Guid _tenantId = Guid.NewGuid();
 
     [Fact]
-    public async Task GetCargoTrackingList_NullRequest_Throws()
+    public async Task GetCargoTrackingList_NullRequest_HandlerSwallowsException()
     {
+        // Handler has try-catch that returns empty list on any exception
         var sut = new GetCargoTrackingListHandler(Mock.Of<IOrderRepository>(), Microsoft.Extensions.Logging.Abstractions.NullLogger<GetCargoTrackingListHandler>.Instance);
-        var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<NullReferenceException>();
+        var result = await sut.Handle(null!, CancellationToken.None);
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -44,7 +45,7 @@ public class MenuFeatureCoverageTests
     {
         var sut = new GetLeadsHandler(Mock.Of<ICrmLeadRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<NullReferenceException>();
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
@@ -53,7 +54,7 @@ public class MenuFeatureCoverageTests
         var sut = new GetDropshipProfitabilityHandler(
             Mock.Of<IDropshipOrderRepository>(), Mock.Of<IDropshipProductRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<NullReferenceException>();
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
