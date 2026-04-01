@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,8 +11,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class BarcodeScannerViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
-
     [ObservableProperty] private bool isEmpty = true;
     [ObservableProperty] private string scanInput = string.Empty;
     [ObservableProperty] private int totalScanned;
@@ -25,9 +22,8 @@ public partial class BarcodeScannerViewModel : ViewModelBase
 
     public string ScanSummary => $"{TotalScanned} tarama | {FoundCount} bulunan | {NotFoundCount} bulunamayan";
 
-    public BarcodeScannerViewModel(IMediator mediator)
+    public BarcodeScannerViewModel()
     {
-        _mediator = mediator;
     }
 
     public override Task LoadAsync()

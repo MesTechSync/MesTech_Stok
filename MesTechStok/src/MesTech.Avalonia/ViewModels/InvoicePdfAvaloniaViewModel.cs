@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 using MesTech.Application.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -12,7 +11,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
     private readonly IInvoicePdfGenerator? _pdfGenerator;
 
     [ObservableProperty] private string invoiceNumber = "MES2026000001";
@@ -25,9 +23,8 @@ public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string statusMessage = string.Empty;
     private byte[]? _pdfBytes;
 
-    public InvoicePdfAvaloniaViewModel(IMediator mediator, IInvoicePdfGenerator? pdfGenerator = null)
+    public InvoicePdfAvaloniaViewModel(IInvoicePdfGenerator? pdfGenerator = null)
     {
-        _mediator = mediator;
         _pdfGenerator = pdfGenerator;
     }
 

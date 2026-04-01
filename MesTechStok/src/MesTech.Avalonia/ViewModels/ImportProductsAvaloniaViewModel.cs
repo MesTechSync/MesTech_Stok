@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -16,7 +15,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
     private readonly IFilePickerService _filePicker;
 
     // ─── Step tracking (1-4) ────────────────────────────────────────────────
@@ -92,9 +90,8 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ImportErrorDto> ImportErrors { get; } = [];
 
-    public ImportProductsAvaloniaViewModel(IMediator mediator, IFilePickerService filePicker)
+    public ImportProductsAvaloniaViewModel(IFilePickerService filePicker)
     {
-        _mediator = mediator;
         _filePicker = filePicker;
     }
 

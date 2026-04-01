@@ -2,23 +2,19 @@
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class AboutAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
-
 
     [ObservableProperty] private string versionText = "v1.0.0";
     [ObservableProperty] private string platformText = string.Empty;
     [ObservableProperty] private string licenseText = "Ticari Lisans";
     [ObservableProperty] private string copyrightText = string.Empty;
 
-    public AboutAvaloniaViewModel(IMediator mediator)
+    public AboutAvaloniaViewModel()
     {
-        _mediator = mediator;
         PlatformText = $"{RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture})";
         CopyrightText = $"© {DateTime.Now.Year} MesTech Yazilim. Tum haklari saklidir.";
     }

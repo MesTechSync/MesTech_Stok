@@ -2,15 +2,11 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
-
-
     // Settings fields
     [ObservableProperty] private string selectedCargoProvider = "Yurtici Kargo";
     [ObservableProperty] private int desiMultiplier = 3000;
@@ -34,9 +30,8 @@ public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
         "UPS"
     ];
 
-    public CargoSettingsAvaloniaViewModel(IMediator mediator)
+    public CargoSettingsAvaloniaViewModel()
     {
-        _mediator = mediator;
     }
 
     public override async Task LoadAsync()
