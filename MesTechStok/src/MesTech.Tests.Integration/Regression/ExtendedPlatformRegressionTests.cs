@@ -75,7 +75,10 @@ public class ExtendedPlatformRegressionTests : IClassFixture<WireMockFixture>, I
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildN11GetCategoryListResponse(3)));
 
+        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
         var adapter = new N11Adapter(NullLoggerFactory.Instance.CreateLogger<N11Adapter>(), CreateN11MockFactory().Object);
+        adapter.Configure("test-n11-key", "test-n11-secret", _fixture.BaseUrl, httpClient);
+
         var credentials = new Dictionary<string, string>
         {
             ["N11AppKey"] = "test-n11-key",

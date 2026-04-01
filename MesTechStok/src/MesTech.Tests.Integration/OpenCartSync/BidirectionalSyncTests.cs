@@ -254,7 +254,7 @@ public class BidirectionalSyncTests : IClassFixture<WireMockFixture>, IDisposabl
         products.Should().HaveCount(2);
         products[0].Name.Should().Be("Urun A");
         products[0].SKU.Should().Be("SKU-A");
-        products[1].SalePrice.Should().Be(20050m); // Turkish locale: "200.50" → 20050 (dot=thousands sep)
+        products[1].SalePrice.Should().Be(200.50m); // InvariantCulture: "200.50" → 200.50
     }
 
     // ════ 7. PullOrders — mapped with status ════

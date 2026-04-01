@@ -45,6 +45,7 @@ public class AmazonFBAAdapterTests
         // The adapter checks: if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry)
         SetPrivateField(adapter, "_accessToken", "test-access-token-preseeded");
         SetPrivateField(adapter, "_tokenExpiry", DateTime.UtcNow.AddHours(1));
+        adapter.ConfigureWarehouseAddress("Test St 123", "Istanbul", "34", "34000");
 
         return adapter;
     }

@@ -30,7 +30,8 @@ public class N11SoapContractTests : IDisposable
         var mockFactory = new Mock<IHttpClientFactory>();
         mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
         _adapter = new N11Adapter(new Mock<ILogger<N11Adapter>>().Object, mockFactory.Object);
-        _adapter.Configure("test-app-key", "test-app-secret", _baseUrl);
+        var httpClient = new HttpClient { BaseAddress = new Uri(_baseUrl) };
+        _adapter.Configure("test-app-key", "test-app-secret", _baseUrl, httpClient);
     }
 
     public void Dispose() => _server.Stop();

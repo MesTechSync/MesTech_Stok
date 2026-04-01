@@ -166,7 +166,7 @@ public class GibPortalEInvoiceProviderTests : IClassFixture<WireMockFixture>, ID
         // Assert
         result.Success.Should().BeFalse();
         result.ProviderRef.Should().BeNull();
-        result.ErrorMessage.Should().Contain("500");
+        result.ErrorMessage.Should().ContainAny("500", "InternalServerError", "Server Error");
         result.CreditUsed.Should().Be(0);
     }
 

@@ -26,12 +26,7 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
     private const string SupplierId = "55555";
 
-    private static readonly Dictionary<string, string> ValidCredentials = new()
-    {
-        ["ApiKey"] = "test-key",
-        ["ApiSecret"] = "test-secret",
-        ["SupplierId"] = SupplierId
-    };
+    private readonly Dictionary<string, string> ValidCredentials;
 
     public ReturnFlowIntegrationTests(WireMockFixture fixture)
     {
@@ -39,6 +34,13 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
         _fixture.Reset();
         _mockServer = fixture.Server;
         _logger = new Mock<ILogger<TrendyolAdapter>>().Object;
+        ValidCredentials = new Dictionary<string, string>
+        {
+            ["ApiKey"] = "test-key",
+            ["ApiSecret"] = "test-secret",
+            ["SupplierId"] = SupplierId,
+            ["BaseUrl"] = _fixture.BaseUrl
+        };
     }
 
     public void Dispose() => _fixture.Reset();
@@ -51,12 +53,10 @@ public class ReturnFlowIntegrationTests : IClassFixture<WireMockFixture>, IDispo
 
     private async Task<TrendyolAdapter> CreateConfiguredAdapterAsync()
     {
-        // Stub TestConnectionAsync endpoint
+        // Stub TestConnectionAsync endpoint — match path with any query params
         _mockServer
             .Given(Request.Create()
                 .WithPath($"/integration/product/sellers/{SupplierId}/products")
-                .WithParam("page", "0")
-                .WithParam("size", "1")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
