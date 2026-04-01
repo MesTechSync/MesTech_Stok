@@ -34,7 +34,10 @@ public class SystemQueryHandlerTests
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
         var logger = new Mock<ILogger<GetBackupHistoryHandler>>();
-        var handler = new GetBackupHistoryHandler(Mock.Of<IBackupEntryRepository>(), logger.Object);
+        var backupRepo = new Mock<IBackupEntryRepository>();
+        backupRepo.Setup(r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Domain.Entities.BackupEntry>().AsReadOnly());
+        var handler = new GetBackupHistoryHandler(backupRepo.Object, logger.Object);
         var result = await handler.Handle(
             new GetBackupHistoryQuery(TenantId: Guid.NewGuid(), Limit: 20),
             CancellationToken.None);
