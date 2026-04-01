@@ -264,6 +264,7 @@ public partial class LoginWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _lockoutTimer?.Stop();
+        _lockoutTimer = null; // Release Tick lambda — prevent event leak
         Opened -= OnWindowOpened;
         KeyDown -= OnWindowKeyDown;
         base.OnClosed(e);

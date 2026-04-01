@@ -254,7 +254,9 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _clockTimer.Stop();
+        _clockTimer = null!; // Release Tick lambda — prevent event leak
         _idleTimer.Stop();
+        _idleTimer = null!; // Release Tick lambda — prevent event leak
         PointerMoved -= OnPointerActivity;
         PointerPressed -= OnPointerActivity;
         KeyDown -= OnGlobalKeyDown;
