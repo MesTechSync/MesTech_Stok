@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -87,9 +88,14 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            IsLoading = true;
-            ClearError();
-            await action().ConfigureAwait(false);
+            // KÖK-4 FIX: ObservableCollection mutations + IsLoading must run on UI thread.
+            // action() may contain .Clear()/.Add() on ObservableCollections.
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                IsLoading = true;
+                ClearError();
+                await action().ConfigureAwait(false);
+            });
         }
         catch (OperationCanceledException)
         {
@@ -97,11 +103,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            SetError($"{context}: {ex.Message}");
+            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            IsLoading = false;
+            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }
@@ -112,9 +118,12 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            IsLoading = true;
-            ClearError();
-            await action(CancellationToken).ConfigureAwait(false);
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                IsLoading = true;
+                ClearError();
+                await action(CancellationToken).ConfigureAwait(false);
+            });
         }
         catch (OperationCanceledException)
         {
@@ -122,11 +131,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            SetError($"{context}: {ex.Message}");
+            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            IsLoading = false;
+            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }
