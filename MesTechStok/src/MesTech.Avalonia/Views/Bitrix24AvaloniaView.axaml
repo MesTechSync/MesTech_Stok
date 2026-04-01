@@ -49,7 +49,7 @@
     <Grid RowDefinitions="Auto,Auto,*" Margin="24,16">
 
         <!-- Row 0: Header -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
             <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="Bitrix24 CRM Pipeline" FontSize="24" FontWeight="Bold"
                            Foreground="{DynamicResource MesDarkSlate}" />
@@ -71,7 +71,11 @@
                     </TextBlock>
                 </StackPanel>
             </StackPanel>
-            <Button Grid.Column="1" Content="↻ Yenile" Command="{Binding RefreshCommand}"
+            <TextBox Grid.Column="1" Text="{Binding SearchText}" Watermark="Ara..." AutomationProperties.Name="Ara..."
+                     Width="240" Padding="10,8"
+                     CornerRadius="{StaticResource MesRadiusMd}"
+                     FontSize="{StaticResource FontSizeBody}" Margin="12,0" VerticalAlignment="Center" />
+            <Button Grid.Column="2" Content="↻ Yenile" Command="{Binding RefreshCommand}"
                     Padding="12,8" Background="{DynamicResource MesPrimaryBlue}"
                     Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                     CornerRadius="{StaticResource MesRadiusMd}"
