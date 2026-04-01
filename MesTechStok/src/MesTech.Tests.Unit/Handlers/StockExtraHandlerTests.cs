@@ -124,6 +124,10 @@ public class StockExtraHandlerTests
     public async Task GetStockMovements_NoFilters_ReturnsEmptyList()
     {
         var repo = new Mock<IStockMovementRepository>();
+        // Handler now calls GetRecentAsync when no filters specified
+        repo.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
         var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
 
         var query = new GetStockMovementsQuery();
