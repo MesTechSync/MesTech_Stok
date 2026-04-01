@@ -19,15 +19,59 @@ public static class Program
     private const string Username = "admin";
     private const string Password = "Admin123!";
     private const int WaitMs = 2000;
-    private const int NavigateWaitMs = 1500;
+    private const int NavigateWaitMs = 800;
 
-    // İlk 17 ana menü (en kritik ekranlar)
+    // 110 sidebar menü — tam tarama
     private static readonly string[] MenuItems =
     [
-        "Dashboard", "Products", "Orders", "Stock", "StockMovement",
-        "InvoiceList", "Marketplaces", "Trendyol", "Hepsiburada",
-        "Reports", "Customers", "CargoTracking", "Settings",
-        "Health", "AccountingDashboard", "Inventory", "Category"
+        // ANA SAYFA + DASHBOARD
+        "Dashboard",
+        // ÜRÜNLER
+        "Products", "Category", "CategoryMapping", "ImportProducts", "ImportSettings",
+        // SİPARİŞLER
+        "Orders", "OrderKanban", "StaleOrders", "ReturnList",
+        // STOK
+        "Stock", "StockMovement", "Inventory", "StockPlacement", "StockLot",
+        "StockTransfer", "StockAlert", "Warehouse", "StockTimeline",
+        // KARGO
+        "CargoTracking", "CargoProviders", "BulkShipment", "LabelPreview",
+        // FATURA
+        "InvoiceList", "InvoiceCreate", "InvoiceManagement", "InvoiceReport",
+        "InvoiceProviders", "BulkInvoice",
+        // PAZARYERI
+        "Marketplaces", "PlatformList", "PlatformConnectionTest",
+        "PlatformSyncStatus", "PlatformSyncHistory", "SyncStatus",
+        // 15 PLATFORM
+        "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon",
+        "OpenCart", "Bitrix24", "Etsy", "Shopify", "WooCommerce",
+        "Zalando", "Ebay", "Ozon", "PttAvm", "Pazarama",
+        // MUHASEBE
+        "AccountingDashboard", "GLTransaction", "KarZarar", "GelirGider",
+        "KarlilikAnalizi", "KdvRapor", "Mutabakat", "JournalEntries",
+        "TrialBalance", "CommissionRates", "BankAccounts", "CariHesaplar",
+        "Expenses", "NakitAkis", "CashFlowReport",
+        // RAPORLAR
+        "Reports", "SalesAnalytics", "ProfitLoss", "ProfitabilityReport",
+        "StockValueReport",
+        // MÜŞTERİLER + CRM
+        "Customers", "Contacts", "Leads", "Quotation", "Kanban",
+        // ERP
+        "ErpDashboard", "ErpSettings", "ErpAccountMapping",
+        // FATURA SAĞLAYICI
+        "IncomeExpenseDashboard", "IncomeExpenseList",
+        // DROPSHIPPING
+        "DropshipDashboard", "DropshipOrders", "DropshipProfit", "SupplierFeeds",
+        // FULFILLMENT
+        "FulfillmentDashboard", "FulfillmentInbound", "FulfillmentInventory", "FulfillmentSettings",
+        // BİLLİNG
+        "Billing", "StoreSettings", "StoreWizard",
+        // HR
+        "Employees", "LeaveRequests",
+        // ARAÇLAR
+        "Campaign", "Export", "BarcodeScanner", "ProductDescriptionAI",
+        "Buybox", "FeedCreate", "Documents", "AppHub",
+        // SİSTEM
+        "Health", "LogViewer", "AuditLog", "MfaSetup", "Backup", "Settings"
     ];
 
     private static string _screenshotDir = null!;
