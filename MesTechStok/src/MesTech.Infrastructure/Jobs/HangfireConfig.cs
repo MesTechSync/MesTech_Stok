@@ -54,6 +54,9 @@ public static class HangfireConfig
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
 
+        // DEV3 TUR9: Job monitoring dashboard service
+        services.AddScoped<HangfireJobMonitorService>();
+
         // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B
         services.AddScoped<ReliabilityScoreRecalcJob>();
 
