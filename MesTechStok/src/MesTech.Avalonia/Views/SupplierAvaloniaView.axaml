@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.SupplierAvaloniaView"
              x:Name="RootSupplierAvaloniaView"
              x:DataType="vm:SupplierAvaloniaViewModel">
@@ -69,16 +70,12 @@
             </StackPanel>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Tedarikciler yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
     
         <!-- Error State -->
