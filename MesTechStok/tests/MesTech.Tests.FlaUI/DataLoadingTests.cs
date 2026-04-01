@@ -17,7 +17,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_06_UrunListesi_TabloRenderOlur()
     {
         Output.WriteLine("TEST-06: Ürün Listesi → Tablo render");
-        var clicked = ClickMenu("Products");
+        var clicked = ClickMenu("Urun Listesi");
         if (!clicked) { Screenshot("TEST-06", "Products", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -31,7 +31,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_07_KargoFirmalari_7KartGorunur()
     {
         Output.WriteLine("TEST-07: Kargo Firmaları → 7 kart");
-        var clicked = ClickMenu("CargoProviders");
+        var clicked = ClickMenu("Kargo Firmalari");
         if (!clicked) { Screenshot("TEST-07", "CargoProviders", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -46,7 +46,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_08_ProviderAyarlari_9KartGorunur()
     {
         Output.WriteLine("TEST-08: Provider Ayarları → 9 kart");
-        var clicked = ClickMenu("InvoiceProviders");
+        var clicked = ClickMenu("Provider Ayarlari");
         if (!clicked) { Screenshot("TEST-08", "InvoiceProviders", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -62,7 +62,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_09_Platformlar_16PlatformGorunur()
     {
         Output.WriteLine("TEST-09: Platformlar → 16 platform");
-        var clicked = ClickMenu("PlatformList");
+        var clicked = ClickMenu("Pazaryeri");
         if (!clicked) { Screenshot("TEST-09", "PlatformList", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -79,7 +79,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_10_MagazaEkle_WizardAcilir()
     {
         Output.WriteLine("TEST-10: Mağaza Ekle → Wizard açılır");
-        var clicked = ClickMenu("StoreWizard");
+        var clicked = ClickMenu("Magaza Ekle");
         if (!clicked) { Screenshot("TEST-10", "StoreWizard", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 

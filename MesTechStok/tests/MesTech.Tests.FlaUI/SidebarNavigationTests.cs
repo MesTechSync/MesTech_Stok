@@ -26,11 +26,11 @@ public class LoginNavigationTests : FlaUITestBase
     }
 
     [Theory]
-    [InlineData("Stock", "Stok")]
-    [InlineData("CargoProviders", "Kargo")]
-    [InlineData("InvoiceList", "Fatura")]
-    [InlineData("Marketplaces", "Platform")]
-    [InlineData("Contacts", "Kişi")]
+    [InlineData("Stok Takibi", "Stok")]
+    [InlineData("Kargo Firmalari", "Kargo")]
+    [InlineData("Fatura Listesi", "Fatura")]
+    [InlineData("Pazaryeri", "Platform")]
+    [InlineData("CRM", "Kişi")]
     public void TEST_02_SidebarMenu_DogruSayfaAcilir(string menuName, string expectedTitle)
     {
         Output.WriteLine($"TEST-02: Sidebar '{menuName}' → başlık '{expectedTitle}' içerir");
@@ -50,20 +50,18 @@ public class LoginNavigationTests : FlaUITestBase
     public void TEST_03_SidebarHighlight_AktifMenuVurgulanir()
     {
         Output.WriteLine("TEST-03: Sidebar highlight kontrolü");
-        var clicked = ClickMenu("Dashboard");
+        var clicked = ClickMenu("Kontrol Paneli");
         Thread.Sleep(1000);
-        // Avalonia'da active state CSS class kontrolü UIA ile sınırlı — screenshot kanıt
         Screenshot("TEST-03", "SidebarHighlight", clicked);
-        Output.WriteLine($"TEST-03: {(clicked ? "PASS" : "SKIP")} — Dashboard tıklandı");
+        Output.WriteLine($"TEST-03: {(clicked ? "PASS" : "SKIP")} — Kontrol Paneli tıklandı");
     }
 
     [Fact]
     public void TEST_04_Breadcrumb_DogruYolGosterir()
     {
         Output.WriteLine("TEST-04: Breadcrumb kontrolü");
-        var clicked = ClickMenu("Inventory");
+        var clicked = ClickMenu("Envanter");
         Thread.Sleep(1500);
-        // Breadcrumb metin kontrolü
         var hasBreadcrumb = ContainsText("Envanter") || ContainsText("Stok") || ContainsText("Inventory");
         Screenshot("TEST-04", "Breadcrumb", hasBreadcrumb, hasBreadcrumb ? null : "NoBreadcrumb");
         Output.WriteLine($"TEST-04: {(hasBreadcrumb ? "PASS" : "WARN")} — breadcrumb {(hasBreadcrumb ? "bulundu" : "bulunamadı")}");

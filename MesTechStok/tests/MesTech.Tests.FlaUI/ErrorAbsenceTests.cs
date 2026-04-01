@@ -16,7 +16,7 @@ public class ErrorAbsenceTests : FlaUITestBase
     public void TEST_11_Dashboard_HataYoktur()
     {
         Output.WriteLine("TEST-11: Dashboard → Hata YOKTUR");
-        var clicked = ClickMenu("Dashboard");
+        var clicked = ClickMenu("Kontrol Paneli");
         if (!clicked) { Screenshot("TEST-11", "Dashboard", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -30,7 +30,8 @@ public class ErrorAbsenceTests : FlaUITestBase
     public void TEST_12_TrendyolDetay_HataYoktur()
     {
         Output.WriteLine("TEST-12: Trendyol → Hata YOKTUR");
-        var clicked = ClickMenu("Trendyol");
+        var clicked = ClickMenu("Trendyol")  // ToolTip = "Trendyol"
+            || ClickMenu("trendyol");
         if (!clicked) { Screenshot("TEST-12", "Trendyol", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -44,7 +45,7 @@ public class ErrorAbsenceTests : FlaUITestBase
     public void TEST_13_FaturaListesi_ColumnExistsHatasiYoktur()
     {
         Output.WriteLine("TEST-13: Fatura Listesi → 'column does not exist' YOKTUR");
-        var clicked = ClickMenu("InvoiceList");
+        var clicked = ClickMenu("Fatura Listesi");
         if (!clicked) { Screenshot("TEST-13", "InvoiceList", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -58,7 +59,7 @@ public class ErrorAbsenceTests : FlaUITestBase
     public void TEST_14_StokYerlesim_RelationExistsHatasiYoktur()
     {
         Output.WriteLine("TEST-14: Stok Yerleşim → 'relation does not exist' YOKTUR");
-        var clicked = ClickMenu("StockPlacement");
+        var clicked = ClickMenu("Stok Yerlesim");
         if (!clicked) { Screenshot("TEST-14", "StockPlacement", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
@@ -72,7 +73,7 @@ public class ErrorAbsenceTests : FlaUITestBase
     public void TEST_15_DenetimKayitlari_DateTimeKindHatasiYoktur()
     {
         Output.WriteLine("TEST-15: Denetim Kayıtları → 'DateTime Kind' YOKTUR");
-        var clicked = ClickMenu("AuditLog");
+        var clicked = ClickMenu("Denetim Kaydi");
         if (!clicked) { Screenshot("TEST-15", "AuditLog", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 

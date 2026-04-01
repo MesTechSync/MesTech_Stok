@@ -94,33 +94,64 @@ public abstract class FlaUITestBase : IAsyncLifetime
         }
     }
 
-    /// <summary>Sidebar menü butonuna tıkla — Avalonia UIA3 uyumlu.</summary>
+    /// <summary>Sidebar menü butonuna tıkla — Avalonia UIA3 uyumlu.
+    /// Arama sırası: Button Name → TextBlock Text (child) → ToolTip → AutomationProperties.Name
+    /// Avalonia butonların Name'i genelde TextBlock.Text veya ToolTip.Tip'ten gelir.</summary>
     protected bool ClickMenu(string menuName)
     {
         try
         {
-            var allButtons = MainWindow.FindAllDescendants(
-                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
-
-            foreach (var b in allButtons)
+            // Tüm elemanları tara — Button + ToolTip text + child TextBlock
+            var all = MainWindow.FindAllDescendants();
+            foreach (var el in all)
             {
-                string name;
-                try { name = b.Name ?? ""; } catch { continue; }
+                string name, helpText;
+                try { name = el.Name ?? ""; } catch { continue; }
+                try { helpText = el.HelpText ?? ""; } catch { helpText = ""; }
 
-                if (name.Equals(menuName, StringComparison.OrdinalIgnoreCase))
+                // Eşleşme: Name veya HelpText (ToolTip) menuName içeriyor mu?
+                var matches = name.Contains(menuName, StringComparison.OrdinalIgnoreCase)
+                    || helpText.Contains(menuName, StringComparison.OrdinalIgnoreCase);
+
+                if (!matches) continue;
+
+                // Button ise doğrudan tıkla
+                if (el.ControlType == FlaUI.Core.Definitions.ControlType.Button)
                 {
                     try
                     {
-                        b.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
+                        el.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
                         Thread.Sleep(200);
-                        b.AsButton().Click();
+                        el.AsButton().Click();
                         return true;
+                    }
+                    catch { continue; }
+                }
+
+                // TextBlock ise parent Button'ı bul
+                if (el.ControlType == FlaUI.Core.Definitions.ControlType.Text)
+                {
+                    try
+                    {
+                        var parent = el.Parent;
+                        while (parent is not null && parent.ControlType != FlaUI.Core.Definitions.ControlType.Button)
+                            parent = parent.Parent;
+                        if (parent is not null)
+                        {
+                            parent.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
+                            Thread.Sleep(200);
+                            parent.AsButton().Click();
+                            return true;
+                        }
                     }
                     catch { continue; }
                 }
             }
         }
-        catch { /* COM/UIA error */ }
+        catch (Exception ex)
+        {
+            Output.WriteLine($"  ClickMenu exception: {ex.Message}");
+        }
         return false;
     }
 
