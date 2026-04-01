@@ -75,7 +75,11 @@ builder.Services.AddOpenTelemetry()
         }))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation());
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:3317");
+        }));
 
 // ── Infrastructure (DbContext, Repositories, Domain Services, Cache, Messaging, etc.) ──
 builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);
