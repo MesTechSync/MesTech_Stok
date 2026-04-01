@@ -166,6 +166,11 @@ public class GetStockMovementsHandlerTests
     [Fact]
     public async Task Handle_NoFilters_ShouldReturnEmpty()
     {
+        // Handler now calls GetRecentAsync when no filters specified
+        _movementRepo.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
+
         var handler = CreateHandler();
         var result = await handler.Handle(new GetStockMovementsQuery(), CancellationToken.None);
 
