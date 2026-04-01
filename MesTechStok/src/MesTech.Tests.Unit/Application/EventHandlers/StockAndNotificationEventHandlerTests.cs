@@ -84,7 +84,7 @@ public class PriceLossDetectedEventHandlerTests
         _notifRepo.Verify(r => r.AddAsync(
             It.Is<NotificationLog>(n =>
                 n.TenantId == tenantId &&
-                n.TemplateName == "PriceLossDetected"),
+                n.TemplateName == "PriceLossAlert"),
             It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
