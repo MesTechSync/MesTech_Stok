@@ -43,7 +43,7 @@ public class HepsiJetCargoAdapterTests : IClassFixture<WireMockFixture>, IDispos
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
-                .WithBody(@"{""access_token"":""test-jwt-token"",""expires_in"":3600}"));
+                .WithBody(@"{""accessToken"":""test-jwt-token"",""expiresIn"":3600}"));
 
         var httpClient = new HttpClient();
         var adapter = new HepsiJetCargoAdapter(httpClient, _logger);
@@ -197,7 +197,7 @@ public class HepsiJetCargoAdapterTests : IClassFixture<WireMockFixture>, IDispos
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/api/v1/tracking/{trackingNo}")
+                .WithPath($"/api/v1/shipments/{trackingNo}/tracking")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
@@ -236,7 +236,7 @@ public class HepsiJetCargoAdapterTests : IClassFixture<WireMockFixture>, IDispos
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/api/v1/tracking/{trackingNo}")
+                .WithPath($"/api/v1/shipments/{trackingNo}/tracking")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(404)
@@ -262,7 +262,7 @@ public class HepsiJetCargoAdapterTests : IClassFixture<WireMockFixture>, IDispos
 
         _mockServer
             .Given(Request.Create()
-                .WithPath($"/api/v1/tracking/{trackingNo}")
+                .WithPath($"/api/v1/shipments/{trackingNo}/tracking")
                 .UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
