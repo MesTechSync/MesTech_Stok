@@ -94,6 +94,7 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation(opt => opt.SetDbStatementForText = true)
+        .AddRedisInstrumentation()
         .AddSource("MesTech.Application.Handlers")
         .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
