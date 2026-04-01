@@ -13,11 +13,11 @@ namespace MesTech.Infrastructure.Jobs;
 /// </summary>
 public sealed class JobFailureNotificationFilter : JobFilterAttribute, IElectStateFilter
 {
-    private readonly ILogger<JobFailureNotificationFilter> _logger;
+    public ILogger<JobFailureNotificationFilter> Logger { get; }
 
     public JobFailureNotificationFilter(ILogger<JobFailureNotificationFilter> logger)
     {
-        _logger = logger;
+        Logger = logger;
     }
 
     public void OnStateElection(ElectStateContext context)
@@ -31,7 +31,7 @@ public sealed class JobFailureNotificationFilter : JobFilterAttribute, IElectSta
         var errorMessage = failedState.Exception?.Message ?? "No exception details";
         var exceptionType = failedState.Exception?.GetType().Name ?? "Unknown";
 
-        _logger.LogError(
+        Logger.LogError(
             "[Hangfire FAIL] JobId={JobId} Type={JobType}.{Method} Error={ExceptionType}: {Error}",
             jobId, jobType, methodName, exceptionType, errorMessage);
 
