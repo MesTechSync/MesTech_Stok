@@ -81,9 +81,10 @@
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
+    <!-- OTel EF Core: beta exception — no stable release exists (like LiveCharts RC). Re-evaluate when 1.x stable ships. -->
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.10.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.10.0-beta.1" />
+    <!-- OpenTelemetry.Instrumentation.StackExchangeRedis removed: 1.10.0-beta.1 yanked from nuget.org (1 Nisan 2026) -->
     <PackageVersion Include="StackExchange.Redis" Version="2.12.4" />
     <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
     <PackageVersion Include="System.IO.Ports" Version="9.0.6" />

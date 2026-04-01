@@ -67,7 +67,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddRedisInstrumentation()
+        // AddRedisInstrumentation removed: StackExchangeRedis OTel package yanked from nuget.org
         .AddSource("MesTech.Application.Handlers")
         .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
