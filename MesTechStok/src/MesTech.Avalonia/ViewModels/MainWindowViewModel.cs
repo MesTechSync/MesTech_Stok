@@ -234,6 +234,13 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
     // INavigationService implementation — delegates to existing NavigateTo
     Task INavigationService.NavigateToAsync(string viewName) => NavigateTo(viewName);
 
+    async Task INavigationService.NavigateToAsync(string viewName, IDictionary<string, object?> parameters)
+    {
+        await NavigateTo(viewName);
+        if (CurrentView is INavigationAware aware)
+            await aware.OnNavigatedToAsync(parameters);
+    }
+
     protected override void OnDispose()
     {
         _featureGate.TierChanged -= OnTierChanged;

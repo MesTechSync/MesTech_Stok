@@ -7,4 +7,10 @@ namespace MesTech.Avalonia.Services;
 public interface INavigationService
 {
     Task NavigateToAsync(string viewName);
+
+    /// <summary>
+    /// Navigate to a view with initialization parameters (e.g., OrderId, CustomerId).
+    /// Target ViewModel receives parameters via INavigationAware.OnNavigatedTo().
+    /// </summary>
+    Task NavigateToAsync(string viewName, IDictionary<string, object?> parameters);
 }
