@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using MediatR;
 
 namespace MesTech.Application.Features.Accounting.Commands.ParseAndImportSettlement;
@@ -7,6 +8,7 @@ namespace MesTech.Application.Features.Accounting.Commands.ParseAndImportSettlem
 /// parses via platform-specific ISettlementParser, and persists the batch.
 /// Bridges the gap between ISettlementParserFactory and settlement persistence.
 /// </summary>
+[SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Binary data")]
 public record ParseAndImportSettlementCommand(
     Guid TenantId,
     string Platform,

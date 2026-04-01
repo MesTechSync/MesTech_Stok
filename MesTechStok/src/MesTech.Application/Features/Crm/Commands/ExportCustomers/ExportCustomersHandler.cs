@@ -23,7 +23,7 @@ public sealed class ExportCustomersHandler : IRequestHandler<ExportCustomersComm
 
         var result = new ExportCustomersResult
         {
-            FileData = [], // Infrastructure concern — IExcelExportService / ICsvExportService
+            FileData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — IExcelExportService / ICsvExportService
             FileName = $"musteriler_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}",
             ExportedCount = 0
         };

@@ -33,7 +33,7 @@ public sealed class DownloadShipmentLabelHandler : IRequestHandler<DownloadShipm
 
         var result = new DownloadShipmentLabelResult
         {
-            LabelData = [], // Infrastructure concern — ILabelGeneratorService
+            LabelData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — ILabelGeneratorService
             FileName = fileName,
             ContentType = contentType
         };

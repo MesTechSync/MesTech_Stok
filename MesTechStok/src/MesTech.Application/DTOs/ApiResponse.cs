@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace MesTech.Application.DTOs;
 
 /// <summary>
@@ -51,6 +53,7 @@ public sealed record SyncResponse(Guid Id, int SyncedCount);
 public sealed record CalendarGenerationResponse(int Year, int EventsCreated);
 
 /// <summary>Row version update response — { newRowVersion: uint }.</summary>
+[SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Binary data")]
 public sealed record RowVersionResponse(byte[]? NewRowVersion);
 
 /// <summary>Deleted count response — { deletedCount: int }.</summary>
@@ -60,7 +63,7 @@ public sealed record DeletedCountResponse(int DeletedCount);
 public sealed record SupportedPlatformsResponse(IReadOnlyList<string> Platforms, int Count);
 
 /// <summary>Chart.js compatible dataset — { labels: string[], datasets: ChartDataset[] }.</summary>
-public sealed record ChartResponse(string[] Labels, IReadOnlyList<ChartDataset> Datasets);
+public sealed record ChartResponse(IReadOnlyList<string> Labels, IReadOnlyList<ChartDataset> Datasets);
 
 /// <summary>Single Chart.js dataset — { label: string, data: int[], color: string }.</summary>
-public sealed record ChartDataset(string Label, int[] Data, string Color);
+public sealed record ChartDataset(string Label, IReadOnlyList<int> Data, string Color);

@@ -28,7 +28,7 @@ public sealed class ExportReportHandler : IRequestHandler<ExportReportCommand, E
 
         var result = new ExportReportResult
         {
-            FileData = [], // Infrastructure concern — IReportExportService
+            FileData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — IReportExportService
             FileName = $"rapor_{reportSlug}_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}",
             ExportedCount = 0
         };

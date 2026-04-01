@@ -23,7 +23,7 @@ public sealed class ExportStockHandler : IRequestHandler<ExportStockCommand, Exp
 
         var result = new ExportStockResult
         {
-            FileData = [], // Infrastructure concern — IExcelExportService / ICsvExportService
+            FileData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — IExcelExportService / ICsvExportService
             FileName = $"stok_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}",
             ExportedCount = 0
         };
