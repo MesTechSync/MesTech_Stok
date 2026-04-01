@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdateStock;
 using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StockUpdateAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -23,9 +25,10 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
 
     private List<StockUpdateItemDto> _allItems = [];
 
-    public StockUpdateAvaloniaViewModel(IMediator mediator)
+    public StockUpdateAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     public override async Task LoadAsync()
@@ -38,7 +41,7 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(
-                new GetProductsQuery(Guid.Empty, SearchTerm: null, IsActive: true, Page: 1, PageSize: 200),
+                new GetProductsQuery(_tenantProvider.GetCurrentTenantId(), SearchTerm: null, IsActive: true, Page: 1, PageSize: 200),
                 CancellationToken);
 
             _allItems = result.Items.Select(p => new StockUpdateItemDto
