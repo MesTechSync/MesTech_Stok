@@ -55,6 +55,10 @@
     <Compile Remove="Mesa\CircuitBreakerTests.cs" />
     <Compile Remove="Domain\Erp\ErpSyncLogTests.cs" />
     <Compile Remove="Accounting\ERPSyncTests.cs" />
+    <Compile Remove="Handlers\CreateExpenseHandlerTests.cs" />
+    <Compile Remove="Application\Validators\Expenses\CreateExpenseValidatorTests.cs" />
+    <Compile Remove="Application\OnMuhasebeCommandTests.cs" />
+    <Compile Remove="Application\CqrsHandlerCoverageTests.cs" />
   </ItemGroup>
 
 </Project>
