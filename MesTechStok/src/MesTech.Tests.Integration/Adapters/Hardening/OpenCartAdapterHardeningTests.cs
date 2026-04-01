@@ -3,6 +3,7 @@ using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -48,7 +49,11 @@ public class OpenCartAdapterHardeningTests : IClassFixture<WireMockFixture>, IDi
             BaseAddress = new Uri(_fixture.BaseUrl),
             Timeout = timeout ?? TimeSpan.FromSeconds(5)
         };
-        return new OpenCartAdapter(httpClient, _logger);
+        var options = Options.Create(new OpenCartOptions
+        {
+            HttpTimeoutSeconds = (int)(timeout?.TotalSeconds ?? 5)
+        });
+        return new OpenCartAdapter(httpClient, _logger, options);
     }
 
     private Dictionary<string, string> CredentialsWithBaseUrl() => new()

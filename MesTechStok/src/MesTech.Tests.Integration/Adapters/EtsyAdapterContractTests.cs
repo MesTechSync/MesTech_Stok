@@ -3,6 +3,7 @@ using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -46,7 +47,12 @@ public class EtsyAdapterContractTests : IClassFixture<WireMockFixture>, IDisposa
             BaseAddress = new Uri(_fixture.BaseUrl),
             Timeout = timeout ?? TimeSpan.FromSeconds(5)
         };
-        return new EtsyAdapter(httpClient, _logger);
+        var options = Options.Create(new EtsyOptions
+        {
+            BaseUrl = _fixture.BaseUrl + "/v3",
+            HttpTimeoutSeconds = (int)(timeout?.TotalSeconds ?? 5)
+        });
+        return new EtsyAdapter(httpClient, _logger, options);
     }
 
     private async Task<EtsyAdapter> CreateConfiguredAdapterAsync()

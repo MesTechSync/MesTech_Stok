@@ -3,6 +3,7 @@ using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -44,6 +45,7 @@ public class PazaramaAdapterHardeningTests : IClassFixture<WireMockFixture>, IDi
 
     private PazaramaAdapter CreateAdapter(TimeSpan? timeout = null)
     {
+        var timeoutSeconds = (int)(timeout?.TotalSeconds ?? 5);
         var httpClient = new HttpClient
         {
             BaseAddress = new Uri(_fixture.BaseUrl),
@@ -53,7 +55,11 @@ public class PazaramaAdapterHardeningTests : IClassFixture<WireMockFixture>, IDi
         mockFactory
             .Setup(f => f.CreateClient(Moq.It.IsAny<string>()))
             .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) });
-        return new PazaramaAdapter(httpClient, _logger, mockFactory.Object);
+        var options = Options.Create(new PazaramaOptions
+        {
+            HttpTimeoutSeconds = timeoutSeconds
+        });
+        return new PazaramaAdapter(httpClient, _logger, mockFactory.Object, options);
     }
 
     private Dictionary<string, string> CredentialsWithBaseUrl() => new(TestCredentials)
