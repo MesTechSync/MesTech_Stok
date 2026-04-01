@@ -34,6 +34,9 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Width="280" Watermark="Urun adi, SKU veya alarm tipi ara..."
+                         AutomationProperties.Name="Urun adi, SKU veya alarm tipi ara..."
+                         Text="{Binding SearchText}" Margin="0,0,8,0" />
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
                         ToolTip.Tip="Tumunu Goster"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />

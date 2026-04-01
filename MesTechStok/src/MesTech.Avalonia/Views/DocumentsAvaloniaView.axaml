@@ -30,7 +30,8 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0" Watermark="Belge ara..." AutomationProperties.Name="Belge ara..." Width="250" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="0" Watermark="Belge adi, tipi veya klasor ara..." AutomationProperties.Name="Belge adi, tipi veya klasor ara..."
+                         Text="{Binding SearchText}" Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Belge Tipi" Width="140" Margin="8,0"  AutomationProperties.Name="Belge Tipi" />
                 <Button Grid.Column="2" Content="+ Belge Yukle" Command="{Binding UploadCommand}"
                         Background="{DynamicResource MesPurple}" Foreground="{DynamicResource MesBgPrimary}"

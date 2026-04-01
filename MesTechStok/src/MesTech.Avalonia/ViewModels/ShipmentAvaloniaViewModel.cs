@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -23,6 +24,7 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int inTransitCount;
     [ObservableProperty] private int preparingCount;
 
+    private readonly List<ShipmentItemDto> _allShipments = [];
     public ObservableCollection<ShipmentItemDto> Shipments { get; } = [];
 
     public ShipmentAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
@@ -41,10 +43,10 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
         {
             var result = await _mediator.Send(new GetShipmentCostsQuery(_currentUser.TenantId));
 
-            Shipments.Clear();
+            _allShipments.Clear();
             foreach (var s in result)
             {
-                Shipments.Add(new ShipmentItemDto
+                _allShipments.Add(new ShipmentItemDto
                 {
                     TrackingNumber = s.TrackingNumber ?? s.Id.ToString("N")[..12].ToUpper(),
                     OrderNumber = s.OrderId.ToString("N")[..8].ToUpper(),
@@ -55,11 +57,7 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = Shipments.Count;
-            DeliveredCount = Shipments.Count(s => s.Status == "Teslim Edildi");
-            InTransitCount = Shipments.Count(s => s.Status == "Yolda");
-            PreparingCount = Shipments.Count(s => s.Status == "Hazirlaniyor");
-            IsEmpty = TotalCount == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -70,6 +68,32 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        Shipments.Clear();
+
+        var filtered = _allShipments.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(s =>
+                s.TrackingNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                s.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                s.CarrierName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                s.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (var item in filtered)
+            Shipments.Add(item);
+
+        TotalCount = Shipments.Count;
+        DeliveredCount = Shipments.Count(s => s.Status == "Teslim Edildi");
+        InTransitCount = Shipments.Count(s => s.Status == "Yolda");
+        PreparingCount = Shipments.Count(s => s.Status == "Hazirlaniyor");
+        IsEmpty = TotalCount == 0;
     }
 
     [RelayCommand]

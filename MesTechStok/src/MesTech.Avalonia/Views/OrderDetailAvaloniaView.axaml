@@ -10,7 +10,7 @@
 
     <!-- EMR-12: Siparis Detay — siparis bilgileri + kalem listesi -->
 
-    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -35,8 +35,16 @@
             </Grid>
         </Border>
 
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <TextBox Width="280" Watermark="Urun adi veya SKU ara..."
+                     AutomationProperties.Name="Urun adi veya SKU ara..."
+                     Text="{Binding SearchText}" HorizontalAlignment="Left" />
+        </Border>
+
         <!-- Content -->
-        <ScrollViewer Grid.Row="1" Padding="20">
+        <ScrollViewer Grid.Row="2" Padding="20">
             <StackPanel Spacing="16">
 
                 <!-- Order Info Card -->
@@ -113,7 +121,7 @@
         </ScrollViewer>
 
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -129,7 +137,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">

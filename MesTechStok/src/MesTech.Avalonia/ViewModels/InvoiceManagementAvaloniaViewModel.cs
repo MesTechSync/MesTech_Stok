@@ -89,7 +89,8 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
             var search = SearchText.ToLowerInvariant();
             filtered = filtered.Where(i =>
                 i.Alici.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                i.FaturaNo.Contains(search, StringComparison.OrdinalIgnoreCase));
+                i.FaturaNo.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                i.Durum.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
         if (SelectedType != "Tumu")

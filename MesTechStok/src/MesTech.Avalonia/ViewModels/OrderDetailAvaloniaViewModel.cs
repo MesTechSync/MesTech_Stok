@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -16,6 +17,10 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
+
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<OrderDetailItemDto> _allOrderItems = [];
 
     [ObservableProperty] private string orderNumber = "1042";
     [ObservableProperty] private string orderStatus = "Hazirlaniyor";
@@ -68,9 +73,10 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
             }
 
             // DEP: DEV1 — OrderItems — line items query does not exist yet, keeping mock
-            OrderItems.Clear();
-            OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Quantity = 1, UnitPrice = 54999.99m, LineTotal = 54999.99m });
-            OrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Kilif", Sku = "SKU-2001", Quantity = 2, UnitPrice = 299.90m, LineTotal = 599.80m });
+            _allOrderItems.Clear();
+            _allOrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Quantity = 1, UnitPrice = 54999.99m, LineTotal = 54999.99m });
+            _allOrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Kilif", Sku = "SKU-2001", Quantity = 2, UnitPrice = 299.90m, LineTotal = 599.80m });
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -81,6 +87,24 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        OrderItems.Clear();
+
+        var filtered = _allOrderItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(i =>
+                i.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                i.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (var item in filtered)
+            OrderItems.Add(item);
     }
 
     [RelayCommand]

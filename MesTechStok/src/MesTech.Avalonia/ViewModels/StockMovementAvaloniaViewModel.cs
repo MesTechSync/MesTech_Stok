@@ -18,10 +18,12 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly PropertyChangedEventHandler _itemChangedHandler;
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int changedCount;
     [ObservableProperty] private string updateStatus = string.Empty;
 
+    private readonly List<StockMovementItemDto> _allItems = [];
     public ObservableCollection<StockMovementItemDto> Items { get; } = [];
 
     public StockMovementAvaloniaViewModel(IMediator mediator)
@@ -43,9 +45,10 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
             Items.Clear();
 
             var movements = await _mediator.Send(new GetStockMovementsQuery());
+            _allItems.Clear();
             foreach (var m in movements)
             {
-                Items.Add(new StockMovementItemDto
+                _allItems.Add(new StockMovementItemDto
                 {
                     Sku = m.ProductSKU ?? string.Empty,
                     UrunAdi = m.ProductName ?? string.Empty,
@@ -54,6 +57,8 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
                     Platform = m.MovementType
                 });
             }
+
+            ApplyFilter();
 
             // Subscribe to changes (named handler — unsubscribe possible)
             foreach (var item in Items)
@@ -77,6 +82,33 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     private void RecalculateChangedCount()
     {
         ChangedCount = Items.Count(x => x.MevcutStok != x.YeniStok);
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        UnsubscribeItemEvents();
+        Items.Clear();
+
+        var filtered = _allItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(i =>
+                i.UrunAdi.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                i.Platform.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                i.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (var item in filtered)
+            Items.Add(item);
+
+        foreach (var item in Items)
+            item.PropertyChanged += _itemChangedHandler;
+
+        TotalCount = Items.Count;
+        IsEmpty = Items.Count == 0;
+        RecalculateChangedCount();
     }
 
     [RelayCommand]
