@@ -27,18 +27,25 @@ public class OrderPlacedStockDeductionHandlerTests
     private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly OrderPlacedStockDeductionHandler _sut;
 
+    private readonly Mock<IDistributedLockService> _lockServiceMock = new();
+
     public OrderPlacedStockDeductionHandlerTests()
     {
+        // Default lock: always succeeds
+        _lockServiceMock.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+
         _sut = new OrderPlacedStockDeductionHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _uowMock.Object, Mock.Of<IDistributedLockService>(),
+            _uowMock.Object, _lockServiceMock.Object,
             Mock.Of<ILogger<OrderPlacedStockDeductionHandler>>());
     }
 
     [Fact]
     public async Task HandleAsync_OrderNotFound_ReturnsWithoutException()
     {
-        _orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var act = () => _sut.HandleAsync(Guid.NewGuid(), "ORD-001", CancellationToken.None);
 
@@ -69,12 +76,14 @@ public class OrderPlacedStockDeductionHandlerTests
 
         var product = new Product
         {
+            Id = productId,
             Name = "Test Ürün", SKU = "TST-001", Stock = 50,
             MinimumStock = 5, SalePrice = 100m, IsActive = true
         };
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         await _sut.HandleAsync(orderId, "ORD-002", CancellationToken.None);
 
