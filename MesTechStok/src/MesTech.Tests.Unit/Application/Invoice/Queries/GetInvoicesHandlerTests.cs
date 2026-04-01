@@ -9,9 +9,10 @@ namespace MesTech.Tests.Unit.Application.Invoice.Queries;
 public class GetInvoicesHandlerTests
 {
     private readonly Mock<IInvoiceRepository> _repository = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private GetInvoicesHandler CreateHandler() =>
-        new(_repository.Object);
+        new(_repository.Object, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_DefaultQuery_ShouldReturnEmptyPagedResult()
