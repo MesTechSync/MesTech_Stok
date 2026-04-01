@@ -375,17 +375,19 @@ public class GoogleMerchantFeedAdapterTests : IntegrationTestBase
         var rawName = "Ürün <Test> & \"Özel\" 'Karakter'";
 
         // Verify the Sanitize helper logic (same logic as in the adapter)
+        // IMPORTANT: & must be encoded FIRST, before < and > — otherwise &lt; becomes &amp;lt;
         var sanitized = rawName
+            .Replace("&", "&amp;")
             .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("&", "&amp;");
+            .Replace(">", "&gt;");
 
         // The sanitized string should be valid XML content
         var testXml = $"<title>{sanitized}</title>";
         var doc = XDocument.Parse(testXml); // must not throw
-        doc.Root!.Value.Should().Contain("lt;", because: "< is encoded as &lt;");
-        doc.Root.Value.Should().Contain("gt;", because: "> is encoded as &gt;");
-        doc.Root.Value.Should().Contain("amp;", because: "& is encoded as &amp;");
+        // XDocument.Parse decodes entities — .Value returns decoded text
+        doc.Root!.Value.Should().Contain("<", because: "&lt; decodes back to < in .Value");
+        doc.Root.Value.Should().Contain(">", because: "&gt; decodes back to > in .Value");
+        doc.Root.Value.Should().Contain("&", because: "&amp; decodes back to & in .Value");
 
         // Also test that the adapter itself processes such a product without error
         var product = new Product
