@@ -177,7 +177,7 @@ public static class AccountingEndpoints
 
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion))
+                ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion?.ToArray()))
                 : Results.Conflict(new { error = result.ErrorMessage });
         })
         .WithName("UpdateJournalEntry")

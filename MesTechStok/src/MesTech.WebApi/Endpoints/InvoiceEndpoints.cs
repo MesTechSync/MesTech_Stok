@@ -160,7 +160,7 @@ public static class InvoiceEndpoints
             var result = await mediator.Send(command, ct);
             if (result.FileData.Length == 0)
                 return Results.Problem(detail: "Export produced no data", statusCode: 400);
-            return Results.File(result.FileData,
+            return Results.File(result.FileData.ToArray(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 result.FileName);
         })
@@ -179,7 +179,7 @@ public static class InvoiceEndpoints
             var contentType = command.Format.ToLowerInvariant() == "pdf"
                 ? "application/pdf"
                 : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return Results.File(result.FileData, contentType, result.FileName);
+            return Results.File(result.FileData.ToArray(), contentType, result.FileName);
         })
         .WithName("ExportInvoiceReport")
         .WithSummary("Fatura raporu dışa aktar — Excel veya PDF")

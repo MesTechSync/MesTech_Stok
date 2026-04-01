@@ -38,7 +38,7 @@ public static class ShipmentEndpoints
                 new DownloadShipmentLabelQuery(tenantId, id, Format: format ?? "PDF"), ct);
             if (result.LabelData.Length == 0)
                 return Results.Problem(detail: "Label data empty", statusCode: 400);
-            return Results.File(result.LabelData, result.ContentType, result.FileName);
+            return Results.File(result.LabelData.ToArray(), result.ContentType, result.FileName);
         })
         .WithName("DownloadShipmentLabel")
         .WithSummary("Kargo etiketi indir — PDF veya PNG formatında")

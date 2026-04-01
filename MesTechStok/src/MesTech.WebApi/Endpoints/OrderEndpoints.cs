@@ -132,7 +132,7 @@ public static class OrderEndpoints
             var result = await mediator.Send(command, ct);
             if (!result.IsSuccess || result.FileContent is null)
                 return Results.Problem(detail: result.ErrorMessage ?? "Export failed", statusCode: 400);
-            return Results.File(result.FileContent,
+            return Results.File(result.FileContent?.ToArray() ?? Array.Empty<byte>(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 result.FileName);
         })

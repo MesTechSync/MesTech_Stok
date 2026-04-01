@@ -503,7 +503,7 @@ public static class ReportEndpoints
             var result = await mediator.Send(command, ct);
             if (result.FileData.Length == 0)
                 return Results.Problem(detail: "Report export produced no data", statusCode: 400);
-            return Results.File(result.FileData,
+            return Results.File(result.FileData.ToArray(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 result.FileName);
         })
