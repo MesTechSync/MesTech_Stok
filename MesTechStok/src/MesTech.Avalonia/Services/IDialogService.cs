@@ -123,9 +123,18 @@ public class AvaloniaDialogService : IDialogService
 
     private static global::Avalonia.Controls.Window? GetMainWindow()
     {
-        return global::Avalonia.Application.Current?.ApplicationLifetime is
-            global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is not
+            global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            return null;
+
+        // P0 FIX: desktop.MainWindow kapalı olabilir (WelcomeWindow→MainWindow geçişi).
+        // Önce aktif açık pencereyi bul.
+        foreach (var w in desktop.Windows)
+        {
+            if (w is { IsVisible: true })
+                return w;
+        }
+
+        return desktop.MainWindow;
     }
 }

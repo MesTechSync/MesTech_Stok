@@ -54,7 +54,10 @@ public partial class WelcomeWindow : Window
         _imageTimer.Tick += OnImageTimerTick;
         _imageTimer.Start();
 
-        // Focus username box
+        // Auto-login if "Beni Hatırla" session is valid
+        _ = TryAutoLogin();
+
+        // Focus username box (if no auto-login)
         if (UsernameBox != null)
         {
             if (string.IsNullOrEmpty(UsernameBox.Text))
@@ -62,6 +65,14 @@ public partial class WelcomeWindow : Window
             else
                 PasswordBox?.Focus();
         }
+    }
+
+    private async Task TryAutoLogin()
+    {
+        if (_vm == null) return;
+        // Small delay to let UI render before auto-login
+        await Task.Delay(500);
+        await _vm.TryAutoLoginAsync();
     }
 
     private async void OnImageTimerTick(object? sender, EventArgs e)

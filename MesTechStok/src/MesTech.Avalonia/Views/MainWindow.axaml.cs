@@ -20,7 +20,7 @@ public partial class MainWindow : Window
     private DispatcherTimer _clockTimer;
     private DispatcherTimer _idleTimer;
     private readonly DesktopSessionManager _session;
-    private bool _sidebarExpanded = true;
+    private bool _sidebarExpanded; // default collapsed (icon-only)
     private DateTime _lastActivity = DateTime.Now;
 
     public MainWindow()
@@ -45,6 +45,9 @@ public partial class MainWindow : Window
         PointerMoved += OnPointerActivity;
         KeyDown += OnGlobalKeyDown;
         PointerPressed += OnPointerActivity;
+
+        // Sidebar starts collapsed (icon-only) — apply initial state after layout
+        Opened += (_, _) => ApplySidebarState();
     }
 
     public void SetCurrentUser(string username)
@@ -240,10 +243,36 @@ public partial class MainWindow : Window
     private void OnSidebarToggle(object? sender, RoutedEventArgs e)
     {
         _sidebarExpanded = !_sidebarExpanded;
+        ApplySidebarState();
+    }
+
+    private void ApplySidebarState()
+    {
         if (SidebarPanel != null)
             SidebarPanel.Width = _sidebarExpanded ? 240 : 60;
         if (SidebarTitle != null)
             SidebarTitle.IsVisible = _sidebarExpanded;
+        if (SidebarFooter != null)
+            SidebarFooter.IsVisible = _sidebarExpanded;
+
+        // Toggle section headers + button text labels visibility
+        var sidebar = SidebarPanel?.FindControl<ScrollViewer>("SidebarScroll");
+        if (sidebar?.Content is StackPanel stack)
+        {
+            foreach (var child in stack.Children)
+            {
+                // Hide section headers in collapsed mode
+                if (child is TextBlock tb && tb.Classes.Contains("sidebar-section"))
+                    tb.IsVisible = _sidebarExpanded;
+
+                // Hide text labels inside buttons, keep icons visible
+                if (child is Button btn && btn.Content is StackPanel sp && sp.Children.Count >= 2)
+                {
+                    if (sp.Children[1] is TextBlock label)
+                        label.IsVisible = _sidebarExpanded;
+                }
+            }
+        }
     }
 
     private void OnLogout(object? sender, RoutedEventArgs e)
