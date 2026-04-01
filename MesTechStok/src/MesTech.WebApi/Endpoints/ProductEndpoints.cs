@@ -99,7 +99,7 @@ public static class ProductEndpoints
         .WithName("GetProductVariants")
         .WithSummary("Ürün varyant matrisi — renk/beden kombinasyonları + stok")
         .Produces<ProductVariantMatrixDto>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products/{id}/variants — varyant kaydet/güncelle (G562)
         group.MapPost("/{id:guid}/variants", async (
@@ -118,7 +118,7 @@ public static class ProductEndpoints
         .WithName("SaveProductVariants")
         .WithSummary("Ürün varyantlarını toplu kaydet/güncelle — renk/beden/fiyat/stok")
         .Produces<SaveProductVariantsResult>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -135,7 +135,7 @@ public static class ProductEndpoints
         .Produces(201)
         .Produces(400)
         .Produces(403)
-        .Produces(429);
+        .Produces(429).ProducesProblem(401).ProducesProblem(429);
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -150,7 +150,7 @@ public static class ProductEndpoints
         .WithName("UpdateProduct")
         .WithSummary("Ürün güncelle")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -163,7 +163,7 @@ public static class ProductEndpoints
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)")
         .Produces(204)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (
@@ -180,7 +180,7 @@ public static class ProductEndpoints
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/products/search — paginated product search with filters
         group.MapGet("/search", async (
@@ -252,7 +252,7 @@ public static class ProductEndpoints
         .WithName("CreateBulkProducts")
         .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/products/{productId}/buybox-status — buybox durumu
         group.MapGet("/{productId:guid}/buybox-status", async (
@@ -277,7 +277,7 @@ public static class ProductEndpoints
         })
         .WithName("SearchProductsForImageMatch")
         .WithSummary("Görsel benzerlik ile ürün arama (pgvector)")
-        .Produces(200);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products/{productId}/generate-description — AI ürün açıklaması
         group.MapPost("/{productId:guid}/generate-description", async (
@@ -291,7 +291,7 @@ public static class ProductEndpoints
         })
         .WithName("GenerateProductDescription")
         .WithSummary("AI ile ürün açıklaması oluştur")
-        .Produces(200);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
@@ -351,7 +351,7 @@ public static class ProductEndpoints
         })
         .WithName("AutoCompetePrice")
         .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products/auto-compete/bulk — toplu otomatik fiyat rekabet
         group.MapPost("/auto-compete/bulk", async (
@@ -397,6 +397,6 @@ public static class ProductEndpoints
         .WithName("ExportProducts")
         .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
 }
