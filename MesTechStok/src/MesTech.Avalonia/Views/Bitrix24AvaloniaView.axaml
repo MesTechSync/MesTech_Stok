@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.Bitrix24AvaloniaView"
              x:Name="RootBitrix24AvaloniaView"
              x:DataType="vm:Bitrix24AvaloniaViewModel"
@@ -11,13 +12,9 @@
 
     <!-- G096: Bitrix24 CRM Kanban Pipeline -->
     <Panel>
-    <!-- Loading -->
-    <Border IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel Spacing="12" HorizontalAlignment="Center">
-            <ProgressBar IsIndeterminate="True" Width="200" />
-            <TextBlock Text="Pipeline yukleniyor..." Foreground="{DynamicResource MesTextSecondary}"
-                       HorizontalAlignment="Center" />
-        </StackPanel>
+    <!-- Loading Skeleton -->
+    <Border IsVisible="{Binding IsLoading}" Background="{DynamicResource MesBgPage}">
+        <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
     </Border>
 
     <!-- Error -->
