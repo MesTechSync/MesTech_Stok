@@ -6,6 +6,7 @@ using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
 using MesTech.Application.Features.System.LaunchReadiness;
 using MesTech.Application.Features.System.Users;
+using MesTech.Infrastructure.Jobs;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -60,17 +61,11 @@ public static class SystemHealthEndpoints
         .WithName("GetSystemStatus")
         .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)").Produces(200).Produces(400);
 
-        // GET /api/v1/admin/system/jobs — arka plan iş listesi
-        // DEV4-DEPENDENCY: Hangfire entegrasyonu henüz yok
-        group.MapGet("/jobs", () =>
-            Results.Ok(new
-            {
-                Message = "Background jobs endpoint — Hangfire integration pending (DEV4-DEPENDENCY)",
-                Jobs = Array.Empty<object>(),
-                Status = "not_implemented"
-            }))
+        // GET /api/v1/admin/system/jobs — recurring job dashboard
+        group.MapGet("/jobs", (HangfireJobMonitorService monitor) =>
+            Results.Ok(monitor.GetDashboard()))
         .WithName("GetBackgroundJobs")
-        .WithSummary("Arka plan iş listesi — Hangfire (DEV4-DEPENDENCY)").Produces(200).Produces(400);
+        .WithSummary("Hangfire recurring job dashboard — status, lastExec, nextExec, cron").Produces(200).Produces(400);
 
         // GET /api/v1/admin/system/launch-readiness — canliya cikis hazirlik raporu
         group.MapGet("/launch-readiness", async (
