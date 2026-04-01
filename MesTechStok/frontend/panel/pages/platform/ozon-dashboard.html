@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Ozon Yonetim Paneli
+  Version: 1.0.0
+  Date: 2026-04-01
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: Platform HTML Panel Pages
+  Status: ACTIVE
+  DOM-SAFE: createElement + textContent only (no innerHTML)
+  DEPENDENCIES: Bootstrap 5.3.0, FontAwesome 6.4.0, Chart.js 4.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' cdnjs.cloudflare.com fonts.gstatic.com; connect-src 'self' localhost:*">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MesTech Panel - Ozon yonetim paneli">
+  <meta name="theme-color" content="#005BFF">
+  <title>MesTech Stok - Ozon Yonetim Paneli</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #005BFF;
+      --mestech-primary-hover: #0047cc;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    [data-theme="dark"] {
+      --mestech-bg: #0f172a;
+      --mestech-card-bg: #1e293b;
+      --mestech-text: #f1f5f9;
+      --mestech-text-secondary: #94a3b8;
+      --mestech-border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mestech-bg);
+      color: var(--mestech-text);
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .dashboard-main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header-bar {
+      background: linear-gradient(135deg, var(--mestech-primary), var(--mestech-primary-hover));
+      color: #fff;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--mestech-radius);
+    }
+    .page-header-bar .breadcrumb-item a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+
+    /* KPI Cards */
+    .kpi-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      padding: 20px;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mestech-shadow-md);
+    }
+    .kpi-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    /* Data Cards */
+    .data-card {
+      background: var(--mestech-card-bg);
+      border: none;
+      border-radius: var(--mestech-radius);
+      box-shadow: var(--mestech-shadow-sm);
+      margin-bottom: 24px;
+    }
+    .data-card .card-header-custom {
+      background: var(--mestech-card-bg);
+      border-bottom: 1px solid var(--mestech-border);
+      padding: 16px 20px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: var(--mestech-radius) var(--mestech-radius) 0 0;
+    }
+    .data-card .card-body-custom {
+      padding: 20px;
+    }
+
+    /* Chart container */
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Sync indicator */
+    .sync-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .sync-dot.active { background: var(--mestech-success); }
+    .sync-dot.error { background: var(--mestech-danger); }
+    .sync-dot.pending { background: var(--mestech-warning); }
+
+    /* Settings form */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--mestech-border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (max-width: 767px) {
+      .dashboard-main { padding: 12px; }
+      .page-header-bar { padding: 16px; }
+    }
+    @media print {
+      .sidebar, .navbar, .btn, .no-print, nav, footer { display: none !important; }
+      .content, .main-content, main { width: 100% !important; margin: 0 !important; }
+      body { background: white !important; color: black !important; font-size: 12pt !important; }
+      .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+      table { font-size: 10pt; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js" integrity="sha384-XQqX/4yiUGu+oyr87jvWzRuqBUK/adrY0DunhL+tID9m/9dwSpV8h9Fk/Sg6ifVQ" crossorigin="anonymous"></script>
+  <script src="../../js/mestech-sanitize.js"></script>
+  <script src="../../js/mestech-api.js"></script>
+  <script src="../../js/mestech-theme.js"></script>
+  <script src="../../js/mestech-toast.js"></script>
+</head>
+<body>
+  <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
+  <div id="root">
+    <!-- Header placeholder -->
+    <div id="header-component"></div>
+    <!-- Sidebar placeholder -->
+    <div id="sidebar-component"></div>
+
+    <main class="dashboard-main">
+
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold">Ozon Yonetim Paneli</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="#">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="#">Platform</a></li>
+                <li class="breadcrumb-item active">Ozon</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button data-theme-toggle class="btn btn-sm btn-outline-light" title="Koyu temaya gec">
+              <i class="fas fa-moon"></i>
+            </button>
+            <div class="text-end">
+              <small class="d-block opacity-75">Son guncelleme</small>
+              <strong id="last-update-time">--:--:--</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="row g-3 mb-4" id="kpi-row">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Charts & Sync Row -->
+      <div class="row g-4 mb-4">
+        <!-- Order Status Pie Chart -->
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-chart-pie me-2 text-info"></i>Siparis Durum Dagilimi</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-wrapper">
+                <canvas id="orderStatusPieChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync Status Panel -->
+        <div class="col-lg-7">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-sync-alt me-2 text-success"></i>Senkronizasyon Durumu</span>
+              <button class="btn btn-sm btn-outline-primary" id="btn-sync-now" title="Simdi senkronize et">
+                <i class="fas fa-refresh me-1"></i>Senkronize Et
+              </button>
+            </div>
+            <div class="card-body-custom" id="sync-status-body">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tables Row -->
+      <div class="row g-4 mb-4">
+        <!-- Products DataGrid -->
+        <div class="col-lg-7">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-boxes-stacked me-2 text-primary"></i>Urunler</span>
+              <span class="badge bg-primary" id="product-count-badge">0</span>
+            </div>
+            <div class="card-body-custom" id="products-table-body">
+              <div style="display:flex;align-items:center;justify-content:center;padding:40px;">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Yukleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-shopping-cart me-2 text-warning"></i>Siparisler</span>
+              <span class="badge bg-warning text-dark" id="order-count-badge">0</span>
+            </div>
+            <div class="card-body-custom" id="orders-table-body">
+              <div style="display:flex;align-items:center;justify-content:center;padding:40px;">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Yukleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Settings -->
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="data-card">
+            <div class="card-header-custom">
+              <span><i class="fas fa-cog me-2 text-secondary"></i>API Baglanti Ayarlari</span>
+            </div>
+            <div class="card-body-custom" id="api-settings-body">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-component"></div>
+  </div>
+
+  <script>
+  // ========================================
+  // MesTech Stok Panel - Ozon Yonetim Paneli
+  // DEV 2 — Platform HTML Panel Pages
+  // DOM-SAFE: No innerHTML usage (XSS hardening)
+  // ========================================
+
+  (function() {
+    'use strict';
+
+    var API_BASE = 'http://localhost:3100/api/v1/ozon';
+    var orderStatusChart = null;
+
+    // ========================================
+    // DOM Helper Utilities (XSS-safe)
+    // ========================================
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(key) {
+          if (key === 'className') {
+            node.className = attrs[key];
+          } else if (key === 'style' && typeof attrs[key] === 'object') {
+            Object.keys(attrs[key]).forEach(function(prop) {
+              node.style[prop] = attrs[key][prop];
+            });
+          } else if (key === 'textContent') {
+            node.textContent = attrs[key];
+          } else if (key.indexOf('data-') === 0) {
+            node.setAttribute(key, attrs[key]);
+          } else {
+            node.setAttribute(key, attrs[key]);
+          }
+        });
+      }
+      if (children) {
+        if (!Array.isArray(children)) children = [children];
+        children.forEach(function(child) {
+          if (typeof child === 'string') {
+            node.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            node.appendChild(child);
+          }
+        });
+      }
+      return node;
+    }
+
+    function clearChildren(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+
+    function formatCurrency(value) {
+      if (typeof value !== 'number') return '0';
+      return value.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    // ========================================
+    // KPI Cards (DOM-SAFE)
+    // ========================================
+    var kpiDefs = [
+      {
+        id: 'active-products',
+        title: 'Aktif Urun',
+        icon: 'fas fa-boxes-stacked',
+        iconBg: 'rgba(16, 185, 129, 0.12)',
+        iconColor: '#10b981',
+        dataKey: 'activeProductCount',
+        format: function(v) { return formatCurrency(v); }
+      },
+      {
+        id: 'order-count',
+        title: 'Siparis',
+        icon: 'fas fa-shopping-cart',
+        iconBg: 'rgba(59, 130, 246, 0.12)',
+        iconColor: '#3b82f6',
+        dataKey: 'orderCount',
+        format: function(v) { return formatCurrency(v); }
+      },
+      {
+        id: 'revenue',
+        title: 'Ciro',
+        icon: 'fas fa-ruble-sign',
+        iconBg: 'rgba(139, 92, 246, 0.12)',
+        iconColor: '#8b5cf6',
+        dataKey: 'revenue',
+        format: function(v) { return formatCurrency(v) + ' RUB'; }
+      },
+      {
+        id: 'api-status',
+        title: 'API Durumu',
+        icon: 'fas fa-plug',
+        iconBg: 'rgba(245, 158, 11, 0.12)',
+        iconColor: '#f59e0b',
+        dataKey: 'apiStatus',
+        format: function(v) { return v === 'connected' ? 'Bagli' : 'Bagli Degil'; }
+      }
+    ];
+
+    function renderKpiCards(data) {
+      var row = document.getElementById('kpi-row');
+      clearChildren(row);
+      kpiDefs.forEach(function(kpi) {
+        var val = data[kpi.dataKey] !== undefined ? data[kpi.dataKey] : 0;
+        var col = el('div', { className: 'col-sm-6 col-xl-3' });
+        var card = el('div', { className: 'kpi-card' });
+        var top = el('div', { className: 'd-flex justify-content-between align-items-start' });
+        var left = el('div');
+        left.appendChild(el('div', { className: 'text-muted mb-1', style: { fontSize: '0.8rem' }, textContent: kpi.title }));
+        left.appendChild(el('h3', { className: 'fw-bold mb-0', textContent: kpi.format(val) }));
+        var iconDiv = el('div', { className: 'kpi-icon-badge', style: { background: kpi.iconBg, color: kpi.iconColor } });
+        iconDiv.appendChild(el('i', { className: kpi.icon }));
+        top.appendChild(left);
+        top.appendChild(iconDiv);
+        card.appendChild(top);
+        col.appendChild(card);
+        row.appendChild(col);
+      });
+    }
+
+    // ========================================
+    // Products Table (DOM-SAFE)
+    // ========================================
+    function renderProductsTable(products) {
+      var body = document.getElementById('products-table-body');
+      clearChildren(body);
+      var badge = document.getElementById('product-count-badge');
+      badge.textContent = String(products.length);
+
+      var wrapper = el('div', { className: 'table-responsive' });
+      var table = el('table', { className: 'table table-hover table-sm mb-0' });
+      var thead = el('thead');
+      var headRow = el('tr');
+      ['ID', 'Baslik', 'Fiyat', 'Stok', 'Durum'].forEach(function(h) {
+        headRow.appendChild(el('th', { className: 'text-nowrap', textContent: h }));
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      var tbody = el('tbody');
+      products.forEach(function(p) {
+        var tr = el('tr');
+        tr.appendChild(el('td', { textContent: String(p.id) }));
+        tr.appendChild(el('td', { textContent: p.title }));
+        tr.appendChild(el('td', { textContent: formatCurrency(p.price) + ' RUB' }));
+        tr.appendChild(el('td', { textContent: String(p.stock) }));
+        var statusTd = el('td');
+        var statusColor = p.status === 'Aktif' ? 'bg-success' : (p.status === 'Pasif' ? 'bg-secondary' : 'bg-warning text-dark');
+        statusTd.appendChild(el('span', { className: 'status-badge ' + statusColor, textContent: p.status }));
+        tr.appendChild(statusTd);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      body.appendChild(wrapper);
+    }
+
+    // ========================================
+    // Orders Table (DOM-SAFE)
+    // ========================================
+    function renderOrdersTable(orders) {
+      var body = document.getElementById('orders-table-body');
+      clearChildren(body);
+      var badge = document.getElementById('order-count-badge');
+      badge.textContent = String(orders.length);
+
+      var wrapper = el('div', { className: 'table-responsive' });
+      var table = el('table', { className: 'table table-hover table-sm mb-0' });
+      var thead = el('thead');
+      var headRow = el('tr');
+      ['Siparis No', 'Musteri', 'Tutar', 'Durum', 'Tarih'].forEach(function(h) {
+        headRow.appendChild(el('th', { className: 'text-nowrap', textContent: h }));
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      var tbody = el('tbody');
+      orders.forEach(function(o) {
+        var tr = el('tr');
+        tr.appendChild(el('td', { className: 'fw-semibold', textContent: o.orderNo }));
+        tr.appendChild(el('td', { textContent: o.customer }));
+        tr.appendChild(el('td', { textContent: formatCurrency(o.amount) + ' RUB' }));
+        var statusTd = el('td');
+        var sc = o.status === 'Teslim Edildi' ? 'bg-success' : (o.status === 'Kargoda' ? 'bg-info' : 'bg-warning text-dark');
+        statusTd.appendChild(el('span', { className: 'status-badge ' + sc, textContent: o.status }));
+        tr.appendChild(statusTd);
+        tr.appendChild(el('td', { textContent: o.date }));
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      body.appendChild(wrapper);
+    }
+
+    // ========================================
+    // Sync Status Panel (DOM-SAFE)
+    // ========================================
+    function renderSyncStatus(syncData) {
+      var body = document.getElementById('sync-status-body');
+      clearChildren(body);
+      syncData.forEach(function(item) {
+        var row = el('div', { className: 'setting-row' });
+        var left = el('div', { className: 'd-flex align-items-center' });
+        var dotClass = item.status === 'ok' ? 'active' : (item.status === 'error' ? 'error' : 'pending');
+        left.appendChild(el('span', { className: 'sync-dot ' + dotClass }));
+        left.appendChild(el('span', { className: 'fw-semibold', textContent: item.label }));
+        row.appendChild(left);
+        var right = el('div', { className: 'text-end' });
+        right.appendChild(el('small', { className: 'text-muted', textContent: item.lastSync }));
+        row.appendChild(right);
+        body.appendChild(row);
+      });
+    }
+
+    // ========================================
+    // API Settings Form (DOM-SAFE)
+    // ========================================
+    function renderApiSettings() {
+      var body = document.getElementById('api-settings-body');
+      clearChildren(body);
+
+      var form = el('form', { id: 'ozon-api-form' });
+
+      // Client ID
+      var group1 = el('div', { className: 'mb-3' });
+      group1.appendChild(el('label', { className: 'form-label fw-semibold', textContent: 'Client ID' }));
+      group1.appendChild(el('input', { type: 'text', className: 'form-control', id: 'ozon-client-id', placeholder: 'Ozon Client ID giriniz' }));
+      form.appendChild(group1);
+
+      // API Key
+      var group2 = el('div', { className: 'mb-3' });
+      group2.appendChild(el('label', { className: 'form-label fw-semibold', textContent: 'API Key' }));
+      group2.appendChild(el('input', { type: 'password', className: 'form-control', id: 'ozon-api-key', placeholder: 'Ozon API Key giriniz' }));
+      form.appendChild(group2);
+
+      // Save button
+      var btnRow = el('div', { className: 'd-flex justify-content-end' });
+      var saveBtn = el('button', { type: 'button', className: 'btn btn-primary', id: 'btn-save-api' });
+      saveBtn.appendChild(el('i', { className: 'fas fa-save me-1' }));
+      saveBtn.appendChild(document.createTextNode('Kaydet'));
+      btnRow.appendChild(saveBtn);
+      form.appendChild(btnRow);
+
+      body.appendChild(form);
+
+      // Save handler
+      saveBtn.addEventListener('click', function() {
+        var clientId = document.getElementById('ozon-client-id').value;
+        var apiKey = document.getElementById('ozon-api-key').value;
+        fetch(API_BASE + '/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: clientId, apiKey: apiKey })
+        }).then(function() {
+          saveBtn.textContent = 'Kaydedildi!';
+          setTimeout(function() {
+            clearChildren(saveBtn);
+            saveBtn.appendChild(el('i', { className: 'fas fa-save me-1' }));
+            saveBtn.appendChild(document.createTextNode('Kaydet'));
+          }, 2000);
+        }).catch(function() {
+          saveBtn.textContent = 'Hata!';
+        });
+      });
+    }
+
+    // ========================================
+    // Chart.js: Order Status Pie (DOM-SAFE)
+    // ========================================
+    function renderOrderStatusChart(data) {
+      var ctx = document.getElementById('orderStatusPieChart');
+      if (!ctx) return;
+      if (orderStatusChart) orderStatusChart.destroy();
+      orderStatusChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            data: data.values,
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+            borderWidth: 2,
+            borderColor: 'var(--mestech-card-bg)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } }
+          }
+        }
+      });
+    }
+
+    // ========================================
+    // Mock Data & API Fetch
+    // ========================================
+    var mockData = {
+      kpi: {
+        activeProductCount: 2340,
+        orderCount: 587,
+        revenue: 3250000,
+        apiStatus: 'connected'
+      },
+      products: [
+        { id: 'OZ-5001', title: 'Kablosuz Sarj Standı', price: 2490, stock: 210, status: 'Aktif' },
+        { id: 'OZ-5002', title: 'Akilli Saat Kordon', price: 890, stock: 540, status: 'Aktif' },
+        { id: 'OZ-5003', title: 'Tasinabilir SSD 1TB', price: 6990, stock: 0, status: 'Pasif' },
+        { id: 'OZ-5004', title: 'LED Masa Lambasi', price: 3450, stock: 125, status: 'Aktif' },
+        { id: 'OZ-5005', title: 'Mikrofon USB Profesyonel', price: 8900, stock: 67, status: 'Aktif' },
+        { id: 'OZ-5006', title: 'Oyuncu Mouse 16000DPI', price: 4200, stock: 300, status: 'Aktif' },
+        { id: 'OZ-5007', title: 'Tablet Kilif Universal', price: 1250, stock: 0, status: 'Pasif' }
+      ],
+      orders: [
+        { orderNo: 'OZN-70001', customer: 'Aleksei P.', amount: 8900, status: 'Teslim Edildi', date: '2026-03-30' },
+        { orderNo: 'OZN-70002', customer: 'Maria S.', amount: 14480, status: 'Kargoda', date: '2026-03-31' },
+        { orderNo: 'OZN-70003', customer: 'Dmitry K.', amount: 6990, status: 'Hazirlaniyor', date: '2026-04-01' },
+        { orderNo: 'OZN-70004', customer: 'Olga V.', amount: 3450, status: 'Teslim Edildi', date: '2026-03-29' },
+        { orderNo: 'OZN-70005', customer: 'Ivan T.', amount: 12600, status: 'Kargoda', date: '2026-03-31' }
+      ],
+      syncStatus: [
+        { label: 'Urun Senkronizasyonu', status: 'ok', lastSync: '01.04.2026 09:20' },
+        { label: 'Siparis Senkronizasyonu', status: 'ok', lastSync: '01.04.2026 09:15' },
+        { label: 'Stok Guncelleme', status: 'ok', lastSync: '01.04.2026 09:00' },
+        { label: 'Fiyat Senkronizasyonu', status: 'pending', lastSync: '01.04.2026 08:30' },
+        { label: 'Kategori Esleme', status: 'ok', lastSync: '01.04.2026 07:45' }
+      ],
+      orderStatusChart: {
+        labels: ['Teslim Edildi', 'Kargoda', 'Hazirlaniyor', 'Iptal', 'Iade'],
+        values: [256, 148, 97, 52, 34]
+      }
+    };
+
+    function fetchDashboardData() {
+      fetch(API_BASE + '/dashboard')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          applyData(data);
+        })
+        .catch(function() {
+          applyData(mockData);
+        });
+    }
+
+    function applyData(data) {
+      renderKpiCards(data.kpi || mockData.kpi);
+      renderProductsTable(data.products || mockData.products);
+      renderOrdersTable(data.orders || mockData.orders);
+      renderSyncStatus(data.syncStatus || mockData.syncStatus);
+      renderOrderStatusChart(data.orderStatusChart || mockData.orderStatusChart);
+      var now = new Date();
+      var ts = now.toLocaleTimeString('tr-TR');
+      document.getElementById('last-update-time').textContent = ts;
+    }
+
+    // ========================================
+    // Sync Button Handler
+    // ========================================
+    function initSyncButton() {
+      var btn = document.getElementById('btn-sync-now');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        btn.disabled = true;
+        clearChildren(btn);
+        btn.appendChild(el('i', { className: 'fas fa-spinner fa-spin me-1' }));
+        btn.appendChild(document.createTextNode('Senkronize ediliyor...'));
+        fetch(API_BASE + '/sync', { method: 'POST' })
+          .then(function() { fetchDashboardData(); })
+          .catch(function() { fetchDashboardData(); })
+          .finally(function() {
+            btn.disabled = false;
+            clearChildren(btn);
+            btn.appendChild(el('i', { className: 'fas fa-refresh me-1' }));
+            btn.appendChild(document.createTextNode('Senkronize Et'));
+          });
+      });
+    }
+
+    // ========================================
+    // Theme Toggle
+    // ========================================
+    function initThemeToggle() {
+      var btn = document.querySelector('[data-theme-toggle]');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', current === 'dark' ? '' : 'dark');
+      });
+    }
+
+    // ========================================
+    // Init
+    // ========================================
+    function init() {
+      renderApiSettings();
+      initSyncButton();
+      initThemeToggle();
+      fetchDashboardData();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
