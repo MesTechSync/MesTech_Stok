@@ -1,5 +1,5 @@
 using MediatR;
-using MesTech.Application.Commands.CreateExpense;
+using MesTech.Application.Features.Finance.Commands.CreateExpense;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Infrastructure.Messaging.Mesa;
@@ -39,12 +39,11 @@ public sealed class InvoiceGeneratedExpenseHandler
 
         var command = new CreateExpenseCommand(
             TenantId: e.TenantId,
-            StoreId: null,
-            Description: $"Fatura gideri — Fatura #{e.InvoiceId:N} (Tip: {e.Type})",
+            Title: $"Fatura gideri — Fatura #{e.InvoiceId:N} (Tip: {e.Type})",
             Amount: e.GrandTotal,
-            ExpenseType: ExpenseType.Diger,
-            Date: e.OccurredAt,
-            Note: $"Otomatik olusturuldu. InvoiceId: {e.InvoiceId}, OrderId: {e.OrderId}");
+            Category: ExpenseCategory.Other,
+            ExpenseDate: e.OccurredAt,
+            Notes: $"Otomatik olusturuldu. InvoiceId: {e.InvoiceId}, OrderId: {e.OrderId}");
 
         var expenseId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
 

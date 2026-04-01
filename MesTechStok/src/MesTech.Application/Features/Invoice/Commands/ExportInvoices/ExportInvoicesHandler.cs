@@ -26,7 +26,7 @@ public sealed class ExportInvoicesHandler : IRequestHandler<ExportInvoicesComman
 
         var result = new ExportInvoicesResult
         {
-            FileData = [], // Infrastructure concern — IExcelExportService / ICsvExportService
+            FileData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — IExcelExportService / ICsvExportService
             FileName = $"faturalar_{fromPart}_{toPart}.{extension}",
             ExportedCount = 0
         };

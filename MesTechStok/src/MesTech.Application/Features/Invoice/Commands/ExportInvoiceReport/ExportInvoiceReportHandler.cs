@@ -27,7 +27,7 @@ public sealed class ExportInvoiceReportHandler : IRequestHandler<ExportInvoiceRe
 
         var result = new ExportInvoiceReportResult
         {
-            FileData = [], // Infrastructure concern — IExcelExportService / IPdfExportService
+            FileData = ReadOnlyMemory<byte>.Empty, // Infrastructure concern — IExcelExportService / IPdfExportService
             FileName = $"fatura_rapor_{periodPart}_{fromPart}_{toPart}.{extension}",
             ExportedCount = 0
         };
