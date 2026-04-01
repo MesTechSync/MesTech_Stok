@@ -23,6 +23,13 @@ public sealed class InvoiceRepository : IInvoiceRepository
             .Take(maxCount)
             .ToListAsync(ct).ConfigureAwait(false);
 
+    public async Task<IReadOnlyList<Invoice>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
+        => await _context.Invoices
+            .AsNoTracking()
+            .Where(i => i.TenantId == tenantId)
+            .OrderByDescending(i => i.InvoiceDate)
+            .ToListAsync(ct).ConfigureAwait(false);
+
     public async Task AddAsync(Invoice invoice)
         => await _context.Invoices.AddAsync(invoice).ConfigureAwait(false);
 
