@@ -59,8 +59,13 @@ public abstract class FlaUITestBase : IAsyncLifetime
         }
         catch (Exception ex)
         {
-            Output.WriteLine($"Login exception: {ex.Message}");
-            LoginSucceeded = false;
+            // Login form bulunamadı — "Beni Hatırla" ile otomatik login olmuş olabilir
+            Output.WriteLine($"Login note: {ex.Message}");
+            // MainWindow açıldıysa login başarılı sayılır
+            var mw = WaitForWindow("MesTech", 5000);
+            LoginSucceeded = mw is not null;
+            if (LoginSucceeded)
+                Output.WriteLine("Login: Auto-login (Beni Hatirla) — MainWindow acik");
         }
 
         await Task.Delay(4000);
@@ -223,25 +228,90 @@ public abstract class FlaUITestBase : IAsyncLifetime
 
     private void DoLogin(Window window)
     {
+        // Avalonia UIA: x:Name → AutomationId desteksiz. Watermark/TextBlock Text ile ara.
         AutomationElement? userEl = null, passEl = null, loginEl = null;
 
-        try { userEl = window.FindFirstDescendant(CF.ByAutomationId("UsernameBox")); } catch { }
-        userEl ??= window.FindFirstDescendant(CF.ByName("UsernameBox"))
-            ?? window.FindFirstDescendant(CF.ByName("Kullanıcı Adı"));
+        // Username TextBox — Watermark "Kullanici adinizi girin" veya label "Kullanici Adi"
+        var all = window.FindAllDescendants();
+        foreach (var el in all)
+        {
+            string name, helpText;
+            try { name = el.Name ?? ""; helpText = el.HelpText ?? ""; } catch { continue; }
 
-        try { passEl = window.FindFirstDescendant(CF.ByAutomationId("PasswordBox")); } catch { }
-        passEl ??= window.FindFirstDescendant(CF.ByName("PasswordBox"));
+            if (el.ControlType == FlaUI.Core.Definitions.ControlType.Edit
+                || el.ControlType == FlaUI.Core.Definitions.ControlType.Document)
+            {
+                if (name.Contains("Kullanici", StringComparison.OrdinalIgnoreCase)
+                    || helpText.Contains("Kullanici", StringComparison.OrdinalIgnoreCase)
+                    || name.Contains("username", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (userEl is null) userEl = el;
+                    else passEl = el; // İkinci Edit = password
+                }
+                else if (name.Contains("Sifre", StringComparison.OrdinalIgnoreCase)
+                    || helpText.Contains("Sifre", StringComparison.OrdinalIgnoreCase)
+                    || name.Contains("password", StringComparison.OrdinalIgnoreCase))
+                {
+                    passEl = el;
+                }
+            }
 
-        try { loginEl = window.FindFirstDescendant(CF.ByAutomationId("LoginButton")); } catch { }
-        loginEl ??= window.FindFirstDescendant(CF.ByName("LoginButton"))
-            ?? window.FindFirstDescendant(CF.ByName("GİRİŞ YAP"));
+            if (el.ControlType == FlaUI.Core.Definitions.ControlType.Button
+                && (name.Contains("GIRIS", StringComparison.OrdinalIgnoreCase)
+                    || name.Contains("Login", StringComparison.OrdinalIgnoreCase)
+                    || name.Contains("Giriş", StringComparison.OrdinalIgnoreCase)))
+            {
+                loginEl = el;
+            }
+        }
+
+        // Fallback: sırayla ilk 2 Edit elemanı = username, password
+        if (userEl is null)
+        {
+            var edits = all.Where(e =>
+            {
+                try { return e.ControlType == FlaUI.Core.Definitions.ControlType.Edit; } catch { return false; }
+            }).Take(2).ToArray();
+            if (edits.Length >= 1) userEl = edits[0];
+            if (edits.Length >= 2) passEl = edits[1];
+        }
+
+        // Fallback: "GIRIS YAP" text'ini içeren TextBlock'un parent Button'ı
+        if (loginEl is null)
+        {
+            foreach (var el in all)
+            {
+                try
+                {
+                    if (el.ControlType == FlaUI.Core.Definitions.ControlType.Text
+                        && (el.Name ?? "").Contains("GIRIS", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var parent = el.Parent;
+                        while (parent is not null && parent.ControlType != FlaUI.Core.Definitions.ControlType.Button)
+                            parent = parent.Parent;
+                        if (parent is not null) { loginEl = parent; break; }
+                    }
+                }
+                catch { continue; }
+            }
+        }
 
         if (userEl is null || loginEl is null)
-            throw new InvalidOperationException("Login form bulunamadi (UsernameBox/LoginButton)");
+        {
+            // Debug dump
+            Output.WriteLine("LOGIN DEBUG — Element dump:");
+            var count = 0;
+            foreach (var el in all)
+            {
+                if (count++ > 50) break;
+                try { Output.WriteLine($"  Type={el.ControlType} Name='{el.Name}' Help='{el.HelpText}'"); } catch { }
+            }
+            throw new InvalidOperationException($"Login form bulunamadi (user={userEl is not null}, login={loginEl is not null})");
+        }
 
-        userEl.AsTextBox().Click(); Thread.Sleep(200);
-        Keyboard.Type(Username); Thread.Sleep(200);
-        if (passEl is not null) { passEl.AsTextBox().Click(); Thread.Sleep(200); Keyboard.Type(Password); Thread.Sleep(200); }
+        userEl.AsTextBox().Click(); Thread.Sleep(300);
+        Keyboard.Type(Username); Thread.Sleep(300);
+        if (passEl is not null) { passEl.AsTextBox().Click(); Thread.Sleep(300); Keyboard.Type(Password); Thread.Sleep(300); }
         loginEl.AsButton().Click(); Thread.Sleep(2000);
     }
 
