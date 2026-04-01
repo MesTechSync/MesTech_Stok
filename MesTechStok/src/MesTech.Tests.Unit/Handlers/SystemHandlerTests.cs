@@ -57,8 +57,11 @@ public class SystemHandlerTests
     [Fact]
     public async Task GetBackupHistory_ReturnsEmptyList()
     {
+        var backupRepo = new Mock<IBackupEntryRepository>();
+        backupRepo.Setup(r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<BackupEntry>().AsReadOnly());
         var sut = new GetBackupHistoryHandler(
-            Mock.Of<IBackupEntryRepository>(),
+            backupRepo.Object,
             NullLogger<GetBackupHistoryHandler>.Instance);
         var query = new GetBackupHistoryQuery(_tenantId, 10);
 
@@ -169,10 +172,27 @@ public class SystemHandlerTests
         tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(tenant);
 
+        var storeRepo = new Mock<IStoreRepository>();
+        storeRepo.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Store>().AsReadOnly());
+
+        var orderRepo = new Mock<IOrderRepository>();
+        orderRepo.Setup(r => r.GetByDateRangeAsync(
+                It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Order>().AsReadOnly());
+
+        var productRepo = new Mock<IProductRepository>();
+        productRepo.Setup(r => r.CountByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<User>().AsReadOnly());
+
         var sut = new ExportPersonalDataHandler(
-            tenantRepo.Object, new Mock<IStoreRepository>().Object,
-            new Mock<IOrderRepository>().Object, new Mock<IProductRepository>().Object,
-            new Mock<IUserRepository>().Object, new Mock<IKvkkAuditLogRepository>().Object,
+            tenantRepo.Object, storeRepo.Object,
+            orderRepo.Object, productRepo.Object,
+            userRepo.Object, new Mock<IKvkkAuditLogRepository>().Object,
             new Mock<IUnitOfWork>().Object,
             NullLogger<ExportPersonalDataHandler>.Instance);
 
