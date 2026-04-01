@@ -30,7 +30,8 @@ public class CommissionReportHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         result.Should().NotBeNull();
+        // Handler calls repo twice: once for data, once for period comparison
         _commissionRepoMock.Verify(r => r.GetByPlatformAsync(
-            _tenantId, "Trendyol", It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+            _tenantId, "Trendyol", It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 }
