@@ -30,7 +30,11 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0" Watermark="Talep ara..." AutomationProperties.Name="Talep ara..." Width="250" HorizontalAlignment="Left" />
+                <TextBox Grid.Column="0" Text="{Binding SearchText}"
+                         Watermark="Ara..." AutomationProperties.Name="Ara..."
+                         Width="240" Padding="10,8"
+                         CornerRadius="{StaticResource MesRadiusMd}"
+                         FontSize="{StaticResource FontSizeBody}" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Durum" Width="120" Margin="8,0"  AutomationProperties.Name="Durum" />
                 <Button Grid.Column="2" Content="+ Yeni Talep" Command="{Binding AddCommand}"
                         Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"

@@ -18,6 +18,11 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="Denetim Kayitlari" Foreground="{DynamicResource MesBgPrimary}"
                                FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding SearchText}"
+                             Watermark="Ara..." AutomationProperties.Name="Ara..."
+                             Width="240" Padding="10,8"
+                             CornerRadius="{StaticResource MesRadiusMd}"
+                             FontSize="{StaticResource FontSizeBody}" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="CSV Disari Aktar"
                         ToolTip.Tip="CSV Disari Aktar"

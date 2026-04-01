@@ -21,6 +21,11 @@
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hesap'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
+                    <TextBox Text="{Binding SearchText}"
+                             Watermark="Ara..." AutomationProperties.Name="Ara..."
+                             Width="240" Padding="10,8"
+                             CornerRadius="{StaticResource MesRadiusMd}"
+                             FontSize="{StaticResource FontSizeBody}" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"

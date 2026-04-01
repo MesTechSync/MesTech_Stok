@@ -17,8 +17,11 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private int totalCount;
+
+    private readonly List<LeaveRequestItemDto> _allItems = [];
 
     public ObservableCollection<LeaveRequestItemDto> LeaveRequests { get; } = [];
 
@@ -39,10 +42,10 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
         {
             var requests = await _mediator.Send(new GetLeaveRequestsQuery(_currentUser.TenantId));
 
-            LeaveRequests.Clear();
+            _allItems.Clear();
             foreach (var r in requests)
             {
-                LeaveRequests.Add(new LeaveRequestItemDto
+                _allItems.Add(new LeaveRequestItemDto
                 {
                     EmployeeName = r.EmployeeName,
                     LeaveType = r.LeaveType,
@@ -54,10 +57,9 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = LeaveRequests.Count;
             var pending = requests.Count(r => r.Status == "Beklemede");
-            Summary = $"{TotalCount} izin talebi, {pending} onay bekliyor.";
-            IsEmpty = TotalCount == 0;
+            Summary = $"{_allItems.Count} izin talebi, {pending} onay bekliyor.";
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -68,6 +70,23 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        LeaveRequests.Clear();
+        var filtered = _allItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(r =>
+                r.EmployeeName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.LeaveType.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered)
+            LeaveRequests.Add(item);
+        TotalCount = LeaveRequests.Count;
+        IsEmpty = LeaveRequests.Count == 0;
     }
 
     [RelayCommand]

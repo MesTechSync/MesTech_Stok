@@ -19,6 +19,8 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
+    private readonly List<ScheduleItemDto> _allItems = [];
+
     public ObservableCollection<ScheduleItemDto> Schedules { get; } = [];
 
     public WorkScheduleAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
@@ -37,10 +39,10 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
         {
             var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
 
-            Schedules.Clear();
+            _allItems.Clear();
             foreach (var e in employees)
             {
-                Schedules.Add(new ScheduleItemDto
+                _allItems.Add(new ScheduleItemDto
                 {
                     EmployeeName = $"{e.EmployeeCode} — {e.JobTitle}",
                     DayOfWeek = "Pazartesi-Cuma",
@@ -50,8 +52,7 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = Schedules.Count;
-            IsEmpty = TotalCount == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -62,6 +63,23 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        Schedules.Clear();
+        var filtered = _allItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(r =>
+                r.EmployeeName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.ShiftType.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.DayOfWeek.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered)
+            Schedules.Add(item);
+        TotalCount = Schedules.Count;
+        IsEmpty = Schedules.Count == 0;
     }
 
     [RelayCommand]

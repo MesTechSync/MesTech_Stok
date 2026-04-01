@@ -7,7 +7,7 @@
              AutomationProperties.Name="Komisyon Oranlari">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
         <!-- Aciklama -->
         <Border Grid.Row="0" Padding="12" Background="{DynamicResource MesBgSecondary}"
                 CornerRadius="{StaticResource MesRadiusMd}" Margin="12,12,12,0">
@@ -18,8 +18,17 @@
             </TextBlock>
         </Border>
 
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Padding="12,8" Margin="12,8,12,0">
+            <TextBox Text="{Binding SearchText}"
+                     Watermark="Ara..." AutomationProperties.Name="Ara..."
+                     Width="240" Padding="10,8" HorizontalAlignment="Left"
+                     CornerRadius="{StaticResource MesRadiusMd}"
+                     FontSize="{StaticResource FontSizeBody}" />
+        </Border>
+
         <!-- Empty State -->
-        <TextBlock Grid.Row="1"
+        <TextBlock Grid.Row="2"
                    Text="Kayit bulunamadi"
                    FontSize="{StaticResource FontSizeTitle}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -28,7 +37,7 @@
                    Opacity="0.5" />
 
         <!-- Komisyon tablosu -->
-        <DataGrid Grid.Row="1" Margin="12" ItemsSource="{Binding CommissionRates}"
+        <DataGrid Grid.Row="2" Margin="12" ItemsSource="{Binding CommissionRates}"
                   AutoGenerateColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
                   BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
@@ -42,7 +51,7 @@
         </DataGrid>
     
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
