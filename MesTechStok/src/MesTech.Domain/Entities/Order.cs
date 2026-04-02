@@ -245,8 +245,11 @@ public sealed class Order : BaseEntity, ITenantEntity
             PaymentStatus = "Pending"
         };
 
-        order.RaiseDomainEvent(new OrderPlacedEvent(
-            order.Id, tenantId, order.OrderNumber, customerId, 0m, DateTime.UtcNow));
+        // OrderPlacedEvent burada fırlatılMAZ — Pending = taslak.
+        // Place() çağrıldığında Confirmed statüsüne geçer ve event fırlatır.
+        // Aksi halde OrderPlacedStockDeductionHandler çift stok düşürür.
+        order.RaiseDomainEvent(new OrderReceivedEvent(
+            order.Id, tenantId, "Manual", order.OrderNumber, 0m, DateTime.UtcNow));
 
         return order;
     }
