@@ -110,7 +110,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
         _soapBaseUrl = soapBaseUrl.TrimEnd('/');
 
         var client = httpClient ?? throw new ArgumentNullException(nameof(httpClient), "HttpClient is required for N11 SOAP communication");
-        client.Timeout = TimeSpan.FromSeconds(30);
+        client.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
         _soapClient = new SimpleSoapClient(client, _logger);
         _isConfigured = true;
