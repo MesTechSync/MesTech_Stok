@@ -155,60 +155,11 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
 
         try
         {
-            using var workbook = new XLWorkbook(path);
-            var ws = workbook.Worksheets.First();
-            var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
-            var lastCol = ws.LastColumnUsed()?.ColumnNumber() ?? 1;
-
-            ImportFileInfo = $"Excel dosyasi: {lastRow - 1} satir, {lastCol} kolon";
-            HasImportFile = true;
-            CanImport = true;
-
-            // Read column headers from first row and sample data from second row
-            ColumnMappings.Clear();
-            for (var col = 1; col <= lastCol; col++)
-            {
-                var header = ws.Cell(1, col).GetString();
-                var sample = lastRow > 1 ? ws.Cell(2, col).GetString() : string.Empty;
-                var field = AutoMapField(header);
-                ColumnMappings.Add(new ColumnMappingDto
-                {
-                    ExcelColumn = $"{GetColumnLetter(col)} - {header}",
-                    SampleData = sample,
-                    MesTechField = field
-                });
-            }
-
-            // Preview first 50 rows
-            _allPreviewRows.Clear();
-            int valid = 0, errors = 0, warnings = 0;
-            for (var row = 2; row <= Math.Min(lastRow, 51); row++)
-            {
-                var name = ws.Cell(row, FindColumn(ws, "ProductName", lastCol)).GetString();
-                var sku = ws.Cell(row, FindColumn(ws, "Sku", lastCol)).GetString();
-                var priceStr = ws.Cell(row, FindColumn(ws, "Price", lastCol)).GetString();
-                var stockStr = ws.Cell(row, FindColumn(ws, "Stock", lastCol)).GetString();
-                decimal.TryParse(priceStr, out var price);
-                int.TryParse(stockStr, out var stock);
-
-                var status = "Gecerli";
-                if (string.IsNullOrWhiteSpace(name)) { status = "Hata: Ad bos"; errors++; }
-                else if (stock == 0) { status = "Uyari: Stok 0"; warnings++; }
-                else valid++;
-
-                _allPreviewRows.Add(new ImportPreviewRowDto
-                {
-                    RowNumber = row - 1,
-                    ProductName = name,
-                    Sku = sku,
-                    Price = price,
-                    Stock = stock,
-                    ValidationStatus = status
-                });
-            }
-
-            ApplyPreviewFilter();
-            PreviewValidationSummary = $"{valid} gecerli, {errors} hata, {warnings} uyari";
+            var isCsv = path.EndsWith(".csv", StringComparison.OrdinalIgnoreCase);
+            if (isCsv)
+                ParseCsvFile(path);
+            else
+                ParseExcelFile(path);
         }
         catch (Exception ex)
         {
@@ -221,6 +172,114 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    private void ParseExcelFile(string path)
+    {
+        using var workbook = new XLWorkbook(path);
+        var ws = workbook.Worksheets.First();
+        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
+        var lastCol = ws.LastColumnUsed()?.ColumnNumber() ?? 1;
+
+        ImportFileInfo = $"Excel dosyasi: {lastRow - 1} satir, {lastCol} kolon";
+        HasImportFile = true;
+        CanImport = true;
+
+        ColumnMappings.Clear();
+        for (var col = 1; col <= lastCol; col++)
+        {
+            var header = ws.Cell(1, col).GetString();
+            var sample = lastRow > 1 ? ws.Cell(2, col).GetString() : string.Empty;
+            ColumnMappings.Add(new ColumnMappingDto
+            {
+                ExcelColumn = $"{GetColumnLetter(col)} - {header}",
+                SampleData = sample,
+                MesTechField = AutoMapField(header)
+            });
+        }
+
+        LoadPreviewRows(
+            lastRow - 1,
+            row => ws.Cell(row + 1, FindColumn(ws, "ProductName", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Sku", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Price", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Stock", lastCol)).GetString());
+    }
+
+    private void ParseCsvFile(string path)
+    {
+        var lines = File.ReadAllLines(path);
+        if (lines.Length == 0) return;
+
+        var headers = lines[0].Split(';', ',');
+        ImportFileInfo = $"CSV dosyasi: {lines.Length - 1} satir, {headers.Length} kolon";
+        HasImportFile = true;
+        CanImport = true;
+
+        ColumnMappings.Clear();
+        var separator = lines[0].Contains(';') ? ';' : ',';
+        for (var col = 0; col < headers.Length; col++)
+        {
+            var sample = lines.Length > 1 ? GetCsvCell(lines[1], col, separator) : string.Empty;
+            ColumnMappings.Add(new ColumnMappingDto
+            {
+                ExcelColumn = $"{GetColumnLetter(col + 1)} - {headers[col].Trim()}",
+                SampleData = sample,
+                MesTechField = AutoMapField(headers[col])
+            });
+        }
+
+        var nameCol = FindCsvColumn("ProductName");
+        var skuCol = FindCsvColumn("Sku");
+        var priceCol = FindCsvColumn("Price");
+        var stockCol = FindCsvColumn("Stock");
+
+        LoadPreviewRows(
+            lines.Length - 1,
+            row => row < lines.Length ? GetCsvCell(lines[row], nameCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], skuCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], priceCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], stockCol, separator) : string.Empty);
+    }
+
+    private void LoadPreviewRows(int totalRows, Func<int, string> getName, Func<int, string> getSku,
+        Func<int, string> getPrice, Func<int, string> getStock)
+    {
+        _allPreviewRows.Clear();
+        int valid = 0, errors = 0, warnings = 0;
+        for (var i = 1; i <= Math.Min(totalRows, 50); i++)
+        {
+            var name = getName(i);
+            var sku = getSku(i);
+            decimal.TryParse(getPrice(i), out var price);
+            int.TryParse(getStock(i), out var stock);
+
+            var status = "Gecerli";
+            if (string.IsNullOrWhiteSpace(name)) { status = "Hata: Ad bos"; errors++; }
+            else if (stock == 0) { status = "Uyari: Stok 0"; warnings++; }
+            else valid++;
+
+            _allPreviewRows.Add(new ImportPreviewRowDto
+            {
+                RowNumber = i, ProductName = name, Sku = sku,
+                Price = price, Stock = stock, ValidationStatus = status
+            });
+        }
+        ApplyPreviewFilter();
+        PreviewValidationSummary = $"{valid} gecerli, {errors} hata, {warnings} uyari";
+    }
+
+    private static string GetCsvCell(string line, int col, char separator)
+    {
+        var cells = line.Split(separator);
+        return col < cells.Length ? cells[col].Trim().Trim('"') : string.Empty;
+    }
+
+    private int FindCsvColumn(string fieldName)
+    {
+        for (var i = 0; i < ColumnMappings.Count; i++)
+            if (ColumnMappings[i].MesTechField == fieldName) return i;
+        return 0;
     }
 
     private static string AutoMapField(string header)
