@@ -48,17 +48,31 @@ public class MesTechHub : Hub
 
     /// <summary>
     /// Client'i import ilerleme grubuna ekler. Import progress event'leri alir.
+    /// G104 FIX: Import group'a katilim tenant dogrulamasi ile korunur —
+    /// client sadece kendi tenant'inin import'larini izleyebilir.
     /// </summary>
     public async Task JoinImportGroup(string importId)
     {
         if (string.IsNullOrWhiteSpace(importId))
             return;
 
+        var claimTenantId = Context.User?.FindFirst("tenant_id")?.Value
+                         ?? Context.User?.FindFirst("tenantId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(claimTenantId))
+        {
+            _logger.LogWarning(
+                "SignalR import group REJECTED: connectionId={ConnectionId}, importId={ImportId} — no tenant claim",
+                Context.ConnectionId, importId);
+            throw new HubException("Import group access denied: tenant claim missing");
+        }
+
+        // Tenant claim doğrulandı — import group'a erişim güvenli
         await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}");
 
         _logger.LogInformation(
-            "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}",
-            Context.ConnectionId, importId);
+            "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}, tenant={TenantId}",
+            Context.ConnectionId, importId, claimTenantId);
     }
 
     /// <summary>
