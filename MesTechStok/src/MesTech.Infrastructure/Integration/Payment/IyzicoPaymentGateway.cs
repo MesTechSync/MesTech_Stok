@@ -42,10 +42,18 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
         {
             // iyzico REST API v2 cagirisi
             var http = CreateHttpClient();
+
+            // Idempotency: conversationId'yi ödeme parametrelerinden türet.
+            // Aynı tutar+token+saat kombinasyonu → aynı conversationId → iyzico çift ödeme ÖNLER.
+            var idempotencyInput = $"{amount:F2}_{currency}_{paymentMethodToken}_{DateTime.UtcNow:yyyyMMddHH}";
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var conversationId = Convert.ToHexString(
+                sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(idempotencyInput)))[..20];
+
             var payload = new
             {
                 locale = "tr",
-                conversationId = Guid.NewGuid().ToString("N")[..20],
+                conversationId,
                 price = amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
                 paidPrice = amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
                 currency,

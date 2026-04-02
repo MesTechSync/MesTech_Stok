@@ -43,6 +43,14 @@ public sealed class StripePaymentGateway : IPaymentGateway
         try
         {
             var http = CreateHttpClient();
+
+            // Idempotency key: aynı tutar+para birimi+ödeme yöntemi kombinasyonu 24 saat içinde
+            // tekrar çağrılırsa Stripe aynı PaymentIntent'i döner → çift ödeme ÖNLENIR.
+            var idempotencyKey = $"{amount:F2}_{currency}_{paymentMethodToken}_{DateTime.UtcNow:yyyyMMddHH}";
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var hash = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(idempotencyKey)));
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Idempotency-Key", hash[..48]);
+
             var formData = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["amount"] = ((int)(amount * CurrencySubunitMultiplier)).ToString(), // Stripe kuruş/cent cinsinden alir
