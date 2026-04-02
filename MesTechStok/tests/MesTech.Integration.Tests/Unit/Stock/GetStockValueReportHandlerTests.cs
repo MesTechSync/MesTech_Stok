@@ -1,5 +1,5 @@
 using FluentAssertions;
-using MesTech.Application.Features.Reports.InventoryValuationReport;
+using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Moq;
