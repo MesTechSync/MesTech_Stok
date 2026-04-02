@@ -28,6 +28,21 @@ public static class ReturnEndpoints
         .Produces(200)
         .CacheOutput("Lookup60s");
 
+        // GET /api/v1/returns/{id} — iade detay (G562-DEV6)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            MesTech.Domain.Interfaces.IReturnRequestRepository repo,
+            CancellationToken ct) =>
+        {
+            var returnRequest = await repo.GetByIdAsync(id);
+            return returnRequest is null
+                ? Results.NotFound()
+                : Results.Ok(returnRequest);
+        })
+        .WithName("GetReturnById")
+        .WithSummary("Iade detay — ID ile sorgulama")
+        .Produces(200).Produces(404);
+
         group.MapPost("/{id:guid}/approve", async (
             Guid id,
             ISender mediator,
