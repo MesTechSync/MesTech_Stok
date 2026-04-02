@@ -2204,6 +2204,103 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     }
 
     // ═══════════════════════════════════════════
+    // Shipment Providers / Addresses / Tracking
+    // ═══════════════════════════════════════════
+
+    /// <summary>Gets available shipment (cargo) providers from Trendyol.</summary>
+    public async Task<JsonDocument?> GetShipmentProvidersAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri("/integration/shipping-companies", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol GetShipmentProviders failed: {Status}", response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetShipmentProviders exception");
+            return null;
+        }
+    }
+
+    /// <summary>Gets seller addresses from Trendyol (return/shipment addresses).</summary>
+    public async Task<JsonDocument?> GetSellerAddressesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/sellers/{_supplierId}/addresses", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol GetSellerAddresses failed: {Status}", response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetSellerAddresses exception");
+            return null;
+        }
+    }
+
+    /// <summary>Gets shipment tracking details for a specific package.</summary>
+    public async Task<JsonDocument?> GetTrackingDetailsAsync(long shipmentPackageId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/order/sellers/{_supplierId}/shipmentpackages/{shipmentPackageId}/tracking", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol GetTrackingDetails failed: {PackageId} {Status}", shipmentPackageId, response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetTrackingDetails exception: {PackageId}", shipmentPackageId);
+            return null;
+        }
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
