@@ -31,8 +31,8 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
     private readonly List<PlatformOrderItem> _allOrders = [];
 
     // Store selector
-    [ObservableProperty] private string selectedStore = "Demo Store 1";
-    public ObservableCollection<string> Stores { get; } = ["Demo Store 1", "Demo Store 2"];
+    [ObservableProperty] private string selectedStore = string.Empty;
+    public ObservableCollection<string> Stores { get; } = [];
 
     // Active tab index (0=Ürünler, 1=Siparişler, 2=Kategoriler, 3=Ayarlar)
     [ObservableProperty] private int selectedTabIndex;
@@ -83,8 +83,15 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
             ApplyFilter();
             IsEmpty = result.ProductCount == 0 && result.OrderCount == 0;
 
-            // Load Products tab via MediatR
+            // Load store selector from real data
             var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            Stores.Clear();
+            foreach (var s in stores.Where(s => s.PlatformType == PlatformType.OpenCart))
+                Stores.Add(!string.IsNullOrEmpty(s.StoreName) ? s.StoreName : $"OpenCart #{s.Id.ToString()[..8]}");
+            if (Stores.Count > 0 && string.IsNullOrEmpty(SelectedStore))
+                SelectedStore = Stores[0];
+
+            // Load Products tab via MediatR
             var store = stores.FirstOrDefault(s => s.PlatformType == PlatformType.OpenCart && s.IsActive);
             if (store is not null)
             {
