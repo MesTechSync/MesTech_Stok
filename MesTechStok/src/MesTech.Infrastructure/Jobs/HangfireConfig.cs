@@ -84,9 +84,10 @@ public static class HangfireConfig
         // CRM — Loyalty points expiration worker
         services.AddScoped<ExpirePointsWorker>();
 
-        // Adapter connectivity check (DEV 3 — alan genişletme A)
+        // Adapter connectivity + metrics (DEV 3 — alan genişletme A+B)
         services.AddScoped<Integration.Orchestration.AdapterConnectivityValidator>();
         services.AddScoped<AdapterConnectivityCheckJob>();
+        services.AddSingleton<Integration.Orchestration.AdapterMetrics>();
 
         // Platform stock sync + order sync + stale order check (DEV 3)
         services.AddScoped<GenericPlatformStockSyncJob>();
