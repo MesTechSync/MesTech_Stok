@@ -49,6 +49,10 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
         // Initialise service URL from options so sandbox toggle works before Configure() is called
         _serviceUrl = _options.ServiceUrl;
 
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(_serviceUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[YurticiKargoAdapter] ServiceUrl points to private network: {Url}", _serviceUrl);
+
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             // HTTP 429 rate-limit retry
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>

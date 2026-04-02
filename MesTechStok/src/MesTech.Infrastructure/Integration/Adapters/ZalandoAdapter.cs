@@ -58,6 +58,10 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         TokenUrl = _options.TokenUrl;
         ApiBase = _options.ApiBaseUrl;
 
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(ApiBase, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[ZalandoAdapter] ApiBaseUrl points to private network: {Url}", ApiBase);
+
         // Seed from options if credentials provided
         if (!string.IsNullOrWhiteSpace(_options.ClientId))
         {

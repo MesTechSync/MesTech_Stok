@@ -62,6 +62,10 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _isConfigured = !string.IsNullOrWhiteSpace(_siteUrl) &&
                             !string.IsNullOrWhiteSpace(_consumerKey) &&
                             !string.IsNullOrWhiteSpace(_consumerSecret);
+
+            // SSRF guard (G10853)
+            if (_isConfigured && Security.SsrfGuard.IsPrivateHost(new Uri(_siteUrl).Host))
+                _logger.LogWarning("[WooCommerceAdapter] SiteUrl points to private network: {Url}", _siteUrl);
         }
 
         _jsonOptions = new JsonSerializerOptions

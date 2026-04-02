@@ -182,7 +182,9 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         if (_isConfigured)
         {
-            // Credentials stored in fields — applied per-request via CreateAuthenticatedRequest
+            // SSRF guard (G10853) — validate shop domain is not private/internal
+            if (Security.SsrfGuard.IsPrivateHost(_shopDomain))
+                _logger.LogWarning("[ShopifyAdapter] ShopDomain points to private network: {Domain}", _shopDomain);
         }
     }
 

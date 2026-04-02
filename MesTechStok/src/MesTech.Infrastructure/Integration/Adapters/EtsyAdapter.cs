@@ -54,6 +54,10 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         BaseUrl = _options.BaseUrl;
 
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[EtsyAdapter] BaseUrl points to private network: {Url}", BaseUrl);
+
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.ShopId))
         {

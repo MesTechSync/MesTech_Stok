@@ -140,6 +140,10 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 "Bitrix24 credentials require: Bitrix24ClientId, Bitrix24ClientSecret, Bitrix24PortalDomain, Bitrix24RefreshToken");
         }
 
+        // SSRF guard (G10853)
+        if (Security.SsrfGuard.IsPrivateHost(_portalDomain))
+            _logger.LogWarning("[Bitrix24Adapter] PortalDomain points to private network: {Domain}", _portalDomain);
+
         _httpClient.BaseAddress ??= new Uri($"https://{_portalDomain}/rest/", UriKind.Absolute);
 
         var tokenEndpoint = credentials.GetValueOrDefault("Bitrix24TokenEndpoint");
