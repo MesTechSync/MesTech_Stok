@@ -534,18 +534,21 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// G474+G476: Scalar API Reference — all environments (API key required in production)
+// G474+G476: Scalar API Reference — development/staging only (production'da auth gerekir)
 // OpenAPI JSON endpoint — consumed by Scalar UI and external tooling
-app.MapOpenApi();
-
-// Scalar interactive docs — BluePlanet theme, C# HttpClient default
-app.MapScalarApiReference(options =>
+if (!app.Environment.IsProduction())
 {
-    options
-        .WithTitle("MesTech API")
-        .WithTheme(ScalarTheme.BluePlanet)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-});
+    app.MapOpenApi();
+
+    // Scalar interactive docs — BluePlanet theme, C# HttpClient default
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("MesTech API")
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
+}
 
 // JWT Authentication + Authorization middleware (G-02 SignalR auth)
 app.UseAuthentication();
