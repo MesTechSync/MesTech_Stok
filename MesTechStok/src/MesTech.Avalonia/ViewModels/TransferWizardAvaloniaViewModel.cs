@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetProductByBarcode;
 using MesTech.Application.Queries.GetWarehouses;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -83,29 +84,36 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void AddProduct()
+    private async Task AddProductAsync()
     {
         var search = ProductSearchText?.Trim();
         if (string.IsNullOrEmpty(search)) return;
 
-        // Demo: lookup product by search text
-        var product = LookupProduct(search);
-        if (product is null)
+        var dto = await _mediator.Send(new GetProductByBarcodeQuery(search)).ConfigureAwait(false);
+        if (dto is null)
         {
             TransferStatus = $"Urun bulunamadi: {search}";
             return;
         }
 
         // Check if already in list
-        if (TransferItems.Any(i => i.Sku == product.Sku))
+        if (TransferItems.Any(i => i.Sku == dto.SKU))
         {
-            TransferStatus = $"{product.Sku} zaten listede.";
+            TransferStatus = $"{dto.SKU} zaten listede.";
             return;
         }
 
-        TransferItems.Add(product);
+        TransferItems.Add(new TransferWizardItemDto
+        {
+            ProductId = dto.Id,
+            Sku = dto.SKU,
+            ProductName = dto.Name,
+            SourceStock = dto.Stock,
+            TargetStock = 0,
+            MinimumStock = dto.MinimumStock,
+        });
         ProductSearchText = string.Empty;
-        TransferStatus = $"{product.ProductName} eklendi.";
+        TransferStatus = $"{dto.Name} eklendi.";
         OnPropertyChanged(nameof(TransferSummary));
         ValidateTransfer();
     }
@@ -200,19 +208,6 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasWarnings));
     }
 
-    private static TransferWizardItemDto? LookupProduct(string search)
-    {
-        var products = new Dictionary<string, TransferWizardItemDto>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["TS-01"] = new() { Sku = "TS-01", ProductName = "Erkek Tisort Basic", SourceStock = 42, TargetStock = 8, MinimumStock = 5 },
-            ["KZ-05"] = new() { Sku = "KZ-05", ProductName = "Kadin Kazak Kis", SourceStock = 3, TargetStock = 20, MinimumStock = 5 },
-            ["AY-012"] = new() { Sku = "AY-012", ProductName = "Ayakkabi Spor", SourceStock = 30, TargetStock = 12, MinimumStock = 10 },
-            ["SKU-1001"] = new() { Sku = "SKU-1001", ProductName = "Samsung Galaxy S24 Ultra", SourceStock = 45, TargetStock = 15, MinimumStock = 10 },
-            ["SKU-1002"] = new() { Sku = "SKU-1002", ProductName = "Apple MacBook Air M3", SourceStock = 3, TargetStock = 0, MinimumStock = 5 },
-        };
-
-        return products.TryGetValue(search, out var p) ? p : null;
-    }
 }
 
 public partial class TransferWizardItemDto : ObservableObject
