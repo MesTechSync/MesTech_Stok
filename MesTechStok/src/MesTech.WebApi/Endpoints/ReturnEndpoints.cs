@@ -42,6 +42,7 @@ public static class ReturnEndpoints
             });
         })
         .WithName("ApproveReturn")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Iade onay — stok geri + muhasebe ters kayit").Produces(200).Produces(400);
 
         group.MapPost("/{id:guid}/reject", async (
@@ -54,6 +55,7 @@ public static class ReturnEndpoints
             return Results.Ok(new StatusResponse("Rejected", body.Reason));
         })
         .WithName("RejectReturn")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Iade red — sebep zorunlu").Produces(200).Produces(400);
     }
 
