@@ -91,10 +91,10 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
                 var rates = await _mediator.Send(new GetWithholdingRatesQuery());
                 WithholdingRateCount = rates.Count;
             }
-            catch { WithholdingRateCount = 0; }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetWithholdingRates failed: {ex.Message}"); WithholdingRateCount = 0; }
 
             // G540: KDV declaration draft
-            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}")); } catch { }
+            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}")); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetKdvDeclarationDraft failed: {ex.Message}"); }
 
             ApplyFilters();
         }
