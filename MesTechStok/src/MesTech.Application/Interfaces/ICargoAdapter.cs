@@ -16,6 +16,12 @@ public interface ICargoAdapter
     Task<TrackingResult> TrackShipmentAsync(string trackingNumber, CancellationToken ct = default);
     Task<bool> CancelShipmentAsync(string shipmentId, CancellationToken ct = default);
     Task<LabelResult> GetShipmentLabelAsync(string shipmentId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets shipment label in the preferred format. Falls back to PDF if not supported.
+    /// </summary>
+    Task<LabelResult> GetShipmentLabelAsync(string shipmentId, LabelFormat preferredFormat, CancellationToken ct = default)
+        => GetShipmentLabelAsync(shipmentId, ct);
     Task<bool> IsAvailableAsync(CancellationToken ct = default);
     /// <summary>AdapterHealthService ping — IsAvailableAsync wrapper.</summary>
     Task<bool> PingAsync(CancellationToken ct = default) => IsAvailableAsync(ct);
