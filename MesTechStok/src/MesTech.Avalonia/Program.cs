@@ -45,6 +45,6 @@ internal sealed class Program
             File.AppendAllText(logPath,
                 $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {source}:\n{ex}\n\n");
         }
-        catch { /* ignore */ }
+        catch (Exception logEx) { System.Diagnostics.Debug.WriteLine($"[CRITICAL] LogCrash failed: {logEx.Message}"); }
     }
 }
