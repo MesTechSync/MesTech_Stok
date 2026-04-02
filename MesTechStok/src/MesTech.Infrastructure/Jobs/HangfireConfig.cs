@@ -84,6 +84,10 @@ public static class HangfireConfig
         // CRM — Loyalty points expiration worker
         services.AddScoped<ExpirePointsWorker>();
 
+        // Adapter connectivity check (DEV 3 — alan genişletme A)
+        services.AddScoped<Integration.Orchestration.AdapterConnectivityValidator>();
+        services.AddScoped<AdapterConnectivityCheckJob>();
+
         // Platform stock sync + order sync + stale order check (DEV 3)
         services.AddScoped<GenericPlatformStockSyncJob>();
         services.AddScoped<GenericPlatformOrderSyncJob>();
@@ -145,6 +149,11 @@ public static class HangfireConfig
             "ciceksepeti-order-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<AdapterConnectivityCheckJob>(
+            "adapter-connectivity-check",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *"); // Her saat başı
 
         RecurringJob.AddOrUpdate<OpenCartStockSyncJob>(
             "opencart-stock-sync",
