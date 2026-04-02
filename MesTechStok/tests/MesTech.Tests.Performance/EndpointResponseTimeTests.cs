@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using FluentAssertions;
+using MesTech.Infrastructure.Persistence;
+using MesTech.Infrastructure.Security;
+using MesTech.Tests.Performance.Benchmarks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MesTech.Infrastructure.Persistence;
-using MesTech.Tests.Performance.Benchmarks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -170,7 +173,9 @@ public sealed class EndpointResponseTimeTests : IClassFixture<EndpointResponseTi
 
     private async Task WarmUp(string url)
     {
-        try { await _client.GetAsync(url); } catch { /* warmup, ignore */ }
+        // 3 warmup calls to ensure JIT + DI + InMemory DB are hot
+        for (int i = 0; i < 3; i++)
+            try { await _client.GetAsync(url); } catch { /* warmup, ignore */ }
     }
 
     private async Task<(TimeSpan Elapsed, int StatusCode)> MeasureAsync(string url, int iterations = 5)
@@ -198,10 +203,42 @@ public sealed class EndpointResponseTimeTests : IClassFixture<EndpointResponseTi
 
     public sealed class TestWebAppFactory : WebApplicationFactory<global::Program>
     {
+        static TestWebAppFactory()
+        {
+            // Must be set BEFORE host build — Program.cs reads at startup
+            Environment.SetEnvironmentVariable("Security__EncryptionKey", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+            Environment.SetEnvironmentVariable("Jwt__Secret", "perf-test-jwt-secret-key-minimum-32-chars!!");
+            Environment.SetEnvironmentVariable("Jwt__Issuer", "mestech-perf-test");
+            Environment.SetEnvironmentVariable("Jwt__Audience", "mestech-perf-test");
+            Environment.SetEnvironmentVariable("Mesa__UseProductionBridge", "false");
+            Environment.SetEnvironmentVariable("Mesa__BridgeEnabled", "false");
+            Environment.SetEnvironmentVariable("Mesa__Accounting__UseReal", "false");
+            Environment.SetEnvironmentVariable("Mesa__Advisory__UseReal", "false");
+        }
+
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Development");
+
+            // Override appsettings.Development.json "CONFIGURED_VIA_USER_SECRETS" placeholder
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Security:EncryptionKey"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+                });
+            });
+
             builder.ConfigureServices(services =>
             {
+                // Replace AesGcmEncryptionService with valid test key
+                var encDescriptor = services.SingleOrDefault(
+                    d => d.ImplementationType == typeof(AesGcmEncryptionService)
+                      || (d.ServiceType == typeof(AesGcmEncryptionService)));
+                if (encDescriptor != null) services.Remove(encDescriptor);
+                services.AddSingleton(new AesGcmEncryptionService(
+                    Convert.ToBase64String(new byte[32])));
+
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
                 if (descriptor != null) services.Remove(descriptor);
