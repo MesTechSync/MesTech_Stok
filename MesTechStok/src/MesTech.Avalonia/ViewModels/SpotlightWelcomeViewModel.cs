@@ -117,14 +117,21 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
 
     private async void LoadCurrentImage()
     {
-        if (!_spotlight.HasImages) return;
+        try
+        {
+            if (!_spotlight.HasImages) return;
 
-        var info = _spotlight.GetCurrent();
-        if (info == null) return;
+            var info = _spotlight.GetCurrent();
+            if (info == null) return;
 
-        CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
-        CurrentImageName = info.DisplayName;
-        NextImageOpacity = 0.0;
+            CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
+            CurrentImageName = info.DisplayName;
+            NextImageOpacity = 0.0;
+        }
+        catch (Exception)
+        {
+            // Spotlight image load failure is non-critical — silently ignore
+        }
     }
 
     /// <summary>

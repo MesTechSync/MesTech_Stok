@@ -124,18 +124,8 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task AutoMatch()
     {
-        IsLoading = true;
-        try
-        {
-            // Reload dashboard after auto-match triggers server-side reconciliation
-            await LoadAsync();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Otomatik eslestirme hatasi: {ex.Message}";
-            IsLoading = false;
-        }
+        // LoadAsync already handles IsLoading + try/catch/finally
+        await LoadAsync();
     }
 }
 
