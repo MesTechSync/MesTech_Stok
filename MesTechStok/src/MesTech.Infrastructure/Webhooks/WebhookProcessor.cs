@@ -49,7 +49,17 @@ public sealed class WebhookProcessor : IWebhookProcessor
         var validator = _validators.FirstOrDefault(
             v => v.Platform.Equals(normalizedPlatform, StringComparison.OrdinalIgnoreCase));
 
-        if (validator is not null && signature is not null)
+        if (validator is null)
+        {
+            // G472/G10835 FIX: Bilinmeyen platform → REJECT (STRIDE Spoofing koruması)
+            _logger.LogWarning(
+                "Webhook REJECTED — unknown platform (no validator registered): platform={Platform}",
+                normalizedPlatform);
+
+            return new WebhookResult(false, Error: $"Unknown webhook platform: {normalizedPlatform}");
+        }
+
+        if (signature is not null)
         {
             var secret = _configuration[$"Webhooks:Secrets:{normalizedPlatform}"] ?? string.Empty;
             var isValid = validator.Validate(body, signature, secret);
@@ -63,7 +73,7 @@ public sealed class WebhookProcessor : IWebhookProcessor
                 return new WebhookResult(false, Error: "Invalid webhook signature");
             }
         }
-        else if (validator is not null && signature is null)
+        else
         {
             // Validator kayıtlı = imza bekleniyor. Yoksa REJECT.
             // Legacy platform desteği: Webhooks:AllowUnsigned:{platform}=true ile bypass
