@@ -2301,6 +2301,103 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     }
 
     // ═══════════════════════════════════════════
+    // Webhook List / CurrentAccount / Claim Audit
+    // ═══════════════════════════════════════════
+
+    /// <summary>Lists currently registered webhooks for this seller.</summary>
+    public async Task<JsonDocument?> ListWebhooksAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/sellers/{_supplierId}/webhooks", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol ListWebhooks failed: {Status}", response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol ListWebhooks exception");
+            return null;
+        }
+    }
+
+    /// <summary>Gets current seller account information from Trendyol.</summary>
+    public async Task<JsonDocument?> GetCurrentAccountAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/sellers/{_supplierId}", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol GetCurrentAccount failed: {Status}", response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetCurrentAccount exception");
+            return null;
+        }
+    }
+
+    /// <summary>Gets claim audit/history details for a specific claim.</summary>
+    public async Task<JsonDocument?> GetClaimAuditAsync(long claimId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/order/sellers/{_supplierId}/claims/{claimId}", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol GetClaimAudit failed: {ClaimId} {Status}", claimId, response.StatusCode);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetClaimAudit exception: {ClaimId}", claimId);
+            return null;
+        }
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
