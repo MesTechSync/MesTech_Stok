@@ -2070,6 +2070,140 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     }
 
     // ═══════════════════════════════════════════
+    // Product Update / Delete / Package Cancel
+    // ═══════════════════════════════════════════
+
+    /// <summary>Updates an existing product on Trendyol (PUT /v2/products).</summary>
+    public async Task<bool> UpdateProductAsync(Product product, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+        EnsureConfigured();
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new
+            {
+                items = new[]
+                {
+                    new
+                    {
+                        barcode = product.Barcode ?? product.SKU,
+                        title = product.Name,
+                        productMainId = product.SKU,
+                        stockCode = product.SKU,
+                        description = product.Description ?? "",
+                        currencyType = product.CurrencyCode,
+                        listPrice = product.ListPrice ?? product.SalePrice,
+                        salePrice = product.SalePrice,
+                        quantity = product.Stock,
+                        vatRate = (int)(product.TaxRate * 100)
+                    }
+                }
+            };
+
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol UpdateProduct failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Trendyol UpdateProduct success: {SKU}", product.SKU);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol UpdateProduct exception: {SKU}", product.SKU);
+            return false;
+        }
+    }
+
+    /// <summary>Deletes (archives) a product on Trendyol by barcode.</summary>
+    public async Task<bool> DeleteProductAsync(string barcode, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(barcode);
+        EnsureConfigured();
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new { items = new[] { new { barcode } } };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Delete,
+                        new Uri($"/integration/product/sellers/{_supplierId}/v2/products", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol DeleteProduct failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Trendyol DeleteProduct success: {Barcode}", barcode);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol DeleteProduct exception: {Barcode}", barcode);
+            return false;
+        }
+    }
+
+    /// <summary>Cancels a shipment package on Trendyol (PUT /shipmentpackages/{packageId}/cancel).</summary>
+    public async Task<bool> CancelPackageAsync(long packageId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/shipmentpackages/{packageId}/cancel", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol CancelPackage failed: {PackageId} {Status} - {Error}", packageId, response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Trendyol CancelPackage success: {PackageId}", packageId);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol CancelPackage exception: {PackageId}", packageId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
