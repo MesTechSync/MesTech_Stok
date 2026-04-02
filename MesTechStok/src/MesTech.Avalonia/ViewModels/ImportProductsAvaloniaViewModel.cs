@@ -3,6 +3,8 @@ using System.Diagnostics;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using MesTech.Application.Features.Product.Commands.ExecuteBulkImport;
 using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -14,6 +16,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
     private readonly IFilePickerService _filePicker;
 
     // ─── Step tracking (1-4) ────────────────────────────────────────────────
@@ -89,8 +92,9 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<ImportErrorDto> ImportErrors { get; } = [];
 
-    public ImportProductsAvaloniaViewModel(IFilePickerService filePicker)
+    public ImportProductsAvaloniaViewModel(IMediator mediator, IFilePickerService filePicker)
     {
+        _mediator = mediator;
         _filePicker = filePicker;
     }
 
@@ -262,25 +266,35 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
         try
         {
-            // MOCK: Row-by-row progress simulation — replace with real EPPlus/CsvHelper
-            // parse + MediatR BulkImportProductsCommand when library is integrated.
-            var totalItems = TotalRowCount > 0 ? TotalRowCount : 10;
-            for (int i = 1; i <= totalItems; i++)
-            {
-                await Task.Delay(25, CancellationToken);
-                ImportProgress = (double)i / totalItems * 100;
-            }
+            // G10557: Real MediatR import — ClosedXML + BulkProductImportService
+            ImportProgress = 10;
+            await using var fileStream = File.OpenRead(SelectedFilePath);
+            var command = new ExecuteBulkImportCommand(
+                fileStream,
+                SelectedFileName,
+                UpdateExisting: false,
+                SkipErrors: true);
+
+            ImportProgress = 30;
+            var result = await _mediator.Send(command, CancellationToken);
 
             stopwatch.Stop();
 
-            SuccessCount = totalItems - ErrorRowCount;
-            SkippedCount = 0;
-            FailedCount = ErrorRowCount;
+            SuccessCount = result.ImportedCount + result.UpdatedCount;
+            SkippedCount = result.SkippedCount;
+            FailedCount = result.ErrorCount;
             ImportDuration = $"{stopwatch.Elapsed.TotalSeconds:F1} saniye";
-            HasImportErrors = ErrorRowCount > 0;
+            HasImportErrors = result.ErrorCount > 0;
+            ImportProgress = 100;
+
+            if (result.Errors?.Count > 0)
+            {
+                foreach (var err in result.Errors.Take(50))
+                    ImportErrors.Add(new ImportErrorDto { Message = $"Satir {err.RowNumber}: {err.Field} — {err.Message}" });
+            }
 
             ImportResultMessage = HasImportErrors
-                ? $"{SuccessCount} basarili, {FailedCount} hatali — {ImportDuration}"
+                ? $"{SuccessCount} basarili, {FailedCount} hatali, {SkippedCount} atlandi — {ImportDuration}"
                 : $"{SuccessCount} urun basariyla aktarildi — {ImportDuration}";
         }
         catch (OperationCanceledException)
