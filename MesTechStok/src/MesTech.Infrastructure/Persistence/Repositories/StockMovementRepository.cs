@@ -27,12 +27,12 @@ public sealed class StockMovementRepository : IStockMovementRepository
             .Take(2000) // G485: pagination guard
             .AsNoTracking().ToListAsync();
 
-    public async Task<IReadOnlyList<StockMovement>> GetByDateRangeAsync(DateTime from, DateTime to)
+    public async Task<IReadOnlyList<StockMovement>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.StockMovements
             .Where(m => m.Date >= from && m.Date <= to)
             .OrderByDescending(m => m.Date)
             .Take(5000) // G485: pagination guard
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<StockMovement>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)
         => await _context.StockMovements
@@ -44,6 +44,6 @@ public sealed class StockMovementRepository : IStockMovementRepository
     public async Task AddAsync(StockMovement movement)
         => await _context.StockMovements.AddAsync(movement);
 
-    public async Task<int> GetCountAsync()
-        => await _context.StockMovements.CountAsync();
+    public async Task<int> GetCountAsync(CancellationToken ct = default)
+        => await _context.StockMovements.CountAsync(ct);
 }
