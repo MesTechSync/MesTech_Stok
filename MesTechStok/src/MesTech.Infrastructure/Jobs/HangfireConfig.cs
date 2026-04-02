@@ -47,6 +47,9 @@ public static class HangfireConfig
         services.AddScoped<TrendyolStockSyncJob>();
         services.AddScoped<TrendyolPriceSyncJob>();
         services.AddScoped<TrendyolClaimSyncJob>();
+        services.AddScoped<HepsiburadaOrderSyncJob>();
+        services.AddScoped<N11OrderSyncJob>();
+        services.AddScoped<CiceksepetiOrderSyncJob>();
         services.AddScoped<OpenCartStockSyncJob>();
         services.AddScoped<InvoiceRetryJob>();
         services.AddScoped<HealthCheckJob>();
@@ -127,6 +130,21 @@ public static class HangfireConfig
             "trendyol-claim-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/15 * * * *");
+
+        RecurringJob.AddOrUpdate<HepsiburadaOrderSyncJob>(
+            "hepsiburada-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<N11OrderSyncJob>(
+            "n11-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<CiceksepetiOrderSyncJob>(
+            "ciceksepeti-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
 
         RecurringJob.AddOrUpdate<OpenCartStockSyncJob>(
             "opencart-stock-sync",
