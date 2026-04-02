@@ -10,39 +10,25 @@ namespace MesTech.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
-                name: "CurrentAccountBalance",
-                table: "Stores",
-                type: "numeric(18,2)",
-                nullable: true,
-                oldClrType: typeof(decimal),
-                oldType: "numeric",
-                oldNullable: true);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "AutoSyncInvoice",
-                table: "Stores",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EncryptedCredential",
-                table: "StoreCredentials",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "TenantNo",
-                table: "Invoices",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "InternalCategoryPath",
-                table: "Categories",
-                type: "text",
-                nullable: true);
+            // Idempotent: add columns only if not already present
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Stores' AND column_name='CurrentAccountBalance' AND data_type='numeric' AND numeric_precision IS NULL) THEN
+        ALTER TABLE ""Stores"" ALTER COLUMN ""CurrentAccountBalance"" TYPE numeric(18,2);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Stores' AND column_name='AutoSyncInvoice') THEN
+        ALTER TABLE ""Stores"" ADD COLUMN ""AutoSyncInvoice"" boolean NOT NULL DEFAULT false;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='StoreCredentials' AND column_name='EncryptedCredential') THEN
+        ALTER TABLE ""StoreCredentials"" ADD COLUMN ""EncryptedCredential"" text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Invoices' AND column_name='TenantNo') THEN
+        ALTER TABLE ""Invoices"" ADD COLUMN ""TenantNo"" text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Categories' AND column_name='InternalCategoryPath') THEN
+        ALTER TABLE ""Categories"" ADD COLUMN ""InternalCategoryPath"" text;
+    END IF;
+END $$;");
         }
 
         /// <inheritdoc />

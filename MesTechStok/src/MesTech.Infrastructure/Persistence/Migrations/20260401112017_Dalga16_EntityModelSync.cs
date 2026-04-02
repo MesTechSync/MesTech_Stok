@@ -11,247 +11,166 @@ namespace MesTech.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ImportFieldMapping_ImportTemplate_ImportTemplateId",
-                table: "ImportFieldMapping");
+            // Idempotent: only rename if old table exists (DB may already have new names from SyncSnapshot)
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_ImportFieldMapping_ImportTemplate_ImportTemplateId') THEN
+        ALTER TABLE ""ImportFieldMapping"" DROP CONSTRAINT ""FK_ImportFieldMapping_ImportTemplate_ImportTemplateId"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropIndex(
-                name: "IX_JournalEntries_Tenant_Reference",
-                table: "JournalEntries");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_JournalEntries_Tenant_Reference') THEN
+        DROP INDEX ""IX_JournalEntries_Tenant_Reference"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_RecurringExpense",
-                table: "RecurringExpense");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'RecurringExpense') THEN
+        ALTER TABLE ""RecurringExpense"" DROP CONSTRAINT IF EXISTS ""PK_RecurringExpense"";
+        ALTER TABLE ""RecurringExpense"" RENAME TO ""RecurringExpenses"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ProfitLossEntry",
-                table: "ProfitLossEntry");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ProfitLossEntry') THEN
+        ALTER TABLE ""ProfitLossEntry"" DROP CONSTRAINT IF EXISTS ""PK_ProfitLossEntry"";
+        ALTER TABLE ""ProfitLossEntry"" RENAME TO ""ProfitLossEntries"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ImportTemplate",
-                table: "ImportTemplate");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportTemplate') THEN
+        ALTER TABLE ""ImportTemplate"" DROP CONSTRAINT IF EXISTS ""PK_ImportTemplate"";
+        ALTER TABLE ""ImportTemplate"" RENAME TO ""ImportTemplates"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ImportFieldMapping",
-                table: "ImportFieldMapping");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportFieldMapping') THEN
+        ALTER TABLE ""ImportFieldMapping"" DROP CONSTRAINT IF EXISTS ""PK_ImportFieldMapping"";
+        ALTER TABLE ""ImportFieldMapping"" RENAME TO ""ImportFieldMappings"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_HepsiburadaListing",
-                table: "HepsiburadaListing");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'HepsiburadaListing') THEN
+        ALTER TABLE ""HepsiburadaListing"" DROP CONSTRAINT IF EXISTS ""PK_HepsiburadaListing"";
+        ALTER TABLE ""HepsiburadaListing"" RENAME TO ""HepsiburadaListings"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_CiceksepetiCategory",
-                table: "CiceksepetiCategory");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'CiceksepetiCategory') THEN
+        ALTER TABLE ""CiceksepetiCategory"" DROP CONSTRAINT IF EXISTS ""PK_CiceksepetiCategory"";
+        ALTER TABLE ""CiceksepetiCategory"" RENAME TO ""CiceksepetiCategories"";
+    END IF;
+END $$;");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_BudgetPlan",
-                table: "BudgetPlan");
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'BudgetPlan') THEN
+        ALTER TABLE ""BudgetPlan"" DROP CONSTRAINT IF EXISTS ""PK_BudgetPlan"";
+        ALTER TABLE ""BudgetPlan"" RENAME TO ""BudgetPlans"";
+    END IF;
+END $$;");
 
-            migrationBuilder.RenameTable(
-                name: "RecurringExpense",
-                newName: "RecurringExpenses");
+            // Rename indexes — only if old name exists
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_RecurringExpense_TenantId') THEN ALTER INDEX ""IX_RecurringExpense_TenantId"" RENAME TO ""IX_RecurringExpenses_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_RecurringExpense_NextDueDate') THEN ALTER INDEX ""IX_RecurringExpense_NextDueDate"" RENAME TO ""IX_RecurringExpenses_NextDueDate""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_RecurringExpense_IsDeleted') THEN ALTER INDEX ""IX_RecurringExpense_IsDeleted"" RENAME TO ""IX_RecurringExpenses_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_RecurringExpense_IsActive') THEN ALTER INDEX ""IX_RecurringExpense_IsActive"" RENAME TO ""IX_RecurringExpenses_IsActive""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ProfitLossEntry_TenantId') THEN ALTER INDEX ""IX_ProfitLossEntry_TenantId"" RENAME TO ""IX_ProfitLossEntries_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ProfitLossEntry_IsDeleted') THEN ALTER INDEX ""IX_ProfitLossEntry_IsDeleted"" RENAME TO ""IX_ProfitLossEntries_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ImportTemplate_TenantId') THEN ALTER INDEX ""IX_ImportTemplate_TenantId"" RENAME TO ""IX_ImportTemplates_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ImportTemplate_IsDeleted') THEN ALTER INDEX ""IX_ImportTemplate_IsDeleted"" RENAME TO ""IX_ImportTemplates_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ImportFieldMapping_IsDeleted') THEN ALTER INDEX ""IX_ImportFieldMapping_IsDeleted"" RENAME TO ""IX_ImportFieldMappings_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ImportFieldMapping_ImportTemplateId') THEN ALTER INDEX ""IX_ImportFieldMapping_ImportTemplateId"" RENAME TO ""IX_ImportFieldMappings_ImportTemplateId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_HepsiburadaListing_TenantId') THEN ALTER INDEX ""IX_HepsiburadaListing_TenantId"" RENAME TO ""IX_HepsiburadaListings_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_HepsiburadaListing_IsDeleted') THEN ALTER INDEX ""IX_HepsiburadaListing_IsDeleted"" RENAME TO ""IX_HepsiburadaListings_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_CiceksepetiCategory_TenantId') THEN ALTER INDEX ""IX_CiceksepetiCategory_TenantId"" RENAME TO ""IX_CiceksepetiCategories_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_CiceksepetiCategory_IsDeleted') THEN ALTER INDEX ""IX_CiceksepetiCategory_IsDeleted"" RENAME TO ""IX_CiceksepetiCategories_IsDeleted""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_BudgetPlan_TenantId') THEN ALTER INDEX ""IX_BudgetPlan_TenantId"" RENAME TO ""IX_BudgetPlans_TenantId""; END IF;
+    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_BudgetPlan_IsDeleted') THEN ALTER INDEX ""IX_BudgetPlan_IsDeleted"" RENAME TO ""IX_BudgetPlans_IsDeleted""; END IF;
+END $$;");
 
-            migrationBuilder.RenameTable(
-                name: "ProfitLossEntry",
-                newName: "ProfitLossEntries");
+            // Add TenantId columns only if not present (idempotent)
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Roles' AND column_name='TenantId') THEN
+        ALTER TABLE ""Roles"" ADD COLUMN ""TenantId"" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='RolePermissions' AND column_name='TenantId') THEN
+        ALTER TABLE ""RolePermissions"" ADD COLUMN ""TenantId"" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='ProjectMembers' AND column_name='TenantId') THEN
+        ALTER TABLE ""ProjectMembers"" ADD COLUMN ""TenantId"" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Permissions' AND column_name='TenantId') THEN
+        ALTER TABLE ""Permissions"" ADD COLUMN ""TenantId"" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+    END IF;
+END $$;");
 
-            migrationBuilder.RenameTable(
-                name: "ImportTemplate",
-                newName: "ImportTemplates");
+            // Add PKs only if not already present (idempotent)
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_RecurringExpenses') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'RecurringExpenses') THEN
+        ALTER TABLE ""RecurringExpenses"" ADD CONSTRAINT ""PK_RecurringExpenses"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_ProfitLossEntries') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ProfitLossEntries') THEN
+        ALTER TABLE ""ProfitLossEntries"" ADD CONSTRAINT ""PK_ProfitLossEntries"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_ImportTemplates') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportTemplates') THEN
+        ALTER TABLE ""ImportTemplates"" ADD CONSTRAINT ""PK_ImportTemplates"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_ImportFieldMappings') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportFieldMappings') THEN
+        ALTER TABLE ""ImportFieldMappings"" ADD CONSTRAINT ""PK_ImportFieldMappings"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_HepsiburadaListings') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'HepsiburadaListings') THEN
+        ALTER TABLE ""HepsiburadaListings"" ADD CONSTRAINT ""PK_HepsiburadaListings"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_CiceksepetiCategories') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'CiceksepetiCategories') THEN
+        ALTER TABLE ""CiceksepetiCategories"" ADD CONSTRAINT ""PK_CiceksepetiCategories"" PRIMARY KEY (""Id"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'PK_BudgetPlans') AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'BudgetPlans') THEN
+        ALTER TABLE ""BudgetPlans"" ADD CONSTRAINT ""PK_BudgetPlans"" PRIMARY KEY (""Id"");
+    END IF;
+END $$;");
 
-            migrationBuilder.RenameTable(
-                name: "ImportFieldMapping",
-                newName: "ImportFieldMappings");
-
-            migrationBuilder.RenameTable(
-                name: "HepsiburadaListing",
-                newName: "HepsiburadaListings");
-
-            migrationBuilder.RenameTable(
-                name: "CiceksepetiCategory",
-                newName: "CiceksepetiCategories");
-
-            migrationBuilder.RenameTable(
-                name: "BudgetPlan",
-                newName: "BudgetPlans");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_RecurringExpense_TenantId",
-                table: "RecurringExpenses",
-                newName: "IX_RecurringExpenses_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_RecurringExpense_NextDueDate",
-                table: "RecurringExpenses",
-                newName: "IX_RecurringExpenses_NextDueDate");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_RecurringExpense_IsDeleted",
-                table: "RecurringExpenses",
-                newName: "IX_RecurringExpenses_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_RecurringExpense_IsActive",
-                table: "RecurringExpenses",
-                newName: "IX_RecurringExpenses_IsActive");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ProfitLossEntry_TenantId",
-                table: "ProfitLossEntries",
-                newName: "IX_ProfitLossEntries_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ProfitLossEntry_IsDeleted",
-                table: "ProfitLossEntries",
-                newName: "IX_ProfitLossEntries_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ImportTemplate_TenantId",
-                table: "ImportTemplates",
-                newName: "IX_ImportTemplates_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ImportTemplate_IsDeleted",
-                table: "ImportTemplates",
-                newName: "IX_ImportTemplates_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ImportFieldMapping_IsDeleted",
-                table: "ImportFieldMappings",
-                newName: "IX_ImportFieldMappings_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_ImportFieldMapping_ImportTemplateId",
-                table: "ImportFieldMappings",
-                newName: "IX_ImportFieldMappings_ImportTemplateId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_HepsiburadaListing_TenantId",
-                table: "HepsiburadaListings",
-                newName: "IX_HepsiburadaListings_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_HepsiburadaListing_IsDeleted",
-                table: "HepsiburadaListings",
-                newName: "IX_HepsiburadaListings_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_CiceksepetiCategory_TenantId",
-                table: "CiceksepetiCategories",
-                newName: "IX_CiceksepetiCategories_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_CiceksepetiCategory_IsDeleted",
-                table: "CiceksepetiCategories",
-                newName: "IX_CiceksepetiCategories_IsDeleted");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_BudgetPlan_TenantId",
-                table: "BudgetPlans",
-                newName: "IX_BudgetPlans_TenantId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_BudgetPlan_IsDeleted",
-                table: "BudgetPlans",
-                newName: "IX_BudgetPlans_IsDeleted");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "Roles",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "RolePermissions",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "ProjectMembers",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "Permissions",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_RecurringExpenses",
-                table: "RecurringExpenses",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ProfitLossEntries",
-                table: "ProfitLossEntries",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ImportTemplates",
-                table: "ImportTemplates",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ImportFieldMappings",
-                table: "ImportFieldMappings",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_HepsiburadaListings",
-                table: "HepsiburadaListings",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_CiceksepetiCategories",
-                table: "CiceksepetiCategories",
-                column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_BudgetPlans",
-                table: "BudgetPlans",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Roles_TenantId",
-                table: "Roles",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_TenantId",
-                table: "RolePermissions",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectMembers_TenantId",
-                table: "ProjectMembers",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Permissions_TenantId",
-                table: "Permissions",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_Tenant_Reference",
-                table: "JournalEntries",
-                columns: new[] { "TenantId", "ReferenceNumber" },
-                unique: true,
-                filter: "\"ReferenceNumber\" IS NOT NULL");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ImportFieldMappings_ImportTemplates_ImportTemplateId",
-                table: "ImportFieldMappings",
-                column: "ImportTemplateId",
-                principalTable: "ImportTemplates",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            // Create indexes idempotently
+            migrationBuilder.Sql(@"
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_Roles_TenantId') THEN
+        CREATE INDEX ""IX_Roles_TenantId"" ON ""Roles"" (""TenantId"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_RolePermissions_TenantId') THEN
+        CREATE INDEX ""IX_RolePermissions_TenantId"" ON ""RolePermissions"" (""TenantId"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_ProjectMembers_TenantId') THEN
+        CREATE INDEX ""IX_ProjectMembers_TenantId"" ON ""ProjectMembers"" (""TenantId"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_Permissions_TenantId') THEN
+        CREATE INDEX ""IX_Permissions_TenantId"" ON ""Permissions"" (""TenantId"");
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IX_JournalEntries_Tenant_Reference') THEN
+        CREATE UNIQUE INDEX ""IX_JournalEntries_Tenant_Reference"" ON ""JournalEntries"" (""TenantId"", ""ReferenceNumber"") WHERE ""ReferenceNumber"" IS NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_ImportFieldMappings_ImportTemplates_ImportTemplateId')
+       AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportFieldMappings')
+       AND EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'ImportTemplates') THEN
+        ALTER TABLE ""ImportFieldMappings"" ADD CONSTRAINT ""FK_ImportFieldMappings_ImportTemplates_ImportTemplateId""
+            FOREIGN KEY (""ImportTemplateId"") REFERENCES ""ImportTemplates""(""Id"") ON DELETE CASCADE;
+    END IF;
+END $$;");
         }
 
         /// <inheritdoc />
