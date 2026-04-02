@@ -265,28 +265,27 @@ public class BulkScreenshotLayer15Tests
                 window.Show();
                 Dispatcher.UIThread.RunJobs();
 
-                // InitializeAsync tetiklenmesi — timeout ile deadlock koruması
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                try
+                // LoadAsync tetiklenmesi — Task.Run ile ayrı thread'de çalıştır
+                // NEDEN: SafeExecuteAsync → Dispatcher.UIThread.InvokeAsync
+                // Headless [AvaloniaFact] zaten UI thread'de → re-entrancy deadlock.
+                // Task.Run ile background thread'e taşı, UI thread RunJobs ile dispatch işle.
+                if (view.DataContext is ViewModelBase vmBase)
                 {
-                    if (view.DataContext is ViewModelBase vmBase)
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    var loadTask = Task.Run(() => vmBase.LoadAsync(), cts.Token);
+                    // Background thread'deki LoadAsync, Dispatcher.InvokeAsync ile UI thread'e dispatch eder.
+                    // RunJobs ile bu dispatch'leri işle.
+                    while (!loadTask.IsCompleted && !cts.IsCancellationRequested)
                     {
-                        var loadTask = vmBase.LoadAsync();
-                        // RunJobs ile Dispatcher kuyruğunu işle, ama 3s timeout ile
-                        while (!loadTask.IsCompleted && !cts.IsCancellationRequested)
-                        {
-                            Dispatcher.UIThread.RunJobs();
-                            Thread.Sleep(50);
-                        }
-                    }
-                    else
-                    {
-                        Thread.Sleep(200);
                         Dispatcher.UIThread.RunJobs();
+                        Thread.Sleep(30);
                     }
+                    try { loadTask.GetAwaiter().GetResult(); } catch { /* hata — devam et */ }
                 }
-                catch (OperationCanceledException) { /* timeout — devam et */ }
-                catch { /* LoadAsync hatası — screenshot yine de al */ }
+                else
+                {
+                    Thread.Sleep(200);
+                }
                 Dispatcher.UIThread.RunJobs();
 
                 var frame = window.CaptureRenderedFrame();
