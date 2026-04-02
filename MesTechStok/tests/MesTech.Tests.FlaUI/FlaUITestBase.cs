@@ -272,7 +272,11 @@ public abstract class FlaUITestBase : IAsyncLifetime
             {
                 string text;
                 try { text = t.Name ?? ""; } catch { continue; }
-                if (text.Length > 300 || text.Contains("0 Hata") || text.Contains("0 Error"))
+                if (text.Length > 300 || text.Contains("0 Hata") || text.Contains("0 Error")
+                    || text.Contains("0 hatali") || text.Contains("0 bagli")
+                    || text.StartsWith("Hata: 0") || text == "Hata"
+                    || text.Contains("Bugün") || text.Contains("basarili")
+                    || text.Contains("platform —") || text.Contains("kayit"))
                     continue;
 
                 foreach (var p in patterns)

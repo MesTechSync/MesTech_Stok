@@ -151,8 +151,10 @@ public class FullMenuScanTests : FlaUITestBase
 
                 Thread.Sleep(1500);
 
-                // Hata kontrolü
-                var error = FindError();
+                // Hata kontrolü — sadece gerçek exception mesajlarını yakala
+                var error = FindError("Hata Olustu", "Hata olustu", "Exception",
+                    "column does not exist", "relation does not exist",
+                    "second operation", "yuklenemedi", "baglanilamadi");
                 if (error is not null)
                 {
                     Screenshot($"SCAN_{cmdParam}", cmdParam, false, "HasError");
