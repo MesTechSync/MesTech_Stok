@@ -49,6 +49,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         ILogger<NebimERPAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

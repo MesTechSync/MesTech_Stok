@@ -47,6 +47,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         ILogger<NetsisERPAdapter> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -1060,8 +1061,15 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         var password = _config["ERP:Netsis:Password"]
             ?? throw new InvalidOperationException("ERP:Netsis:Password is not configured.");
 
-        var encoded = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes($"{username}:{password}"));
+        // Credential'ları string interpolation OLMADAN encode et — stack trace'de credential sızıntısı önlenir.
+        var usernameBytes = Encoding.UTF8.GetBytes(username);
+        var separatorBytes = ":"u8.ToArray();
+        var passwordBytes = Encoding.UTF8.GetBytes(password);
+        var combined = new byte[usernameBytes.Length + separatorBytes.Length + passwordBytes.Length];
+        Buffer.BlockCopy(usernameBytes, 0, combined, 0, usernameBytes.Length);
+        Buffer.BlockCopy(separatorBytes, 0, combined, usernameBytes.Length, separatorBytes.Length);
+        Buffer.BlockCopy(passwordBytes, 0, combined, usernameBytes.Length + separatorBytes.Length, passwordBytes.Length);
+        var encoded = Convert.ToBase64String(combined);
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Basic", encoded);
     }
