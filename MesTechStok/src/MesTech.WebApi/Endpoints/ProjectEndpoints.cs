@@ -41,7 +41,8 @@ public static class ProjectEndpoints
             return Results.Created($"/api/v1/projects/{id}", new CreatedResponse(id));
         })
         .WithName("CreateProject")
-        .WithSummary("Yeni proje oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni proje oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/projects/{id}/tasks — projeye ait görev listesi
         group.MapGet("/{id:guid}/tasks", async (
@@ -66,7 +67,8 @@ public static class ProjectEndpoints
             return Results.Created($"/api/v1/projects/tasks/{id}", new CreatedResponse(id));
         })
         .WithName("CreateWorkTask")
-        .WithSummary("Yeni iş görevi oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni iş görevi oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/projects/tasks/{taskId}/complete — görevi tamamla
         group.MapPost("/tasks/{taskId:guid}/complete", async (
@@ -77,6 +79,7 @@ public static class ProjectEndpoints
             return Results.NoContent();
         })
         .WithName("CompleteTask")
-        .WithSummary("Görevi tamamlandı olarak işaretle").Produces(200).Produces(400);
+        .WithSummary("Görevi tamamlandı olarak işaretle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

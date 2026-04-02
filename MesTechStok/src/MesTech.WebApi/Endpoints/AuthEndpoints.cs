@@ -133,7 +133,8 @@ public static class AuthEndpoints
         .Produces<LoginResponse>(StatusCodes.Status401Unauthorized)
         .Produces<LoginResponse>(StatusCodes.Status423Locked)
         .Produces<LoginResponse>(StatusCodes.Status429TooManyRequests)
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/validate — validate an existing JWT token
         group.MapPost("/validate", (ValidateTokenRequest request, IJwtTokenService jwtService) =>
@@ -151,7 +152,8 @@ public static class AuthEndpoints
         .WithName("ValidateToken")
         .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId")
         .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
+        .Produces(StatusCodes.Status400BadRequest)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/refresh — rotate refresh token (OWASP ASVS V3.3)
         group.MapPost("/refresh", async (
@@ -254,7 +256,8 @@ public static class AuthEndpoints
         .WithSummary("JWT refresh token rotation — OWASP ASVS V3.3")
         .Produces<RefreshTokenResponse>(StatusCodes.Status200OK)
         .Produces<RefreshTokenResponse>(StatusCodes.Status401Unauthorized)
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/revoke — revoke refresh token (logout)
         group.MapPost("/revoke", async (
@@ -291,7 +294,8 @@ public static class AuthEndpoints
         })
         .WithName("RevokeToken")
         .WithSummary("Refresh token iptal — logout")
-        .Produces<StatusResponse>(StatusCodes.Status200OK);
+        .Produces<StatusResponse>(StatusCodes.Status200OK)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/mfa/enable — enable MFA for user
         group.MapPost("/mfa/enable", async (
@@ -304,7 +308,8 @@ public static class AuthEndpoints
         })
         .WithName("EnableMfa")
         .WithSummary("Kullanıcı için MFA (TOTP) etkinleştir — QR code + secret döner")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/mfa/verify — verify TOTP code
         group.MapPost("/mfa/verify", async (
@@ -317,7 +322,8 @@ public static class AuthEndpoints
         })
         .WithName("VerifyTotp")
         .WithSummary("TOTP doğrulama kodu kontrol")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/auth/mfa/disable — disable MFA for user (G222-DEV6)
         group.MapPost("/mfa/disable", async (
@@ -334,7 +340,8 @@ public static class AuthEndpoints
         })
         .WithName("DisableMfa")
         .WithSummary("Kullanıcı MFA (TOTP) devre dışı bırak — aktif TOTP kodu gerekli (G222)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     // ── Request / Response Records ──

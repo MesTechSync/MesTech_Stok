@@ -112,7 +112,8 @@ public static class WebhookEndpoints
         .Produces(422)
         .AllowAnonymous() // Webhook'lar platform'dan JWT olmadan gelir
         .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR6: 60 req/min per IP — platform callback flood protection
-        .WithMetadata(new RequestSizeLimitAttribute(1_048_576)); // G088 FIX: 1MB limit (tipik webhook 1-100KB)
+        .WithMetadata(new RequestSizeLimitAttribute(1_048_576)) // G088 FIX: 1MB limit (tipik webhook 1-100KB)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/webhooks/dead-letters — DLQ list (admin)
         group.MapGet("/dead-letters", async (
@@ -209,7 +210,8 @@ public static class WebhookEndpoints
         .WithName("TestWebhook")
         .WithSummary("Webhook test konsolu — payload gönder, sonucu gör (sandbox only)")
         .Produces(200).Produces(400).Produces(403)
-        .RequireRateLimiting("PerApiKey");
+        .RequireRateLimiting("PerApiKey")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/webhooks/dead-letters/{id}/resolve — manual resolve
         group.MapPost("/dead-letters/{id:guid}/resolve", async (
@@ -229,7 +231,8 @@ public static class WebhookEndpoints
         .WithName("ResolveWebhookDeadLetter")
         .WithSummary("Dead letter webhook'u manuel çözüldü olarak işaretle")
         .Produces(200).Produces(404)
-        .RequireRateLimiting("PerApiKey");
+        .RequireRateLimiting("PerApiKey")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     // ── Request Records ──

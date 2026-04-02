@@ -48,7 +48,8 @@ public static class StoreEndpoints
         .WithName("CreateStore")
         .WithSummary("Yeni mağaza oluştur — admin only")
         .Produces(201).Produces(400)
-        .AddEndpointFilter<Filters.StorePlanLimitFilter>();
+        .AddEndpointFilter<Filters.StorePlanLimitFilter>()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/admin/stores/{id}/test-connection — mağaza API bağlantı testi
         group.MapPost("/{id:guid}/test-connection", async (
@@ -61,7 +62,8 @@ public static class StoreEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("TestStoreConnection")
-        .WithSummary("Mağaza API bağlantı testi").Produces(200).Produces(400);
+        .WithSummary("Mağaza API bağlantı testi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/admin/stores/{id} — mağaza detayı (P1 — DEV6 TUR11)
         group.MapGet("/{id:guid}", async (

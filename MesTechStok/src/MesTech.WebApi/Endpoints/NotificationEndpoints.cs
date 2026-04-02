@@ -44,7 +44,8 @@ public static class NotificationEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("MarkNotificationRead")
-        .WithSummary("Bildirimi okundu olarak işaretle").Produces(200).Produces(400);
+        .WithSummary("Bildirimi okundu olarak işaretle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/notifications/send — bildirim gönder
         group.MapPost("/send", async (
@@ -55,7 +56,8 @@ public static class NotificationEndpoints
             return Results.Created($"/api/v1/notifications/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("SendNotification")
-        .WithSummary("Bildirim gönder (kanal + şablon bazlı)").Produces(200).Produces(400);
+        .WithSummary("Bildirim gönder (kanal + şablon bazlı)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/notifications/unread-count — okunmamış bildirim sayısı
         group.MapGet("/unread-count", async (
@@ -92,7 +94,8 @@ public static class NotificationEndpoints
             return Results.Created($"/api/v1/notifications/{id}", new CreatedResponse(id));
         })
         .WithName("PushNotification")
-        .WithSummary("Bildirim gönder + SignalR real-time push (V5)").Produces(200).Produces(400);
+        .WithSummary("Bildirim gönder + SignalR real-time push (V5)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     internal record PushNotificationRequest(

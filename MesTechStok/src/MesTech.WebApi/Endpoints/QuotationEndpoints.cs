@@ -56,7 +56,8 @@ public static class QuotationEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateQuotation")
-        .WithSummary("Yeni teklif oluştur").Produces(201).Produces(400);
+        .WithSummary("Yeni teklif oluştur").Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/quotations/{id}/accept — accept a quotation
         group.MapPost("/{id:guid}/accept", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -67,7 +68,8 @@ public static class QuotationEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("AcceptQuotation")
-        .WithSummary("Teklifi kabul et").Produces(200).Produces(400);
+        .WithSummary("Teklifi kabul et").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/quotations/{id}/reject — reject a quotation
         group.MapPost("/{id:guid}/reject", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -78,7 +80,8 @@ public static class QuotationEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("RejectQuotation")
-        .WithSummary("Teklifi reddet").Produces(200).Produces(400);
+        .WithSummary("Teklifi reddet").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/quotations/{id}/convert — convert accepted quotation to invoice
         group.MapPost("/{id:guid}/convert", async (Guid id, [FromBody] ConvertRequest body, ISender mediator, CancellationToken ct) =>
@@ -90,6 +93,7 @@ public static class QuotationEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("ConvertQuotationToInvoice")
-        .WithSummary("Kabul edilen teklifi faturaya dönüştür").Produces(200).Produces(400);
+        .WithSummary("Kabul edilen teklifi faturaya dönüştür").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

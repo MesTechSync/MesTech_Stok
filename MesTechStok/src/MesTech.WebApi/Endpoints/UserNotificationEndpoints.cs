@@ -44,7 +44,8 @@ public static class UserNotificationEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("MarkUserNotificationRead")
-        .WithSummary("Kullanici ici bildirimi okundu olarak isaretler").Produces(200).Produces(400);
+        .WithSummary("Kullanici ici bildirimi okundu olarak isaretler").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/system/notifications/read-all?userId= — tum bildirimleri okundu isaretle
         group.MapPut("/read-all", async (
@@ -56,7 +57,8 @@ public static class UserNotificationEndpoints
             return Results.Ok(new StatusResponse("Ok", $"{count}"));
         })
         .WithName("MarkAllUserNotificationsRead")
-        .WithSummary("Kullanicinin tum bildirimlerini okundu olarak isaretler").Produces(200).Produces(400);
+        .WithSummary("Kullanicinin tum bildirimlerini okundu olarak isaretler").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/system/notifications/unread-count?userId= — okunmamis bildirim sayisi
         group.MapGet("/unread-count", async (

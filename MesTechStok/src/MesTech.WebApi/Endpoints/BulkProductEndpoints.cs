@@ -49,7 +49,8 @@ public static class BulkProductEndpoints
         .WithName("ValidateBulkImport")
         .WithSummary("Toplu ürün import dosyasını doğrula (CSV/Excel)")
         .Produces(200).Produces(400)
-        .DisableAntiforgery();
+        .DisableAntiforgery()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/bulk/import — CSV/Excel'den toplu ürün aktarımı
         group.MapPost("/import", async (
@@ -85,6 +86,7 @@ public static class BulkProductEndpoints
         .WithSummary("CSV/Excel dosyasından toplu ürün import et")
         .Produces(200).Produces(400)
         .DisableAntiforgery()
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
@@ -119,7 +121,8 @@ public static class BulkProductEndpoints
             return Results.File(bytes, "text/csv", filename);
         })
         .WithName("ExportProducts")
-        .WithSummary("Ürünleri CSV dosyası olarak dışa aktar").Produces(200).Produces(400);
+        .WithSummary("Ürünleri CSV dosyası olarak dışa aktar").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/bulk/update — Toplu stok/fiyat güncelleme
         group.MapPost("/update", async (
@@ -167,7 +170,8 @@ public static class BulkProductEndpoints
             return Results.Ok(new BulkUpdateResponse(totalSuccess, totalFailed, allFailures));
         })
         .WithName("BulkUpdateProducts")
-        .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400);
+        .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/bulk/create — JSON ile toplu ürün oluşturma
         // DEV6 TUR15: G519 — handler-endpoint gap kapatma
@@ -181,7 +185,8 @@ public static class BulkProductEndpoints
         })
         .WithName("BulkCreateProducts")
         .WithSummary("JSON payload ile toplu ürün oluştur")
-        .Produces<BulkCreateProductsResult>(200).Produces(400);
+        .Produces<BulkCreateProductsResult>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     /// <summary>

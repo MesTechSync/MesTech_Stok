@@ -35,7 +35,8 @@ public static class StoreCredentialEndpoints
                 new { id, storeId });
         })
         .WithName("SaveStoreCredential")
-        .WithSummary("Magaza credential'larini kaydet/guncelle (upsert, AES-256-GCM sifreleme)").Produces(200).Produces(400);
+        .WithSummary("Magaza credential'larini kaydet/guncelle (upsert, AES-256-GCM sifreleme)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stores/{storeId}/credentials/test — baglanti testi
         group.MapPost("/test", async (
@@ -49,7 +50,8 @@ public static class StoreCredentialEndpoints
                 : Results.UnprocessableEntity(result);
         })
         .WithName("TestStoreCredential")
-        .WithSummary("Kaydedilmis credential'lar ile platform baglanti testi").Produces(200).Produces(400);
+        .WithSummary("Kaydedilmis credential'lar ile platform baglanti testi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stores/{storeId}/credentials — maskelenmis credential bilgisi
         group.MapGet("/", async (

@@ -24,7 +24,8 @@ public static class SavedReportEndpoints
             return Results.Created($"/api/v1/reports/saved/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSavedReport")
-        .WithSummary("Yeni kaydedilmis rapor sablonu olusturur").Produces(200).Produces(400);
+        .WithSummary("Yeni kaydedilmis rapor sablonu olusturur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/reports/saved — tenant'a ait raporlari listele
         group.MapGet("/", async (

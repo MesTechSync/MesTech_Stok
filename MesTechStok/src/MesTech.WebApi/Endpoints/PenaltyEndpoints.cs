@@ -51,7 +51,8 @@ public static class PenaltyEndpoints
             return Results.Created($"/api/v1/accounting/penalties/{id}", new CreatedResponse(id));
         })
         .WithName("CreatePenaltyRecord")
-        .WithSummary("Yeni ceza kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni ceza kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/penalties/{id} — ceza kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -63,7 +64,8 @@ public static class PenaltyEndpoints
             return Results.NoContent();
         })
         .WithName("UpdatePenaltyRecord")
-        .WithSummary("Ceza kaydi odeme durumunu guncelle").Produces(200).Produces(400);
+        .WithSummary("Ceza kaydi odeme durumunu guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/penalties/{id} — ceza kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (

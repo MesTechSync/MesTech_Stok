@@ -56,6 +56,7 @@ public static class DocumentEndpoints
         .WithName("UploadDocument")
         .WithSummary("Belge yükle — MinIO'ya dosya yükler, Document kaydı oluşturur")
         .Produces(201).Produces(400)
-        .DisableAntiforgery();
+        .DisableAntiforgery()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

@@ -48,6 +48,7 @@ public static class TaxWithholdingEndpoints
             return Results.Created($"/api/v1/accounting/tax-withholdings/{id}", new CreatedResponse(id));
         })
         .WithName("RecordTaxWithholding")
-        .WithSummary("Yeni KDV tevkifat kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni KDV tevkifat kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

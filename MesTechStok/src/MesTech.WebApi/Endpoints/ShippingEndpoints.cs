@@ -26,7 +26,8 @@ public static class ShippingEndpoints
             return Results.Ok(result);
         })
         .WithName("AutoShipOrder")
-        .WithSummary("Siparişi otomatik kargola (kargo firması seçimi dahil)").Produces(200).Produces(400);
+        .WithSummary("Siparişi otomatik kargola (kargo firması seçimi dahil)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/shipping/batch-ship — toplu kargolama
         group.MapPost("/batch-ship", async (
@@ -37,7 +38,8 @@ public static class ShippingEndpoints
             return Results.Ok(result);
         })
         .WithName("BatchShipOrders")
-        .WithSummary("Birden fazla siparişi toplu kargola").Produces(200).Produces(400);
+        .WithSummary("Birden fazla siparişi toplu kargola").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/shipping/{trackingNumber}/status — kargo takip durumu
         group.MapGet("/{trackingNumber}/status", async (

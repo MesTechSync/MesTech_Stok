@@ -38,7 +38,8 @@ public static class BaBsEndpoints
             return Results.Created($"/api/v1/accounting/babs-records/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateBaBsRecord")
-        .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)").Produces(200).Produces(400);
+        .WithSummary("Yeni Ba/Bs kaydi olustur (VUK 396)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ─── V5 YENİ BA/BS ENDPOINT'LERİ [ENT-DEV6] ───
 

@@ -51,7 +51,8 @@ public static class SalaryEndpoints
             return Results.Created($"/api/v1/accounting/salaries/{id}", new CreatedResponse(id));
         })
         .WithName("CreateSalaryRecord")
-        .WithSummary("Yeni maas kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni maas kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/salaries/{id} — maas kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -63,7 +64,8 @@ public static class SalaryEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateSalaryRecord")
-        .WithSummary("Maas kaydi odeme durumunu guncelle").Produces(200).Produces(400);
+        .WithSummary("Maas kaydi odeme durumunu guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/salaries/{id} — maas kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (

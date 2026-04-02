@@ -36,6 +36,7 @@ public static class NotificationSettingEndpoints
             return Results.Ok(new CreatedResponse(id));
         })
         .WithName("UpdateNotificationSettings")
-        .WithSummary("Kullanici bildirim ayarlarini gunceller (upsert)").Produces(200).Produces(400);
+        .WithSummary("Kullanici bildirim ayarlarini gunceller (upsert)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

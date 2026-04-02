@@ -46,6 +46,7 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncPlatform")
         .WithSummary("Belirtilen platformu senkronize et (* = tümü)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/platforms/trigger-sync — trigger sync for specific platform
@@ -59,6 +60,7 @@ public static class PlatformSyncEndpoint
         .WithName("TriggerSync")
         .WithSummary("Platform senkronizasyonu tetikle (tenant + platform kodu)")
         .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/platforms/sync-history — recent sync history
@@ -87,7 +89,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncTrendyolProducts")
         .WithSummary("Trendyol ürün senkronizasyonu başlat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/hepsiburada — sync Hepsiburada products
         group.MapPost("/sync/hepsiburada", async (
@@ -99,7 +102,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncHepsiburadaProducts")
         .WithSummary("Hepsiburada ürün senkronizasyonu başlat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/n11 — sync N11 products
         group.MapPost("/sync/n11", async (
@@ -111,7 +115,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncN11Products")
         .WithSummary("N11 ürün senkronizasyonu başlat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/ciceksepeti — sync Çiçeksepeti products
         group.MapPost("/sync/ciceksepeti", async (
@@ -123,7 +128,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncCiceksepetiProducts")
         .WithSummary("Çiçeksepeti ürün senkronizasyonu başlat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/zalando — sync Zalando products (G437-DEV6)
         group.MapPost("/sync/zalando", async (
@@ -136,7 +142,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncZalandoProducts")
         .WithSummary("Zalando ürün senkronizasyonu başlat (G437)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/pttavm — sync PTT AVM products
         group.MapPost("/sync/pttavm", async (
@@ -149,7 +156,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncPttAvmProducts")
         .WithSummary("PTT AVM ürün senkronizasyonu başlat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ── G10787: 8 eksik platform sync endpoint — generic SyncPlatformCommand ile ──
 
@@ -164,7 +172,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncPazaramaProducts")
         .WithSummary("Pazarama urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/amazon
         group.MapPost("/sync/amazon", async (
@@ -177,7 +186,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncAmazonProducts")
         .WithSummary("Amazon TR urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/ebay
         group.MapPost("/sync/ebay", async (
@@ -190,7 +200,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncEbayProducts")
         .WithSummary("eBay urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/ozon
         group.MapPost("/sync/ozon", async (
@@ -203,7 +214,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncOzonProducts")
         .WithSummary("Ozon urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/etsy
         group.MapPost("/sync/etsy", async (
@@ -216,7 +228,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncEtsyProducts")
         .WithSummary("Etsy urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/shopify
         group.MapPost("/sync/shopify", async (
@@ -229,7 +242,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncShopifyProducts")
         .WithSummary("Shopify urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/woocommerce
         group.MapPost("/sync/woocommerce", async (
@@ -242,7 +256,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncWooCommerceProducts")
         .WithSummary("WooCommerce urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/sync/opencart
         group.MapPost("/sync/opencart", async (
@@ -255,7 +270,8 @@ public static class PlatformSyncEndpoint
         })
         .WithName("SyncOpenCartProducts")
         .WithSummary("OpenCart urun senkronizasyonu baslat")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/platforms/map-product — map product to platform category
         group.MapPost("/map-product", async (
@@ -267,6 +283,7 @@ public static class PlatformSyncEndpoint
         })
         .WithName("MapProductToPlatform")
         .WithSummary("Ürünü platform kategorisine eşle")
-        .Produces(204).Produces(400);
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

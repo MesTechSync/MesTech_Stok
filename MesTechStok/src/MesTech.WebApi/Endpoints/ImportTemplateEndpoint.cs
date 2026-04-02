@@ -26,6 +26,7 @@ public static class ImportTemplateEndpoint
         .WithTags("Settings")
         .RequireRateLimiting("PerApiKey")
         .Produces(200)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

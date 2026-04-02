@@ -58,7 +58,8 @@ public static class SocialFeedEndpoints
                 : Results.UnprocessableEntity(new { result.Errors });
         })
         .WithName("GenerateFeed")
-        .WithSummary("Belirtilen platform için feed üretimini tetikle").Produces(200).Produces(400);
+        .WithSummary("Belirtilen platform için feed üretimini tetikle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/social-feeds/{platform}/status — platform feed durumu
         group.MapGet("/{platform}/status", async (
@@ -98,7 +99,8 @@ public static class SocialFeedEndpoints
             return Results.Ok(result);
         })
         .WithName("ValidateFeed")
-        .WithSummary("Feed URL'ini platform validator üzerinden doğrula").Produces(200).Produces(400);
+        .WithSummary("Feed URL'ini platform validator üzerinden doğrula").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/social-feeds/{platform}/schedule — otomatik yenileme zamanla
         group.MapPost("/{platform}/schedule", async (
@@ -118,7 +120,8 @@ public static class SocialFeedEndpoints
             return Results.NoContent();
         })
         .WithName("ScheduleFeedRefresh")
-        .WithSummary("Platform feed otomatik yenileme aralığını ayarla").Produces(200).Produces(400);
+        .WithSummary("Platform feed otomatik yenileme aralığını ayarla").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/social-feeds/refresh/{configId} — feed yenileme tetikle
         group.MapPost("/refresh/{configId:guid}", async (
@@ -132,7 +135,8 @@ public static class SocialFeedEndpoints
         })
         .WithName("RefreshSocialFeed")
         .WithSummary("Sosyal feed yenileme tetikle — Google Merchant, Facebook Shop vb.")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     /// <summary>Feed URL doğrulama istek gövdesi.</summary>

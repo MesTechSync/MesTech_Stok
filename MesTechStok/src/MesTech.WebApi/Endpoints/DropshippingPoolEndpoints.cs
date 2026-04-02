@@ -141,7 +141,8 @@ public static class DropshippingPoolEndpoints
             return Results.Ok(result);
         })
         .WithName("ExportPoolToPlatform")
-        .WithSummary("Seçili havuz ürünlerini platforma aktar (Trendyol, Hepsiburada, vb.)").Produces(200).Produces(400);
+        .WithSummary("Seçili havuz ürünlerini platforma aktar (Trendyol, Hepsiburada, vb.)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/dropshipping/pool/export/xml — XML feed olarak dışa aktar
         group.MapPost("/pool/export/xml", async (
@@ -152,6 +153,7 @@ public static class DropshippingPoolEndpoints
             return Results.File(bytes, "application/xml", filename);
         })
         .WithName("ExportPoolToXml")
-        .WithSummary("Seçili havuz ürünlerini XML feed olarak indir").Produces(200).Produces(400);
+        .WithSummary("Seçili havuz ürünlerini XML feed olarak indir").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

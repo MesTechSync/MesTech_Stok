@@ -25,7 +25,8 @@ public static class ShipmentEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateShipment")
-        .WithSummary("Yeni gönderi oluştur (otomatik kargo sağlayıcı seçimi)").Produces(200).Produces(400);
+        .WithSummary("Yeni gönderi oluştur (otomatik kargo sağlayıcı seçimi)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/shipments/{id}/label — kargo etiketi indir (G564)
         group.MapGet("/{id:guid}/label", async (
@@ -59,6 +60,7 @@ public static class ShipmentEndpoints
         })
         .WithName("PrintShipmentLabel")
         .WithSummary("Kargo etiketi yazıcıya gönder")
-        .Produces<StatusResponse>(200).Produces(400);
+        .Produces<StatusResponse>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

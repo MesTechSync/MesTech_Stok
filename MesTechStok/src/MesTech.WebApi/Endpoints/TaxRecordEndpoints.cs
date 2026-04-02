@@ -50,7 +50,8 @@ public static class TaxRecordEndpoints
             return Results.Created($"/api/v1/accounting/taxes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateTaxRecord")
-        .WithSummary("Yeni vergi kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni vergi kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/taxes/{id} — vergi kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -62,7 +63,8 @@ public static class TaxRecordEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateTaxRecord")
-        .WithSummary("Vergi kaydi odeme durumunu guncelle").Produces(200).Produces(400);
+        .WithSummary("Vergi kaydi odeme durumunu guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/taxes/{id} — vergi kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (

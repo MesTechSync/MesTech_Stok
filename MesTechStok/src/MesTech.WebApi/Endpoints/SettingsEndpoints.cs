@@ -50,7 +50,8 @@ public static class SettingsEndpoints
                 : Results.NotFound(new { error = "Tenant not found" });
         })
         .WithName("UpdateSettingsProfile")
-        .WithSummary("Kullanici profil ayarlarini guncelle").Produces(200).Produces(400);
+        .WithSummary("Kullanici profil ayarlarini guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/settings/credentials
         group.MapGet("/credentials", async (
@@ -103,7 +104,8 @@ public static class SettingsEndpoints
         })
         .WithName("UpdateStoreSettings")
         .WithSummary("Mağaza ayarlarını güncelle")
-        .Produces(204).Produces(400);
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/settings/company — şirket ayarlarını kaydet (depo dahil)
         group.MapPost("/company", async (
@@ -117,7 +119,8 @@ public static class SettingsEndpoints
         })
         .WithName("SaveCompanySettings")
         .WithSummary("Şirket ayarlarını kaydet — depolar dahil")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/settings/erp — ERP entegrasyon ayarları (G207-DEV6)
         group.MapGet("/erp", async (
@@ -190,7 +193,8 @@ public static class SettingsEndpoints
         })
         .WithName("UpdateUserSettings")
         .WithSummary("Kullanıcı ayarlarını güncelle (profil alias)")
-        .Produces(204).Produces(400);
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/settings/api — API ayarları kaydet (G564)
         group.MapPost("/api", async (
@@ -204,7 +208,8 @@ public static class SettingsEndpoints
         })
         .WithName("SaveApiSettings")
         .WithSummary("API ayarları kaydet — base URL, webhook secret, rate limit, CORS")
-        .Produces<StatusResponse>(200).Produces(400);
+        .Produces<StatusResponse>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/settings/erp — ERP ayarları kaydet (G564)
         group.MapPost("/erp", async (
@@ -218,7 +223,8 @@ public static class SettingsEndpoints
         })
         .WithName("SaveErpSettings")
         .WithSummary("ERP entegrasyon ayarları kaydet — Parasut/Logo/Netsis")
-        .Produces<StatusResponse>(200).Produces(400);
+        .Produces<StatusResponse>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/settings/fulfillment — Fulfillment ayarları kaydet (G564)
         group.MapPost("/fulfillment", async (
@@ -232,6 +238,7 @@ public static class SettingsEndpoints
         })
         .WithName("SaveFulfillmentSettings")
         .WithSummary("Fulfillment ayarları — FBA/Hepsilojistik auto-replenish")
-        .Produces<StatusResponse>(200).Produces(400);
+        .Produces<StatusResponse>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

@@ -110,7 +110,8 @@ public static class ErpEndpoints
 #pragma warning restore CA1031
         })
         .WithName("TestErpConnection")
-        .WithSummary("Belirli ERP sağlayıcısına bağlantı testi").Produces(200).Produces(400);
+        .WithSummary("Belirli ERP sağlayıcısına bağlantı testi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/erp/sync/stock — trigger manual ERP stock sync
         group.MapPost("/sync/stock", async (
@@ -155,7 +156,8 @@ public static class ErpEndpoints
                 new ErpSyncResponse(results, DateTime.UtcNow)));
         })
         .WithName("SyncErpStock")
-        .WithSummary("Manuel ERP stok senkronizasyonu tetikle").Produces(200).Produces(400);
+        .WithSummary("Manuel ERP stok senkronizasyonu tetikle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/erp/sync/accounts — trigger manual ERP account sync
         group.MapPost("/sync/accounts", async (
@@ -193,7 +195,8 @@ public static class ErpEndpoints
                 new ErpAccountSyncResponse(accountResults, DateTime.UtcNow)));
         })
         .WithName("SyncErpAccounts")
-        .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle").Produces(200).Produces(400);
+        .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/erp/sync/history — ERP senkronizasyon geçmişi
         group.MapGet("/sync/history", async (
@@ -250,7 +253,8 @@ public static class ErpEndpoints
         })
         .WithName("SyncOrderToErp")
         .WithSummary("Siparişi ERP sistemine senkronize et (Parasüt, Logo, vb.)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
         // GET /api/v1/erp/account-mappings — ERP hesap eşleştirme listesi
         group.MapGet("/account-mappings", async (
             Guid tenantId,
@@ -276,7 +280,8 @@ public static class ErpEndpoints
         })
         .WithName("CreateErpAccountMapping")
         .WithSummary("Yeni ERP hesap eşleştirmesi oluştur — MesTech hesabını ERP hesabına bağla")
-        .Produces(201).Produces(400);
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/erp/account-mappings/{id} — ERP hesap eşleştirmesini sil
         group.MapDelete("/account-mappings/{id:guid}", async (

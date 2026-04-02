@@ -43,7 +43,8 @@ public static class KvkkEndpoints
             return Results.Ok(result);
         })
         .WithName("KvkkDeletePersonalData")
-        .WithSummary("KVKK madde 7 — kişisel veri silme (anonimizasyon) talebi").Produces(200).Produces(400);
+        .WithSummary("KVKK madde 7 — kişisel veri silme (anonimizasyon) talebi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/kvkk/export — kişisel veri dışa aktarma (KVKK madde 11/c)
         group.MapGet("/export", async (

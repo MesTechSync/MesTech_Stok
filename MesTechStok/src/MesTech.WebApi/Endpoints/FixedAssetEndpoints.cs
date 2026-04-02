@@ -51,7 +51,8 @@ public static class FixedAssetEndpoints
             return Results.Created($"/api/v1/accounting/fixed-assets/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedAsset")
-        .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)").Produces(200).Produces(400);
+        .WithSummary("Yeni sabit kiymet olustur (VUK md. 313)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/fixed-assets/{id} — sabit kiymet guncelle
         group.MapPut("/{id:guid}", async (
@@ -64,7 +65,8 @@ public static class FixedAssetEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateFixedAsset")
-        .WithSummary("Sabit kiymet bilgilerini guncelle").Produces(200).Produces(400);
+        .WithSummary("Sabit kiymet bilgilerini guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/fixed-assets/{id} — sabit kiymet pasife al (soft delete)
         group.MapDelete("/{id:guid}", async (

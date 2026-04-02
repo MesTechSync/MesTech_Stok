@@ -42,7 +42,8 @@ public static class BarcodeEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("CreateBarcodeScanLog")
-        .WithSummary("Barkod tarama olayı kaydet").Produces(200).Produces(400);
+        .WithSummary("Barkod tarama olayı kaydet").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/barcodes/scan-logs — barkod tarama geçmişi
         group.MapGet("/scan-logs", async (

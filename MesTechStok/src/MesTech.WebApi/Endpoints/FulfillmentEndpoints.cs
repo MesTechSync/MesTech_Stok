@@ -27,7 +27,8 @@ public static class FulfillmentEndpoints
             return Results.Created($"/api/v1/fulfillment/inbound", result);
         })
         .WithName("CreateInboundShipment")
-        .WithSummary("Depo giriş sevkiyatı oluştur (FBA/Hepsilojistik)").Produces(200).Produces(400);
+        .WithSummary("Depo giriş sevkiyatı oluştur (FBA/Hepsilojistik)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/fulfillment/inventory — query fulfillment inventory
         group.MapPost("/inventory", async (
@@ -40,7 +41,8 @@ public static class FulfillmentEndpoints
         })
         .WithName("GetFulfillmentInventory")
         .WithSummary("Fulfillment envanter sorgula (SKU bazlı)").Produces(200).Produces(400)
-        .CacheOutput("Dashboard30s");
+        .CacheOutput("Dashboard30s")
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/fulfillment/orders — fulfillment orders
         group.MapGet("/orders", async (

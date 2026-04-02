@@ -50,7 +50,8 @@ public static class FixedExpenseEndpoints
             return Results.Created($"/api/v1/accounting/fixed-expenses/{id}", new CreatedResponse(id));
         })
         .WithName("CreateFixedExpense")
-        .WithSummary("Yeni sabit gider olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni sabit gider olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/fixed-expenses/{id} — sabit gider guncelle
         group.MapPut("/{id:guid}", async (
@@ -62,7 +63,8 @@ public static class FixedExpenseEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateFixedExpense")
-        .WithSummary("Sabit gider guncelle (tutar / aktiflik)").Produces(200).Produces(400);
+        .WithSummary("Sabit gider guncelle (tutar / aktiflik)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/fixed-expenses/{id} — sabit gider sil (soft delete)
         group.MapDelete("/{id:guid}", async (
