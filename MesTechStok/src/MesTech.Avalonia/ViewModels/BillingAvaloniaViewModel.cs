@@ -73,9 +73,9 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
                 var plans = await _mediator.Send(new GetSubscriptionPlansQuery());
                 AvailablePlanCount = plans.Count;
             }
-            catch { AvailablePlanCount = 0; }
-            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId)); } catch { }
-            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId)); } catch { }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetSubscriptionPlans failed: {ex.Message}"); AvailablePlanCount = 0; }
+            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetSubscriptionUsage failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetUserFeatures failed: {ex.Message}"); }
 
             ApplyFilters();
         }
