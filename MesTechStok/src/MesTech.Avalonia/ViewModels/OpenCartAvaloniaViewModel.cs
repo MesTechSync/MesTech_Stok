@@ -47,8 +47,8 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
     public ObservableCollection<OpenCartCategoryMappingItem> CategoryMappings { get; } = [];
 
     // Tab 4 — Ayarlar
-    [ObservableProperty] private string storeUrl = "https://demo.myopencart.com";
-    [ObservableProperty] private string apiKey = "oc_api_********************";
+    [ObservableProperty] private string storeUrl = string.Empty;
+    [ObservableProperty] private string apiKey = string.Empty;
     [ObservableProperty] private string connectionTestResult = string.Empty;
     [ObservableProperty] private bool connectionTestSuccess;
     [ObservableProperty] private bool connectionTestRan;

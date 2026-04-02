@@ -160,53 +160,6 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
-    /// <summary>Demo barcode lookup — will be replaced by MediatR query.</summary>
-    private static BarcodeProductData? LookupBarcode(string barcode)
-    {
-        var products = new Dictionary<string, BarcodeProductData>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["8681234567890"] = new()
-            {
-                Name = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Barcode = "8681234567890",
-                Price = 54999.99m, MinStock = 10,
-                WarehouseStocks =
-                [
-                    new() { WarehouseName = "Ana Depo", ShelfCode = "A-01", Quantity = 30, MinStock = 10 },
-                    new() { WarehouseName = "Yedek Depo", ShelfCode = "B-02", Quantity = 15, MinStock = 5 },
-                ]
-            },
-            ["8681234567891"] = new()
-            {
-                Name = "Apple MacBook Air M3", Sku = "SKU-1002", Barcode = "8681234567891",
-                Price = 42999.00m, MinStock = 5,
-                WarehouseStocks =
-                [
-                    new() { WarehouseName = "Ana Depo", ShelfCode = "A-02", Quantity = 3, MinStock = 5 },
-                ]
-            },
-            ["8681234567892"] = new()
-            {
-                Name = "Sony WH-1000XM5 Kulaklik", Sku = "SKU-1003", Barcode = "8681234567892",
-                Price = 8499.00m, MinStock = 20,
-                WarehouseStocks =
-                [
-                    new() { WarehouseName = "Yedek Depo", ShelfCode = "B-01", Quantity = 78, MinStock = 20 },
-                ]
-            },
-            ["SKU-1001"] = new()
-            {
-                Name = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Barcode = "8681234567890",
-                Price = 54999.99m, MinStock = 10,
-                WarehouseStocks =
-                [
-                    new() { WarehouseName = "Ana Depo", ShelfCode = "A-01", Quantity = 30, MinStock = 10 },
-                    new() { WarehouseName = "Yedek Depo", ShelfCode = "B-02", Quantity = 15, MinStock = 5 },
-                ]
-            },
-        };
-
-        return products.TryGetValue(barcode.Trim(), out var product) ? product : null;
-    }
 }
 
 public class BarcodeWarehouseStockDto
