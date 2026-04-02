@@ -81,7 +81,7 @@ public sealed class AutoPriceUpdateWorker
         try
         {
             await _notifier.NotifyPriceCycleDoneAsync(
-                Guid.Empty, totalUpdated, totalSkipped, tenants.Count, ct).ConfigureAwait(false);
+                Domain.Constants.DomainConstants.SystemTenantId, totalUpdated, totalSkipped, tenants.Count, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
