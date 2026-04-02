@@ -54,11 +54,12 @@ public class OzonAdapterTests : IDisposable
     public async Task PullProducts_Success_ReturnsProducts()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"result":{"items":[
-            {"product_id":1,"offer_id":"OZ-001","name":"Test Urun","price":"99.90",
-             "old_price":"0","stocks":[{"warehouse_id":1,"present":10}],
-             "barcode":"8690001","category_id":100}
-        ]}}""");
+            {"result":{"items":[
+                {"product_id":1,"offer_id":"OZ-001","name":"Test Urun","price":"99.90",
+                 "old_price":"0","stocks":[{"warehouse_id":1,"present":10}],
+                 "barcode":"8690001","category_id":100}
+            ]}}
+            """);
 
         var products = await _sut.PullProductsAsync();
         products.Should().NotBeNull();
@@ -77,12 +78,13 @@ public class OzonAdapterTests : IDisposable
     public async Task PullOrders_Success_ReturnsOrders()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"result":{"postings":[
-            {"posting_number":"OZ-ORD-001","status":"awaiting_deliver",
-             "order_id":12345,"created_at":"2026-04-01T10:00:00Z",
-             "products":[{"sku":1,"name":"Test","quantity":1,"price":"50.00","offer_id":"OZ-001"}],
-             "analytics_data":{},"financial_data":{}}
-        ]}}""");
+            {"result":{"postings":[
+                {"posting_number":"OZ-ORD-001","status":"awaiting_deliver",
+                 "order_id":12345,"created_at":"2026-04-01T10:00:00Z",
+                 "products":[{"sku":1,"name":"Test","quantity":1,"price":"50.00","offer_id":"OZ-001"}],
+                 "analytics_data":{},"financial_data":{}}
+            ]}}
+            """);
 
         var orders = await _sut.PullOrdersAsync(DateTime.UtcNow.AddDays(-1));
         orders.Should().NotBeNull();
@@ -116,10 +118,11 @@ public class OzonAdapterTests : IDisposable
     public async Task GetCategories_Success_ReturnsList()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"result":[
-            {"category_id":1,"title":"Elektronik"},
-            {"category_id":2,"title":"Giyim"}
-        ]}""");
+            {"result":[
+                {"category_id":1,"title":"Elektronik"},
+                {"category_id":2,"title":"Giyim"}
+            ]}
+            """);
 
         var categories = await _sut.GetCategoriesAsync();
         categories.Should().NotBeNull();

@@ -20,7 +20,7 @@ public class ZalandoAdapterTests : IDisposable
     public ZalandoAdapterTests()
     {
         _handler = new Mock<HttpMessageHandler>(MockBehavior.Loose);
-        SetupResponse(HttpStatusCode.OK, "{}");
+        SetupResponse(HttpStatusCode.OK, """{"access_token":"test-token","expires_in":3600}""");
 
         _httpClient = new HttpClient(_handler.Object) { BaseAddress = new Uri("https://api.zalando.com") };
         var options = Options.Create(new ZalandoOptions { ApiBaseUrl = "https://api.zalando.com" });
@@ -48,9 +48,10 @@ public class ZalandoAdapterTests : IDisposable
     public async Task PullOrders_Success_ReturnsOrders()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"content":[{"order_number":"ZAL-001","status":"APPROVED",
-         "order_date":"2026-04-01","gross_total":{"amount":120.00,"currency":"EUR"},
-         "items":[{"sku":"Z-SKU-1","name":"Test","quantity":1,"price":{"amount":120}}]}]}""");
+            {"content":[{"order_number":"ZAL-001","status":"APPROVED",
+             "order_date":"2026-04-01","gross_total":{"amount":120.00,"currency":"EUR"},
+             "items":[{"sku":"Z-SKU-1","name":"Test","quantity":1,"price":{"amount":120}}]}]}
+            """);
 
         var orders = await _sut.PullOrdersAsync(DateTime.UtcNow.AddDays(-1));
         orders.Should().NotBeNull();
@@ -60,8 +61,9 @@ public class ZalandoAdapterTests : IDisposable
     public async Task PullProducts_Success_ReturnsProducts()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"items":[{"ean":"4001234567890","name":"Zalando Test","price":{"amount":59.99,"currency":"EUR"},
-         "stock":{"quantity":25},"brand":{"name":"TestBrand"}}]}""");
+            {"items":[{"ean":"4001234567890","name":"Zalando Test","price":{"amount":59.99,"currency":"EUR"},
+             "stock":{"quantity":25},"brand":{"name":"TestBrand"}}]}
+            """);
 
         var products = await _sut.PullProductsAsync();
         products.Should().NotBeNull();
@@ -70,7 +72,7 @@ public class ZalandoAdapterTests : IDisposable
     [Fact]
     public async Task Ping_Reachable_ReturnsTrue()
     {
-        SetupResponse(HttpStatusCode.OK, "{}");
+        SetupResponse(HttpStatusCode.OK, """{"access_token":"test-token","expires_in":3600}""");
         var result = await _sut.PingAsync();
         result.Should().BeTrue();
     }
@@ -78,7 +80,7 @@ public class ZalandoAdapterTests : IDisposable
     [Fact]
     public async Task PushStockUpdate_Success_ReturnsTrue()
     {
-        SetupResponse(HttpStatusCode.OK, "{}");
+        SetupResponse(HttpStatusCode.OK, """{"access_token":"test-token","expires_in":3600}""");
         var result = await _sut.PushStockUpdateAsync(Guid.NewGuid(), 30);
         result.Should().BeTrue();
     }

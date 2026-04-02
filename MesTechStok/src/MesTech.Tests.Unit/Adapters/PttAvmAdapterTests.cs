@@ -32,8 +32,9 @@ public class PttAvmAdapterTests : IDisposable
 
         _sut.TestConnectionAsync(new Dictionary<string, string>
         {
-            ["ApiKey"] = "test", ["ApiSecret"] = "test",
-            ["BaseUrl"] = "https://apigw.pttavm.com"
+            ["Username"] = "test", ["Password"] = "test",
+            ["BaseUrl"] = "https://apigw.pttavm.com",
+            ["TokenEndpoint"] = "https://apigw.pttavm.com/auth"
         }).GetAwaiter().GetResult();
     }
 
@@ -52,10 +53,11 @@ public class PttAvmAdapterTests : IDisposable
     public async Task PullProducts_Success_ReturnsProducts()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"data":{"products":[
-            {"barcode":"PTT-001","productName":"PttAVM Test","stockQuantity":8,
-             "salePrice":75.50,"listPrice":80.00,"categoryId":100}
-        ]},"isSuccess":true}""");
+            {"data":{"products":[
+                {"barcode":"PTT-001","productName":"PttAVM Test","stockQuantity":8,
+                 "salePrice":75.50,"listPrice":80.00,"categoryId":100}
+            ]},"isSuccess":true}
+            """);
 
         var products = await _sut.PullProductsAsync();
         products.Should().NotBeNull();
@@ -65,11 +67,12 @@ public class PttAvmAdapterTests : IDisposable
     public async Task PullOrders_Success_ReturnsOrders()
     {
         SetupResponse(HttpStatusCode.OK, """
-        {"data":{"orders":[
-            {"orderNumber":"PTT-ORD-001","status":"Onaylandi",
-             "orderDate":"2026-04-01","totalAmount":150.00,
-             "items":[{"sku":"PTT-SKU-1","name":"Test","quantity":1,"price":150}]}
-        ]},"isSuccess":true}""");
+            {"data":{"orders":[
+                {"orderNumber":"PTT-ORD-001","status":"Onaylandi",
+                 "orderDate":"2026-04-01","totalAmount":150.00,
+                 "items":[{"sku":"PTT-SKU-1","name":"Test","quantity":1,"price":150}]}
+            ]},"isSuccess":true}
+            """);
 
         var orders = await _sut.PullOrdersAsync(DateTime.UtcNow.AddDays(-1));
         orders.Should().NotBeNull();

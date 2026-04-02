@@ -31,6 +31,7 @@ public class AnomalyCheckHandlerTests
         _sut = new AnomalyCheckHandler(
             _journalRepoMock.Object,
             _publishMock.Object,
+            new Mock<IMediator>().Object,
             new Mock<ILogger<AnomalyCheckHandler>>().Object);
     }
 
