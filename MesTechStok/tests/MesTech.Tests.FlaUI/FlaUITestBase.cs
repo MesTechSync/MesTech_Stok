@@ -110,6 +110,11 @@ public abstract class FlaUITestBase : IAsyncLifetime
         // Bulunamadı → sidebar'daki tüm Expander'ları aç ve tekrar dene
         ExpandAllSidebarGroups();
         Thread.Sleep(500);
+        if (TryClickMenuInternal(menuName)) return true;
+
+        // Hâlâ bulunamadı → sidebar'ı scroll edip tekrar dene
+        ScrollSidebarToBottom();
+        Thread.Sleep(500);
         return TryClickMenuInternal(menuName);
     }
 
@@ -138,18 +143,37 @@ public abstract class FlaUITestBase : IAsyncLifetime
                 catch { /* Non-expandable button */ }
             }
 
-            // Scroll sidebar to make hidden items visible
-            var scrollViewer = MainWindow.FindFirstDescendant(
-                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Pane));
-            if (scrollViewer?.Patterns.Scroll.IsSupported == true)
+            // Scroll sidebar to bottom to make all items visible
+            try
             {
-                try
+                var allScrollable = MainWindow.FindAllDescendants();
+                foreach (var el in allScrollable)
                 {
-                    scrollViewer.Patterns.Scroll.Pattern.SetScrollPercent(-1, 0);
-                    Thread.Sleep(200);
+                    if (el.Patterns.Scroll.IsSupported)
+                    {
+                        try
+                        {
+                            el.Patterns.Scroll.Pattern.SetScrollPercent(-1, 100);
+                            Thread.Sleep(100);
+                            el.Patterns.Scroll.Pattern.SetScrollPercent(-1, 0);
+                            Thread.Sleep(100);
+                        }
+                        catch { }
+                    }
                 }
-                catch { }
             }
+            catch { }
+        }
+        catch { }
+    }
+
+    private void ScrollSidebarToBottom()
+    {
+        try
+        {
+            // Mouse wheel ile sidebar'ı scroll et
+            Mouse.Scroll(-20);
+            Thread.Sleep(300);
         }
         catch { }
     }
