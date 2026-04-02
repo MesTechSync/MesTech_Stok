@@ -43,7 +43,7 @@ public partial class EtsyAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Etsy));
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Etsy)) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;

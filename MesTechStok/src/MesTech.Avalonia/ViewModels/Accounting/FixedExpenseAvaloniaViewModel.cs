@@ -44,7 +44,7 @@ public partial class FixedExpenseAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId)) ?? [];
 
             _allItems = result.Select(e => new FixedExpenseItemDto
             {

@@ -43,7 +43,7 @@ public partial class PttAvmAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.PttAVM));
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.PttAVM)) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;

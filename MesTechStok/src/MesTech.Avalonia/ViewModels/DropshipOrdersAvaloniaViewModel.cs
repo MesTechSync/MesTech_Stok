@@ -37,7 +37,7 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDropshipOrdersQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetDropshipOrdersQuery(_currentUser.TenantId)) ?? [];
 
             _allOrders = result.Select(o => new DropshipOrderItemDto
             {

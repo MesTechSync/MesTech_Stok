@@ -47,7 +47,7 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId));
+            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId)) ?? [];
 
             _allAlerts = alerts.Select(a => new StockAlertItemDto
             {

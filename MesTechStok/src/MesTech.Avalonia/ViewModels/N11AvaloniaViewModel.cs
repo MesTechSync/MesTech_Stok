@@ -43,7 +43,7 @@ public partial class N11AvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.N11));
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.N11)) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;

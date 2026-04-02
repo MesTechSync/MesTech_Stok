@@ -48,7 +48,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
         TransferStatus = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId)) ?? [];
 
             Warehouses.Clear();
             Warehouses.Add("Ana Depo");

@@ -44,7 +44,7 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId));
+            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId)) ?? [];
 
             Warehouses.Clear();
             var warehouseNames = placements.Select(p => p.WarehouseName ?? "—").Distinct().OrderBy(w => w);

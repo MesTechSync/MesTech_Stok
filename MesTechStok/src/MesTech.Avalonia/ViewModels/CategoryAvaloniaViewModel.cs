@@ -34,7 +34,7 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true));
+            var result = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true)) ?? [];
 
             // Build parent name lookup for hierarchy display
             var lookup = result.ToDictionary(c => c.Id, c => c.Name);

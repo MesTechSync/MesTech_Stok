@@ -43,7 +43,7 @@ public partial class HepsiburadaAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Hepsiburada));
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Hepsiburada)) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;

@@ -45,7 +45,7 @@ public partial class PenaltyAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPenaltyRecordsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetPenaltyRecordsQuery(_currentUser.TenantId)) ?? [];
 
             _allItems = result.Select(p => new PenaltyItemDto
             {

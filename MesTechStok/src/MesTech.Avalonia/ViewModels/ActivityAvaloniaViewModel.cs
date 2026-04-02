@@ -55,7 +55,7 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId)) ?? new();
             _allActivities.Clear();
             foreach (var a in result.Activities)
             {

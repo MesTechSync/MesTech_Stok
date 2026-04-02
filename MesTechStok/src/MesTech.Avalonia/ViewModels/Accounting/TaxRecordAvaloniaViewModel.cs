@@ -44,7 +44,7 @@ public partial class TaxRecordAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetTaxRecordsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetTaxRecordsQuery(_currentUser.TenantId)) ?? [];
 
             _allItems = result.Select(t => new TaxRecordItemDto
             {

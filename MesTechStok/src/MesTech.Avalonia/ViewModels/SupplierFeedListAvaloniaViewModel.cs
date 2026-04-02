@@ -51,7 +51,7 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetFeedSourcesQuery());
+            var result = await _mediator.Send(new GetFeedSourcesQuery()) ?? new();
 
             _allFeeds.Clear();
             foreach (var f in result.Items)

@@ -43,7 +43,7 @@ public partial class ReturnListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId)) ?? [];
 
             _allItems.Clear();
             _allItems.AddRange(result.Select(r => new ReturnListItemDto

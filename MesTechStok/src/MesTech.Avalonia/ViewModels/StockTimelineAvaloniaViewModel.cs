@@ -55,7 +55,7 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
         try
         {
 
-            var movements = await _mediator.Send(new GetStockMovementsQuery(), CancellationToken);
+            var movements = await _mediator.Send(new GetStockMovementsQuery(), CancellationToken) ?? [];
 
             _allMovements.Clear();
             foreach (var m in movements)

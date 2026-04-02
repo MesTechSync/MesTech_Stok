@@ -38,7 +38,7 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDealsQuery(_currentUser.TenantId, Page: 1, PageSize: 100));
+            var result = await _mediator.Send(new GetDealsQuery(_currentUser.TenantId, Page: 1, PageSize: 100)) ?? new();
 
             Deals.Clear();
             foreach (var deal in result.Items)

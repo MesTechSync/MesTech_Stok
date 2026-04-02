@@ -180,7 +180,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
         try
         {
             var provider = Enum.TryParse<ErpProvider>(SelectedErpProvider, out var p) ? p : ErpProvider.None;
-            var result = await _mediator.Send(new TestErpConnectionCommand(_currentUser.TenantId, provider));
+            var result = await _mediator.Send(new TestErpConnectionCommand(_currentUser.TenantId, provider)) ?? new();
             IsConnected = result.IsSuccess;
             LastTestResult = result.Message;
             ConnectionStatusColor = result.IsSuccess ? "#22C55E" : "#EF4444";

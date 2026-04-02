@@ -213,7 +213,7 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
                 return;
             }
 
-            var result = await _mediator.Send(new TestStoreConnectionCommand(store.Id));
+            var result = await _mediator.Send(new TestStoreConnectionCommand(store.Id)) ?? new();
             SelectedCredential.IsConnected = result.IsSuccess;
             SelectedCredential.Status = result.IsSuccess ? "Bagli" : "Baglanti hatasi";
 

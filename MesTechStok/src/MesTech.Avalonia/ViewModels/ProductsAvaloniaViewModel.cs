@@ -56,7 +56,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetTopProductsQuery(_currentUser.TenantId, 50));
+            var result = await _mediator.Send(new GetTopProductsQuery(_currentUser.TenantId, 50)) ?? [];
 
             _allProducts = result.Select(dto => new ProductItemDto
             {

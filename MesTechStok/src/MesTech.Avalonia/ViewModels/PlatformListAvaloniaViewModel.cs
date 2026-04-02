@@ -33,7 +33,7 @@ public partial class PlatformListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformListQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetPlatformListQuery(_currentUser.TenantId)) ?? new();
 
             Platforms.Clear();
             foreach (var dto in result)

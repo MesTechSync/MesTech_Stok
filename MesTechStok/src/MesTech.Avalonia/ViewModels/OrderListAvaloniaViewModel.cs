@@ -42,7 +42,7 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId)) ?? [];
 
             _allOrders = result.Select(item => new OrderListItemDto
             {

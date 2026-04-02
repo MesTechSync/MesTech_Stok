@@ -43,7 +43,7 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(_currentUser.TenantId)) ?? new();
 
             Items.Clear();
             foreach (var dto in result)

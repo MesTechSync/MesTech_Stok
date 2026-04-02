@@ -54,7 +54,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetDropshipDashboardQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetDropshipDashboardQuery(_currentUser.TenantId)) ?? new();
 
             // Original KPIs
             TotalOrders = result.PendingOrders;

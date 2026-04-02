@@ -44,7 +44,7 @@ public partial class FixedAssetAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetFixedAssetsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetFixedAssetsQuery(_currentUser.TenantId)) ?? [];
 
             _allItems = result.Select(a => new FixedAssetItemDto
             {

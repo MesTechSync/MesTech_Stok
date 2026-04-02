@@ -41,7 +41,7 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var result = await _mediator.Send(new GetWarehousesQuery());
+            var result = await _mediator.Send(new GetWarehousesQuery()) ?? [];
 
             _allItems = result.Select(w => new WarehouseCardDto
             {

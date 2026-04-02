@@ -44,7 +44,7 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
             UnsubscribeItemEvents();
             Items.Clear();
 
-            var movements = await _mediator.Send(new GetStockMovementsQuery());
+            var movements = await _mediator.Send(new GetStockMovementsQuery()) ?? [];
             _allItems.Clear();
             foreach (var m in movements)
             {

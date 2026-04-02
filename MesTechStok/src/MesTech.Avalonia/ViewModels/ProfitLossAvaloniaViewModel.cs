@@ -46,7 +46,7 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
         try
         {
             var period = _currentPeriod.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
-            var result = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, period));
+            var result = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, period)) ?? new();
 
             if (result is not null)
             {
