@@ -12,7 +12,7 @@ public sealed class GetSalesAnalyticsHandler : IRequestHandler<GetSalesAnalytics
 
     public async Task<SalesAnalyticsDto> Handle(GetSalesAnalyticsQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepo.GetByDateRangeWithItemsAsync(request.TenantId, request.From, request.To, cancellationToken);
+        var orders = await _orderRepo.GetByDateRangeWithItemsAsync(request.TenantId, request.From, request.To, cancellationToken).ConfigureAwait(false);
 
         if (orders.Count == 0)
             return new SalesAnalyticsDto();

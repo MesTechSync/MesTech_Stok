@@ -13,7 +13,7 @@ public sealed class GetProjectsHandler : IRequestHandler<GetProjectsQuery, IRead
     public async Task<IReadOnlyList<ProjectDto>> Handle(GetProjectsQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var projects = await _repo.GetByTenantAsync(request.TenantId, cancellationToken);
+        var projects = await _repo.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return projects.Select(p => new ProjectDto
         {
             Id = p.Id,

@@ -27,7 +27,7 @@ public sealed class BatchShipOrdersHandler : IRequestHandler<BatchShipOrdersComm
             try
             {
                 var command = new AutoShipOrderCommand(request.TenantId, orderId);
-                var result = await _mediator.Send(command, cancellationToken);
+                var result = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
                 results.Add(result);
             }
             catch (Exception ex)
