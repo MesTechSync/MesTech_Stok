@@ -21,8 +21,11 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         _currentUser = currentUser;
     }
 
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string exportMessage = string.Empty;
     [ObservableProperty] private bool isExported;
+
+    private readonly List<AuditLogEntry> _allItems = [];
 
     // Filters
     [ObservableProperty] private string selectedUser = "Tumu";
@@ -64,10 +67,10 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                 userFilter,
                 actionFilter));
 
-            LogEntries.Clear();
+            _allItems.Clear();
             foreach (var log in logs)
             {
-                LogEntries.Add(new AuditLogEntry(
+                _allItems.Add(new AuditLogEntry(
                     log.AccessTime.ToString("dd.MM.yyyy HH:mm:ss"),
                     log.UserId.ToString(),
                     log.Action,
@@ -78,7 +81,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                     log.UserAgent ?? "—"));
             }
 
-            IsEmpty = LogEntries.Count == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -89,6 +92,22 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        LogEntries.Clear();
+        var filtered = _allItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(r =>
+                r.Action.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.User.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.EntityType.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered)
+            LogEntries.Add(item);
+        IsEmpty = LogEntries.Count == 0;
     }
 
     [RelayCommand]
@@ -106,7 +125,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ExportCsvAsync()
+    private Task ExportCsvAsync()
     {
         IsExported = false;
         ExportMessage = string.Empty;
@@ -125,6 +144,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using MesTech.Avalonia.Dialogs;
+using MesTech.Avalonia.ViewModels;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,13 +13,14 @@ namespace MesTech.Avalonia.Views;
 /// <summary>
 /// MainWindow — ana kabuk. Toolbar + Sidebar + Content Area + StatusBar.
 /// Keyboard shortcuts, session yönetimi, idle dim/lock.
+/// P0 FIX: ReturnToWelcome() — DI-resolved ViewModel ile WelcomeWindow oluşturur.
 /// </summary>
 public partial class MainWindow : Window
 {
-    private readonly DispatcherTimer _clockTimer;
-    private readonly DispatcherTimer _idleTimer;
+    private DispatcherTimer _clockTimer;
+    private DispatcherTimer _idleTimer;
     private readonly DesktopSessionManager _session;
-    private bool _sidebarExpanded = true;
+    private bool _sidebarExpanded; // default collapsed (icon-only)
     private DateTime _lastActivity = DateTime.Now;
 
     public MainWindow()
@@ -43,6 +45,20 @@ public partial class MainWindow : Window
         PointerMoved += OnPointerActivity;
         KeyDown += OnGlobalKeyDown;
         PointerPressed += OnPointerActivity;
+
+        // Sidebar starts collapsed (icon-only) — apply initial state after layout
+        Opened += (_, _) => ApplySidebarState();
+
+        // DEV2-01: Highlight active sidebar button when navigation changes
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is MainWindowViewModel vm)
+                vm.PropertyChanged += (_, args) =>
+                {
+                    if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem))
+                        HighlightSidebarButton(vm.SelectedMenuItem);
+                };
+        };
     }
 
     public void SetCurrentUser(string username)
@@ -68,16 +84,14 @@ public partial class MainWindow : Window
     {
         if (_session.ShouldLock)
         {
-            // 15dk idle → ekran kilidi (session korunur)
+            // 60dk idle → ekran kilidi (session korunur)
             LockScreen();
         }
-        else if ((DateTime.Now - _lastActivity).TotalMinutes >= 3)
+        else if (_session.IsIdle)
         {
-            _clockTimer.Stop();
-            _idleTimer.Stop();
-            var welcome = new WelcomeWindow();
-            welcome.Show();
-            Close();
+            // 30dk idle → WelcomeWindow'a dön (session temizle)
+            _session.Clear();
+            ReturnToWelcome();
         }
     }
 
@@ -195,8 +209,6 @@ public partial class MainWindow : Window
 
     private void NavigateToModuleByIndex(int index)
     {
-        // Sidebar menü öğelerine index ile erişim
-        // Mevcut navigasyon sistemiyle entegre
         System.Diagnostics.Debug.WriteLine($"[Shortcut] Navigate to module index: {index}");
     }
 
@@ -222,9 +234,17 @@ public partial class MainWindow : Window
     private void LockScreen()
     {
         // Session'ı KORU — sadece ekranı kilitle
+        ReturnToWelcome();
+    }
+
+    /// <summary>WelcomeWindow'a DI-resolved ViewModel ile geri dön.
+    /// P0 FIX: DataContext olmadan oluşturulursa UI tamamen bozulur.</summary>
+    private void ReturnToWelcome()
+    {
         _clockTimer.Stop();
         _idleTimer.Stop();
-        var welcome = new WelcomeWindow();
+        var welcomeVm = App.ServiceProvider!.GetRequiredService<SpotlightWelcomeViewModel>();
+        var welcome = new WelcomeWindow { DataContext = welcomeVm };
         welcome.Show();
         Close();
     }
@@ -234,27 +254,76 @@ public partial class MainWindow : Window
     private void OnSidebarToggle(object? sender, RoutedEventArgs e)
     {
         _sidebarExpanded = !_sidebarExpanded;
+        ApplySidebarState();
+    }
+
+    private void ApplySidebarState()
+    {
         if (SidebarPanel != null)
             SidebarPanel.Width = _sidebarExpanded ? 240 : 60;
         if (SidebarTitle != null)
             SidebarTitle.IsVisible = _sidebarExpanded;
+        if (SidebarFooter != null)
+            SidebarFooter.IsVisible = _sidebarExpanded;
+
+        // Toggle section headers + button text labels visibility
+        var sidebar = SidebarPanel?.FindControl<ScrollViewer>("SidebarScroll");
+        if (sidebar?.Content is StackPanel stack)
+        {
+            foreach (var child in stack.Children)
+            {
+                // Hide section headers in collapsed mode
+                if (child is TextBlock tb && tb.Classes.Contains("sidebar-section"))
+                    tb.IsVisible = _sidebarExpanded;
+
+                // Hide text labels inside buttons, keep icons visible
+                if (child is Button btn && btn.Content is StackPanel sp && sp.Children.Count >= 2)
+                {
+                    if (sp.Children[1] is TextBlock label)
+                        label.IsVisible = _sidebarExpanded;
+                }
+            }
+        }
+    }
+
+    /// <summary>DEV2-01: Highlight active sidebar button by switching CSS class.</summary>
+    private void HighlightSidebarButton(string viewName)
+    {
+        var sidebar = SidebarPanel?.FindControl<ScrollViewer>("SidebarScroll");
+        if (sidebar?.Content is not StackPanel stack) return;
+
+        foreach (var child in stack.Children)
+        {
+            if (child is not Button btn) continue;
+            var param = btn.CommandParameter as string;
+            if (param == viewName)
+            {
+                btn.Classes.Remove("sidebar-btn");
+                if (!btn.Classes.Contains("sidebar-btn-active"))
+                    btn.Classes.Add("sidebar-btn-active");
+            }
+            else
+            {
+                btn.Classes.Remove("sidebar-btn-active");
+                if (!btn.Classes.Contains("sidebar-btn"))
+                    btn.Classes.Add("sidebar-btn");
+            }
+        }
     }
 
     private void OnLogout(object? sender, RoutedEventArgs e)
     {
         _session.Clear();
-        _clockTimer.Stop();
-        _idleTimer.Stop();
-        var welcome = new WelcomeWindow();
-        welcome.Show();
-        Close();
+        ReturnToWelcome();
     }
 
     /// <summary>Window kapanırken timer + event temizliği [V4-B1] [EL-02]</summary>
     protected override void OnClosed(EventArgs e)
     {
         _clockTimer.Stop();
+        _clockTimer = null!;
         _idleTimer.Stop();
+        _idleTimer = null!;
         PointerMoved -= OnPointerActivity;
         PointerPressed -= OnPointerActivity;
         KeyDown -= OnGlobalKeyDown;

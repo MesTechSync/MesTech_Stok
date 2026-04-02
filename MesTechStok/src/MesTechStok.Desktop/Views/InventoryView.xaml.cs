@@ -177,7 +177,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void GenerateReport_Click(object sender, RoutedEventArgs e)
+        private void GenerateReport_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -391,7 +391,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void TransferStock_Click(object sender, RoutedEventArgs e)
+        private void TransferStock_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -558,7 +558,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async Task SetupAuthorizationsAsync()
+        private Task SetupAuthorizationsAsync()
         {
             // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
@@ -567,6 +567,7 @@ namespace MesTechStok.Desktop.Views
             OnPropertyChanged(nameof(CanRemoveStock));
             OnPropertyChanged(nameof(CanTransferStock));
             OnPropertyChanged(nameof(CanExportInventory));
+            return Task.CompletedTask;
         }
 
         private async Task LoadInventoryPageAsync(int page = 1, int pageSize = 50)

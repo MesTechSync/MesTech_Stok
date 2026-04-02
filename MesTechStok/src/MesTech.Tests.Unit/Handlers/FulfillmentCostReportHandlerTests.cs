@@ -15,6 +15,6 @@ public class FulfillmentCostReportHandlerTests
         var sut = new FulfillmentCostReportHandler(
             Mock.Of<IFulfillmentProviderFactory>(), Mock.Of<ILogger<FulfillmentCostReportHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

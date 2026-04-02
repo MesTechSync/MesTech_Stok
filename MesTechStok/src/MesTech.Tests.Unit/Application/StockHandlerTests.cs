@@ -47,6 +47,15 @@ public class StockHandlerTests
 
     // ── AdjustStock ──
 
+    private static Mock<IDistributedLockService> CreateLockService()
+    {
+        var lockService = new Mock<IDistributedLockService>();
+        lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        return lockService;
+    }
+
     [Fact]
     public async Task AdjustStock_ValidCommand_AdjustsAndRecords()
     {
@@ -54,7 +63,7 @@ public class StockHandlerTests
         _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
 
         var cmd = new AdjustStockCommand(product.Id, -10, "Damaged", "admin");
-        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
+        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, Mock.Of<ILogger<AdjustStockHandler>>());
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         result.Should().NotBeNull();
@@ -66,7 +75,7 @@ public class StockHandlerTests
     {
         _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
         var cmd = new AdjustStockCommand(Guid.NewGuid(), 5, "Test", "admin");
-        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
+        var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, Mock.Of<ILogger<AdjustStockHandler>>());
 
         var result = await handler.Handle(cmd, CancellationToken.None);
         result.IsSuccess.Should().BeFalse();

@@ -27,6 +27,7 @@ public sealed class AutoPriceUpdateWorker
     private readonly IProductRepository _productRepository;
     private readonly ITenantRepository _tenantRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDashboardNotifier _notifier;
     private readonly ILogger<AutoPriceUpdateWorker> _logger;
 
     public AutoPriceUpdateWorker(
@@ -35,6 +36,7 @@ public sealed class AutoPriceUpdateWorker
         IProductRepository productRepository,
         ITenantRepository tenantRepository,
         IUnitOfWork unitOfWork,
+        IDashboardNotifier notifier,
         ILogger<AutoPriceUpdateWorker> logger)
     {
         _buyboxService = buyboxService;
@@ -42,6 +44,7 @@ public sealed class AutoPriceUpdateWorker
         _productRepository = productRepository;
         _tenantRepository = tenantRepository;
         _unitOfWork = unitOfWork;
+        _notifier = notifier;
         _logger = logger;
     }
 
@@ -73,6 +76,17 @@ public sealed class AutoPriceUpdateWorker
         _logger.LogInformation(
             "[AutoPrice] Cycle completed — {Updated} updated, {Skipped} skipped, {TenantCount} tenants",
             totalUpdated, totalSkipped, tenants.Count);
+
+        // Broadcast cycle completion to all tenants
+        try
+        {
+            await _notifier.NotifyPriceCycleDoneAsync(
+                Guid.Empty, totalUpdated, totalSkipped, tenants.Count, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[AutoPrice] Cycle-done notification failed");
+        }
     }
 
     private async Task<(int Updated, int Skipped)> ProcessTenantAsync(Guid tenantId, CancellationToken ct)
@@ -141,6 +155,18 @@ public sealed class AutoPriceUpdateWorker
             _logger.LogInformation(
                 "[AutoPrice] {SKU}: {OldPrice} → {NewPrice} ({Strategy})",
                 product.SKU, lost.CurrentPrice, optimization.RecommendedPrice, optimization.Strategy);
+
+            // Real-time notification — fiyat değişikliğini dashboard'a push et
+            try
+            {
+                await _notifier.NotifyPriceAutoUpdatedAsync(
+                    tenantId, product.SKU, lost.CurrentPrice,
+                    optimization.RecommendedPrice, optimization.Strategy.ToString(), ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "[AutoPrice] SignalR notification failed for {SKU} — pricing continues", product.SKU);
+            }
 
             updated++;
         }

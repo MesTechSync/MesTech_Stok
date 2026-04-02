@@ -84,7 +84,7 @@ public class PriceLossDetectedEventHandlerTests
         _notifRepo.Verify(r => r.AddAsync(
             It.Is<NotificationLog>(n =>
                 n.TenantId == tenantId &&
-                n.TemplateName == "PriceLossDetected"),
+                n.TemplateName == "PriceLossAlert"),
             It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -125,13 +125,16 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_EmptyLines_ShouldReturnWithoutSaving()
     {
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
         var sut = CreateSut();
 
         await sut.HandleAsync(
             Guid.NewGuid(), Guid.NewGuid(),
             Array.Empty<ReturnLineInfoEvent>(), CancellationToken.None);
 
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Handler always calls SaveChangesAsync at end (batch pattern)
+        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -139,12 +142,13 @@ public class ReturnApprovedStockRestorationHandlerTests
     {
         var sut = CreateSut();
         var productId = Guid.NewGuid();
-        var product = new Product { Name = "Test Product", SKU = "SKU-RET", TenantId = Guid.NewGuid() };
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        var product = new Product { Name = "Test Product", SKU = "SKU-RET", TenantId = Guid.NewGuid(), PurchasePrice = 50m, SalePrice = 100m, CategoryId = Guid.NewGuid() };
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var lines = new List<ReturnLineInfoEvent>
         {
-            new(productId, "SKU-RET", 3, 100.00m)
+            new(product.Id, "SKU-RET", 3, 100.00m)
         };
 
         await sut.HandleAsync(
@@ -299,6 +303,102 @@ public class SyncErrorNotificationHandlerTests
         captured.Should().NotBeNull();
         captured!.Content.Should().Contain("Hepsiburada");
         captured.Content.Should().Contain("RateLimitExceeded");
+    }
+}
+
+#endregion
+
+#region OversellingAttemptedEventHandler
+
+[Trait("Category", "Unit")]
+[Trait("Layer", "Stock")]
+public class OversellingAttemptedEventHandlerTests
+{
+    private readonly Mock<IProductRepository> _productRepo = new();
+    private readonly Mock<ILogger<OversellingAttemptedEventHandler>> _logger = new();
+
+    private OversellingAttemptedEventHandler CreateSut() => new(_productRepo.Object, _logger.Object);
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogCritical_WhenOversellingAttempted()
+    {
+        var sut = CreateSut();
+        var productId = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+
+        await sut.HandleAsync(productId, "SKU-OVER", tenantId, 5, 10, "ORD-001", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("OVERSELLING_ATTEMPTED")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogCorrectSKU()
+    {
+        var sut = CreateSut();
+
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-TEST-123", Guid.NewGuid(), 3, 8, "ORD-002", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("SKU-TEST-123")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogDeficit()
+    {
+        var sut = CreateSut();
+
+        // available=2, requested=7, deficit=5
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-DEF", Guid.NewGuid(), 2, 7, "ORD-003", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("5")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_NullOrderNumber_ShouldNotThrow()
+    {
+        var sut = CreateSut();
+
+        var act = async () => await sut.HandleAsync(
+            Guid.NewGuid(), "SKU-NULL", Guid.NewGuid(), 0, 5, null, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task HandleAsync_ZeroAvailableStock_ShouldLogCorrectly()
+    {
+        var sut = CreateSut();
+
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-EMPTY", Guid.NewGuid(), 0, 3, "ORD-004", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("OVERSELLING_ATTEMPTED")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
     }
 }
 

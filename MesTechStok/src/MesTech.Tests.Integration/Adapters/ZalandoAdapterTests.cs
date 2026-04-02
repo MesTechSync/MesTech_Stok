@@ -1,5 +1,4 @@
 using System.Net.Http;
-using System.Text;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -28,9 +27,6 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     private readonly WireMockFixture _fixture;
     private readonly WireMockServer _mockServer;
     private readonly ILogger<ZalandoAdapter> _logger;
-
-    // WireMock authority: e.g. "127.0.0.1:PORT"
-    private string WireMockAuthority => new Uri(_fixture.BaseUrl).Authority;
 
     private const string TestClientId = "test-client-id";
     private const string TestClientSecret = "test-client-secret";
@@ -64,27 +60,33 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Creates an HttpClient that redirects https:// → http:// so that the adapter's
-    /// hardcoded HTTPS base URLs are served by WireMock's plain HTTP server.
+    /// Creates an HttpClient for tests. No HTTPS redirect needed because
+    /// TokenUrl and ApiBaseUrl are overridden to point directly at WireMock HTTP.
     /// </summary>
     private HttpClient CreateHttpClient()
     {
-        var wireMockPort = new Uri(_fixture.BaseUrl).Port;
-        var handler = new ZalandoHttpsToHttpHandler(new HttpClientHandler(), wireMockPort);
-        return new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
+        return new HttpClient() { Timeout = TimeSpan.FromSeconds(10) };
     }
 
     /// <summary>
-    /// Creates an unconfigured ZalandoAdapter (no credentials seeded).
+    /// Creates an unconfigured ZalandoAdapter (no credentials seeded) but
+    /// with TokenUrl and ApiBaseUrl pointing at WireMock.
     /// </summary>
     private ZalandoAdapter CreateAdapter()
     {
-        return new ZalandoAdapter(CreateHttpClient(), _logger);
+        var options = Options.Create(new ZalandoOptions
+        {
+            TokenUrl = $"{_fixture.BaseUrl}/oauth2/access_token",
+            ApiBaseUrl = _fixture.BaseUrl,
+            HttpTimeoutSeconds = 10
+        });
+        return new ZalandoAdapter(CreateHttpClient(), _logger, options);
     }
 
     /// <summary>
     /// Creates a ZalandoAdapter fully seeded with credentials via IOptions,
     /// bypassing TestConnectionAsync so tests can directly call API methods.
+    /// TokenUrl and ApiBaseUrl point at WireMock.
     /// </summary>
     private ZalandoAdapter CreateConfiguredAdapter()
     {
@@ -92,7 +94,10 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         {
             ClientId = TestClientId,
             ClientSecret = TestClientSecret,
-            Enabled = true
+            Enabled = true,
+            TokenUrl = $"{_fixture.BaseUrl}/oauth2/access_token",
+            ApiBaseUrl = _fixture.BaseUrl,
+            HttpTimeoutSeconds = 10
         });
         return new ZalandoAdapter(CreateHttpClient(), _logger, options);
     }
@@ -763,40 +768,5 @@ public class ZalandoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
         var adapter = CreateAdapter();
         var categories = await adapter.GetCategoriesAsync();
         categories.Should().BeEmpty();
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Test Infrastructure
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// <summary>
-/// DelegatingHandler that rewrites https:// → http:// in request URIs.
-/// Allows testing adapters that hardcode HTTPS URLs (api.zalando.com, auth.zalando.com)
-/// against WireMock's plain HTTP server without certificate concerns.
-/// </summary>
-internal sealed class ZalandoHttpsToHttpHandler : DelegatingHandler
-{
-    private readonly int _targetPort;
-
-    public ZalandoHttpsToHttpHandler(HttpMessageHandler inner, int targetPort = -1) : base(inner)
-    {
-        _targetPort = targetPort;
-    }
-
-    protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        if (request.RequestUri is { Scheme: "https" })
-        {
-            var builder = new UriBuilder(request.RequestUri)
-            {
-                Scheme = Uri.UriSchemeHttp,
-                Port = _targetPort > 0 ? _targetPort : request.RequestUri.Port
-            };
-            request.RequestUri = builder.Uri;
-        }
-
-        return base.SendAsync(request, cancellationToken);
     }
 }

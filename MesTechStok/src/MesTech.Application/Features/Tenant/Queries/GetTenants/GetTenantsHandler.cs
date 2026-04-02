@@ -11,7 +11,7 @@ public sealed class GetTenantsHandler : IRequestHandler<GetTenantsQuery, GetTena
 
     public async Task<GetTenantsResult> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
     {
-        var all = await _repo.GetAllAsync(cancellationToken);
+        var all = await _repo.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var totalCount = all.Count;
 
         var items = all

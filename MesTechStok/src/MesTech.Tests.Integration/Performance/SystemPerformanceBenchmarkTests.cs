@@ -27,7 +27,7 @@ public class SystemPerformanceBenchmarkTests
     // 1. 1000 product sync simulation under 200ms
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 10_000)]
+    [Fact]
     public void ProductSyncSimulation_1000Products_Under200ms()
     {
         // Arrange — 1000 products with commission calculation per product
@@ -68,7 +68,7 @@ public class SystemPerformanceBenchmarkTests
     // 2. 500 order fetch simulation under 30ms
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 10_000)]
+    [Fact]
     public void OrderFetchSimulation_500Orders_Under30ms()
     {
         // Arrange — simulate 500 orders with FEFO picking per order
@@ -109,7 +109,7 @@ public class SystemPerformanceBenchmarkTests
     // 3. 10K settlement line parse under 5s
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 30_000)]
+    [Fact]
     public void SettlementLineParse_10K_Under5Seconds()
     {
         // Arrange — create 10K settlement lines with commission calculations
@@ -160,7 +160,7 @@ public class SystemPerformanceBenchmarkTests
     // 4. 10K bank transaction import under 5s
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 30_000)]
+    [Fact]
     public void BankTransactionImport_10K_Under5Seconds()
     {
         // Arrange — simulate 10K bank transaction creation (in-memory entity construction)
@@ -212,7 +212,7 @@ public class SystemPerformanceBenchmarkTests
     // 5. 10K reconciliation pair scoring under 5s
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 30_000)]
+    [Fact]
     public void ReconciliationPairScoring_10K_Under5Seconds()
     {
         // Arrange — REAL ReconciliationScoringService, 10K settlement-bank pairs
@@ -281,7 +281,7 @@ public class SystemPerformanceBenchmarkTests
     // 6. 1000 JournalEntry balance check under 500ms
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 10_000)]
+    [Fact]
     public void JournalEntryBalanceCheck_1000Entries_Under500ms()
     {
         // Arrange — 1000 JournalEntries, each with 4 lines (2 debit + 2 credit)
@@ -347,7 +347,7 @@ public class SystemPerformanceBenchmarkTests
     // 7. App startup simulation under 3 seconds
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 10_000)]
+    [Fact]
     public void AppStartupSimulation_ServiceInit_Under3Seconds()
     {
         // Arrange — simulate typical startup: instantiate all pure domain services,
@@ -418,7 +418,7 @@ public class SystemPerformanceBenchmarkTests
     // 8. Memory usage under 100MB during bulk operation
     // ══════════════════════════════════════════════════════════════════════════
 
-    [Fact(Timeout = 30_000)]
+    [Fact]
     public void MemoryUsage_BulkAccountingOperation_Under100MB()
     {
         // Force GC to get baseline

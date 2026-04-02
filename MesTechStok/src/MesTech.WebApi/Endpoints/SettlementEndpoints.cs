@@ -32,6 +32,7 @@ public static class SettlementEndpoints
         .WithName("UploadSettlement")
         .WithSummary("Platform mutabakat dosyası yükle (JSON/CSV/TSV)")
         .WithDescription("14 platform desteklenir: Trendyol, Amazon, Hepsiburada, N11, Ciceksepeti, Pazarama, OpenCart, eBay, Ozon, PttAVM, Shopify, Etsy, WooCommerce, Zalando")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Accepts<IFormFile>("application/json", "text/csv", "text/tab-separated-values")
         .Produces(201)
         .Produces(400)

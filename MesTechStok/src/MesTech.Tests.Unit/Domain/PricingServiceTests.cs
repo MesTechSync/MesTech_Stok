@@ -38,10 +38,13 @@ public class PricingServiceTests
     }
 
     [Fact]
-    public void ApplyDiscount_InvalidRate_ShouldReturnOriginalPrice()
+    public void ApplyDiscount_InvalidRate_ShouldThrow()
     {
-        _sut.ApplyDiscount(100m, -5m).Should().Be(100m);
-        _sut.ApplyDiscount(100m, 150m).Should().Be(100m);
+        var act1 = () => _sut.ApplyDiscount(100m, -5m);
+        act1.Should().Throw<ArgumentOutOfRangeException>();
+
+        var act2 = () => _sut.ApplyDiscount(100m, 150m);
+        act2.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]

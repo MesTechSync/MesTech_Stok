@@ -30,7 +30,8 @@ public class EbayAdapterContractTests : IClassFixture<WireMockFixture>, IDisposa
     {
         ["ClientId"] = "test-ebay-client-id",
         ["ClientSecret"] = "test-ebay-client-secret",
-        ["TokenEndpoint"] = $"{_fixture.BaseUrl}/identity/v1/oauth2/token"
+        ["TokenEndpoint"] = $"{_fixture.BaseUrl}/identity/v1/oauth2/token",
+        ["BaseUrl"] = _fixture.BaseUrl
     };
 
     public EbayAdapterContractTests(WireMockFixture fixture)

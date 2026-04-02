@@ -333,7 +333,7 @@ public class EbayRealDataTests
         var parser = new EbaySettlementParser(logger);
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(Guid.NewGuid(), stream, "json");
 
         // Assert — batch-level validation
         batch.Should().NotBeNull();
@@ -368,7 +368,7 @@ public class EbayRealDataTests
         var parser = new EbaySettlementParser(logger);
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(Guid.NewGuid(), stream, "json");
         var lines = await parser.ParseLinesAsync(batch);
 
         // Assert — line-level validation
@@ -408,7 +408,7 @@ public class EbayRealDataTests
         var parser = new EbaySettlementParser(logger);
 
         // Act
-        var batch = await parser.ParseAsync(stream, "json");
+        var batch = await parser.ParseAsync(Guid.NewGuid(), stream, "json");
 
         // Assert
         batch.Should().NotBeNull();

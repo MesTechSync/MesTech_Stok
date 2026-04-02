@@ -26,8 +26,8 @@ public sealed class StockTurnoverReportHandler
         StockTurnoverReportQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var movements = await _movementRepository.GetByDateRangeAsync(request.StartDate, request.EndDate);
-        var products = await _productRepository.GetAllAsync();
+        var movements = await _movementRepository.GetByDateRangeAsync(request.StartDate, request.EndDate).ConfigureAwait(false);
+        var products = await _productRepository.GetAllAsync().ConfigureAwait(false);
 
         // Apply category filter if specified
         if (request.CategoryFilter.HasValue)

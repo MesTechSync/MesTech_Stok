@@ -17,11 +17,32 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
+    private readonly List<UserItemDto> _allUsers = [];
+
     public ObservableCollection<UserItemDto> Users { get; } = [];
 
     public UserManagementAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allUsers
+            : _allUsers.Where(u =>
+                u.Username.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                u.Role.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Users.Clear();
+        foreach (var u in filtered)
+            Users.Add(u);
+
+        TotalCount = Users.Count;
+        IsEmpty = TotalCount == 0;
     }
 
     public override async Task LoadAsync()
@@ -34,10 +55,10 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
         {
             var result = await _mediator.Send(new GetUsersQuery());
 
-            Users.Clear();
+            _allUsers.Clear();
             foreach (var user in result)
             {
-                Users.Add(new UserItemDto
+                _allUsers.Add(new UserItemDto
                 {
                     Username = user.Username,
                     FullName = user.FullName,
@@ -48,8 +69,7 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
                 });
             }
 
-            TotalCount = Users.Count;
-            IsEmpty = TotalCount == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {

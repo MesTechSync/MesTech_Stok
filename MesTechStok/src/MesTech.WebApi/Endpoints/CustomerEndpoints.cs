@@ -73,7 +73,7 @@ public static class CustomerEndpoints
             var result = await mediator.Send(command, ct);
             if (result.FileData.Length == 0)
                 return Results.Problem(detail: "Export produced no data", statusCode: 400);
-            return Results.File(result.FileData,
+            return Results.File(result.FileData.ToArray(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 result.FileName);
         })

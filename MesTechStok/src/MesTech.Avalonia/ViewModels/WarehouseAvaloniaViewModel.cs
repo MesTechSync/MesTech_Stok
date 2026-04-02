@@ -95,7 +95,7 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
     private void AddWarehouse()
@@ -113,9 +113,9 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveWarehouseAsync()
+    private Task SaveWarehouseAsync()
     {
-        if (string.IsNullOrWhiteSpace(NewWarehouseName)) return;
+        if (string.IsNullOrWhiteSpace(NewWarehouseName)) return Task.CompletedTask;
 
         IsLoading = true;
         try
@@ -142,6 +142,7 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Depo eklenemedi: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 }
 

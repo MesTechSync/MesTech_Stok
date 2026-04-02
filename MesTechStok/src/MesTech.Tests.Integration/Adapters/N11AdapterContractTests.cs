@@ -106,7 +106,7 @@ public class N11AdapterContractTests : IClassFixture<WireMockFixture>, IDisposab
                 .WithHeader("Content-Type", "text/xml")
                 .WithBody(SoapWireMockHelper.BuildSoapFault("Server", "Authentication failed")));
 
-        var adapter = new N11Adapter(_logger, CreateMockFactory().Object);
+        var adapter = CreateConfiguredAdapter();
         var result = await adapter.TestConnectionAsync(GetValidCredentials());
 
         result.IsSuccess.Should().BeFalse();

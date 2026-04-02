@@ -99,6 +99,6 @@ public sealed class OrderRepository : IOrderRepository
             .Include(o => o.OrderItems)
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<int> GetCountAsync()
-        => await _context.Orders.CountAsync().ConfigureAwait(false);
+    public async Task<int> GetCountAsync(CancellationToken ct = default)
+        => await _context.Orders.CountAsync(ct).ConfigureAwait(false);
 }

@@ -114,7 +114,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAutoOrderSettingsAsync()
+    private Task SaveAutoOrderSettingsAsync()
     {
         IsLoading = true;
         try
@@ -124,10 +124,11 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class DropshipSupplierPerformanceDto

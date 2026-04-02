@@ -60,9 +60,13 @@ public class GLDataLossRegressionTests
     /// <summary>
     /// G093: CommissionChargedGLHandler MUST call _journalRepo.AddAsync(entry).
     /// </summary>
-    [Fact(DisplayName = "G093: CommissionChargedGL must AddAsync journal entry")]
-    public async Task CommissionChargedGL_MustCallAddAsync()
+    [Fact(DisplayName = "G093: CommissionChargedGL must save journal entry via UoW")]
+    public async Task CommissionChargedGL_MustSaveViaUoW()
     {
+        _journalRepoMock.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         var sut = new CommissionChargedGLHandler(
             _uowMock.Object, _journalRepoMock.Object,
             Mock.Of<ILogger<CommissionChargedGLHandler>>());
@@ -71,19 +75,24 @@ public class GLDataLossRegressionTests
             Guid.NewGuid(), _tenantId, PlatformType.Trendyol,
             100m, 0.10m, CancellationToken.None);
 
-        _journalRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()),
+        // Handler JournalEntry.Create() ile entity olusturur, UoW.SaveChangesAsync ile kaydeder
+        _uowMock.Verify(
+            u => u.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once,
-            "G093: CommissionChargedGLHandler MUST call AddAsync. " +
+            "G093: CommissionChargedGLHandler MUST call SaveChangesAsync. " +
             "Commission GL entries are LOST without this.");
     }
 
     /// <summary>
     /// G093: OrderShippedCostHandler MUST call _journalRepo.AddAsync(entry).
     /// </summary>
-    [Fact(DisplayName = "G093: OrderShippedCostGL must AddAsync journal entry")]
-    public async Task OrderShippedCostGL_MustCallAddAsync()
+    [Fact(DisplayName = "G093: OrderShippedCostGL must save via UoW")]
+    public async Task OrderShippedCostGL_MustSaveViaUoW()
     {
+        _journalRepoMock.Setup(r => r.ExistsByReferenceAsync(
+            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         var sut = new OrderShippedCostHandler(
             _uowMock.Object, _journalRepoMock.Object,
             Mock.Of<ILogger<OrderShippedCostHandler>>());
@@ -92,10 +101,10 @@ public class GLDataLossRegressionTests
             Guid.NewGuid(), _tenantId, "TRK-001",
             CargoProvider.YurticiKargo, 25.50m, CancellationToken.None);
 
-        _journalRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<JournalEntry>(), It.IsAny<CancellationToken>()),
+        _uowMock.Verify(
+            u => u.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once,
-            "G093: OrderShippedCostHandler MUST call AddAsync. " +
+            "G093: OrderShippedCostHandler MUST call SaveChangesAsync. " +
             "Cargo expense GL entries are LOST without this.");
     }
 }

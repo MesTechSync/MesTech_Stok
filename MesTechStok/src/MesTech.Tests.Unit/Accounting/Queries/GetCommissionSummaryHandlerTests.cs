@@ -20,6 +20,12 @@ public class GetCommissionSummaryHandlerTests
     public GetCommissionSummaryHandlerTests()
     {
         _repoMock = new Mock<ICommissionRecordRepository>();
+
+        // Default: return empty list for any platform to avoid NullReferenceException
+        _repoMock
+            .Setup(r => r.GetByPlatformAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CommissionRecord>().AsReadOnly());
+
         _sut = new GetCommissionSummaryHandler(_repoMock.Object);
     }
 

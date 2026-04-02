@@ -64,7 +64,7 @@ namespace MesTechStok.Core.Integrations.Barcode
         /// <summary>
         /// HID dinleyicisini başlatır
         /// </summary>
-        public async Task<bool> StartListeningAsync()
+        public Task<bool> StartListeningAsync()
         {
             try
             {
@@ -73,7 +73,7 @@ namespace MesTechStok.Core.Integrations.Barcode
                 if (_isListening)
                 {
                     System.Diagnostics.Debug.WriteLine("[HID] Already listening, returning true");
-                    return true;
+                    return Task.FromResult(true);
                 }
 
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -92,12 +92,12 @@ namespace MesTechStok.Core.Integrations.Barcode
                 var success = _hookID != IntPtr.Zero;
                 System.Diagnostics.Debug.WriteLine($"[HID] ✅ StartListeningAsync result: {success}");
 
-                return success;
+                return Task.FromResult(success);
             }
             catch (Exception ex)
             {
                 Error?.Invoke(this, ex);
-                return false;
+                return Task.FromResult(false);
             }
         }
 

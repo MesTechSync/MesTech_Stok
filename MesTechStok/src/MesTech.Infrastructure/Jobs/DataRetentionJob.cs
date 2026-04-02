@@ -17,7 +17,7 @@ public sealed class DataRetentionJob : ISyncJob
     public string JobId => "kvkk-data-retention";
     public string CronExpression => "0 3 * * *"; // Her gün 03:00 UTC
 
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ILogger<DataRetentionJob> _logger;
 
     // KVKK saklama süreleri (gün)
@@ -26,9 +26,9 @@ public sealed class DataRetentionJob : ISyncJob
     private const int WebhookLogRetentionDays = 180;
     private const int SyncLogRetentionDays = 90;
 
-    public DataRetentionJob(AppDbContext context, ILogger<DataRetentionJob> logger)
+    public DataRetentionJob(IDbContextFactory<AppDbContext> contextFactory, ILogger<DataRetentionJob> logger)
     {
-        _context = context;
+        _contextFactory = contextFactory;
         _logger = logger;
     }
 
@@ -36,11 +36,13 @@ public sealed class DataRetentionJob : ISyncJob
     {
         _logger.LogInformation("[KVKK] Data retention job started");
 
+        await using var context = await _contextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+
         var totalAnonymized = 0;
 
         // 1. LoginAttempt — IP ve kullanıcı adı anonimleştir
         var loginCutoff = DateTime.UtcNow.AddDays(-LoginAttemptRetentionDays);
-        var expiredLogins = await _context.LoginAttempts
+        var expiredLogins = await context.LoginAttempts
             .Where(l => l.CreatedAt < loginCutoff && l.IpAddress != "ANONYMIZED")
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
@@ -54,7 +56,7 @@ public sealed class DataRetentionJob : ISyncJob
 
         // 2. AuditLog — OldValues/NewValues anonimleştir (AuditLog.Timestamp kullanılır, BaseEntity değil)
         var auditCutoff = DateTime.UtcNow.AddDays(-AuditLogRetentionDays);
-        var expiredAudits = await _context.AuditLogs
+        var expiredAudits = await context.AuditLogs
             .Where(a => a.Timestamp < auditCutoff && a.OldValues != "ANONYMIZED")
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
@@ -66,7 +68,7 @@ public sealed class DataRetentionJob : ISyncJob
 
         // 3. WebhookLog — payload anonimleştir
         var webhookCutoff = DateTime.UtcNow.AddDays(-WebhookLogRetentionDays);
-        var expiredWebhooks = await _context.WebhookLogs
+        var expiredWebhooks = await context.WebhookLogs
             .Where(w => w.ReceivedAt < webhookCutoff && w.Payload != "ANONYMIZED")
             .Take(1000)
             .ToListAsync(ct).ConfigureAwait(false);
@@ -79,14 +81,14 @@ public sealed class DataRetentionJob : ISyncJob
 
         // 4. SyncLog — eski kayıtları sil (kişisel veri yok, temizlik)
         var syncCutoff = DateTime.UtcNow.AddDays(-SyncLogRetentionDays);
-        var deletedSyncLogs = await _context.SyncLogs
+        var deletedSyncLogs = await context.SyncLogs
             .Where(s => s.CreatedAt < syncCutoff)
             .Take(5000)
             .ExecuteDeleteAsync(ct).ConfigureAwait(false);
 
         if (totalAnonymized > 0 || deletedSyncLogs > 0)
         {
-            await _context.SaveChangesAsync(ct).ConfigureAwait(false);
+            await context.SaveChangesAsync(ct).ConfigureAwait(false);
         }
 
         _logger.LogInformation(

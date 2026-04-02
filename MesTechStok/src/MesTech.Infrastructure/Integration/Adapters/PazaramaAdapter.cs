@@ -242,6 +242,12 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 };
             }
         }
+        catch (TaskCanceledException)
+        {
+            sw.Stop();
+            result.ErrorMessage = "Baglanti zaman asimina ugradi.";
+            result.ResponseTime = sw.Elapsed;
+        }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();

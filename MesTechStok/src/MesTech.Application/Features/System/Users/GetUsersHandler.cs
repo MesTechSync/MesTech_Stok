@@ -21,7 +21,7 @@ public sealed class GetUsersHandler : IRequestHandler<GetUsersQuery, IReadOnlyLi
     {
         _logger.LogInformation("Getting users list, TenantId={TenantId}", request.TenantId);
 
-        var users = await _userRepository.GetAllAsync(cancellationToken);
+        var users = await _userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         if (request.TenantId.HasValue)
             users = users.Where(u => u.TenantId == request.TenantId.Value).ToList();

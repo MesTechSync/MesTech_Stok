@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.OpenCartAvaloniaView"
              x:Name="RootOpenCartAvaloniaView"
              x:DataType="vm:OpenCartAvaloniaViewModel"
@@ -150,10 +151,18 @@
                     <Grid RowDefinitions="Auto,*">
                         <Border Grid.Row="0" Padding="16,10"
                                 BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
-                            <Grid ColumnDefinitions="*,Auto">
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                                 <TextBlock Text="OpenCart Siparişleri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MesDarkSlate}" />
-                                <Button Grid.Column="1" Content="Senkronize Et" Command="{Binding SyncCommand}"
+                                           Foreground="{DynamicResource MesDarkSlate}" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1" Text="{Binding SearchText}" Watermark="Ara..." AutomationProperties.Name="Ara..."
+                                         Width="240" Padding="10,8"
+                                         CornerRadius="{StaticResource MesRadiusMd}"
+                                         FontSize="{StaticResource FontSizeBody}" Margin="12,0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding TotalCount, StringFormat='{}{0} kayit'}"
+                                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}"
+                                           VerticalAlignment="Center" Margin="8,0" />
+                                <Button Grid.Column="3" Content="Senkronize Et" Command="{Binding SyncCommand}"
                                         ToolTip.Tip="Siparisleri senkronize et"
                                         Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}"
                                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}" />
@@ -272,17 +281,12 @@
             </TabControl>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="OpenCart verileri yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="True" />
         </Border>
 
         <!-- Empty State -->

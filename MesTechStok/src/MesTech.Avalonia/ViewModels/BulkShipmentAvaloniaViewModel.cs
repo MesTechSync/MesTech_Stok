@@ -25,6 +25,9 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int warningCount;
     [ObservableProperty] private string selectedProvider = "YurticiKargo";
     [ObservableProperty] private bool selectAll;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<BulkShipmentItemDto> _allOrders = [];
 
     public ObservableCollection<BulkShipmentItemDto> Orders { get; } = [];
     public ObservableCollection<string> Providers { get; } =
@@ -38,7 +41,26 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         _currentUser = currentUser;
     }
 
-    public override async Task LoadAsync()
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allOrders
+            : _allOrders.Where(o =>
+                o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Orders.Clear();
+        foreach (var o in filtered)
+            Orders.Add(o);
+
+        TotalCount = Orders.Count;
+        UpdateSelectedCount();
+        IsEmpty = TotalCount == 0;
+    }
+
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -46,16 +68,14 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         try
         {
 
-            Orders.Clear();
-            Orders.Add(new() { IsSelected = true, OrderNumber = "SIP-1001", CustomerName = "Ahmet Yilmaz", City = "Istanbul", Weight = 1.2m, Status = "Bekliyor" });
-            Orders.Add(new() { IsSelected = true, OrderNumber = "SIP-1002", CustomerName = "Mehmet Kaya", City = "Ankara", Weight = 0.8m, Status = "Bekliyor" });
-            Orders.Add(new() { IsSelected = false, OrderNumber = "SIP-1003", CustomerName = "Ayse Demir", City = "Izmir", Weight = 3.5m, Status = "Adres eksik", HasWarning = true });
-            Orders.Add(new() { IsSelected = true, OrderNumber = "SIP-1004", CustomerName = "Fatma Sahin", City = "Bursa", Weight = 1.0m, Status = "Bekliyor" });
-            Orders.Add(new() { IsSelected = true, OrderNumber = "SIP-1005", CustomerName = "Ali Ozturk", City = "Antalya", Weight = 2.3m, Status = "Bekliyor" });
+            _allOrders.Clear();
+            _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1001", CustomerName = "Ahmet Yilmaz", City = "Istanbul", Weight = 1.2m, Status = "Bekliyor" });
+            _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1002", CustomerName = "Mehmet Kaya", City = "Ankara", Weight = 0.8m, Status = "Bekliyor" });
+            _allOrders.Add(new() { IsSelected = false, OrderNumber = "SIP-1003", CustomerName = "Ayse Demir", City = "Izmir", Weight = 3.5m, Status = "Adres eksik", HasWarning = true });
+            _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1004", CustomerName = "Fatma Sahin", City = "Bursa", Weight = 1.0m, Status = "Bekliyor" });
+            _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1005", CustomerName = "Ali Ozturk", City = "Antalya", Weight = 2.3m, Status = "Bekliyor" });
 
-            TotalCount = Orders.Count;
-            UpdateSelectedCount();
-            IsEmpty = TotalCount == 0;
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -66,6 +86,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     private void UpdateSelectedCount()
@@ -128,7 +149,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class BulkShipmentItemDto : ObservableObject

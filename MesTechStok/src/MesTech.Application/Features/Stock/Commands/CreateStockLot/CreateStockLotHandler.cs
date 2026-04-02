@@ -43,10 +43,12 @@ public sealed class CreateStockLotHandler : IRequestHandler<CreateStockLotComman
 
             return CreateStockLotResult.Success(lot.Id);
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogError(ex, "StockLot creation failed: {LotNumber}", request.LotNumber);
             return CreateStockLotResult.Failure(ex.Message);
         }
+#pragma warning restore CA1031
     }
 }

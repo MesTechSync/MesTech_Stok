@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:converters="using:MesTech.Avalonia.Converters"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -284,17 +285,12 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Urunler yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Empty State -->

@@ -8,7 +8,7 @@ public record GetShipmentLabelQuery(Guid TenantId, string ShipmentId)
 public sealed class ShipmentLabelResult
 {
     public bool IsSuccess { get; init; }
-    public byte[]? LabelData { get; init; }
+    public ReadOnlyMemory<byte>? LabelData { get; init; }
     public string ContentType { get; init; } = "application/pdf";
     public string? FileName { get; init; }
     public string? ErrorMessage { get; init; }

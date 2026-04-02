@@ -24,4 +24,7 @@ public static class DashboardEventType
     public const string OrderNew = "order.new";
     public const string InvoiceGenerated = "invoice.generated";
     public const string ReturnCreated = "return.created";
+    public const string BuyboxLost = "pricing.buybox_lost";
+    public const string PriceAutoUpdated = "pricing.auto_updated";
+    public const string PriceCycleDone = "pricing.cycle_done";
 }

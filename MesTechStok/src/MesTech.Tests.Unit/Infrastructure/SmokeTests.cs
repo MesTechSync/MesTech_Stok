@@ -56,8 +56,8 @@ public class SmokeTests
     [Theory(DisplayName = "Application handlers exist")]
     [InlineData("MesTech.Application", "PlaceOrderHandler")]
     [InlineData("MesTech.Application", "CreateProductHandler")]
-    [InlineData("MesTech.Application", "GetProductsPagedHandler")]
-    [InlineData("MesTech.Application", "GetOrdersPagedHandler")]
+    [InlineData("MesTech.Application", "GetProductsHandler")]
+    [InlineData("MesTech.Application", "GetOrderListHandler")]
     [InlineData("MesTech.Application", "DeletePersonalDataHandler")]
     public void ApplicationHandler_ShouldExist(string assemblyName, string handlerName)
     {

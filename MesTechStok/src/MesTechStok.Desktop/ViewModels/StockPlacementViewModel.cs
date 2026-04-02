@@ -207,7 +207,7 @@ namespace MesTechStok.Desktop.ViewModels
             }
         }
 
-        private async Task LoadWarehouseStatisticsAsync()
+        private Task LoadWarehouseStatisticsAsync()
         {
             try
             {
@@ -228,9 +228,10 @@ namespace MesTechStok.Desktop.ViewModels
                 _logger.LogError(ex, "Warehouse statistics yüklenirken hata oluştu");
                 throw;
             }
+            return Task.CompletedTask;
         }
 
-        private async Task LoadRecentActivitiesAsync()
+        private Task LoadRecentActivitiesAsync()
         {
             try
             {
@@ -286,6 +287,7 @@ namespace MesTechStok.Desktop.ViewModels
                 _logger.LogError(ex, "Recent activities yüklenirken hata oluştu");
                 throw;
             }
+            return Task.CompletedTask;
         }
 
         private void UpdateSystemStatus()

@@ -110,7 +110,7 @@ public class InventoryValuationReportHandlerTests
     public async Task Handle_NoProducts_ShouldReturnEmptyList()
     {
         // Arrange
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -128,7 +128,7 @@ public class InventoryValuationReportHandlerTests
     {
         // Arrange
         var product = FakeData.CreateProduct(sku: "VAL-001", stock: 10, purchasePrice: 50m, salePrice: 80m);
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var handler = CreateHandler();
@@ -149,7 +149,7 @@ public class InventoryValuationReportHandlerTests
     {
         // Arrange
         var product = FakeData.CreateProduct(sku: "ZERO-001", stock: 0, purchasePrice: 50m, salePrice: 80m);
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var handler = CreateHandler();
@@ -191,9 +191,9 @@ public class StockTurnoverReportHandlerTests
         var from = DateTime.UtcNow.AddDays(-30);
         var to = DateTime.UtcNow;
 
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to))
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -220,8 +220,8 @@ public class StockTurnoverReportHandlerTests
             new() { ProductId = product.Id, Quantity = -5, Date = DateTime.UtcNow.AddDays(-5) },
         }.AsReadOnly();
 
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to)).ReturnsAsync(movements);
-        _productRepo.Setup(r => r.GetAllAsync())
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>())).ReturnsAsync(movements);
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var handler = CreateHandler();

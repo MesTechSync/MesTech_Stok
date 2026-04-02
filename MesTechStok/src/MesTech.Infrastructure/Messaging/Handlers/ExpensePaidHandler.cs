@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MesTech.Domain.Entities.Finance;
 using MesTech.Domain.Enums;
@@ -17,18 +18,18 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotification<ExpensePaidEvent>>
 {
     private readonly IExpenseRepository _expenseRepo;
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<ExpensePaidHandler> _logger;
 
     public ExpensePaidHandler(
         IExpenseRepository expenseRepo,
-        AppDbContext context,
+        IDbContextFactory<AppDbContext> contextFactory,
         ITenantProvider tenantProvider,
         ILogger<ExpensePaidHandler> logger)
     {
         _expenseRepo = expenseRepo;
-        _context = context;
+        _contextFactory = contextFactory;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -59,8 +60,9 @@ public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotific
             bankAccountId: e.BankAccountId,
             expenseId: e.ExpenseId);
 
-        await _context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken).ConfigureAwait(false);
-        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        await context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "ExpensePaid GL kaydı oluşturuldu: ExpenseId={ExpenseId} Amount={Amount} TenantId={TenantId}",

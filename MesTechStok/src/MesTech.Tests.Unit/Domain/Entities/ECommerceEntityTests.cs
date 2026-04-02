@@ -228,6 +228,7 @@ public class ECommerceEntityTests
         var request = ReturnRequest.Create(Guid.NewGuid(), TenantId,
             PlatformType.Trendyol, ReturnReason.DefectiveProduct, "John");
 
+        request.Approve(); // MarkStockRestored requires Approved/Received/Refunded status
         request.MarkStockRestored();
 
         request.StockRestored.Should().BeTrue();
@@ -239,6 +240,7 @@ public class ECommerceEntityTests
         var request = ReturnRequest.Create(Guid.NewGuid(), TenantId,
             PlatformType.Trendyol, ReturnReason.DefectiveProduct, "John");
 
+        request.Approve(); // SetCargoInfo requires Approved status
         request.SetCargoInfo("TR123", CargoProvider.ArasKargo);
 
         request.TrackingNumber.Should().Be("TR123");

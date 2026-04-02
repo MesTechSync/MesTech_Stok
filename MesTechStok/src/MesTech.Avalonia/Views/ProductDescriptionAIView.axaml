@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.ProductDescriptionAIView"
              x:Name="RootProductDescriptionAIView"
              x:DataType="vm:ProductDescriptionAIViewModel"
@@ -167,13 +168,12 @@
                     <!-- Content Area -->
                     <Grid>
 
-                        <!-- ═══ Loading Overlay ═══ -->
-                        <Border IsVisible="{Binding IsLoading}" Background="{DynamicResource MesBgPrimary}"
-                                ZIndex="10" CornerRadius="{StaticResource MesRadiusLg}">
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                                <TextBlock Text="Yukleniyor..." FontSize="{StaticResource FontSizeBody}"
-                                           Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
-                            </StackPanel>
+                        <!-- Loading Skeleton -->
+                        <Border Grid.Row="0"
+                                Background="{DynamicResource MesBgPage}"
+                                IsVisible="{Binding IsLoading}"
+                                ZIndex="100">
+                            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
                         </Border>
 
                         <!-- ═══ Generating Overlay ═══ -->

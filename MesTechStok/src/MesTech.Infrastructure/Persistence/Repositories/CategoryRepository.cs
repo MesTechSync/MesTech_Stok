@@ -22,21 +22,21 @@ public sealed class CategoryRepository : ICategoryRepository
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<IReadOnlyList<Category>> GetAllAsync()
+    public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.Categories
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<Category>> GetActiveAsync()
+    public async Task<IReadOnlyList<Category>> GetActiveAsync(CancellationToken ct = default)
     {
         return await _context.Categories
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct);
     }
 
     public async Task AddAsync(Category category)

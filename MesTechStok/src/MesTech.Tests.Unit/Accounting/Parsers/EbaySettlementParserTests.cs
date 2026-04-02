@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class EbaySettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly EbaySettlementParser _sut = new(
         new Microsoft.Extensions.Logging.Abstractions.NullLogger<EbaySettlementParser>());
 
@@ -25,7 +26,7 @@ public class EbaySettlementParserTests
         // Parser is now fully implemented — empty JSON with no transactions returns empty batch
         var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
         using var stream = new MemoryStream(json);
-        var result = await _sut.ParseAsync(stream, "json");
+        var result = await _sut.ParseAsync(TestTenantId, stream, "json");
         result.Should().NotBeNull();
         result.Platform.Should().Be("eBay");
     }
@@ -47,7 +48,7 @@ public class EbaySettlementParserTests
         // Parser is now fully implemented — batch platform should be eBay
         var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
         using var stream = new MemoryStream(json);
-        var result = await _sut.ParseAsync(stream, "json");
+        var result = await _sut.ParseAsync(TestTenantId, stream, "json");
         result.Platform.Should().Contain("eBay");
     }
 
@@ -57,7 +58,7 @@ public class EbaySettlementParserTests
         // Parser is now fully implemented — after ParseAsync, ParseLinesAsync uses cached data
         var json = System.Text.Encoding.UTF8.GetBytes("{\"transactions\": []}");
         using var stream = new MemoryStream(json);
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         var lines = await _sut.ParseLinesAsync(batch);
         lines.Should().NotBeNull();

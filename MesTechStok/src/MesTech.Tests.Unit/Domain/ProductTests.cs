@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
+using MesTech.Domain.Exceptions;
 using MesTech.Tests.Unit._Shared;
 
 namespace MesTech.Tests.Unit.Domain;
@@ -105,5 +106,59 @@ public class ProductTests
         product.CurrencyCode.Should().Be("TRY");
         product.HasVariants.Should().BeFalse();
         product.BrandId.Should().BeNull();
+    }
+
+    // ── Z15 Overselling Prevention Tests ──
+
+    [Fact]
+    public void AdjustStock_WhenInsufficientStock_ShouldRaiseOversellingAttemptedEvent()
+    {
+        var product = FakeData.CreateProduct(stock: 5);
+
+        var act = () => product.AdjustStock(-10, StockMovementType.Sale, "Order #TEST-001");
+
+        act.Should().Throw<InsufficientStockException>();
+        product.DomainEvents.Should().ContainSingle(e => e is OversellingAttemptedEvent);
+
+        var evt = product.DomainEvents.OfType<OversellingAttemptedEvent>().First();
+        evt.ProductId.Should().Be(product.Id);
+        evt.TenantId.Should().Be(product.TenantId);
+        evt.SKU.Should().Be(product.SKU);
+        evt.AvailableStock.Should().Be(5);
+        evt.RequestedQuantity.Should().Be(10);
+        evt.OrderNumber.Should().Be("Order #TEST-001");
+    }
+
+    [Fact]
+    public void AdjustStock_WhenExactStock_ShouldNotRaiseOversellingEvent()
+    {
+        var product = FakeData.CreateProduct(stock: 10);
+
+        product.AdjustStock(-10, StockMovementType.Sale);
+
+        product.Stock.Should().Be(0);
+        product.DomainEvents.Should().NotContain(e => e is OversellingAttemptedEvent);
+    }
+
+    [Fact]
+    public void AdjustStock_WhenPositiveQuantity_ShouldNeverRaiseOversellingEvent()
+    {
+        var product = FakeData.CreateProduct(stock: 0);
+
+        product.AdjustStock(50, StockMovementType.StockIn);
+
+        product.Stock.Should().Be(50);
+        product.DomainEvents.Should().NotContain(e => e is OversellingAttemptedEvent);
+    }
+
+    [Fact]
+    public void AdjustStock_WhenInsufficientStock_ShouldNotChangeStock()
+    {
+        var product = FakeData.CreateProduct(stock: 3);
+
+        var act = () => product.AdjustStock(-5, StockMovementType.Sale);
+
+        act.Should().Throw<InsufficientStockException>();
+        product.Stock.Should().Be(3); // Stock unchanged
     }
 }

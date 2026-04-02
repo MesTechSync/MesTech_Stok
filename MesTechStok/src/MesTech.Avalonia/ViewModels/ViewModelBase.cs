@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -11,6 +12,9 @@ namespace MesTech.Avalonia.ViewModels;
 public abstract partial class ViewModelBase : ObservableObject, IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
+    /// <summary>DbContext concurrency guard — EF Core tek thread zorunluluğu.
+    /// Tüm MediatR çağrıları bu semaphore ile serileştirilir.</summary>
+    private readonly SemaphoreSlim _dbGuard = new(1, 1);
     private bool _disposed;
 
     /// <summary>ViewModel yaşam döngüsü boyunca kullanılacak CancellationToken.
@@ -78,14 +82,20 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         ErrorMessage = message;
     }
 
-    /// <summary>API çağrısını try-catch ile sarmala. CancellationToken destekli.</summary>
+    /// <summary>API çağrısını try-catch + DbContext concurrency guard ile sarmala.</summary>
     protected async Task SafeExecuteAsync(Func<Task> action, string context = "")
     {
+        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            IsLoading = true;
-            ClearError();
-            await action();
+            // KÖK-4 FIX: ObservableCollection mutations + IsLoading must run on UI thread.
+            // action() may contain .Clear()/.Add() on ObservableCollections.
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                IsLoading = true;
+                ClearError();
+                await action().ConfigureAwait(false);
+            });
         }
         catch (OperationCanceledException)
         {
@@ -93,22 +103,27 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            SetError($"{context}: {ex.Message}");
+            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            IsLoading = false;
+            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            _dbGuard.Release();
         }
     }
 
-    /// <summary>CancellationToken destekli SafeExecute overload.</summary>
+    /// <summary>CancellationToken destekli SafeExecute + DbContext concurrency guard.</summary>
     protected async Task SafeExecuteAsync(Func<CancellationToken, Task> action, string context = "")
     {
+        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            IsLoading = true;
-            ClearError();
-            await action(CancellationToken);
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                IsLoading = true;
+                ClearError();
+                await action(CancellationToken).ConfigureAwait(false);
+            });
         }
         catch (OperationCanceledException)
         {
@@ -116,11 +131,12 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            SetError($"{context}: {ex.Message}");
+            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            IsLoading = false;
+            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            _dbGuard.Release();
         }
     }
 
@@ -131,6 +147,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
 
         _cts.Cancel();
         _cts.Dispose();
+        _dbGuard.Dispose();
 
         OnDispose();
         GC.SuppressFinalize(this);

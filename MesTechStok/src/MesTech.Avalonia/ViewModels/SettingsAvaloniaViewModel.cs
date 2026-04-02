@@ -7,6 +7,8 @@ using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
 using MesTech.Application.Features.Settings.Commands.SaveApiSettings;
 using MesTech.Application.Features.Settings.Commands.TestApiConnection;
 using MesTech.Application.Features.Settings.Queries.GetCredentialsSettings;
+using MesTech.Application.Features.Settings.Queries.GetGeneralSettings;
+using MesTech.Application.Features.Settings.Queries.GetProfileSettings;
 using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
@@ -101,6 +103,10 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+
+        // G540 orphan: general + profile settings
+        try { _ = await _mediator.Send(new GetGeneralSettingsQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        try { _ = await _mediator.Send(new GetProfileSettingsQuery(_currentUser.TenantId)); } catch { /* optional */ }
     }
 
     [RelayCommand]

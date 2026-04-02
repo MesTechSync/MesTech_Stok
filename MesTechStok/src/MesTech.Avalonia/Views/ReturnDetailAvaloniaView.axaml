@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.ReturnDetailAvaloniaView"
              x:Name="RootReturnDetailAvaloniaView"
              x:DataType="vm:ReturnDetailAvaloniaViewModel">
@@ -8,7 +9,7 @@
 
     <!-- Iade Detay — I-05 -->
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
@@ -32,8 +33,16 @@
             </Grid>
         </Border>
 
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+            <TextBox Width="280" Watermark="Siparis no, sebep veya durum ara..."
+                     AutomationProperties.Name="Siparis no, sebep veya durum ara..."
+                     Text="{Binding SearchText}" HorizontalAlignment="Left" />
+        </Border>
+
         <!-- Content -->
-        <ScrollViewer Grid.Row="1" Background="{DynamicResource MesBgPrimary}">
+        <ScrollViewer Grid.Row="2" Background="{DynamicResource MesBgPrimary}">
             <StackPanel Margin="24,20" Spacing="24">
 
                 <!-- Info Cards Row -->
@@ -121,17 +130,12 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource MesOverlayLight}"
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Iade detaylari yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
 <!-- Empty state -->
@@ -143,7 +147,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding HasError}"
                 ZIndex="50">

@@ -97,14 +97,10 @@ public class UserNotificationHandlerTests
     [Fact]
     public async Task MarkAllRead_WithUnread_ShouldMarkAllAndReturnCount()
     {
-        // Arrange
-        var n1 = MakeNotification("N1");
-        var n2 = MakeNotification("N2");
-        var unread = new List<UserNotification> { n1, n2 }.AsReadOnly();
-
+        // Arrange — handler now uses MarkAllAsReadAsync (bulk SQL) returning count directly
         var mockRepo = new Mock<IUserNotificationRepository>();
-        mockRepo.Setup(r => r.GetUnreadByUserAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(unread);
+        mockRepo.Setup(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
         var mockUow = new Mock<IUnitOfWork>();
 
         var handler = new MarkAllUserNotificationsReadHandler(mockRepo.Object, mockUow.Object);
@@ -115,19 +111,16 @@ public class UserNotificationHandlerTests
 
         // Assert
         result.Should().Be(2);
-        n1.IsRead.Should().BeTrue();
-        n2.IsRead.Should().BeTrue();
-        mockRepo.Verify(r => r.UpdateAsync(It.IsAny<UserNotification>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-        mockUow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockRepo.Verify(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task MarkAllRead_NoUnread_ShouldReturnZeroAndSkipSave()
     {
-        // Arrange
+        // Arrange — handler now uses MarkAllAsReadAsync (bulk SQL)
         var mockRepo = new Mock<IUserNotificationRepository>();
-        mockRepo.Setup(r => r.GetUnreadByUserAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<UserNotification>().AsReadOnly());
+        mockRepo.Setup(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         var mockUow = new Mock<IUnitOfWork>();
 
         var handler = new MarkAllUserNotificationsReadHandler(mockRepo.Object, mockUow.Object);
@@ -138,7 +131,7 @@ public class UserNotificationHandlerTests
 
         // Assert
         result.Should().Be(0);
-        mockUow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockRepo.Verify(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

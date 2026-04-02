@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 using MesTech.Avalonia.Controls;
 using MesTech.Domain.Enums;
 
@@ -13,19 +12,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
-
     [ObservableProperty] private int totalProviders;
     [ObservableProperty] private int connectedProviders;
 
     public ObservableCollection<CargoProviderCardViewModel> Providers { get; } = [];
 
-    public CargoProvidersAvaloniaViewModel(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -52,8 +45,9 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Kargo firmalari yuklenemedi: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }

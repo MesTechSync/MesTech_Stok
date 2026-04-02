@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Settings.Commands.SaveImportTemplate;
+using MesTech.Application.Features.Settings.Queries.GetImportSettings;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -24,8 +25,8 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool isSaving;
     [ObservableProperty] private bool saveCompleted;
 
-    public ObservableCollection<ImportTemplateDto> Templates { get; } = [];
-    public ObservableCollection<ImportFieldMappingDto> EditMappings { get; } = [];
+    public ObservableCollection<ImportTemplateDisplayItem> Templates { get; } = [];
+    public ObservableCollection<ImportFieldMappingDisplayItem> EditMappings { get; } = [];
 
     public ImportSettingsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -41,12 +42,19 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
+            var result = await _mediator.Send(new GetImportSettingsQuery(_currentUser.TenantId));
 
             Templates.Clear();
-            Templates.Add(new ImportTemplateDto { Name = "Trendyol XML Sablonu", FieldCount = 12, LastUsed = "19.03.2026", Format = "XML" });
-            Templates.Add(new ImportTemplateDto { Name = "Genel CSV Sablonu", FieldCount = 8, LastUsed = "18.03.2026", Format = "CSV" });
-            Templates.Add(new ImportTemplateDto { Name = "Hepsiburada Excel Sablonu", FieldCount = 15, LastUsed = "17.03.2026", Format = "Excel" });
-            Templates.Add(new ImportTemplateDto { Name = "N11 API Sablonu", FieldCount = 10, LastUsed = "16.03.2026", Format = "API" });
+            foreach (var t in result.Templates)
+            {
+                Templates.Add(new ImportTemplateDisplayItem
+                {
+                    Name = t.Name,
+                    FieldCount = t.FieldCount,
+                    LastUsed = t.LastUsedAt?.ToString("dd.MM.yyyy") ?? "—",
+                    Format = t.Format
+                });
+            }
 
             TotalCount = Templates.Count;
             IsEmpty = TotalCount == 0;
@@ -68,27 +76,26 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         IsEditing = true;
         EditTemplateName = string.Empty;
         EditMappings.Clear();
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "urun_adi", TargetField = "Name" });
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "fiyat", TargetField = "Price" });
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "stok", TargetField = "Stock" });
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "barkod", TargetField = "Barcode" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "urun_adi", TargetField = "Name" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "fiyat", TargetField = "Price" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "stok", TargetField = "Stock" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "barkod", TargetField = "Barcode" });
     }
 
     [RelayCommand]
-    private void EditTemplate(ImportTemplateDto? template)
+    private void EditTemplate(ImportTemplateDisplayItem? template)
     {
         if (template is null) return;
         IsEditing = true;
         EditTemplateName = template.Name;
         EditMappings.Clear();
-        // Load sample mappings
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "urun_adi", TargetField = "Name" });
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "fiyat", TargetField = "Price" });
-        EditMappings.Add(new ImportFieldMappingDto { SourceColumn = "stok", TargetField = "Stock" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "urun_adi", TargetField = "Name" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "fiyat", TargetField = "Price" });
+        EditMappings.Add(new ImportFieldMappingDisplayItem { SourceColumn = "stok", TargetField = "Stock" });
     }
 
     [RelayCommand]
-    private void DeleteTemplate(ImportTemplateDto? template)
+    private void DeleteTemplate(ImportTemplateDisplayItem? template)
     {
         if (template is null) return;
         Templates.Remove(template);
@@ -143,21 +150,21 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void AddFieldMapping()
     {
-        EditMappings.Add(new ImportFieldMappingDto());
+        EditMappings.Add(new ImportFieldMappingDisplayItem());
     }
 
     [RelayCommand]
-    private void RemoveFieldMapping(ImportFieldMappingDto? mapping)
+    private void RemoveFieldMapping(ImportFieldMappingDisplayItem? mapping)
     {
         if (mapping is not null)
             EditMappings.Remove(mapping);
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
-public class ImportTemplateDto
+public class ImportTemplateDisplayItem
 {
     public string Name { get; set; } = string.Empty;
     public int FieldCount { get; set; }
@@ -165,7 +172,7 @@ public class ImportTemplateDto
     public string Format { get; set; } = string.Empty;
 }
 
-public class ImportFieldMappingDto
+public class ImportFieldMappingDisplayItem
 {
     public string SourceColumn { get; set; } = string.Empty;
     public string TargetField { get; set; } = string.Empty;

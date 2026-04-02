@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MesTech.Avalonia.Controls.SkeletonLoader"
+             x:Name="Root">
+
+  <!--
+    SkeletonLoader — Shimmer/pulse placeholder for data loading state.
+    Usage:
+      <controls:SkeletonLoader IsVisible="{Binding IsLoading}" Lines="4" ShowChart="True" />
+
+    Replaces the boring "Yükleniyor..." spinner with realistic content placeholders.
+    [ENT-DEV2]
+  -->
+
+  <UserControl.Styles>
+    <Style Selector="Border.skeleton-line">
+      <Setter Property="Background" Value="{DynamicResource MesBgMist}" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Height" Value="14" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Style.Animations>
+        <Animation Duration="0:0:1.5" IterationCount="INFINITE" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0.4" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0.8" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Border.skeleton-block">
+      <Setter Property="Background" Value="{DynamicResource MesBgMist}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Opacity" Value="0.6" />
+      <Style.Animations>
+        <Animation Duration="0:0:1.8" IterationCount="INFINITE" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0.3" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0.7" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Spacing="16" Margin="24" MaxWidth="800" HorizontalAlignment="Left">
+
+    <!-- KPI Row Skeleton (4 cards) -->
+    <Grid ColumnDefinitions="*,*,*,*" IsVisible="{Binding #Root.ShowKpi}">
+      <Border Grid.Column="0" Classes="skeleton-block" Height="80" Margin="0,0,8,0" />
+      <Border Grid.Column="1" Classes="skeleton-block" Height="80" Margin="4,0" />
+      <Border Grid.Column="2" Classes="skeleton-block" Height="80" Margin="4,0" />
+      <Border Grid.Column="3" Classes="skeleton-block" Height="80" Margin="8,0,0,0" />
+    </Grid>
+
+    <!-- Chart Skeleton -->
+    <Border Classes="skeleton-block" Height="200" IsVisible="{Binding #Root.ShowChart}" />
+
+    <!-- Table Header Skeleton -->
+    <Grid ColumnDefinitions="2*,*,*,*,80">
+      <Border Grid.Column="0" Classes="skeleton-line" Height="12" Margin="0,0,8,0" />
+      <Border Grid.Column="1" Classes="skeleton-line" Height="12" Margin="4,0" />
+      <Border Grid.Column="2" Classes="skeleton-line" Height="12" Margin="4,0" />
+      <Border Grid.Column="3" Classes="skeleton-line" Height="12" Margin="4,0" />
+      <Border Grid.Column="4" Classes="skeleton-line" Height="12" Margin="8,0,0,0" />
+    </Grid>
+
+    <!-- Table Row Skeletons -->
+    <StackPanel Spacing="10">
+      <Grid ColumnDefinitions="2*,*,*,*,80">
+        <Border Grid.Column="0" Classes="skeleton-line" Margin="0,0,8,0" />
+        <Border Grid.Column="1" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="2" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="3" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="4" Classes="skeleton-line" Margin="8,0,0,0" />
+      </Grid>
+      <Grid ColumnDefinitions="2*,*,*,*,80">
+        <Border Grid.Column="0" Classes="skeleton-line" Width="180" HorizontalAlignment="Left" Margin="0,0,8,0" />
+        <Border Grid.Column="1" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="2" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="3" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="4" Classes="skeleton-line" Margin="8,0,0,0" />
+      </Grid>
+      <Grid ColumnDefinitions="2*,*,*,*,80">
+        <Border Grid.Column="0" Classes="skeleton-line" Margin="0,0,8,0" />
+        <Border Grid.Column="1" Classes="skeleton-line" Width="60" HorizontalAlignment="Left" Margin="4,0" />
+        <Border Grid.Column="2" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="3" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="4" Classes="skeleton-line" Width="50" HorizontalAlignment="Left" Margin="8,0,0,0" />
+      </Grid>
+      <Grid ColumnDefinitions="2*,*,*,*,80">
+        <Border Grid.Column="0" Classes="skeleton-line" Width="200" HorizontalAlignment="Left" Margin="0,0,8,0" />
+        <Border Grid.Column="1" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="2" Classes="skeleton-line" Width="70" HorizontalAlignment="Left" Margin="4,0" />
+        <Border Grid.Column="3" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="4" Classes="skeleton-line" Margin="8,0,0,0" />
+      </Grid>
+      <Grid ColumnDefinitions="2*,*,*,*,80">
+        <Border Grid.Column="0" Classes="skeleton-line" Margin="0,0,8,0" />
+        <Border Grid.Column="1" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="2" Classes="skeleton-line" Margin="4,0" />
+        <Border Grid.Column="3" Classes="skeleton-line" Width="55" HorizontalAlignment="Left" Margin="4,0" />
+        <Border Grid.Column="4" Classes="skeleton-line" Margin="8,0,0,0" />
+      </Grid>
+    </StackPanel>
+
+  </StackPanel>
+</UserControl>

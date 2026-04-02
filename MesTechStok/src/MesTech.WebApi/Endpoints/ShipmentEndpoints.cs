@@ -1,5 +1,7 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Shipping.Commands.AutoShipOrder;
+using MesTech.Application.Features.Shipping.Commands.PrintShipmentLabel;
 using MesTech.Application.Features.Shipping.Queries.DownloadShipmentLabel;
 
 namespace MesTech.WebApi.Endpoints;
@@ -36,10 +38,27 @@ public static class ShipmentEndpoints
                 new DownloadShipmentLabelQuery(tenantId, id, Format: format ?? "PDF"), ct);
             if (result.LabelData.Length == 0)
                 return Results.Problem(detail: "Label data empty", statusCode: 400);
-            return Results.File(result.LabelData, result.ContentType, result.FileName);
+            return Results.File(result.LabelData.ToArray(), result.ContentType, result.FileName);
         })
         .WithName("DownloadShipmentLabel")
         .WithSummary("Kargo etiketi indir — PDF veya PNG formatında")
         .Produces(200).Produces(400);
+
+        // POST /api/v1/shipments/{id}/print — kargo etiketi yazdır (G564)
+        group.MapPost("/{id:guid}/print", async (
+            Guid id,
+            Guid tenantId,
+            string? printerName,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new PrintShipmentLabelCommand(tenantId, id, printerName), ct);
+            return result.IsSuccess
+                ? Results.Ok(new StatusResponse("printed", $"Label sent to printer"))
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("PrintShipmentLabel")
+        .WithSummary("Kargo etiketi yazıcıya gönder")
+        .Produces<StatusResponse>(200).Produces(400);
     }
 }

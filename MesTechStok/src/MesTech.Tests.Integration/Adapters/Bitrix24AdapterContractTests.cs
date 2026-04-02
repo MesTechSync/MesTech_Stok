@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Integration.Webhooks;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -53,7 +54,10 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
     private Bitrix24Adapter CreateAdapter()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl + "/rest/") };
-        return new Bitrix24Adapter(httpClient, NullLogger<Bitrix24Adapter>.Instance);
+        var authHttpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl + "/") };
+        var mockFactory = new Mock<IHttpClientFactory>();
+        mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(authHttpClient);
+        return new Bitrix24Adapter(httpClient, NullLogger<Bitrix24Adapter>.Instance, mockFactory.Object);
     }
 
     // ════════════════════════════════════════════════════════════════

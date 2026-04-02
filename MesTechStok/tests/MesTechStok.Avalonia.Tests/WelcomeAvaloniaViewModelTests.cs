@@ -1,7 +1,5 @@
 using FluentAssertions;
-using MediatR;
 using MesTech.Avalonia.ViewModels;
-using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -9,9 +7,7 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class WelcomeAvaloniaViewModelTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private WelcomeAvaloniaViewModel CreateSut() => new(_mediatorMock.Object);
+    private WelcomeAvaloniaViewModel CreateSut() => new();
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

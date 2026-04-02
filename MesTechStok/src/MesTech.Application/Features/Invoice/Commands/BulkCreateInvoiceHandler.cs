@@ -70,6 +70,7 @@ public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoice
                 _logger.LogInformation("BulkCreate: Invoice {Number} for Order {OrderNumber} (OrderId={OrderId})",
                     invoiceNumber, order.OrderNumber, orderId);
             }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
             catch (Exception ex)
             {
                 failCount++;
@@ -82,6 +83,7 @@ public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoice
 
                 _logger.LogError(ex, "BulkCreate failed for OrderId={OrderId}", orderId);
             }
+#pragma warning restore CA1031
         }
 
         if (successCount > 0)

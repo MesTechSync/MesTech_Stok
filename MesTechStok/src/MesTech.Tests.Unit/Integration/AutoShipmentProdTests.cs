@@ -64,13 +64,17 @@ public class AutoShipmentProdTests
 
     private void SetupOrder(PlatformType? platform = PlatformType.Trendyol, string? customerName = "Ali Yilmaz")
     {
+        var order = new Order
+        {
+            CustomerName = customerName,
+            SourcePlatform = platform
+        };
         _orderRepoMock
             .Setup(r => r.GetByIdAsync(_orderId))
-            .ReturnsAsync(new Order
-            {
-                CustomerName = customerName,
-                SourcePlatform = platform
-            });
+            .ReturnsAsync(order);
+        _orderRepoMock
+            .Setup(r => r.GetByIdAsync(_orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(order);
     }
 
     private void SetupSelector(CargoProvider provider = CargoProvider.YurticiKargo)
@@ -420,9 +424,12 @@ public class AutoShipmentProdTests
     [Fact]
     public async Task ProcessOrderAsync_OrderNotFound_ReturnsFailed()
     {
-        // Arrange — repository returns null
+        // Arrange — repository returns null (both overloads)
         _orderRepoMock
             .Setup(r => r.GetByIdAsync(_orderId))
+            .ReturnsAsync((Order?)null);
+        _orderRepoMock
+            .Setup(r => r.GetByIdAsync(_orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Order?)null);
 
         var sut = CreateSut();

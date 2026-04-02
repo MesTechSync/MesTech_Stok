@@ -4,6 +4,7 @@ using MesTech.Domain.Entities;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -38,20 +39,28 @@ public class TrendyolAdapterContractTests : IClassFixture<WireMockFixture>, IDis
         _logger = new LoggerFactory().CreateLogger<TrendyolAdapter>();
     }
 
+    private IOptions<TrendyolOptions> CreateOptions(int? httpTimeoutSeconds = null)
+    {
+        var opts = new TrendyolOptions
+        {
+            ProductionBaseUrl = _fixture.BaseUrl,
+            UseSandbox = false
+        };
+        if (httpTimeoutSeconds.HasValue)
+            opts.HttpTimeoutSeconds = httpTimeoutSeconds.Value;
+        return Options.Create(opts);
+    }
+
     private TrendyolAdapter CreateAdapter()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
-        return new TrendyolAdapter(httpClient, _logger);
+        var httpClient = new HttpClient();
+        return new TrendyolAdapter(httpClient, _logger, CreateOptions());
     }
 
     private TrendyolAdapter CreateAdapterWithTimeout(TimeSpan timeout)
     {
-        var httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_fixture.BaseUrl),
-            Timeout = timeout
-        };
-        return new TrendyolAdapter(httpClient, _logger);
+        var httpClient = new HttpClient();
+        return new TrendyolAdapter(httpClient, _logger, CreateOptions((int)timeout.TotalSeconds));
     }
 
     /// <summary>

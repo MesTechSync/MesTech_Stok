@@ -15,16 +15,16 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public sealed class LeadConvertedBridgeHandler : INotificationHandler<DomainEventNotification<LeadConvertedEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<LeadConvertedBridgeHandler> _logger;
 
     public LeadConvertedBridgeHandler(
-        IMesaEventPublisher mesaPublisher, AppDbContext context, ITenantProvider tenantProvider,
+        IMesaEventPublisher mesaPublisher, IDbContextFactory<AppDbContext> contextFactory, ITenantProvider tenantProvider,
         ILogger<LeadConvertedBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
-        _context = context;
+        _contextFactory = contextFactory;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -35,7 +35,9 @@ public sealed class LeadConvertedBridgeHandler : INotificationHandler<DomainEven
     {
         var e = notification.DomainEvent;
 
-        var lead = await _context.Set<Lead>()
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+
+        var lead = await context.Set<Lead>()
             .AsNoTracking()
             .FirstOrDefaultAsync(l => l.Id == e.LeadId, cancellationToken).ConfigureAwait(false);
 

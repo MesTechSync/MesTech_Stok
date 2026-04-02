@@ -1,4 +1,4 @@
-using MesTech.Application.DTOs;
+﻿using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Prometheus;
@@ -115,7 +115,7 @@ public static class HealthEndpoints
 
             // 3. MESA OS status
             HealthCheckItem mesaCheck;
-            var mesaUrl = configuration["Mesa:BaseUrl"] ?? "http://mestech-mesa:3105";
+            var mesaUrl = configuration["Mesa:BaseUrl"] ?? "https://mestech-mesa:3105";
             try
             {
                 using var http = httpClientFactory.CreateClient("MesaHealth");
@@ -231,7 +231,34 @@ public static class HealthEndpoints
         .AllowAnonymous()
         .RequireRateLimiting("HealthRateLimit")
         .Produces(200);
+
+        // GET /api/health/adapters — adapter connectivity report (G10800-DEV6)
+        app.MapGet("/api/health/adapters", async (
+            MesTech.Infrastructure.Integration.Orchestration.AdapterConnectivityValidator validator,
+            CancellationToken ct) =>
+        {
+            var report = await validator.ValidateAllAsync(ct);
+            return Results.Ok(new AdapterConnectivityResponse(
+                report.TotalCount, report.ReachableCount, report.UnreachableCount,
+                report.AllReachable, report.TotalElapsed.TotalMilliseconds,
+                report.Results.Select(r => new AdapterPingResponse(
+                    r.PlatformCode, r.IsReachable,
+                    r.ResponseTime.TotalMilliseconds, r.Error)).ToList()));
+        })
+        .WithName("GetAdapterConnectivity")
+        .WithSummary("Adapter connectivity report — all platform ping results (G10800)")
+        .WithTags("Health")
+        .RequireAuthorization()
+        .RequireRateLimiting("HealthRateLimit")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
     }
 
     private sealed record HealthCheckItem(string Name, bool IsHealthy, double DurationMs, string? Error);
+    public sealed record AdapterConnectivityResponse(
+        int TotalAdapters, int Reachable, int Unreachable,
+        bool AllHealthy, double TotalElapsedMs,
+        IReadOnlyList<AdapterPingResponse> Adapters);
+    public sealed record AdapterPingResponse(
+        string Platform, bool IsReachable, double ResponseTimeMs, string? Error);
 }

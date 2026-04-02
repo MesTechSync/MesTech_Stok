@@ -1,5 +1,7 @@
+using Hangfire;
 using MediatR;
 using MesTech.Application.Features.Notifications.Commands.SendNotification;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Events;
 using MesTech.Domain.Events.Calendar;
@@ -1102,18 +1104,32 @@ public sealed class ProfitReportGeneratedBridgeHandler
 #region Platform & CRM Orphan Events [ENT-DEV1]
 
 /// <summary>
-/// PlatformNotificationFailedEvent → Platform kargo bildirimi başarısız loglama + bildirim.
-/// Hangfire retry tetikleyici.
+/// PlatformNotificationFailedEvent → Platform kargo bildirimi başarısız loglama + bildirim + Hangfire retry.
+/// Max 3 retry (5/15/30 dk). ProcessOrderAsync tekrar cagirilir — basarisisz olursa event tekrar fire eder.
+/// DEV3 TUR2: Hangfire retry mantigi eklendi.
 /// </summary>
 public sealed class PlatformNotificationFailedBridgeHandler
     : INotificationHandler<DomainEventNotification<PlatformNotificationFailedEvent>>
 {
+    private const int MaxRetryCount = 3;
+    private static readonly TimeSpan[] RetryDelays =
+    [
+        TimeSpan.FromMinutes(5),
+        TimeSpan.FromMinutes(15),
+        TimeSpan.FromMinutes(30)
+    ];
+
     private readonly IMediator _mediator;
+    private readonly IBackgroundJobClient _backgroundJobs;
     private readonly ILogger<PlatformNotificationFailedBridgeHandler> _logger;
 
-    public PlatformNotificationFailedBridgeHandler(IMediator mediator, ILogger<PlatformNotificationFailedBridgeHandler> logger)
+    public PlatformNotificationFailedBridgeHandler(
+        IMediator mediator,
+        IBackgroundJobClient backgroundJobs,
+        ILogger<PlatformNotificationFailedBridgeHandler> logger)
     {
         _mediator = mediator;
+        _backgroundJobs = backgroundJobs;
         _logger = logger;
     }
 
@@ -1123,6 +1139,25 @@ public sealed class PlatformNotificationFailedBridgeHandler
         _logger.LogWarning(
             "[Event] PlatformNotificationFailed — OrderId={OrderId}, Platform={Platform}, Tracking={Tracking}, Cargo={Cargo}, Error={Error}, Retry={Retry}",
             e.OrderId, e.PlatformCode, e.TrackingNumber, e.CargoProvider, e.ErrorMessage, e.RetryCount);
+
+        // Hangfire retry — siparisi tekrar isle, platform bildirimi otomatik denenir
+        if (e.RetryCount < MaxRetryCount)
+        {
+            var delay = RetryDelays[e.RetryCount];
+            _backgroundJobs.Schedule<IAutoShipmentService>(
+                svc => svc.ProcessOrderAsync(e.OrderId, CancellationToken.None),
+                delay);
+
+            _logger.LogInformation(
+                "[Event] PlatformNotificationFailed retry scheduled — OrderId={OrderId}, Attempt={Attempt}, Delay={Delay}min",
+                e.OrderId, e.RetryCount + 1, delay.TotalMinutes);
+        }
+        else
+        {
+            _logger.LogError(
+                "[Event] PlatformNotificationFailed MAX RETRY ({Max}) — OrderId={OrderId}, Platform={Platform}. Manuel mudahale gerekli.",
+                MaxRetryCount, e.OrderId, e.PlatformCode);
+        }
 
         try
         {
@@ -1136,7 +1171,7 @@ public sealed class PlatformNotificationFailedBridgeHandler
                          $"Sipariş: {e.OrderId}\n" +
                          $"Takip: {e.TrackingNumber}\n" +
                          $"Hata: {e.ErrorMessage}\n" +
-                         $"Deneme: {e.RetryCount}"), ct).ConfigureAwait(false);
+                         $"Deneme: {e.RetryCount}/{MaxRetryCount}"), ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

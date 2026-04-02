@@ -50,10 +50,11 @@ public class OrderConfirmedRevenueHandlerTests
     [Fact]
     public async Task HandleAsync_ZeroAmount_StillCreatesRecord()
     {
+        // Handler skips income creation when totalAmount <= 0 (guard clause)
         var act = () => _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-002", 0m, null, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Once);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Never);
     }
 }
 
@@ -124,8 +125,8 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_ProductNotFound_SkipsAndContinues()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((MesTech.Domain.Entities.Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Domain.Entities.Product>());
 
         var lines = new List<ReturnLineInfoEvent>
         {
@@ -141,6 +142,9 @@ public class ReturnApprovedStockRestorationHandlerTests
     [Fact]
     public async Task HandleAsync_EmptyLines_SavesWithoutError()
     {
+        _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Domain.Entities.Product>());
+
         var lines = new List<ReturnLineInfoEvent>();
 
         var act = () => _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), lines, CancellationToken.None);

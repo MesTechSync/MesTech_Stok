@@ -154,8 +154,9 @@ public class CommissionCalculationServiceTests
         var service = new CommissionCalculationService();
         var result = await service.CalculateCommissionAsync("UnknownPlatform", null, 100m);
 
-        result.Rate.Should().Be(0.15m);
-        result.Amount.Should().Be(15m);
+        // Unknown platform returns 0 rate — explicit registration in _fallbackRates is required
+        result.Rate.Should().Be(0m);
+        result.Amount.Should().Be(0m);
         result.Source.Should().Be("StaticFallback");
     }
 

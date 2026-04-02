@@ -30,6 +30,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string syncStatus = "Bekliyor";
     [ObservableProperty] private string lastSyncTime = "-";
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
 
     // ── WPF013: Connection Panel ──────────────────────────────────────────────
     [ObservableProperty] private string connectionStatusText = "Bağlantı test edilmedi";
@@ -50,6 +51,8 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
     // ── WPF013: Quick Action results ─────────────────────────────────────────
     [ObservableProperty] private string quickActionStatus = string.Empty;
     [ObservableProperty] private bool isQuickActionRunning;
+
+    private readonly List<PlatformOrderItem> _allOrders = [];
 
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
     public ObservableCollection<ApiCallLogItem> ApiCallLogs { get; } = [];
@@ -75,11 +78,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             DailyRevenue = result.DailyRevenue;
             SyncStatus = result.SyncStatus;
             LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
-            RecentOrders.Clear();
+            _allOrders.Clear();
             foreach (var o in result.RecentOrders)
-                RecentOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
-            TotalCount = RecentOrders.Count;
-            IsEmpty = RecentOrders.Count == 0;
+                _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+            ApplyFilter();
         }
         catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }
         catch (Exception ex)
@@ -208,10 +210,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             sw.Stop();
             int duration = (int)sw.ElapsedMilliseconds;
 
-            RecentOrders.Clear();
+            _allOrders.Clear();
             foreach (var o in result.RecentOrders)
             {
-                RecentOrders.Add(new PlatformOrderItem(
+                _allOrders.Add(new PlatformOrderItem(
                     o.OrderNumber,
                     o.OrderDate.ToString("dd.MM.yyyy HH:mm"),
                     o.CustomerName,
@@ -219,9 +221,8 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
                     o.Status));
             }
 
-            TotalCount = RecentOrders.Count;
             OrderCount = result.OrderCount;
-            IsEmpty = RecentOrders.Count == 0;
+            ApplyFilter();
             QuickActionStatus = $"{RecentOrders.Count} sipariş çekildi (toplam {result.OrderCount}) — {duration} ms";
             AddLog("GET", "/order/sellers/{sellerId}/orders?status=Created&size=5", "200 OK", duration);
         }
@@ -241,10 +242,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
     // ── Existing commands ────────────────────────────────────────────────────
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task Sync()
+    private Task Sync()
     {
         IsLoading = true;
         try
@@ -262,6 +263,24 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
+    }
+
+    // ── Search Filter ────────────────────────────────────────────────────────
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        RecentOrders.Clear();
+        var filtered = _allOrders.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(o =>
+                o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered) RecentOrders.Add(item);
+        TotalCount = RecentOrders.Count;
+        IsEmpty = RecentOrders.Count == 0;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

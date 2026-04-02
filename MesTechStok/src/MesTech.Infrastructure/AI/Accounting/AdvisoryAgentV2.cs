@@ -64,7 +64,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
 
         var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
-        _httpClient.Timeout = TimeSpan.FromSeconds(30); // AI advisory can be slow
+        _httpClient.Timeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("Mesa:Advisory:TimeoutSeconds", 30));
     }
 
     public async Task<DailySalesAdvice> GenerateSalesAdviceAsync(

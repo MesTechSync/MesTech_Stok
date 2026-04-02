@@ -523,15 +523,23 @@ public class CiceksepetiAdapterContractTests : IClassFixture<WireMockFixture>, I
     [Fact]
     public async Task GetCategoriesAsync_ReturnsEmptyList()
     {
-        // Arrange — no WireMock stub needed, Ciceksepeti returns empty list directly
+        // Arrange — GetCategoriesAsync now calls /api/v1/Category
         var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/api/v1/Categories")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"{""totalCount"":0,""categories"":[]}"));
 
         // Act
         var categories = await adapter.GetCategoriesAsync();
 
         // Assert
         categories.Should().BeEmpty();
-        _mockServer.LogEntries.Should().BeEmpty();
     }
 
     // ══════════════════════════════════════

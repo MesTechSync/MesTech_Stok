@@ -15,7 +15,7 @@ public record ExportOrdersCommand(
 public sealed class ExportOrdersResult
 {
     public bool IsSuccess { get; set; }
-    public byte[]? FileContent { get; set; }
+    public ReadOnlyMemory<byte>? FileContent { get; set; }
     public string FileName { get; set; } = string.Empty;
     public int ExportedCount { get; set; }
     public string? ErrorMessage { get; set; }

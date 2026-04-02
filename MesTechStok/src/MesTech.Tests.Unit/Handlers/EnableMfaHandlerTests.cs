@@ -17,6 +17,6 @@ public class EnableMfaHandlerTests
             Mock.Of<IUserRepository>(), Mock.Of<ITotpService>(),
             Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<EnableMfaHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

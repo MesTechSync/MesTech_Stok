@@ -42,7 +42,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
         _currentUser = currentUser;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -71,6 +71,7 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Etiket verisi yuklenemedi: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -121,5 +122,5 @@ public partial class LabelPreviewAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }

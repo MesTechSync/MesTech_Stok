@@ -32,6 +32,7 @@ public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, Tri
                 JobId = jobId
             });
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to trigger sync for {Platform}", request.PlatformCode);
@@ -41,5 +42,6 @@ public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, Tri
                 ErrorMessage = ex.Message
             });
         }
+#pragma warning restore CA1031
     }
 }

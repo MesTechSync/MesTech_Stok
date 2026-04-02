@@ -44,6 +44,12 @@
                 <TextBlock Text="Yükleniyor..." IsVisible="{Binding IsLoading}"
                            Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" Margin="0,40" />
 
+                <!-- Empty State -->
+                <Border IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" Padding="0,20">
+                    <TextBlock Text="Baslangic verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                               HorizontalAlignment="Center" Opacity="0.6" />
+                </Border>
+
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                         CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1" Margin="0,0,0,8">
@@ -174,7 +180,8 @@
                 <Button Grid.Column="2" Content="Devam Et" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource BetweenConverter}, ConverterParameter=2-6}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6" />
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        ToolTip.Tip="Sonraki adima devam et" />
 
                 <!-- Step 7: Go to Dashboard -->
                 <Button Grid.Column="2" Content="Dashboard'a Git" Command="{Binding NextStepCommand}"

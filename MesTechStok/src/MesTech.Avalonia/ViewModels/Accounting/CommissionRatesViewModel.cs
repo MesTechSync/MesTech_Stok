@@ -16,6 +16,10 @@ public partial class CommissionRatesViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
 
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<CommissionRateItem> _allItems = [];
+
     public ObservableCollection<CommissionRateItem> CommissionRates { get; } = [];
 
     public CommissionRatesViewModel(IMediator mediator, ITenantProvider tenantProvider)
@@ -28,14 +32,14 @@ public partial class CommissionRatesViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async () =>
         {
-            CommissionRates.Clear();
+            _allItems.Clear();
 
             var result = await _mediator.Send(
                 new GetPlatformCommissionRatesQuery(_tenantProvider.GetCurrentTenantId()));
 
             foreach (var c in result)
             {
-                CommissionRates.Add(new(
+                _allItems.Add(new(
                     c.Platform,
                     c.Rate,
                     c.MinAmount ?? 0m,
@@ -43,8 +47,22 @@ public partial class CommissionRatesViewModel : ViewModelBase
                     c.EffectiveTo?.ToString("dd.MM.yyyy") ?? "-"));
             }
 
-            IsEmpty = CommissionRates.Count == 0;
+            ApplyFilter();
         }, "Komisyon oranları");
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        CommissionRates.Clear();
+        var filtered = _allItems.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(r =>
+                r.PlatformName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered)
+            CommissionRates.Add(item);
+        IsEmpty = CommissionRates.Count == 0;
     }
 
     [RelayCommand]

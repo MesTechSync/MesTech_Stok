@@ -77,10 +77,12 @@ public sealed class UploadDocumentHandler : IRequestHandler<UploadDocumentComman
 
             return UploadDocumentResult.Success(document.Id, storagePath);
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogError(ex, "Document upload failed: {FileName}", request.FileName);
             return UploadDocumentResult.Failure($"Yukleme hatasi: {ex.Message}");
         }
+#pragma warning restore CA1031
     }
 }

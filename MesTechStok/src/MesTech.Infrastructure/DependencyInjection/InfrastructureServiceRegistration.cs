@@ -94,6 +94,16 @@ public static class InfrastructureServiceRegistration
                 sp.GetRequiredService<SlowQueryInterceptor>());
         });
 
+        // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
+        // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        services.AddDbContextFactory<AppDbContext>((sp, options) =>
+        {
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(3);
+            });
+        }, ServiceLifetime.Singleton);
+
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
@@ -337,6 +347,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<DemoDataSeeder>();
         services.AddScoped<AhmetBeyDemoSeeder>();
         services.AddScoped<Services.DemoModeService>();
+        services.AddScoped<Application.Interfaces.IDemoModeService>(sp => sp.GetRequiredService<Services.DemoModeService>());
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
@@ -406,6 +417,7 @@ public static class InfrastructureServiceRegistration
                 .Build();
         });
         services.AddScoped<Application.Interfaces.IDocumentStorageService, MinioDocumentStorageService>();
+        services.AddScoped<Application.Interfaces.IFeedStorageService, MinioFeedStorageService>();
 
         // === Label Print Service (barcode/product label generation) ===
         services.AddScoped<ILabelPrintService, LabelPrintService>();
@@ -636,6 +648,16 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.ReturnApprovedRefundHandler>();
         services.AddScoped<Application.EventHandlers.IZeroStockEventHandler,
             Application.EventHandlers.ZeroStockDetectedEventHandler>();
+        services.AddScoped<Application.EventHandlers.IOversellingAttemptedEventHandler,
+            Application.EventHandlers.OversellingAttemptedEventHandler>();
+
+        // Background job + SocialFeed config:
+        services.AddSingleton<Domain.Interfaces.IBackgroundJobService,
+            Services.HangfireBackgroundJobService>();
+        services.AddScoped<Domain.Interfaces.ISocialFeedConfigurationRepository,
+            Persistence.Repositories.SocialFeedConfigurationRepository>();
+        services.Configure<Integration.Feed.FeedOptions>(
+            configuration.GetSection("Feed"));
 
         // Muhasebe GL handler'lar (repo-enriched bridges):
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,

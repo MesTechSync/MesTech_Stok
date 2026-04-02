@@ -20,13 +20,13 @@ public sealed class GetAppHubDataHandler
     }
 
     public async Task<AppHubDataDto> Handle(
-        GetAppHubDataQuery request, CancellationToken ct)
+        GetAppHubDataQuery request, CancellationToken cancellationToken)
     {
-        var productTask = _mediator.Send(new GetProductDbStatusQuery(), ct);
-        var inventoryTask = _mediator.Send(new GetInventoryStatisticsQuery(), ct);
-        var invoiceTask = _mediator.Send(new GetPendingInvoicesQuery(request.TenantId), ct);
-        var healthTask = _mediator.Send(new GetServiceHealthQuery(), ct);
-        var orderCountTask = _orderRepo.GetCountAsync();
+        var productTask = _mediator.Send(new GetProductDbStatusQuery(), cancellationToken);
+        var inventoryTask = _mediator.Send(new GetInventoryStatisticsQuery(), cancellationToken);
+        var invoiceTask = _mediator.Send(new GetPendingInvoicesQuery(request.TenantId), cancellationToken);
+        var healthTask = _mediator.Send(new GetServiceHealthQuery(), cancellationToken);
+        var orderCountTask = _orderRepo.GetCountAsync(cancellationToken);
 
         await Task.WhenAll(productTask, inventoryTask, invoiceTask, healthTask, orderCountTask).ConfigureAwait(false);
 

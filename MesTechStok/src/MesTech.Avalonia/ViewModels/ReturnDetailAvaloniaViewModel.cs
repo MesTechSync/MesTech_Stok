@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -20,6 +21,10 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
 
     private Guid _returnId;
+
+    [ObservableProperty] private string searchText = string.Empty;
+    private List<ReturnSummaryItemDto> _allReturns = [];
+    public ObservableCollection<ReturnSummaryItemDto> Returns { get; } = [];
 
     // Return info
     [ObservableProperty] private string iadeNo = string.Empty;
@@ -57,7 +62,20 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         IsEmpty = false;
         try
         {
-            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 1));
+            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 100));
+
+            _allReturns = returns.Select(r => new ReturnSummaryItemDto
+            {
+                Id = r.Id,
+                IadeNo = r.Id.ToString()[..8].ToUpperInvariant(),
+                SiparisNo = r.OrderNumber ?? string.Empty,
+                Sebep = r.Reason ?? string.Empty,
+                Durum = r.Status,
+                Tutar = r.RefundAmount,
+                TalepTarihi = r.CreatedAt
+            }).ToList();
+
+            ApplyFilter();
 
             if (returns.Count > 0)
             {
@@ -149,8 +167,41 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
         finally { IsLoading = false; }
     }
 
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        Returns.Clear();
+
+        var filtered = _allReturns.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(r =>
+                r.SiparisNo.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.Sebep.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.Durum.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.IadeNo.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (var item in filtered)
+            Returns.Add(item);
+
+        IsEmpty = Returns.Count == 0 && _allReturns.Count == 0;
+    }
+
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+}
+
+public class ReturnSummaryItemDto
+{
+    public Guid Id { get; set; }
+    public string IadeNo { get; set; } = string.Empty;
+    public string SiparisNo { get; set; } = string.Empty;
+    public string Sebep { get; set; } = string.Empty;
+    public string Durum { get; set; } = string.Empty;
+    public decimal Tutar { get; set; }
+    public DateTime TalepTarihi { get; set; }
 }
 
 public class ReturnTimelineStepDto : ObservableObject

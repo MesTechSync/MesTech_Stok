@@ -56,19 +56,20 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task TestConnection(string providerName)
+    private Task TestConnection(string providerName)
     {
         TestingProvider = providerName;
         var provider = Providers.FirstOrDefault(p => p.Name == providerName);
-        if (provider is null) return;
+        if (provider is null) return Task.CompletedTask;
 
         provider.LastTestResult = "Basarili";
         provider.LastTestDate = DateTime.Now;
         TestingProvider = string.Empty;
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }
 
 public class ProviderCardItem : ObservableObject

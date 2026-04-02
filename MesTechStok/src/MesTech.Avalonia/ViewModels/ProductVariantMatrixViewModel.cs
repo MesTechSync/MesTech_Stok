@@ -56,33 +56,21 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            // Load demo attribute groups
-            var colorGroup = new AttributeGroupDto { Name = "Renk" };
-            colorGroup.Values.Add(new AttributeValueDto { Value = "Siyah" });
-            colorGroup.Values.Add(new AttributeValueDto { Value = "Beyaz" });
-            colorGroup.Values.Add(new AttributeValueDto { Value = "Mor" });
-            Attributes.Add(colorGroup);
-
-            var sizeGroup = new AttributeGroupDto { Name = "Hafiza" };
-            sizeGroup.Values.Add(new AttributeValueDto { Value = "256 GB" });
-            sizeGroup.Values.Add(new AttributeValueDto { Value = "512 GB" });
-            sizeGroup.Values.Add(new AttributeValueDto { Value = "1 TB" });
-            Attributes.Add(sizeGroup);
-
+            Attributes.Clear();
+            Variants.Clear();
             UpdateCanGenerate();
-
-            // Auto-generate demo variants
-            GenerateVariants();
         }
         finally
         {
             IsLoading = false;
+            IsEmpty = true;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -131,10 +119,8 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
             var displayName = string.Join(" / ", combo.Select(c => c.Value));
             var skuSuffix = string.Join("-", combo.Select(c => c.Value.Replace(" ", "").Substring(0, Math.Min(3, c.Value.Replace(" ", "").Length)).ToUpperInvariant()));
 
-            // Mock realistic stock/price data
-            var stock = (index * 7 + 3) % 50;
-            var price = 64999.00m + (index - 1) * 5000m;
-            if (index % 4 == 0) stock = 0; // some out-of-stock
+            var stock = 0;
+            var price = 0m;
 
             Variants.Add(new VariantRowDto
             {
@@ -153,7 +139,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAllAsync()
+    private Task SaveAllAsync()
     {
         IsLoading = true;
         try
@@ -164,6 +150,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -209,7 +196,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SendToPlatformAsync()
+    private Task SendToPlatformAsync()
     {
         IsLoading = true;
         try
@@ -219,6 +206,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     private void UpdateCanGenerate()

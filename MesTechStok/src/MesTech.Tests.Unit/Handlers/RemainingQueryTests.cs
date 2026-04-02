@@ -530,7 +530,7 @@ public class RemainingQueryTests
     public async Task InventoryValuationReportHandler_EmptyProducts_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetAllAsync())
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = new InventoryValuationReportHandler(repo.Object);
@@ -591,9 +591,9 @@ public class RemainingQueryTests
         var movementRepo = new Mock<IStockMovementRepository>();
         var productRepo = new Mock<IProductRepository>();
 
-        movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.StockMovement>().AsReadOnly());
-        productRepo.Setup(r => r.GetAllAsync())
+        productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = new StockTurnoverReportHandler(movementRepo.Object, productRepo.Object);

@@ -16,6 +16,7 @@ public sealed class Category : BaseEntity, ITenantEntity
     public string? ImageUrl { get; set; }
     public string? Color { get; set; }
     public string? Icon { get; set; }
+    public string? InternalCategoryPath { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
     public bool ShowInMenu { get; set; } = true;

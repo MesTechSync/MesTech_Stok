@@ -85,7 +85,7 @@ public class GetLowStockProductsHandlerTests
             FakeData.CreateProduct(sku: "LOW-A", stock: 2, minimumStock: 10),
             FakeData.CreateProduct(sku: "LOW-B", stock: 1, minimumStock: 5)
         };
-        _productRepo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetLowStockProductsQuery(), CancellationToken.None);
@@ -96,7 +96,7 @@ public class GetLowStockProductsHandlerTests
     [Fact]
     public async Task Handle_NoLowStockProducts_ShouldReturnEmptyList()
     {
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -108,13 +108,13 @@ public class GetLowStockProductsHandlerTests
     [Fact]
     public async Task Handle_ShouldCallRepositoryOnce()
     {
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
         await handler.Handle(new GetLowStockProductsQuery(), CancellationToken.None);
 
-        _productRepo.Verify(r => r.GetLowStockAsync(), Times.Once);
+        _productRepo.Verify(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -153,7 +153,7 @@ public class GetStockMovementsHandlerTests
         {
             new() { Quantity = 20, Date = new DateTime(2026, 2, 15, 0, 0, 0, DateTimeKind.Utc) }
         };
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to))
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(movements.AsReadOnly());
 
         var handler = CreateHandler();
@@ -166,6 +166,11 @@ public class GetStockMovementsHandlerTests
     [Fact]
     public async Task Handle_NoFilters_ShouldReturnEmpty()
     {
+        // Handler now calls GetRecentAsync when no filters specified
+        _movementRepo.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
+
         var handler = CreateHandler();
         var result = await handler.Handle(new GetStockMovementsQuery(), CancellationToken.None);
 
@@ -191,7 +196,7 @@ public class GetInventoryValueHandlerTests
             FakeData.CreateProduct(stock: 0, purchasePrice: 50m, minimumStock: 5),
             FakeData.CreateProduct(stock: 3, purchasePrice: 200m, minimumStock: 5),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetInventoryValueQuery(), CancellationToken.None);
@@ -206,7 +211,7 @@ public class GetInventoryValueHandlerTests
     [Fact]
     public async Task Handle_NoProducts_ShouldReturnZeros()
     {
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -225,7 +230,7 @@ public class GetInventoryValueHandlerTests
             FakeData.CreateProduct(stock: 0, minimumStock: 5),
             FakeData.CreateProduct(stock: 0, minimumStock: 10),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetInventoryValueQuery(), CancellationToken.None);
@@ -365,15 +370,15 @@ public class GetCategoriesHandlerTests
         {
             new() { Name = "Electronics", Code = "ELEC", IsActive = true }
         };
-        _categoryRepo.Setup(r => r.GetActiveAsync()).ReturnsAsync(categories.AsReadOnly());
+        _categoryRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(categories.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetCategoriesQuery(ActiveOnly: true), CancellationToken.None);
 
         result.Should().HaveCount(1);
         result[0].Name.Should().Be("Electronics");
-        _categoryRepo.Verify(r => r.GetActiveAsync(), Times.Once);
-        _categoryRepo.Verify(r => r.GetAllAsync(), Times.Never);
+        _categoryRepo.Verify(r => r.GetActiveAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _categoryRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -384,19 +389,19 @@ public class GetCategoriesHandlerTests
             new() { Name = "Active", Code = "ACT", IsActive = true },
             new() { Name = "Inactive", Code = "INA", IsActive = false }
         };
-        _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(categories.AsReadOnly());
+        _categoryRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(categories.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetCategoriesQuery(ActiveOnly: false), CancellationToken.None);
 
         result.Should().HaveCount(2);
-        _categoryRepo.Verify(r => r.GetAllAsync(), Times.Once);
+        _categoryRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_EmptyCategories_ShouldReturnEmpty()
     {
-        _categoryRepo.Setup(r => r.GetActiveAsync())
+        _categoryRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Category>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -422,7 +427,7 @@ public class GetSuppliersHandlerTests
         };
         suppliers[0].MarkAsPreferred();
         suppliers[0].AdjustBalance(1000m);
-        _supplierRepo.Setup(r => r.GetActiveAsync()).ReturnsAsync(suppliers.AsReadOnly());
+        _supplierRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetSuppliersQuery(ActiveOnly: true), CancellationToken.None);
@@ -440,19 +445,19 @@ public class GetSuppliersHandlerTests
             new() { Name = "Active", Code = "A", IsActive = true },
             new() { Name = "Passive", Code = "P", IsActive = false }
         };
-        _supplierRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(suppliers.AsReadOnly());
+        _supplierRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetSuppliersQuery(ActiveOnly: false), CancellationToken.None);
 
         result.Should().HaveCount(2);
-        _supplierRepo.Verify(r => r.GetAllAsync(), Times.Once);
+        _supplierRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_Empty_ShouldReturnEmpty()
     {
-        _supplierRepo.Setup(r => r.GetActiveAsync())
+        _supplierRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Supplier>().AsReadOnly());
 
         var handler = CreateHandler();

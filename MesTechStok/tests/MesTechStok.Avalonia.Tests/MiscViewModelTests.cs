@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -56,7 +57,8 @@ public class ExpensesAvaloniaViewModelTests
     {
         var sut = new ExpensesAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -130,7 +132,7 @@ public class DocumentManagerAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new DocumentManagerAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new DocumentManagerAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>(), Mock.Of<IDialogService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -243,7 +245,7 @@ public class MarketplacesAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new MarketplacesAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
+        var sut = new MarketplacesAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>(), Mock.Of<IDialogService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

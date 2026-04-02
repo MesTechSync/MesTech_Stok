@@ -28,9 +28,18 @@ public class AdjustStockValidatorTests
     }
 
     [Fact]
-    public async Task Quantity_WhenNegative_ShouldFail()
+    public async Task Quantity_WhenNegative_ShouldPass()
     {
+        // Stock adjustment allows negative quantities (stock reduction)
         var cmd = CreateValidCommand() with { Quantity = -1 };
+        var result = await _sut.ValidateAsync(cmd);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Quantity_WhenZero_ShouldFail()
+    {
+        var cmd = CreateValidCommand() with { Quantity = 0 };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Quantity");

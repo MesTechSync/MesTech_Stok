@@ -23,7 +23,8 @@ public class StockAvaloniaViewModelTests
     {
         var sut = new StockAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         sut.Title.Should().Be("Stok Yonetimi");
     }
@@ -33,7 +34,8 @@ public class StockAvaloniaViewModelTests
     {
         var sut = new StockAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         var act = async () => await sut.LoadAsync();
         await act.Should().NotThrowAsync();
@@ -44,7 +46,8 @@ public class StockAvaloniaViewModelTests
     {
         var sut = new StockAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
@@ -135,7 +138,8 @@ public class ContactsAvaloniaViewModelTests
     {
         var sut = new ContactsAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         sut.Title.Should().Be("Kisiler");
     }
@@ -145,7 +149,8 @@ public class ContactsAvaloniaViewModelTests
     {
         var sut = new ContactsAvaloniaViewModel(
             Mock.Of<IMediator>(),
-            Mock.Of<ICurrentUserService>());
+            Mock.Of<ICurrentUserService>(),
+            Mock.Of<IDialogService>());
 
         var act = async () => await sut.LoadAsync();
         await act.Should().NotThrowAsync();

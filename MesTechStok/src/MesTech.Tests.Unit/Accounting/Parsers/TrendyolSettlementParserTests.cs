@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class TrendyolSettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly TrendyolSettlementParser _sut;
     private readonly Mock<ILogger<TrendyolSettlementParser>> _loggerMock = new();
 
@@ -64,7 +65,7 @@ public class TrendyolSettlementParserTests
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("Trendyol");
@@ -88,7 +89,7 @@ public class TrendyolSettlementParserTests
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -103,7 +104,7 @@ public class TrendyolSettlementParserTests
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -133,7 +134,7 @@ public class TrendyolSettlementParserTests
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().BeOnOrBefore(batch.PeriodEnd);
     }
@@ -161,7 +162,7 @@ public class TrendyolSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         var lines = await _sut.ParseLinesAsync(batch);
 
@@ -189,7 +190,7 @@ public class TrendyolSettlementParserTests
     [Fact]
     public async Task ParseAsync_WithNullStream_ShouldThrow()
     {
-        var act = async () => await _sut.ParseAsync(null!, "json");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "json");
 
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -225,7 +226,7 @@ public class TrendyolSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(1);
@@ -248,7 +249,7 @@ public class TrendyolSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(600m);
         batch.TotalCommission.Should().Be(90m);

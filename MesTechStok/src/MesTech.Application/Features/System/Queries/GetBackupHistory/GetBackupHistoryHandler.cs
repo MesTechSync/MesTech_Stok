@@ -19,7 +19,7 @@ public sealed class GetBackupHistoryHandler : IRequestHandler<GetBackupHistoryQu
     {
         _logger.LogDebug("Backup history sorgulanıyor — TenantId={TenantId}", request.TenantId);
 
-        var entries = await _repo.GetByTenantAsync(request.TenantId, request.Limit, cancellationToken);
+        var entries = await _repo.GetByTenantAsync(request.TenantId, request.Limit, cancellationToken).ConfigureAwait(false);
 
         return entries
             .OrderByDescending(e => e.CreatedAt)

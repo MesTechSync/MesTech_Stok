@@ -1913,6 +1913,9 @@ public sealed class ShopifyOptions
 
     /// <summary>HTTP client timeout in seconds.</summary>
     public int HttpTimeoutSeconds { get; set; } = 30;
+
+    /// <summary>Max concurrent API requests (SemaphoreSlim limit). Override via config.</summary>
+    public int MaxConcurrentRequests { get; set; } = 4;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

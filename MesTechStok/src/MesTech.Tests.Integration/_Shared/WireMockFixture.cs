@@ -16,6 +16,11 @@ public class WireMockFixture : IDisposable
         Server = WireMockServer.Start();
     }
 
+    public HttpClient CreateClient()
+    {
+        return new HttpClient { BaseAddress = new Uri(BaseUrl) };
+    }
+
     public void Reset()
     {
         Server.Reset();

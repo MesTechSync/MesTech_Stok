@@ -2,6 +2,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.Feed;
 
@@ -16,8 +17,9 @@ public sealed class InstagramShopFeedAdapter : FacebookShopFeedAdapter
 
     public InstagramShopFeedAdapter(
         AppDbContext dbContext,
-        ILogger<InstagramShopFeedAdapter> logger)
-        : base(dbContext, logger)
+        ILogger<InstagramShopFeedAdapter> logger,
+        IOptions<FeedOptions>? feedOptions = null)
+        : base(dbContext, logger, feedOptions)
     {
     }
 }

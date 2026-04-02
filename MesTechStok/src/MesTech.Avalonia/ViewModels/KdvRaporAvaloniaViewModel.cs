@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetKdvDeclarationDraft;
 using MesTech.Application.Features.Accounting.Queries.GetKdvReport;
 using MesTech.Application.Features.Accounting.Queries.GetWithholdingRates;
 using MesTech.Domain.Interfaces;
@@ -91,6 +92,9 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
                 WithholdingRateCount = rates.Count;
             }
             catch { WithholdingRateCount = 0; }
+
+            // G540: KDV declaration draft
+            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}")); } catch { }
 
             ApplyFilters();
         }

@@ -473,15 +473,15 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_BudgetPlan_IsDeleted");
+                        .HasDatabaseName("IX_BudgetPlans_IsDeleted");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_BudgetPlan_TenantId");
+                        .HasDatabaseName("IX_BudgetPlans_TenantId");
 
                     b.HasIndex("TenantId", "Period")
                         .HasDatabaseName("IX_BudgetPlans_Tenant_Period");
 
-                    b.ToTable("BudgetPlan");
+                    b.ToTable("BudgetPlans");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Accounting.Entities.CargoExpense", b =>
@@ -1243,7 +1243,7 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ReferenceNumber")
                         .IsUnique()
                         .HasDatabaseName("IX_JournalEntries_Tenant_Reference")
-                        .HasFilter("[ReferenceNumber] IS NOT NULL");
+                        .HasFilter("\"ReferenceNumber\" IS NOT NULL");
 
                     b.ToTable("JournalEntries");
                 });
@@ -1610,15 +1610,15 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_ProfitLossEntry_IsDeleted");
+                        .HasDatabaseName("IX_ProfitLossEntries_IsDeleted");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_ProfitLossEntry_TenantId");
+                        .HasDatabaseName("IX_ProfitLossEntries_TenantId");
 
                     b.HasIndex("TenantId", "Period")
                         .HasDatabaseName("IX_ProfitLossEntries_Tenant_Period");
 
-                    b.ToTable("ProfitLossEntry");
+                    b.ToTable("ProfitLossEntries");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Accounting.Entities.ProfitReport", b =>
@@ -1850,14 +1850,14 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsActive");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_RecurringExpense_IsDeleted");
+                        .HasDatabaseName("IX_RecurringExpenses_IsDeleted");
 
                     b.HasIndex("NextDueDate");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_RecurringExpense_TenantId");
+                        .HasDatabaseName("IX_RecurringExpenses_TenantId");
 
-                    b.ToTable("RecurringExpense");
+                    b.ToTable("RecurringExpenses");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Accounting.Entities.SalaryRecord", b =>
@@ -4269,6 +4269,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("InternalCategoryPath")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -4467,10 +4470,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_CiceksepetiCategory_IsDeleted");
+                        .HasDatabaseName("IX_CiceksepetiCategories_IsDeleted");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_CiceksepetiCategory_TenantId");
+                        .HasDatabaseName("IX_CiceksepetiCategories_TenantId");
 
                     b.HasIndex("TenantId", "CiceksepetiCategoryId")
                         .IsUnique()
@@ -4479,7 +4482,7 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ParentCategoryId")
                         .HasDatabaseName("IX_CiceksepetiCategories_Tenant_Parent");
 
-                    b.ToTable("CiceksepetiCategory");
+                    b.ToTable("CiceksepetiCategories");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Entities.CircuitStateLog", b =>
@@ -6056,6 +6059,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
 
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -7402,15 +7408,15 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_HepsiburadaListing_IsDeleted");
+                        .HasDatabaseName("IX_HepsiburadaListings_IsDeleted");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_HepsiburadaListing_TenantId");
+                        .HasDatabaseName("IX_HepsiburadaListings_TenantId");
 
                     b.HasIndex("TenantId", "HepsiburadaSKU")
                         .HasDatabaseName("IX_HepsiburadaListings_Tenant_SKU");
 
-                    b.ToTable("HepsiburadaListing");
+                    b.ToTable("HepsiburadaListings");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Entities.Hr.Department", b =>
@@ -7771,9 +7777,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("ImportTemplateId");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_ImportFieldMapping_IsDeleted");
+                        .HasDatabaseName("IX_ImportFieldMappings_IsDeleted");
 
-                    b.ToTable("ImportFieldMapping");
+                    b.ToTable("ImportFieldMappings");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Entities.ImportTemplate", b =>
@@ -7827,12 +7833,12 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_ImportTemplate_IsDeleted");
+                        .HasDatabaseName("IX_ImportTemplates_IsDeleted");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_ImportTemplate_TenantId");
+                        .HasDatabaseName("IX_ImportTemplates_TenantId");
 
-                    b.ToTable("ImportTemplate");
+                    b.ToTable("ImportTemplates");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Entities.Income", b =>
@@ -8222,6 +8228,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("TenantNo")
+                        .HasColumnType("text");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -9558,6 +9567,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -9573,6 +9585,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasDatabaseName("IX_Permissions_Name");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_Permissions_TenantId");
 
                     b.ToTable("Permissions");
                 });
@@ -11383,6 +11398,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -11398,6 +11416,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasDatabaseName("IX_Roles_Name");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_Roles_TenantId");
 
                     b.ToTable("Roles");
                 });
@@ -11436,6 +11457,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -11449,6 +11473,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("IX_RolePermissions_IsDeleted");
 
                     b.HasIndex("PermissionId");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_RolePermissions_TenantId");
 
                     b.HasIndex("RoleId", "PermissionId")
                         .IsUnique()
@@ -12214,6 +12241,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AutoSyncInvoice")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -12222,7 +12252,7 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal?>("CurrentAccountBalance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -12292,6 +12322,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EncryptedCredential")
                         .HasColumnType("text");
 
                     b.Property<string>("EncryptedValue")
@@ -13094,6 +13127,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -13108,6 +13144,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_ProjectMembers_IsDeleted");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_ProjectMembers_TenantId");
 
                     b.HasIndex("ProjectId", "UserId")
                         .IsUnique()

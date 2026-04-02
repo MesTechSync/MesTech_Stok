@@ -422,17 +422,24 @@ public class HepsiburadaAdapterContractTests : IClassFixture<WireMockFixture>, I
     [Fact]
     public async Task GetCategoriesAsync_ReturnsEmptyList()
     {
-        // Arrange — no WireMock stub needed, HB returns empty list directly
-        var adapter = CreateAdapter();
-        IIntegratorAdapter iface = adapter;
+        // Arrange — GetCategoriesAsync now calls /product/api/categories/get-all-categories
+        var adapter = await CreateConfiguredAdapterAsync();
+
+        _mockServer
+            .Given(Request.Create()
+                .WithPath("/product/api/categories/get-all-categories")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"[]"));
 
         // Act
-        var categories = await iface.GetCategoriesAsync();
+        var categories = await adapter.GetCategoriesAsync();
 
         // Assert
         categories.Should().NotBeNull();
         categories.Should().BeEmpty();
-        _mockServer.LogEntries.Should().BeEmpty();
     }
 
     // ══════════════════════════════════════

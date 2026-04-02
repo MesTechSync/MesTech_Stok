@@ -16,12 +16,19 @@ public class AdjustStockHandlerTests
     private readonly Mock<IUnitOfWork> _uow;
     private readonly AdjustStockHandler _sut;
 
+    private readonly Mock<IDistributedLockService> _lockService;
+
     public AdjustStockHandlerTests()
     {
         _productRepo = new Mock<IProductRepository>();
         _movementRepo = new Mock<IStockMovementRepository>();
         _uow = new Mock<IUnitOfWork>();
-        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, Mock.Of<IDistributedLockService>(), Mock.Of<ILogger<AdjustStockHandler>>());
+        _lockService = new Mock<IDistributedLockService>();
+        // Default: lock acquired successfully (returns a non-null IAsyncDisposable)
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, _lockService.Object, Mock.Of<ILogger<AdjustStockHandler>>());
     }
 
     [Fact]

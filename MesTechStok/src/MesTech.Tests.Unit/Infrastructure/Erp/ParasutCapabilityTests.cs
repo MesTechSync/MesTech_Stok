@@ -72,10 +72,10 @@ public class ParasutCapabilityTests
     }
 
     [Fact]
-    public void WaybillCapable_NotImplemented()
+    public void WaybillCapable_Implemented()
     {
         var adapter = CreateAdapter();
-        (adapter is IErpWaybillCapable).Should().BeFalse("Parasut does not support waybill operations");
+        (adapter is IErpWaybillCapable).Should().BeTrue("Parasut now implements IErpWaybillCapable");
     }
 
     [Fact]

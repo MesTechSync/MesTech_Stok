@@ -38,6 +38,23 @@
             <Setter Property="Background" Value="{DynamicResource SidebarHoverBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource SidebarTextActiveBrush}" />
         </Style>
+        <!-- Active sidebar item (selected page) -->
+        <Style Selector="Button.sidebar-btn-active">
+            <Setter Property="Background" Value="{DynamicResource MesPrimaryBlue}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Margin" Value="4,0" />
+        </Style>
+        <Style Selector="Button.sidebar-btn-active:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MesPrimaryBlue}" />
+            <Setter Property="Opacity" Value="0.9" />
+        </Style>
         <!-- Icon button style (toolbar) -->
         <Style Selector="Button.icon-btn">
             <Setter Property="Background" Value="Transparent" />
@@ -89,10 +106,16 @@
                             Click="OnSidebarToggle">
                         <PathIcon Data="{StaticResource IconMenu}" Width="20" Height="20"/>
                     </Button>
-                    <TextBlock Text="MesTech Entegratör"
-                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
-                               VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock Text="MesTech Entegratör"
+                                   FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <!-- DEV2-03: Breadcrumb -->
+                        <TextBlock Text="{Binding Breadcrumb}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MesSlateGray}"
+                                   Margin="0,-2,0,0"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Orta: Arama -->
@@ -157,7 +180,7 @@
         <Grid ColumnDefinitions="Auto,*">
 
             <!-- SIDEBAR -->
-            <Border x:Name="SidebarPanel" Grid.Column="0" Width="240"
+            <Border x:Name="SidebarPanel" Grid.Column="0" Width="60"
                     Background="{DynamicResource SidebarBackgroundBrush}">
                 <DockPanel>
 
@@ -172,20 +195,22 @@
                             <TextBlock x:Name="SidebarTitle" Text="MesTech"
                                        Foreground="{DynamicResource SidebarTextActiveBrush}"
                                        FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
-                                       VerticalAlignment="Center"/>
+                                       VerticalAlignment="Center"
+                                       IsVisible="False"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Sidebar alt: Footer -->
-                    <Border DockPanel.Dock="Bottom" Padding="16,10"
+                    <Border x:Name="SidebarFooter" DockPanel.Dock="Bottom" Padding="16,10"
                             BorderBrush="{DynamicResource SidebarBorderBrush}"
-                            BorderThickness="0,1,0,0">
+                            BorderThickness="0,1,0,0"
+                            IsVisible="False">
                         <TextBlock Text="Dalga 14+15 — Avalonia Shell" FontSize="{StaticResource FontSizeCaption1}"
                                    Foreground="{DynamicResource MesTextSlate}"/>
                     </Border>
 
                     <!-- Sidebar menu — ScrollViewer icinde -->
-                    <ScrollViewer>
+                    <ScrollViewer x:Name="SidebarScroll">
                         <StackPanel Margin="0,4" Spacing="1">
 
                             <!-- 0. ANA SAYFA -->
@@ -330,12 +355,14 @@
                                 </StackPanel>
                             </Button>
 
-                            <!-- 6. KARGO -->
-                            <TextBlock Classes="sidebar-section" Text="KARGO"/>
+                            <!-- 6. KARGO [Pro+] -->
+                            <TextBlock Classes="sidebar-section" Text="KARGO"
+                                       IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kargo Takip"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CargoTracking">
+                                    CommandParameter="CargoTracking"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
                                     <TextBlock Text="Kargo Takip"/>
@@ -344,7 +371,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kargo Firmalari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CargoProviders">
+                                    CommandParameter="CargoProviders"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
                                     <TextBlock Text="Kargo Firmalari"/>
@@ -353,7 +381,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Toplu Gonderim"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="BulkShipment">
+                                    CommandParameter="BulkShipment"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconTruck}" Width="16" Height="16"/>
                                     <TextBlock Text="Toplu Gonderim"/>
@@ -362,7 +391,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Etiket Yazdir"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="LabelPreview">
+                                    CommandParameter="LabelPreview"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPrint}" Width="16" Height="16"/>
                                     <TextBlock Text="Etiket Yazdir"/>
@@ -370,23 +400,27 @@
                             </Button>
 
                             <!-- IADELER -->
-                            <TextBlock Classes="sidebar-section" Text="IADELER"/>
+                            <TextBlock Classes="sidebar-section" Text="IADELER"
+                                       IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Iade Listesi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ReturnList">
+                                    CommandParameter="ReturnList"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
                                     <TextBlock Text="Iade Listesi"/>
                                 </StackPanel>
                             </Button>
 
-                            <!-- 7. E-FATURA -->
-                            <TextBlock Classes="sidebar-section" Text="E-FATURA"/>
+                            <!-- 7. E-FATURA [Pro+] -->
+                            <TextBlock Classes="sidebar-section" Text="E-FATURA"
+                                       IsVisible="{Binding ShowInvoice}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Yonetimi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="InvoiceManagement">
+                                    CommandParameter="InvoiceManagement"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
                                     <TextBlock Text="Fatura Yönetimi"/>
@@ -395,7 +429,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Listesi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="InvoiceList">
+                                    CommandParameter="InvoiceList"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
                                     <TextBlock Text="Fatura Listesi"/>
@@ -404,7 +439,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Olustur"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="InvoiceCreate">
+                                    CommandParameter="InvoiceCreate"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
                                     <TextBlock Text="Fatura Oluştur"/>
@@ -413,7 +449,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Toplu Fatura"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="BulkInvoice">
+                                    CommandParameter="BulkInvoice"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
                                     <TextBlock Text="Toplu Fatura"/>
@@ -422,7 +459,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Provider Ayarlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="InvoiceProviders">
+                                    CommandParameter="InvoiceProviders"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
                                     <TextBlock Text="Provider Ayarları"/>
@@ -431,7 +469,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Raporlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="InvoiceReport">
+                                    CommandParameter="InvoiceReport"
+                                    IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Fatura Raporları"/>
@@ -439,11 +478,13 @@
                             </Button>
 
                             <!-- 8. FINANS -->
-                            <TextBlock Classes="sidebar-section" Text="FİNANS"/>
+                            <TextBlock Classes="sidebar-section" Text="FİNANS"
+                                       IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kar / Zarar Raporu"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ProfitLoss">
+                                    CommandParameter="ProfitLoss"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Kâr / Zarar Raporu"/>
@@ -452,7 +493,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Giderler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Expenses">
+                                    CommandParameter="Expenses"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Giderler"/>
@@ -461,7 +503,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Banka Hesaplari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="BankAccounts">
+                                    CommandParameter="BankAccounts"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconSave}" Width="16" Height="16"/>
                                     <TextBlock Text="Banka Hesapları"/>
@@ -470,7 +513,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Cari Hesaplar"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CariHesaplar">
+                                    CommandParameter="CariHesaplar"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
                                     <TextBlock Text="Cari Hesaplar"/>
@@ -479,7 +523,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Nakit Akisi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="NakitAkis">
+                                    CommandParameter="NakitAkis"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Nakit Akışı"/>
@@ -488,7 +533,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Teklif Yonetimi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Quotation">
+                                    CommandParameter="Quotation"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
                                     <TextBlock Text="Teklif Yönetimi"/>
@@ -497,7 +543,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Abonelik ve Faturalama"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Billing">
+                                    CommandParameter="Billing"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Abonelik / Faturalama"/>
@@ -505,11 +552,13 @@
                             </Button>
 
                             <!-- 8b. MUHASEBE (V4 — Zincir 2/3/6/14) -->
-                            <TextBlock Classes="sidebar-section" Text="MUHASEBE"/>
+                            <TextBlock Classes="sidebar-section" Text="MUHASEBE"
+                                       IsVisible="{Binding ShowAnalytics}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Yevmiye Defteri"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="JournalEntries">
+                                    CommandParameter="JournalEntries"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
                                     <TextBlock Text="Yevmiye Defteri"/>
@@ -518,7 +567,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Mizan"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="TrialBalance">
+                                    CommandParameter="TrialBalance"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Mizan"/>
@@ -527,56 +577,64 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Komisyon Oranlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CommissionRates">
+                                    CommandParameter="CommissionRates"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Komisyon Oranları"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Paneli"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="AccountingDashboard">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="AccountingDashboard"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Muhasebe Paneli"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Fisleri"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="GLTransaction">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="GLTransaction"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Muhasebe Fisleri"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Kar / Zarar"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="KarZarar">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KarZarar"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Kar / Zarar"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Gelir / Gider"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="GelirGider">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="GelirGider"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Gelir / Gider"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Karlilik Analizi"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="KarlilikAnalizi">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KarlilikAnalizi"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Karlilik Analizi"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="KDV Raporu"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="KdvRapor">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="KdvRapor"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="KDV Raporu"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Mutabakat"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="Mutabakat">
+                                    Command="{Binding NavigateToCommand}" CommandParameter="Mutabakat"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Mutabakat"/>
@@ -605,11 +663,13 @@
                             </Button>
 
                             <!-- 9. CRM -->
-                            <TextBlock Classes="sidebar-section" Text="CRM"/>
+                            <TextBlock Classes="sidebar-section" Text="CRM"
+                                       IsVisible="{Binding ShowCrm}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Potansiyel Musteriler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Leads">
+                                    CommandParameter="Leads"
+                                    IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
                                     <TextBlock Text="Potansiyel Müşteriler"/>
@@ -618,7 +678,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kisiler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Contacts">
+                                    CommandParameter="Contacts"
+                                    IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
                                     <TextBlock Text="Kişiler"/>
@@ -627,7 +688,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Firsatlar — Kanban"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Kanban">
+                                    CommandParameter="Kanban"
+                                    IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
                                     <TextBlock Text="Fırsatlar — Kanban"/>
@@ -636,7 +698,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Musteriler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Customers">
+                                    CommandParameter="Customers"
+                                    IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/>
                                     <TextBlock Text="Müşteriler"/>
@@ -644,11 +707,13 @@
                             </Button>
 
                             <!-- 10. PLATFORM -->
-                            <TextBlock Classes="sidebar-section" Text="PLATFORM"/>
+                            <TextBlock Classes="sidebar-section" Text="PLATFORM"
+                                       IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Platformlar"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="PlatformList">
+                                    CommandParameter="PlatformList"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
                                     <TextBlock Text="Platformlar"/>
@@ -657,7 +722,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Magaza Ekle"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="StoreWizard">
+                                    CommandParameter="StoreWizard"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
                                     <TextBlock Text="Mağaza Ekle"/>
@@ -666,7 +732,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Magaza Ayarlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="StoreSettings">
+                                    CommandParameter="StoreSettings"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
                                     <TextBlock Text="Mağaza Ayarları"/>
@@ -675,7 +742,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kategori Eslestirme"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CategoryMapping">
+                                    CommandParameter="CategoryMapping"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconCategory}" Width="16" Height="16"/>
                                     <TextBlock Text="Kategori Eşleştirme"/>
@@ -684,7 +752,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Sync Durumu"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="PlatformSyncStatus">
+                                    CommandParameter="PlatformSyncStatus"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
                                     <TextBlock Text="Sync Durumu"/>
@@ -693,7 +762,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Sync Gecmisi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="PlatformSyncHistory">
+                                    CommandParameter="PlatformSyncHistory"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
                                     <TextBlock Text="Sync Gecmisi"/>
@@ -702,7 +772,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Baglanti Testi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="PlatformConnectionTest">
+                                    CommandParameter="PlatformConnectionTest"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16"/>
                                     <TextBlock Text="Baglanti Testi"/>
@@ -710,11 +781,13 @@
                             </Button>
 
                             <!-- 10b. DROPSHIPPING -->
-                            <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"/>
+                            <TextBlock Classes="sidebar-section" Text="DROPSHİPPİNG"
+                                       IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Dropship Paneli"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="DropshipDashboard">
+                                    CommandParameter="DropshipDashboard"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
                                     <TextBlock Text="Dropship Paneli"/>
@@ -723,7 +796,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Dropship Siparisler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="DropshipOrders">
+                                    CommandParameter="DropshipOrders"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
                                     <TextBlock Text="Dropship Siparişler"/>
@@ -732,7 +806,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Karlilik Analizi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="DropshipProfit">
+                                    CommandParameter="DropshipProfit"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Kârlılık Analizi"/>
@@ -741,7 +816,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Tedarikci Feed'leri"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="SupplierFeeds">
+                                    CommandParameter="SupplierFeeds"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
                                     <TextBlock Text="Tedarikçi Feed'leri"/>
@@ -750,7 +826,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Yeni Feed"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="FeedCreate">
+                                    CommandParameter="FeedCreate"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconAdd}" Width="16" Height="16"/>
                                     <TextBlock Text="Yeni Feed"/>
@@ -759,7 +836,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Ice Aktarma Ayarlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ImportSettings">
+                                    CommandParameter="ImportSettings"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
                                     <TextBlock Text="İçe Aktarma Ayarları"/>
@@ -767,11 +845,13 @@
                             </Button>
 
                             <!-- MARKETPLACE -->
-                            <TextBlock Classes="sidebar-section" Text="MARKETPLACE"/>
+                            <TextBlock Classes="sidebar-section" Text="MARKETPLACE"
+                                       IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Buybox Analizi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Buybox">
+                                    CommandParameter="Buybox"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Buybox Analizi"/>
@@ -779,11 +859,13 @@
                             </Button>
 
                             <!-- 11. FULFILLMENT -->
-                            <TextBlock Classes="sidebar-section" Text="FULFILLMENT"/>
+                            <TextBlock Classes="sidebar-section" Text="FULFILLMENT"
+                                       IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Dashboard"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="FulfillmentDashboard">
+                                    CommandParameter="FulfillmentDashboard"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
                                     <TextBlock Text="Dashboard"/>
@@ -792,7 +874,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Inbound Gonderimler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="FulfillmentInbound">
+                                    CommandParameter="FulfillmentInbound"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
                                     <TextBlock Text="Inbound Gonderimler"/>
@@ -801,7 +884,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Envanter"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="FulfillmentInventory">
+                                    CommandParameter="FulfillmentInventory"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
                                     <TextBlock Text="Envanter"/>
@@ -810,7 +894,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Ayarlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="FulfillmentSettings">
+                                    CommandParameter="FulfillmentSettings"
+                                    IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/>
                                     <TextBlock Text="Ayarlar"/>
@@ -818,11 +903,13 @@
                             </Button>
 
                             <!-- 12. ERP & MUHASEBE -->
-                            <TextBlock Classes="sidebar-section" Text="ERP &amp; MUHASEBE"/>
+                            <TextBlock Classes="sidebar-section" Text="ERP &amp; MUHASEBE"
+                                       IsVisible="{Binding ShowAnalytics}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="ERP Dashboard"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ErpDashboard">
+                                    CommandParameter="ErpDashboard"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
                                     <TextBlock Text="ERP Dashboard"/>
@@ -831,7 +918,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Cari Esleme"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ErpAccountMapping">
+                                    CommandParameter="ErpAccountMapping"
+                                    IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconCopy}" Width="16" Height="16"/>
                                     <TextBlock Text="Cari Esleme"/>
@@ -839,11 +927,13 @@
                             </Button>
 
                             <!-- 13. GELIR / GIDER -->
-                            <TextBlock Classes="sidebar-section" Text="GEL&#x0130;R / G&#x0130;DER"/>
+                            <TextBlock Classes="sidebar-section" Text="GEL&#x0130;R / G&#x0130;DER"
+                                       IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Gelir Gider Dashboard"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="IncomeExpenseDashboard">
+                                    CommandParameter="IncomeExpenseDashboard"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
                                     <TextBlock Text="Dashboard"/>
@@ -852,7 +942,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Gelir Gider Kayitlari"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="IncomeExpenseList">
+                                    CommandParameter="IncomeExpenseList"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconReceipt}" Width="16" Height="16"/>
                                     <TextBlock Text="Kayitlar"/>
@@ -861,7 +952,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Karlilik Raporu"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="ProfitabilityReport">
+                                    CommandParameter="ProfitabilityReport"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Karlilik Raporu"/>
@@ -869,11 +961,13 @@
                             </Button>
 
                             <!-- 14. RAPORLAR -->
-                            <TextBlock Classes="sidebar-section" Text="RAPORLAR"/>
+                            <TextBlock Classes="sidebar-section" Text="RAPORLAR"
+                                       IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Belgeler"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Documents">
+                                    CommandParameter="Documents"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconCopy}" Width="16" Height="16"/>
                                     <TextBlock Text="Belgeler"/>
@@ -882,7 +976,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Raporlar"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="Reports">
+                                    CommandParameter="Reports"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Raporlar"/>
@@ -891,7 +986,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Nakit Akis Raporu"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="CashFlowReport">
+                                    CommandParameter="CashFlowReport"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconBarChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Nakit Akis"/>
@@ -900,7 +996,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Satis Analizi"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="SalesAnalytics">
+                                    CommandParameter="SalesAnalytics"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconChart}" Width="16" Height="16"/>
                                     <TextBlock Text="Satis Analizi"/>
@@ -909,7 +1006,8 @@
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Stok Deger Raporu"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="StockValueReport">
+                                    CommandParameter="StockValueReport"
+                                    IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
                                     <TextBlock Text="Stok Deger"/>
@@ -978,57 +1076,74 @@
                             <!-- Pazaryeri Detay -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
                             <TextBlock Classes="sidebar-section" Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
-                                       Margin="20,8,0,4" />
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol">
+                                       Margin="20,8,0,4"
+                                       IsVisible="{Binding ShowMultiPlatform}" />
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Trendyol"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Hepsiburada"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="N11"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ciceksepeti"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Amazon TR"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="OpenCart"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Etsy"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Shopify"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="WooCommerce"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Zalando"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="eBay"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ozon"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="PTT AVM"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama"
+                                    IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Pazarama"/></StackPanel>
                             </Button>
 
                             <!-- Kampanya & Araçlar -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
                             <TextBlock Classes="sidebar-section" Text="ARAÇLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
-                                       Margin="20,8,0,4" />
+                                       Margin="20,8,0,4"
+                                       IsVisible="{Binding ShowExport}" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="Kampanyalar"/></StackPanel>
@@ -1037,17 +1152,20 @@
                                     IsVisible="{Binding ShowExport}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Disa Aktar"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu"
+                                    IsVisible="{Binding ShowExport}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama"
+                                    IsVisible="{Binding ShowAiInsight}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="AI Aciklama"/></StackPanel>
                             </Button>
 
                             <!-- Sistem Yönetimi -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
                             <TextBlock Classes="sidebar-section" Text="SİSTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
-                                       Margin="20,8,0,4" />
+                                       Margin="20,8,0,4"
+                                       IsVisible="{Binding ShowLogViewer}" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi"
                                     IsVisible="{Binding ShowHealthMonitor}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
@@ -1056,13 +1174,16 @@
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Log Izleyici"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi"
+                                    IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Denetim Kaydi"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari"
+                                    IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="MFA Ayarlari"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme">
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme"
+                                    IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Yedekleme"/></StackPanel>
                             </Button>
 

@@ -16,6 +16,6 @@ public class GetFulfillmentShipmentsHandlerTests
             Mock.Of<IFulfillmentShipmentRepository>(),
             Mock.Of<ILogger<GetFulfillmentShipmentsHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

@@ -170,6 +170,11 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             result.ErrorMessage = $"Baglanti hatasi: {ex.Message}";
             result.ResponseTime = sw.Elapsed;
         }
+        catch (System.Text.Json.JsonException ex)
+        {
+            result.ErrorMessage = $"Gecersiz API yaniti: {ex.Message}";
+            result.ResponseTime = sw.Elapsed;
+        }
 
         _logger.LogInformation("OpenCart connection test: Success={Success}, Time={Time}ms",
             result.IsSuccess, result.ResponseTime.TotalMilliseconds);

@@ -32,8 +32,8 @@ public class BulkCreateInvoiceN1RegressionTests
             "Test Customer", "test@test.com", new List<OrderItem> { item });
     }
 
-    [Fact(DisplayName = "G080: 10 orders = 10 separate GetByIdAsync calls (N+1)")]
-    public async Task G080_BulkInvoice_CallsGetByIdForEachOrder()
+    [Fact(DisplayName = "G080: 10 orders = 1 batch GetByIdsAsync call (N+1 fixed)")]
+    public async Task G080_BulkInvoice_UsesBatchGetByIds()
     {
         var orderRepoMock = new Mock<IOrderRepository>();
         var invoiceRepoMock = new Mock<IInvoiceRepository>();
@@ -42,9 +42,10 @@ public class BulkCreateInvoiceN1RegressionTests
         // 10 farklı sipariş ID
         var orderIds = Enumerable.Range(1, 10).Select(_ => Guid.NewGuid()).ToList();
 
-        // Her GetByIdAsync çağrısında geçerli sipariş dön
-        orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid _) => CreateTestOrder());
+        // Batch GetByIdsAsync — returns 10 orders in one call
+        orderRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IEnumerable<Guid> ids, CancellationToken _) =>
+                ids.Select(_ => CreateTestOrder()).ToList().AsReadOnly() as IReadOnlyList<Order>);
 
         var sut = new BulkCreateInvoiceHandler(
             invoiceRepoMock.Object, orderRepoMock.Object, uowMock.Object,
@@ -53,11 +54,16 @@ public class BulkCreateInvoiceN1RegressionTests
         var cmd = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
         await sut.Handle(cmd, CancellationToken.None);
 
-        // G080 KANIT: GetByIdAsync 10 KERE çağrıldı — her biri ayrı SQL query
+        // G080 FIX KANIT: GetByIdsAsync 1 KERE çağrıldı — batch query
+        orderRepoMock.Verify(
+            r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "G080 FIX: BulkCreateInvoice now uses batch GetByIdsAsync — N+1 eliminated");
+
+        // GetByIdAsync hiç çağrılmamış olmalı
         orderRepoMock.Verify(
             r => r.GetByIdAsync(It.IsAny<Guid>()),
-            Times.Exactly(10),
-            "G080: BulkCreateInvoice calls GetByIdAsync once per order — " +
-            "should use batch GetByIdsAsync instead");
+            Times.Never,
+            "G080 FIX: GetByIdAsync should not be called — batch method used instead");
     }
 }

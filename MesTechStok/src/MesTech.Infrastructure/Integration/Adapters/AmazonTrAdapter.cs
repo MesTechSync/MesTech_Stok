@@ -305,6 +305,11 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             result.ErrorMessage = "Baglanti zaman asimina ugradi.";
             result.ResponseTime = sw.Elapsed;
         }
+        catch (System.Text.Json.JsonException ex)
+        {
+            result.ErrorMessage = $"Gecersiz API yaniti: {ex.Message}";
+            result.ResponseTime = sw.Elapsed;
+        }
 
         _logger.LogInformation("Amazon connection test: Success={Success}, Time={Time}ms",
             result.IsSuccess, result.ResponseTime.TotalMilliseconds);

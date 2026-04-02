@@ -91,7 +91,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     private void SetupTokenSuccess(string token = "PAYTR_TEST_TOKEN_ABC123")
     {
         _mockServer
-            .Given(Request.Create().WithPath("/odeme/api/paytrdirect").UsingPost())
+            .Given(Request.Create().WithPath("/api/paytrdirect").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
@@ -101,7 +101,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     private void SetupTokenFailure(string reason = "invalid-card")
     {
         _mockServer
-            .Given(Request.Create().WithPath("/odeme/api/paytrdirect").UsingPost())
+            .Given(Request.Create().WithPath("/api/paytrdirect").UsingPost())
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
@@ -115,7 +115,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
-                .WithBody(JsonSerializer.Serialize(new { status = paytrStatus, total_amount = totalAmount })));
+                .WithBody(JsonSerializer.Serialize(new { status = paytrStatus, totalAmount })));
     }
 
     private void SetupRefundSuccess(string merchantOid)
@@ -203,7 +203,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     {
         // Arrange — PayTR returns HTTP 401 for invalid merchant
         _mockServer
-            .Given(Request.Create().WithPath("/odeme/api/paytrdirect").UsingPost())
+            .Given(Request.Create().WithPath("/api/paytrdirect").UsingPost())
             .RespondWith(Response.Create().WithStatusCode(401).WithBody("Unauthorized"));
 
         var adapter = CreateAdapter(merchantId: "WRONG_ID", merchantKey: "WRONG_KEY");
@@ -284,12 +284,12 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
         var responseBody = JsonSerializer.Serialize(new
         {
             status = "success",
-            installment_table = new[]
+            installmentTable = new[]
             {
-                new { count = 1,  total = 100000L, monthly = 100000L, interest_rate = 0.0m },
-                new { count = 3,  total = 103500L, monthly = 34500L,  interest_rate = 1.16m },
-                new { count = 6,  total = 107100L, monthly = 17850L,  interest_rate = 1.18m },
-                new { count = 12, total = 114000L, monthly = 9500L,   interest_rate = 1.90m }
+                new { count = 1,  total = 100000L, monthly = 100000L, interestRate = 0.0m },
+                new { count = 3,  total = 103500L, monthly = 34500L,  interestRate = 1.16m },
+                new { count = 6,  total = 107100L, monthly = 17850L,  interestRate = 1.18m },
+                new { count = 12, total = 114000L, monthly = 9500L,   interestRate = 1.90m }
             }
         });
 
@@ -441,7 +441,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     {
         // Arrange — server returns 503 Service Unavailable
         _mockServer
-            .Given(Request.Create().WithPath("/odeme/api/paytrdirect").UsingPost())
+            .Given(Request.Create().WithPath("/api/paytrdirect").UsingPost())
             .RespondWith(Response.Create().WithStatusCode(503).WithBody("Service Unavailable"));
 
         var adapter = CreateAdapter();

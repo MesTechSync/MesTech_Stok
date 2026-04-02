@@ -1,5 +1,5 @@
 using FluentAssertions;
-using MesTech.Application.Commands.CreateExpense;
+using MesTech.Application.Features.Finance.Commands.CreateExpense;
 using MesTech.Application.Commands.CreateIncome;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;

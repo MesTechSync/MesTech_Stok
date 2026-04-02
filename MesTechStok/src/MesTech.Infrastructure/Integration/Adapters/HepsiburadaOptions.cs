@@ -14,7 +14,7 @@ public sealed class HepsiburadaOptions
     /// <summary>Hepsiburada Merchant API base URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
         Justification = "Configuration binding requires string type.")]
-    public string BaseUrl { get; set; } = "https://mpop-sit.hepsiburada.com";
+    public string BaseUrl { get; set; } = "https://mpop.hepsiburada.com";
 
     /// <summary>OAuth token endpoint URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
@@ -28,4 +28,7 @@ public sealed class HepsiburadaOptions
 
     /// <summary>HTTP client timeout in seconds.</summary>
     public int HttpTimeoutSeconds { get; set; } = 30;
+
+    /// <summary>Max concurrent API requests (SemaphoreSlim limit). Override via config.</summary>
+    public int MaxConcurrentRequests { get; set; } = 20;
 }

@@ -1,49 +1,37 @@
 # BORÇ EVRİM TABLOSU — DEV 1
-Son güncelleme: 2026-03-24 TUR 4
+Son güncelleme: 2026-04-02 TUR 17
 
-| Borç Kalemi               | T1 Başlangıç | T1 Son | T4 Son | Trend    | Durum     |
-|---------------------------|--------------|--------|--------|----------|-----------|
-| EF Config gap             | 16           | 0      | 0      | ✅       | KAPANDI   |
-| Guid.Empty (kritik bug)   | 5            | 0      | 0      | ✅       | KAPANDI   |
-| Guid.Empty (toplam)       | 40           | 36     | 36     | ■ takılı | DEP-DEV3  |
-| Empty catch (App)         | 2            | 0      | 0      | ✅       | KAPANDI   |
-| Event handler coverage    | 32/50        | 50/50  | 50/50  | ✅       | KAPANDI   |
-| Multi-tenant event TenantId| 0/50        | 8/50   | 50/50  | ✅       | KAPANDI   |
-| NotImpl (Domain/App)      | 0            | 0      | 0      | ✅       | TEMİZ     |
-| TODO/FIXME (Domain/App)   | 0            | 0      | 0      | ✅       | TEMİZ     |
-| Core ref (DEV 1 alanı)   | 0            | 0      | 0      | ✅       | TEMİZ     |
-| Lead.Score property       | EKSİK        | —      | EKSİK  | ■ yeni   | KEŞFEDİLDİ|
-| Test build error          | 2 (pre-ex)   | 2      | 0      | ✅       | KAPANDI   |
+| Borç Kalemi               | Başlangıç | Şimdi | Trend    | Durum     |
+|---------------------------|-----------|-------|----------|-----------|
+| KÖK-1 VM DbContext        | ~20       | 0     | ✅       | KAPANDI   |
+| KÖK-1 Infra IDbContextFactory | 8    | 0     | ✅       | KAPANDI (02d40336) |
+| KÖK-1 Repo+Service       | 126       | 126   | ■ KASITLI| UnitOfWork pattern DOĞRU |
+| Build error (Application) | 9+        | 0     | ✅       | KAPANDI   |
+| Build error (WebApi)      | var       | 0     | ✅       | KAPANDI   |
+| TODO/FIXME (DEV1 alanı)  | 0         | 0     | ✅       | TEMİZ     |
+| Domain event orphan       | 18        | 0     | ✅       | KAPANDI (74/74 handled) |
+| EF Migration drift        | 98        | 0     | ✅       | KAPANDI   |
+| CompanySettings column    | 4 eksik   | 0     | ✅       | ALTER TABLE uygulandı |
+| STUB handler              | 2         | 0     | ✅       | KAPANDI (ef0ab8c6) |
+| ApproveAccountingEntry EP | 1 orphan  | 0     | ✅       | KAPANDI (4b7f4237) |
+| Entity test gap           | 40        | 32    | ↓ azalıyor| 8 yeni test yazıldı |
+| Accounting handler test   | 45 eksik  | 0     | ✅       | KAPANDI (44/44) |
+| KÖK-1 DI test             | 0         | 8     | ✅ yeni  | 8 test yazıldı |
+| ViewModel MediatR wiring  | 8 hardcoded| 0    | ✅       | KAPANDI (5 VM fix) |
+| CancellationToken sync    | 5 repo    | 0     | ✅       | KAPANDI   |
+| Katman 1 screenshot       | —         | 172   | ✅       | %100 render |
+| Katman 1.5 seed           | EKSİK    | TAM   | ✅       | 1fe0950b  |
+| Sözleşme hataları         | 8+        | —     | raporlandı| G29,G37,G40 |
 
 ## DARBOĞAZ ANALİZİ
 
-Takılı kalemler:
-  ⚠ Guid.Empty (toplam 36): 4 turdur 36'da
-    → KÖK NEDEN: Kalan 36 Guid.Empty doğru kullanım (validator, JWT, defensive fallback)
-      veya DEV 3 alanında (11 settlement parser backward-compat overload)
-    → STRATEJİ: DEP — DEV 3 parser refactor yapmalı
-    → DEV 1 müdahalesi YOK — doğru kullanım bırakılır
+KÖK-1 Repo+Service (126): UnitOfWork BOZULUR — refactor GEREKSİZ (G40).
+Entity test gap (32): Devam eden iş — her turda 5-8 entity testi yazılıyor.
 
 ## PARKED KALEMLER
-- Guid.Empty parser overload (36): DEP-DEV3 — doğru kullanım + DEV 3 parser backward-compat
+- KÖK-1 Repo IDbContextFactory (126): KASITLI BIRAKILDI — UnitOfWork pattern doğru
+- Core ref Desktop (125): WPF ARŞİVLENECEK — Avalonia geçişi sonrası
 
 ## KEŞFEDİLEN YENİ ÖZELLİKLER
-- **Lead.Score**: CRM Lead entity'de Score property yok. V4 Atlas'ta bahsedilmiş ama implement
-  edilmemiş. Property + UpdateScore() metodu + LeadScoringService yazılabilir.
-
-## BAĞIMLILIK (DEP) — başka DEV'lere
-- Core ref 84: Desktop 37 (DEV 2), Core self 37 (DEV 2), Tests 6 (DEV 5)
-- Guid.Empty parser overload: DEV 3 (Settlement/Banking)
-- Handler-Validator gap 134: DEV 5 (test yazma)
-
-## 10 COMMIT
-1. `1eada055` fix(domain): GetSupplierPerformanceQuery TenantId
-2. `54304be5` fix(domain): InvoiceCreatedEvent/OrderReceivedEvent TenantId
-3. `c7713c4e` feat(persistence): 3 Dropship EF configs
-4. `c6c8e8b0` feat(persistence): 13 Accounting EF configs
-5. `f40ffcac` fix(app): empty catch → LogDebug
-6. `700cef96` feat(app): 18 Application event handler services
-7. `2be63561` fix(domain): 6 financial event TenantId
-8. `27e0f1c2` fix(domain): 6 product/stock event TenantId
-9. `2bf8a58b` fix(domain): 21 remaining event TenantId — %100 coverage
-10. (bu commit) docs: BORC_EVRIMI güncellemesi
+- Z6 CommissionCharged→GL: PARKED (handler kodu var ama CommissionChargedEvent tanımı kontrol gerekli)
+- Röntgen: 4 platform (Etsy/Shopify/WooCommerce/Zalando) generic entity model kullanıyor — platform-spesifik entity YOK, PlatformType enum ile ayrılıyor (DOĞRU mimari)

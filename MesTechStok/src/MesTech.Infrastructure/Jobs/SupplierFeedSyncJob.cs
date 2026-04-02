@@ -20,7 +20,7 @@ namespace MesTech.Infrastructure.Jobs;
 [DisableConcurrentExecution(timeoutInSeconds: 600)]
 public sealed class SupplierFeedSyncJob
 {
-    private readonly AppDbContext _dbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAdapterFactory _adapterFactory;
@@ -29,7 +29,7 @@ public sealed class SupplierFeedSyncJob
     private readonly ILogger<SupplierFeedSyncJob> _logger;
 
     public SupplierFeedSyncJob(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
         IAdapterFactory adapterFactory,
@@ -37,7 +37,7 @@ public sealed class SupplierFeedSyncJob
         IFeedParserFactory feedParserFactory,
         ILogger<SupplierFeedSyncJob> logger)
     {
-        _dbContext = dbContext;
+        _dbContextFactory = dbContextFactory;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _adapterFactory = adapterFactory;
@@ -51,7 +51,9 @@ public sealed class SupplierFeedSyncJob
     {
         _logger.LogInformation("[SupplierFeedSync] Starting sync for feed {FeedId}", feedId);
 
-        var feed = await _dbContext.SupplierFeeds
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+
+        var feed = await dbContext.SupplierFeeds
             .FirstOrDefaultAsync(f => f.Id == feedId && !f.IsDeleted, ct).ConfigureAwait(false);
 
         if (feed == null)
@@ -68,7 +70,7 @@ public sealed class SupplierFeedSyncJob
         }
 
         feed.MarkSyncInProgress();
-        await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
 
         int totalProducts = 0;
         int updatedProducts = 0;
@@ -115,7 +117,7 @@ public sealed class SupplierFeedSyncJob
                 .Distinct()
                 .ToList();
 
-            var existingBySku = await _dbContext.Products
+            var existingBySku = await dbContext.Products
                 .Where(p => feedSkus.Contains(p.SKU) && !p.IsDeleted)
                 .ToDictionaryAsync(p => p.SKU, StringComparer.OrdinalIgnoreCase, ct).ConfigureAwait(false);
 

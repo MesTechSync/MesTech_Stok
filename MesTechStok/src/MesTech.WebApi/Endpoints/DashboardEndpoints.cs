@@ -42,13 +42,11 @@ public static class DashboardEndpoints
             var recentOrders = await mediator.Send(
                 new ListOrdersQuery(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow, null), ct);
 
-            return Results.Ok(new
-            {
-                totalProducts = productStatus.TotalCount,
-                activeOrders = recentOrders.Count,
-                totalInventoryValue = inventoryStats.TotalInventoryValue,
-                lowStockAlerts = inventoryStats.LowStockCount
-            });
+            return Results.Ok(new DashboardKpiResponse(
+                productStatus.TotalCount,
+                recentOrders.Count,
+                inventoryStats.TotalInventoryValue,
+                inventoryStats.LowStockCount));
         })
         .WithName("GetDashboardKpi")
         .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)")
@@ -133,20 +131,18 @@ public static class DashboardEndpoints
             var summary = await mediator.Send(
                 new GetMonthlySummaryQuery(now.Year, now.Month, tenantId), ct);
 
-            return Results.Ok(new
-            {
-                month = $"{now.Year}-{now.Month:D2}",
-                totalSales = summary.TotalSales,
-                totalExpenses = summary.TotalExpenses,
-                netProfit = summary.TotalSales - summary.TotalExpenses,
-                totalOrders = summary.TotalOrders,
-                totalReturns = summary.TotalReturns,
-                returnRate = summary.ReturnRate,
-                averageOrderValue = summary.AverageOrderValue,
-                totalCommissions = summary.TotalCommissions,
-                totalShippingCost = summary.TotalShippingCost,
-                totalTaxDue = summary.TotalTaxDue
-            });
+            return Results.Ok(new DashboardAccountingKpiResponse(
+                $"{now.Year}-{now.Month:D2}",
+                summary.TotalSales,
+                summary.TotalExpenses,
+                summary.TotalSales - summary.TotalExpenses,
+                summary.TotalOrders,
+                summary.TotalReturns,
+                summary.ReturnRate,
+                summary.AverageOrderValue,
+                summary.TotalCommissions,
+                summary.TotalShippingCost,
+                summary.TotalTaxDue));
         })
         .WithName("GetAccountingKpi")
         .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri")
@@ -224,4 +220,12 @@ public static class DashboardEndpoints
         .Produces(200)
         .CacheOutput("Dashboard30s");
     }
+
+    public sealed record DashboardKpiResponse(
+        int TotalProducts, int ActiveOrders, decimal TotalInventoryValue, int LowStockAlerts);
+
+    public sealed record DashboardAccountingKpiResponse(
+        string Month, decimal TotalSales, decimal TotalExpenses, decimal NetProfit,
+        int TotalOrders, int TotalReturns, decimal ReturnRate, decimal AverageOrderValue,
+        decimal TotalCommissions, decimal TotalShippingCost, decimal TotalTaxDue);
 }

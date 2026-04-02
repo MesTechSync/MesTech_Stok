@@ -20,6 +20,7 @@ public interface ISettlementParser
     /// <param name="rawData">Raw stream (JSON, TSV, etc.) from platform API or file upload.</param>
     /// <param name="format">Data format hint (e.g. "json", "tsv").</param>
     /// <param name="ct">Cancellation token.</param>
+    [System.Obsolete("Use ParseAsync(Guid tenantId, Stream, string, CancellationToken) — Guid.Empty is a multi-tenant risk.")]
     Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default);
 
     /// <summary>
@@ -34,7 +35,9 @@ public interface ISettlementParser
     {
         // Default implementation: delegate to legacy overload, set tenantId on result.
         // DEV3 parsers can override this with native tenantId support.
+#pragma warning disable CS0618 // Intentional call to legacy overload for backward compatibility
         var batch = await ParseAsync(rawData, format, ct).ConfigureAwait(false);
+#pragma warning restore CS0618
         batch.TenantId = tenantId;
         return batch;
     }

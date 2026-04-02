@@ -13,6 +13,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class N11SettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly N11SettlementParser _sut;
     private readonly Mock<ILogger<N11SettlementParser>> _loggerMock = new();
 
@@ -62,7 +63,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("N11");
@@ -91,7 +92,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(200m);
@@ -104,7 +105,7 @@ public class N11SettlementParserTests
         var xml = "<settlements></settlements>";
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -131,7 +132,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.TotalGross.Should().Be(1500.50m);
         batch.TotalCommission.Should().Be(225.08m);
@@ -157,7 +158,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(1);
@@ -183,7 +184,7 @@ public class N11SettlementParserTests
     [Fact]
     public async Task ParseAsync_NullRawData_ThrowsArgumentNull()
     {
-        var act = async () => await _sut.ParseAsync(null!, "xml");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "xml");
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -214,7 +215,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.TotalGross.Should().Be(250m);
         batch.TotalCommission.Should().Be(37.50m);
@@ -253,7 +254,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.TotalGross.Should().Be(600m);
         batch.TotalCommission.Should().Be(100m);
@@ -287,7 +288,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.PeriodStart.Should().Be(new DateTime(2026, 3, 5, 0, 0, 0, DateTimeKind.Utc));
         batch.PeriodEnd.Should().Be(new DateTime(2026, 3, 12, 0, 0, 0, DateTimeKind.Utc));
@@ -311,7 +312,7 @@ public class N11SettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        var batch = await _sut.ParseAsync(stream, "xml");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "xml");
 
         batch.TotalGross.Should().Be(150m);
         batch.TotalCommission.Should().Be(22.50m);

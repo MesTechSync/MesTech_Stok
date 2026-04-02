@@ -272,4 +272,38 @@ public sealed class StaleOrderIntegrationBridge
     }
 }
 
+/// <summary>
+/// Zincir 15: OversellingAttemptedEvent → Audit log + alarm.
+/// Stok yetersiz sipariş girişiminde fırlatılır.
+/// </summary>
+public sealed class OversellingAttemptedBridge
+    : INotificationHandler<DomainEventNotification<OversellingAttemptedEvent>>
+{
+    private readonly IOversellingAttemptedEventHandler _handler;
+    private readonly ILogger<OversellingAttemptedBridge> _logger;
+
+    public OversellingAttemptedBridge(
+        IOversellingAttemptedEventHandler handler,
+        ILogger<OversellingAttemptedBridge> logger)
+    {
+        _handler = handler;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<OversellingAttemptedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug(
+            "[Bridge] OversellingAttempted → Audit: SKU={SKU}, Available={Available}, Requested={Requested}",
+            e.SKU, e.AvailableStock, e.RequestedQuantity);
+
+        await _handler.HandleAsync(
+            e.ProductId, e.SKU, e.TenantId,
+            e.AvailableStock, e.RequestedQuantity, e.OrderNumber,
+            cancellationToken).ConfigureAwait(false);
+    }
+}
+
 // InvoiceApprovedGLBridge + InvoiceCancelledReversalBridge → AccountingEventBridgeHandlers.cs (canonical)

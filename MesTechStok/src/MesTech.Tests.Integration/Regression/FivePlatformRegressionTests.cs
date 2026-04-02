@@ -5,6 +5,7 @@ using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -102,8 +103,12 @@ public class FivePlatformRegressionTests : IClassFixture<WireMockFixture>, IDisp
     private PazaramaAdapter CreatePazaramaAdapter()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
+        var mockFactory = new Mock<IHttpClientFactory>();
+        mockFactory.Setup(f => f.CreateClient(It.IsAny<string>()))
+            .Returns(() => new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl), Timeout = TimeSpan.FromSeconds(30) });
         return new PazaramaAdapter(httpClient,
-            NullLoggerFactory.Instance.CreateLogger<PazaramaAdapter>());
+            NullLoggerFactory.Instance.CreateLogger<PazaramaAdapter>(),
+            mockFactory.Object);
     }
 
     private Dictionary<string, string> PazaramaCredentials() => new()

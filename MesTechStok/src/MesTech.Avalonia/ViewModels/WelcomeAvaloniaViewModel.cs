@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -11,8 +11,6 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class WelcomeAvaloniaViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
-
 
     [ObservableProperty] private string welcomeText = "Entegrator Stok Yonetim Sistemi";
     [ObservableProperty] private string totalProducts = "0";
@@ -21,12 +19,11 @@ public partial class WelcomeAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<RecentActivityDto> RecentActivities { get; } = [];
 
-    public WelcomeAvaloniaViewModel(IMediator mediator)
+    public WelcomeAvaloniaViewModel()
     {
-        _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -56,10 +53,11 @@ public partial class WelcomeAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class RecentActivityDto

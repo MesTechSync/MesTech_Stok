@@ -164,6 +164,7 @@ public class StockMovementTests
         // ASSERT: InsufficientStockException is thrown — domain prevents negative stock.
         act.Should().Throw<InsufficientStockException>();
         product.Stock.Should().Be(10); // Stock unchanged
-        product.DomainEvents.Should().BeEmpty(); // No events raised
+        // OversellingAttemptedEvent is raised before the throw
+        product.DomainEvents.Should().ContainSingle(e => e is global::MesTech.Domain.Events.OversellingAttemptedEvent);
     }
 }

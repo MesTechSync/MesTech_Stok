@@ -47,6 +47,7 @@ public sealed class EInvoiceDocument : BaseEntity, ITenantEntity
     public string ProviderId { get; private set; } = string.Empty;
     public string? ProviderRef { get; private set; }
     public string? PdfUrl { get; private set; }
+    public Guid? CorrelationId { get; set; }
     public string? HtmlUrl { get; private set; }
     public string? XmlContent { get; private set; }
     public int CreditUsed { get; private set; }

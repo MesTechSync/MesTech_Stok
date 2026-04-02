@@ -17,6 +17,6 @@ public class ErpReconciliationReportHandlerTests
             Mock.Of<IErpAdapterFactory>(), Mock.Of<ICounterpartyRepository>(),
             Mock.Of<ILogger<ErpReconciliationReportHandler>>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

@@ -59,24 +59,24 @@ public class EdgeCaseTests
         }
 
         [Fact]
-        public void PricingService_NegativeDiscountRate_ReturnsOriginalPrice()
+        public void PricingService_NegativeDiscountRate_ThrowsArgumentOutOfRange()
         {
             var svc = new PricingService();
 
-            var result = svc.ApplyDiscount(100m, -10m);
+            var act = () => svc.ApplyDiscount(100m, -10m);
 
-            result.Should().Be(100m, "discount rate < 0 should be ignored");
+            act.Should().Throw<ArgumentOutOfRangeException>("discount rate < 0 is invalid");
         }
 
         [Fact]
-        public void PricingService_NegativePurchasePrice_ProfitMarginCalculated()
+        public void PricingService_NegativePurchasePrice_ThrowsArgumentOutOfRange()
         {
             var svc = new PricingService();
 
-            // Negative purchase price with positive sale: margin > 100%
-            var margin = svc.CalculateProfitMargin(-50m, 100m);
+            // Negative purchase price now throws
+            var act = () => svc.CalculateProfitMargin(-50m, 100m);
 
-            margin.Should().Be(150m);
+            act.Should().Throw<ArgumentOutOfRangeException>("negative purchase price is invalid");
         }
 
         [Fact]
@@ -515,7 +515,9 @@ public class EdgeCaseTests
             item.CalculateAmounts();
 
             item.TotalPrice.Should().Be(999_999_999.99m);
-            item.TaxAmount.Should().BeApproximately(179_999_999.9982m, 0.0001m);
+            // CalculateAmounts rounds TaxAmount to 2 decimal places:
+            // Math.Round(999_999_999.99 * 0.18, 2) = 180_000_000.00
+            item.TaxAmount.Should().Be(180_000_000.00m);
         }
 
         [Fact]
@@ -659,11 +661,10 @@ public class EdgeCaseTests
             var order = FakeData.CreateOrder(status: OrderStatus.Confirmed);
             order.Status = OrderStatus.Confirmed;
 
-            // MarkAsShipped requires string + CargoProvider; null tracking is allowed by the method signature
-            order.MarkAsShipped(null!, CargoProvider.YurticiKargo);
+            // MarkAsShipped now validates tracking number — null/whitespace throws
+            var act = () => order.MarkAsShipped(null!, CargoProvider.YurticiKargo);
 
-            order.TrackingNumber.Should().BeNull();
-            order.Status.Should().Be(OrderStatus.Shipped);
+            act.Should().Throw<ArgumentException>("null tracking number is rejected by ThrowIfNullOrWhiteSpace");
         }
 
         [Fact]

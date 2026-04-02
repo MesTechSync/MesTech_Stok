@@ -26,7 +26,7 @@ public class InventoryQueryHandlerTests
     [Fact]
     public async Task GetCategories_CallsRepository()
     {
-        _categoryRepo.Setup(r => r.GetActiveAsync())
+        _categoryRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Category>().AsReadOnly());
 
         var sut = new GetCategoriesHandler(_categoryRepo.Object);
@@ -91,14 +91,14 @@ public class InventoryQueryHandlerTests
     [Fact]
     public async Task GetLowStockProducts_CallsRepository()
     {
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = new GetLowStockProductsHandler(_productRepo.Object);
         var result = await sut.Handle(new GetLowStockProductsQuery(), CancellationToken.None);
 
         result.Should().NotBeNull();
-        _productRepo.Verify(r => r.GetLowStockAsync(), Times.Once());
+        _productRepo.Verify(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
     // ═══════ GetInventoryPagedHandler ═══════

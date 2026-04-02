@@ -14,7 +14,7 @@ public sealed class GetProjectTasksHandler : IRequestHandler<GetProjectTasksQuer
     public async Task<IReadOnlyList<WorkTaskDto>> Handle(GetProjectTasksQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var tasks = await _repository.GetByProjectAsync(request.ProjectId, request.Status, request.AssignedToUserId, cancellationToken);
+        var tasks = await _repository.GetByProjectAsync(request.ProjectId, request.Status, request.AssignedToUserId, cancellationToken).ConfigureAwait(false);
         return tasks.Adapt<List<WorkTaskDto>>().AsReadOnly();
     }
 }

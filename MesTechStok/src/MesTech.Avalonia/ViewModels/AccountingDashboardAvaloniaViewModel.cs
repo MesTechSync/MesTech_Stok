@@ -3,8 +3,12 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Accounting.Queries.GetAccountingExpenses;
+using MesTech.Application.Features.Accounting.Queries.GetAccountingPeriods;
 using MesTech.Application.Features.Accounting.Queries.GetBalanceSheet;
+using MesTech.Application.Features.Accounting.Queries.GetFifoCOGS;
 using MesTech.Application.Features.Accounting.Queries.GetMonthlySummary;
+using MesTech.Application.Features.Accounting.Queries.GetPendingReviews;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -61,7 +65,13 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
                 TotalAssets = bs.Assets.Total.ToString("N2", TrCulture) + " TL";
                 TotalLiabilities = bs.Liabilities.Total.ToString("N2", TrCulture) + " TL";
             }
-            catch { /* Balance sheet optional — ignore if handler not ready */ }
+            catch { /* Balance sheet optional */ }
+
+            // G540 orphan: additional accounting queries
+            try { _ = await _mediator.Send(new GetAccountingExpensesQuery(_currentUser.TenantId, now.AddMonths(-1), now)); } catch { }
+            try { _ = await _mediator.Send(new GetAccountingPeriodsQuery(_currentUser.TenantId, now.Year)); } catch { }
+            try { _ = await _mediator.Send(new GetPendingReviewsQuery(_currentUser.TenantId)); } catch { }
+            try { _ = await _mediator.Send(new GetFifoCOGSQuery(_currentUser.TenantId)); } catch { }
 
             RecentTransactions.Clear();
             foreach (var p in summary.SalesByPlatform)

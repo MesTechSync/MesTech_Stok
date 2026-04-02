@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.StockAlertAvaloniaView"
              x:Name="RootStockAlertAvaloniaView"
              x:DataType="vm:StockAlertAvaloniaViewModel"
@@ -33,6 +34,9 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Width="280" Watermark="Urun adi, SKU veya alarm tipi ara..."
+                         AutomationProperties.Name="Urun adi, SKU veya alarm tipi ara..."
+                         Text="{Binding SearchText}" Margin="0,0,8,0" />
                 <Button Content="Tumunu Goster" Command="{Binding FilterAllCommand}"
                         ToolTip.Tip="Tumunu Goster"
                         Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesTextSlate}" Padding="12,6" CornerRadius="{StaticResource MesRadiusBase}" />
@@ -100,14 +104,12 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource MesOverlayLight}"
-                IsVisible="{Binding IsLoading}" ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Stok uyarilari yukleniyor..." FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Empty State -->

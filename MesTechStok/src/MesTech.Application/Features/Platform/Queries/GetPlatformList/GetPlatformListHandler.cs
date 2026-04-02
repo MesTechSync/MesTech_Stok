@@ -52,11 +52,13 @@ public sealed class GetPlatformListHandler : IRequestHandler<GetPlatformListQuer
             allStores = await _storeRepository
                 .GetByTenantIdAsync(request.TenantId, cancellationToken);
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "DB unavailable for PlatformList — returning empty list");
             return new List<PlatformCardDto>();
         }
+#pragma warning restore CA1031
 
         var result = new List<PlatformCardDto>();
 

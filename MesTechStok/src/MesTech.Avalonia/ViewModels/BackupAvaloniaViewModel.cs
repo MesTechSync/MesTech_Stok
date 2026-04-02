@@ -70,7 +70,7 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ManualBackupAsync()
+    private Task ManualBackupAsync()
     {
         IsBackingUp = true;
         BackupProgress = 0;
@@ -100,10 +100,11 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         {
             IsBackingUp = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }
 
 public class BackupHistoryItem

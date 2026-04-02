@@ -1,5 +1,5 @@
-using FluentAssertions;
-using MesTech.Application.Commands.CreateExpense;
+﻿using FluentAssertions;
+using MesTech.Application.Features.Finance.Commands.CreateExpense;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;

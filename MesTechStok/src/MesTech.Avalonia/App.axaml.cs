@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MediatR;
@@ -9,6 +9,7 @@ using MesTech.Avalonia.ViewModels.Erp;
 using MesTech.Avalonia.Views;
 using global::MesTech.Infrastructure.DependencyInjection;
 using MesTech.Infrastructure.Security;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,9 +55,20 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // KÖK-3 FIX: Npgsql Legacy Timestamp — DateTime.Now (Kind=Local/Unspecified)
+        // PostgreSQL timestamp with time zone'a yazılabilir. 6+ ekran canlanır.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
         try
         {
         _host = Host.CreateDefaultBuilder()
+            .UseDefaultServiceProvider(options =>
+            {
+                // P0: Desktop app'te HTTP scope yok — Scoped servisler root'tan
+                // resolve edilir, ValidateScopes kapatılmazsa exception atar.
+                options.ValidateScopes = false;
+                options.ValidateOnBuild = false;
+            })
             .ConfigureAppConfiguration((ctx, config) =>
             {
                 config.SetBasePath(AppContext.BaseDirectory)
@@ -74,8 +86,14 @@ public partial class App : global::Avalonia.Application
                     builder.SetMinimumLevel(LogLevel.Information);
                 });
 
-                // === SAME Infrastructure DI as WPF Desktop — ZERO CHANGES ===
+                // === Infrastructure DI ===
                 services.AddInfrastructure(configuration);
+
+                // P0 FIX v2: ViewModelFactory scope-per-navigation pattern.
+                // AddInfrastructure() registers DbContext as Scoped (correct).
+                // ViewModelFactory.Create() creates a new DI scope per view navigation,
+                // so each view gets fresh DbContext + repositories. No Transient override needed.
+                // IDbContextFactory also registered for Hangfire/background parallel queries.
 
                 // MediatR — Application CQRS handlers
                 services.AddMediatR(cfg =>

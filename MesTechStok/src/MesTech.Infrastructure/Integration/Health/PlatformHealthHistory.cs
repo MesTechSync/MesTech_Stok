@@ -115,4 +115,5 @@ public sealed record PlatformHealthSummary(
     long AvgResponseTimeMs,
     int TotalChecks24h);
 
+[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Auto)]
 internal readonly record struct HealthEntry(DateTime CheckedAt, bool IsHealthy, long ResponseTimeMs);

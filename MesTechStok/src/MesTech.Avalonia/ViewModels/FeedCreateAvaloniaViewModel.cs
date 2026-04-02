@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -13,7 +14,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class FeedCreateAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private string feedName = string.Empty;
     [ObservableProperty] private string feedUrl = string.Empty;
@@ -27,9 +28,10 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> FormatOptions { get; } = ["XML", "CSV", "API", "Excel"];
     public ObservableCollection<FeedColumnMappingDto> ColumnMappings { get; } = [];
 
-    public FeedCreateAvaloniaViewModel(IMediator mediator)
+    public FeedCreateAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
         InitDefaultMappings();
     }
 
@@ -42,7 +44,7 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "kategori", TargetField = "Category" });
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -69,6 +71,7 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -91,7 +94,7 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         {
             var format = Enum.TryParse<FeedFormat>(SelectedFormat, out var f) ? f : FeedFormat.Xml;
             await _mediator.Send(new CreateFeedSourceCommand(
-                Guid.Empty, FeedName, FeedUrl, format,
+                _tenantProvider.GetCurrentTenantId(), FeedName, FeedUrl, format,
                 PriceMarkupPercent, 0, SyncIntervalMinutes, null, true));
             SaveCompleted = true;
         }

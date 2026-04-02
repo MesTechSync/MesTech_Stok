@@ -67,6 +67,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
+        // AddRedisInstrumentation removed: StackExchangeRedis OTel package yanked from nuget.org
         .AddSource("MesTech.Application.Handlers")
         .AddSource("MassTransit") // G543: MassTransit consumer/publish tracing
         .AddOtlpExporter(opt =>
@@ -75,7 +76,11 @@ builder.Services.AddOpenTelemetry()
         }))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation());
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:3317");
+        }));
 
 // ── Infrastructure (DbContext, Repositories, Domain Services, Cache, Messaging, etc.) ──
 builder.Services.AddInfrastructure(builder.Configuration, skipSelfHostedEndpoints: true);

@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.CariHesaplarAvaloniaView"
              x:Name="RootCariHesaplarAvaloniaView"
              x:DataType="vm:CariHesaplarAvaloniaViewModel">
@@ -20,6 +21,11 @@
                         <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} hesap'}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
+                    <TextBox Text="{Binding SearchText}"
+                             Watermark="Ara..." AutomationProperties.Name="Ara..."
+                             Width="240" Padding="10,8"
+                             CornerRadius="{StaticResource MesRadiusMd}"
+                             FontSize="{StaticResource FontSizeBody}" />
                 </StackPanel>
                 <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -92,17 +98,12 @@
             </Grid>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Cari hesaplar yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Empty State -->

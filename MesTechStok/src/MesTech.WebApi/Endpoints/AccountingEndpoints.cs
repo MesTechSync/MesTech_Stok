@@ -75,25 +75,23 @@ public static class AccountingEndpoints
             var trialBalance = await mediator.Send(
                 new GetTrialBalanceQuery(tenantId, monthStart, now), ct);
 
-            return Results.Ok(new
-            {
-                period = $"{now.Year}-{now.Month:D2}",
-                totalSales = monthlySummary.TotalSales,
-                totalExpenses = monthlySummary.TotalExpenses,
-                netProfit = monthlySummary.TotalSales - monthlySummary.TotalExpenses,
-                totalOrders = monthlySummary.TotalOrders,
-                totalReturns = monthlySummary.TotalReturns,
-                returnRate = monthlySummary.ReturnRate,
-                averageOrderValue = monthlySummary.AverageOrderValue,
-                totalCommissions = monthlySummary.TotalCommissions,
-                totalShippingCost = monthlySummary.TotalShippingCost,
-                totalTaxDue = monthlySummary.TotalTaxDue,
-                trialBalance
-            });
+            return Results.Ok(new AccountingSummaryResponse(
+                $"{now.Year}-{now.Month:D2}",
+                monthlySummary.TotalSales,
+                monthlySummary.TotalExpenses,
+                monthlySummary.TotalSales - monthlySummary.TotalExpenses,
+                monthlySummary.TotalOrders,
+                monthlySummary.TotalReturns,
+                monthlySummary.ReturnRate,
+                monthlySummary.AverageOrderValue,
+                monthlySummary.TotalCommissions,
+                monthlySummary.TotalShippingCost,
+                monthlySummary.TotalTaxDue,
+                trialBalance));
         })
         .WithName("GetAccountingSummary")
         .WithSummary("Muhasebe özet — Blazor AccountingDashboard.razor için (G362)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/accounting/trial-balance — mizan raporu
@@ -107,7 +105,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetTrialBalance")
         .WithSummary("Mizan raporu (belirli tarih aralığı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/balance-sheet — bilanço raporu
@@ -121,7 +119,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetBalanceSheet")
         .WithSummary("Bilanço raporu (belirli tarih itibariyle)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/profit-report — kâr raporu
@@ -135,7 +133,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetProfitReport")
         .WithSummary("Kâr raporu (dönem ve platform bazlı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/journal-entries — yevmiye kayıtları listesi
@@ -149,7 +147,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetJournalEntries")
         .WithSummary("Yevmiye kayıtları listesi (tarih aralığı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/journal-entries — yeni yevmiye kaydı oluştur
@@ -161,7 +159,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/journal-entries/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateJournalEntry")
-        .WithSummary("Yeni yevmiye kaydı oluştur").Produces(200).Produces(400)
+        .WithSummary("Yeni yevmiye kaydı oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/journal-entries/{id} — yevmiye güncelle + RowVersion (G228-DEV6)
@@ -177,12 +175,33 @@ public static class AccountingEndpoints
 
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
-                ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion))
+                ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion?.ToArray()))
                 : Results.Conflict(new { error = result.ErrorMessage });
         })
         .WithName("UpdateJournalEntry")
         .WithSummary("Yevmiye kaydı güncelle — RowVersion optimistic concurrency (G228)")
-        .Produces(200).Produces(409);
+        .Produces(200).Produces(409).ProducesProblem(401).ProducesProblem(429);
+
+        // POST /api/v1/accounting/journal-entries/{id}/approve — yevmiye onayla ve postala
+        group.MapPost("/journal-entries/{id:guid}/approve", async (
+            Guid id,
+            ApproveAccountingEntryRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var command = new MesTech.Application.Commands.ApproveAccountingEntry.ApproveAccountingEntryCommand
+            {
+                JournalEntryId = id,
+                DocumentId = request.DocumentId,
+                ApprovedBy = request.ApprovedBy,
+                ApprovalSource = request.ApprovalSource,
+                TenantId = request.TenantId
+            };
+            await mediator.Send(command, ct);
+            return Results.Ok(ApiResponse<string>.Ok("Yevmiye onaylandi ve postalandi."));
+        })
+        .WithName("ApproveAccountingEntry")
+        .WithSummary("Yevmiye kaydını onayla ve GL'ye postala")
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/accounting/expenses — masraf listesi
         group.MapGet("/expenses", async (
@@ -195,7 +214,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetAccountingExpenses")
         .WithSummary("Masraf listesi (tarih aralığı + kaynak filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/expenses — yeni masraf kaydı oluştur
@@ -207,7 +226,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateAccountingExpense")
-        .WithSummary("Yeni masraf kaydı oluştur").Produces(200).Produces(400)
+        .WithSummary("Yeni masraf kaydı oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/expenses/{id} — tek masraf kaydi
@@ -218,7 +237,7 @@ public static class AccountingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetExpenseById")
-        .WithSummary("Tek masraf kaydi detayi").Produces(200).Produces(400)
+        .WithSummary("Tek masraf kaydi detayi").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/expenses/{id} — masraf kaydi guncelle
@@ -231,7 +250,7 @@ public static class AccountingEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateExpense")
-        .WithSummary("Masraf kaydi guncelle").Produces(200).Produces(400)
+        .WithSummary("Masraf kaydi guncelle").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/expenses/{id} — masraf kaydi sil (soft delete)
@@ -242,7 +261,7 @@ public static class AccountingEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteExpense")
-        .WithSummary("Masraf kaydini sil (soft delete)").Produces(200).Produces(400)
+        .WithSummary("Masraf kaydini sil (soft delete)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/settlements — hakediş partileri
@@ -254,9 +273,9 @@ public static class AccountingEndpoints
                 new GetSettlementBatchesQuery(tenantId, from, to, platform), ct);
             return Results.Ok(result);
         })
-        .WithName("GetSettlementBatches")
+        .WithName("GetAccountingSettlementBatches")
         .WithSummary("Hakediş partileri (tarih + platform filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/reconciliation/dashboard — mutabakat özet panosu
@@ -270,7 +289,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetReconciliationDashboard")
         .WithSummary("Mutabakat dashboard — eşleştirme durum özeti")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // POST /api/v1/accounting/reconciliation/run — otomatik mutabakat çalıştır
@@ -282,7 +301,7 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("RunReconciliation")
-        .WithSummary("Otomatik mutabakat eşleştirme çalıştır").Produces(200).Produces(400)
+        .WithSummary("Otomatik mutabakat eşleştirme çalıştır").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
@@ -297,7 +316,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetBankTransactions")
         .WithSummary("Banka hareketleri (hesap + tarih filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/chart-of-accounts — hesap planı listesi
@@ -311,7 +330,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetChartOfAccounts")
         .WithSummary("Hesap planı listesi (aktif/pasif filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/commission-rates — platform komisyon oranları
@@ -325,7 +344,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetPlatformCommissionRates")
         .WithSummary("Platform komisyon oranları listesi (platform + aktif filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/commission-rates — yeni komisyon oranı oluştur (Dalga 14 M2)
@@ -337,7 +356,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/commission-rates/{result}", result);
         })
         .WithName("CreatePlatformCommissionRate")
-        .WithSummary("Yeni platform komisyon oranı oluştur").Produces(200).Produces(400)
+        .WithSummary("Yeni platform komisyon oranı oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/commission-rates/{id} — komisyon oranı güncelle (Dalga 14 M2)
@@ -350,7 +369,7 @@ public static class AccountingEndpoints
             return Results.NoContent();
         })
         .WithName("UpdatePlatformCommissionRate")
-        .WithSummary("Platform komisyon oranı güncelle").Produces(200).Produces(400)
+        .WithSummary("Platform komisyon oranı güncelle").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/shipment-costs — kargo maliyet listesi
@@ -366,7 +385,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetShipmentCosts")
         .WithSummary("Kargo maliyet listesi")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/periods — muhasebe dönemleri
@@ -382,7 +401,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetAccountingPeriods")
         .WithSummary("Muhasebe dönemleri listesi")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/periods/close — dönem kapat
@@ -394,7 +413,7 @@ public static class AccountingEndpoints
             return Results.Ok(ApiResponse<StatusResponse>.Ok(new StatusResponse("closed")));
         })
         .WithName("CloseAccountingPeriod")
-        .WithSummary("Muhasebe dönemini kapat").Produces(200).Produces(400)
+        .WithSummary("Muhasebe dönemini kapat").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // ─── DEFTER KAPATMA: Eksik 21 endpoint eklendi [ENT-DEV6] ───
@@ -408,7 +427,7 @@ public static class AccountingEndpoints
             return Results.NoContent();
         })
         .WithName("ApproveReconciliation")
-        .WithSummary("Mutabakat eşleşmesini onayla").Produces(200).Produces(400)
+        .WithSummary("Mutabakat eşleşmesini onayla").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/reconciliation/reject — mutabakat reddet
@@ -420,7 +439,7 @@ public static class AccountingEndpoints
             return Results.NoContent();
         })
         .WithName("RejectReconciliation")
-        .WithSummary("Mutabakat eşleşmesini reddet").Produces(200).Produces(400)
+        .WithSummary("Mutabakat eşleşmesini reddet").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/reconciliation/matches — mutabakat eşleşmeleri
@@ -434,7 +453,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetReconciliationMatches")
         .WithSummary("Mutabakat eşleşme listesi (durum filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/reconciliation/pending-reviews — bekleyen incelemeler
@@ -448,7 +467,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetPendingReviews")
         .WithSummary("Bekleyen mutabakat incelemeleri")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/bank-accounts — banka hesabı oluştur
@@ -460,7 +479,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/bank-accounts/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateAccountingBankAccount")
-        .WithSummary("Yeni banka hesabı tanımla").Produces(200).Produces(400)
+        .WithSummary("Yeni banka hesabı tanımla").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/account-balance — hesap bakiyesi
@@ -474,7 +493,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetAccountBalance")
         .WithSummary("Hesap bakiyesi sorgula")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/accounting/financial-goals — mali hedef oluştur
@@ -486,7 +505,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/financial-goals/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateFinancialGoal")
-        .WithSummary("Mali hedef oluştur").Produces(200).Produces(400)
+        .WithSummary("Mali hedef oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/bank-statements/import — banka ekstresi içe aktar
@@ -498,7 +517,7 @@ public static class AccountingEndpoints
             return Results.Ok(ApiResponse<object>.Ok(new { importedCount = count }));
         })
         .WithName("ImportBankStatement")
-        .WithSummary("Banka ekstresi içe aktar").Produces(200).Produces(400)
+        .WithSummary("Banka ekstresi içe aktar").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
@@ -511,7 +530,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/settlements/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("ImportSettlement")
-        .WithSummary("Hakediş dosyası içe aktar (pre-parsed)").Produces(200).Produces(400)
+        .WithSummary("Hakediş dosyası içe aktar (pre-parsed)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/settlements/parse-and-import — platform raw dosya → parse → kaydet
@@ -524,7 +543,7 @@ public static class AccountingEndpoints
         })
         .WithName("ParseAndImportSettlement")
         .WithSummary("Platform ham hakediş dosyası yükle — otomatik parse + kaydet (Trendyol, Amazon, N11...)")
-        .Produces(201).Produces(400)
+        .Produces(201).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
@@ -537,7 +556,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/cargo-expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCargoExpense")
-        .WithSummary("Kargo gideri kaydı oluştur").Produces(200).Produces(400)
+        .WithSummary("Kargo gideri kaydı oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/commissions — komisyon kaydı oluştur
@@ -549,7 +568,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/commissions/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCommission")
-        .WithSummary("Platform komisyon kaydı oluştur").Produces(200).Produces(400)
+        .WithSummary("Platform komisyon kaydı oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/documents/upload — muhasebe belgesi yükle
@@ -561,7 +580,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/documents/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("UploadAccountingDocument")
-        .WithSummary("Muhasebe belgesi yükle").Produces(200).Produces(400)
+        .WithSummary("Muhasebe belgesi yükle").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cash-flow — nakit akış raporu
@@ -575,7 +594,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetCashFlowReport")
         .WithSummary("Nakit akış raporu (tarih aralığı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/commission-summary — komisyon özet raporu
@@ -589,7 +608,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetCommissionSummary")
         .WithSummary("Komisyon özet raporu (tarih aralığı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/counterparties — cari hesap listesi (detaylı)
@@ -605,7 +624,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetCounterparties")
         .WithSummary("Cari hesap listesi (tip + aktif filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/accounting/fifo-cogs — FIFO maliyet hesabı
@@ -619,7 +638,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetFifoCOGS")
         .WithSummary("FIFO satılan malın maliyeti hesabı")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/kdv-declaration-draft — KDV beyanname taslağı
@@ -633,7 +652,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetKdvDeclarationDraft")
         .WithSummary("KDV beyannamesi taslağı (dönem: 2026-03 formatında)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/kdv-report — KDV raporu (basitleştirilmiş — G424-DEV6)
@@ -645,9 +664,9 @@ public static class AccountingEndpoints
                 new GetKdvReportQuery(tenantId, year, month), ct);
             return Results.Ok(result);
         })
-        .WithName("GetKdvReport")
+        .WithName("GetAccountingKdvReport")
         .WithSummary("KDV raporu — hesaplanan/indirilecek/ödenecek KDV + beyanname son tarih (G424)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/tax-summary — vergi özet raporu
@@ -661,7 +680,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetTaxSummary")
         .WithSummary("Vergi özet raporu (dönem bazlı)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/cargo-comparison — kargo karşılaştırma
@@ -673,7 +692,7 @@ public static class AccountingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetCargoComparison")
-        .WithSummary("Kargo firma karşılaştırma (fiyat/süre)").Produces(200).Produces(400)
+        .WithSummary("Kargo firma karşılaştırma (fiyat/süre)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/validate-balance-sheet — bilanço doğrulama
@@ -687,7 +706,7 @@ public static class AccountingEndpoints
         })
         .WithName("ValidateBalanceSheet")
         .WithSummary("Bilanço doğrulama (aktif = pasif kontrolü)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/chart-of-accounts — hesap planı oluştur
@@ -699,7 +718,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/chart-of-accounts/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateChartOfAccount")
-        .WithSummary("Yeni hesap planı kalemi oluştur").Produces(200).Produces(400)
+        .WithSummary("Yeni hesap planı kalemi oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/chart-of-accounts/{id} — hesap planı güncelle
@@ -712,7 +731,7 @@ public static class AccountingEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("UpdateChartOfAccount")
-        .WithSummary("Hesap planı kalemini güncelle").Produces(200).Produces(400)
+        .WithSummary("Hesap planı kalemini güncelle").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/chart-of-accounts/{id} — hesap planı sil
@@ -724,7 +743,7 @@ public static class AccountingEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("DeleteChartOfAccount")
-        .WithSummary("Hesap planı kalemini sil").Produces(200).Produces(400)
+        .WithSummary("Hesap planı kalemini sil").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cash-flow-trend — nakit akış trendi
@@ -738,7 +757,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetCashFlowTrend")
         .WithSummary("Nakit akış trendi (aylık gelir/gider/net)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/accounting/validate-trial-balance — mizan doğrulama
@@ -752,7 +771,7 @@ public static class AccountingEndpoints
         })
         .WithName("ValidateTrialBalance")
         .WithSummary("Mizan doğrulama (borç = alacak kontrolü)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/accounting/counterparties — yeni karşı taraf oluştur
@@ -764,7 +783,7 @@ public static class AccountingEndpoints
             return Results.Created($"/api/v1/accounting/counterparties/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCounterparty")
-        .WithSummary("Yeni karşı taraf (müşteri/tedarikçi) oluştur").Produces(200).Produces(400)
+        .WithSummary("Yeni karşı taraf (müşteri/tedarikçi) oluştur").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/counterparties/{id} — karşı taraf güncelle
@@ -777,7 +796,7 @@ public static class AccountingEndpoints
             return success ? Results.NoContent() : Results.NotFound();
         })
         .WithName("UpdateCounterparty")
-        .WithSummary("Karşı taraf bilgilerini güncelle").Produces(200).Produces(400)
+        .WithSummary("Karşı taraf bilgilerini güncelle").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
         // GET /api/v1/accounting/fixed-assets — sabit kıymet listesi
         group.MapGet("/fixed-assets", async (
@@ -789,7 +808,7 @@ public static class AccountingEndpoints
         })
         .WithName("GetFixedAssets")
         .WithSummary("Sabit kıymet listesi — aktif/pasif filtreli, amortisman dahil")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
     }
 
@@ -801,4 +820,16 @@ public static class AccountingEndpoints
         string? ReferenceNumber,
         List<JournalLineInput> Lines,
         byte[]? RowVersion);
+
+    public record ApproveAccountingEntryRequest(
+        Guid DocumentId,
+        string ApprovedBy,
+        string ApprovalSource,
+        Guid TenantId);
+
+    public sealed record AccountingSummaryResponse(
+        string Period, decimal TotalSales, decimal TotalExpenses, decimal NetProfit,
+        int TotalOrders, int TotalReturns, decimal ReturnRate, decimal AverageOrderValue,
+        decimal TotalCommissions, decimal TotalShippingCost, decimal TotalTaxDue,
+        object TrialBalance);
 }

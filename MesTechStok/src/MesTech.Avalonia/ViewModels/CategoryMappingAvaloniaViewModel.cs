@@ -99,10 +99,10 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task MapCategoryAsync()
+    private Task MapCategoryAsync()
     {
         if (SelectedLocalCategoryNode == null || SelectedPlatformCategoryNode == null)
-            return;
+            return Task.CompletedTask;
 
         Mappings.Add(new CategoryMappingItemDto
         {
@@ -116,6 +116,7 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         MappedCount++;
         if (UnmappedCount > 0) UnmappedCount--;
         MappingPercentage = MappedCount * 100.0 / (MappedCount + UnmappedCount + AiSuggestionCount);
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -124,7 +125,7 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SyncPlatformCategoriesAsync()
+    private Task SyncPlatformCategoriesAsync()
     {
         IsLoading = true;
         try
@@ -135,10 +136,11 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task AiAutoMapAsync()
+    private Task AiAutoMapAsync()
     {
         IsLoading = true;
         try
@@ -151,10 +153,11 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class CategoryNodeDto

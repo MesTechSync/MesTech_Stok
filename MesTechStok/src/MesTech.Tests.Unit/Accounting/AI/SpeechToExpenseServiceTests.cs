@@ -5,6 +5,8 @@ using FluentAssertions;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.AI.Accounting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -39,12 +41,20 @@ public class SpeechToExpenseServiceTests
 
         _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(_tenantId);
 
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Mesa:SpeechToExpense:TimeoutSeconds"] = "30"
+            })
+            .Build();
+
         _sut = new SpeechToExpenseService(
             _httpClient,
             _accountingServiceMock.Object,
             _documentRepoMock.Object,
             _tenantProviderMock.Object,
             _unitOfWorkMock.Object,
+            configuration,
             new Mock<ILogger<SpeechToExpenseService>>().Object);
     }
 

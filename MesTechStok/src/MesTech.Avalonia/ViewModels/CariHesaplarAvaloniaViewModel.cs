@@ -18,6 +18,7 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
     private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private string searchText = string.Empty;
 
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private decimal totalDebit;
@@ -70,18 +71,20 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
         }
     }
 
-    partial void OnSelectedTypeChanged(string value)
-    {
-        ApplyFilter();
-    }
+    partial void OnSelectedTypeChanged(string value) => ApplyFilter();
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
 
     private void ApplyFilter()
     {
         FilteredItems.Clear();
 
-        var filtered = SelectedType == "Tumu"
-            ? _allItems
-            : _allItems.Where(x => x.Tip == SelectedType).ToList();
+        var filtered = _allItems.AsEnumerable();
+        if (SelectedType != "Tumu")
+            filtered = filtered.Where(x => x.Tip == SelectedType);
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(x =>
+                x.HesapAdi.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                x.Tip.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
         foreach (var item in filtered)
             FilteredItems.Add(item);

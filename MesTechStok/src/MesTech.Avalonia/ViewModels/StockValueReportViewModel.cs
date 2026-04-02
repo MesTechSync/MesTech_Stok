@@ -50,7 +50,8 @@ public partial class StockValueReportViewModel : ViewModelBase
 
             TotalStockValueText = $"{result.TotalValue:N2} TL";
             TotalSkuText = result.TotalProducts.ToString("N0");
-            AverageTurnoverText = $"{result.ZeroStockProducts} stoksuz";
+            var avgTurnover = result.TotalProducts > 0 ? (int)(result.TotalValue / Math.Max(result.TotalCostValue, 1m) * 30) : 0;
+            AverageTurnoverText = $"{avgTurnover} gun ort. ({result.ZeroStockProducts} stoksuz)";
             IsEmpty = result.TotalProducts == 0;
         }, "Stok deger verisi yukleniyor");
     }

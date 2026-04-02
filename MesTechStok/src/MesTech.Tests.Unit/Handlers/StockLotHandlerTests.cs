@@ -91,7 +91,7 @@ public class StockLotHandlerTests
     [Fact]
     public async Task GetInventoryValue_EmptyProducts_ReturnsZeros()
     {
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product>());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>());
         var stockCalc = new StockCalculationService();
         var sut = new GetInventoryValueHandler(_productRepo.Object, stockCalc);
 

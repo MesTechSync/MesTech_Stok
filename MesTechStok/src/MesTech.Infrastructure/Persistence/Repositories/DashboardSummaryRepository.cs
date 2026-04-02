@@ -21,7 +21,7 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
     public async Task<DashboardSummaryDto> GetSummaryAsync(Guid tenantId, CancellationToken ct = default)
     {
         var today = DateTime.UtcNow.Date;
-        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var monthStart = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var weekAgo = today.AddDays(-7);
         var tid = tenantId;
 

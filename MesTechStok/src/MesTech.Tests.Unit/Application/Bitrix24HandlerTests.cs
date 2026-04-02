@@ -38,7 +38,7 @@ public class PushOrderToBitrix24HandlerTests
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Bitrix24Deal?)null);
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
             .ReturnsAsync(externalDealId);
 
@@ -62,7 +62,7 @@ public class PushOrderToBitrix24HandlerTests
         var orderId = Guid.NewGuid();
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Bitrix24Deal?)null);
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var handler = CreateHandler();
         var command = new PushOrderToBitrix24Command(orderId);
@@ -119,7 +119,7 @@ public class PushOrderToBitrix24HandlerTests
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Bitrix24Deal?)null);
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Bitrix24 API timeout"));
 
@@ -146,7 +146,7 @@ public class PushOrderToBitrix24HandlerTests
 
         _dealRepo.Setup(r => r.GetByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Bitrix24Deal?)null);
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _adapter.Setup(a => a.PushDealAsync(order, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 

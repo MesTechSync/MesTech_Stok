@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,6 +25,9 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
     [ObservableProperty] private decimal totalValue;
     [ObservableProperty] private string? stageFilter;
     [ObservableProperty] private int dealCount;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<PipelineStageItem> _allStages = [];
 
     public ObservableCollection<PipelineStageItem> Stages { get; } = [];
 
@@ -42,22 +46,23 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
         try
         {
             var result = await _mediator.Send(new GetBitrix24PipelineQuery(_currentUser.TenantId, StageFilter));
-            Stages.Clear();
+            _allStages.Clear();
             TotalDeals = result.TotalDeals;
             TotalValue = result.TotalValue;
             foreach (var stage in result.Stages)
-                Stages.Add(new PipelineStageItem(stage.StageId, stage.StageName, stage.DealCount, stage.TotalValue));
+                _allStages.Add(new PipelineStageItem(stage.StageId, stage.StageName, stage.DealCount, stage.TotalValue));
 
-            if (Stages.Count == 0)
+            if (_allStages.Count == 0)
             {
                 // Seed default stages for empty pipeline
-                Stages.Add(new("new", "Yeni", 0, 0));
-                Stages.Add(new("contact", "Temas", 0, 0));
-                Stages.Add(new("proposal", "Teklif", 0, 0));
-                Stages.Add(new("negotiation", "Muzakere", 0, 0));
-                Stages.Add(new("won", "Kazanildi", 0, 0));
-                Stages.Add(new("lost", "Kaybedildi", 0, 0));
+                _allStages.Add(new("new", "Yeni", 0, 0));
+                _allStages.Add(new("contact", "Temas", 0, 0));
+                _allStages.Add(new("proposal", "Teklif", 0, 0));
+                _allStages.Add(new("negotiation", "Muzakere", 0, 0));
+                _allStages.Add(new("won", "Kazanildi", 0, 0));
+                _allStages.Add(new("lost", "Kaybedildi", 0, 0));
             }
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -65,11 +70,12 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Pipeline yuklenemedi: {ex.Message}";
             _logger.LogError(ex, "Bitrix24 pipeline load failed");
             // Fallback stages
-            Stages.Clear();
-            Stages.Add(new("new", "Yeni", 0, 0));
-            Stages.Add(new("contact", "Temas", 0, 0));
-            Stages.Add(new("proposal", "Teklif", 0, 0));
-            Stages.Add(new("won", "Kazanildi", 0, 0));
+            _allStages.Clear();
+            _allStages.Add(new("new", "Yeni", 0, 0));
+            _allStages.Add(new("contact", "Temas", 0, 0));
+            _allStages.Add(new("proposal", "Teklif", 0, 0));
+            _allStages.Add(new("won", "Kazanildi", 0, 0));
+            ApplyFilter();
         }
         finally
         {
@@ -84,6 +90,21 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
             }
             catch { DealCount = 0; }
         }
+    }
+
+    // ── Search Filter ────────────────────────────────────────────────────────
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        Stages.Clear();
+        var filtered = _allStages.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(s =>
+                s.StageName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                s.StageId.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var item in filtered) Stages.Add(item);
+        IsEmpty = Stages.Count == 0;
     }
 
     [RelayCommand]

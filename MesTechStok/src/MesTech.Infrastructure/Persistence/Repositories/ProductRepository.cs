@@ -31,11 +31,11 @@ public sealed class ProductRepository : IProductRepository
     public async Task<Product?> GetByBarcodeAsync(string barcode)
         => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Barcode == barcode).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Product>> GetAllAsync()
-        => await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).Take(10000).AsNoTracking().ToListAsync().ConfigureAwait(false); // G485: pagination guard
+    public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default)
+        => await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).Take(10000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485: pagination guard
 
-    public async Task<IReadOnlyList<Product>> GetLowStockAsync()
-        => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).Take(5000).AsNoTracking().ToListAsync().ConfigureAwait(false); // G485: pagination guard
+    public async Task<IReadOnlyList<Product>> GetLowStockAsync(CancellationToken ct = default)
+        => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).Take(5000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485: pagination guard
 
     public async Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId)
         => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).Take(5000).AsNoTracking().ToListAsync().ConfigureAwait(false); // G485: pagination guard
@@ -64,8 +64,8 @@ public sealed class ProductRepository : IProductRepository
         if (product != null) _context.Products.Remove(product);
     }
 
-    public async Task<int> GetCountAsync()
-        => await _context.Products.CountAsync().ConfigureAwait(false);
+    public async Task<int> GetCountAsync(CancellationToken ct = default)
+        => await _context.Products.CountAsync(ct).ConfigureAwait(false);
 
     public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Products.CountAsync(p => p.TenantId == tenantId, ct).ConfigureAwait(false);

@@ -48,6 +48,8 @@ public class PlaceOrderEdgeCaseTests
             Guid.NewGuid(), "Test Customer", null, null,
             new List<PlaceOrderItem>());
 
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = CreateHandler();
@@ -64,8 +66,9 @@ public class PlaceOrderEdgeCaseTests
         var product1 = FakeData.CreateProduct(sku: "P1", stock: 100, salePrice: 50m);
         var product2Id = Guid.NewGuid();
 
-        _productRepo.Setup(r => r.GetByIdAsync(product1.Id)).ReturnsAsync(product1);
-        _productRepo.Setup(r => r.GetByIdAsync(product2Id)).ReturnsAsync((Product?)null);
+        // Handler uses GetByIdsAsync (batch) — only product1 is returned, product2 missing
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product1 });
 
         var command = new PlaceOrderCommand(
             Guid.NewGuid(), "Customer", null, null,
@@ -87,7 +90,8 @@ public class PlaceOrderEdgeCaseTests
     public async Task Handle_InsufficientStock_ThrowsFromDomainService()
     {
         var product = FakeData.CreateProduct(sku: "LOW-STOCK", stock: 2, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var command = new PlaceOrderCommand(
             Guid.NewGuid(), "Customer", null, null,
@@ -106,7 +110,8 @@ public class PlaceOrderEdgeCaseTests
     {
         var customerId = Guid.NewGuid();
         var product = FakeData.CreateProduct(sku: "CUST-TEST", stock: 50, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;
@@ -131,7 +136,8 @@ public class PlaceOrderEdgeCaseTests
     public async Task Handle_SingleItem_DeductsStockCorrectly()
     {
         var product = FakeData.CreateProduct(sku: "DEDUCT-TEST", stock: 50, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var command = new PlaceOrderCommand(
@@ -149,7 +155,8 @@ public class PlaceOrderEdgeCaseTests
     public async Task Handle_OrderNumberFormat_ContainsDateAndGuidPrefix()
     {
         var product = FakeData.CreateProduct(stock: 10);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;

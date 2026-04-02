@@ -78,10 +78,10 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task Save()
+    private Task Save()
     {
         IsLoading = true;
         try
@@ -96,5 +96,6 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 }

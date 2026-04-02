@@ -35,12 +35,15 @@ public class OrchestrationE2ETests
     private static Mock<IOrderRepository> CreateMockOrderRepo(PlatformType platform = PlatformType.Trendyol)
     {
         var mock = new Mock<IOrderRepository>();
+        var order = new Order
+        {
+            CustomerName = "E2E Test Customer",
+            SourcePlatform = platform
+        };
         mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => new Order
-            {
-                CustomerName = "E2E Test Customer",
-                SourcePlatform = platform
-            });
+            .ReturnsAsync(order);
+        mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(order);
         return mock;
     }
 

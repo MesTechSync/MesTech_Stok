@@ -81,9 +81,9 @@ public class BlazorPageDiscoveryTests
 
     [Theory(DisplayName = "Critical pages should exist")]
     [InlineData("/")]
-    [InlineData("/products")]
-    [InlineData("/orders")]
-    [InlineData("/settings")]
+    [InlineData("/urunler")]
+    [InlineData("/siparisler")]
+    [InlineData("/ayarlar")]
     [InlineData("/login")]
     public void CriticalPage_ShouldExist(string route)
     {

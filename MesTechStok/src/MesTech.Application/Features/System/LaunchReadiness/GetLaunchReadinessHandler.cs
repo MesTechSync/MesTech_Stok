@@ -47,7 +47,7 @@ public sealed class GetLaunchReadinessHandler
         criteria.Add(new(9, "KVKK uyum", "Security", true, "DeletePersonalData + ExportPersonalData mevcut"));
 
         // === DOMAIN ===
-        var productCount = await _productRepo.GetCountAsync();
+        var productCount = await _productRepo.GetCountAsync().ConfigureAwait(false);
         criteria.Add(new(10, "Urun verisi", "Domain",
             productCount > 0, $"{productCount} urun"));
 

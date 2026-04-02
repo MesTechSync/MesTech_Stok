@@ -92,7 +92,7 @@ public class DropshipQueryTests
     public async Task GetSuppliersHandler_ActiveOnly_ReturnsEmptyList()
     {
         var repo = new Mock<ISupplierRepository>();
-        repo.Setup(r => r.GetActiveAsync())
+        repo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Supplier>());
 
         var sut = new GetSuppliersHandler(repo.Object);
@@ -105,7 +105,7 @@ public class DropshipQueryTests
     public async Task GetSuppliersHandler_AllSuppliers_ReturnsEmptyList()
     {
         var repo = new Mock<ISupplierRepository>();
-        repo.Setup(r => r.GetAllAsync())
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Supplier>());
 
         var sut = new GetSuppliersHandler(repo.Object);
@@ -161,7 +161,7 @@ public class DropshipQueryTests
     public async Task GetCategoryMappingsHandler_EmptyCategories_ReturnsEmptyList()
     {
         var catRepo = new Mock<ICategoryRepository>();
-        catRepo.Setup(r => r.GetAllAsync())
+        catRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.Category>());
 
         var mappingRepo = new Mock<ICategoryPlatformMappingRepository>();

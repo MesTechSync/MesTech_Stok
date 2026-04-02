@@ -52,7 +52,7 @@ public class AutoShipOrderHandlerTests
         var order = CreateConfirmedOrder(tenantId, orderId);
         var command = new AutoShipOrderCommand(tenantId, orderId);
 
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _autoShipService.Setup(s => s.Recommend(It.IsAny<DomainShipmentRequest>()))
             .Returns(new DomainShipmentRecommendation(CargoProvider.YurticiKargo, "Cheapest option"));
         _cargoFactory.Setup(f => f.Resolve(CargoProvider.YurticiKargo)).Returns(_cargoAdapter.Object);
@@ -80,7 +80,7 @@ public class AutoShipOrderHandlerTests
         var orderId = Guid.NewGuid();
         var command = new AutoShipOrderCommand(Guid.NewGuid(), orderId);
 
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var sut = CreateSut();
 
@@ -102,7 +102,7 @@ public class AutoShipOrderHandlerTests
         var wrongTenantId = Guid.NewGuid();
         var command = new AutoShipOrderCommand(wrongTenantId, orderId);
 
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
 
         var sut = CreateSut();
 
@@ -123,7 +123,7 @@ public class AutoShipOrderHandlerTests
         var order = CreateConfirmedOrder(tenantId, orderId);
         var command = new AutoShipOrderCommand(tenantId, orderId);
 
-        _orderRepo.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepo.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _autoShipService.Setup(s => s.Recommend(It.IsAny<DomainShipmentRequest>()))
             .Returns(new DomainShipmentRecommendation(CargoProvider.SuratKargo, "Default"));
         _cargoFactory.Setup(f => f.Resolve(CargoProvider.SuratKargo)).Returns((ICargoAdapter?)null);

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -17,9 +18,12 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private ObservableCollection<DocumentListDto> documents = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string summary = string.Empty;
+
+    private List<DocumentListDto> _allDocuments = [];
 
     public DocumentsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
@@ -36,17 +40,35 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
             var result = await _mediator.Send(
                 new GetDocumentsQuery(_currentUser.TenantId), ct);
 
-            Documents = new ObservableCollection<DocumentListDto>(result.Documents);
-            TotalCount = result.TotalCount;
-            IsEmpty = TotalCount == 0;
-            Summary = $"Toplam {TotalCount} belge";
+            _allDocuments = result.Documents.ToList();
+            ApplyFilter();
         }, "Belgeler yuklenirken hata");
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var filtered = _allDocuments.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(d =>
+                d.FileName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (d.MimeType ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (d.FolderName ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        Documents = new ObservableCollection<DocumentListDto>(filtered);
+        TotalCount = Documents.Count;
+        IsEmpty = TotalCount == 0;
+        Summary = $"Toplam {TotalCount} belge";
     }
 
     [RelayCommand]
     private async Task Upload()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        Summary = "Belge yukleme modulu hazirlaniyor...";
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

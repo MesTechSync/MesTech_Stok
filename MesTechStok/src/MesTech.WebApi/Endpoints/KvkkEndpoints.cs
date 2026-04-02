@@ -105,40 +105,36 @@ public static class KvkkEndpoints
         // GET /api/v1/kvkk/rights — KVKK hakları bilgi endpoint'i
         group.MapGet("/rights", () =>
         {
-            return Results.Ok(new
-            {
-                Law = "6698 sayılı Kişisel Verilerin Korunması Kanunu",
-                Rights = new[]
+            return Results.Ok(new KvkkRightsResponse(
+                "6698 sayılı Kişisel Verilerin Korunması Kanunu",
+                new[]
                 {
-                    new { Article = "10", Right = "Aydınlatma yükümlülüğü", Endpoint = "GET /api/v1/kvkk/rights" },
-                    new { Article = "11/a", Right = "Kişisel verinin işlenip işlenmediğini öğrenme", Endpoint = "GET /api/v1/kvkk/export" },
-                    new { Article = "11/b", Right = "İşlenmiş ise bilgi talep etme", Endpoint = "GET /api/v1/kvkk/export" },
-                    new { Article = "11/c", Right = "Verilerin aktarıldığı üçüncü kişileri bilme", Endpoint = "GET /api/v1/kvkk/processors" },
-                    new { Article = "11/ç", Right = "Eksik/yanlış verilerin düzeltilmesini isteme", Endpoint = "PUT /api/v1/settings/profile (mevcut)" },
-                    new { Article = "11/d", Right = "Verilerin silinmesini/yok edilmesini isteme", Endpoint = "POST /api/v1/kvkk/delete" },
-                    new { Article = "11/e", Right = "Düzeltme/silmenin üçüncü kişilere bildirilmesini isteme", Endpoint = "Otomatik — audit log kaydı" },
-                    new { Article = "11/f", Right = "Otomatik sistemlerle aleyhte karar çıkmasına itiraz", Endpoint = "İletişim: kvkk@mestech.com.tr" },
-                    new { Article = "11/g", Right = "Zararın giderilmesini talep etme", Endpoint = "İletişim: kvkk@mestech.com.tr" }
+                    new KvkkRightItem("10", "Aydınlatma yükümlülüğü", "GET /api/v1/kvkk/rights"),
+                    new KvkkRightItem("11/a", "Kişisel verinin işlenip işlenmediğini öğrenme", "GET /api/v1/kvkk/export"),
+                    new KvkkRightItem("11/b", "İşlenmiş ise bilgi talep etme", "GET /api/v1/kvkk/export"),
+                    new KvkkRightItem("11/c", "Verilerin aktarıldığı üçüncü kişileri bilme", "GET /api/v1/kvkk/processors"),
+                    new KvkkRightItem("11/ç", "Eksik/yanlış verilerin düzeltilmesini isteme", "PUT /api/v1/settings/profile (mevcut)"),
+                    new KvkkRightItem("11/d", "Verilerin silinmesini/yok edilmesini isteme", "POST /api/v1/kvkk/delete"),
+                    new KvkkRightItem("11/e", "Düzeltme/silmenin üçüncü kişilere bildirilmesini isteme", "Otomatik — audit log kaydı"),
+                    new KvkkRightItem("11/f", "Otomatik sistemlerle aleyhte karar çıkmasına itiraz", "İletişim: kvkk@mestech.com.tr"),
+                    new KvkkRightItem("11/g", "Zararın giderilmesini talep etme", "İletişim: kvkk@mestech.com.tr")
                 },
-                DataProcessors = new[]
+                new[]
                 {
-                    new { Name = "PostgreSQL (Self-Hosted)", Purpose = "Ana veritabanı", Location = "TR" },
-                    new { Name = "Redis (Self-Hosted)", Purpose = "Önbellek", Location = "TR" },
-                    new { Name = "RabbitMQ (Self-Hosted)", Purpose = "Mesaj kuyruğu", Location = "TR" },
-                    new { Name = "MinIO (Self-Hosted)", Purpose = "Dosya depolama", Location = "TR" },
-                    new { Name = "Iyzico/PayTR", Purpose = "Ödeme işleme", Location = "TR" },
-                    new { Name = "Trendyol/HB/N11/Amazon API", Purpose = "Pazaryeri entegrasyonu", Location = "TR/EU" }
+                    new KvkkDataProcessorItem("PostgreSQL (Self-Hosted)", "Ana veritabanı", "TR"),
+                    new KvkkDataProcessorItem("Redis (Self-Hosted)", "Önbellek", "TR"),
+                    new KvkkDataProcessorItem("RabbitMQ (Self-Hosted)", "Mesaj kuyruğu", "TR"),
+                    new KvkkDataProcessorItem("MinIO (Self-Hosted)", "Dosya depolama", "TR"),
+                    new KvkkDataProcessorItem("Iyzico/PayTR", "Ödeme işleme", "TR"),
+                    new KvkkDataProcessorItem("Trendyol/HB/N11/Amazon API", "Pazaryeri entegrasyonu", "TR/EU")
                 },
-                RetentionPolicy = new
-                {
-                    TransactionalData = "10 yıl (TTK madde 82, VUK madde 253)",
-                    KvkkAuditLogs = "10 yıl (yasal zorunluluk)",
-                    UserData = "Hesap kapatılana kadar + 30 gün",
-                    BackupData = "90 gün rotasyon"
-                },
-                Contact = "kvkk@mestech.com.tr",
-                LastUpdated = "2026-03-26"
-            });
+                new KvkkRetentionPolicyInfo(
+                    "10 yıl (TTK madde 82, VUK madde 253)",
+                    "10 yıl (yasal zorunluluk)",
+                    "Hesap kapatılana kadar + 30 gün",
+                    "90 gün rotasyon"),
+                "kvkk@mestech.com.tr",
+                "2026-03-26"));
         })
         .WithName("KvkkRights")
         .WithSummary("KVKK hakları bilgilendirme — madde 10 aydınlatma yükümlülüğü").Produces(200).Produces(400)
@@ -147,27 +143,38 @@ public static class KvkkEndpoints
         // GET /api/v1/kvkk/processors — veri işleyen üçüncü taraf listesi
         group.MapGet("/processors", () =>
         {
-            return Results.Ok(new
-            {
-                DataProcessors = new[]
+            return Results.Ok(new KvkkProcessorsResponse(
+                new[]
                 {
-                    new { Name = "PostgreSQL", Type = "Database", SelfHosted = true, Location = "TR", Gdpr = "N/A (self-hosted)" },
-                    new { Name = "Redis", Type = "Cache", SelfHosted = true, Location = "TR", Gdpr = "N/A (self-hosted)" },
-                    new { Name = "RabbitMQ", Type = "Message Broker", SelfHosted = true, Location = "TR", Gdpr = "N/A (self-hosted)" },
-                    new { Name = "MinIO", Type = "Object Storage", SelfHosted = true, Location = "TR", Gdpr = "N/A (self-hosted)" },
-                    new { Name = "Iyzico", Type = "Payment Gateway", SelfHosted = false, Location = "TR", Gdpr = "DPA signed" },
-                    new { Name = "PayTR", Type = "Payment Gateway", SelfHosted = false, Location = "TR", Gdpr = "DPA signed" },
-                    new { Name = "Stripe", Type = "Payment Gateway", SelfHosted = false, Location = "EU/US", Gdpr = "SCCs applied" },
-                    new { Name = "Trendyol API", Type = "Marketplace Integration", SelfHosted = false, Location = "TR", Gdpr = "DPA signed" },
-                    new { Name = "Hepsiburada API", Type = "Marketplace Integration", SelfHosted = false, Location = "TR", Gdpr = "DPA signed" },
-                    new { Name = "Amazon SP-API", Type = "Marketplace Integration", SelfHosted = false, Location = "EU", Gdpr = "SCCs applied" }
+                    new KvkkProcessorDetailItem("PostgreSQL", "Database", true, "TR", "N/A (self-hosted)"),
+                    new KvkkProcessorDetailItem("Redis", "Cache", true, "TR", "N/A (self-hosted)"),
+                    new KvkkProcessorDetailItem("RabbitMQ", "Message Broker", true, "TR", "N/A (self-hosted)"),
+                    new KvkkProcessorDetailItem("MinIO", "Object Storage", true, "TR", "N/A (self-hosted)"),
+                    new KvkkProcessorDetailItem("Iyzico", "Payment Gateway", false, "TR", "DPA signed"),
+                    new KvkkProcessorDetailItem("PayTR", "Payment Gateway", false, "TR", "DPA signed"),
+                    new KvkkProcessorDetailItem("Stripe", "Payment Gateway", false, "EU/US", "SCCs applied"),
+                    new KvkkProcessorDetailItem("Trendyol API", "Marketplace Integration", false, "TR", "DPA signed"),
+                    new KvkkProcessorDetailItem("Hepsiburada API", "Marketplace Integration", false, "TR", "DPA signed"),
+                    new KvkkProcessorDetailItem("Amazon SP-API", "Marketplace Integration", false, "EU", "SCCs applied")
                 },
-                LastAuditDate = "2026-03-26",
-                NextAuditDate = "2026-06-26"
-            });
+                "2026-03-26",
+                "2026-06-26"));
         })
         .WithName("KvkkProcessors")
         .WithSummary("KVKK — veri işleyen üçüncü taraf listesi (madde 11/c)").Produces(200).Produces(400)
         .CacheOutput("Lookup60s");
     }
+
+    public sealed record KvkkRightItem(string Article, string Right, string Endpoint);
+    public sealed record KvkkDataProcessorItem(string Name, string Purpose, string Location);
+    public sealed record KvkkRetentionPolicyInfo(
+        string TransactionalData, string KvkkAuditLogs, string UserData, string BackupData);
+    public sealed record KvkkRightsResponse(
+        string Law, IReadOnlyList<KvkkRightItem> Rights, IReadOnlyList<KvkkDataProcessorItem> DataProcessors,
+        KvkkRetentionPolicyInfo RetentionPolicy, string Contact, string LastUpdated);
+
+    public sealed record KvkkProcessorDetailItem(
+        string Name, string Type, bool SelfHosted, string Location, string Gdpr);
+    public sealed record KvkkProcessorsResponse(
+        IReadOnlyList<KvkkProcessorDetailItem> DataProcessors, string LastAuditDate, string NextAuditDate);
 }

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Reports.SalesAnalytics;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,6 +17,29 @@ public class SalesAnalyticsViewModelTests
     public SalesAnalyticsViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetSalesAnalyticsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SalesAnalyticsDto
+            {
+                TotalRevenue = 125_000m,
+                TotalOrders = 342,
+                AverageOrderValue = 365.50m,
+                ConversionRate = 3.2m,
+                TopSellingPlatform = "Trendyol",
+                PlatformBreakdown = new()
+                {
+                    new() { Platform = "Trendyol", Revenue = 75_000m, Orders = 200, Percentage = 60m },
+                    new() { Platform = "Hepsiburada", Revenue = 30_000m, Orders = 82, Percentage = 24m },
+                    new() { Platform = "Amazon", Revenue = 20_000m, Orders = 60, Percentage = 16m },
+                },
+                TopProducts = new()
+                {
+                    new() { ProductName = "Urun A", SKU = "SKU-001", QuantitySold = 120, Revenue = 24_000m },
+                    new() { ProductName = "Urun B", SKU = "SKU-002", QuantitySold = 95, Revenue = 19_000m },
+                    new() { ProductName = "Urun C", SKU = "SKU-003", QuantitySold = 80, Revenue = 16_000m },
+                    new() { ProductName = "Urun D", SKU = "SKU-004", QuantitySold = 60, Revenue = 12_000m },
+                    new() { ProductName = "Urun E", SKU = "SKU-005", QuantitySold = 45, Revenue = 9_000m },
+                }
+            });
         var currentUserMock = new Mock<ICurrentUserService>();
         currentUserMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
         _sut = new SalesAnalyticsViewModel(_mediatorMock.Object, currentUserMock.Object);

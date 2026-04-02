@@ -33,7 +33,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -62,6 +62,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

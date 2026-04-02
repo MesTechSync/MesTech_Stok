@@ -236,7 +236,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void AddOrder_Click(object sender, RoutedEventArgs e)
+        private void AddOrder_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void ExportOrders_Click(object sender, RoutedEventArgs e)
+        private void ExportOrders_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -428,7 +428,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void CancelOrder_Click(object sender, RoutedEventArgs e)
+        private void CancelOrder_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -496,11 +496,12 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async Task SetupAuthorizationsAsync()
+        private Task SetupAuthorizationsAsync()
         {
             // Security: SimpleSecurityService integration pending
             // Şu anda tüm kullanıcılar tüm işlemleri yapabilir
             CanCreateOrders = CanEditOrders = CanCancelOrders = CanUpdateOrderStatus = true;
+            return Task.CompletedTask;
         }
 
         private async Task LoadOrdersPageAsync(int page = 1, int pageSize = 50)

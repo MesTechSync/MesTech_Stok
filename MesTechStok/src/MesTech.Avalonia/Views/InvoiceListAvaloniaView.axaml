@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.InvoiceListAvaloniaView"
              x:DataType="vm:InvoiceListAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -49,6 +50,7 @@
                 <ComboBox Width="150" ItemsSource="{Binding PlatformList}"
                           SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Platform seciniz"/>
                 <Button Command="{Binding RefreshCommand}" Background="Transparent"
+                        ToolTip.Tip="Verileri yenile"
                         BorderThickness="0" Padding="8"
                         CornerRadius="{StaticResource CornerRadiusMedium}">
                     <PathIcon Data="{StaticResource IconRefresh}" Width="18" Height="18"
@@ -146,18 +148,12 @@
             </Grid>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
-                <TextBlock Text="Faturalar yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Empty State -->

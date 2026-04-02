@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Queries.GetProductByBarcode;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -36,7 +37,7 @@ public partial class BarcodeScannerViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Scan()
+    private async Task ScanAsync()
     {
         var barcode = ScanInput?.Trim();
         if (string.IsNullOrEmpty(barcode)) return;
@@ -49,23 +50,21 @@ public partial class BarcodeScannerViewModel : ViewModelBase
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         try
         {
-            // Use existing GetProductByBarcodeQuery
-
-            var found = LookupBarcode(barcode);
+            var product = await _mediator.Send(new GetProductByBarcodeQuery(barcode)).ConfigureAwait(false);
             stopwatch.Stop();
             LastResponseTime = stopwatch.ElapsedMilliseconds;
 
-            if (found is not null)
+            if (product is not null)
             {
                 ScanResults.Insert(0, new ScanResultItem
                 {
                     Barcode = barcode,
                     Found = true,
-                    ProductName = found.Name,
-                    Stock = found.Stock,
-                    Price = found.Price,
-                    WarehouseName = found.Warehouse,
-                    MinimumStock = found.MinStock,
+                    ProductName = product.Name,
+                    Stock = product.Stock,
+                    Price = product.SalePrice,
+                    WarehouseName = product.WarehouseName ?? string.Empty,
+                    MinimumStock = product.MinimumStock,
                     ResponseTimeMs = stopwatch.ElapsedMilliseconds
                 });
                 FoundCount++;
@@ -120,27 +119,6 @@ public partial class BarcodeScannerViewModel : ViewModelBase
         IsEmpty = true;
         OnPropertyChanged(nameof(ScanSummary));
     }
-
-    /// <summary>Demo barcode lookup — will be replaced by GetProductByBarcodeQuery via MediatR.</summary>
-    private static ScanProductData? LookupBarcode(string barcode)
-    {
-        var products = new Dictionary<string, ScanProductData>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["8690000123456"] = new("Erkek Tisort Basic", 42, 149.90m, "Ana Depo", 10),
-            ["8690000123457"] = new("Kadin Kazak Kis", 8, 249.90m, "Ana Depo", 10),
-            ["8681234567890"] = new("Samsung Galaxy S24 Ultra", 45, 54999.99m, "Ana Depo", 10),
-            ["8681234567891"] = new("Apple MacBook Air M3", 3, 42999.00m, "Ana Depo", 5),
-            ["8681234567892"] = new("Sony WH-1000XM5 Kulaklik", 78, 8499.00m, "Yedek Depo", 20),
-            ["SKU-1001"] = new("Samsung Galaxy S24 Ultra", 45, 54999.99m, "Ana Depo", 10),
-            ["SKU-1002"] = new("Apple MacBook Air M3", 3, 42999.00m, "Ana Depo", 5),
-            ["SKU-1003"] = new("Sony WH-1000XM5 Kulaklik", 78, 8499.00m, "Yedek Depo", 20),
-            ["TS-BASIC-001"] = new("Erkek Tisort Basic", 42, 149.90m, "Ana Depo", 10),
-        };
-
-        return products.TryGetValue(barcode.Trim(), out var product) ? product : null;
-    }
-
-    private record ScanProductData(string Name, int Stock, decimal Price, string Warehouse, int MinStock);
 }
 
 /// <summary>Single scan result item for the timeline list.</summary>

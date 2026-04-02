@@ -26,7 +26,8 @@ public class BulkUpdateProductsHandlerTests
         // Arrange
         var product = FakeData.CreateProduct(sku: "BULK-001", salePrice: 100m);
         var productId = product.Id;
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var command = new BulkUpdateProductsCommand(
             new List<Guid> { productId },
@@ -59,7 +60,7 @@ public class BulkUpdateProductsHandlerTests
 
         // Assert
         result.Should().Be(0);
-        _productRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
+        _productRepo.Verify(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -68,7 +69,8 @@ public class BulkUpdateProductsHandlerTests
     {
         // Arrange
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
         var command = new BulkUpdateProductsCommand(
             new List<Guid> { missingId },
@@ -90,7 +92,8 @@ public class BulkUpdateProductsHandlerTests
         // Arrange
         var product = FakeData.CreateProduct(sku: "BULK-002");
         product.IsActive.Should().BeTrue();
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var command = new BulkUpdateProductsCommand(
             new List<Guid> { product.Id },
@@ -111,7 +114,8 @@ public class BulkUpdateProductsHandlerTests
     {
         // Arrange
         var product = FakeData.CreateProduct(sku: "BULK-003", salePrice: 200m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { product });
 
         var command = new BulkUpdateProductsCommand(
             new List<Guid> { product.Id },
@@ -136,9 +140,8 @@ public class BulkUpdateProductsHandlerTests
         var missingId = Guid.NewGuid();
         var p3 = FakeData.CreateProduct(sku: "BULK-MIX3", salePrice: 300m);
 
-        _productRepo.Setup(r => r.GetByIdAsync(p1.Id)).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
-        _productRepo.Setup(r => r.GetByIdAsync(p3.Id)).ReturnsAsync(p3);
+        _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { p1, p3 });
 
         var command = new BulkUpdateProductsCommand(
             new List<Guid> { p1.Id, missingId, p3.Id },

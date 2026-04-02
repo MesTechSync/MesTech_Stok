@@ -64,7 +64,18 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        var newEmployee = new EmployeeDto
+        {
+            Id = Guid.NewGuid(),
+            EmployeeCode = $"EMP-{DateTime.Now:yyyyMMddHHmmss}",
+            JobTitle = "Yeni Calisan",
+            WorkEmail = string.Empty,
+            Status = "Taslak",
+            HireDate = DateTime.Now
+        };
+        _allEmployees.Insert(0, newEmployee);
+        ApplyFilter();
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

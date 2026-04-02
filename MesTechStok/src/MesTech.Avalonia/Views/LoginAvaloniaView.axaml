@@ -102,6 +102,16 @@
             </StackPanel>
         </Border>
 
+        <!-- Empty State -->
+        <Border Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="40">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+                <TextBlock Text="Giris bilgisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                           HorizontalAlignment="Center" Opacity="0.6" />
+            </StackPanel>
+        </Border>
+
         <!-- Loading Overlay -->
         <Border Background="{DynamicResource MesOverlayLight}"
                 IsVisible="{Binding IsLoading}"

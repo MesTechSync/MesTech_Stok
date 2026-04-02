@@ -138,6 +138,125 @@ public static class PlatformSyncEndpoint
         .WithSummary("Zalando ürün senkronizasyonu başlat (G437)")
         .Produces(200).Produces(400);
 
+        // POST /api/v1/platforms/sync/pttavm — sync PTT AVM products
+        group.MapPost("/sync/pttavm", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("pttavm", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncPttAvmProducts")
+        .WithSummary("PTT AVM ürün senkronizasyonu başlat")
+        .Produces(200).Produces(400);
+
+        // ── G10787: 8 eksik platform sync endpoint — generic SyncPlatformCommand ile ──
+
+        // POST /api/v1/platforms/sync/pazarama
+        group.MapPost("/sync/pazarama", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("pazarama", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncPazaramaProducts")
+        .WithSummary("Pazarama urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/amazon
+        group.MapPost("/sync/amazon", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("amazon", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncAmazonProducts")
+        .WithSummary("Amazon TR urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/ebay
+        group.MapPost("/sync/ebay", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("ebay", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncEbayProducts")
+        .WithSummary("eBay urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/ozon
+        group.MapPost("/sync/ozon", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("ozon", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncOzonProducts")
+        .WithSummary("Ozon urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/etsy
+        group.MapPost("/sync/etsy", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("etsy", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncEtsyProducts")
+        .WithSummary("Etsy urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/shopify
+        group.MapPost("/sync/shopify", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("shopify", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncShopifyProducts")
+        .WithSummary("Shopify urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/woocommerce
+        group.MapPost("/sync/woocommerce", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("woocommerce", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncWooCommerceProducts")
+        .WithSummary("WooCommerce urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
+        // POST /api/v1/platforms/sync/opencart
+        group.MapPost("/sync/opencart", async (
+            Guid storeId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand("opencart", SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName("SyncOpenCartProducts")
+        .WithSummary("OpenCart urun senkronizasyonu baslat")
+        .Produces(200).Produces(400);
+
         // POST /api/v1/platforms/map-product — map product to platform category
         group.MapPost("/map-product", async (
             MapProductToPlatformCommand command,

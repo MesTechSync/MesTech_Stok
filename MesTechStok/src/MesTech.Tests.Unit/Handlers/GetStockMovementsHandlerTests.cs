@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.Queries.GetStockMovements;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -40,7 +40,7 @@ public class GetStockMovementsHandlerTests
         var from = DateTime.UtcNow.AddDays(-7);
         var to = DateTime.UtcNow;
         var movements = new List<StockMovement> { new() { Id = Guid.NewGuid(), Quantity = 10, CreatedAt = DateTime.UtcNow } };
-        _movementRepoMock.Setup(r => r.GetByDateRangeAsync(from, to)).ReturnsAsync(movements.AsReadOnly());
+        _movementRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>())).ReturnsAsync(movements.AsReadOnly());
 
         var query = new GetStockMovementsQuery(From: from, To: to);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -51,6 +51,11 @@ public class GetStockMovementsHandlerTests
     [Fact]
     public async Task Handle_NoFilters_ReturnsEmpty()
     {
+        // Handler now calls GetRecentAsync when no filters specified
+        _movementRepoMock.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
+
         var query = new GetStockMovementsQuery();
         var result = await _sut.Handle(query, CancellationToken.None);
 

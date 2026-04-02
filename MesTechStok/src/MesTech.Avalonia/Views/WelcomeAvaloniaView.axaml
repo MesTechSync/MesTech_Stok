@@ -109,6 +109,14 @@
             </StackPanel>
         </Border>
     
+        <!-- Empty State -->
+        <Border IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="40">
+            <StackPanel HorizontalAlignment="Center" Spacing="16">
+                <TextBlock Text="Hosgeldiniz bilgisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                           HorizontalAlignment="Center" Opacity="0.6" />
+            </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
             <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">

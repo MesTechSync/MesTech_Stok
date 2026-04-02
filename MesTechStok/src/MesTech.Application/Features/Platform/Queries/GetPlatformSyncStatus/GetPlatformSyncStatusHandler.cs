@@ -56,11 +56,13 @@ public sealed class GetPlatformSyncStatusHandler
             allStores = await _storeRepository
                 .GetByTenantIdAsync(request.TenantId, cancellationToken);
         }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "DB unavailable for PlatformSyncStatus — returning empty list");
             return new List<PlatformSyncStatusDto>();
         }
+#pragma warning restore CA1031
 
         var result = new List<PlatformSyncStatusDto>();
 
@@ -91,8 +93,10 @@ public sealed class GetPlatformSyncStatusHandler
             }
 
             // Enrich with real health data from PlatformHealthHistory (if available)
+#pragma warning disable CA1308 // Health provider keys are lowercase by convention
             var health = _healthProvider?.GetHealthSummary(platformName.ToLowerInvariant())
                       ?? _healthProvider?.GetHealthSummary(platform.ToString().ToLowerInvariant());
+#pragma warning restore CA1308
             if (health is not null)
             {
                 healthStatus = health.UptimePercent24h >= 95 ? "Healthy"

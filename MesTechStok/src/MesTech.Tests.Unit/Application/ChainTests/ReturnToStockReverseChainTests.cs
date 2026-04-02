@@ -23,7 +23,6 @@ public class ReturnToStockReverseChainTests
     [Fact]
     public async Task Handle_WhenReturnApproved_ShouldIncreaseProductStock()
     {
-        var productId = Guid.NewGuid();
         var tenantId = Guid.NewGuid();
         var returnId = Guid.NewGuid();
 
@@ -33,7 +32,8 @@ public class ReturnToStockReverseChainTests
             MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId
         };
 
-        var lines = new List<ReturnLineInfoEvent> { new(productId, "RET-001", 3, 100m) };
+        // Use product.Id so productMap.TryGetValue matches
+        var lines = new List<ReturnLineInfoEvent> { new(product.Id, "RET-001", 3, 100m) };
 
         _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product });
@@ -57,10 +57,11 @@ public class ReturnToStockReverseChainTests
             MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = Guid.NewGuid()
         };
 
+        // Use existingProduct.Id for the matching line, random Guid for missing
         var lines = new List<ReturnLineInfoEvent>
         {
             new(Guid.NewGuid(), "MISSING-001", 2, 50m),
-            new(Guid.NewGuid(), "EXISTS-001", 5, 75m)
+            new(existingProduct.Id, "EXISTS-001", 5, 75m)
         };
 
         _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))

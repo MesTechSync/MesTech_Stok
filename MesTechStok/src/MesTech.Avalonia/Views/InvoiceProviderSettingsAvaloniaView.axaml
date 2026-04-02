@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.InvoiceProviderSettingsAvaloniaView"
              x:Name="RootInvoiceProviderSettingsAvaloniaView"
              x:DataType="vm:InvoiceProviderSettingsAvaloniaViewModel"
@@ -143,20 +144,22 @@
             </StackPanel>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
-                <TextBlock Text="Provider bilgileri yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
     
+        <!-- Empty State (global) -->
+        <Border IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="40">
+            <StackPanel HorizontalAlignment="Center" Spacing="16">
+                <TextBlock Text="Provider bilgisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                           HorizontalAlignment="Center" Opacity="0.6" />
+            </StackPanel>
+        </Border>
+
         <!-- Error State -->
         <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
             <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">

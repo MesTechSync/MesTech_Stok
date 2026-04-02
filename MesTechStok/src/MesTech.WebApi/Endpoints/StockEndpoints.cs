@@ -39,7 +39,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockMovements")
         .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value — total inventory value
@@ -50,7 +50,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryValue")
         .WithSummary("Toplam envanter değeri")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/add — add stock to a product
@@ -63,7 +63,7 @@ public static class StockEndpoints
         })
         .WithName("AddStock")
         .WithSummary("Ürüne stok girişi")
-        .Produces(200).Produces(400)
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/remove — remove stock from a product
@@ -76,7 +76,7 @@ public static class StockEndpoints
         })
         .WithName("RemoveStock")
         .WithSummary("Üründen stok çıkışı")
-        .Produces(200).Produces(400)
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
@@ -101,7 +101,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryPaged")
         .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
@@ -112,7 +112,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryStatistics")
         .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
@@ -127,7 +127,7 @@ public static class StockEndpoints
         })
         .WithName("TransferStock")
         .WithSummary("Depolar arası stok transferi")
-        .Produces(200).Produces(400)
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
@@ -142,7 +142,7 @@ public static class StockEndpoints
         })
         .WithName("AdjustStock")
         .WithSummary("Stok düzeltme / sayım farkı girişi")
-        .Produces(200).Produces(400)
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
@@ -157,7 +157,7 @@ public static class StockEndpoints
         })
         .WithName("AddStockLot")
         .WithSummary("Lot/parti bazlı stok girişi")
-        .Produces(200).Produces(400)
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stock/summary — stock summary (totals, value, alerts)
@@ -170,7 +170,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockSummary")
         .WithSummary("Stok özeti — toplam adet, değer, uyarılar")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/stock/transfers — recent stock transfers
@@ -185,7 +185,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockTransfers")
         .WithSummary("Depolar arası transfer geçmişi")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value-report — stock value report (FIFO/COGS)
@@ -200,7 +200,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockValueReport")
         .WithSummary("Stok değerleme raporu — depo bazlı, FIFO/COGS")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/count — start a stock count session
@@ -213,7 +213,7 @@ public static class StockEndpoints
         })
         .WithName("StartStockCount")
         .WithSummary("Stok sayım oturumu başlat")
-        .Produces(201)
+        .Produces(201).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stock/lots — stok lot listesi (FIFO sıralı)
@@ -226,7 +226,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockLots")
         .WithSummary("Stok lot listesi — lot numarası, miktar, maliyet, son kullanma")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/lots — yeni stok lot kaydı oluştur
@@ -241,7 +241,7 @@ public static class StockEndpoints
         })
         .WithName("CreateStockLot")
         .WithSummary("Yeni stok lot kaydı — lot numarası, miktar, birim maliyet, depo")
-        .Produces(201).Produces(400)
+        .Produces(201).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
@@ -254,7 +254,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockPlacements")
         .WithSummary("Stok yerleşim listesi — depo, raf, bölge bazlı stok dağılımı")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
     }
 }

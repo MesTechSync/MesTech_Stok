@@ -543,19 +543,28 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // 14. GetCategories — Returns empty (stub implementation)
+    // 14. GetCategories — Returns mapped categories from API
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task GetCategories_ReturnsEmpty()
+    public async Task GetCategories_ReturnsEmpty_WhenApiReturnsEmpty()
     {
-        // Arrange — WooCommerce GetCategoriesAsync is stubbed to return empty
+        // Arrange — WooCommerce categories endpoint returns empty array
+        _mockServer
+            .Given(Request.Create()
+                .WithPath($"{WcApiBase}/products/categories")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(@"[]"));
+
         var adapter = CreateConfiguredAdapter();
 
         // Act
         var categories = await adapter.GetCategoriesAsync();
 
-        // Assert — WooCommerceAdapter.GetCategoriesAsync returns empty as per implementation
+        // Assert
         categories.Should().BeEmpty();
     }
 
@@ -571,14 +580,14 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // 16. SupportsPriceUpdate flag is false (stub, planned for Sprint D)
+    // 16. SupportsPriceUpdate flag is true (implemented in Dalga 14)
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public void SupportsPriceUpdate_IsFalse()
+    public void SupportsPriceUpdate_IsTrue()
     {
         var adapter = CreateAdapter();
-        adapter.SupportsPriceUpdate.Should().BeFalse();
+        adapter.SupportsPriceUpdate.Should().BeTrue();
     }
 
     // ══════════════════════════════════════════════════════════════════════════

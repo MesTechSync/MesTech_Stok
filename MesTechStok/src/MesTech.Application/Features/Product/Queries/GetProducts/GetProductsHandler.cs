@@ -29,8 +29,9 @@ public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, Paged
         if (request.LowStockOnly == true)
             filtered = filtered.Where(p => p.IsLowStock());
 
-        var total = filtered.Count();
-        var items = filtered
+        var materialised = filtered.ToList();
+        var total = materialised.Count;
+        var items = materialised
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(p => new ProductDto

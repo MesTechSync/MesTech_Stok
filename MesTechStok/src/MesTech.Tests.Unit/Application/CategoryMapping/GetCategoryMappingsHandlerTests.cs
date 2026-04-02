@@ -41,7 +41,7 @@ public class GetCategoryMappingsHandlerTests
 
         EntityTestHelper.SetEntityId(mapping, mappingId);
 
-        _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(categories);
+        _categoryRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(categories);
         _mappingRepo
             .Setup(r => r.GetByTenantAsync(tenantId, It.IsAny<PlatformType?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CategoryPlatformMapping> { mapping });
@@ -64,7 +64,7 @@ public class GetCategoryMappingsHandlerTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Category>());
+        _categoryRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category>());
         _mappingRepo
             .Setup(r => r.GetByTenantAsync(tenantId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CategoryPlatformMapping>());
@@ -90,7 +90,7 @@ public class GetCategoryMappingsHandlerTests
         EntityTestHelper.SetEntityId(cat, catId);
         var categories = new List<Category> { cat };
 
-        _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(categories);
+        _categoryRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(categories);
         _mappingRepo
             .Setup(r => r.GetByTenantAsync(tenantId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CategoryPlatformMapping>());

@@ -248,8 +248,13 @@ public static class IntegrationServiceRegistration
         // Webhook receiver
         services.AddScoped<IWebhookReceiverService, WebhookReceiverService>();
 
-        // Token cache (in-memory, Redis swap later)
-        services.AddSingleton<ITokenCacheProvider, InMemoryTokenCacheProvider>();
+        // Token cache — Redis varsa RedisTokenCacheProvider, yoksa InMemory fallback
+        var redisConn = configuration?.GetConnectionString("Redis")
+            ?? configuration?["Redis:ConnectionString"];
+        if (!string.IsNullOrEmpty(redisConn))
+            services.AddSingleton<ITokenCacheProvider, RedisTokenCacheProvider>();
+        else
+            services.AddSingleton<ITokenCacheProvider, InMemoryTokenCacheProvider>();
 
         // Invoice providers — MockInvoiceProvider only in Development/Testing
         var env = configuration?["ASPNETCORE_ENVIRONMENT"] ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -488,8 +493,9 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<ISettlementParser, EtsySettlementParser>();
         services.AddSingleton<ISettlementParser, WooCommerceSettlementParser>();
         services.AddSingleton<ISettlementParser, ZalandoSettlementParser>();
+        services.AddSingleton<ISettlementParser, Bitrix24SettlementParser>();
 
-        // Settlement parser factory — auto-discovers all registered ISettlementParser (15 total)
+        // Settlement parser factory — auto-discovers all registered ISettlementParser (16 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
         // Dalga 14 S3: Parasut options — sandbox toggle + environment-aware URLs

@@ -184,13 +184,19 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
         {
             Interval = TimeSpan.FromSeconds(30)
         };
-        _autoRefreshTimer.Tick += async (_, _) => await LoadAsync();
+        _autoRefreshTimer.Tick += OnAutoRefreshTick;
         _autoRefreshTimer.Start();
     }
 
+    private async void OnAutoRefreshTick(object? sender, EventArgs e) => await LoadAsync();
+
     public void StopAutoRefreshTimer()
     {
-        _autoRefreshTimer?.Stop();
+        if (_autoRefreshTimer is not null)
+        {
+            _autoRefreshTimer.Tick -= OnAutoRefreshTick;
+            _autoRefreshTimer.Stop();
+        }
         _autoRefreshTimer = null;
     }
 

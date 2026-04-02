@@ -12,16 +12,16 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public sealed class DealWonBridgeHandler : INotificationHandler<DomainEventNotification<DealWonEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DealWonBridgeHandler> _logger;
 
     public DealWonBridgeHandler(
-        IMesaEventPublisher mesaPublisher, AppDbContext context,
+        IMesaEventPublisher mesaPublisher, IDbContextFactory<AppDbContext> contextFactory,
         ITenantProvider tenantProvider, ILogger<DealWonBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
-        _context = context;
+        _contextFactory = contextFactory;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -32,8 +32,10 @@ public sealed class DealWonBridgeHandler : INotificationHandler<DomainEventNotif
     {
         var e = notification.DomainEvent;
 
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+
         // Deal entity'sini DB'den çek — Title ve CrmContactId için
-        var deal = await _context.Set<Deal>()
+        var deal = await context.Set<Deal>()
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == e.DealId, cancellationToken).ConfigureAwait(false);
 

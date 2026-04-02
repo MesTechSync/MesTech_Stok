@@ -38,6 +38,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
     public string? GibInvoiceId { get; private set; }
     public string? GibEnvelopeId { get; private set; }
     public string? PdfUrl { get; private set; }
+    public string? TenantNo { get; set; }
 
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
     public DateTime? SentAt { get; private set; }

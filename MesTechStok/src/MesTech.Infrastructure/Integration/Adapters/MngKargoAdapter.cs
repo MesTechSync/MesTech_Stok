@@ -305,12 +305,22 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 
     // -- GetShipmentLabelAsync -------------------------------
     public async Task<LabelResult> GetShipmentLabelAsync(string shipmentId, CancellationToken ct = default)
+        => await GetShipmentLabelAsync(shipmentId, LabelFormat.Pdf, ct).ConfigureAwait(false);
+
+    public async Task<LabelResult> GetShipmentLabelAsync(string shipmentId, LabelFormat preferredFormat, CancellationToken ct = default)
     {
         EnsureConfigured();
 
+        var formatQuery = preferredFormat switch
+        {
+            LabelFormat.Zpl => "?format=zpl",
+            LabelFormat.Png => "?format=png",
+            _ => ""
+        };
+
         var response = await ExecuteWithRetryAsync(
             () => CreateAuthenticatedRequest(HttpMethod.Get,
-                $"/api/v1/shipments/{shipmentId}/label"), ct).ConfigureAwait(false);
+                $"/api/v1/shipments/{shipmentId}/label{formatQuery}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -328,11 +338,18 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         if (string.IsNullOrEmpty(base64))
             throw new InvalidOperationException("MNG Kargo etiket verisi bos");
 
+        var ext = preferredFormat switch
+        {
+            LabelFormat.Zpl => "zpl",
+            LabelFormat.Png => "png",
+            _ => "pdf"
+        };
+
         return new LabelResult
         {
             Data = Convert.FromBase64String(base64),
-            Format = LabelFormat.Pdf,
-            FileName = $"mng-label-{shipmentId}.pdf"
+            Format = preferredFormat,
+            FileName = $"mng-label-{shipmentId}.{ext}"
         };
     }
 

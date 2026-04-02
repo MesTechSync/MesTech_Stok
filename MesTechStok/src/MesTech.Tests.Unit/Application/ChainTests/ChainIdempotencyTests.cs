@@ -59,7 +59,7 @@ public class Z1_OrderPlaced_LockTests
             tenantId, "EXT-LOCK", PlatformType.Trendyol,
             "Test", "t@t.com", new List<OrderItem> { orderItem });
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _lockServiceMock.Setup(l => l.AcquireLockAsync(
                 It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IAsyncDisposable?)null);
@@ -86,10 +86,10 @@ public class Z1_OrderPlaced_LockTests
             tenantId, "EXT-MULTI", PlatformType.Hepsiburada,
             "Test", "t@t.com", new List<OrderItem> { item1, item2 });
 
-        var product1 = new Product { Name = "A", SKU = "SKU-A", Stock = 100, SalePrice = 100m, IsActive = true };
-        var product2 = new Product { Name = "B", SKU = "SKU-B", Stock = 50, SalePrice = 200m, IsActive = true };
+        var product1 = new Product { Id = prod1Id, Name = "A", SKU = "SKU-A", Stock = 100, SalePrice = 100m, IsActive = true };
+        var product2 = new Product { Id = prod2Id, Name = "B", SKU = "SKU-B", Stock = 50, SalePrice = 200m, IsActive = true };
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product1, product2 });
 

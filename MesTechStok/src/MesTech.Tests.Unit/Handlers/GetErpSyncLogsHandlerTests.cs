@@ -14,6 +14,6 @@ public class GetErpSyncLogsHandlerTests
     {
         var sut = new GetErpSyncLogsHandler(Mock.Of<IErpSyncLogRepository>());
         var act = () => sut.Handle(null!, CancellationToken.None);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 }

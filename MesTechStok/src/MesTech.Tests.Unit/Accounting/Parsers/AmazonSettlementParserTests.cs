@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class AmazonSettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly AmazonSettlementParser _sut;
     private readonly Mock<ILogger<AmazonSettlementParser>> _loggerMock = new();
 
@@ -54,7 +55,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("Amazon");
@@ -66,7 +67,7 @@ public class AmazonSettlementParserTests
         var tsv = "settlement-id\tamount\n";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
 
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -78,7 +79,7 @@ public class AmazonSettlementParserTests
         var tsv = BuildTsv();
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
 
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.TotalGross.Should().Be(0m);
         batch.TotalNet.Should().Be(0m);
@@ -93,7 +94,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.Should().NotBeNull();
         _loggerMock.Verify(
@@ -117,7 +118,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(2);
@@ -145,7 +146,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.Should().NotBeNull();
     }
@@ -153,7 +154,7 @@ public class AmazonSettlementParserTests
     [Fact]
     public async Task ParseAsync_WithNullStream_ShouldThrow()
     {
-        var act = async () => await _sut.ParseAsync(null!, "tsv");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "tsv");
 
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -175,7 +176,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.Should().NotBeNull();
         batch.TotalNet.Should().Be(0m);
@@ -197,7 +198,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.PeriodStart.Should().NotBe(default);
     }
@@ -211,7 +212,7 @@ public class AmazonSettlementParserTests
         );
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(tsv));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.TotalCommission.Should().BeGreaterOrEqualTo(0m);
     }
@@ -220,7 +221,7 @@ public class AmazonSettlementParserTests
     public async Task ParseAsync_EmptyStream_ShouldReturnEmptyBatch()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
-        var batch = await _sut.ParseAsync(stream, "tsv");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "tsv");
 
         batch.TotalGross.Should().Be(0m);
     }

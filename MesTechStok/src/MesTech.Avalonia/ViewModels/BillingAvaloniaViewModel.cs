@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Billing.Queries.GetBillingInvoices;
 using MesTech.Application.Features.Billing.Queries.GetSubscriptionPlans;
+using MesTech.Application.Features.Billing.Queries.GetSubscriptionUsage;
+using MesTech.Application.Features.Billing.Queries.GetUserFeatures;
 using MesTech.Application.Features.Billing.Queries.GetTenantSubscription;
 using MesTech.Domain.Interfaces;
 
@@ -42,12 +44,9 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var subTask = _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
-            var invTask = _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
-            await Task.WhenAll(subTask, invTask);
-
-            var subscription = await subTask;
-            var invoices = await invTask;
+            // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
+            var invoices = await _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
 
             CurrentPlan = subscription?.PlanName ?? "—";
             NextBillingDate = subscription?.NextBillingDate?.ToString("yyyy-MM-dd") ?? "—";
@@ -75,6 +74,8 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
                 AvailablePlanCount = plans.Count;
             }
             catch { AvailablePlanCount = 0; }
+            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId)); } catch { }
+            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId)); } catch { }
 
             ApplyFilters();
         }

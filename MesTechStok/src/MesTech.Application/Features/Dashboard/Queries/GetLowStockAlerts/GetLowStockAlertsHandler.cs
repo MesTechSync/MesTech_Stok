@@ -14,7 +14,7 @@ public sealed class GetLowStockAlertsHandler
     public async Task<IReadOnlyList<LowStockAlertDto>> Handle(
         GetLowStockAlertsQuery request, CancellationToken cancellationToken)
     {
-        var products = await _productRepo.GetLowStockAsync()
+        var products = await _productRepo.GetLowStockAsync(cancellationToken)
             .ConfigureAwait(false);
 
         return products

@@ -16,6 +16,7 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
+    [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string currentFilter = "All";
 
     private List<StockAlertItemDto> _allAlerts = [];
@@ -73,6 +74,8 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
         finally { IsLoading = false; }
     }
 
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
     private void ApplyFilter()
     {
         FilteredAlerts.Clear();
@@ -83,6 +86,14 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
             "Low" => _allAlerts.Where(a => a.Level == "Low"),
             _ => _allAlerts.AsEnumerable()
         };
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(a =>
+                a.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                a.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                a.LevelText.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
 
         foreach (var alert in filtered)
             FilteredAlerts.Add(alert);

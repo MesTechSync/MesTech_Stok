@@ -45,7 +45,7 @@ public sealed class HepsiburadaTokenService
 
         _username = configuration["Hepsiburada:Username"] ?? string.Empty;
         _password = configuration["Hepsiburada:Password"] ?? string.Empty;
-        _authUrl = configuration["Hepsiburada:AuthUrl"] ?? "https://auth.hepsiburada.com/oauth/token";
+        _authUrl = configuration["Hepsiburada:AuthUrl"] ?? configuration["Integrations:Hepsiburada:AuthUrl"] ?? "https://auth.hepsiburada.com/oauth/token";
 
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>

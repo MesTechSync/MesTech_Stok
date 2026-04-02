@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Commands.AddStockLot;
+using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Features.Stock.Queries.GetStockLots;
 using MesTech.Domain.Interfaces;
 
@@ -90,24 +91,32 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
     partial void OnProductSearchTextChanged(string value)
     {
         if (value.Length < 2) { ProductSuggestions.Clear(); return; }
+        _ = SearchProductsAsync(value);
+    }
 
-        ProductSuggestions.Clear();
-        var suggestions = new List<LotProductDto>
+    private async Task SearchProductsAsync(string searchTerm)
+    {
+        try
         {
-            new() { Sku = "SKU-1001", Ad = "Samsung Galaxy S24" },
-            new() { Sku = "SKU-1002", Ad = "Apple MacBook Air M3" },
-            new() { Sku = "SKU-1003", Ad = "Sony WH-1000XM5 Kulaklik" },
-            new() { Sku = "SKU-1004", Ad = "Logitech MX Master 3S" },
-            new() { Sku = "SKU-1005", Ad = "Dell U2723QE Monitor" },
-            new() { Sku = "SKU-1006", Ad = "Anker PowerCore 20000" },
-        };
+            var result = await _mediator.Send(new GetProductsQuery(
+                _currentUser.TenantId,
+                SearchTerm: searchTerm,
+                PageSize: 10));
 
-        var search = value.ToLowerInvariant();
-        foreach (var s in suggestions.Where(s =>
-            s.Sku.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-            s.Ad.Contains(search, StringComparison.OrdinalIgnoreCase)))
+            ProductSuggestions.Clear();
+            foreach (var p in result.Items)
+            {
+                ProductSuggestions.Add(new LotProductDto
+                {
+                    ProductId = p.Id,
+                    Sku = p.SKU ?? string.Empty,
+                    Ad = p.Name
+                });
+            }
+        }
+        catch
         {
-            ProductSuggestions.Add(s);
+            // Search failed silently — user can retry by typing more
         }
     }
 

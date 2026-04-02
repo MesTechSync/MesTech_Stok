@@ -15,6 +15,9 @@ public sealed class DemoDataSeeder
     public static readonly Guid DemoTenantId =
         Guid.Parse("00000000-0000-0000-0000-000000000099");
 
+    public static readonly Guid DemoUserId =
+        Guid.Parse("00000000-0000-0000-0000-000000000095");
+
     private static readonly Guid DemoStoreId =
         Guid.Parse("00000000-0000-0000-0000-000000000098");
 
@@ -23,6 +26,11 @@ public sealed class DemoDataSeeder
 
     private static readonly Guid DemoCustomerId =
         Guid.Parse("00000000-0000-0000-0000-000000000096");
+
+    /// <summary>Demo login credentials.</summary>
+    public const string DemoUsername = "demo";
+    public const string DemoPassword = "Demo123!";
+    public const string DemoEmail = "demo@mestech.tr";
 
     private readonly AppDbContext _context;
     private readonly ILogger<DemoDataSeeder> _logger;
@@ -48,6 +56,7 @@ public sealed class DemoDataSeeder
         _logger.LogInformation("Demo verileri olusturuluyor...");
 
         await SeedDemoTenantAsync(ct);
+        await SeedDemoUserAsync(ct);
         await SeedDemoStoreAsync(ct);
         await SeedDemoCategoryAsync(ct);
         await SeedDemoCustomerAsync(ct);
@@ -55,7 +64,7 @@ public sealed class DemoDataSeeder
         var productIds = await SeedDemoProductsAsync(ct);
         await SeedDemoOrdersAsync(productIds, ct);
 
-        _logger.LogInformation("Demo verileri basariyla olusturuldu: 1 tenant, 1 store, 1 category, 1 customer, {ProductCount} product, 5 order",
+        _logger.LogInformation("Demo verileri basariyla olusturuldu: 1 tenant, 1 user, 1 store, 1 category, 1 customer, {ProductCount} product, 5 order",
             productIds.Count);
     }
 
@@ -80,6 +89,26 @@ public sealed class DemoDataSeeder
         _context.Tenants.Add(tenant);
         await _context.SaveChangesAsync(ct);
         _logger.LogInformation("Demo Tenant olusturuldu: {TenantId}", DemoTenantId);
+    }
+
+    private async Task SeedDemoUserAsync(CancellationToken ct)
+    {
+        var user = new User
+        {
+            TenantId = DemoTenantId,
+            Username = DemoUsername,
+            Email = DemoEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(DemoPassword),
+            FirstName = "Demo",
+            LastName = "Kullanici",
+            IsActive = true,
+            CreatedBy = "DemoDataSeeder"
+        };
+        SetEntityId(user, DemoUserId);
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync(ct);
+        _logger.LogInformation("Demo User olusturuldu: {Username} / {Email}", DemoUsername, DemoEmail);
     }
 
     private async Task SeedDemoStoreAsync(CancellationToken ct)

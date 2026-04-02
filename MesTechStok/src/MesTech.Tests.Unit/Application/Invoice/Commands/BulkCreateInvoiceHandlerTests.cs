@@ -1,5 +1,6 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.Features.Invoice.Commands;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Application.Interfaces;
@@ -24,6 +25,11 @@ public class BulkCreateInvoiceHandlerTests
     {
         // Arrange
         var orderIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+        var orders = orderIds.Select(id => CreateFakeOrder(id)).ToList();
+
+        _orderRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<Order>)orders);
+
         var command = new BulkCreateInvoiceCommand(orderIds, InvoiceProvider.Sovos);
         var handler = CreateHandler();
 
@@ -42,6 +48,9 @@ public class BulkCreateInvoiceHandlerTests
     public async Task Handle_EmptyOrderIds_ShouldReturnZeroCounts()
     {
         // Arrange
+        _orderRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Order>());
+
         var command = new BulkCreateInvoiceCommand(new List<Guid>(), InvoiceProvider.Parasut);
         var handler = CreateHandler();
 
@@ -60,6 +69,11 @@ public class BulkCreateInvoiceHandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
+        var order = CreateFakeOrder(orderId);
+
+        _orderRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Order> { order });
+
         var command = new BulkCreateInvoiceCommand(new List<Guid> { orderId }, InvoiceProvider.Sovos);
         var handler = CreateHandler();
 
@@ -85,5 +99,18 @@ public class BulkCreateInvoiceHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    private static Order CreateFakeOrder(Guid orderId)
+    {
+        return new Order
+        {
+            Id = orderId,
+            OrderNumber = $"ORD-{orderId.ToString("N")[..8]}",
+            TenantId = Guid.NewGuid(),
+            CustomerId = Guid.NewGuid(),
+            CustomerName = "Test Customer",
+            OrderDate = DateTime.UtcNow
+        };
     }
 }

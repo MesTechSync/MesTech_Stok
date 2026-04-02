@@ -485,21 +485,21 @@ namespace MesTechStok.Core.Integrations.OpenCart
             }
         }
 
-        private async Task<DateTime?> GetLastSyncDateInternalAsync(string syncType)
+        private Task<DateTime?> GetLastSyncDateInternalAsync(string syncType)
         {
-            if (string.IsNullOrWhiteSpace(syncType)) return null;
-            if (_syncStateCache.TryGetValue(syncType, out var dt)) return dt;
+            if (string.IsNullOrWhiteSpace(syncType)) return Task.FromResult<DateTime?>(null);
+            if (_syncStateCache.TryGetValue(syncType, out var dt)) return Task.FromResult<DateTime?>(dt);
             // attempt to reload (if external process updated file)
             LoadSyncState();
-            return _syncStateCache.TryGetValue(syncType, out dt) ? dt : null;
+            return Task.FromResult(_syncStateCache.TryGetValue(syncType, out dt) ? dt : (DateTime?)null);
         }
 
-        private async Task<bool> UpdateLastSyncDateInternalAsync(string syncType, DateTime syncDate)
+        private Task<bool> UpdateLastSyncDateInternalAsync(string syncType, DateTime syncDate)
         {
-            if (string.IsNullOrWhiteSpace(syncType)) return false;
+            if (string.IsNullOrWhiteSpace(syncType)) return Task.FromResult(false);
             _syncStateCache[syncType] = syncDate;
             PersistSyncState();
-            return true;
+            return Task.FromResult(true);
         }
 
         private async Task<OpenCartSyncResult> BulkSyncProductsInternalAsync(IEnumerable<OpenCartProduct> products)

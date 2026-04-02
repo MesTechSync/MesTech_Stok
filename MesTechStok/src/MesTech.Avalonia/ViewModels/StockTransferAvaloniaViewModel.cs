@@ -155,14 +155,14 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task TransferAsync()
+    private Task TransferAsync()
     {
-        if (SelectedSourceWarehouse is null) { TransferStatus = "Kaynak depo secilmedi."; return; }
-        if (SelectedTargetWarehouse is null) { TransferStatus = "Hedef depo secilmedi."; return; }
-        if (SelectedSourceWarehouse == SelectedTargetWarehouse) { TransferStatus = "Kaynak ve hedef depo ayni olamaz."; return; }
-        if (SelectedProduct is null) { TransferStatus = "Urun secilmedi."; return; }
-        if (TransferQuantity <= 0) { TransferStatus = "Transfer miktari 0'dan buyuk olmali."; return; }
-        if (TransferQuantity > SourceStock) { TransferStatus = "Transfer miktari mevcut stoktan buyuk olamaz."; return; }
+        if (SelectedSourceWarehouse is null) { TransferStatus = "Kaynak depo secilmedi."; return Task.CompletedTask; }
+        if (SelectedTargetWarehouse is null) { TransferStatus = "Hedef depo secilmedi."; return Task.CompletedTask; }
+        if (SelectedSourceWarehouse == SelectedTargetWarehouse) { TransferStatus = "Kaynak ve hedef depo ayni olamaz."; return Task.CompletedTask; }
+        if (SelectedProduct is null) { TransferStatus = "Urun secilmedi."; return Task.CompletedTask; }
+        if (TransferQuantity <= 0) { TransferStatus = "Transfer miktari 0'dan buyuk olmali."; return Task.CompletedTask; }
+        if (TransferQuantity > SourceStock) { TransferStatus = "Transfer miktari mevcut stoktan buyuk olamaz."; return Task.CompletedTask; }
 
         IsLoading = true;
         TransferStatus = string.Empty;
@@ -192,10 +192,11 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Transfer basarisiz: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }
 
 public class TransferProductDto

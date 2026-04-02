@@ -7,6 +7,7 @@ using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.Feed;
 
@@ -20,6 +21,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<FacebookShopFeedAdapter> _logger;
+    private readonly FeedOptions _feedOptions;
 
     private DateTime? _lastGenerated;
     private int _lastItemCount;
@@ -29,10 +31,12 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
 
     public FacebookShopFeedAdapter(
         AppDbContext dbContext,
-        ILogger<FacebookShopFeedAdapter> logger)
+        ILogger<FacebookShopFeedAdapter> logger,
+        IOptions<FeedOptions>? feedOptions = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _feedOptions = feedOptions?.Value ?? new FeedOptions();
     }
 
     public async Task<FeedGenerationResult> GenerateFeedAsync(
@@ -73,10 +77,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             var feedXml = BuildFeedDocument(items, request);
             _ = SerializeXml(feedXml);
 
-            // Feed URL should point to object storage (MinIO/S3) where the XML is uploaded.
-            // Currently returns a placeholder URL — integration with MinIO upload pending.
-            var feedUrl = $"https://feeds.mestech.app/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
-            _logger.LogWarning("[{Platform}Feed] Using placeholder feed URL — MinIO/S3 upload not yet integrated. URL: {FeedUrl}", Platform, feedUrl);
+            var feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
@@ -162,7 +163,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             new XElement("availability", availability),
             new XElement("condition", condition),
             new XElement("price", $"{price.ToString("F2", CultureInfo.InvariantCulture)} {currency}"),
-            new XElement("link", $"https://mestech.app/products/{product.SKU}"),
+            new XElement("link", $"{request.StoreUrl.TrimEnd('/')}/products/{product.SKU}"),
             new XElement("image_link", product.ImageUrl ?? string.Empty),
             new XElement("brand", product.Brand ?? "MesTech"));
     }
@@ -171,7 +172,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     {
         var channel = new XElement("channel",
             new XElement("title", "MesTech Facebook Shop Feed"),
-            new XElement("link", "https://mestech.app"),
+            new XElement("link", request.StoreUrl),
             new XElement("description", $"Urun katalogu — {DateTime.UtcNow:yyyy-MM-dd}"),
             new XElement("language", request.Language ?? "tr"),
             items);

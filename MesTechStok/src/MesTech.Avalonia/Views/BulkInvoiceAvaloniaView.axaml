@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.BulkInvoiceAvaloniaView"
              x:Name="RootBulkInvoiceAvaloniaView"
              x:DataType="vm:BulkInvoiceAvaloniaViewModel">
@@ -23,20 +24,26 @@
         <!-- Row 1: Controls -->
         <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto">
                 <CheckBox Grid.Column="0" Content="Tumunu Sec" IsChecked="{Binding SelectAll}"
                           VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="1"
+                <TextBox Grid.Column="1" Width="220" Watermark="Ara: siparis no, musteri..."
+                         AutomationProperties.Name="Ara: siparis no, musteri..."
+                         Text="{Binding SearchText}"
+                         FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                         CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center"
+                         Margin="0,0,12,0" />
+                <TextBlock Grid.Column="2"
                            Text="{Binding SelectedCount, StringFormat='{}{0} siparis secili'}"
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="2" Text="Provider:" VerticalAlignment="Center"
+                <TextBlock Grid.Column="3" Text="Provider:" VerticalAlignment="Center"
                            Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="3" Width="160"
+                <ComboBox Grid.Column="4" Width="160"
                           ItemsSource="{Binding Providers}"
                           SelectedItem="{Binding SelectedProvider}" AutomationProperties.Name="Provider:"/>
-                <Button Grid.Column="4" Content="Toplu Fatura Olustur"
+                <Button Grid.Column="5" Content="Toplu Fatura Olustur"
                         ToolTip.Tip="Toplu Fatura Olustur"
                         Command="{Binding ProcessBulkCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
@@ -132,18 +139,12 @@
             </StackPanel>
         </Border>
 
-        <!-- Loading Overlay -->
+        <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesOverlayLight}"
+                Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12"/>
-                <TextBlock Text="Siparisler yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
     
 <!-- Empty state -->

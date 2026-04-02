@@ -12,16 +12,16 @@ namespace MesTech.Infrastructure.Messaging.Handlers;
 public sealed class DealLostBridgeHandler : INotificationHandler<DomainEventNotification<DealLostEvent>>
 {
     private readonly IMesaEventPublisher _mesaPublisher;
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DealLostBridgeHandler> _logger;
 
     public DealLostBridgeHandler(
-        IMesaEventPublisher mesaPublisher, AppDbContext context,
+        IMesaEventPublisher mesaPublisher, IDbContextFactory<AppDbContext> contextFactory,
         ITenantProvider tenantProvider, ILogger<DealLostBridgeHandler> logger)
     {
         _mesaPublisher = mesaPublisher;
-        _context = context;
+        _contextFactory = contextFactory;
         _tenantProvider = tenantProvider;
         _logger = logger;
     }
@@ -32,8 +32,10 @@ public sealed class DealLostBridgeHandler : INotificationHandler<DomainEventNoti
     {
         var e = notification.DomainEvent;
 
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+
         // Deal entity'sini DB'den cek — Title ve Amount icin
-        var deal = await _context.Set<Deal>()
+        var deal = await context.Set<Deal>()
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == e.DealId, cancellationToken).ConfigureAwait(false);
 

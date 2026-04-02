@@ -40,7 +40,7 @@ public sealed class GetMesaStatusHandler : IRequestHandler<GetMesaStatusQuery, M
             using var client = _httpClientFactory.CreateClient("MesaBridge");
             client.Timeout = TimeSpan.FromSeconds(5);
 
-            var response = await client.GetAsync(healthEndpoint, cancellationToken).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri(healthEndpoint), cancellationToken).ConfigureAwait(false);
             sw.Stop();
 
             if (!response.IsSuccessStatusCode)
@@ -83,11 +83,10 @@ public sealed class GetMesaStatusHandler : IRequestHandler<GetMesaStatusQuery, M
         }
     }
 
-    private sealed class MesaHealthResponse
-    {
-        public DateTime? LastHeartbeat { get; set; }
-        public string? Version { get; set; }
-        public int ActiveConsumers { get; set; }
-        public Dictionary<string, bool> FeatureFlags { get; set; } = new();
-    }
+#pragma warning disable CA1812 // Instantiated via JsonSerializer.Deserialize
+    private sealed record MesaHealthResponse(
+        DateTime? LastHeartbeat = null,
+        string? Version = null,
+        int ActiveConsumers = 0,
+        Dictionary<string, bool>? FeatureFlags = null);
 }

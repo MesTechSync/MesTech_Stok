@@ -39,10 +39,12 @@ public static class ProductEndpoints
             int? pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            if (tenantId is null || tenantId == Guid.Empty)
+                return Results.BadRequest(new { detail = "tenantId gerekli." });
             var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
             var result = await mediator.Send(
-                new GetProductsQuery(tenantId ?? Guid.Empty, safeSearch, categoryId, isActive, null,
+                new GetProductsQuery(tenantId.Value, safeSearch, categoryId, isActive, null,
                     page ?? 1, clampedSize), ct);
             return Results.Ok(result);
         })
@@ -97,7 +99,7 @@ public static class ProductEndpoints
         .WithName("GetProductVariants")
         .WithSummary("Ürün varyant matrisi — renk/beden kombinasyonları + stok")
         .Produces<ProductVariantMatrixDto>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products/{id}/variants — varyant kaydet/güncelle (G562)
         group.MapPost("/{id:guid}/variants", async (
@@ -116,7 +118,7 @@ public static class ProductEndpoints
         .WithName("SaveProductVariants")
         .WithSummary("Ürün varyantlarını toplu kaydet/güncelle — renk/beden/fiyat/stok")
         .Produces<SaveProductVariantsResult>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -133,7 +135,7 @@ public static class ProductEndpoints
         .Produces(201)
         .Produces(400)
         .Produces(403)
-        .Produces(429);
+        .Produces(429).ProducesProblem(401).ProducesProblem(429);
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -148,7 +150,7 @@ public static class ProductEndpoints
         .WithName("UpdateProduct")
         .WithSummary("Ürün güncelle")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -161,7 +163,7 @@ public static class ProductEndpoints
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)")
         .Produces(204)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (
@@ -178,7 +180,7 @@ public static class ProductEndpoints
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/products/search — paginated product search with filters
         group.MapGet("/search", async (
@@ -209,8 +211,10 @@ public static class ProductEndpoints
             int? pageSize,
             ISender mediator, CancellationToken ct) =>
         {
+            if (tenantId is null || tenantId == Guid.Empty)
+                return Results.BadRequest(new { detail = "tenantId gerekli." });
             var result = await mediator.Send(
-                new GetProductsQuery(tenantId ?? Guid.Empty, null, null, true, null,
+                new GetProductsQuery(tenantId.Value, null, null, true, null,
                     page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
             return Results.Ok(result);
         })
@@ -248,7 +252,7 @@ public static class ProductEndpoints
         .WithName("CreateBulkProducts")
         .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/products/{productId}/buybox-status — buybox durumu
         group.MapGet("/{productId:guid}/buybox-status", async (
@@ -259,7 +263,7 @@ public static class ProductEndpoints
                 new GetBuyboxStatusQuery(tenantId, productId, platformCode), ct);
             return Results.Ok(result);
         })
-        .WithName("GetBuyboxStatus")
+        .WithName("GetProductBuyboxStatus")
         .WithSummary("Ürün buybox pozisyon durumu")
         .Produces(200)
         .CacheOutput("Report120s");
@@ -273,7 +277,7 @@ public static class ProductEndpoints
         })
         .WithName("SearchProductsForImageMatch")
         .WithSummary("Görsel benzerlik ile ürün arama (pgvector)")
-        .Produces(200);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/products/{productId}/generate-description — AI ürün açıklaması
         group.MapPost("/{productId:guid}/generate-description", async (
@@ -287,7 +291,7 @@ public static class ProductEndpoints
         })
         .WithName("GenerateProductDescription")
         .WithSummary("AI ile ürün açıklaması oluştur")
-        .Produces(200);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
@@ -307,7 +311,7 @@ public static class ProductEndpoints
             var result = await buybox.CheckBuyboxPositionsAsync(tenantId, platformCode, ct);
             return Results.Ok(result);
         })
-        .WithName("GetBuyboxPositions")
+        .WithName("GetProductBuyboxPositions")
         .WithSummary("Tüm ürünlerin buybox pozisyon listesi")
         .CacheOutput("Report120s");
 
@@ -319,7 +323,7 @@ public static class ProductEndpoints
             var result = await buybox.GetLostBuyboxesAsync(tenantId, ct);
             return Results.Ok(result);
         })
-        .WithName("GetLostBuyboxes")
+        .WithName("GetProductLostBuyboxes")
         .WithSummary("Buybox kaybedilen ürün listesi")
         .CacheOutput("Report120s");
 
@@ -347,7 +351,20 @@ public static class ProductEndpoints
         })
         .WithName("AutoCompetePrice")
         .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+
+        // POST /api/v1/products/auto-compete/bulk — toplu otomatik fiyat rekabet
+        group.MapPost("/auto-compete/bulk", async (
+            BulkAutoCompetePriceCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+        .WithName("BulkAutoCompetePrice")
+        .WithSummary("Toplu otomatik fiyat rekabet — tenant'ın tüm ürünleri veya platform bazlı Buybox kazanma")
+        .Produces(200).Produces(400)
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
         group.MapGet("/platform/{platformCode}", async (
@@ -377,9 +394,9 @@ public static class ProductEndpoints
             var fileName = $"products_export_{DateTime.UtcNow:yyyyMMdd}.{command.Format}";
             return Results.File(result, contentType, fileName);
         })
-        .WithName("ExportProducts")
+        .WithName("ExportProductsAdvanced")
         .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
         .Produces(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
 }

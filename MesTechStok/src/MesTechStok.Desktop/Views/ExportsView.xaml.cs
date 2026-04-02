@@ -133,7 +133,7 @@ namespace MesTechStok.Desktop.Views
 
         #region Quick Export Events
 
-        private async void ExportExcel_Click(object sender, RoutedEventArgs e)
+        private void ExportExcel_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -220,7 +220,7 @@ namespace MesTechStok.Desktop.Views
             }
         }
 
-        private async void ExportPDF_Click(object sender, RoutedEventArgs e)
+        private void ExportPDF_Click(object sender, RoutedEventArgs e)
         {
             try
             {

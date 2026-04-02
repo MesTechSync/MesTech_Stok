@@ -62,4 +62,31 @@ public sealed class WebSocketDashboardNotifier : IDashboardNotifier
             Data = new { returnId, orderId, reason }
         }, ct);
     }
+
+    public Task NotifyBuyboxLostAsync(Guid tenantId, string sku, decimal currentPrice, decimal competitorPrice, string competitorName, CancellationToken ct = default)
+    {
+        return _connectionManager.BroadcastAsync(new DashboardEvent
+        {
+            EventType = DashboardEventType.BuyboxLost,
+            Data = new { tenantId, sku, currentPrice, competitorPrice, competitorName }
+        }, ct);
+    }
+
+    public Task NotifyPriceAutoUpdatedAsync(Guid tenantId, string sku, decimal oldPrice, decimal newPrice, string strategy, CancellationToken ct = default)
+    {
+        return _connectionManager.BroadcastAsync(new DashboardEvent
+        {
+            EventType = DashboardEventType.PriceAutoUpdated,
+            Data = new { tenantId, sku, oldPrice, newPrice, strategy }
+        }, ct);
+    }
+
+    public Task NotifyPriceCycleDoneAsync(Guid tenantId, int updated, int skipped, int tenantCount, CancellationToken ct = default)
+    {
+        return _connectionManager.BroadcastAsync(new DashboardEvent
+        {
+            EventType = DashboardEventType.PriceCycleDone,
+            Data = new { tenantId, updated, skipped, tenantCount }
+        }, ct);
+    }
 }

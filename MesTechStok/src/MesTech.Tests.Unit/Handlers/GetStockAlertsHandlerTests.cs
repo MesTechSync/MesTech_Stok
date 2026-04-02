@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -26,7 +26,7 @@ public class GetStockAlertsHandlerTests
             new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", Stock = 2, MinimumStock = 10 },
             new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 0, MinimumStock = 5 }
         };
-        _productRepoMock.Setup(r => r.GetLowStockAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new GetStockAlertsQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -40,7 +40,7 @@ public class GetStockAlertsHandlerTests
     [Fact]
     public async Task Handle_NoLowStock_ReturnsEmpty()
     {
-        _productRepoMock.Setup(r => r.GetLowStockAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
+        _productRepoMock.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>().AsReadOnly());
 
         var query = new GetStockAlertsQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);

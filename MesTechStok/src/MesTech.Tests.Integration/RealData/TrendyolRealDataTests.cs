@@ -71,7 +71,7 @@ public class TrendyolRealDataTests
         products[0].SalePrice.Should().Be(149.90m);
         products[0].ListPrice.Should().Be(249.90m);
         products[0].Stock.Should().Be(200);
-        products[0].Description.Should().Contain("yuzde yuz pamuk", "description should contain fabric info");
+        products[0].Description.Should().ContainEquivalentOf("yuzde yuz pamuk", "description should contain fabric info");
 
         // Product 2: Jean
         products[1].SKU.Should().Be("TY-JN-002");

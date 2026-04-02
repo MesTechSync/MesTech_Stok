@@ -52,13 +52,9 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var dashboardTask = _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
-            var stockTask = _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
-
-            await Task.WhenAll(dashboardTask, stockTask);
-
-            var dashboard = dashboardTask.Result;
-            var stock = stockTask.Result;
+            // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
+            var dashboard = await _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
+            var stock = await _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
 
             // Sales Report
             TotalSales = $"{dashboard.MonthlySalesAmount:N0} TL";
@@ -93,10 +89,10 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task GenerateReport(string reportType)
+    private Task GenerateReport(string reportType)
     {
         IsGenerating = true;
         GeneratingMessage = $"{reportType} hazirlaniyor...";
@@ -115,5 +111,6 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         {
             IsGenerating = false;
         }
+        return Task.CompletedTask;
     }
 }

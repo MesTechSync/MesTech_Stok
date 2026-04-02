@@ -42,9 +42,6 @@ public class MockDependencyMapTests
 
     private static readonly string[] ActiveMockFiles =
     {
-        "MockLocationService.cs",
-        "MockWarehouseOptimizationService.cs",
-        "MockMobileWarehouseService.cs",
         "MockMesaAIService.cs",
         "MockMesaBotService.cs",
         "MockBuyboxService.cs",

@@ -423,7 +423,7 @@ public class LogoERPAdapterTests
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId))
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
 
         SetupHttpResponse(HttpStatusCode.OK, "{\"id\":\"LOGO-ORD-12345\",\"success\":true}");
@@ -442,7 +442,7 @@ public class LogoERPAdapterTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId))
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Order?)null);
 
         // Act
@@ -477,7 +477,7 @@ public class LogoERPAdapterTests
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId))
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
 
         SetupHttpResponse(HttpStatusCode.BadRequest, "{\"error\":\"invalid order data\"}");
@@ -500,7 +500,7 @@ public class LogoERPAdapterTests
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId))
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
 
         _httpHandlerMock.Protected()
@@ -802,7 +802,7 @@ public class LogoERPAdapterTests
         typeof(Order).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(order, orderId);
 
-        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId))
+        _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
 
         // Logo API returns success but no ID

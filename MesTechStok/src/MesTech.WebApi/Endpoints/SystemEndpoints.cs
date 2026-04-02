@@ -52,13 +52,8 @@ public static class SystemEndpoints
             var rateLimitFeature = httpContext.Features
                 .Get<RateLimitLease>();
 
-            return Results.Ok(new
-            {
-                Limit = 100,
-                WindowSeconds = 60,
-                Policy = "PerApiKey",
-                Description = "100 request per minute per API key"
-            });
+            return Results.Ok(new RateLimitStatusResponse(
+                100, 60, "PerApiKey", "100 request per minute per API key"));
         })
         .WithName("GetRateLimitStatus")
         .WithSummary("API rate limit kota bilgisi").Produces(200).Produces(400)
@@ -115,25 +110,24 @@ public static class SystemEndpoints
             var n8nUrl = configuration["Automation:N8NBaseUrl"];
             var webhookSecret = configuration["Automation:WebhookSecret"];
 
-            return Results.Ok(ApiResponse<object>.Ok(new
-            {
-                n8nConfigured = !string.IsNullOrWhiteSpace(n8nUrl),
-                n8nBaseUrl = n8nUrl ?? "not configured",
-                webhookSecretConfigured = !string.IsNullOrWhiteSpace(webhookSecret),
-                supportedWorkflows = new[]
-                {
-                    "WF-01: siparis→fatura→PDF→email→WA",
-                    "WF-02: service-down→TG+WA alarm",
-                    "WF-03: dusuk-stok→TG+reorder",
-                    "WF-04: gunluk-ozet 20:00",
-                    "WF-05: musteri→CRM+Chatwoot",
-                    "WF-06: fatura→UBL dogrulama",
-                    "WF-07: service-recovery→bildirim",
-                    "WF-08: haftalik-guvenlik",
-                    "WF-09: backup→MinIO 03:00",
-                    "WF-10: sefer→muhasebe"
-                }
-            }));
+            return Results.Ok(ApiResponse<AutomationStatusResponse>.Ok(
+                new AutomationStatusResponse(
+                    !string.IsNullOrWhiteSpace(n8nUrl),
+                    n8nUrl ?? "not configured",
+                    !string.IsNullOrWhiteSpace(webhookSecret),
+                    new[]
+                    {
+                        "WF-01: siparis→fatura→PDF→email→WA",
+                        "WF-02: service-down→TG+WA alarm",
+                        "WF-03: dusuk-stok→TG+reorder",
+                        "WF-04: gunluk-ozet 20:00",
+                        "WF-05: musteri→CRM+Chatwoot",
+                        "WF-06: fatura→UBL dogrulama",
+                        "WF-07: service-recovery→bildirim",
+                        "WF-08: haftalik-guvenlik",
+                        "WF-09: backup→MinIO 03:00",
+                        "WF-10: sefer→muhasebe"
+                    })));
         })
         .WithName("GetAutomationStatus")
         .WithSummary("N8N otomasyon entegrasyon durumu ve desteklenen workflow listesi").Produces(200).Produces(400)
@@ -163,4 +157,11 @@ public static class SystemEndpoints
         .WithSummary("Manuel veritabanı yedekleme tetikle (G207)")
         .Produces(201).Produces(400);
     }
+
+    public sealed record RateLimitStatusResponse(
+        int Limit, int WindowSeconds, string Policy, string Description);
+
+    public sealed record AutomationStatusResponse(
+        bool N8nConfigured, string N8nBaseUrl, bool WebhookSecretConfigured,
+        IReadOnlyList<string> SupportedWorkflows);
 }

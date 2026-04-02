@@ -47,7 +47,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         SelectedReportType = ReportTypes[0];
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -64,10 +64,11 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
     private async Task GenerateReport()

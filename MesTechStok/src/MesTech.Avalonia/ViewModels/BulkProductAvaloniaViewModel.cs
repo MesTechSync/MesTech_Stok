@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
+using Avalonia.Platform.Storage;
+using ClosedXML.Excel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
+using MesTech.Application.Features.Product.Commands.ExecuteBulkImport;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -13,8 +17,8 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class BulkProductAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
-
-    // Common
+    private readonly IFilePickerService _filePicker;
+    private string? _selectedFilePath;
 
     // Tab 1: Import
     [ObservableProperty] private string importFilePath = string.Empty;
@@ -27,6 +31,9 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool updateExistingProducts = true;
     [ObservableProperty] private bool skipErrors;
     [ObservableProperty] private string previewValidationSummary = string.Empty;
+    [ObservableProperty] private string searchText = string.Empty;
+
+    private readonly List<ImportPreviewRowDto> _allPreviewRows = [];
 
     public ObservableCollection<ColumnMappingDto> ColumnMappings { get; } = [];
     public ObservableCollection<ImportPreviewRowDto> PreviewRows { get; } = [];
@@ -78,9 +85,25 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         _ => BulkUpdateAction.PriceSetFixed
     };
 
-    public BulkProductAvaloniaViewModel(IMediator mediator)
+    public BulkProductAvaloniaViewModel(IMediator mediator, IFilePickerService filePicker)
     {
         _mediator = mediator;
+        _filePicker = filePicker;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyPreviewFilter();
+
+    private void ApplyPreviewFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchText)
+            ? _allPreviewRows
+            : _allPreviewRows.Where(r =>
+                r.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                r.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        PreviewRows.Clear();
+        foreach (var r in filtered)
+            PreviewRows.Add(r);
     }
 
     public override async Task LoadAsync()
@@ -100,51 +123,216 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            IsEmpty = PreviewRows.Count == 0;
         }
     }
+
+    private static readonly FilePickerFileType ExcelFileType = new("Excel Dosyalari")
+    {
+        Patterns = ["*.xlsx", "*.xls"],
+        MimeTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+    };
+
+    private static readonly FilePickerFileType CsvFileType = new("CSV Dosyalari")
+    {
+        Patterns = ["*.csv"],
+        MimeTypes = ["text/csv"]
+    };
 
     [RelayCommand]
     private async Task SelectFileAsync()
     {
-        ImportFilePath = "ornek_urunler.xlsx";
-        ImportFileInfo = "Excel dosyasi: 156 satir, 12 kolon";
+        var path = await _filePicker.PickFileAsync(
+            "Import Dosyasi Sec",
+            [ExcelFileType, CsvFileType]);
+
+        if (string.IsNullOrEmpty(path)) return;
+
+        _selectedFilePath = path;
+        ImportFilePath = Path.GetFileName(path);
+        IsLoading = true;
+        HasError = false;
+
+        try
+        {
+            var isCsv = path.EndsWith(".csv", StringComparison.OrdinalIgnoreCase);
+            if (isCsv)
+                ParseCsvFile(path);
+            else
+                ParseExcelFile(path);
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Dosya okunamadi: {ex.Message}";
+            HasImportFile = false;
+            CanImport = false;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void ParseExcelFile(string path)
+    {
+        using var workbook = new XLWorkbook(path);
+        var ws = workbook.Worksheets.First();
+        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
+        var lastCol = ws.LastColumnUsed()?.ColumnNumber() ?? 1;
+
+        ImportFileInfo = $"Excel dosyasi: {lastRow - 1} satir, {lastCol} kolon";
         HasImportFile = true;
         CanImport = true;
 
-        // Demo column mappings
         ColumnMappings.Clear();
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "A - Urun Adi", SampleData = "Samsung Galaxy S24", MesTechField = "ProductName" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "B - SKU", SampleData = "SGS24-128-BLK", MesTechField = "Sku" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "C - Fiyat", SampleData = "42999.00", MesTechField = "Price" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "D - Stok", SampleData = "25", MesTechField = "Stock" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "E - Kategori", SampleData = "Elektronik", MesTechField = "Category" });
+        for (var col = 1; col <= lastCol; col++)
+        {
+            var header = ws.Cell(1, col).GetString();
+            var sample = lastRow > 1 ? ws.Cell(2, col).GetString() : string.Empty;
+            ColumnMappings.Add(new ColumnMappingDto
+            {
+                ExcelColumn = $"{GetColumnLetter(col)} - {header}",
+                SampleData = sample,
+                MesTechField = AutoMapField(header)
+            });
+        }
 
-        // Demo preview rows
-        PreviewRows.Clear();
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 1, ProductName = "Samsung Galaxy S24", Sku = "SGS24-128-BLK", Price = 42_999.00m, Stock = 25, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 2, ProductName = "iPhone 15 Pro", Sku = "IP15P-256-TIT", Price = 64_999.00m, Stock = 12, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 3, ProductName = "Xiaomi 14", Sku = "XI14-256-WHT", Price = 28_999.00m, Stock = 38, ValidationStatus = "Gecerli" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 4, ProductName = "", Sku = "NONAME-001", Price = 0m, Stock = 5, ValidationStatus = "Hata: Ad bos" });
-        PreviewRows.Add(new ImportPreviewRowDto { RowNumber = 5, ProductName = "Huawei P60", Sku = "HWP60-128-BLK", Price = 19_999.00m, Stock = 0, ValidationStatus = "Uyari: Stok 0" });
+        LoadPreviewRows(
+            lastRow - 1,
+            row => ws.Cell(row + 1, FindColumn(ws, "ProductName", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Sku", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Price", lastCol)).GetString(),
+            row => ws.Cell(row + 1, FindColumn(ws, "Stock", lastCol)).GetString());
+    }
 
-        PreviewValidationSummary = "3 gecerli, 1 hata, 1 uyari";
+    private void ParseCsvFile(string path)
+    {
+        var lines = File.ReadAllLines(path);
+        if (lines.Length == 0) return;
+
+        var headers = lines[0].Split(';', ',');
+        ImportFileInfo = $"CSV dosyasi: {lines.Length - 1} satir, {headers.Length} kolon";
+        HasImportFile = true;
+        CanImport = true;
+
+        ColumnMappings.Clear();
+        var separator = lines[0].Contains(';') ? ';' : ',';
+        for (var col = 0; col < headers.Length; col++)
+        {
+            var sample = lines.Length > 1 ? GetCsvCell(lines[1], col, separator) : string.Empty;
+            ColumnMappings.Add(new ColumnMappingDto
+            {
+                ExcelColumn = $"{GetColumnLetter(col + 1)} - {headers[col].Trim()}",
+                SampleData = sample,
+                MesTechField = AutoMapField(headers[col])
+            });
+        }
+
+        var nameCol = FindCsvColumn("ProductName");
+        var skuCol = FindCsvColumn("Sku");
+        var priceCol = FindCsvColumn("Price");
+        var stockCol = FindCsvColumn("Stock");
+
+        LoadPreviewRows(
+            lines.Length - 1,
+            row => row < lines.Length ? GetCsvCell(lines[row], nameCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], skuCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], priceCol, separator) : string.Empty,
+            row => row < lines.Length ? GetCsvCell(lines[row], stockCol, separator) : string.Empty);
+    }
+
+    private void LoadPreviewRows(int totalRows, Func<int, string> getName, Func<int, string> getSku,
+        Func<int, string> getPrice, Func<int, string> getStock)
+    {
+        _allPreviewRows.Clear();
+        int valid = 0, errors = 0, warnings = 0;
+        for (var i = 1; i <= Math.Min(totalRows, 50); i++)
+        {
+            var name = getName(i);
+            var sku = getSku(i);
+            decimal.TryParse(getPrice(i), out var price);
+            int.TryParse(getStock(i), out var stock);
+
+            var status = "Gecerli";
+            if (string.IsNullOrWhiteSpace(name)) { status = "Hata: Ad bos"; errors++; }
+            else if (stock == 0) { status = "Uyari: Stok 0"; warnings++; }
+            else valid++;
+
+            _allPreviewRows.Add(new ImportPreviewRowDto
+            {
+                RowNumber = i, ProductName = name, Sku = sku,
+                Price = price, Stock = stock, ValidationStatus = status
+            });
+        }
+        ApplyPreviewFilter();
+        PreviewValidationSummary = $"{valid} gecerli, {errors} hata, {warnings} uyari";
+    }
+
+    private static string GetCsvCell(string line, int col, char separator)
+    {
+        var cells = line.Split(separator);
+        return col < cells.Length ? cells[col].Trim().Trim('"') : string.Empty;
+    }
+
+    private int FindCsvColumn(string fieldName)
+    {
+        for (var i = 0; i < ColumnMappings.Count; i++)
+            if (ColumnMappings[i].MesTechField == fieldName) return i;
+        return 0;
+    }
+
+    private static string AutoMapField(string header)
+    {
+        var h = header.Trim().ToLowerInvariant();
+        if (h.Contains("ad") || h.Contains("name") || h.Contains("urun")) return "ProductName";
+        if (h.Contains("sku") || h.Contains("kod") || h.Contains("code")) return "Sku";
+        if (h.Contains("fiyat") || h.Contains("price") || h.Contains("tutar")) return "Price";
+        if (h.Contains("stok") || h.Contains("stock") || h.Contains("adet")) return "Stock";
+        if (h.Contains("kategori") || h.Contains("category")) return "Category";
+        if (h.Contains("barkod") || h.Contains("barcode")) return "Barcode";
+        return string.Empty;
+    }
+
+    private static string GetColumnLetter(int col) => col switch
+    {
+        <= 26 => ((char)('A' + col - 1)).ToString(),
+        _ => $"{(char)('A' + col / 26 - 1)}{(char)('A' + col % 26 - 1)}"
+    };
+
+    private int FindColumn(IXLWorksheet ws, string fieldName, int lastCol)
+    {
+        var mapping = ColumnMappings.FirstOrDefault(m => m.MesTechField == fieldName);
+        if (mapping is not null)
+        {
+            var idx = ColumnMappings.IndexOf(mapping);
+            if (idx >= 0 && idx < lastCol) return idx + 1;
+        }
+        return 1;
     }
 
     [RelayCommand]
     private async Task ImportAsync()
     {
-        if (!CanImport) return;
+        if (!CanImport || string.IsNullOrEmpty(_selectedFilePath)) return;
         IsImporting = true;
         CanImport = false;
+        ImportProgress = 0;
 
         try
         {
-            for (int i = 0; i <= 100; i += 5)
-            {
-                ImportProgress = i;
-                ImportStatusText = $"Import ediliyor... {i}% ({i * 156 / 100}/156 urun, {i / 10}s)";
-            }
-            ImportStatusText = "Import tamamlandi: 152 basarili, 4 atlanmis";
+            await using var fileStream = File.OpenRead(_selectedFilePath);
+            var result = await _mediator.Send(new ExecuteBulkImportCommand(
+                fileStream,
+                ImportFilePath,
+                UpdateExisting: UpdateExistingProducts,
+                SkipErrors: SkipErrors));
+
+            ImportProgress = 100;
+            ImportStatusText = $"Import tamamlandi: {result.ImportedCount} eklendi, {result.UpdatedCount} guncellendi, {result.SkippedCount} atlanmis, {result.ErrorCount} hata ({result.Duration.TotalSeconds:F1}s)";
+
+            if (result.ImportedCount + result.UpdatedCount > 0)
+                await LoadAsync();
         }
         catch (Exception ex)
         {
@@ -219,7 +407,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class ColumnMappingDto

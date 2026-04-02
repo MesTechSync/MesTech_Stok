@@ -18,19 +18,19 @@ public sealed class SupplierRepository : ISupplierRepository
         return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task<IReadOnlyList<Supplier>> GetAllAsync()
+    public async Task<IReadOnlyList<Supplier>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.Suppliers
             .OrderBy(s => s.Name)
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<Supplier>> GetActiveAsync()
+    public async Task<IReadOnlyList<Supplier>> GetActiveAsync(CancellationToken ct = default)
     {
         return await _context.Suppliers
             .Where(s => s.IsActive)
             .OrderBy(s => s.Name)
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct);
     }
 
     public async Task AddAsync(Supplier supplier)

@@ -164,7 +164,7 @@ public class WarehouseExtraHandlerTests
         var result = await sut.Handle(new GetWarehouseStockQuery(Guid.NewGuid(), _tenantId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        productRepo.Verify(r => r.GetAllAsync(), Times.Never());
+        productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Fact]
@@ -190,8 +190,10 @@ public class WarehouseExtraHandlerTests
     [Fact]
     public async Task GetWarehouseSummary_ValidRequest_ReturnsEmptyList()
     {
+        var warehouseRepo = new Mock<IWarehouseRepository>();
+        warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse>().AsReadOnly());
         var sut = new GetWarehouseSummaryHandler(
-            new Mock<IWarehouseRepository>().Object,
+            warehouseRepo.Object,
             new Mock<IProductRepository>().Object);
         var result = await sut.Handle(new GetWarehouseSummaryQuery(_tenantId), CancellationToken.None);
 

@@ -28,4 +28,7 @@ public sealed class AmazonOptions
 
     /// <summary>HTTP request timeout in seconds. Override via config for slow networks.</summary>
     public int HttpTimeoutSeconds { get; set; } = 30;
+
+    /// <summary>Max concurrent API requests (SemaphoreSlim limit). Override via config.</summary>
+    public int MaxConcurrentRequests { get; set; } = 30;
 }

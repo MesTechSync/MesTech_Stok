@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.PlatformSyncHistoryAvaloniaView"
              x:Name="RootPlatformSyncHistoryAvaloniaView"
              x:DataType="vm:PlatformSyncHistoryAvaloniaViewModel"
@@ -55,15 +56,12 @@
                        Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold" />
         </Border>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding IsLoading}" ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="Senkronizasyon gecmisi yukleniyor..."
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesMutedGray}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Empty State -->
@@ -88,6 +86,7 @@
                            Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
                            MaxWidth="400" HorizontalAlignment="Center" />
                 <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
+                        ToolTip.Tip="Tekrar dene"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>

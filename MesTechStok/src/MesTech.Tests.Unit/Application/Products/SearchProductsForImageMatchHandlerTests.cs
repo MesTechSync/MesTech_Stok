@@ -24,7 +24,7 @@ public class SearchProductsForImageMatchHandlerTests
             FakeData.CreateProduct(sku: "IMG-001", stock: 50, purchasePrice: 80m, salePrice: 120m, minimumStock: 10),
             FakeData.CreateProduct(sku: "IMG-002", stock: 0, purchasePrice: 50m, salePrice: 100m, minimumStock: 5),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new SearchProductsForImageMatchQuery();
         var sut = CreateSut();
@@ -49,7 +49,7 @@ public class SearchProductsForImageMatchHandlerTests
     public async Task Handle_NoProducts_ReturnsEmptyList()
     {
         // Arrange
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var query = new SearchProductsForImageMatchQuery();
@@ -66,7 +66,7 @@ public class SearchProductsForImageMatchHandlerTests
     public async Task Handle_CallsRepositoryExactlyOnce()
     {
         // Arrange
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = CreateSut();
@@ -75,6 +75,6 @@ public class SearchProductsForImageMatchHandlerTests
         await sut.Handle(new SearchProductsForImageMatchQuery(), CancellationToken.None);
 
         // Assert
-        _productRepo.Verify(r => r.GetAllAsync(), Times.Once);
+        _productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

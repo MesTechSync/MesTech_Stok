@@ -47,12 +47,18 @@ public static class HangfireConfig
         services.AddScoped<TrendyolStockSyncJob>();
         services.AddScoped<TrendyolPriceSyncJob>();
         services.AddScoped<TrendyolClaimSyncJob>();
+        services.AddScoped<HepsiburadaOrderSyncJob>();
+        services.AddScoped<N11OrderSyncJob>();
+        services.AddScoped<CiceksepetiOrderSyncJob>();
         services.AddScoped<OpenCartStockSyncJob>();
         services.AddScoped<InvoiceRetryJob>();
         services.AddScoped<HealthCheckJob>();
         services.AddScoped<SettlementSyncJob>();
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
+
+        // DEV3 TUR9: Job monitoring dashboard service
+        services.AddScoped<HangfireJobMonitorService>();
 
         // ENT-DROP-IMP-SPRINT-B — DEV 3 Görev B
         services.AddScoped<ReliabilityScoreRecalcJob>();
@@ -77,6 +83,11 @@ public static class HangfireConfig
 
         // CRM — Loyalty points expiration worker
         services.AddScoped<ExpirePointsWorker>();
+
+        // Adapter connectivity + metrics (DEV 3 — alan genişletme A+B)
+        services.AddScoped<Integration.Orchestration.AdapterConnectivityValidator>();
+        services.AddScoped<AdapterConnectivityCheckJob>();
+        services.AddSingleton<Integration.Orchestration.AdapterMetrics>();
 
         // Platform stock sync + order sync + stale order check (DEV 3)
         services.AddScoped<GenericPlatformStockSyncJob>();
@@ -124,6 +135,26 @@ public static class HangfireConfig
             "trendyol-claim-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/15 * * * *");
+
+        RecurringJob.AddOrUpdate<HepsiburadaOrderSyncJob>(
+            "hepsiburada-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<N11OrderSyncJob>(
+            "n11-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<CiceksepetiOrderSyncJob>(
+            "ciceksepeti-order-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *");
+
+        RecurringJob.AddOrUpdate<AdapterConnectivityCheckJob>(
+            "adapter-connectivity-check",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *"); // Her saat başı
 
         RecurringJob.AddOrUpdate<OpenCartStockSyncJob>(
             "opencart-stock-sync",

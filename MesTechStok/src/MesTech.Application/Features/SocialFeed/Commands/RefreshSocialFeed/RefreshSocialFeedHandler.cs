@@ -84,6 +84,7 @@ public sealed class RefreshSocialFeedHandler
             return new RefreshSocialFeedResult { IsSuccess = false, ErrorMessage = errorMsg };
         }
         catch (OperationCanceledException) { throw; }
+#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
         catch (Exception ex)
         {
             _logger.LogError(ex, "SocialFeed refresh failed — Config={ConfigId}", config.Id);
@@ -91,5 +92,6 @@ public sealed class RefreshSocialFeedHandler
             await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return new RefreshSocialFeedResult { IsSuccess = false, ErrorMessage = ex.Message };
         }
+#pragma warning restore CA1031
     }
 }

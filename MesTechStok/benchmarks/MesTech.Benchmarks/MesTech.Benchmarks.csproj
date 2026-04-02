@@ -10,11 +10,15 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MesTech.Domain\MesTech.Domain.csproj" />
     <ProjectReference Include="..\..\src\MesTech.Application\MesTech.Application.csproj" />
+    <ProjectReference Include="..\..\src\MesTech.Infrastructure\MesTech.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\MesTech.WebApi\MesTech.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using MesTech.Application.Features.Reports.InventoryValuationReport;
+using MesTech.Application.Features.Stock.Queries.GetStockValueReport;
 using Xunit;
 
 namespace MesTech.Tests.Unit.Application.Validators.Reports;
@@ -28,7 +28,7 @@ public class GetStockValueReportValidatorTests
     }
 
     [Fact]
-    public async Task NullCategoryFilter_ShouldPass()
+    public async Task NullWarehouseId_ShouldPass()
     {
         var query = new GetStockValueReportQuery(Guid.NewGuid(), null);
         var result = await _sut.ValidateAsync(query);

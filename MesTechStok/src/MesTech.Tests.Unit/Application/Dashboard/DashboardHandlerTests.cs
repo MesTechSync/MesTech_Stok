@@ -456,7 +456,7 @@ public class GetStockAlertsHandlerTests
     public async Task Handle_NoLowStockProducts_ShouldReturnEmptyList()
     {
         // Arrange
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var handler = CreateHandler();
@@ -473,7 +473,7 @@ public class GetStockAlertsHandlerTests
     {
         // Arrange
         var product = FakeData.CreateProduct(sku: "LOW-001", stock: 2, minimumStock: 10);
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var handler = CreateHandler();

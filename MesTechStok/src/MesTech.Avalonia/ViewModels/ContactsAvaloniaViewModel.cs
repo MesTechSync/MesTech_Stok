@@ -52,7 +52,17 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        await _dialog.ShowInfoAsync("Bu özellik yakinda aktif olacak.", "MesTech");
+        var newContact = new ContactListDto
+        {
+            ContactId = Guid.NewGuid(),
+            FullName = "Yeni Kisi",
+            CreatedAt = DateTime.UtcNow
+        };
+        Contacts.Insert(0, newContact);
+        TotalCount = Contacts.Count;
+        Summary = $"Toplam {TotalCount} kisi";
+        IsEmpty = false;
+        await Task.CompletedTask;
     }
 
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();

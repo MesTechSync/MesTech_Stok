@@ -12,8 +12,8 @@ public sealed class ApiKeyOptions
     public string HeaderName { get; set; } = "X-API-Key";
 
     /// <summary>Valid API keys loaded from user-secrets / environment variables. Never hardcode.</summary>
-    public string[] ValidApiKeys { get; set; } = [];
+    public IReadOnlyList<string> ValidApiKeys { get; set; } = [];
 
     /// <summary>Paths that bypass API key check.</summary>
-    public string[] BypassPaths { get; set; } = ["/health", "/metrics", "/api/mesa/status", "/api/webhooks", "/hubs"];
+    public IReadOnlyList<string> BypassPaths { get; set; } = ["/health", "/metrics", "/api/mesa/status", "/api/webhooks", "/hubs"];
 }

@@ -117,14 +117,21 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
 
     private async void LoadCurrentImage()
     {
-        if (!_spotlight.HasImages) return;
+        try
+        {
+            if (!_spotlight.HasImages) return;
 
-        var info = _spotlight.GetCurrent();
-        if (info == null) return;
+            var info = _spotlight.GetCurrent();
+            if (info == null) return;
 
-        CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
-        CurrentImageName = info.DisplayName;
-        NextImageOpacity = 0.0;
+            CurrentBackgroundImage = await LoadBitmapAsync(info.FilePath);
+            CurrentImageName = info.DisplayName;
+            NextImageOpacity = 0.0;
+        }
+        catch (Exception)
+        {
+            // Spotlight image load failure is non-critical — silently ignore
+        }
     }
 
     /// <summary>
@@ -405,7 +412,15 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "MesTech", "preferences.json");
             Directory.CreateDirectory(Path.GetDirectoryName(prefs)!);
-            File.WriteAllText(prefs, JsonSerializer.Serialize(new { LastUsername = username }));
+            // Save username + session token for auto-login on next launch
+            var sessionToken = Guid.NewGuid().ToString("N");
+            File.WriteAllText(prefs, JsonSerializer.Serialize(new
+            {
+                LastUsername = username,
+                SessionToken = sessionToken,
+                SavedAt = DateTime.UtcNow.ToString("o"),
+                AutoLogin = true
+            }));
         }
         catch { /* Non-critical */ }
     }
@@ -426,9 +441,33 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                     Username = u.GetString() ?? "admin";
                     RememberMe = true;
                 }
+                // Auto-login: if session token exists and < 7 days old
+                if (data.TryGetProperty("AutoLogin", out var autoLogin) && autoLogin.GetBoolean()
+                    && data.TryGetProperty("SavedAt", out var savedAt))
+                {
+                    if (DateTime.TryParse(savedAt.GetString(), out var saved)
+                        && (DateTime.UtcNow - saved).TotalDays < 7)
+                    {
+                        _pendingAutoLogin = true;
+                    }
+                }
             }
         }
         catch { /* Non-critical */ }
+    }
+
+    private bool _pendingAutoLogin;
+
+    /// <summary>Auto-login if "Beni Hatırla" session is valid (< 7 days).</summary>
+    public async Task TryAutoLoginAsync()
+    {
+        if (!_pendingAutoLogin || string.IsNullOrEmpty(Username)) return;
+        _pendingAutoLogin = false;
+
+        // Skip brute-force check for auto-login
+        _tracker.RecordSuccess(Username);
+        _auditLogger.Log(Username, true, "auto_login");
+        LoginCompleted?.Invoke(true);
     }
 
     /// <summary>Dispose loaded bitmaps.</summary>

@@ -29,9 +29,9 @@ public class MarkAllUserNotificationsReadHandlerTests
     [Fact]
     public async Task Handle_NoUnreadNotifications_ShouldReturnZero()
     {
-        // Arrange
-        _repo.Setup(r => r.GetUnreadByUserAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<UserNotification>().AsReadOnly());
+        // Arrange — handler now uses MarkAllAsReadAsync (bulk SQL)
+        _repo.Setup(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
 
         var handler = CreateHandler();
         var command = new MarkAllUserNotificationsReadCommand(_tenantId, _userId);
@@ -41,18 +41,15 @@ public class MarkAllUserNotificationsReadHandlerTests
 
         // Assert
         result.Should().Be(0);
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _repo.Verify(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_WithUnreadNotifications_ShouldMarkAllAndReturnCount()
     {
-        // Arrange
-        var n1 = UserNotification.Create(_tenantId, _userId, "Title 1", "Message 1", NotificationCategory.Order);
-        var n2 = UserNotification.Create(_tenantId, _userId, "Title 2", "Message 2", NotificationCategory.Stock);
-
-        _repo.Setup(r => r.GetUnreadByUserAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<UserNotification> { n1, n2 }.AsReadOnly());
+        // Arrange — handler now uses MarkAllAsReadAsync (bulk SQL) returning count directly
+        _repo.Setup(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
 
         var handler = CreateHandler();
         var command = new MarkAllUserNotificationsReadCommand(_tenantId, _userId);
@@ -62,10 +59,7 @@ public class MarkAllUserNotificationsReadHandlerTests
 
         // Assert
         result.Should().Be(2);
-        n1.IsRead.Should().BeTrue();
-        n2.IsRead.Should().BeTrue();
-        _repo.Verify(r => r.UpdateAsync(It.IsAny<UserNotification>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.MarkAllAsReadAsync(_tenantId, _userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

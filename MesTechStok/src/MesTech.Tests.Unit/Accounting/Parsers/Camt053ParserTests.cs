@@ -10,6 +10,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class Camt053ParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly Camt053Parser _sut;
     private readonly Mock<ILogger<Camt053Parser>> _loggerMock = new();
     private readonly Guid _bankAccountId = Guid.NewGuid();

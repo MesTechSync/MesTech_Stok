@@ -13,6 +13,7 @@ namespace MesTech.Tests.Unit.Accounting.Parsers;
 [Trait("Category", "Unit")]
 public class PazaramaSettlementParserTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly PazaramaSettlementParser _sut;
     private readonly Mock<ILogger<PazaramaSettlementParser>> _loggerMock = new();
 
@@ -63,7 +64,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.Platform.Should().Be("Pazarama");
@@ -83,7 +84,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -96,7 +97,7 @@ public class PazaramaSettlementParserTests
     {
         var json = "null";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.Should().NotBeNull();
         batch.TotalGross.Should().Be(0m);
@@ -127,7 +128,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(1);
@@ -153,7 +154,7 @@ public class PazaramaSettlementParserTests
     [Fact]
     public async Task ParseAsync_NullRawData_ThrowsArgumentNull()
     {
-        var act = async () => await _sut.ParseAsync(null!, "json");
+        var act = async () => await _sut.ParseAsync(TestTenantId, null!, "json");
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -185,7 +186,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().Be(new DateTime(2026, 3, 8, 0, 0, 0, DateTimeKind.Utc));
         batch.PeriodEnd.Should().Be(new DateTime(2026, 3, 8, 0, 0, 0, DateTimeKind.Utc));
@@ -213,7 +214,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.PeriodStart.Should().Be(new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc));
         batch.PeriodEnd.Should().Be(new DateTime(2026, 3, 15, 0, 0, 0, DateTimeKind.Utc));
@@ -251,7 +252,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         lines.Should().HaveCount(2);
@@ -276,7 +277,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(600m);
         batch.TotalCommission.Should().Be(100m);
@@ -299,7 +300,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
         var lines = await _sut.ParseLinesAsync(batch);
 
         batch.Lines.Should().HaveCount(2);
@@ -329,7 +330,7 @@ public class PazaramaSettlementParserTests
         """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var batch = await _sut.ParseAsync(stream, "json");
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
 
         batch.TotalGross.Should().Be(750.25m);
         batch.TotalCommission.Should().Be(112.54m);

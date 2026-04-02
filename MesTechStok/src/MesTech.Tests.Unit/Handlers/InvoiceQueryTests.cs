@@ -84,7 +84,8 @@ public class InvoiceQueryTests
     public async Task GetInvoicesHandler_NullRequest_Throws()
     {
         var sut = new GetInvoicesHandler(
-            new Mock<IInvoiceRepository>().Object);
+            new Mock<IInvoiceRepository>().Object,
+            new Mock<ITenantProvider>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CT));
@@ -96,7 +97,8 @@ public class InvoiceQueryTests
     public async Task GetInvoiceReportHandler_NullRequest_Throws()
     {
         var sut = new GetInvoiceReportHandler(
-            new Mock<IInvoiceRepository>().Object);
+            new Mock<IInvoiceRepository>().Object,
+            new Mock<ITenantProvider>().Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CT));

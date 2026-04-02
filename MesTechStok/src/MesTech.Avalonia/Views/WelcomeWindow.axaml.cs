@@ -46,7 +46,7 @@ public partial class WelcomeWindow : Window
 
         // Clock timer — every second
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _clockTimer.Tick += (_, _) => _vm.UpdateClock();
+        _clockTimer.Tick += OnClockTimerTick;
         _clockTimer.Start();
 
         // Image rotation timer — every 8 seconds
@@ -54,7 +54,10 @@ public partial class WelcomeWindow : Window
         _imageTimer.Tick += OnImageTimerTick;
         _imageTimer.Start();
 
-        // Focus username box
+        // Auto-login if "Beni Hatırla" session is valid
+        _ = TryAutoLogin();
+
+        // Focus username box (if no auto-login)
         if (UsernameBox != null)
         {
             if (string.IsNullOrEmpty(UsernameBox.Text))
@@ -62,6 +65,14 @@ public partial class WelcomeWindow : Window
             else
                 PasswordBox?.Focus();
         }
+    }
+
+    private async Task TryAutoLogin()
+    {
+        if (_vm == null) return;
+        // Small delay to let UI render before auto-login
+        await Task.Delay(500);
+        await _vm.TryAutoLoginAsync();
     }
 
     private async void OnImageTimerTick(object? sender, EventArgs e)
@@ -119,8 +130,12 @@ public partial class WelcomeWindow : Window
         Close();
     }
 
+    private void OnClockTimerTick(object? sender, EventArgs e) => _vm?.UpdateClock();
+
     private void StopTimers()
     {
+        if (_clockTimer is not null) _clockTimer.Tick -= OnClockTimerTick;
+        if (_imageTimer is not null) _imageTimer.Tick -= OnImageTimerTick;
         _clockTimer?.Stop();
         _imageTimer?.Stop();
         _transitionTimer?.Stop();

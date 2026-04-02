@@ -553,7 +553,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         return allCategories;
     }
 
-    private record WcCategoryResponse(int Id, string? Name, string? Slug, int Parent, int Count);
+    private sealed record WcCategoryResponse(int Id, string? Name, string? Slug, int Parent, int Count);
 
     // ─────────────────────────────────────────────
     // IOrderCapableAdapter

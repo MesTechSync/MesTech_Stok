@@ -11,8 +11,8 @@ public partial class OrderListAvaloniaView : BaseView
         InitializeComponent();
     }
 
-    protected override void SubscribeEvents() => KeyDown += OnKeyDown;
-    protected override void UnsubscribeEvents() => KeyDown -= OnKeyDown;
+    protected override void SubscribeEvents() { base.SubscribeEvents(); KeyDown += OnKeyDown; }
+    protected override void UnsubscribeEvents() { KeyDown -= OnKeyDown; base.UnsubscribeEvents(); }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {

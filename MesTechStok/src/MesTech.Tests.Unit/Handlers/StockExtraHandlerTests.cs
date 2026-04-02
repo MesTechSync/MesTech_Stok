@@ -124,6 +124,10 @@ public class StockExtraHandlerTests
     public async Task GetStockMovements_NoFilters_ReturnsEmptyList()
     {
         var repo = new Mock<IStockMovementRepository>();
+        // Handler now calls GetRecentAsync when no filters specified
+        repo.Setup(r => r.GetRecentAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StockMovement>().AsReadOnly());
         var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
 
         var query = new GetStockMovementsQuery();
@@ -165,7 +169,7 @@ public class StockExtraHandlerTests
     public async Task GetStockAlerts_NoLowStock_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
+        repo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = new GetStockAlertsHandler(repo.Object);
         var result = await sut.Handle(new GetStockAlertsQuery(_tenantId), CancellationToken.None);

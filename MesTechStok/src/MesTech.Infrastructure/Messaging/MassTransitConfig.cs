@@ -56,6 +56,16 @@ public static class MassTransitConfig
             bus.AddConsumer<AiErpReconciliationDoneConsumer>();
             bus.AddConsumer<BotEFaturaRequestedConsumer>();
 
+            // Finance Audit Consumers — loopback monitoring (DEV3-TUR1 G703)
+            bus.AddConsumer<FinanceAnomalyDetectedAuditConsumer>();
+            bus.AddConsumer<FinanceBankImportedAuditConsumer>();
+            bus.AddConsumer<FinanceDocumentReceivedAuditConsumer>();
+            bus.AddConsumer<FinanceLedgerPostedAuditConsumer>();
+            bus.AddConsumer<FinanceReconciliationPendingAuditConsumer>();
+            bus.AddConsumer<FinanceReportDailyAuditConsumer>();
+            bus.AddConsumer<FinanceSettlementImportedAuditConsumer>();
+            bus.AddConsumer<FinanceTaxPrepReadyAuditConsumer>();
+
             // MESA Outbound Audit Consumers — loopback monitoring (DEV6-TUR15 G515)
             bus.AddConsumer<MesaProductCreatedAuditConsumer>();
             bus.AddConsumer<MesaStockLowAuditConsumer>();
@@ -226,6 +236,9 @@ public static class MassTransitConfig
 
                 // İ-13: Event version header — tüm outbound mesajlara uygulanır
                 cfg.UsePublishFilter(typeof(EventVersionPublishFilter<>), context);
+
+                // G543: MassTransit 8.x — OpenTelemetry otomatik (AddInstrumentation built-in)
+                // UseOpenTelemetry() 8.4'te mevcut değil — instrumentation DI seviyesinde sağlanır
 
                 cfg.ConfigureEndpoints(context);
             });

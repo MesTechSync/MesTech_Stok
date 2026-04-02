@@ -72,6 +72,7 @@
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="x:String">
                                                         <Button Content="{Binding}"
+                                                                ToolTip.Tip="{Binding}"
                                                                 HorizontalAlignment="Stretch"
                                                                 HorizontalContentAlignment="Left"
                                                                 Padding="10,7"
@@ -440,6 +441,17 @@
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{DynamicResource MesTextMuted}"
                            HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ EMPTY STATE ═════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="40">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+                <TextBlock Text="Rapor verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}"
+                           HorizontalAlignment="Center" Opacity="0.6" />
             </StackPanel>
         </Border>
 

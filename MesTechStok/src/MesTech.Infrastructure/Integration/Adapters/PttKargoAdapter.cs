@@ -124,10 +124,10 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
 
         _shipmentServiceUrl = credentials.GetValueOrDefault(
             "ShipmentServiceUrl",
-            "https://pttws.ptt.gov.tr/PttVeriYukleme/services/Sorgu");
+            _options.ShipmentServiceUrl);
         _trackingServiceUrl = credentials.GetValueOrDefault(
             "TrackingServiceUrl",
-            "https://pttws.ptt.gov.tr/GonderiTakip/services/Sorgu");
+            _options.TrackingServiceUrl);
 
         _isConfigured = true;
     }

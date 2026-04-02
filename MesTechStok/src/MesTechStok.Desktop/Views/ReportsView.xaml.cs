@@ -381,12 +381,13 @@ namespace MesTechStok.Desktop.Views
             };
         }
 
-        private async Task SetupAuthorizationsAsync()
+        private Task SetupAuthorizationsAsync()
         {
             // Security: SimpleSecurityService integration pending
             // Su anda tum kullanicilar rapor export edebilir
             CanExportReports = true;
             OnPropertyChanged(nameof(CanExportReports));
+            return Task.CompletedTask;
         }
 
         private async Task LoadReportsPageAsync(int page = 1, int pageSize = 25)

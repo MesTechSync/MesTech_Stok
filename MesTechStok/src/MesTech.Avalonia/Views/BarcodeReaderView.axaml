@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.BarcodeReaderView"
              x:Name="RootBarcodeReaderView"
              x:DataType="vm:BarcodeReaderViewModel">
@@ -38,7 +39,7 @@
             </Grid>
         </Border>
 
-        <!-- Row 1: Mode Selector (4 RadioButtons) -->
+        <!-- Row 1: Mode Selector (4 RadioButtons) + Search -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -58,6 +59,12 @@
                 <RadioButton Content="Transfer"
                              GroupName="ScanMode"
                              Padding="12,6" />
+                <TextBox Width="220" Watermark="Ara: barkod, urun adi..."
+                         AutomationProperties.Name="Ara: barkod, urun adi..."
+                         Text="{Binding SearchText}"
+                         FontSize="{StaticResource FontSizeSmall}" Padding="8,6"
+                         CornerRadius="{StaticResource MesRadiusBase}" VerticalAlignment="Center"
+                         Margin="16,0,0,0" />
             </StackPanel>
         </Border>
 
@@ -143,14 +150,12 @@
             </StackPanel>
         </Border>
 
-        <!-- Loading Overlay -->
-        <Border Grid.Row="0" Grid.RowSpan="5" Background="{DynamicResource MesOverlayLight}"
-                IsVisible="{Binding IsLoading}" ZIndex="100">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Margin="0,0,0,12" />
-                <TextBlock Text="İşleniyor..." FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource MesTextMuted}" HorizontalAlignment="Center" />
-            </StackPanel>
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="0" Grid.RowSpan="5"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
         <!-- Error State -->

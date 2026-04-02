@@ -107,7 +107,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
             .Given(Request.Create()
                 .WithPath(SoapPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://yurticikargo.com/queryShipment"))
+                .WithHeader("SOAPAction", "https://yurticikargo.com/queryShipment"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")

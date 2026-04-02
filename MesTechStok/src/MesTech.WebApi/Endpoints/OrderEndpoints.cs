@@ -34,7 +34,7 @@ public static class OrderEndpoints
         })
         .WithName("ListOrders")
         .WithSummary("Sipariş listesi (tarih + durum filtresi)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/orders — yeni sipariş oluştur
@@ -49,7 +49,7 @@ public static class OrderEndpoints
         })
         .WithName("PlaceOrder")
         .WithSummary("Yeni sipariş oluştur")
-        .Produces(201)
+        .Produces(201).ProducesProblem(401).ProducesProblem(429)
         .Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
@@ -65,8 +65,9 @@ public static class OrderEndpoints
         })
         .WithName("PushOrderToBitrix24")
         .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder")
-        .Produces(200)
-        .Produces(400);
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // GET /api/v1/orders/stale — gecikmiş sipariş listesi (menu #27 StaleOrders)
         group.MapGet("/stale", async (
@@ -78,7 +79,7 @@ public static class OrderEndpoints
         })
         .WithName("GetStaleOrders")
         .WithSummary("Gecikmiş siparişler — platform bazlı SLA aşımı")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/list — tenant-scoped order list (paged)
@@ -93,7 +94,7 @@ public static class OrderEndpoints
         })
         .WithName("GetOrderList")
         .WithSummary("Tenant bazlı sipariş listesi (son N adet)")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/orders/by-status — kanban view: orders grouped by status
@@ -107,7 +108,7 @@ public static class OrderEndpoints
         })
         .WithName("GetOrdersByStatus")
         .WithSummary("Sipariş kanban görünümü — duruma göre gruplu")
-        .Produces(200)
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/{id} — sipariş detayı (P0 — DEV6 TUR10)
@@ -122,7 +123,7 @@ public static class OrderEndpoints
         .WithName("GetOrderDetail")
         .WithSummary("Sipariş detayı — satır kalemleri, kargo, müşteri bilgisi dahil")
         .Produces<OrderDetailDto>(200)
-        .Produces(404);
+        .Produces(404).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/orders/export — export orders to Excel
         group.MapPost("/export", async (
@@ -132,14 +133,14 @@ public static class OrderEndpoints
             var result = await mediator.Send(command, ct);
             if (!result.IsSuccess || result.FileContent is null)
                 return Results.Problem(detail: result.ErrorMessage ?? "Export failed", statusCode: 400);
-            return Results.File(result.FileContent,
+            return Results.File(result.FileContent?.ToArray() ?? Array.Empty<byte>(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 result.FileName);
         })
         .WithName("ExportOrders")
         .WithSummary("Siparişleri Excel'e aktar (tarih + platform filtresi)")
-        .Produces(200)
-        .Produces(400);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // PUT /api/v1/orders/{id}/status — sipariş durumu güncelle (G528)
         group.MapPut("/{id:guid}/status", async (
@@ -157,8 +158,9 @@ public static class OrderEndpoints
         })
         .WithName("UpdateOrderStatus")
         .WithSummary("Sipariş durumu güncelle — Place/Ship/Deliver/Complete akışı")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces<StatusResponse>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
         // POST /api/v1/orders/{id}/cancel — sipariş iptal (G528)
         group.MapPost("/{id:guid}/cancel", async (
@@ -174,8 +176,9 @@ public static class OrderEndpoints
         })
         .WithName("CancelOrder")
         .WithSummary("Sipariş iptal et — iade süreci başlatır")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces<StatusResponse>(200)
-        .Produces(400);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
 
     public record CancelOrderRequest(string? Reason);

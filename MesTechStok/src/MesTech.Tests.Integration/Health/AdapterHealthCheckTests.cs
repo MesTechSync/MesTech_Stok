@@ -145,7 +145,7 @@ public class AdapterHealthCheckTests
 
     [Theory]
     [InlineData(typeof(TrendyolAdapter), true, true, true)]
-    [InlineData(typeof(OpenCartAdapter), true, true, false)]
+    [InlineData(typeof(OpenCartAdapter), true, true, true)]
     [InlineData(typeof(CiceksepetiAdapter), true, true, true)]
     [InlineData(typeof(HepsiburadaAdapter), true, true, true)]
     [InlineData(typeof(PazaramaAdapter), true, true, true)]
@@ -186,18 +186,29 @@ public class AdapterHealthCheckTests
     [InlineData(typeof(Bitrix24Adapter))]
     public void PlatformAdapter_ThrowsOnNullHttpClient(Type adapterType)
     {
-        var ctor = adapterType.GetConstructors().FirstOrDefault(c =>
-            c.GetParameters().Any(p => p.ParameterType == typeof(HttpClient)));
+        var ctor = adapterType.GetConstructors()
+            .OrderByDescending(c => c.GetParameters().Length)
+            .FirstOrDefault(c => c.GetParameters().Any(p => p.ParameterType == typeof(HttpClient)));
 
         ctor.Should().NotBeNull($"{adapterType.Name} should accept HttpClient in constructor");
 
         var act = () =>
         {
-            var loggerType = ctor!.GetParameters()
-                .First(p => p.ParameterType.Name.StartsWith("ILogger")).ParameterType;
             var nullLoggerType = typeof(NullLogger<>).MakeGenericType(adapterType);
             var logger = Activator.CreateInstance(nullLoggerType);
-            ctor.Invoke(new object?[] { null, logger });
+
+            var parameters = ctor!.GetParameters();
+            var args = new object?[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].ParameterType == typeof(HttpClient))
+                    args[i] = null; // null HttpClient to trigger ArgumentNullException
+                else if (parameters[i].ParameterType.Name.StartsWith("ILogger"))
+                    args[i] = logger;
+                else
+                    args[i] = null; // optional params
+            }
+            ctor.Invoke(args);
         };
 
         act.Should().Throw<TargetInvocationException>()
@@ -208,18 +219,41 @@ public class AdapterHealthCheckTests
     //  Helpers
     // ════════════════════════════════════════════════════════════════
 
+    /// <summary>
+    /// Creates an adapter instance by finding the constructor and passing HttpClient + Logger
+    /// with null for all optional parameters. Handles the 3-4 param constructors added in Dalga 7+.
+    /// </summary>
     private static object CreateAdapterInstance(Type adapterType)
     {
-        var loggerType = typeof(NullLogger<>).MakeGenericType(adapterType);
-        var logger = Activator.CreateInstance(loggerType)!;
-        return Activator.CreateInstance(adapterType, new HttpClient(), logger)!;
+        return CreateInstanceWithOptionalParams(adapterType);
     }
 
     private static object CreateCargoAdapterInstance(Type adapterType)
     {
+        return CreateInstanceWithOptionalParams(adapterType);
+    }
+
+    private static object CreateInstanceWithOptionalParams(Type adapterType)
+    {
+        var ctor = adapterType.GetConstructors()
+            .OrderByDescending(c => c.GetParameters().Length)
+            .First(c => c.GetParameters().Any(p => p.ParameterType == typeof(HttpClient)));
+
         var loggerType = typeof(NullLogger<>).MakeGenericType(adapterType);
         var logger = Activator.CreateInstance(loggerType)!;
-        return Activator.CreateInstance(adapterType, new HttpClient(), logger)!;
+
+        var parameters = ctor.GetParameters();
+        var args = new object?[parameters.Length];
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            if (parameters[i].ParameterType == typeof(HttpClient))
+                args[i] = new HttpClient();
+            else if (parameters[i].ParameterType.Name.StartsWith("ILogger"))
+                args[i] = logger;
+            else
+                args[i] = null; // optional params: IOptions<T>?, IHttpClientFactory?, TokenService?
+        }
+        return ctor.Invoke(args)!;
     }
 
     /// <summary>

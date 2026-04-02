@@ -24,11 +24,11 @@ public class CommissionCalculationServiceTests
     }
 
     [Fact]
-    public void CalculateCommission_ForUnknownPlatform_ShouldUseDefault15Percent()
+    public void CalculateCommission_ForUnknownPlatform_ShouldUseDefaultZeroPercent()
     {
         var result = _sut.CalculateCommission("UnknownPlatform", null, 1000m);
 
-        result.Should().Be(150m); // 15% default
+        result.Should().Be(0m); // Unknown platform → 0% (no commission assumed)
     }
 
     [Theory]
@@ -47,11 +47,11 @@ public class CommissionCalculationServiceTests
     }
 
     [Fact]
-    public void GetDefaultRate_ForUnknownPlatform_ShouldReturn15Percent()
+    public void GetDefaultRate_ForUnknownPlatform_ShouldReturnZero()
     {
         var rate = _sut.GetDefaultRate("BilinmeyenPlatform");
 
-        rate.Should().Be(0.15m);
+        rate.Should().Be(0m); // Unknown platform → 0 (no commission assumed)
     }
 
     [Fact]

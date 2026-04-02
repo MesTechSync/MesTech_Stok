@@ -164,8 +164,12 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
 
     protected override void OnDispose()
     {
-        _autoRefreshTimer?.Stop();
-        _autoRefreshTimer?.Dispose();
+        if (_autoRefreshTimer is not null)
+        {
+            _autoRefreshTimer.Elapsed -= OnAutoRefreshElapsed;
+            _autoRefreshTimer.Stop();
+            _autoRefreshTimer.Dispose();
+        }
         _autoRefreshTimer = null;
     }
 }

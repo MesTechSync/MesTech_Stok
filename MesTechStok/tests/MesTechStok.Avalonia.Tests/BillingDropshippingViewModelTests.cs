@@ -84,7 +84,7 @@ public class FeedCreateAvaloniaViewModelTests
     private static FeedCreateAvaloniaViewModel CreateSut(Mock<IMediator>? mediator = null)
     {
         var m = mediator ?? new Mock<IMediator>();
-        return new FeedCreateAvaloniaViewModel(m.Object);
+        return new FeedCreateAvaloniaViewModel(m.Object, Mock.Of<ITenantProvider>());
     }
 
     [Fact]

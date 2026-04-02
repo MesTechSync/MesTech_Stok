@@ -23,7 +23,7 @@ public class GetInventoryPagedHandlerTests
 
     private void SetupEmptyCategories()
     {
-        _categoryRepo.Setup(r => r.GetAllAsync())
+        _categoryRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Category>().AsReadOnly());
     }
 
@@ -34,7 +34,7 @@ public class GetInventoryPagedHandlerTests
         var products = Enumerable.Range(1, 5)
             .Select(i => FakeData.CreateProduct(sku: $"INV-{i:D3}", stock: i * 10, minimumStock: 3))
             .ToList();
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
         SetupEmptyCategories();
 
         // Act — request page 1 with size 3
@@ -70,7 +70,7 @@ public class GetInventoryPagedHandlerTests
         // Assert
         result.Items.Should().HaveCount(1);
         _productRepo.Verify(r => r.SearchAsync("SEARCH"), Times.Once);
-        _productRepo.Verify(r => r.GetAllAsync(), Times.Never);
+        _productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class GetInventoryPagedHandlerTests
             FakeData.CreateProduct(sku: "OOS-002", stock: 0, minimumStock: 10),
             FakeData.CreateProduct(sku: "IN-001", stock: 50, minimumStock: 5),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
         SetupEmptyCategories();
 
         // Act
@@ -107,7 +107,7 @@ public class GetInventoryPagedHandlerTests
             FakeData.CreateProduct(sku: "SORT-B", stock: 100, minimumStock: 3),
             FakeData.CreateProduct(sku: "SORT-C", stock: 50, minimumStock: 3),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
         SetupEmptyCategories();
 
         // Act
@@ -157,9 +157,9 @@ public class GetInventoryStatisticsHandlerTests
             new() { Quantity = 20, Date = DateTime.UtcNow },
         };
 
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(allProducts.AsReadOnly());
-        _productRepo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(lowStockProducts.AsReadOnly());
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(allProducts.AsReadOnly());
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(lowStockProducts.AsReadOnly());
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(todayMovements.AsReadOnly());
 
         // Act
@@ -184,11 +184,11 @@ public class GetInventoryStatisticsHandlerTests
     public async Task Handle_NoProducts_ReturnsZeros()
     {
         // Arrange
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
 
         // Act
