@@ -68,6 +68,15 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
         ReviewedBy = reviewedBy;
         ReviewedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new ReconciliationCompletedEvent
+        {
+            MatchId = Id,
+            SettlementBatchId = SettlementBatchId ?? Guid.Empty,
+            BankTransactionId = BankTransactionId ?? Guid.Empty,
+            FinalStatus = ReconciliationStatus.ManualMatch,
+            Confidence = Confidence
+        });
     }
 
     public void Reject(string reviewedBy)
@@ -77,5 +86,14 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
         ReviewedBy = reviewedBy;
         ReviewedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new ReconciliationCompletedEvent
+        {
+            MatchId = Id,
+            SettlementBatchId = SettlementBatchId ?? Guid.Empty,
+            BankTransactionId = BankTransactionId ?? Guid.Empty,
+            FinalStatus = ReconciliationStatus.Rejected,
+            Confidence = Confidence
+        });
     }
 }

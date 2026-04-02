@@ -1,3 +1,4 @@
+using MesTech.Domain.Accounting.Events;
 using MesTech.Domain.Common;
 
 namespace MesTech.Domain.Accounting.Entities;
@@ -35,7 +36,7 @@ public sealed class ProfitReport : BaseEntity, ITenantEntity
 
         var netProfit = totalRevenue - totalCost - totalCommission - totalCargo - totalTax;
 
-        return new ProfitReport
+        var report = new ProfitReport
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -50,5 +51,15 @@ public sealed class ProfitReport : BaseEntity, ITenantEntity
             Period = period,
             CreatedAt = DateTime.UtcNow
         };
+
+        report.RaiseDomainEvent(new ProfitReportGeneratedEvent
+        {
+            ReportId = report.Id,
+            Period = period,
+            Platform = platform,
+            NetProfit = netProfit
+        });
+
+        return report;
     }
 }
