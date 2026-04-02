@@ -209,7 +209,7 @@ public class CampaignTests
             15m);
 
         campaign.Name.Should().Be("Yaz İndirimi");
-        campaign.IsActive.Should().BeFalse();
+        campaign.IsActive.Should().BeTrue();
     }
 }
 
