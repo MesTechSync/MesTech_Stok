@@ -104,9 +104,60 @@ public abstract class FlaUITestBase : IAsyncLifetime
     /// Avalonia butonların Name'i genelde TextBlock.Text veya ToolTip.Tip'ten gelir.</summary>
     protected bool ClickMenu(string menuName)
     {
+        // İlk deneme — mevcut görünür elemanlarla
+        if (TryClickMenuInternal(menuName)) return true;
+
+        // Bulunamadı → sidebar'daki tüm Expander'ları aç ve tekrar dene
+        ExpandAllSidebarGroups();
+        Thread.Sleep(500);
+        return TryClickMenuInternal(menuName);
+    }
+
+    private void ExpandAllSidebarGroups()
+    {
         try
         {
-            // Tüm elemanları tara — Button + ToolTip text + child TextBlock
+            var expanders = MainWindow.FindAllDescendants(
+                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Button));
+            foreach (var exp in expanders)
+            {
+                try
+                {
+                    var name = exp.Name ?? "";
+                    // Sidebar grup başlıkları genelde "▸" veya ">" icon + group name
+                    if (exp.Patterns.ExpandCollapse.IsSupported)
+                    {
+                        var pattern = exp.Patterns.ExpandCollapse.Pattern;
+                        if (pattern.ExpandCollapseState.Value == FlaUI.Core.Definitions.ExpandCollapseState.Collapsed)
+                        {
+                            pattern.Expand();
+                            Thread.Sleep(200);
+                        }
+                    }
+                }
+                catch { /* Non-expandable button */ }
+            }
+
+            // Scroll sidebar to make hidden items visible
+            var scrollViewer = MainWindow.FindFirstDescendant(
+                CF.ByControlType(FlaUI.Core.Definitions.ControlType.Pane));
+            if (scrollViewer?.Patterns.Scroll.IsSupported == true)
+            {
+                try
+                {
+                    scrollViewer.Patterns.Scroll.Pattern.SetScrollPercent(-1, 0);
+                    Thread.Sleep(200);
+                }
+                catch { }
+            }
+        }
+        catch { }
+    }
+
+    private bool TryClickMenuInternal(string menuName)
+    {
+        try
+        {
             var all = MainWindow.FindAllDescendants();
             foreach (var el in all)
             {
@@ -159,6 +210,7 @@ public abstract class FlaUITestBase : IAsyncLifetime
         }
         return false;
     }
+
 
     /// <summary>Ekranda belirli metni ara.</summary>
     protected bool ContainsText(string search)
