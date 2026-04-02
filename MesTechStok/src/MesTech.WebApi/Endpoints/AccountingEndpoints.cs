@@ -75,21 +75,19 @@ public static class AccountingEndpoints
             var trialBalance = await mediator.Send(
                 new GetTrialBalanceQuery(tenantId, monthStart, now), ct);
 
-            return Results.Ok(new
-            {
-                period = $"{now.Year}-{now.Month:D2}",
-                totalSales = monthlySummary.TotalSales,
-                totalExpenses = monthlySummary.TotalExpenses,
-                netProfit = monthlySummary.TotalSales - monthlySummary.TotalExpenses,
-                totalOrders = monthlySummary.TotalOrders,
-                totalReturns = monthlySummary.TotalReturns,
-                returnRate = monthlySummary.ReturnRate,
-                averageOrderValue = monthlySummary.AverageOrderValue,
-                totalCommissions = monthlySummary.TotalCommissions,
-                totalShippingCost = monthlySummary.TotalShippingCost,
-                totalTaxDue = monthlySummary.TotalTaxDue,
-                trialBalance
-            });
+            return Results.Ok(new AccountingSummaryResponse(
+                $"{now.Year}-{now.Month:D2}",
+                monthlySummary.TotalSales,
+                monthlySummary.TotalExpenses,
+                monthlySummary.TotalSales - monthlySummary.TotalExpenses,
+                monthlySummary.TotalOrders,
+                monthlySummary.TotalReturns,
+                monthlySummary.ReturnRate,
+                monthlySummary.AverageOrderValue,
+                monthlySummary.TotalCommissions,
+                monthlySummary.TotalShippingCost,
+                monthlySummary.TotalTaxDue,
+                trialBalance));
         })
         .WithName("GetAccountingSummary")
         .WithSummary("Muhasebe özet — Blazor AccountingDashboard.razor için (G362)")
@@ -828,4 +826,10 @@ public static class AccountingEndpoints
         string ApprovedBy,
         string ApprovalSource,
         Guid TenantId);
+
+    public sealed record AccountingSummaryResponse(
+        string Period, decimal TotalSales, decimal TotalExpenses, decimal NetProfit,
+        int TotalOrders, int TotalReturns, decimal ReturnRate, decimal AverageOrderValue,
+        decimal TotalCommissions, decimal TotalShippingCost, decimal TotalTaxDue,
+        object TrialBalance);
 }
