@@ -265,8 +265,28 @@ public class BulkScreenshotLayer15Tests
                 window.Show();
                 Dispatcher.UIThread.RunJobs();
 
-                // InitializeAsync tetiklenmesi icin ekstra bekleme
-                Thread.Sleep(200);
+                // InitializeAsync tetiklenmesi — timeout ile deadlock koruması
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                try
+                {
+                    if (view.DataContext is ViewModelBase vmBase)
+                    {
+                        var loadTask = vmBase.LoadAsync();
+                        // RunJobs ile Dispatcher kuyruğunu işle, ama 3s timeout ile
+                        while (!loadTask.IsCompleted && !cts.IsCancellationRequested)
+                        {
+                            Dispatcher.UIThread.RunJobs();
+                            Thread.Sleep(50);
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(200);
+                        Dispatcher.UIThread.RunJobs();
+                    }
+                }
+                catch (OperationCanceledException) { /* timeout — devam et */ }
+                catch { /* LoadAsync hatası — screenshot yine de al */ }
                 Dispatcher.UIThread.RunJobs();
 
                 var frame = window.CaptureRenderedFrame();
