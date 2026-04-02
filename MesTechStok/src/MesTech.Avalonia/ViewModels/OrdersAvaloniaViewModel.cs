@@ -17,7 +17,7 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
     private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private string searchText = string.Empty;
-    [ObservableProperty] private string selectedStatus = "Tumu";
+    [ObservableProperty] private string selectedStatus = "Tümü";
     [ObservableProperty] private int totalCount;
 
     public ObservableCollection<OrderItemDto> Orders { get; } = [];

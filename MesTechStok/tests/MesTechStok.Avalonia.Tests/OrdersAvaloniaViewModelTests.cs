@@ -1,5 +1,10 @@
-﻿using FluentAssertions;
+using FluentAssertions;
+using MediatR;
 using MesTech.Avalonia.ViewModels;
+using GetOrderListQuery = MesTech.Application.Features.Orders.Queries.GetOrderList.GetOrderListQuery;
+using AppOrderListItemDto = MesTech.Application.Features.Orders.Queries.GetOrderList.OrderListItemDto;
+using MesTech.Domain.Interfaces;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -7,21 +12,42 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class OrdersAvaloniaViewModelTests
 {
-    private static OrdersAvaloniaViewModel CreateSut() => new(null, null);
+    private readonly Mock<IMediator> _mediatorMock = new();
+    private readonly Mock<ITenantProvider> _tenantMock = new();
+
+    private OrdersAvaloniaViewModel CreateSut()
+    {
+        _tenantMock.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
+        return new OrdersAvaloniaViewModel(_mediatorMock.Object, _tenantMock.Object);
+    }
+
+    private static IReadOnlyList<AppOrderListItemDto> CreateTestOrders() =>
+    [
+        new AppOrderListItemDto { OrderNumber = "SIP-001", CustomerName = "Ahmet Yilmaz", Status = "Yeni", TotalAmount = 500m, OrderDate = DateTime.Now, SourcePlatform = "Trendyol" },
+        new AppOrderListItemDto { OrderNumber = "SIP-002", CustomerName = "Mehmet Kaya", Status = "Hazırlanıyor", TotalAmount = 750m, OrderDate = DateTime.Now, SourcePlatform = "Hepsiburada" },
+        new AppOrderListItemDto { OrderNumber = "SIP-003", CustomerName = "Ayse Demir", Status = "Yeni", TotalAmount = 320m, OrderDate = DateTime.Now, SourcePlatform = "N11" },
+        new AppOrderListItemDto { OrderNumber = "SIP-004", CustomerName = "Fatma Celik", Status = "Kargoda", TotalAmount = 1200m, OrderDate = DateTime.Now, SourcePlatform = "Trendyol" },
+        new AppOrderListItemDto { OrderNumber = "SIP-005", CustomerName = "Ali Ozturk", Status = "Teslim Edildi", TotalAmount = 890m, OrderDate = DateTime.Now, SourcePlatform = "Amazon" },
+    ];
+
+    private void SetupMediatorWithOrders(IReadOnlyList<AppOrderListItemDto>? orders = null)
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetOrderListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(orders ?? CreateTestOrders());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
     {
-        // Act
         var sut = CreateSut();
 
-        // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.IsEmpty.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
         sut.SearchText.Should().BeEmpty();
-        sut.SelectedStatus.Should().Be("Tumu");
+        sut.SelectedStatus.Should().Be("Tümü");
         sut.TotalCount.Should().Be(0);
         sut.Orders.Should().BeEmpty();
         sut.Statuses.Should().HaveCountGreaterThan(0);
@@ -30,26 +56,30 @@ public class OrdersAvaloniaViewModelTests
     [Fact]
     public async Task LoadAsync_ShouldSetIsLoadingDuringExecution()
     {
-        // Arrange
+        var tcs = new TaskCompletionSource<IReadOnlyList<AppOrderListItemDto>>();
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetOrderListQuery>(), It.IsAny<CancellationToken>()))
+            .Returns(tcs.Task);
+
         var sut = CreateSut();
+        var loadTask = sut.LoadAsync();
 
-        // Act
-        await sut.LoadAsync();
+        sut.IsLoading.Should().BeTrue();
 
-        // Assert — after completion loading must be false
+        tcs.SetResult(CreateTestOrders());
+        await loadTask;
+
         sut.IsLoading.Should().BeFalse();
     }
 
     [Fact]
     public async Task LoadAsync_ShouldPopulateOrders()
     {
-        // Arrange
+        SetupMediatorWithOrders();
         var sut = CreateSut();
 
-        // Act
         await sut.LoadAsync();
 
-        // Assert
         sut.Orders.Should().NotBeEmpty();
         sut.TotalCount.Should().BeGreaterThan(0);
         sut.IsEmpty.Should().BeFalse();
@@ -60,15 +90,13 @@ public class OrdersAvaloniaViewModelTests
     [Fact]
     public async Task LoadAsync_FilterByStatus_ShouldReduceResults()
     {
-        // Arrange
+        SetupMediatorWithOrders();
         var sut = CreateSut();
         await sut.LoadAsync();
         var totalBefore = sut.TotalCount;
 
-        // Act
         sut.SelectedStatus = "Yeni";
 
-        // Assert
         sut.TotalCount.Should().BeLessThan(totalBefore);
         sut.Orders.Should().OnlyContain(o => o.Status == "Yeni");
     }
@@ -76,14 +104,12 @@ public class OrdersAvaloniaViewModelTests
     [Fact]
     public async Task LoadAsync_SearchText_ShouldFilterByCustomerOrOrderNo()
     {
-        // Arrange
+        SetupMediatorWithOrders();
         var sut = CreateSut();
         await sut.LoadAsync();
 
-        // Act — search for a known customer fragment
         sut.SearchText = "Ahmet";
 
-        // Assert
         sut.Orders.Should().HaveCount(1);
         sut.Orders.First().Customer.Should().Contain("Ahmet");
     }
