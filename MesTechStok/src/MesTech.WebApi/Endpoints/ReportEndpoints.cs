@@ -510,5 +510,65 @@ public static class ReportEndpoints
         .WithName("ExportReport")
         .WithSummary("Genel rapor dışa aktar — rapor tipi + format + parametreler")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+
+        // ── G10840: 4 eksik rapor GET endpoint ──
+
+        // GET /api/v1/reports/commission-report
+        group.MapGet("/commission-report", async (
+            Guid tenantId, DateTime? startDate, DateTime? endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new CommissionReportQuery(
+                tenantId, startDate ?? DateTime.UtcNow.AddMonths(-1), endDate ?? DateTime.UtcNow), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCommissionReport")
+        .WithSummary("Komisyon raporu — platform bazli komisyon ozeti")
+        .Produces(200).Produces(400)
+        .CacheOutput("Report120s")
+        .WithRequestTimeout("LongRunning");
+
+        // GET /api/v1/reports/customer-ltv
+        group.MapGet("/customer-ltv", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new CustomerLifetimeValueReportQuery(
+                tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow, 100), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCustomerLifetimeValueReport")
+        .WithSummary("Musteri yasam boyu degeri raporu — LTV analizi")
+        .Produces(200).Produces(400)
+        .CacheOutput("Report120s");
+
+        // GET /api/v1/reports/customer-segment
+        group.MapGet("/customer-segment", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new CustomerSegmentReportQuery(
+                tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetCustomerSegmentReport")
+        .WithSummary("Musteri segmentasyon raporu — RFM analizi")
+        .Produces(200).Produces(400)
+        .CacheOutput("Report120s");
+
+        // GET /api/v1/reports/platform-sales
+        group.MapGet("/platform-sales", async (
+            Guid tenantId, DateTime? startDate, DateTime? endDate,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new PlatformSalesReportQuery(
+                tenantId, startDate ?? DateTime.UtcNow.AddMonths(-1), endDate ?? DateTime.UtcNow), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetPlatformSalesReport")
+        .WithSummary("Platform satis raporu — kanal bazli gelir analizi")
+        .Produces(200).Produces(400)
+        .CacheOutput("Report120s")
+        .WithRequestTimeout("LongRunning");
     }
 }
