@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Domain.Enums;
@@ -24,6 +24,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
     private readonly WireMockFixture _fixture;
     private readonly WireMockServer _mockServer;
     private readonly ILogger<YurticiKargoAdapter> _logger;
+    private readonly HttpClient _httpClient;
 
     private const string SoapPath = "/ws/ShipmentService";
 
@@ -33,18 +34,17 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
         _fixture.Reset();
         _mockServer = fixture.Server;
         _logger = new LoggerFactory().CreateLogger<YurticiKargoAdapter>();
+        _httpClient = new HttpClient();
     }
 
     private YurticiKargoAdapter CreateUnconfiguredAdapter()
     {
-        var httpClient = new HttpClient();
-        return new YurticiKargoAdapter(httpClient, _logger);
+        return new YurticiKargoAdapter(_httpClient, _logger);
     }
 
     private YurticiKargoAdapter CreateConfiguredAdapter()
     {
-        var httpClient = new HttpClient();
-        var adapter = new YurticiKargoAdapter(httpClient, _logger);
+        var adapter = new YurticiKargoAdapter(_httpClient, _logger);
         adapter.Configure(new Dictionary<string, string>
         {
             ["UserName"] = "yk-test-user",
@@ -84,7 +84,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
     // ══════════════════════════════════════
 
     [Fact]
-    public void Provider_ReturnsYurticiKargo()
+    public void Provider_WhenCalled_ReturnsYurticiKargo()
     {
         // Arrange
         var adapter = CreateConfiguredAdapter();
@@ -98,7 +98,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
     // ══════════════════════════════════════
 
     [Fact]
-    public void Capabilities_CorrectFlags()
+    public void Capabilities_WhenCalled_ReturnsCorrectFlags()
     {
         // Arrange
         var adapter = CreateConfiguredAdapter();
@@ -160,7 +160,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
             .Given(Request.Create()
                 .WithPath(SoapPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://yurticikargo.com/createShipment"))
+                .WithHeader("SOAPAction", "https://yurticikargo.com/createShipment"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -192,7 +192,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
             .Given(Request.Create()
                 .WithPath(SoapPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://yurticikargo.com/createShipment"))
+                .WithHeader("SOAPAction", "https://yurticikargo.com/createShipment"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -227,7 +227,7 @@ public class YurticiKargoContractTests : IClassFixture<WireMockFixture>, IDispos
             .Given(Request.Create()
                 .WithPath(SoapPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://yurticikargo.com/createShipmentLabel"))
+                .WithHeader("SOAPAction", "https://yurticikargo.com/createShipmentLabel"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
