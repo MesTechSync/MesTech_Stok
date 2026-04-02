@@ -86,7 +86,7 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
                 var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period));
                 TaxSummaryText = $"Toplam: {summary.TotalTax:N2} TL | Odenmis: {summary.TotalPaid:N2} TL";
             }
-            catch { TaxSummaryText = "—"; }
+            catch (Exception ex) { TaxSummaryText = "—"; System.Diagnostics.Debug.WriteLine($"[WARNING] TaxSummary query failed: {ex.Message}"); }
 
             ApplyFilters();
         }
