@@ -416,6 +416,7 @@ public static class InfrastructureServiceRegistration
                 .Build();
         });
         services.AddScoped<Application.Interfaces.IDocumentStorageService, MinioDocumentStorageService>();
+        services.AddScoped<Application.Interfaces.IFeedStorageService, MinioFeedStorageService>();
 
         // === Label Print Service (barcode/product label generation) ===
         services.AddScoped<ILabelPrintService, LabelPrintService>();
