@@ -29,7 +29,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
 
         var baseUrl = configuration["Mesa:ApiUrl"] ?? "http://localhost:3000/api";
         _httpClient.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
-        _httpClient.Timeout = TimeSpan.FromSeconds(15);
+        _httpClient.Timeout = TimeSpan.FromSeconds(configuration.GetValue<int>("Mesa:BotTimeoutSeconds", 15));
 
         var apiKey = configuration["Mesa:ApiKey"];
         if (!string.IsNullOrWhiteSpace(apiKey))
