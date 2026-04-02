@@ -19,6 +19,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 ///   &lt; 0.70 → skip (eslestirilemez)
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ReconciliationWorker : IAccountingJob
 {
     public string JobId => "accounting-reconciliation";

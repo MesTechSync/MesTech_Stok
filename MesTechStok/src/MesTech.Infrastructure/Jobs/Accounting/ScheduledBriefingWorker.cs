@@ -17,6 +17,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// FinanceReportDailyEvent publish eder — MESA Bot Gateway WhatsApp/Telegram iletir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ScheduledBriefingWorker : IAccountingJob
 {
     public string JobId => "accounting-scheduled-briefing";

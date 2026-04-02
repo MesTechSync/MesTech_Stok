@@ -11,6 +11,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 04:00'da calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class BankStatementImportWorker : IAccountingJob
 {
     public string JobId => "accounting-bank-statement-import";

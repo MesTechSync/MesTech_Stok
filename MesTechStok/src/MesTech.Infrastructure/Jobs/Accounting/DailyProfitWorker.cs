@@ -15,6 +15,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// Her gun 23:59'da calisir ve ProfitReport entity'si olusturur.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class DailyProfitWorker : IAccountingJob
 {
     public string JobId => "accounting-daily-profit";

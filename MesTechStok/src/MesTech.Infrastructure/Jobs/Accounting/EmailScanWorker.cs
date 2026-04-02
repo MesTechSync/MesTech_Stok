@@ -10,6 +10,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// MUH-03 DEV 4.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class EmailScanWorker : IAccountingJob
 {
     public string JobId => "accounting-email-scan";

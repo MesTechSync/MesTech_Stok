@@ -17,6 +17,7 @@ namespace MesTech.Infrastructure.Jobs.Pricing;
 /// Bu worker MesTech'in aynı yeteneğini sağlar.
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class AutoPriceUpdateWorker
 {
     public static string JobId => "pricing-auto-update";

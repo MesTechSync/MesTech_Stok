@@ -14,6 +14,7 @@ namespace MesTech.Infrastructure.Jobs;
 /// ve kullaniciya InApp bildirim olusturur.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ScheduledReportGenerationJob : IAccountingJob
 {
     public string JobId { get; }

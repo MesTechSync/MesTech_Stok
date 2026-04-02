@@ -14,6 +14,7 @@ namespace MesTech.Infrastructure.Jobs.Billing;
 /// Her gun 04:00'te calisir.
 /// </summary>
 [AutomaticRetry(Attempts = 2)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class DunningWorker
 {
     public const string JobId = "dunning-escalation";

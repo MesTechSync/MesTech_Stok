@@ -14,6 +14,7 @@ namespace MesTech.Infrastructure.Jobs.Accounting;
 /// RabbitMQ uzerinden bot bildirim icin publish eder.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
+[DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class TaxPrepWorker : IAccountingJob
 {
     public string JobId => "accounting-tax-prep";
