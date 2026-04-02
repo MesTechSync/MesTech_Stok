@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,7 +18,7 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
     public ObservableCollection<CargoProviderCardViewModel> Providers { get; } = [];
 
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -46,8 +45,9 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Kargo firmalari yuklenemedi: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 }

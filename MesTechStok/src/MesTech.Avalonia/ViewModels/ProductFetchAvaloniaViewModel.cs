@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Application.Features.Product.Queries.FetchProductFromPlatform;
@@ -34,7 +33,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -63,6 +62,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -45,7 +44,7 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         ColumnMappings.Add(new FeedColumnMappingDto { SourceColumn = "kategori", TargetField = "Category" });
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -72,6 +71,7 @@ public partial class FeedCreateAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

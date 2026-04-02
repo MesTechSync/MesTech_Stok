@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -48,7 +47,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         SelectedReportType = ReportTypes[0];
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -65,10 +64,11 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
     private async Task GenerateReport()

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -126,7 +125,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ExportCsvAsync()
+    private Task ExportCsvAsync()
     {
         IsExported = false;
         ExportMessage = string.Empty;
@@ -145,6 +144,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

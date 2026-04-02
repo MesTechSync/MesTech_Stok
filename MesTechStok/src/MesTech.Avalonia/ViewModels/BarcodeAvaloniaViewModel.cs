@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -122,13 +121,13 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task QuickUpdate(string delta)
+    private Task QuickUpdate(string delta)
     {
-        if (!HasProduct) return;
-        if (!int.TryParse(delta, out var change)) return;
+        if (!HasProduct) return Task.CompletedTask;
+        if (!int.TryParse(delta, out var change)) return Task.CompletedTask;
 
         IsLoading = true;
         QuickUpdateStatus = string.Empty;
@@ -158,6 +157,7 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
             ErrorMessage = $"Stok guncelleme basarisiz: {ex.Message}";
         }
         finally { IsLoading = false; }
+        return Task.CompletedTask;
     }
 
     /// <summary>Demo barcode lookup — will be replaced by MediatR query.</summary>

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -61,7 +60,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         IsEmpty = TotalCount == 0;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -87,6 +86,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     private void UpdateSelectedCount()
@@ -149,7 +149,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class BulkShipmentItemDto : ObservableObject

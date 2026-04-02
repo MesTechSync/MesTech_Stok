@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Globalization;
 using Avalonia.Media;
@@ -129,12 +128,12 @@ public partial class ErpDashboardViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task TestConnection(string? providerName)
+    private Task TestConnection(string? providerName)
     {
-        if (string.IsNullOrEmpty(providerName)) return;
+        if (string.IsNullOrEmpty(providerName)) return Task.CompletedTask;
 
         IsLoading = true;
         try
@@ -164,6 +163,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

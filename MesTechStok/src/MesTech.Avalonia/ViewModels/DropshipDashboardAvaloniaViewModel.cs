@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -115,7 +114,7 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAutoOrderSettingsAsync()
+    private Task SaveAutoOrderSettingsAsync()
     {
         IsLoading = true;
         try
@@ -125,10 +124,11 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class DropshipSupplierPerformanceDto

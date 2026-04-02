@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -33,10 +32,10 @@ public partial class BarcodeScannerViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Scan()
+    private Task Scan()
     {
         var barcode = ScanInput?.Trim();
-        if (string.IsNullOrEmpty(barcode)) return;
+        if (string.IsNullOrEmpty(barcode)) return Task.CompletedTask;
 
         // Clear input immediately — ready for next scan
         ScanInput = string.Empty;
@@ -100,6 +99,7 @@ public partial class BarcodeScannerViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     /// <summary>LoadDataCommand — used by F5 keybinding and Retry button in error state.</summary>

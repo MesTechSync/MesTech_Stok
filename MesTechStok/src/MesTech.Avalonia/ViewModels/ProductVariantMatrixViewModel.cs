@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -57,7 +56,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         try
@@ -85,6 +84,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
             IsLoading = false;
             IsEmpty = Variants.Count == 0;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -155,7 +155,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAllAsync()
+    private Task SaveAllAsync()
     {
         IsLoading = true;
         try
@@ -166,6 +166,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -211,7 +212,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SendToPlatformAsync()
+    private Task SendToPlatformAsync()
     {
         IsLoading = true;
         try
@@ -221,6 +222,7 @@ public partial class ProductVariantMatrixViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     private void UpdateCanGenerate()

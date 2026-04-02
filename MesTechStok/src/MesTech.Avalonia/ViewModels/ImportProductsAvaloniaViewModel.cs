@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia.Platform.Storage;
@@ -101,7 +100,7 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
         await base.InitializeAsync();
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -121,6 +120,7 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
             IsLoading = false;
             IsEmpty = PreviewRows.Count == 0 && ImportErrors.Count == 0;
         }
+        return Task.CompletedTask;
     }
 
     // ─── Commands ────────────────────────────────────────────────────────────
@@ -205,7 +205,7 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
 
     /// <summary>WPF015 spec: NextStepCommand alias.</summary>
     [RelayCommand]
-    private async Task NextStepAsync() => await GoNextAsync();
+    private Task NextStepAsync() => GoNextAsync();
 
     /// <summary>WPF015 spec: PrevStepCommand alias.</summary>
     [RelayCommand]

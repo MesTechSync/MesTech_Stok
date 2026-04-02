@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -79,7 +78,7 @@ public partial class PlatformConnectionTestAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task TestAllAsync()
+    private Task TestAllAsync()
     {
         IsTesting = true;
         try
@@ -98,10 +97,11 @@ public partial class PlatformConnectionTestAvaloniaViewModel : ViewModelBase
         {
             IsTesting = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public partial class PlatformTestItemVm : ObservableObject

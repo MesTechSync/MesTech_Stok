@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -69,7 +68,7 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         AvailablePlatforms.Add(new WizardPlatformDto { Name = "Etsy", Color = "#F1641E" });
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -104,6 +103,7 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -66,9 +65,9 @@ public partial class PlatformSyncStatusAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SyncPlatformAsync(PlatformSyncStatusItemDto? platform)
+    private Task SyncPlatformAsync(PlatformSyncStatusItemDto? platform)
     {
-        if (platform is null || platform.HealthStatus == "Pasif") return;
+        if (platform is null || platform.HealthStatus == "Pasif") return Task.CompletedTask;
 
         platform.HealthStatus = "Senkronize ediliyor...";
         var index = Platforms.IndexOf(platform);
@@ -79,10 +78,11 @@ public partial class PlatformSyncStatusAvaloniaViewModel : ViewModelBase
         platform.LastSuccess = platform.LastSync;
         platform.ErrorsToday = 0;
         if (index >= 0) { Platforms.RemoveAt(index); Platforms.Insert(index, platform); }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class PlatformSyncStatusItemDto

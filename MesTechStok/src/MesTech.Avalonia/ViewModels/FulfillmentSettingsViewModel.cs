@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -75,7 +74,7 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private Task RefreshAsync() => LoadAsync();
 
     [RelayCommand]
     private async Task Save()
@@ -99,7 +98,7 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task TestFbaConnection()
+    private Task TestFbaConnection()
     {
         FbaConnectionStatus = "Test ediliyor...";
         try
@@ -112,10 +111,11 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         {
             FbaConnectionStatus = $"Baglanti hatasi: {ex.Message}";
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task TestHepsiConnection()
+    private Task TestHepsiConnection()
     {
         HepsiConnectionStatus = "Test ediliyor...";
         try
@@ -128,5 +128,6 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
         {
             HepsiConnectionStatus = $"Baglanti hatasi: {ex.Message}";
         }
+        return Task.CompletedTask;
     }
 }

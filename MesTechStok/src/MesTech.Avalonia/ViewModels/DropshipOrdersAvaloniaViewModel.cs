@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -79,9 +78,9 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ForwardToSupplierAsync(DropshipOrderItemDto? order)
+    private Task ForwardToSupplierAsync(DropshipOrderItemDto? order)
     {
-        if (order is null || order.Status != "Yeni") return;
+        if (order is null || order.Status != "Yeni") return Task.CompletedTask;
 
         order.Status = "Tedarikçiye İletildi";
         var index = Orders.IndexOf(order);
@@ -90,10 +89,11 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
             Orders.RemoveAt(index);
             Orders.Insert(index, order);
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     partial void OnSelectedStatusChanged(string value)
     {

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -32,7 +31,7 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -59,6 +58,7 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -111,7 +111,7 @@ public partial class FeedPreviewAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await PreviewFeedAsync();
+    private Task Refresh() => PreviewFeedAsync();
 }
 
 public class FeedPreviewItemDto

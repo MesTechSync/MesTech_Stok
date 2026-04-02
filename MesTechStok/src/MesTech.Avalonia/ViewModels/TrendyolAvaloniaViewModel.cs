@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -243,10 +242,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
     // ── Existing commands ────────────────────────────────────────────────────
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task Sync()
+    private Task Sync()
     {
         IsLoading = true;
         try
@@ -264,6 +263,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     // ── Search Filter ────────────────────────────────────────────────────────

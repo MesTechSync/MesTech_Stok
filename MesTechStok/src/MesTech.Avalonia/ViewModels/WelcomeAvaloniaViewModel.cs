@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS1998
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -24,7 +23,7 @@ public partial class WelcomeAvaloniaViewModel : ViewModelBase
     {
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -54,10 +53,11 @@ public partial class WelcomeAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class RecentActivityDto

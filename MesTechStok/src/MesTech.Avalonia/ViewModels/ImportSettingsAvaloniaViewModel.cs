@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -34,7 +33,7 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         _currentUser = currentUser;
     }
 
-    public override async Task LoadAsync()
+    public override Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
@@ -61,6 +60,7 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -155,7 +155,7 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class ImportTemplateDto

@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -94,10 +93,10 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 
     [RelayCommand]
-    private async Task GenerateReport(string reportType)
+    private Task GenerateReport(string reportType)
     {
         IsGenerating = true;
         GeneratingMessage = $"{reportType} hazirlaniyor...";
@@ -116,5 +115,6 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         {
             IsGenerating = false;
         }
+        return Task.CompletedTask;
     }
 }

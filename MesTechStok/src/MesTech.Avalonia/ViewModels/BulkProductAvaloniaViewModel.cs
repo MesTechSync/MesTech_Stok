@@ -1,4 +1,3 @@
-#pragma warning disable CS1998
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -124,7 +123,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SelectFileAsync()
+    private Task SelectFileAsync()
     {
         ImportFilePath = "ornek_urunler.xlsx";
         ImportFileInfo = "Excel dosyasi: 156 satir, 12 kolon";
@@ -149,12 +148,13 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         ApplyPreviewFilter();
 
         PreviewValidationSummary = "3 gecerli, 1 hata, 1 uyari";
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private async Task ImportAsync()
+    private Task ImportAsync()
     {
-        if (!CanImport) return;
+        if (!CanImport) return Task.CompletedTask;
         IsImporting = true;
         CanImport = false;
 
@@ -176,6 +176,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
             IsImporting = false;
             CanImport = true;
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -240,7 +241,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task Refresh() => await LoadAsync();
+    private Task Refresh() => LoadAsync();
 }
 
 public class ColumnMappingDto
