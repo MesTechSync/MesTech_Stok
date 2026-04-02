@@ -734,6 +734,15 @@ TrendyolEndpoints.Map(app); // DEV6: G808 Trendyol Swagger endpoint'leri
 HepsiburadaEndpoints.Map(app); // DEV6: G10821 Hepsiburada Swagger endpoint'leri
 N11Endpoints.Map(app); // DEV6: G10821 N11 Swagger endpoint'leri
 AmazonEndpoints.Map(app); // DEV6: G10821 Amazon Swagger endpoint'leri
+CiceksepetiEndpoints.Map(app); // DEV6: G10821
+EbayEndpoints.Map(app); // DEV6: G10821
+OzonEndpoints.Map(app); // DEV6: G10821
+ShopifyEndpoints.Map(app); // DEV6: G10821
+WooCommerceEndpoints.Map(app); // DEV6: G10821
+PazaramaEndpoints.Map(app); // DEV6: G10821
+PttAvmEndpoints.Map(app); // DEV6: G10821
+EtsyEndpoints.Map(app); // DEV6: G10821
+ZalandoEndpoints.Map(app); // DEV6: G10821
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
