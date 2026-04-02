@@ -1,16 +1,19 @@
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Enums;
 
 namespace MesTech.WebApi.Endpoints;
 
 /// <summary>
-/// Generic platform endpoint helper — DRY: 13 platform × 3 endpoint = 1 helper.
-/// Her platform dosyası bunu çağırarak products/categories/connection endpoint'lerini register eder.
+/// Generic platform endpoint helper — DRY: 15 platform × 4 endpoint = 1 helper.
+/// products/categories/connection/sync — tum platformlar icin standart endpoint seti.
 /// </summary>
 public static class PlatformEndpointHelper
 {
     /// <summary>
-    /// Register 3 standard endpoints for a platform:
-    /// GET /api/v1/{route}/products, /categories, /connection
+    /// Register 4 standard endpoints for a platform:
+    /// GET  /api/v1/{route}/products, /categories, /connection
+    /// POST /api/v1/{route}/sync
     /// </summary>
     public static void MapPlatformEndpoints(
         WebApplication app,
@@ -68,5 +71,18 @@ public static class PlatformEndpointHelper
         .WithName($"Test{displayName.Replace(" ", "")}Connection")
         .WithSummary($"{displayName} API baglanti testi")
         .Produces(200).ProducesProblem(503);
+
+        // POST /api/v1/{route}/sync — generic platform sync
+        group.MapPost("/sync", async (
+            MediatR.ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new SyncPlatformCommand(platformCode, SyncDirection.Bidirectional, null), ct);
+            return Results.Ok(result);
+        })
+        .WithName($"Sync{displayName.Replace(" ", "")}Full")
+        .WithSummary($"{displayName} tam senkronizasyon tetikle")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .Produces(200).Produces(400);
     }
 }
