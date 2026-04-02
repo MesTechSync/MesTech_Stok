@@ -1,5 +1,6 @@
 ﻿using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -213,6 +214,13 @@ builder.Services.AddRateLimiter(options =>
 // Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
 
 var app = builder.Build();
+
+// Forwarded headers — MUST be first middleware for correct client IP behind proxy/Traefik
+// Required for rate limiting to work correctly (prevents X-Forwarded-For spoofing bypass)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+});
 
 if (!app.Environment.IsDevelopment())
 {
