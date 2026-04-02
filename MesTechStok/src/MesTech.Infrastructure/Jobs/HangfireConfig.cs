@@ -430,6 +430,8 @@ public static class HangfireConfig
             ("Ozon",         "0 */2 * * *"),
             ("Etsy",         "0 */2 * * *"),
             ("Zalando",      "0 */2 * * *"),
+            ("Pazarama",     "*/30 * * * *"),  // G-NEW: Pazarama IClaimCapableAdapter var ama schedule eksikti
+            ("PttAVM",       "0 */2 * * *"),   // G-NEW: PttAVM IClaimCapableAdapter var ama schedule eksikti
         };
 
         foreach (var (code, cron) in platformClaimSchedules)
@@ -455,6 +457,8 @@ public static class HangfireConfig
             ("Ozon",         "0 */12 * * *"),
             ("Etsy",         "0 */12 * * *"),
             ("Zalando",      "0 */12 * * *"),
+            ("Pazarama",     "0 */6 * * *"),   // G-NEW: Pazarama SupportsPriceUpdate — schedule eksikti
+            ("PttAVM",       "0 */12 * * *"),  // G-NEW: PttAVM SupportsPriceUpdate — schedule eksikti
         };
 
         foreach (var (code, cron) in platformPriceSchedules)
