@@ -65,6 +65,7 @@ public static class OrderEndpoints
         })
         .WithName("PushOrderToBitrix24")
         .WithSummary("Siparişi Bitrix24 CRM'e deal olarak gönder")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces(200).ProducesProblem(401).ProducesProblem(429)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
@@ -157,6 +158,7 @@ public static class OrderEndpoints
         })
         .WithName("UpdateOrderStatus")
         .WithSummary("Sipariş durumu güncelle — Place/Ship/Deliver/Complete akışı")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces<StatusResponse>(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
@@ -174,6 +176,7 @@ public static class OrderEndpoints
         })
         .WithName("CancelOrder")
         .WithSummary("Sipariş iptal et — iade süreci başlatır")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces<StatusResponse>(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
