@@ -7,6 +7,7 @@ using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MesTech.Infrastructure.Integration.Feed;
 
@@ -19,6 +20,7 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<GoogleMerchantFeedAdapter> _logger;
+    private readonly FeedOptions _feedOptions;
 
     private static readonly XNamespace G = "http://base.google.com/ns/1.0";
     private static readonly XNamespace Atom = "http://www.w3.org/2005/Atom";
@@ -31,10 +33,12 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 
     public GoogleMerchantFeedAdapter(
         AppDbContext dbContext,
-        ILogger<GoogleMerchantFeedAdapter> logger)
+        ILogger<GoogleMerchantFeedAdapter> logger,
+        IOptions<FeedOptions>? feedOptions = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _feedOptions = feedOptions?.Value ?? new FeedOptions();
     }
 
     public async Task<FeedGenerationResult> GenerateFeedAsync(
@@ -75,10 +79,7 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
             var feedXml = BuildFeedDocument(items, request);
             var feedContent = SerializeXml(feedXml);
 
-            // Feed URL should point to object storage (MinIO/S3) where the XML is uploaded.
-            // Currently returns a placeholder URL — integration with MinIO upload pending.
-            var feedUrl = $"https://feeds.mestech.app/google-merchant/{request.StoreId:N}.xml";
-            _logger.LogWarning("[GoogleMerchantFeed] Using placeholder feed URL — MinIO/S3 upload not yet integrated. URL: {FeedUrl}", feedUrl);
+            var feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/google-merchant/{request.StoreId:N}.xml";
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
