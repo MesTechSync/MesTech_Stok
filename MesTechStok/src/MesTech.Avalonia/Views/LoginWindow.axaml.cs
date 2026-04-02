@@ -93,15 +93,16 @@ public partial class LoginWindow : Window
                     var authResult = await _authService.ValidateAsync(username, password);
                     isValid = authResult.IsSuccess;
                 }
-                catch
+                catch (Exception authEx)
                 {
                     // DB bağlantısı yoksa offline fallback dene
+                    System.Diagnostics.Debug.WriteLine($"[WARNING] Auth service failed: {authEx.Message}");
                     isValid = false;
                 }
             }
 
             // Offline fallback: DB yokken demo giriş (WPF ile aynı davranış)
-            if (!isValid && _authService == null || !isValid)
+            if (!isValid && _authService is null)
             {
                 if (username == "admin" && password == "Admin123!")
                     isValid = true;
@@ -257,7 +258,7 @@ public partial class LoginWindow : Window
                 }
             }
         }
-        catch { /* Sessizce geç */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] LoadRememberedUser failed: {ex.Message}"); }
     }
 
     /// <summary>Window kapanırken timer temizliği [V4-B1]</summary>
