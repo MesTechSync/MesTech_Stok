@@ -6,7 +6,7 @@ namespace MesTech.Infrastructure.Integration.Settlement;
 /// Factory for resolving platform-specific settlement parsers.
 /// Resolves by platform name (case-insensitive).
 /// Supports: Trendyol, Amazon, AmazonEu, Hepsiburada, Ciceksepeti, N11, Pazarama, OpenCart,
-/// eBay, Ozon, PttAVM, Shopify, Etsy, WooCommerce, Zalando (15 platform).
+/// eBay, Ozon, PttAVM, Shopify, Etsy, WooCommerce, Zalando, Bitrix24 (16 platform).
 /// </summary>
 public sealed class SettlementParserFactory : ISettlementParserFactory
 {

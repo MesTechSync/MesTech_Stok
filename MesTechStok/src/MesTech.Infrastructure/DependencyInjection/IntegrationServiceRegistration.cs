@@ -493,8 +493,9 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<ISettlementParser, EtsySettlementParser>();
         services.AddSingleton<ISettlementParser, WooCommerceSettlementParser>();
         services.AddSingleton<ISettlementParser, ZalandoSettlementParser>();
+        services.AddSingleton<ISettlementParser, Bitrix24SettlementParser>();
 
-        // Settlement parser factory — auto-discovers all registered ISettlementParser (15 total)
+        // Settlement parser factory — auto-discovers all registered ISettlementParser (16 total)
         services.AddSingleton<ISettlementParserFactory, SettlementParserFactory>();
 
         // Dalga 14 S3: Parasut options — sandbox toggle + environment-aware URLs
