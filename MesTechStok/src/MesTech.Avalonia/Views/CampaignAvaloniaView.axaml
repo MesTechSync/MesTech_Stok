@@ -112,7 +112,11 @@
         <!-- Error -->
         <Border Grid.Row="2" IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                 CornerRadius="{StaticResource MesRadiusMd}" Padding="12" Margin="0,0,0,8">
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
+            <StackPanel Spacing="8">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
+                <Button Content="Tekrar Dene" ToolTip.Tip="Tekrar Dene" Command="{Binding RefreshCommand}"
+                        Padding="16,6" HorizontalAlignment="Left" />
+            </StackPanel>
         </Border>
 
     </Grid>

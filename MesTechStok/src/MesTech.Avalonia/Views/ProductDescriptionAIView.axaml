@@ -211,6 +211,8 @@
                                                Foreground="{DynamicResource MesDanger}" />
                                     <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeSmall}"
                                                Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
+                                    <Button Content="Tekrar Dene" ToolTip.Tip="Tekrar Dene" Command="{Binding RefreshCommand}"
+                                            Padding="16,6" HorizontalAlignment="Left" />
                                 </StackPanel>
                             </Border>
                         </Border>

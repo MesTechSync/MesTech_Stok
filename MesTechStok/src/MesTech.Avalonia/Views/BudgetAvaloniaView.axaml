@@ -93,6 +93,8 @@
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
             <TextBlock Text="Hata" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{DynamicResource MesRedAlert}" HorizontalAlignment="Center"/>
             <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <Button Content="Tekrar Dene" ToolTip.Tip="Tekrar Dene" Command="{Binding RefreshCommand}"
+                    Padding="16,6" HorizontalAlignment="Center" />
           </StackPanel>
         </Border>
       </Panel>

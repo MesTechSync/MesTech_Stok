@@ -32,7 +32,11 @@
                 <!-- Error -->
                 <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
                         CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
+                        <Button Content="Tekrar Dene" ToolTip.Tip="Tekrar Dene" Command="{Binding RefreshCommand}"
+                                Padding="16,6" HorizontalAlignment="Left" />
+                    </StackPanel>
                 </Border>
 
                 <!-- Empty state -->

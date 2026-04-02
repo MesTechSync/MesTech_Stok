@@ -102,7 +102,11 @@
 
                 <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12"
                         IsVisible="{Binding HasError}">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
+                        <Button Content="Tekrar Dene" ToolTip.Tip="Tekrar Dene" Command="{Binding RefreshCommand}"
+                                Padding="16,6" HorizontalAlignment="Left" />
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
