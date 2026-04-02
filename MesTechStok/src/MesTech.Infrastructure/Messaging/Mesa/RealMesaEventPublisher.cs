@@ -29,18 +29,23 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
         var apiKey = _config["Mesa:ApiKey"] ?? string.Empty;
         try
         {
-            _httpClient.DefaultRequestHeaders.Remove("X-Api-Key");
-            _httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
             var payload = new { type = eventType, data };
-            var resp = await _httpClient.PostAsJsonAsync($"{mesaEndpoint}/api/v1/events", payload, ct).ConfigureAwait(false);
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{mesaEndpoint}/api/v1/events");
+            request.Headers.TryAddWithoutValidation("X-Api-Key", apiKey);
+            request.Content = JsonContent.Create(payload);
+            var resp = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
-                _logger.LogWarning("MESA {Type} HTTP {Status}", eventType, (int)resp.StatusCode);
+            {
+                _logger.LogWarning("MESA {Type} HTTP {Status} — event delivery failed", eventType, (int)resp.StatusCode);
+            }
             else
+            {
                 _logger.LogInformation("MESA event gonderildi: {Type}", eventType);
+            }
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
         {
-            _logger.LogWarning(ex, "MESA endpoint erisилemiyor — {Type} kayip", eventType);
+            _logger.LogError(ex, "MESA endpoint erisiлemiyor — {Type} event teslim edilemedi", eventType);
         }
     }
 
