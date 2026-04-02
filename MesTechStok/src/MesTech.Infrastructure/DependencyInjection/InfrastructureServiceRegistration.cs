@@ -347,6 +347,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<DemoDataSeeder>();
         services.AddScoped<AhmetBeyDemoSeeder>();
         services.AddScoped<Services.DemoModeService>();
+        services.AddScoped<Application.Interfaces.IDemoModeService>(sp => sp.GetRequiredService<Services.DemoModeService>());
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();

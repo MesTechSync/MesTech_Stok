@@ -1,5 +1,5 @@
 using MesTech.Application.DTOs;
-using MesTech.Infrastructure.Services;
+using MesTech.Application.Interfaces;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -17,19 +17,19 @@ public static class DemoEndpoints
             .RequireRateLimiting("AuthRateLimit");
 
         group.MapPost("/start", async (
-            DemoModeService demoService,
-            ILogger<DemoModeService> logger,
+            IDemoModeService demoService,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
             try
             {
                 var session = await demoService.CreateDemoSessionAsync(ct);
 
-                return Results.Ok(ApiResponse<DemoSession>.Ok(session));
+                return Results.Ok(ApiResponse<DemoSessionResult>.Ok(session));
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "[DemoMode] Failed to create demo session");
+                loggerFactory.CreateLogger("DemoEndpoints").LogError(ex, "[DemoMode] Failed to create demo session");
                 return Results.Problem(
                     detail: "Demo oturumu oluşturulamadı. Lütfen daha sonra tekrar deneyin.",
                     statusCode: StatusCodes.Status500InternalServerError,
@@ -38,7 +38,7 @@ public static class DemoEndpoints
         })
         .WithName("StartDemoSession")
         .WithSummary("30 dakikalık demo oturumu başlat — ücretsiz, kayıt gerektirmez")
-        .Produces<ApiResponse<DemoSession>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<DemoSessionResult>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status429TooManyRequests)
         .Produces(StatusCodes.Status500InternalServerError)
         .AllowAnonymous();

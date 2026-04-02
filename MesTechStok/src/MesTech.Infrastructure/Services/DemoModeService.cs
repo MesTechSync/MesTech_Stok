@@ -1,4 +1,5 @@
 using Hangfire;
+using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace MesTech.Infrastructure.Services;
 /// Hangfire cleanup job removes expired demo tenants automatically.
 /// Rate-limited: max 10 demo tenants per hour (IP-based via endpoint).
 /// </summary>
-public sealed class DemoModeService
+public sealed class DemoModeService : IDemoModeService
 {
     private readonly AppDbContext _context;
     private readonly DemoDataSeeder _seeder;
@@ -34,7 +35,7 @@ public sealed class DemoModeService
     /// Creates a new demo tenant with sample data.
     /// Returns the tenant ID for the demo session.
     /// </summary>
-    public async Task<DemoSession> CreateDemoSessionAsync(CancellationToken ct = default)
+    public async Task<DemoSessionResult> CreateDemoSessionAsync(CancellationToken ct = default)
     {
         _logger.LogInformation("[DemoMode] Creating new demo session");
 
@@ -52,11 +53,13 @@ public sealed class DemoModeService
             svc => svc.CleanupExpiredDemoAsync(CancellationToken.None),
             DemoTtl.Add(TimeSpan.FromMinutes(5))); // 5min grace period
 
-        return new DemoSession(
+        return new DemoSessionResult(
             TenantId: DemoDataSeeder.DemoTenantId,
             TenantName: "Demo Sirket",
             ExpiresAt: expiresAt,
-            DemoUser: "demo@mestech.tr",
+            DemoUsername: DemoDataSeeder.DemoUsername,
+            DemoPassword: DemoDataSeeder.DemoPassword,
+            DemoEmail: DemoDataSeeder.DemoEmail,
             ProductCount: 10,
             OrderCount: 5);
     }
@@ -109,11 +112,4 @@ public sealed class DemoModeService
     }
 }
 
-/// <summary>Demo session response DTO.</summary>
-public sealed record DemoSession(
-    Guid TenantId,
-    string TenantName,
-    DateTime ExpiresAt,
-    string DemoUser,
-    int ProductCount,
-    int OrderCount);
+// DemoSessionResult DTO is defined in MesTech.Application.Interfaces.IDemoModeService
