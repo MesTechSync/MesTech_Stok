@@ -34,7 +34,6 @@
     private async Task ApplyTheme()
     {
         var theme = _isDark ? "dark" : "light";
-        await JS.InvokeVoidAsync("eval",
-            $"document.documentElement.setAttribute('data-theme', '{theme}')");
+        await JS.InvokeVoidAsync("document.documentElement.setAttribute", "data-theme", theme);
     }
 }
