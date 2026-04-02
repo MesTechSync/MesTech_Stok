@@ -20,6 +20,7 @@ namespace MesTech.Infrastructure.Integration.Feed;
 public class FacebookShopFeedAdapter : ISocialFeedAdapter
 {
     private readonly AppDbContext _dbContext;
+    private readonly IFeedStorageService? _feedStorage;
     private readonly ILogger<FacebookShopFeedAdapter> _logger;
     private readonly FeedOptions _feedOptions;
 
@@ -32,11 +33,13 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     public FacebookShopFeedAdapter(
         AppDbContext dbContext,
         ILogger<FacebookShopFeedAdapter> logger,
-        IOptions<FeedOptions>? feedOptions = null)
+        IOptions<FeedOptions>? feedOptions = null,
+        IFeedStorageService? feedStorage = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _feedOptions = feedOptions?.Value ?? new FeedOptions();
+        _feedStorage = feedStorage;
     }
 
     public async Task<FeedGenerationResult> GenerateFeedAsync(
@@ -75,9 +78,20 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
             }
 
             var feedXml = BuildFeedDocument(items, request);
-            _ = SerializeXml(feedXml);
+            var feedContent = SerializeXml(feedXml);
 
-            var feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/{Platform.ToString().ToLowerInvariant()}/{request.StoreId:N}.xml";
+            // G10803: Upload feed XML to MinIO (mestech-feeds bucket)
+            var platformName = Platform.ToString().ToLowerInvariant();
+            string feedUrl;
+            if (_feedStorage is not null)
+            {
+                feedUrl = await _feedStorage.UploadFeedAsync(platformName, request.StoreId, feedContent, ct)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/{platformName}/{request.StoreId:N}.xml";
+            }
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;

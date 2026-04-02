@@ -19,6 +19,7 @@ namespace MesTech.Infrastructure.Integration.Feed;
 public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 {
     private readonly AppDbContext _dbContext;
+    private readonly IFeedStorageService? _feedStorage;
     private readonly ILogger<GoogleMerchantFeedAdapter> _logger;
     private readonly FeedOptions _feedOptions;
 
@@ -34,11 +35,13 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     public GoogleMerchantFeedAdapter(
         AppDbContext dbContext,
         ILogger<GoogleMerchantFeedAdapter> logger,
-        IOptions<FeedOptions>? feedOptions = null)
+        IOptions<FeedOptions>? feedOptions = null,
+        IFeedStorageService? feedStorage = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _feedOptions = feedOptions?.Value ?? new FeedOptions();
+        _feedStorage = feedStorage;
     }
 
     public async Task<FeedGenerationResult> GenerateFeedAsync(
@@ -79,7 +82,17 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
             var feedXml = BuildFeedDocument(items, request);
             var feedContent = SerializeXml(feedXml);
 
-            var feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/google-merchant/{request.StoreId:N}.xml";
+            // G10803: Upload feed XML to MinIO (mestech-feeds bucket)
+            string feedUrl;
+            if (_feedStorage is not null)
+            {
+                feedUrl = await _feedStorage.UploadFeedAsync("google-merchant", request.StoreId, feedContent, ct)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                feedUrl = $"{_feedOptions.FeedBaseUrl.TrimEnd('/')}/google-merchant/{request.StoreId:N}.xml";
+            }
 
             _lastGenerated = DateTime.UtcNow;
             _lastItemCount = items.Count;
