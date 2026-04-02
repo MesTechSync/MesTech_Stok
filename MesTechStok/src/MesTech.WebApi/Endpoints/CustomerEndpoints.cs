@@ -46,7 +46,8 @@ public static class CustomerEndpoints
         .WithName("CreateCustomer")
         .WithSummary("Yeni müşteri oluştur")
         .Produces(201)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/customers/{id} — update an existing customer
         group.MapPut("/{id:guid}", async (
@@ -63,7 +64,8 @@ public static class CustomerEndpoints
         .WithName("UpdateCustomer")
         .WithSummary("Müşteri bilgilerini güncelle")
         .Produces(200)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/customers/export — müşteri listesi dışa aktarım (G564)
         group.MapPost("/export", async (
@@ -79,6 +81,7 @@ public static class CustomerEndpoints
         })
         .WithName("ExportCustomers")
         .WithSummary("Müşteri listesini Excel'e aktar (xlsx/csv)")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

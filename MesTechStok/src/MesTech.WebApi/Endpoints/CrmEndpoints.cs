@@ -61,7 +61,8 @@ public static class CrmEndpoints
         })
         .WithName("CreateLead")
         .WithSummary("Yeni potansiyel müşteri oluştur")
-        .Produces(201).Produces(400);
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/crm/deals
         group.MapPost("/deals", async (
@@ -74,7 +75,8 @@ public static class CrmEndpoints
         })
         .WithName("CreateDeal")
         .WithSummary("Yeni fırsat oluştur")
-        .Produces(201).Produces(400);
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/crm/deals/{dealId}/win-and-create-order
         group.MapPost("/deals/{dealId:guid}/win-and-create-order",
@@ -85,7 +87,8 @@ public static class CrmEndpoints
             })
             .WithName("WinDealAndCreateOrder")
             .WithSummary("Deal kazanildi — Order baglantisi olustur (H27-3.4)")
-            .Produces(200).Produces(400);
+            .Produces(200).Produces(400)
+            .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/crm/orders/{orderId}/create-lead
         group.MapPost("/orders/{orderId:guid}/create-lead",
@@ -98,7 +101,8 @@ public static class CrmEndpoints
             })
             .WithName("CreateLeadFromOrder")
             .WithSummary("Pazaryeri siparisi → Lead olustur (H27-3.4)")
-            .Produces(201).Produces(200);
+            .Produces(201).Produces(200)
+            .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/crm/deals/{id}/win — Deal kazanıldı (H29-3.3)
         group.MapPost("/deals/{id:guid}/win", async (
@@ -110,7 +114,8 @@ public static class CrmEndpoints
         })
         .WithName("WinDeal")
         .WithSummary("Deal kazanıldı olarak işaretle")
-        .Produces(204).Produces(400);
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/crm/deals/{id}/lose — Deal kaybedildi (H29-3.3)
         group.MapPost("/deals/{id:guid}/lose", async (
@@ -122,7 +127,8 @@ public static class CrmEndpoints
         })
         .WithName("LoseDeal")
         .WithSummary("Deal kaybedildi olarak işaretle")
-        .Produces(204).Produces(400);
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/crm/deals — fırsat listesi
         group.MapGet("/deals", async (
@@ -182,7 +188,8 @@ public static class CrmEndpoints
         })
         .WithName("SyncBitrix24Contacts")
         .WithSummary("Bitrix24 CRM contact senkronizasyonu başlat")
-        .Produces(200).Produces(422);
+        .Produces(200).Produces(422)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/crm/bitrix24/deals — Bitrix24 deal listesi
         group.MapGet("/bitrix24/deals", async (
@@ -266,7 +273,8 @@ public static class CrmEndpoints
         })
         .WithName("UpdateDealStage")
         .WithSummary("Deal pipeline aşamasını güncelle")
-        .Produces(200).Produces(400);
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/crm/suppliers/paged — sayfalanmış tedarikçi listesi
         group.MapGet("/suppliers/paged", async (
@@ -307,6 +315,7 @@ public static class CrmEndpoints
         })
         .WithName("SaveCrmSettings")
         .WithSummary("CRM ayarları kaydet — lead scoring, pipeline, email tracking")
-        .Produces<StatusResponse>(200).Produces(400);
+        .Produces<StatusResponse>(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

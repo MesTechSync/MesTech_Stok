@@ -62,7 +62,8 @@ public static class WarehouseEndpoints
         .WithName("CreateWarehouse")
         .WithSummary("Yeni depo oluştur")
         .Produces(201)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/warehouses/{id} — depo güncelle
         group.MapPut("/{id:guid}", async (
@@ -81,7 +82,8 @@ public static class WarehouseEndpoints
         .WithName("UpdateWarehouse")
         .WithSummary("Depo bilgilerini güncelle")
         .Produces(204)
-        .Produces(404);
+        .Produces(404)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/warehouses/{id} — depo sil (soft-delete)
         group.MapDelete("/{id:guid}", async (

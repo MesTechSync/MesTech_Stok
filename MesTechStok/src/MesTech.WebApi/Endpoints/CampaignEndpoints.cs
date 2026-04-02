@@ -25,7 +25,8 @@ public static class CampaignEndpoints
             return Results.Created($"/api/v1/campaigns/{result}", new CreatedResponse(result));
         })
         .WithName("CreateCampaign")
-        .WithSummary("Yeni kampanya olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni kampanya olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         group.MapGet("/", async (
             Guid tenantId,

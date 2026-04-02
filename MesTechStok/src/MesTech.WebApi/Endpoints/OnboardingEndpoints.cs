@@ -38,7 +38,8 @@ public static class OnboardingEndpoints
             return Results.Created($"/api/v1/onboarding/progress", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("StartOnboarding")
-        .WithSummary("Kurulum sürecini başlat").Produces(200).Produces(400);
+        .WithSummary("Kurulum sürecini başlat").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/onboarding/complete-step — complete onboarding step
         group.MapPost("/complete-step", async (
@@ -50,7 +51,8 @@ public static class OnboardingEndpoints
             return Results.NoContent();
         })
         .WithName("CompleteOnboardingStep")
-        .WithSummary("Kurulum adımını tamamla").Produces(200).Produces(400);
+        .WithSummary("Kurulum adımını tamamla").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/onboarding/v5-readiness — V5 özellik hazırlık kontrolü
         group.MapGet("/v5-readiness", async (
@@ -76,6 +78,7 @@ public static class OnboardingEndpoints
         .WithName("RegisterTenant")
         .WithSummary("Yeni tenant kaydı — firma + admin kullanıcı + 14 gün trial + onboarding")
         .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .AllowAnonymous() // Kayıt endpoint'i auth gerektirmez
         .RequireRateLimiting("RegistrationRateLimit"); // DEV6-TUR6: 10 req/min per IP — account enumeration prevention
     }

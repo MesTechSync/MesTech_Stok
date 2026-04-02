@@ -40,7 +40,8 @@ public static class SupplierEndpoints
         .WithName("CreateSupplier")
         .WithSummary("Yeni tedarikçi oluştur")
         .Produces(201)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/suppliers/{id} — tedarikçi güncelle
         group.MapPut("/{id:guid}", async (
@@ -59,7 +60,8 @@ public static class SupplierEndpoints
         .WithName("UpdateSupplier")
         .WithSummary("Tedarikçi bilgilerini güncelle")
         .Produces(200)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/suppliers/{id} — tedarikçi detayı (G529)
         group.MapGet("/{id:guid}", async (

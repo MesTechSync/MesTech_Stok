@@ -60,7 +60,8 @@ public static class CategoryEndpoints
         .WithName("CreateCategory")
         .WithSummary("Yeni kategori oluştur")
         .Produces(201)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/categories/{id} — update an existing category
         group.MapPut("/{id:guid}", async (
@@ -77,7 +78,8 @@ public static class CategoryEndpoints
         .WithName("UpdateCategory")
         .WithSummary("Kategori güncelle")
         .Produces(200)
-        .Produces(400);
+        .Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/categories/{id} — soft-delete a category
         group.MapDelete("/{id:guid}", async (

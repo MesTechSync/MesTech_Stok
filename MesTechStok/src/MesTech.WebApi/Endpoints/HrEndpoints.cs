@@ -43,7 +43,8 @@ public static class HrEndpoints
             return Results.NoContent();
         })
         .WithName("ApproveLeave")
-        .WithSummary("İzin talebini onayla").Produces(200).Produces(400);
+        .WithSummary("İzin talebini onayla").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/hr/departments — departman listesi
         group.MapGet("/departments", async (
@@ -98,6 +99,7 @@ public static class HrEndpoints
         })
         .WithName("CreateTimeEntry")
         .WithSummary("Yeni zaman takip kaydı — görev, süre, faturalanabilir")
-        .Produces(201);
+        .Produces(201)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

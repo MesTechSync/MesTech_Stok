@@ -51,7 +51,8 @@ public static class CalendarEndpoints
             return Results.Created($"/api/v1/calendar/events/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCalendarEvent")
-        .WithSummary("Yeni takvim etkinligi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni takvim etkinligi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/calendar/events/{id} — etkinlik guncelle
         group.MapPut("/events/{id:guid}", async (
@@ -63,7 +64,8 @@ public static class CalendarEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateCalendarEvent")
-        .WithSummary("Takvim etkinligi guncelle").Produces(200).Produces(400);
+        .WithSummary("Takvim etkinligi guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/calendar/events/{id} — etkinlik sil (soft delete)
         group.MapDelete("/events/{id:guid}", async (
@@ -88,6 +90,7 @@ public static class CalendarEndpoints
             return Results.Ok(new CalendarGenerationResponse(year, count));
         })
         .WithName("GenerateTaxCalendar")
-        .WithSummary("Yillik vergi takvimi olustur (~40 etkinlik: KDV, SGK, Ba-Bs, Gecici Vergi, Yillik)").Produces(200).Produces(400);
+        .WithSummary("Yillik vergi takvimi olustur (~40 etkinlik: KDV, SGK, Ba-Bs, Gecici Vergi, Yillik)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
