@@ -44,6 +44,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
     private readonly IAccountingDocumentRepository _documentRepository;
     private readonly ITenantProvider _tenantProvider;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<SpeechToExpenseService> _logger;
 
     public SpeechToExpenseService(
@@ -52,6 +53,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         IAccountingDocumentRepository documentRepository,
         ITenantProvider tenantProvider,
         IUnitOfWork unitOfWork,
+        IConfiguration configuration,
         ILogger<SpeechToExpenseService> logger)
     {
         _httpClient = httpClient;
@@ -59,10 +61,11 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         _documentRepository = documentRepository;
         _tenantProvider = tenantProvider;
         _unitOfWork = unitOfWork;
+        _configuration = configuration;
         _logger = logger;
 
         _httpClient.BaseAddress ??= new Uri("http://localhost:3101");
-        _httpClient.Timeout = TimeSpan.FromSeconds(30); // STT can be slow for large audio
+        _httpClient.Timeout = TimeSpan.FromSeconds(_configuration.GetValue("Mesa:SpeechToExpense:TimeoutSeconds", 30));
     }
 
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(
