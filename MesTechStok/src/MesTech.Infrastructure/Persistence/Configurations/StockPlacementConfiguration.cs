@@ -1,4 +1,4 @@
-using MesTech.Domain.Entities;
+﻿using MesTech.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,6 +29,6 @@ public sealed class StockPlacementConfiguration : IEntityTypeConfiguration<Stock
         builder.HasQueryFilter(p => !p.IsDeleted);
 
         builder.Property(p => p.RowVersion).IsRowVersion();
-        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Property<uint>("xmin").HasColumnType("xid");
     }
 }
