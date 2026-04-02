@@ -188,7 +188,11 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
         _autoRefreshTimer.Start();
     }
 
-    private async void OnAutoRefreshTick(object? sender, EventArgs e) => await LoadAsync();
+    private async void OnAutoRefreshTick(object? sender, EventArgs e)
+    {
+        try { await LoadAsync(); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] Health auto-refresh failed: {ex.Message}"); }
+    }
 
     public void StopAutoRefreshTimer()
     {
