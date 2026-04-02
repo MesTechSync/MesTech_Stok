@@ -65,13 +65,17 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
                 TotalAssets = bs.Assets.Total.ToString("N2", TrCulture) + " TL";
                 TotalLiabilities = bs.Liabilities.Total.ToString("N2", TrCulture) + " TL";
             }
-            catch { /* Balance sheet optional */ }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] Balance sheet query failed: {ex.Message}"); }
 
-            // G540 orphan: additional accounting queries
-            try { _ = await _mediator.Send(new GetAccountingExpensesQuery(_currentUser.TenantId, now.AddMonths(-1), now)); } catch { }
-            try { _ = await _mediator.Send(new GetAccountingPeriodsQuery(_currentUser.TenantId, now.Year)); } catch { }
-            try { _ = await _mediator.Send(new GetPendingReviewsQuery(_currentUser.TenantId)); } catch { }
-            try { _ = await _mediator.Send(new GetFifoCOGSQuery(_currentUser.TenantId)); } catch { }
+            // G540 orphan: additional accounting queries (optional — failures logged, not blocking)
+            try { _ = await _mediator.Send(new GetAccountingExpensesQuery(_currentUser.TenantId, now.AddMonths(-1), now)); }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] AccountingExpenses query failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetAccountingPeriodsQuery(_currentUser.TenantId, now.Year)); }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] AccountingPeriods query failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetPendingReviewsQuery(_currentUser.TenantId)); }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] PendingReviews query failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetFifoCOGSQuery(_currentUser.TenantId)); }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] FifoCOGS query failed: {ex.Message}"); }
 
             RecentTransactions.Clear();
             foreach (var p in summary.SalesByPlatform)
