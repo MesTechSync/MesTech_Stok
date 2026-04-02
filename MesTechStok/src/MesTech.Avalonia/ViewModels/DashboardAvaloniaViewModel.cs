@@ -9,6 +9,7 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
 using MesTech.Application.DTOs.Dashboard;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
+using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Domain.Interfaces;
 using SkiaSharp;
 
@@ -222,8 +223,8 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
             IsEmpty = RecentOrders.Count == 0;
 
-            // ── Grafik verisi (mock — G053 gerçek veri için DEV 1'e) ──
-            BuildChartData();
+            // ── Grafik verisi — GetSalesChartDataQuery ile gerçek DB'den ──
+            await BuildChartDataAsync();
 
             // ── Refresh timestamp ──
             _lastRefresh = DateTime.Now;
@@ -260,49 +261,44 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         // Navigate to AI details or show dialog — placeholder for AI insight navigation
     }
 
-    /// <summary>
-    /// WPF002: LiveCharts2 — Son 7 günün platform bazlı sipariş grafiği.
-    /// Mock data kullanır — GetSalesChartDataQuery (G053) DEV 1 tarafından implement edilecek.
-    /// </summary>
-    private void BuildChartData()
+    private static readonly Dictionary<string, string> PlatformColors = new(StringComparer.OrdinalIgnoreCase)
     {
-        var days = Enumerable.Range(0, 7)
-            .Select(i => DateTime.Today.AddDays(-6 + i))
-            .ToArray();
+        ["Trendyol"] = "#F27A1A", ["Hepsiburada"] = "#6B21A8", ["Amazon"] = "#FF9900",
+        ["N11"] = "#2563EB", ["CicekSepeti"] = "#EC4899", ["eBay"] = "#0064D2",
+        ["Shopify"] = "#96BF48", ["WooCommerce"] = "#7F54B3", ["Etsy"] = "#F56400",
+        ["OpenCart"] = "#23A1D1", ["Ozon"] = "#005BFF", ["Zalando"] = "#FF6900",
+    };
 
-        SalesChartSeries = new ISeries[]
+    /// <summary>
+    /// LiveCharts2 — GetSalesChartDataQuery ile gerçek DB'den platform bazlı sipariş grafiği.
+    /// </summary>
+    private async Task BuildChartDataAsync()
+    {
+        var chartData = await _mediator.Send(new GetSalesChartDataQuery(_tenantProvider.GetCurrentTenantId(), 7));
+
+        var series = new List<ISeries>();
+        foreach (var s in chartData.Series)
         {
-            new LineSeries<double>
+            var color = PlatformColors.GetValueOrDefault(s.PlatformName, "#6B7280");
+            series.Add(new LineSeries<double>
             {
-                Name = "Trendyol",
-                Values = new double[] { 12, 15, 18, 14, 22, 19, 25 },
-                Stroke = new SolidColorPaint(SKColor.Parse("#F27A1A")) { StrokeThickness = 3 },
+                Name = s.PlatformName,
+                Values = s.OrderCountValues.Select(v => (double)v).ToArray(),
+                Stroke = new SolidColorPaint(SKColor.Parse(color)) { StrokeThickness = 3 },
                 Fill = null,
                 GeometrySize = 8
-            },
-            new LineSeries<double>
-            {
-                Name = "Hepsiburada",
-                Values = new double[] { 8, 10, 7, 12, 9, 15, 11 },
-                Stroke = new SolidColorPaint(SKColor.Parse("#6B21A8")) { StrokeThickness = 3 },
-                Fill = null,
-                GeometrySize = 8
-            },
-            new LineSeries<double>
-            {
-                Name = "Amazon",
-                Values = new double[] { 5, 3, 6, 4, 8, 7, 10 },
-                Stroke = new SolidColorPaint(SKColor.Parse("#FF9900")) { StrokeThickness = 3 },
-                Fill = null,
-                GeometrySize = 8
-            }
-        };
+            });
+        }
+
+        SalesChartSeries = series.Count > 0
+            ? series.ToArray()
+            : new ISeries[] { new LineSeries<double> { Name = "Veri yok", Values = Array.Empty<double>() } };
 
         SalesChartXAxes = new Axis[]
         {
             new Axis
             {
-                Labels = days.Select(d => d.ToString("dd MMM")).ToArray(),
+                Labels = chartData.Labels.ToArray(),
                 LabelsRotation = 0
             }
         };
