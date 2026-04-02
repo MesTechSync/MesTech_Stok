@@ -65,6 +65,9 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
     public void Approve(string reviewedBy)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+        if (Status is ReconciliationStatus.ManualMatch or ReconciliationStatus.Rejected)
+            throw new InvalidOperationException(
+                $"Cannot approve reconciliation in {Status} status. Only AutoMatched or NeedsReview can be approved.");
         Status = ReconciliationStatus.ManualMatch;
         ReviewedBy = reviewedBy;
         ReviewedAt = DateTime.UtcNow;
@@ -83,6 +86,9 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
     public void Reject(string reviewedBy)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+        if (Status is ReconciliationStatus.ManualMatch or ReconciliationStatus.Rejected)
+            throw new InvalidOperationException(
+                $"Cannot reject reconciliation in {Status} status. Only AutoMatched or NeedsReview can be rejected.");
         Status = ReconciliationStatus.Rejected;
         ReviewedBy = reviewedBy;
         ReviewedAt = DateTime.UtcNow;

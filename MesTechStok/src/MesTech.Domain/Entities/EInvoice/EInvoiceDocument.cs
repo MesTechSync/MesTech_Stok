@@ -88,6 +88,8 @@ public sealed class EInvoiceDocument : BaseEntity, ITenantEntity
     {
         if (Status == EInvoiceStatus.Cancelled)
             throw new BusinessRuleException("EInvoice.Send", "Iptal edilmis fatura gonderilemez.");
+        if (Status is EInvoiceStatus.Sent or EInvoiceStatus.Accepted)
+            throw new BusinessRuleException("EInvoice.Send", $"Fatura zaten {Status} durumunda — tekrar gonderim cift GiB credit tuketir.");
         Status = EInvoiceStatus.Sent;
         ProviderRef = providerRef;
         CreditUsed = creditUsed;
