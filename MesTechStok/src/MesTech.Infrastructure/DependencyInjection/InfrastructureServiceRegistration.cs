@@ -654,6 +654,8 @@ public static class InfrastructureServiceRegistration
             Services.HangfireBackgroundJobService>();
         services.AddScoped<Domain.Interfaces.ISocialFeedConfigurationRepository,
             Persistence.Repositories.SocialFeedConfigurationRepository>();
+        services.Configure<Integration.Feed.FeedOptions>(
+            configuration.GetSection("Feed"));
 
         // Muhasebe GL handler'lar (repo-enriched bridges):
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedGLHandler,
