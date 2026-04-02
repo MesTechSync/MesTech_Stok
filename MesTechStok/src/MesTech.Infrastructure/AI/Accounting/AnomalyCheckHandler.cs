@@ -24,15 +24,18 @@ public sealed class AnomalyCheckHandler
 {
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IMediator _mediator;
     private readonly ILogger<AnomalyCheckHandler> _logger;
 
     public AnomalyCheckHandler(
         IJournalEntryRepository journalEntryRepository,
         IPublishEndpoint publishEndpoint,
+        IMediator mediator,
         ILogger<AnomalyCheckHandler> logger)
     {
         _journalEntryRepository = journalEntryRepository;
         _publishEndpoint = publishEndpoint;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -158,8 +161,21 @@ public sealed class AnomalyCheckHandler
 
         await _publishEndpoint.Publish(integrationEvent, ct);
 
+        await _mediator.Publish(
+            new DomainEventNotification<AnomalyDetectedEvent>(
+                new AnomalyDetectedEvent
+                {
+                    AnomalyType = anomalyType,
+                    Description = description,
+                    ExpectedAmount = expectedAmount,
+                    ActualAmount = actualAmount,
+                    EntityType = entityType,
+                    EntityId = entityId
+                }),
+            ct);
+
         _logger.LogInformation(
-            "[Anomaly] FinanceAnomalyDetected yayinlandi: tip={AnomalyType}, aciklama={Description}",
+            "[Anomaly] FinanceAnomalyDetected + AnomalyDetectedEvent yayinlandi: tip={AnomalyType}, aciklama={Description}",
             anomalyType, description);
     }
 }
