@@ -90,7 +90,7 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
         }
 
         // G540 orphan: log count
-        try { TotalLogCount = await _mediator.Send(new GetLogCountQuery(_currentUser.TenantId)); } catch { }
+        try { TotalLogCount = await _mediator.Send(new GetLogCountQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetLogCount failed: {ex.Message}"); }
     }
 
     private void ApplyFilter()
