@@ -74,7 +74,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
                 var drive = new System.IO.DriveInfo(System.IO.Path.GetPathRoot(Environment.CurrentDirectory) ?? "C");
                 DiskUsage = (int)((drive.TotalSize - drive.AvailableFreeSpace) * 100 / drive.TotalSize);
             }
-            catch { DiskUsage = 0; }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] DriveInfo disk usage query failed: {ex.Message}"); DiskUsage = 0; }
 
             // System uptime + process count
             var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
