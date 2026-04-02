@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
+using MesTech.Application.Features.Product.Commands.ExecuteBulkImport;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Enums;
 
@@ -17,8 +18,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IFilePickerService _filePicker;
-
-    // Common
+    private string? _selectedFilePath;
 
     // Tab 1: Import
     [ObservableProperty] private string importFilePath = string.Empty;
@@ -148,6 +148,7 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
 
         if (string.IsNullOrEmpty(path)) return;
 
+        _selectedFilePath = path;
         ImportFilePath = Path.GetFileName(path);
         IsLoading = true;
         HasError = false;
@@ -252,20 +253,27 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task ImportAsync()
+    private async Task ImportAsync()
     {
-        if (!CanImport) return Task.CompletedTask;
+        if (!CanImport || string.IsNullOrEmpty(_selectedFilePath)) return;
         IsImporting = true;
         CanImport = false;
+        ImportProgress = 0;
 
         try
         {
-            for (int i = 0; i <= 100; i += 5)
-            {
-                ImportProgress = i;
-                ImportStatusText = $"Import ediliyor... {i}% ({i * 156 / 100}/156 urun, {i / 10}s)";
-            }
-            ImportStatusText = "Import tamamlandi: 152 basarili, 4 atlanmis";
+            await using var fileStream = File.OpenRead(_selectedFilePath);
+            var result = await _mediator.Send(new ExecuteBulkImportCommand(
+                fileStream,
+                ImportFilePath,
+                UpdateExisting: UpdateExistingProducts,
+                SkipErrors: SkipErrors));
+
+            ImportProgress = 100;
+            ImportStatusText = $"Import tamamlandi: {result.ImportedCount} eklendi, {result.UpdatedCount} guncellendi, {result.SkippedCount} atlanmis, {result.ErrorCount} hata ({result.Duration.TotalSeconds:F1}s)";
+
+            if (result.ImportedCount + result.UpdatedCount > 0)
+                await LoadAsync();
         }
         catch (Exception ex)
         {
@@ -276,7 +284,6 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
             IsImporting = false;
             CanImport = true;
         }
-        return Task.CompletedTask;
     }
 
     [RelayCommand]
