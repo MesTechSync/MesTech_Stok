@@ -192,11 +192,15 @@ public partial class AppHubViewModel : ViewModelBase
             ServiceStatuses.Add(new("Platform API", false, "baglanti yok"));
         }
 
-        // G540 orphan handler wiring — 4 dashboard queries
-        try { _ = await _mediator.Send(new GetAppHubDataQuery(_currentUser.TenantId)); } catch { /* optional */ }
-        try { _ = await _mediator.Send(new GetOrdersPendingQuery(_currentUser.TenantId)); } catch { /* optional */ }
-        try { _ = await _mediator.Send(new GetSalesTodayQuery(_currentUser.TenantId)); } catch { /* optional */ }
-        try { _ = await _mediator.Send(new GetRevenueChartQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        // G540 orphan handler wiring — 4 dashboard queries (optional — failures logged)
+        try { _ = await _mediator.Send(new GetAppHubDataQuery(_currentUser.TenantId)); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] AppHubData query failed: {ex.Message}"); }
+        try { _ = await _mediator.Send(new GetOrdersPendingQuery(_currentUser.TenantId)); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] OrdersPending query failed: {ex.Message}"); }
+        try { _ = await _mediator.Send(new GetSalesTodayQuery(_currentUser.TenantId)); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] SalesToday query failed: {ex.Message}"); }
+        try { _ = await _mediator.Send(new GetRevenueChartQuery(_currentUser.TenantId)); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] RevenueChart query failed: {ex.Message}"); }
     }
 
     [RelayCommand]
