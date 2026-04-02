@@ -214,4 +214,190 @@ public class TrendyolAdapterWireMockTests : IClassFixture<WireMockFixture>
         adapter.SupportsPriceUpdate.Should().BeTrue();
         adapter.SupportsShipment.Should().BeTrue();
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 6: GetCategories returns mapped categories
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task GetCategories_ReturnsMappedList()
+    {
+        _fixture.Server.Reset();
+
+        const string categoriesJson = """
+            {"categories": [
+                {"id": 1001, "name": "Elektronik", "parentId": null, "subCategories": []},
+                {"id": 2001, "name": "Giyim", "parentId": null, "subCategories": []}
+            ]}
+            """;
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/product-categories")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(categoriesJson));
+
+        var adapter = BuildAdapter();
+        await adapter.TestConnectionAsync(BuildCredentials());
+
+        var categories = await adapter.GetCategoriesAsync();
+
+        categories.Should().NotBeNull();
+        categories.Should().HaveCountGreaterThanOrEqualTo(2);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 7: PullOrders returns mapped orders
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task PullOrders_ReturnsMappedOrders()
+    {
+        _fixture.Server.Reset();
+
+        const string ordersJson = """
+            {"totalElements": 1, "totalPages": 1, "content": [
+                {
+                    "shipmentPackageId": 98765,
+                    "orderNumber": "ORD-TR-001",
+                    "orderDate": 1711900800000,
+                    "status": "Created",
+                    "totalPrice": 199.90,
+                    "lines": [
+                        {"productName": "Test Urun", "barcode": "8690000000001",
+                         "quantity": 2, "amount": 199.90, "merchantSku": "SKU-T001"}
+                    ],
+                    "shipmentAddress": {"fullName": "Ali Veli", "city": "Istanbul"}
+                }
+            ]}
+            """;
+
+        // Stub both products (for TestConnection) and orders paths
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/sellers/123456/products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithBody("""{"totalElements": 1, "totalPages": 1, "content": []}"""));
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/order/sellers/123456/orders")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody(ordersJson));
+
+        var adapter = BuildAdapter();
+        await adapter.TestConnectionAsync(BuildCredentials());
+
+        var orders = await adapter.PullOrdersAsync(DateTime.UtcNow.AddDays(-7));
+
+        orders.Should().NotBeNull();
+        orders.Should().HaveCount(1);
+        orders[0].PlatformOrderNumber.Should().Be("ORD-TR-001");
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 8: API returns 401 → graceful error handling
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task TestConnection_Unauthorized_ReturnsFailure()
+    {
+        _fixture.Server.Reset();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/sellers/123456/products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.Unauthorized)
+                .WithBody("""{"errors": [{"message": "Invalid API key"}]}"""));
+
+        var adapter = BuildAdapter();
+        var result = await adapter.TestConnectionAsync(BuildCredentials());
+
+        result.Should().NotBeNull();
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 9: API returns 429 → rate limit handling
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task TestConnection_RateLimited_ReturnsFailure()
+    {
+        _fixture.Server.Reset();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/sellers/123456/products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.TooManyRequests)
+                .WithHeader("Retry-After", "5")
+                .WithBody("""{"errors": [{"message": "Too Many Requests"}]}"""));
+
+        var adapter = BuildAdapter();
+        var result = await adapter.TestConnectionAsync(BuildCredentials());
+
+        result.Should().NotBeNull();
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 10: API returns 500 → server error handling
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task TestConnection_ServerError_ReturnsFailure()
+    {
+        _fixture.Server.Reset();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/sellers/123456/products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.InternalServerError));
+
+        var adapter = BuildAdapter();
+        var result = await adapter.TestConnectionAsync(BuildCredentials());
+
+        result.Should().NotBeNull();
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Test 11: CheckHealth returns health status
+    // ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task CheckHealth_ReturnsHealthDto()
+    {
+        _fixture.Server.Reset();
+
+        _fixture.Server
+            .Given(Request.Create()
+                .WithPath("/integration/product/sellers/123456/products")
+                .UsingGet())
+            .RespondWith(Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithBody("""{"totalElements": 10, "totalPages": 1, "content": []}"""));
+
+        var adapter = BuildAdapter();
+        await adapter.TestConnectionAsync(BuildCredentials());
+
+        var health = await adapter.CheckHealthAsync();
+
+        health.Should().NotBeNull();
+        health.PlatformCode.Should().Be("Trendyol");
+    }
 }
