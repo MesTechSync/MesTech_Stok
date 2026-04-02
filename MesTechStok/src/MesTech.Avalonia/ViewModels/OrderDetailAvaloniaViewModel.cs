@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Domain.Interfaces;
 
@@ -66,16 +67,32 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
                     _ => "#F59E0B"
                 };
                 TrackingNumber = o.TrackingNumber ?? string.Empty;
+
+                // GetOrderDetailQuery ile line items çek
+                var detail = await _mediator.Send(new GetOrderDetailQuery(_currentUser.TenantId, o.Id));
+                _allOrderItems.Clear();
+                if (detail?.LineItems is { Count: > 0 })
+                {
+                    foreach (var li in detail.LineItems)
+                    {
+                        _allOrderItems.Add(new OrderDetailItemDto
+                        {
+                            ProductName = li.ProductName,
+                            Sku = li.SKU,
+                            Quantity = li.Quantity,
+                            UnitPrice = li.UnitPrice,
+                            LineTotal = li.TotalPrice
+                        });
+                    }
+                }
+                CargoCompany = detail?.CargoProvider ?? string.Empty;
             }
             else
             {
                 IsEmpty = true;
+                _allOrderItems.Clear();
             }
 
-            // DEP: DEV1 — OrderItems — line items query does not exist yet, keeping mock
-            _allOrderItems.Clear();
-            _allOrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Galaxy S24 Ultra", Sku = "SKU-1001", Quantity = 1, UnitPrice = 54999.99m, LineTotal = 54999.99m });
-            _allOrderItems.Add(new OrderDetailItemDto { ProductName = "Samsung Kilif", Sku = "SKU-2001", Quantity = 2, UnitPrice = 299.90m, LineTotal = 599.80m });
             ApplyFilter();
         }
         catch (Exception ex)
