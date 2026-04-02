@@ -31,32 +31,21 @@ public static class SystemHealthEndpoints
             var version = assembly.GetName().Version?.ToString() ?? "0.0.0";
             var uptime = DateTime.UtcNow - StartTime;
 
-            return Results.Ok(new
-            {
-                Application = "MesTech.WebApi",
-                Version = version,
-                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
-                Uptime = new
-                {
-                    TotalSeconds = (int)uptime.TotalSeconds,
-                    Formatted = $"{(int)uptime.TotalHours}h {uptime.Minutes}m {uptime.Seconds}s"
-                },
-                Memory = new
-                {
-                    WorkingSetMb = Math.Round(process.WorkingSet64 / 1024.0 / 1024.0, 1),
-                    GcTotalMemoryMb = Math.Round(GC.GetTotalMemory(false) / 1024.0 / 1024.0, 1),
-                    Gen0Collections = GC.CollectionCount(0),
-                    Gen1Collections = GC.CollectionCount(1),
-                    Gen2Collections = GC.CollectionCount(2)
-                },
-                Runtime = new
-                {
-                    DotNetVersion = Environment.Version.ToString(),
-                    OsPlatform = Environment.OSVersion.ToString(),
-                    ProcessorCount = Environment.ProcessorCount
-                },
-                Timestamp = DateTime.UtcNow
-            });
+            return Results.Ok(new SystemStatusResponse(
+                "MesTech.WebApi",
+                version,
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+                new UptimeInfo((int)uptime.TotalSeconds,
+                    $"{(int)uptime.TotalHours}h {uptime.Minutes}m {uptime.Seconds}s"),
+                new MemoryInfo(
+                    Math.Round(process.WorkingSet64 / 1024.0 / 1024.0, 1),
+                    Math.Round(GC.GetTotalMemory(false) / 1024.0 / 1024.0, 1),
+                    GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2)),
+                new RuntimeInfo(
+                    Environment.Version.ToString(),
+                    Environment.OSVersion.ToString(),
+                    Environment.ProcessorCount),
+                DateTime.UtcNow));
         })
         .WithName("GetSystemStatus")
         .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)").Produces(200).Produces(400);
@@ -140,4 +129,13 @@ public static class SystemHealthEndpoints
         .WithName("GetAdapterHealth")
         .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)").Produces(200).Produces(400);
     }
+
+    public sealed record SystemStatusResponse(
+        string Application, string Version, string Environment,
+        UptimeInfo Uptime, MemoryInfo Memory, RuntimeInfo Runtime, DateTime Timestamp);
+    public sealed record UptimeInfo(int TotalSeconds, string Formatted);
+    public sealed record MemoryInfo(
+        double WorkingSetMb, double GcTotalMemoryMb,
+        int Gen0Collections, int Gen1Collections, int Gen2Collections);
+    public sealed record RuntimeInfo(string DotNetVersion, string OsPlatform, int ProcessorCount);
 }
