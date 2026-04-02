@@ -77,20 +77,24 @@ public partial class WelcomeWindow : Window
 
     private async void OnImageTimerTick(object? sender, EventArgs e)
     {
-        if (_vm == null) return;
-
-        bool started = await _vm.StartNextImageTransitionAsync();
-        if (!started) return;
-
-        // After 1.2s crossfade completes, swap buffers (add 100ms safety margin)
-        _transitionTimer?.Stop();
-        _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1350) };
-        _transitionTimer.Tick += (_, _) =>
+        try
         {
+            if (_vm == null) return;
+
+            bool started = await _vm.StartNextImageTransitionAsync();
+            if (!started) return;
+
+            // After 1.2s crossfade completes, swap buffers (add 100ms safety margin)
             _transitionTimer?.Stop();
-            _vm.CompleteTransition();
-        };
-        _transitionTimer.Start();
+            _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1350) };
+            _transitionTimer.Tick += (_, _) =>
+            {
+                _transitionTimer?.Stop();
+                _vm.CompleteTransition();
+            };
+            _transitionTimer.Start();
+        }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] Image transition failed: {ex.Message}"); }
     }
 
     private void OnKeyHandler(object? sender, KeyEventArgs e)
