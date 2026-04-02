@@ -20,16 +20,16 @@ public sealed class ReliabilityScoreRecalcJob
 {
     private const int BatchSize = 100;
 
-    private readonly AppDbContext _dbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ReliabilityScoreRecalcJob> _logger;
 
     public ReliabilityScoreRecalcJob(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         IUnitOfWork unitOfWork,
         ILogger<ReliabilityScoreRecalcJob> logger)
     {
-        _dbContext = dbContext;
+        _dbContextFactory = dbContextFactory;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -38,8 +38,10 @@ public sealed class ReliabilityScoreRecalcJob
     {
         _logger.LogInformation("[ReliabilityScoreRecalc] Başlatıldı.");
 
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+
         // 1. Aktif feedleri al
-        var activeFeeds = await _dbContext.SupplierFeeds
+        var activeFeeds = await dbContext.SupplierFeeds
             .Where(f => f.IsActive && !f.IsDeleted)
             .ToListAsync(ct).ConfigureAwait(false);
 
@@ -71,7 +73,7 @@ public sealed class ReliabilityScoreRecalcJob
 
                 // 3. İlişkili aktif PoolProduct'ları güncelle — 100'lük batch
                 var feedId = feed.Id;
-                var poolProducts = await _dbContext.DropshippingPoolProducts
+                var poolProducts = await dbContext.DropshippingPoolProducts
                     .Where(pp => pp.AddedFromFeedId == feedId && pp.IsActive && !pp.IsDeleted)
                     .ToListAsync(ct).ConfigureAwait(false);
 

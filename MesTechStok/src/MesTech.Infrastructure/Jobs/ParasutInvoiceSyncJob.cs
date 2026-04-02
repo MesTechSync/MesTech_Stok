@@ -18,19 +18,19 @@ namespace MesTech.Infrastructure.Jobs;
 [DisableConcurrentExecution(timeoutInSeconds: 300)]
 public sealed class ParasutInvoiceSyncJob
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly IParasutInvoiceSyncService _syncService;
     private readonly ParasutOptions _options;
     private readonly ILogger<ParasutInvoiceSyncJob> _logger;
     private const int BatchSize = 10;
 
     public ParasutInvoiceSyncJob(
-        AppDbContext db,
+        IDbContextFactory<AppDbContext> dbFactory,
         IParasutInvoiceSyncService syncService,
         IOptions<ParasutOptions> options,
         ILogger<ParasutInvoiceSyncJob> logger)
     {
-        _db = db;
+        _dbFactory = dbFactory;
         _syncService = syncService;
         _options = options.Value;
         _logger = logger;
@@ -44,7 +44,9 @@ public sealed class ParasutInvoiceSyncJob
             return;
         }
 
-        var pendingInvoices = await _db.Set<Domain.Entities.Invoice>()
+        await using var db = await _dbFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+
+        var pendingInvoices = await db.Set<Domain.Entities.Invoice>()
             .Where(i => (i.ParasutSyncStatus == null || i.ParasutSyncStatus == SyncStatus.PendingSync)
                      && (i.Type == InvoiceType.EFatura || i.Type == InvoiceType.EArsiv)
                      && i.CreatedAt > DateTime.UtcNow.AddDays(-7)
@@ -84,14 +86,14 @@ public sealed class ParasutInvoiceSyncJob
 
                 // Idempotency guard (G086): her fatura sonrası kaydet — crash olursa
                 // Paraşüt'te fatura oluşmuş ama DB'de PendingSync kalır, tekrar gönderilir
-                await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
                 _logger.LogInformation("Synced invoice {Number} → Paraşüt {SalesId}", invoice.InvoiceNumber, salesId);
             }
             catch (Exception ex)
             {
                 invoice.MarkParasutFailed(ex.Message);
-                await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
                 _logger.LogError(ex, "Paraşüt sync failed for {Number}", invoice.InvoiceNumber);
             }
         }
