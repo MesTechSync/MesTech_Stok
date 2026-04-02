@@ -160,6 +160,7 @@ public static class BuyboxEndpoints
             Guid tenantId,
             IBuyboxService buyboxService,
             IPriceOptimizationService priceService,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
             var lostTask = buyboxService.GetLostBuyboxesAsync(tenantId, ct);
@@ -177,7 +178,11 @@ public static class BuyboxEndpoints
                 jobInfo = connection.GetRecurringJobs()
                     .FirstOrDefault(j => j.Id == AutoPriceUpdateWorker.JobId);
             }
-            catch { /* Hangfire storage not available — skip */ }
+            catch (Exception ex)
+            {
+                loggerFactory.CreateLogger("BuyboxEndpoints")
+                    .LogWarning(ex, "[PricingDashboard] Hangfire storage unavailable — auto-price status skipped");
+            }
 
             return Results.Ok(new
             {
@@ -208,7 +213,7 @@ public static class BuyboxEndpoints
 
         // ── Auto-Price Configuration (DEV6-F) ──
 
-        app.MapGet("/api/v1/pricing/auto-config", (CancellationToken _) =>
+        app.MapGet("/api/v1/pricing/auto-config", (ILoggerFactory loggerFactory, CancellationToken _) =>
         {
             RecurringJobDto? jobInfo = null;
             try
@@ -217,7 +222,11 @@ public static class BuyboxEndpoints
                 jobInfo = connection.GetRecurringJobs()
                     .FirstOrDefault(j => j.Id == AutoPriceUpdateWorker.JobId);
             }
-            catch { /* Hangfire storage not available */ }
+            catch (Exception ex)
+            {
+                loggerFactory.CreateLogger("BuyboxEndpoints")
+                    .LogWarning(ex, "[AutoConfig] Hangfire storage unavailable — returning defaults");
+            }
 
             return Results.Ok(new
             {
