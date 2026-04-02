@@ -54,7 +54,7 @@
                     <DataGridTextColumn Header="Son Kullanım" Binding="{Binding LastUsed}" Width="140" />
                     <DataGridTemplateColumn Header="İşlem" Width="200">
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate x:DataType="vm:ImportTemplateDto">
+                            <DataTemplate x:DataType="vm:ImportTemplateDisplayItem">
                                 <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
                                     <Button Content="Düzenle"
                                             ToolTip.Tip="Duzenle"
@@ -96,7 +96,7 @@
 
                             <ItemsControl ItemsSource="{Binding EditMappings}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:ImportFieldMappingDto">
+                                    <DataTemplate x:DataType="vm:ImportFieldMappingDisplayItem">
                                         <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,4">
                                             <TextBox Grid.Column="0" Text="{Binding SourceColumn}" Watermark="Kaynak" AutomationProperties.Name="Kaynak" Padding="8,6" Margin="0,0,6,0" />
                                             <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="4,0" />
