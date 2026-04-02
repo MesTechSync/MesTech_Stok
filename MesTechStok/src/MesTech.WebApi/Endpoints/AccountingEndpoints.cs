@@ -184,6 +184,27 @@ public static class AccountingEndpoints
         .WithSummary("Yevmiye kaydı güncelle — RowVersion optimistic concurrency (G228)")
         .Produces(200).Produces(409).ProducesProblem(401).ProducesProblem(429);
 
+        // POST /api/v1/accounting/journal-entries/{id}/approve — yevmiye onayla ve postala
+        group.MapPost("/journal-entries/{id:guid}/approve", async (
+            Guid id,
+            ApproveAccountingEntryRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var command = new MesTech.Application.Commands.ApproveAccountingEntry.ApproveAccountingEntryCommand
+            {
+                JournalEntryId = id,
+                DocumentId = request.DocumentId,
+                ApprovedBy = request.ApprovedBy,
+                ApprovalSource = request.ApprovalSource,
+                TenantId = request.TenantId
+            };
+            await mediator.Send(command, ct);
+            return Results.Ok(ApiResponse<string>.Ok("Yevmiye onaylandi ve postalandi."));
+        })
+        .WithName("ApproveAccountingEntry")
+        .WithSummary("Yevmiye kaydını onayla ve GL'ye postala")
+        .Produces(200).ProducesProblem(401).ProducesProblem(429);
+
         // GET /api/v1/accounting/expenses — masraf listesi
         group.MapGet("/expenses", async (
             Guid tenantId, DateTime from, DateTime to, ExpenseSource? source,
@@ -801,4 +822,10 @@ public static class AccountingEndpoints
         string? ReferenceNumber,
         List<JournalLineInput> Lines,
         byte[]? RowVersion);
+
+    public record ApproveAccountingEntryRequest(
+        Guid DocumentId,
+        string ApprovedBy,
+        string ApprovalSource,
+        Guid TenantId);
 }
