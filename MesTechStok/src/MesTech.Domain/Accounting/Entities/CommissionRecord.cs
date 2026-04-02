@@ -19,6 +19,7 @@ public sealed class CommissionRecord : BaseEntity, ITenantEntity
     public decimal ServiceFee { get; private set; }
     public CommissionType CommissionType { get; private set; }
     public string? RateSource { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private CommissionRecord() { }
 

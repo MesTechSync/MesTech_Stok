@@ -16,6 +16,7 @@ public sealed class ProductWarehouseStock : BaseEntity, ITenantEntity
     public int ReservedQuantity { get; private set; }
     public int InboundQuantity { get; private set; }
     public DateTime LastSyncedAt { get; private set; } = DateTime.UtcNow;
+    public byte[]? RowVersion { get; set; }
 
     /// <summary>
     /// Kullanilabilir + rezerve toplam miktar.

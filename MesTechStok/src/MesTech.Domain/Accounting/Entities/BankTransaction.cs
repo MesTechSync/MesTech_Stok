@@ -16,6 +16,7 @@ public sealed class BankTransaction : BaseEntity, ITenantEntity
     public string? ReferenceNumber { get; private set; }
     public string? IdempotencyKey { get; private set; }
     public bool IsReconciled { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private BankTransaction() { }
 

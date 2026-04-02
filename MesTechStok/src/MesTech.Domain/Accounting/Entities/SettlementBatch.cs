@@ -18,6 +18,7 @@ public sealed class SettlementBatch : BaseEntity, ITenantEntity
     public decimal TotalNet { get; private set; }
     public SettlementStatus Status { get; private set; }
     public DateTime ImportedAt { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private readonly List<SettlementLine> _lines = new();
     public IReadOnlyList<SettlementLine> Lines => _lines.AsReadOnly();

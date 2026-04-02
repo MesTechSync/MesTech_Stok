@@ -15,6 +15,8 @@ public sealed class JournalLine : BaseEntity, ITenantEntity
     public decimal Credit { get; private set; }
     public string? Description { get; private set; }
 
+    public byte[]? RowVersion { get; set; }
+
     // Navigation
     public JournalEntry? JournalEntry { get; private set; }
     public ChartOfAccounts? Account { get; private set; }

@@ -17,6 +17,8 @@ public sealed class SettlementLine : BaseEntity, ITenantEntity
     public decimal RefundDeduction { get; private set; }
     public decimal NetAmount { get; private set; }
 
+    public byte[]? RowVersion { get; set; }
+
     // Navigation
     public SettlementBatch? SettlementBatch { get; private set; }
 

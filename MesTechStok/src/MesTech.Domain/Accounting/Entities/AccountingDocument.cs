@@ -20,6 +20,7 @@ public sealed class AccountingDocument : BaseEntity, ITenantEntity
     public Guid? CounterpartyId { get; private set; }
     public decimal? Amount { get; private set; }
     public string? ExtractedData { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     // Navigation
     public Counterparty? Counterparty { get; private set; }

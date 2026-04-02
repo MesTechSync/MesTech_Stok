@@ -27,5 +27,7 @@ public sealed class StockPlacementConfiguration : IEntityTypeConfiguration<Stock
         builder.HasOne(p => p.Warehouse).WithMany().HasForeignKey(p => p.WarehouseId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasQueryFilter(p => !p.IsDeleted);
+
+        builder.Property(p => p.RowVersion).IsRowVersion();
     }
 }

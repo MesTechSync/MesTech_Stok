@@ -18,6 +18,7 @@ public sealed class TaxRecord : BaseEntity, ITenantEntity
     public bool IsPaid { get; private set; }
     public DateTime? PaidAt { get; private set; }
     public decimal PenaltyAmount { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private TaxRecord() { }
 

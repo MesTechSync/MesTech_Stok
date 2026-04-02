@@ -17,5 +17,7 @@ public sealed class PaymentTransactionConfiguration : IEntityTypeConfiguration<P
 
         builder.HasIndex(p => new { p.TenantId, p.Status })
             .HasDatabaseName("IX_PaymentTransactions_Tenant_Status");
+
+        builder.Property(p => p.RowVersion).IsRowVersion();
     }
 }

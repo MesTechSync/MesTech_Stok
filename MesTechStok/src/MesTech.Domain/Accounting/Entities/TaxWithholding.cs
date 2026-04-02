@@ -15,6 +15,7 @@ public sealed class TaxWithholding : BaseEntity, ITenantEntity
     public decimal Rate { get; private set; }
     public decimal WithholdingAmount { get; private set; }
     public string TaxType { get; private set; } = string.Empty;
+    public byte[]? RowVersion { get; set; }
 
     private TaxWithholding() { }
 

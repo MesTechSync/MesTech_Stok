@@ -17,6 +17,7 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
     public ReconciliationStatus Status { get; private set; }
     public string? ReviewedBy { get; private set; }
     public DateTime? ReviewedAt { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private ReconciliationMatch() { }
 

@@ -28,6 +28,7 @@ public sealed class PaymentTransaction : BaseEntity, ITenantEntity
 
     /// <summary>Iade isleminin gerceklestigi zaman (UTC).</summary>
     public DateTime? RefundedAt { get; set; }
+    public byte[]? RowVersion { get; set; }
 
     // EF Core parametresiz ctor
     private PaymentTransaction() { }

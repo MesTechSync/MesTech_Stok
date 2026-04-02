@@ -20,6 +20,7 @@ public sealed class PenaltyRecord : BaseEntity, ITenantEntity
     public string? ReferenceNumber { get; private set; }
     public Guid? RelatedOrderId { get; private set; }
     public string? Notes { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     private PenaltyRecord() { }
 

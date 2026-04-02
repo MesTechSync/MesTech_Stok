@@ -24,6 +24,7 @@ public sealed class StockPlacement : BaseEntity, ITenantEntity
     // Product snapshot — JOIN'siz listeleme icin
     public string? ProductName { get; private set; }
     public string? ProductSku { get; private set; }
+    public byte[]? RowVersion { get; set; }
 
     // Navigation
     public Product? Product { get; private set; }
