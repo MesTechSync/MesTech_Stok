@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using Avalonia.Platform.Storage;
+using ClosedXML.Excel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Product.Commands.BulkUpdateProducts;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Enums;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -13,6 +16,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class BulkProductAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly IFilePickerService _filePicker;
 
     // Common
 
@@ -81,9 +85,10 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         _ => BulkUpdateAction.PriceSetFixed
     };
 
-    public BulkProductAvaloniaViewModel(IMediator mediator)
+    public BulkProductAvaloniaViewModel(IMediator mediator, IFilePickerService filePicker)
     {
         _mediator = mediator;
+        _filePicker = filePicker;
     }
 
     partial void OnSearchTextChanged(string value) => ApplyPreviewFilter();
@@ -122,33 +127,128 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
-    private Task SelectFileAsync()
+    private static readonly FilePickerFileType ExcelFileType = new("Excel Dosyalari")
     {
-        ImportFilePath = "ornek_urunler.xlsx";
-        ImportFileInfo = "Excel dosyasi: 156 satir, 12 kolon";
-        HasImportFile = true;
-        CanImport = true;
+        Patterns = ["*.xlsx", "*.xls"],
+        MimeTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+    };
 
-        // Demo column mappings
-        ColumnMappings.Clear();
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "A - Urun Adi", SampleData = "Samsung Galaxy S24", MesTechField = "ProductName" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "B - SKU", SampleData = "SGS24-128-BLK", MesTechField = "Sku" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "C - Fiyat", SampleData = "42999.00", MesTechField = "Price" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "D - Stok", SampleData = "25", MesTechField = "Stock" });
-        ColumnMappings.Add(new ColumnMappingDto { ExcelColumn = "E - Kategori", SampleData = "Elektronik", MesTechField = "Category" });
+    private static readonly FilePickerFileType CsvFileType = new("CSV Dosyalari")
+    {
+        Patterns = ["*.csv"],
+        MimeTypes = ["text/csv"]
+    };
 
-        // Demo preview rows
-        _allPreviewRows.Clear();
-        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 1, ProductName = "Samsung Galaxy S24", Sku = "SGS24-128-BLK", Price = 42_999.00m, Stock = 25, ValidationStatus = "Gecerli" });
-        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 2, ProductName = "iPhone 15 Pro", Sku = "IP15P-256-TIT", Price = 64_999.00m, Stock = 12, ValidationStatus = "Gecerli" });
-        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 3, ProductName = "Xiaomi 14", Sku = "XI14-256-WHT", Price = 28_999.00m, Stock = 38, ValidationStatus = "Gecerli" });
-        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 4, ProductName = "", Sku = "NONAME-001", Price = 0m, Stock = 5, ValidationStatus = "Hata: Ad bos" });
-        _allPreviewRows.Add(new ImportPreviewRowDto { RowNumber = 5, ProductName = "Huawei P60", Sku = "HWP60-128-BLK", Price = 19_999.00m, Stock = 0, ValidationStatus = "Uyari: Stok 0" });
-        ApplyPreviewFilter();
+    [RelayCommand]
+    private async Task SelectFileAsync()
+    {
+        var path = await _filePicker.PickFileAsync(
+            "Import Dosyasi Sec",
+            [ExcelFileType, CsvFileType]);
 
-        PreviewValidationSummary = "3 gecerli, 1 hata, 1 uyari";
-        return Task.CompletedTask;
+        if (string.IsNullOrEmpty(path)) return;
+
+        ImportFilePath = Path.GetFileName(path);
+        IsLoading = true;
+        HasError = false;
+
+        try
+        {
+            using var workbook = new XLWorkbook(path);
+            var ws = workbook.Worksheets.First();
+            var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
+            var lastCol = ws.LastColumnUsed()?.ColumnNumber() ?? 1;
+
+            ImportFileInfo = $"Excel dosyasi: {lastRow - 1} satir, {lastCol} kolon";
+            HasImportFile = true;
+            CanImport = true;
+
+            // Read column headers from first row and sample data from second row
+            ColumnMappings.Clear();
+            for (var col = 1; col <= lastCol; col++)
+            {
+                var header = ws.Cell(1, col).GetString();
+                var sample = lastRow > 1 ? ws.Cell(2, col).GetString() : string.Empty;
+                var field = AutoMapField(header);
+                ColumnMappings.Add(new ColumnMappingDto
+                {
+                    ExcelColumn = $"{GetColumnLetter(col)} - {header}",
+                    SampleData = sample,
+                    MesTechField = field
+                });
+            }
+
+            // Preview first 50 rows
+            _allPreviewRows.Clear();
+            int valid = 0, errors = 0, warnings = 0;
+            for (var row = 2; row <= Math.Min(lastRow, 51); row++)
+            {
+                var name = ws.Cell(row, FindColumn(ws, "ProductName", lastCol)).GetString();
+                var sku = ws.Cell(row, FindColumn(ws, "Sku", lastCol)).GetString();
+                var priceStr = ws.Cell(row, FindColumn(ws, "Price", lastCol)).GetString();
+                var stockStr = ws.Cell(row, FindColumn(ws, "Stock", lastCol)).GetString();
+                decimal.TryParse(priceStr, out var price);
+                int.TryParse(stockStr, out var stock);
+
+                var status = "Gecerli";
+                if (string.IsNullOrWhiteSpace(name)) { status = "Hata: Ad bos"; errors++; }
+                else if (stock == 0) { status = "Uyari: Stok 0"; warnings++; }
+                else valid++;
+
+                _allPreviewRows.Add(new ImportPreviewRowDto
+                {
+                    RowNumber = row - 1,
+                    ProductName = name,
+                    Sku = sku,
+                    Price = price,
+                    Stock = stock,
+                    ValidationStatus = status
+                });
+            }
+
+            ApplyPreviewFilter();
+            PreviewValidationSummary = $"{valid} gecerli, {errors} hata, {warnings} uyari";
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Dosya okunamadi: {ex.Message}";
+            HasImportFile = false;
+            CanImport = false;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private static string AutoMapField(string header)
+    {
+        var h = header.Trim().ToLowerInvariant();
+        if (h.Contains("ad") || h.Contains("name") || h.Contains("urun")) return "ProductName";
+        if (h.Contains("sku") || h.Contains("kod") || h.Contains("code")) return "Sku";
+        if (h.Contains("fiyat") || h.Contains("price") || h.Contains("tutar")) return "Price";
+        if (h.Contains("stok") || h.Contains("stock") || h.Contains("adet")) return "Stock";
+        if (h.Contains("kategori") || h.Contains("category")) return "Category";
+        if (h.Contains("barkod") || h.Contains("barcode")) return "Barcode";
+        return string.Empty;
+    }
+
+    private static string GetColumnLetter(int col) => col switch
+    {
+        <= 26 => ((char)('A' + col - 1)).ToString(),
+        _ => $"{(char)('A' + col / 26 - 1)}{(char)('A' + col % 26 - 1)}"
+    };
+
+    private int FindColumn(IXLWorksheet ws, string fieldName, int lastCol)
+    {
+        var mapping = ColumnMappings.FirstOrDefault(m => m.MesTechField == fieldName);
+        if (mapping is not null)
+        {
+            var idx = ColumnMappings.IndexOf(mapping);
+            if (idx >= 0 && idx < lastCol) return idx + 1;
+        }
+        return 1;
     }
 
     [RelayCommand]
