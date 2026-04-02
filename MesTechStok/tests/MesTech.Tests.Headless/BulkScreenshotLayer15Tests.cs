@@ -35,6 +35,58 @@ public class BulkScreenshotLayer15Tests
     {
         _pgFactory = pgFactory;
         _serviceProvider = BuildDiContainer();
+        SeedTestData().GetAwaiter().GetResult();
+    }
+
+    private async Task SeedTestData()
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await context.Database.EnsureCreatedAsync();
+
+        // Tenant + Warehouse + Products + Orders seed — Katman 1.5 "22 LOADING → <5" hedefi
+        if (await context.Tenants.AnyAsync()) return; // idempotent
+
+        var tenantId = DataSeeder.DefaultTenantId;
+        var tenant = new Domain.Entities.Tenant { Name = "Test Tenant", IsActive = true };
+        typeof(Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(tenant, tenantId);
+        context.Tenants.Add(tenant);
+
+        context.Warehouses.Add(new Domain.Entities.Warehouse { Name = "Ana Depo", Code = "WH-01", TenantId = tenantId, IsActive = true });
+        context.Warehouses.Add(new Domain.Entities.Warehouse { Name = "Yedek Depo", Code = "WH-02", TenantId = tenantId, IsActive = true });
+
+        for (int i = 1; i <= 10; i++)
+        {
+            context.Products.Add(new Domain.Entities.Product
+            {
+                SKU = $"TST-{i:D4}",
+                Name = $"Test Urun {i}",
+                Barcode = $"869000{i:D6}",
+                SalePrice = 100m * i,
+                PurchasePrice = 60m * i,
+                Stock = 50 - i * 3,
+                MinimumStock = 5,
+                TenantId = tenantId,
+                IsActive = true,
+                CreatedBy = "seed",
+                UpdatedBy = "seed"
+            });
+        }
+
+        for (int i = 1; i <= 5; i++)
+        {
+            var order = Domain.Entities.Order.CreateFromPlatform(
+                tenantId, $"PLT-ORD-{i:D4}",
+                Domain.Enums.PlatformType.Trendyol,
+                $"Musteri {i}", $"musteri{i}@test.com",
+                Array.Empty<Domain.Entities.OrderItem>());
+            context.Orders.Add(order);
+        }
+
+        context.Categories.Add(new Domain.Entities.Category { Name = "Elektronik", Code = "ELEC", TenantId = tenantId, IsActive = true });
+        context.Categories.Add(new Domain.Entities.Category { Name = "Giyim", Code = "WEAR", TenantId = tenantId, IsActive = true });
+
+        await context.SaveChangesAsync();
     }
 
     private IServiceProvider BuildDiContainer()
