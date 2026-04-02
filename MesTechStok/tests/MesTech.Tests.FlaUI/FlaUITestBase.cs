@@ -112,10 +112,14 @@ public abstract class FlaUITestBase : IAsyncLifetime
         Thread.Sleep(500);
         if (TryClickMenuInternal(menuName)) return true;
 
-        // Hâlâ bulunamadı → sidebar'ı scroll edip tekrar dene
-        ScrollSidebarToBottom();
-        Thread.Sleep(500);
-        return TryClickMenuInternal(menuName);
+        // Hâlâ bulunamadı → sidebar'ı aşağı scroll edip 3 kez dene
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            ScrollSidebarDown();
+            Thread.Sleep(400);
+            if (TryClickMenuInternal(menuName)) return true;
+        }
+        return false;
     }
 
     private void ExpandAllSidebarGroups()
@@ -167,13 +171,18 @@ public abstract class FlaUITestBase : IAsyncLifetime
         catch { }
     }
 
-    private void ScrollSidebarToBottom()
+    private void ScrollSidebarDown()
     {
         try
         {
-            // Mouse wheel ile sidebar'ı scroll et
-            Mouse.Scroll(-20);
-            Thread.Sleep(300);
+            // Sidebar'ın sol tarafına tıkla (sidebar genelde sol panel)
+            var windowBounds = MainWindow.BoundingRectangle;
+            var sidebarX = windowBounds.Left + 120; // Sidebar ~240px genişlik, ortası
+            var sidebarY = windowBounds.Top + windowBounds.Height / 2;
+            Mouse.MoveTo(sidebarX, sidebarY);
+            Thread.Sleep(100);
+            Mouse.Scroll(-15); // Aşağı scroll
+            Thread.Sleep(200);
         }
         catch { }
     }
