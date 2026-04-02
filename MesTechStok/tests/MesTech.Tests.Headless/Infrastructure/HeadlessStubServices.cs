@@ -38,6 +38,7 @@ public sealed class HeadlessFilePickerService : IFilePickerService
 public sealed class HeadlessNavigationService : INavigationService
 {
     public Task NavigateToAsync(string viewName) => Task.CompletedTask;
+    public Task NavigateToAsync(string viewName, IDictionary<string, object?>? parameters) => Task.CompletedTask;
 }
 
 // ─── IViewModelFactory ─────────────────────────────────────────────
