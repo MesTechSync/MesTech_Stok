@@ -731,6 +731,9 @@ DocumentFoldersEndpoint.Map(app); // DEV6-TUR13: Belge klasörleri
 ImportTemplateEndpoint.Map(app); // DEV6-TUR13: Import şablon
 OpenCartProductsEndpoint.Map(app); // DEV6-TUR15: G519 OpenCart ürünler
 TrendyolEndpoints.Map(app); // DEV6: G808 Trendyol Swagger endpoint'leri
+HepsiburadaEndpoints.Map(app); // DEV6: G10821 Hepsiburada Swagger endpoint'leri
+N11Endpoints.Map(app); // DEV6: G10821 N11 Swagger endpoint'leri
+AmazonEndpoints.Map(app); // DEV6: G10821 Amazon Swagger endpoint'leri
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
