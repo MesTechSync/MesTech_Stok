@@ -307,3 +307,99 @@ public class SyncErrorNotificationHandlerTests
 }
 
 #endregion
+
+#region OversellingAttemptedEventHandler
+
+[Trait("Category", "Unit")]
+[Trait("Layer", "Stock")]
+public class OversellingAttemptedEventHandlerTests
+{
+    private readonly Mock<IProductRepository> _productRepo = new();
+    private readonly Mock<ILogger<OversellingAttemptedEventHandler>> _logger = new();
+
+    private OversellingAttemptedEventHandler CreateSut() => new(_productRepo.Object, _logger.Object);
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogCritical_WhenOversellingAttempted()
+    {
+        var sut = CreateSut();
+        var productId = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+
+        await sut.HandleAsync(productId, "SKU-OVER", tenantId, 5, 10, "ORD-001", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("OVERSELLING_ATTEMPTED")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogCorrectSKU()
+    {
+        var sut = CreateSut();
+
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-TEST-123", Guid.NewGuid(), 3, 8, "ORD-002", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("SKU-TEST-123")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldLogDeficit()
+    {
+        var sut = CreateSut();
+
+        // available=2, requested=7, deficit=5
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-DEF", Guid.NewGuid(), 2, 7, "ORD-003", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("5")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_NullOrderNumber_ShouldNotThrow()
+    {
+        var sut = CreateSut();
+
+        var act = async () => await sut.HandleAsync(
+            Guid.NewGuid(), "SKU-NULL", Guid.NewGuid(), 0, 5, null, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task HandleAsync_ZeroAvailableStock_ShouldLogCorrectly()
+    {
+        var sut = CreateSut();
+
+        await sut.HandleAsync(Guid.NewGuid(), "SKU-EMPTY", Guid.NewGuid(), 0, 3, "ORD-004", CancellationToken.None);
+
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Critical,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("OVERSELLING_ATTEMPTED")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+}
+
+#endregion
