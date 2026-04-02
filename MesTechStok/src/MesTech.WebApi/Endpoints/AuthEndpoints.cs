@@ -139,7 +139,7 @@ public static class AuthEndpoints
         group.MapPost("/validate", (ValidateTokenRequest request, IJwtTokenService jwtService) =>
         {
             if (string.IsNullOrWhiteSpace(request.Token))
-                return Results.BadRequest(new { error = "Token is required." });
+                return Results.BadRequest(new AuthErrorResponse("Token is required."));
 
             var (valid, userId, tenantId) = jwtService.ValidateToken(request.Token);
 
@@ -269,7 +269,7 @@ public static class AuthEndpoints
             var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
 
             if (string.IsNullOrWhiteSpace(request.RefreshToken))
-                return Results.BadRequest(new { error = "RefreshToken is required." });
+                return Results.BadRequest(new AuthErrorResponse("RefreshToken is required."));
 
             var tokenHash = jwtService.HashToken(request.RefreshToken);
             var storedToken = await refreshTokenRepo.GetByTokenHashAsync(tokenHash, ct);
@@ -357,4 +357,6 @@ public static class AuthEndpoints
 
     public record RevokeTokenRequest(string RefreshToken);
     public record TokenValidationResponse(bool Valid, Guid? UserId, Guid? TenantId);
+
+    public sealed record AuthErrorResponse(string Error);
 }

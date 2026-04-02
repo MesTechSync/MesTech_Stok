@@ -99,11 +99,8 @@ public static class FinanceEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             await mediator.Send(command with { CashRegisterId = id }, ct);
-            return Results.Ok(new
-            {
-                message = "Kasa gun sonu kapatildi",
-                closedAt = DateTime.UtcNow
-            });
+            return Results.Ok(new CashRegisterCloseResponse(
+                "Kasa gun sonu kapatildi", DateTime.UtcNow));
         })
         .WithName("CloseCashRegister")
         .AddEndpointFilter<Filters.IdempotencyFilter>()
@@ -234,4 +231,6 @@ public static class FinanceEndpoints
         .Produces(200)
         .CacheOutput("Lookup60s");
     }
+
+    public sealed record CashRegisterCloseResponse(string Message, DateTime ClosedAt);
 }

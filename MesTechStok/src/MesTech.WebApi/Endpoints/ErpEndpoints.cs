@@ -26,14 +26,11 @@ public static class ErpEndpoints
         group.MapGet("/providers", (IErpAdapterFactory factory) =>
         {
             var providers = factory.SupportedProviders
-                .Select(p => new
-                {
-                    provider = p.ToString(),
-                    id = (int)p
-                })
+                .Select(p => new ErpProviderItem(p.ToString(), (int)p))
                 .ToList();
 
-            return Results.Ok(ApiResponse<object>.Ok(new { providers, count = providers.Count }));
+            return Results.Ok(ApiResponse<ErpProviderListResponse>.Ok(
+                new ErpProviderListResponse(providers, providers.Count)));
         })
         .WithName("GetErpProviders")
         .WithSummary("Kayıtlı ERP sağlayıcı listesi")
@@ -44,7 +41,7 @@ public static class ErpEndpoints
         group.MapGet("/status", async (IErpAdapterFactory factory, ILoggerFactory loggerFactory, CancellationToken ct) =>
         {
             var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
-            var statuses = new List<object>();
+            var statuses = new List<ErpStatusItem>();
 
             foreach (var provider in factory.SupportedProviders)
             {
@@ -63,16 +60,12 @@ public static class ErpEndpoints
                 }
 #pragma warning restore CA1031
 
-                statuses.Add(new
-                {
-                    provider = provider.ToString(),
-                    id = (int)provider,
-                    connected = isAlive,
-                    checkedAt = DateTime.UtcNow
-                });
+                statuses.Add(new ErpStatusItem(
+                    provider.ToString(), (int)provider, isAlive, DateTime.UtcNow));
             }
 
-            return Results.Ok(ApiResponse<object>.Ok(new { statuses, timestamp = DateTime.UtcNow }));
+            return Results.Ok(ApiResponse<ErpStatusListResponse>.Ok(
+                new ErpStatusListResponse(statuses, DateTime.UtcNow)));
         })
         .WithName("GetErpStatus")
         .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu")
@@ -99,12 +92,8 @@ public static class ErpEndpoints
                 var adapter = factory.GetAdapter(provider);
                 var isAlive = await adapter.PingAsync(ct);
 
-                return Results.Ok(new
-                {
-                    provider = provider.ToString(),
-                    connected = isAlive,
-                    testedAt = DateTime.UtcNow
-                });
+                return Results.Ok(new ErpConnectionTestResponse(
+                    provider.ToString(), isAlive, null, DateTime.UtcNow));
             }
             catch (ArgumentException)
             {
@@ -113,13 +102,10 @@ public static class ErpEndpoints
             catch (Exception ex)
             {
                 logger.LogError(ex, "ERP connection test failed for {Provider}", provider);
-                return Results.Ok(new
-                {
-                    provider = provider.ToString(),
-                    connected = false,
-                    error = "Baglanti testi basarisiz — detaylar server log'unda.",
-                    testedAt = DateTime.UtcNow
-                });
+                return Results.Ok(new ErpConnectionTestResponse(
+                    provider.ToString(), false,
+                    "Baglanti testi basarisiz — detaylar server log'unda.",
+                    DateTime.UtcNow));
             }
 #pragma warning restore CA1031
         })
@@ -135,7 +121,7 @@ public static class ErpEndpoints
             var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             logger.LogInformation("[ErpEndpoints] Manual ERP stock sync triggered");
 
-            var results = new List<object>();
+            var results = new List<ErpSyncResultItem>();
 
             foreach (var provider in factory.SupportedProviders)
             {
@@ -146,39 +132,27 @@ public static class ErpEndpoints
                     if (adapter is IErpStockCapable stockCapable)
                     {
                         var items = await stockCapable.GetStockLevelsAsync(ct);
-                        results.Add(new
-                        {
-                            provider = provider.ToString(),
-                            success = true,
-                            itemCount = items.Count
-                        });
+                        results.Add(new ErpSyncResultItem(
+                            provider.ToString(), true, items.Count, null));
                     }
                     else
                     {
-                        results.Add(new
-                        {
-                            provider = provider.ToString(),
-                            success = false,
-                            itemCount = 0,
-                            reason = "Not stock-capable"
-                        });
+                        results.Add(new ErpSyncResultItem(
+                            provider.ToString(), false, 0, "Not stock-capable"));
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "ERP stock sync failed for {Provider}", provider);
-                    results.Add(new
-                    {
-                        provider = provider.ToString(),
-                        success = false,
-                        itemCount = 0,
-                        reason = "Stok senkronizasyonu basarisiz — detaylar server log'unda."
-                    });
+                    results.Add(new ErpSyncResultItem(
+                        provider.ToString(), false, 0,
+                        "Stok senkronizasyonu basarisiz — detaylar server log'unda."));
                 }
 #pragma warning restore CA1031
             }
 
-            return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
+            return Results.Ok(ApiResponse<ErpSyncResponse>.Ok(
+                new ErpSyncResponse(results, DateTime.UtcNow)));
         })
         .WithName("SyncErpStock")
         .WithSummary("Manuel ERP stok senkronizasyonu tetikle").Produces(200).Produces(400);
@@ -192,7 +166,7 @@ public static class ErpEndpoints
             var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.ErpEndpoints");
             logger.LogInformation("[ErpEndpoints] Manual ERP account sync triggered");
 
-            var results = new List<object>();
+            var accountResults = new List<ErpAccountSyncItem>();
 
             foreach (var provider in factory.SupportedProviders)
             {
@@ -201,29 +175,22 @@ public static class ErpEndpoints
                 {
                     var adapter = factory.GetAdapter(provider);
                     var accounts = await adapter.GetAccountBalancesAsync(ct);
-                    results.Add(new
-                    {
-                        provider = provider.ToString(),
-                        success = true,
-                        accountCount = accounts.Count,
-                        totalBalance = accounts.Sum(a => a.Balance)
-                    });
+                    accountResults.Add(new ErpAccountSyncItem(
+                        provider.ToString(), true, accounts.Count,
+                        accounts.Sum(a => a.Balance), null));
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "ERP account sync failed for {Provider}", provider);
-                    results.Add(new
-                    {
-                        provider = provider.ToString(),
-                        success = false,
-                        accountCount = 0,
-                        reason = "Hesap senkronizasyonu basarisiz — detaylar server log'unda."
-                    });
+                    accountResults.Add(new ErpAccountSyncItem(
+                        provider.ToString(), false, 0, 0,
+                        "Hesap senkronizasyonu basarisiz — detaylar server log'unda."));
                 }
 #pragma warning restore CA1031
             }
 
-            return Results.Ok(ApiResponse<object>.Ok(new { results, triggeredAt = DateTime.UtcNow }));
+            return Results.Ok(ApiResponse<ErpAccountSyncResponse>.Ok(
+                new ErpAccountSyncResponse(accountResults, DateTime.UtcNow)));
         })
         .WithName("SyncErpAccounts")
         .WithSummary("Manuel ERP cari hesap senkronizasyonu tetikle").Produces(200).Produces(400);
@@ -329,4 +296,21 @@ public static class ErpEndpoints
     // ── Request DTOs ──────────────────────────────────────────────────
 
     private record ErpTestConnectionRequest(string Provider);
+
+    public sealed record ErpProviderItem(string Provider, int Id);
+    public sealed record ErpProviderListResponse(IReadOnlyList<ErpProviderItem> Providers, int Count);
+
+    public sealed record ErpStatusItem(string Provider, int Id, bool Connected, DateTime CheckedAt);
+    public sealed record ErpStatusListResponse(IReadOnlyList<ErpStatusItem> Statuses, DateTime Timestamp);
+
+    public sealed record ErpConnectionTestResponse(
+        string Provider, bool Connected, string? Error, DateTime TestedAt);
+
+    public sealed record ErpSyncResultItem(string Provider, bool Success, int ItemCount, string? Reason);
+    public sealed record ErpSyncResponse(IReadOnlyList<ErpSyncResultItem> Results, DateTime TriggeredAt);
+
+    public sealed record ErpAccountSyncItem(
+        string Provider, bool Success, int AccountCount, decimal TotalBalance, string? Reason);
+    public sealed record ErpAccountSyncResponse(
+        IReadOnlyList<ErpAccountSyncItem> Results, DateTime TriggeredAt);
 }

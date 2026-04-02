@@ -53,7 +53,7 @@ public static class EInvoiceEndpoints
                 new GetEInvoiceByIdQuery(id), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { Message = $"E-Fatura {id} bulunamadı" });
+                : Results.NotFound(new EInvoiceNotFoundResponse($"E-Fatura {id} bulunamadı"));
         })
         .WithName("GetEInvoiceById")
         .WithSummary("E-fatura detayı")
@@ -105,4 +105,6 @@ public static class EInvoiceEndpoints
         .Produces(200)
         .CacheOutput("Lookup60s");
     }
+
+    public sealed record EInvoiceNotFoundResponse(string Message);
 }

@@ -34,12 +34,8 @@ public static class ReturnEndpoints
             CancellationToken ct) =>
         {
             await mediator.Send(new ApproveReturnCommand(id), ct);
-            return Results.Ok(new
-            {
-                message = "Iade onaylandi — stok geri eklendi",
-                returnId = id,
-                processedAt = DateTime.UtcNow
-            });
+            return Results.Ok(new ReturnApproveResponse(
+                "Iade onaylandi — stok geri eklendi", id, DateTime.UtcNow));
         })
         .WithName("ApproveReturn")
         .AddEndpointFilter<Filters.IdempotencyFilter>()
@@ -60,4 +56,6 @@ public static class ReturnEndpoints
     }
 
     public record RejectReturnBody(string Reason);
+
+    public sealed record ReturnApproveResponse(string Message, Guid ReturnId, DateTime ProcessedAt);
 }

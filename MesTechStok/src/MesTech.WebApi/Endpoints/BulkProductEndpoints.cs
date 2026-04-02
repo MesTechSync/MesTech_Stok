@@ -42,14 +42,9 @@ public static class BulkProductEndpoints
             if (file.Length > 10 * 1024 * 1024)
                 return Results.Problem(detail: "File size exceeds 10 MB limit.", statusCode: 400);
 
-            return Results.Ok(new
-            {
-                fileName = file.FileName,
-                fileSize = file.Length,
-                contentType = file.ContentType,
-                isValid = true,
-                message = "File validated successfully. Ready for import."
-            });
+            return Results.Ok(new BulkValidateResponse(
+                file.FileName, file.Length, file.ContentType, true,
+                "File validated successfully. Ready for import."));
         })
         .WithName("ValidateBulkImport")
         .WithSummary("Toplu ürün import dosyasını doğrula (CSV/Excel)")
@@ -82,14 +77,9 @@ public static class BulkProductEndpoints
             var fileBytes = memoryStream.ToArray();
 
             // DEV1-DEPENDENCY: ExecuteBulkImportCommand handler ile parser entegrasyonu bekleniyor
-            return Results.Ok(new
-            {
-                fileName = file.FileName,
-                fileSize = file.Length,
-                bytesRead = fileBytes.Length,
-                status = "queued",
-                message = "File accepted for import processing."
-            });
+            return Results.Ok(new BulkImportResponse(
+                file.FileName, file.Length, fileBytes.Length,
+                "queued", "File accepted for import processing."));
         })
         .WithName("ExecuteBulkImport")
         .WithSummary("CSV/Excel dosyasından toplu ürün import et")
@@ -109,7 +99,7 @@ public static class BulkProductEndpoints
             var products = await productRepository.GetAllAsync();
 
             if (products.Count == 0)
-                return Results.NotFound(new { error = "No products found for export." });
+                return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
 
             // CSV formatında dışa aktar
             var csvLines = new List<string>
@@ -152,7 +142,7 @@ public static class BulkProductEndpoints
 
             int totalSuccess = 0;
             int totalFailed = 0;
-            var allFailures = new List<object>();
+            var allFailures = new List<BulkUpdateFailureItem>();
 
             // Stok güncellemesi
             if (stockItems.Count > 0)
@@ -161,7 +151,7 @@ public static class BulkProductEndpoints
                     new BulkUpdateStockCommand(stockItems), ct);
                 totalSuccess += stockResult.SuccessCount;
                 totalFailed += stockResult.FailedCount;
-                allFailures.AddRange(stockResult.Failures.Select(f => new { f.Sku, f.Reason, Type = "Stock" }));
+                allFailures.AddRange(stockResult.Failures.Select(f => new BulkUpdateFailureItem(f.Sku, f.Reason, "Stock")));
             }
 
             // Fiyat güncellemesi
@@ -171,15 +161,10 @@ public static class BulkProductEndpoints
                     new BulkUpdatePriceCommand(priceItems), ct);
                 totalSuccess += priceResult.SuccessCount;
                 totalFailed += priceResult.FailedCount;
-                allFailures.AddRange(priceResult.Failures.Select(f => new { f.Sku, f.Reason, Type = "Price" }));
+                allFailures.AddRange(priceResult.Failures.Select(f => new BulkUpdateFailureItem(f.Sku, f.Reason, "Price")));
             }
 
-            return Results.Ok(new
-            {
-                successCount = totalSuccess,
-                failedCount = totalFailed,
-                failures = allFailures
-            });
+            return Results.Ok(new BulkUpdateResponse(totalSuccess, totalFailed, allFailures));
         })
         .WithName("BulkUpdateProducts")
         .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400);
@@ -213,4 +198,17 @@ public static class BulkProductEndpoints
     /// Tek güncelleme satırı.
     /// </summary>
     public record BulkUpdateItemDto(string Sku, int? NewStock = null, decimal? NewPrice = null);
+
+    public sealed record BulkValidateResponse(
+        string FileName, long FileSize, string? ContentType, bool IsValid, string Message);
+
+    public sealed record BulkImportResponse(
+        string FileName, long FileSize, int BytesRead, string Status, string Message);
+
+    public sealed record BulkProductErrorResponse(string Error);
+
+    public sealed record BulkUpdateFailureItem(string Sku, string Reason, string Type);
+
+    public sealed record BulkUpdateResponse(
+        int SuccessCount, int FailedCount, IReadOnlyList<BulkUpdateFailureItem> Failures);
 }

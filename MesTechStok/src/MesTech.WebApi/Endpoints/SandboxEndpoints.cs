@@ -18,21 +18,14 @@ public static class SandboxEndpoints
         group.MapGet("/all", async (ISandboxTestRunner runner, CancellationToken ct) =>
         {
             var results = await runner.TestAllAsync(ct);
-            return Results.Ok(new
-            {
-                Timestamp = DateTime.UtcNow,
-                TotalAdapters = results.Count,
-                Passed = results.Count(r => r.ConnectionOk && r.AuthOk && r.DataOk),
-                Results = results.Select(r => new
-                {
-                    r.Platform,
-                    r.ConnectionOk,
-                    r.AuthOk,
-                    r.DataOk,
-                    ResponseTimeMs = Math.Round(r.ResponseTime.TotalMilliseconds, 1),
-                    r.Error
-                })
-            });
+            return Results.Ok(new SandboxTestAllResponse(
+                DateTime.UtcNow,
+                results.Count,
+                results.Count(r => r.ConnectionOk && r.AuthOk && r.DataOk),
+                results.Select(r => new SandboxTestResultItem(
+                    r.Platform, r.ConnectionOk, r.AuthOk, r.DataOk,
+                    Math.Round(r.ResponseTime.TotalMilliseconds, 1), r.Error
+                )).ToList()));
         })
         .WithName("TestAllSandboxAdapters")
         .WithSummary("Test all registered adapters against sandbox endpoints").Produces(200).Produces(400);
@@ -41,18 +34,24 @@ public static class SandboxEndpoints
         group.MapGet("/{platform}", async (string platform, ISandboxTestRunner runner, CancellationToken ct) =>
         {
             var result = await runner.TestAdapterAsync(platform, ct);
-            return Results.Ok(new
-            {
-                Timestamp = DateTime.UtcNow,
-                result.Platform,
-                result.ConnectionOk,
-                result.AuthOk,
-                result.DataOk,
-                ResponseTimeMs = Math.Round(result.ResponseTime.TotalMilliseconds, 1),
-                result.Error
-            });
+            return Results.Ok(new SandboxTestSingleResponse(
+                DateTime.UtcNow,
+                result.Platform, result.ConnectionOk, result.AuthOk, result.DataOk,
+                Math.Round(result.ResponseTime.TotalMilliseconds, 1), result.Error));
         })
         .WithName("TestSandboxAdapter")
         .WithSummary("Test a single adapter against its sandbox endpoint").Produces(200).Produces(400);
     }
+
+    public sealed record SandboxTestResultItem(
+        string Platform, bool ConnectionOk, bool AuthOk, bool DataOk,
+        double ResponseTimeMs, string? Error);
+
+    public sealed record SandboxTestAllResponse(
+        DateTime Timestamp, int TotalAdapters, int Passed,
+        IReadOnlyList<SandboxTestResultItem> Results);
+
+    public sealed record SandboxTestSingleResponse(
+        DateTime Timestamp, string Platform, bool ConnectionOk, bool AuthOk,
+        bool DataOk, double ResponseTimeMs, string? Error);
 }

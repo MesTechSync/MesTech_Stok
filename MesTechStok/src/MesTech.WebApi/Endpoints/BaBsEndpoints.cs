@@ -85,19 +85,21 @@ public static class BaBsEndpoints
             var remaining = deadline - now;
             var isOverdue = remaining.TotalSeconds < 0;
 
-            return Results.Ok(new
-            {
-                period = $"{targetYear}-{targetMonth:D2}",
-                deadline = deadline.ToString("yyyy-MM-dd HH:mm:ss"),
-                remainingDays = isOverdue ? 0 : (int)remaining.TotalDays,
+            return Results.Ok(new BaBsDeadlineResponse(
+                $"{targetYear}-{targetMonth:D2}",
+                deadline.ToString("yyyy-MM-dd HH:mm:ss"),
+                isOverdue ? 0 : (int)remaining.TotalDays,
                 isOverdue,
-                threshold = 5000m,
-                description = "VUK 396 — Ba/Bs beyanname son günü: takip eden ayın son günü"
-            });
+                5000m,
+                "VUK 396 — Ba/Bs beyanname son günü: takip eden ayın son günü"));
         })
         .WithName("GetBaBsDeadline")
         .WithSummary("Ba/Bs beyanname son tarihi hesapla (VUK 396)")
         .Produces(200)
         .CacheOutput("Lookup60s");
     }
+
+    public sealed record BaBsDeadlineResponse(
+        string Period, string Deadline, int RemainingDays, bool IsOverdue,
+        decimal Threshold, string Description);
 }
