@@ -19,5 +19,5 @@ public interface IOrderRepository
     Task<IReadOnlyList<Order>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default);
     Task AddAsync(Order order);
     Task UpdateAsync(Order order);
-    Task<int> GetCountAsync();
+    Task<int> GetCountAsync(CancellationToken ct = default);
 }
