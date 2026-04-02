@@ -81,7 +81,7 @@ public class FulfillmentStockSyncJobTests
         var sut = CreateSut();
         await sut.ExecuteAsync();
 
-        _productRepoMock.Verify(r => r.GetAllAsync(), Times.Never);
+        _productRepoMock.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class FulfillmentStockSyncJobTests
     {
         var provider = CreateMockProvider(FulfillmentCenter.AmazonFBA);
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = CreateSut();
         await sut.ExecuteAsync();
@@ -104,7 +104,7 @@ public class FulfillmentStockSyncJobTests
         var provider = CreateMockProvider(FulfillmentCenter.AmazonFBA, isAvailable: false);
 
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var sut = CreateSut();
         await sut.ExecuteAsync();
@@ -131,7 +131,7 @@ public class FulfillmentStockSyncJobTests
             .ReturnsAsync(inventory);
 
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         // Before sync: 10 units, after sync: 50 units
         _stockSplitMock.SetupSequence(s => s.GetTotalAvailableBulkAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
@@ -165,7 +165,7 @@ public class FulfillmentStockSyncJobTests
             .ReturnsAsync(inventory);
 
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         // Same stock before and after
         _stockSplitMock.Setup(s => s.GetTotalAvailableBulkAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
@@ -199,7 +199,7 @@ public class FulfillmentStockSyncJobTests
 
         _factoryMock.Setup(f => f.GetAll())
             .Returns(new List<IFulfillmentProvider> { failingProvider.Object, workingProvider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var sut = CreateSut();
         await sut.ExecuteAsync(); // should NOT throw
@@ -220,7 +220,7 @@ public class FulfillmentStockSyncJobTests
                 DateTime.UtcNow));
 
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var sut = CreateSut();
         await sut.ExecuteAsync();
@@ -236,7 +236,7 @@ public class FulfillmentStockSyncJobTests
         var provider = CreateMockProvider(FulfillmentCenter.AmazonFBA);
 
         _factoryMock.Setup(f => f.GetAll()).Returns(new List<IFulfillmentProvider> { provider.Object }.AsReadOnly());
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product> { product }.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product> { product }.AsReadOnly());
 
         var cts = new CancellationTokenSource();
         cts.Cancel();

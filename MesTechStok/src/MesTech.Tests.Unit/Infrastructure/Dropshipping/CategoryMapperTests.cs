@@ -188,7 +188,7 @@ public class CategoryMapperTests
     {
         var repoMock = new Mock<ICategoryRepository>();
         repoMock
-            .Setup(r => r.GetActiveAsync())
+            .Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories ?? new List<Category>());
 
         var cache  = new MemoryCache(new MemoryCacheOptions());
@@ -305,7 +305,7 @@ public class CategoryMapperTests
         await mapper.MapAsync("Elektronik");
 
         // Repository sadece 1 kez çağrılmalı (exact match yolu 1 kez)
-        repoMock.Verify(r => r.GetActiveAsync(), Times.Once);
+        repoMock.Verify(r => r.GetActiveAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ─── Manuel mapping ───────────────────────────────────────────────
@@ -336,7 +336,7 @@ public class CategoryMapperTests
         var cat2 = MakeCategory("Giyim", "GIY");
         var repoMock = new Mock<ICategoryRepository>();
         repoMock
-            .Setup(r => r.GetActiveAsync())
+            .Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new[] { cat1, cat2 });
 
         var cache  = new MemoryCache(new MemoryCacheOptions());

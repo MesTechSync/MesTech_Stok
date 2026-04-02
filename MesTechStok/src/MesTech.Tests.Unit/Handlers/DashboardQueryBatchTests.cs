@@ -35,7 +35,7 @@ public class GetAppHubDataHandlerTests
     {
         var mediator = new Mock<ISender>();
         var orderRepo = new Mock<IOrderRepository>();
-        orderRepo.Setup(r => r.GetCountAsync()).ReturnsAsync(42);
+        orderRepo.Setup(r => r.GetCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(42);
         mediator.Setup(m => m.Send(It.IsAny<GetProductDbStatusQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProductDbStatusDto());
         mediator.Setup(m => m.Send(It.IsAny<GetInventoryStatisticsQuery>(), It.IsAny<CancellationToken>()))
@@ -48,7 +48,7 @@ public class GetAppHubDataHandlerTests
         var sut = new GetAppHubDataHandler(mediator.Object, orderRepo.Object);
         var result = await sut.Handle(new GetAppHubDataQuery(Guid.NewGuid()), CancellationToken.None);
 
-        orderRepo.Verify(r => r.GetCountAsync(), Times.Once);
+        orderRepo.Verify(r => r.GetCountAsync(It.IsAny<CancellationToken>()), Times.Once);
         result.TotalOrders.Should().Be(42);
     }
 }
@@ -65,10 +65,10 @@ public class GetLowStockAlertsHandlerTests2
     public async Task Handle_ShouldCallProductRepo()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(new List<Product>());
+        repo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>());
         var sut = new GetLowStockAlertsHandler(repo.Object);
         await sut.Handle(new GetLowStockAlertsQuery(Guid.NewGuid()), CancellationToken.None);
-        repo.Verify(r => r.GetLowStockAsync(), Times.Once);
+        repo.Verify(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 

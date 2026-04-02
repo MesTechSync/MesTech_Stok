@@ -90,7 +90,7 @@ public class QueryHandlerBatch5Tests
     public async Task GetCategoriesPaged_EmptyRepo_ReturnsZero()
     {
         var repo = new Mock<ICategoryRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Category>().AsReadOnly());
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category>().AsReadOnly());
         var sut = new GetCategoriesPagedHandler(repo.Object);
 
         var query = new GetCategoriesPagedQuery();

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
@@ -40,7 +40,7 @@ public class AdvisoryAgentV2Tests
         _tenantProviderMock = new Mock<ITenantProvider>();
 
         _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(_tenantId);
-        _productRepoMock.Setup(r => r.GetCountAsync()).ReturnsAsync(50);
+        _productRepoMock.Setup(r => r.GetCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(50);
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>

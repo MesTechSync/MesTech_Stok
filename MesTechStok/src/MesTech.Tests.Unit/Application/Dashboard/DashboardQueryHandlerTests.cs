@@ -71,7 +71,7 @@ public class GetLowStockAlertsHandlerTests
     public async Task Handle_ShouldReturnAlertList()
     {
         IReadOnlyList<DomainProduct> products = new List<DomainProduct>();
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(products));
 
         var handler = new GetLowStockAlertsHandler(_productRepo.Object);

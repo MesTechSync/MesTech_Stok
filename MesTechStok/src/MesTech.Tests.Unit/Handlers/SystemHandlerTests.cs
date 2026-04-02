@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.LaunchReadiness;
@@ -214,7 +214,7 @@ public class SystemHandlerTests
         var productRepo = new Mock<IProductRepository>();
         var orderRepo = new Mock<IOrderRepository>();
 
-        productRepo.Setup(r => r.GetCountAsync()).ReturnsAsync(100);
+        productRepo.Setup(r => r.GetCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(100);
 
         var sut = new GetLaunchReadinessHandler(
             productRepo.Object, orderRepo.Object,
@@ -235,7 +235,7 @@ public class SystemHandlerTests
         var productRepo = new Mock<IProductRepository>();
         var orderRepo = new Mock<IOrderRepository>();
 
-        productRepo.Setup(r => r.GetCountAsync()).ReturnsAsync(0);
+        productRepo.Setup(r => r.GetCountAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0);
 
         var sut = new GetLaunchReadinessHandler(
             productRepo.Object, orderRepo.Object,

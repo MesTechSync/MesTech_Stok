@@ -27,7 +27,7 @@ public class GetStockValueReportHandlerTests
             new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 5, PurchasePrice = 30m, SalePrice = 60m },
             new Product { Id = Guid.NewGuid(), Name = "Stoksuz", SKU = "SKU-C", Stock = 0, PurchasePrice = 20m, SalePrice = 40m }
         };
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new GetStockValueReportQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -42,7 +42,7 @@ public class GetStockValueReportHandlerTests
     [Fact]
     public async Task Handle_EmptyProducts_ReturnsZeros()
     {
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>().AsReadOnly());
 
         var query = new GetStockValueReportQuery(_tenantId);
         var result = await _sut.Handle(query, CancellationToken.None);

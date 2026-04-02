@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MesTech.Application.Queries.GetSuppliersPaged;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
@@ -28,7 +28,7 @@ public class GetSuppliersPagedHandlerTests
             IsActive = true
         }).ToList();
 
-        _supplierRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(suppliers.AsReadOnly());
+        _supplierRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers.AsReadOnly());
 
         var query = new GetSuppliersPagedQuery(Page: 1, PageSize: 3);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -47,7 +47,7 @@ public class GetSuppliersPagedHandlerTests
             new Supplier { Id = Guid.NewGuid(), Name = "ABC Lojistik", Code = "ABC-002" }
         };
 
-        _supplierRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(suppliers.AsReadOnly());
+        _supplierRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers.AsReadOnly());
 
         var query = new GetSuppliersPagedQuery(SearchTerm: "ABC");
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -58,7 +58,7 @@ public class GetSuppliersPagedHandlerTests
     [Fact]
     public async Task Handle_EmptyList_ReturnsZero()
     {
-        _supplierRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Supplier>().AsReadOnly());
+        _supplierRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Supplier>().AsReadOnly());
 
         var query = new GetSuppliersPagedQuery();
         var result = await _sut.Handle(query, CancellationToken.None);

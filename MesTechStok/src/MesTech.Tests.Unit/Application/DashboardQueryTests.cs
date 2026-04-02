@@ -31,9 +31,9 @@ public class DashboardInventoryStatisticsTests
             FakeData.CreateProduct(sku: "OOS-3", stock: 0, salePrice: 100m, minimumStock: 3),
         };
 
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(allProducts.AsReadOnly());
-        _productRepo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(allProducts.AsReadOnly());
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(allProducts.AsReadOnly());
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(allProducts.AsReadOnly());
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
 
         // Act
@@ -74,9 +74,9 @@ public class DashboardInventoryStatisticsTests
             new() { Quantity = 10, Date = DateTime.UtcNow },
         };
 
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(allProducts.AsReadOnly());
-        _productRepo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(lowStockProducts.AsReadOnly());
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(allProducts.AsReadOnly());
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(lowStockProducts.AsReadOnly());
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(movements.AsReadOnly());
 
         // Act

@@ -164,7 +164,7 @@ public class WarehouseExtraHandlerTests
         var result = await sut.Handle(new GetWarehouseStockQuery(Guid.NewGuid(), _tenantId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        productRepo.Verify(r => r.GetAllAsync(), Times.Never());
+        productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Fact]

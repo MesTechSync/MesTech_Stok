@@ -47,7 +47,7 @@ public class GapFillQueryHandlerTests
         // Stock * PurchasePrice = inventory value
         var p1 = FakeData.CreateProduct(stock: 10, purchasePrice: 50m);   // value = 500
         var p2 = FakeData.CreateProduct(stock: 5,  purchasePrice: 100m);  // value = 500
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { p1, p2 });
 
         var result = await InventoryHandler().Handle(
@@ -61,7 +61,7 @@ public class GapFillQueryHandlerTests
     [Fact]
     public async Task GetInventoryValue_EmptyRepo_ReturnsZeros()
     {
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
 
         var result = await InventoryHandler().Handle(
@@ -82,7 +82,7 @@ public class GapFillQueryHandlerTests
         var lowStock   = FakeData.CreateProduct(stock: 3,  minimumStock: 5);  // IsLowStock
         var normal     = FakeData.CreateProduct(stock: 50, minimumStock: 5);
 
-        _productRepo.Setup(r => r.GetAllAsync())
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { outOfStock, lowStock, normal });
 
         var result = await InventoryHandler().Handle(
@@ -101,7 +101,7 @@ public class GapFillQueryHandlerTests
     {
         var p1 = FakeData.CreateProduct(sku: "LOW-001", stock: 2, minimumStock: 5);
         var p2 = FakeData.CreateProduct(sku: "LOW-002", stock: 0, minimumStock: 5);
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { p1, p2 });
 
         var result = await LowStockHandler().Handle(
@@ -114,14 +114,14 @@ public class GapFillQueryHandlerTests
     [Fact]
     public async Task GetLowStockProducts_EmptyRepo_ReturnsEmpty()
     {
-        _productRepo.Setup(r => r.GetLowStockAsync())
+        _productRepo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
 
         var result = await LowStockHandler().Handle(
             new GetLowStockProductsQuery(), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _productRepo.Verify(r => r.GetLowStockAsync(), Times.Once);
+        _productRepo.Verify(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ── GetStockMovements ──
@@ -143,7 +143,7 @@ public class GapFillQueryHandlerTests
 
         result.Should().HaveCount(2);
         _movementRepo.Verify(r => r.GetByProductIdAsync(productId), Times.Once);
-        _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class GapFillQueryHandlerTests
     {
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to   = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
-        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to))
+        _movementRepo.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>
             {
                 new() { MovementType = StockMovementType.StockIn.ToString(), Quantity = 20 }
@@ -161,7 +161,7 @@ public class GapFillQueryHandlerTests
             new GetStockMovementsQuery(From: from, To: to), CancellationToken.None);
 
         result.Should().HaveCount(1);
-        _movementRepo.Verify(r => r.GetByDateRangeAsync(from, to), Times.Once);
+        _movementRepo.Verify(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class GapFillQueryHandlerTests
 
         result.Should().BeEmpty();
         _movementRepo.Verify(r => r.GetByProductIdAsync(It.IsAny<Guid>()), Times.Never);
-        _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ── GetSyncStatus ──

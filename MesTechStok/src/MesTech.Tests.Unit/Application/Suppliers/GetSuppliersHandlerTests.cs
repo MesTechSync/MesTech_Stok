@@ -24,7 +24,7 @@ public class GetSuppliersHandlerTests
         }.AsReadOnly();
 
         var mockRepo = new Mock<ISupplierRepository>();
-        mockRepo.Setup(r => r.GetActiveAsync()).ReturnsAsync(suppliers);
+        mockRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers);
 
         var handler = new GetSuppliersHandler(mockRepo.Object);
 
@@ -36,8 +36,8 @@ public class GetSuppliersHandlerTests
         result[0].Name.Should().Be("Supplier A");
         result[0].Code.Should().Be("SA-001");
         result[0].IsActive.Should().BeTrue();
-        mockRepo.Verify(r => r.GetActiveAsync(), Times.Once);
-        mockRepo.Verify(r => r.GetAllAsync(), Times.Never);
+        mockRepo.Verify(r => r.GetActiveAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class GetSuppliersHandlerTests
         }.AsReadOnly();
 
         var mockRepo = new Mock<ISupplierRepository>();
-        mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(suppliers);
+        mockRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(suppliers);
 
         var handler = new GetSuppliersHandler(mockRepo.Object);
 
@@ -60,8 +60,8 @@ public class GetSuppliersHandlerTests
 
         // Assert
         result.Should().HaveCount(2);
-        mockRepo.Verify(r => r.GetAllAsync(), Times.Once);
-        mockRepo.Verify(r => r.GetActiveAsync(), Times.Never);
+        mockRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockRepo.Verify(r => r.GetActiveAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class GetSuppliersHandlerTests
     {
         // Arrange
         var mockRepo = new Mock<ISupplierRepository>();
-        mockRepo.Setup(r => r.GetActiveAsync()).ReturnsAsync(new List<Supplier>().AsReadOnly());
+        mockRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Supplier>().AsReadOnly());
 
         var handler = new GetSuppliersHandler(mockRepo.Object);
 

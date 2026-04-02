@@ -448,7 +448,7 @@ public class SpecialCommandTests
     public async Task SearchProductsForImageMatch_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Product>());
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>());
 
         var sut = new SearchProductsForImageMatchHandler(repo.Object);
         var query = new SearchProductsForImageMatchQuery();

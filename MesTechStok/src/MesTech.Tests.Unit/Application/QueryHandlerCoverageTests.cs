@@ -62,7 +62,7 @@ public class GetWarehouseStockHandlerTests
         var products = new List<Product> { product1, product2 };
 
         _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync(warehouse);
-        _productRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var result = await _sut.Handle(
             new GetWarehouseStockQuery(warehouseId, tenantId), CancellationToken.None);

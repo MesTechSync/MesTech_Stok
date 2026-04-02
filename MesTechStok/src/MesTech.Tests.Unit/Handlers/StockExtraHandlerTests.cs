@@ -169,7 +169,7 @@ public class StockExtraHandlerTests
     public async Task GetStockAlerts_NoLowStock_ReturnsEmptyList()
     {
         var repo = new Mock<IProductRepository>();
-        repo.Setup(r => r.GetLowStockAsync()).ReturnsAsync(new List<Product>().AsReadOnly());
+        repo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>().AsReadOnly());
 
         var sut = new GetStockAlertsHandler(repo.Object);
         var result = await sut.Handle(new GetStockAlertsQuery(_tenantId), CancellationToken.None);

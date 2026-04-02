@@ -130,7 +130,7 @@ public class HandlerNullGuardTests
             Color = "#FF5733",
             Icon = "laptop"
         };
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Category> { cat }.AsReadOnly());
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category> { cat }.AsReadOnly());
 
         var handler = new GetCategoriesHandler(repo.Object);
         var result = await handler.Handle(new GetCategoriesQuery(ActiveOnly: false), CancellationToken.None);
@@ -203,13 +203,13 @@ public class HandlerNullGuardTests
     public async Task GetSuppliersHandler_DefaultQuery_CallsGetActive()
     {
         var repo = new Mock<ISupplierRepository>();
-        repo.Setup(r => r.GetActiveAsync())
+        repo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Supplier>().AsReadOnly());
 
         var handler = new GetSuppliersHandler(repo.Object);
         await handler.Handle(new GetSuppliersQuery(), CancellationToken.None);
 
-        repo.Verify(r => r.GetActiveAsync(), Times.Once);
-        repo.Verify(r => r.GetAllAsync(), Times.Never);
+        repo.Verify(r => r.GetActiveAsync(It.IsAny<CancellationToken>()), Times.Once);
+        repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

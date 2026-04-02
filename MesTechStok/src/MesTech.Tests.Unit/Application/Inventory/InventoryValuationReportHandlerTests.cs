@@ -25,7 +25,7 @@ public class InventoryValuationReportHandlerTests
             FakeData.CreateProduct(sku: "VAL-002", stock: 5, purchasePrice: 200m, salePrice: 350m),
             FakeData.CreateProduct(sku: "VAL-003", stock: 0, purchasePrice: 80m, salePrice: 120m), // out of stock
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new InventoryValuationReportQuery(Guid.NewGuid());
         var sut = CreateSut();
@@ -70,7 +70,7 @@ public class InventoryValuationReportHandlerTests
             FakeData.CreateProduct(sku: "OOS-001", stock: 0),
             FakeData.CreateProduct(sku: "OOS-002", stock: 0),
         };
-        _productRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products.AsReadOnly());
+        _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new InventoryValuationReportQuery(Guid.NewGuid());
         var sut = CreateSut();
@@ -104,6 +104,6 @@ public class InventoryValuationReportHandlerTests
         result.Should().HaveCount(1);
         result[0].CurrentStock.Should().Be(20);
         _productRepo.Verify(r => r.GetByCategoryAsync(categoryId), Times.Once);
-        _productRepo.Verify(r => r.GetAllAsync(), Times.Never);
+        _productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
