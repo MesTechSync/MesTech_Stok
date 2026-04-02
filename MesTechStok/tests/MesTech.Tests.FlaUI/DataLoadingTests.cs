@@ -62,7 +62,7 @@ public class DataLoadingTests : FlaUITestBase
     public void TEST_09_Platformlar_16PlatformGorunur()
     {
         Output.WriteLine("TEST-09: Platformlar → 16 platform");
-        var clicked = ClickMenu("Pazaryeri");
+        var clicked = ClickMenu("Platformlar");
         if (!clicked) { Screenshot("TEST-09", "PlatformList", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 

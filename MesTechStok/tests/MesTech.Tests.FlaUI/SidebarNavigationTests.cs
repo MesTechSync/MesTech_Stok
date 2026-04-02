@@ -29,7 +29,7 @@ public class LoginNavigationTests : FlaUITestBase
     [InlineData("Stok Takibi", "Stok")]
     [InlineData("Kargo Firmalari", "Kargo")]
     [InlineData("Fatura Listesi", "Fatura")]
-    [InlineData("Pazaryeri", "Platform")]
+    [InlineData("Platformlar", "Platform")]
     [InlineData("CRM", "Kişi")]
     public void TEST_02_SidebarMenu_DogruSayfaAcilir(string menuName, string expectedTitle)
     {
