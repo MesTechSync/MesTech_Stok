@@ -21,7 +21,7 @@ public static class Program
             .AddDiagnoser(DefaultConfig.Instance.GetDiagnosers().ToArray())
             .AddAnalyser(DefaultConfig.Instance.GetAnalysers().ToArray())
             .AddValidator(DefaultConfig.Instance.GetValidators().ToArray())
-            .WithBuildTimeout(TimeSpan.FromMinutes(5));
+            .WithBuildTimeout(TimeSpan.FromMinutes(10));
 
         BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
     }
