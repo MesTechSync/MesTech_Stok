@@ -5,6 +5,7 @@ using FluentAssertions;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.AI.Accounting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -45,6 +46,7 @@ public class SpeechToExpenseServiceTests
             _documentRepoMock.Object,
             _tenantProviderMock.Object,
             _unitOfWorkMock.Object,
+            new Mock<IConfiguration>().Object,
             new Mock<ILogger<SpeechToExpenseService>>().Object);
     }
 
