@@ -284,10 +284,24 @@ public class SocialFeedRefreshJobTests
 
     private static (IDbContextFactory<AppDbContext> Factory, AppDbContext Db) CreateDbContextFactoryWithDb(Guid? tenantId = null)
     {
-        var db = CreateInMemoryDb(tenantId);
+        // Shared InMemory database name ensures job and verification use same data
+        var dbName = Guid.NewGuid().ToString();
+        var tid = tenantId ?? Guid.NewGuid();
+        var tenantProvider = new Mock<ITenantProvider>();
+        tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(tid);
+
+        AppDbContext CreateDb()
+        {
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: dbName)
+                .Options;
+            return new AppDbContext(options, tenantProvider.Object);
+        }
+
+        var db = CreateDb(); // For test setup/verification
         var factory = new Mock<IDbContextFactory<AppDbContext>>();
         factory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(db);
+            .Returns(() => Task.FromResult(CreateDb())); // Job gets fresh instance each call
         return (factory.Object, db);
     }
 
