@@ -29,7 +29,7 @@ public sealed class BulkAutoCompetePriceHandler
     public async Task<BulkAutoCompetePriceResult> Handle(
         BulkAutoCompetePriceCommand request, CancellationToken cancellationToken)
     {
-        var allProducts = await _productRepo.GetAllAsync()
+        var allProducts = await _productRepo.GetAllAsync(cancellationToken)
             .ConfigureAwait(false);
         var products = allProducts;
 

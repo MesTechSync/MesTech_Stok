@@ -26,7 +26,7 @@ public sealed class GetAppHubDataHandler
         var inventoryTask = _mediator.Send(new GetInventoryStatisticsQuery(), cancellationToken);
         var invoiceTask = _mediator.Send(new GetPendingInvoicesQuery(request.TenantId), cancellationToken);
         var healthTask = _mediator.Send(new GetServiceHealthQuery(), cancellationToken);
-        var orderCountTask = _orderRepo.GetCountAsync();
+        var orderCountTask = _orderRepo.GetCountAsync(cancellationToken);
 
         await Task.WhenAll(productTask, inventoryTask, invoiceTask, healthTask, orderCountTask).ConfigureAwait(false);
 
