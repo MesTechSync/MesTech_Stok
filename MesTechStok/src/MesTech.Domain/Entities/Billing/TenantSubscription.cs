@@ -65,6 +65,10 @@ public sealed class TenantSubscription : BaseEntity, ITenantEntity
 
     public void Renew()
     {
+        if (Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Expired)
+            throw new InvalidOperationException(
+                $"Cannot renew subscription in {Status} status. Only Active, PastDue or Trial can be renewed.");
+
         Status = SubscriptionStatus.Active;
         NextBillingDate = Period == BillingPeriod.Annual
             ? DateTime.UtcNow.AddYears(1)
@@ -74,12 +78,20 @@ public sealed class TenantSubscription : BaseEntity, ITenantEntity
 
     public void MarkPastDue()
     {
+        if (Status != SubscriptionStatus.Active)
+            throw new InvalidOperationException(
+                $"Cannot mark as past due in {Status} status. Only Active subscriptions can become PastDue.");
+
         Status = SubscriptionStatus.PastDue;
         UpdatedAt = DateTime.UtcNow;
     }
 
     public void Cancel(string? reason = null)
     {
+        if (Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Expired)
+            throw new InvalidOperationException(
+                $"Cannot cancel subscription in {Status} status. Already terminated.");
+
         Status = SubscriptionStatus.Cancelled;
         CancelledAt = DateTime.UtcNow;
         CancellationReason = reason;
@@ -91,6 +103,9 @@ public sealed class TenantSubscription : BaseEntity, ITenantEntity
 
     public void Expire()
     {
+        if (Status == SubscriptionStatus.Expired)
+            throw new InvalidOperationException("Subscription is already expired.");
+
         Status = SubscriptionStatus.Expired;
         EndDate = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
