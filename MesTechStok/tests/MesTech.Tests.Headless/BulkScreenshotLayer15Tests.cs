@@ -67,7 +67,6 @@ public class BulkScreenshotLayer15Tests
                 Stock = 50 - i * 3,
                 MinimumStock = 5,
                 TenantId = tenantId,
-                IsActive = true,
                 CreatedBy = "seed",
                 UpdatedBy = "seed"
             });
