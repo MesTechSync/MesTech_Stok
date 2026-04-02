@@ -243,8 +243,9 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                     var authResult = await _authService.ValidateAsync(username, password);
                     isValid = authResult.IsSuccess;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[WARNING] AuthService.ValidateAsync failed: {ex.Message}");
                     // DB connection failure — fall through to offline check
                 }
             }
@@ -393,8 +394,9 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
             using var stream = File.OpenRead(path);
             return Bitmap.DecodeToWidth(stream, 1280);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[WARNING] LoadBitmap failed for {path}: {ex.Message}");
             return null;
         }
     }
@@ -422,7 +424,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                 AutoLogin = true
             }));
         }
-        catch { /* Non-critical */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] SaveRememberedUser failed: {ex.Message}"); }
     }
 
     private void LoadRememberedUser()
@@ -453,7 +455,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                 }
             }
         }
-        catch { /* Non-critical */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] LoadRememberedUser failed: {ex.Message}"); }
     }
 
     private bool _pendingAutoLogin;
