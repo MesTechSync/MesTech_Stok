@@ -70,16 +70,39 @@ public static class AuthEndpoints
                     statusCode: StatusCodes.Status423Locked);
             }
 
-            // Placeholder: generate token with deterministic dev IDs (NEVER in production)
-            // Real user lookup + BCrypt.Verify needed before production
-            var userId = Guid.NewGuid();
-            var tenantId = Guid.NewGuid();
+            // Real user authentication via BCrypt (AuthService → IUserRepository → BCrypt.Verify)
+            var authService = httpContext.RequestServices.GetRequiredService<IAuthService>();
+            var authResult = await authService.ValidateAsync(request.UserName, request.Password, ct);
+
+            if (!authResult.IsSuccess || authResult.UserId is null || authResult.TenantId is null)
+            {
+                var failure = await bruteForce.RecordFailureAsync(request.UserName, ip);
+                if (failure.IsNowLocked)
+                {
+                    return Results.Json(new LoginResponse(
+                        Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                        Error: "Çok fazla başarısız deneme. Hesabınız kilitlendi.",
+                        AttemptsRemaining: 0,
+                        LockedUntilUtc: DateTime.UtcNow.Add(failure.LockoutDuration ?? TimeSpan.FromMinutes(15))),
+                        statusCode: StatusCodes.Status423Locked);
+                }
+
+                return Results.Json(new LoginResponse(
+                    Success: false, Token: null, RefreshToken: null, ExpiresAt: null,
+                    Error: authResult.ErrorMessage ?? "Giriş bilgileri hatalı.",
+                    AttemptsRemaining: failure.AttemptsRemaining,
+                    LockedUntilUtc: null),
+                    statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            var userId = authResult.UserId.Value;
+            var tenantId = authResult.TenantId.Value;
             var roles = new[] { "User" };
 
             try
             {
                 var options = jwtOptions.Value;
-                var token = jwtService.GenerateToken(userId, tenantId, request.UserName, roles);
+                var token = jwtService.GenerateToken(userId, tenantId, authResult.DisplayName ?? request.UserName, roles);
                 var expiresAt = DateTime.UtcNow.AddMinutes(
                     options.AccessTokenExpiryMinutes > 0 ? options.AccessTokenExpiryMinutes : options.ExpiryMinutes);
 
