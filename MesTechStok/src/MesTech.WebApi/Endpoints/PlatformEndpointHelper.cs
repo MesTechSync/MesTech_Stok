@@ -32,7 +32,7 @@ public static class PlatformEndpointHelper
             if (adapter is null)
                 return Results.Problem(detail: $"{displayName} adapter bulunamadi.", statusCode: 503);
             var products = await adapter.PullProductsAsync(ct);
-            return Results.Ok(new { platform = displayName, count = products.Count, products });
+            return Results.Ok(new PlatformProductsResponse(displayName, products.Count, products));
         })
         .WithName($"Get{displayName.Replace(" ", "")}Products")
         .WithSummary($"{displayName} urunlerini cek")
@@ -45,7 +45,7 @@ public static class PlatformEndpointHelper
             if (adapter is null)
                 return Results.Problem(detail: $"{displayName} adapter bulunamadi.", statusCode: 503);
             var categories = await adapter.GetCategoriesAsync(ct);
-            return Results.Ok(new { platform = displayName, count = categories.Count, categories });
+            return Results.Ok(new PlatformCategoriesResponse(displayName, categories.Count, categories));
         })
         .WithName($"Get{displayName.Replace(" ", "")}Categories")
         .WithSummary($"{displayName} kategori listesi")
@@ -58,15 +58,10 @@ public static class PlatformEndpointHelper
             if (adapter is null)
                 return Results.Problem(detail: $"{displayName} adapter bulunamadi.", statusCode: 503);
             var result = await adapter.TestConnectionAsync(new Dictionary<string, string>(), ct);
-            return Results.Ok(new
-            {
-                platform = displayName,
-                isConnected = result.IsSuccess,
-                storeName = result.StoreName,
-                productCount = result.ProductCount,
-                errorMessage = result.ErrorMessage,
-                responseTimeMs = result.ResponseTime.TotalMilliseconds
-            });
+            return Results.Ok(new PlatformConnectionResponse(
+                displayName, result.IsSuccess, result.StoreName,
+                result.ProductCount, result.ErrorMessage,
+                result.ResponseTime.TotalMilliseconds));
         })
         .WithName($"Test{displayName.Replace(" ", "")}Connection")
         .WithSummary($"{displayName} API baglanti testi")
@@ -85,4 +80,12 @@ public static class PlatformEndpointHelper
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces(200).Produces(400);
     }
+
+    // ── Typed Response DTOs — Swagger contract stability ──
+
+    public sealed record PlatformProductsResponse(string Platform, int Count, object Products);
+    public sealed record PlatformCategoriesResponse(string Platform, int Count, object Categories);
+    public sealed record PlatformConnectionResponse(
+        string Platform, bool IsConnected, string? StoreName,
+        int? ProductCount, string? ErrorMessage, double ResponseTimeMs);
 }
