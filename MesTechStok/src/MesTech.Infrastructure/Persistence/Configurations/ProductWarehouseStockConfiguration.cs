@@ -1,4 +1,4 @@
-using MesTech.Domain.Entities;
+﻿using MesTech.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,7 +19,7 @@ public sealed class ProductWarehouseStockConfiguration : IEntityTypeConfiguratio
         builder.HasIndex(e => new { e.TenantId, e.WarehouseId })
             .HasDatabaseName("IX_ProductWarehouseStocks_Tenant_Warehouse");
 
-        builder.Property(e => e.RowVersion).IsRowVersion();
+
         builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

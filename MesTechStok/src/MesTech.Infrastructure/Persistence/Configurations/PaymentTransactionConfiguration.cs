@@ -1,4 +1,4 @@
-using MesTech.Domain.Entities;
+﻿using MesTech.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,7 +18,7 @@ public sealed class PaymentTransactionConfiguration : IEntityTypeConfiguration<P
         builder.HasIndex(p => new { p.TenantId, p.Status })
             .HasDatabaseName("IX_PaymentTransactions_Tenant_Status");
 
-        builder.Property(p => p.RowVersion).IsRowVersion();
+        // builder.Property(p => p.RowVersion).IsRowVersion(); // Removed: conflicts with xmin concurrency token
         builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }
