@@ -88,7 +88,7 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
                 var deals = await _mediator.Send(new GetBitrix24DealsQuery(_currentUser.TenantId));
                 DealCount = deals.TotalCount;
             }
-            catch { DealCount = 0; }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetBitrix24Deals failed: {ex.Message}"); DealCount = 0; }
         }
     }
 
