@@ -1742,10 +1742,18 @@ namespace MesTechStok.Desktop
                     // Session ID tracking needed for: simpleSecurity.LogoutAsync(sessionId);
                 }
 
-                // 2) Login ekranına dön
-                var login = new MesTechStok.Desktop.Views.LoginWindow();
-                login.Show();
-                this.Close();
+                // WelcomeWindow'a dön (NavReturnToWelcome_Click pattern — this.Close() app'i kapatır!)
+                if (App.WelcomeWindowInstance == null)
+                {
+                    App.WelcomeWindowInstance = new Views.WelcomeWindow(this);
+                }
+                var welcomeWindow = App.WelcomeWindowInstance;
+                if (!welcomeWindow.IsVisible) welcomeWindow.Show();
+                else welcomeWindow.Activate();
+                this.Hide();
+
+                ToastManager.ShowInfo("Oturum kapatıldı, karşılama ekranına dönüldü", "MesTech Stok");
+                GlobalLogger.Instance?.LogInfo("Kullanıcı çıkış yaptı, WelcomeWindow'a döndü", "Auth");
             }
             catch (Exception ex)
             {
