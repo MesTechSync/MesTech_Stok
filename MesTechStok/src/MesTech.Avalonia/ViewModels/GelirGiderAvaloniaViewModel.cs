@@ -83,7 +83,7 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
             IsLoading = false;
         }
         // G540: cash registers
-        try { _ = await _mediator.Send(new GetCashRegistersQuery(_tenantProvider.GetCurrentTenantId())); } catch { }
+        try { _ = await _mediator.Send(new GetCashRegistersQuery(_tenantProvider.GetCurrentTenantId())); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetCashRegisters failed: {ex.Message}"); }
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
