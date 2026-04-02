@@ -105,8 +105,8 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
         }
 
         // G540 orphan: general + profile settings
-        try { _ = await _mediator.Send(new GetGeneralSettingsQuery(_currentUser.TenantId)); } catch { /* optional */ }
-        try { _ = await _mediator.Send(new GetProfileSettingsQuery(_currentUser.TenantId)); } catch { /* optional */ }
+        try { _ = await _mediator.Send(new GetGeneralSettingsQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetGeneralSettings failed: {ex.Message}"); }
+        try { _ = await _mediator.Send(new GetProfileSettingsQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetProfileSettings failed: {ex.Message}"); }
     }
 
     [RelayCommand]
