@@ -78,6 +78,7 @@ public static class FinanceEndpoints
             return Results.NoContent();
         })
         .WithName("ApproveExpense")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Masrafı onayla").Produces(200).Produces(400);
 
         // POST /api/v1/finance/expenses/{id}/pay
@@ -89,6 +90,7 @@ public static class FinanceEndpoints
             return Results.NoContent();
         })
         .WithName("MarkExpensePaid")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Masrafı ödenmiş olarak işaretle").Produces(200).Produces(400);
 
         // POST /api/v1/finance/cash-registers/{id}/close — gün sonu kasa kapama
@@ -104,6 +106,7 @@ public static class FinanceEndpoints
             });
         })
         .WithName("CloseCashRegister")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Kasa gun sonu — bakiye dogrulama + rapor").Produces(200).Produces(400);
 
         // ─── DEFTER KAPATMA: 4 eksik finance endpoint [ENT-DEV6] ───
@@ -131,6 +134,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/cash-registers/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateCashRegister")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Yeni kasa tanımla").Produces(200).Produces(400);
 
         // POST /api/v1/finance/expenses — yeni masraf kaydı
@@ -142,6 +146,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/expenses/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateExpense")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Yeni masraf kaydı oluştur").Produces(200).Produces(400);
 
         // POST /api/v1/finance/cash-transactions — kasa hareketi kaydet
@@ -153,6 +158,7 @@ public static class FinanceEndpoints
             return Results.Created($"/api/v1/finance/cash-transactions/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("RecordCashTransaction")
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithSummary("Kasa hareketi kaydet (giriş/çıkış)").Produces(200).Produces(400);
 
         // ─── GELIR/GIDER ENDPOINT'LERI [ENT-DEV6] ───
