@@ -86,7 +86,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             if (resolved is ViewModelBase vmBase)
             {
                 try { await vmBase.LoadAsync(); }
-                catch { /* View handles its own error state via HasError */ }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] {viewName}.LoadAsync failed: {ex.Message}"); }
             }
         }
 
