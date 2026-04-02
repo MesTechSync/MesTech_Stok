@@ -238,21 +238,12 @@ public static class HealthEndpoints
             CancellationToken ct) =>
         {
             var report = await validator.ValidateAllAsync(ct);
-            return Results.Ok(new
-            {
-                totalAdapters = report.TotalCount,
-                reachable = report.ReachableCount,
-                unreachable = report.UnreachableCount,
-                allHealthy = report.AllReachable,
-                totalElapsedMs = report.TotalElapsed.TotalMilliseconds,
-                adapters = report.Results.Select(r => new
-                {
-                    platform = r.PlatformCode,
-                    isReachable = r.IsReachable,
-                    responseTimeMs = r.ResponseTime.TotalMilliseconds,
-                    error = r.Error
-                })
-            });
+            return Results.Ok(new AdapterConnectivityResponse(
+                report.TotalCount, report.ReachableCount, report.UnreachableCount,
+                report.AllReachable, report.TotalElapsed.TotalMilliseconds,
+                report.Results.Select(r => new AdapterPingResponse(
+                    r.PlatformCode, r.IsReachable,
+                    r.ResponseTime.TotalMilliseconds, r.Error)).ToList()));
         })
         .WithName("GetAdapterConnectivity")
         .WithSummary("Adapter connectivity report — all platform ping results (G10800)")
@@ -264,4 +255,10 @@ public static class HealthEndpoints
     }
 
     private sealed record HealthCheckItem(string Name, bool IsHealthy, double DurationMs, string? Error);
+    public sealed record AdapterConnectivityResponse(
+        int TotalAdapters, int Reachable, int Unreachable,
+        bool AllHealthy, double TotalElapsedMs,
+        IReadOnlyList<AdapterPingResponse> Adapters);
+    public sealed record AdapterPingResponse(
+        string Platform, bool IsReachable, double ResponseTimeMs, string? Error);
 }
