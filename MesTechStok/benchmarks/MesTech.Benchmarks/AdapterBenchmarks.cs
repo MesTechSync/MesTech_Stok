@@ -154,31 +154,33 @@ public class AdapterBenchmarks
 
     /// <summary>
     /// Platform code resolution — adapter factory lookup simulasyonu.
+    /// Production'daki singleton dictionary lookup'i olcer.
     /// Hedef: &lt; 100ns
     /// </summary>
+    private static readonly Dictionary<string, string> _platformRegistry = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Trendyol"] = "TrendyolAdapter",
+        ["Hepsiburada"] = "HepsiburadaAdapter",
+        ["N11"] = "N11Adapter",
+        ["Ciceksepeti"] = "CiceksepetiAdapter",
+        ["Amazon"] = "AmazonTrAdapter",
+        ["eBay"] = "EbayAdapter",
+        ["Ozon"] = "OzonAdapter",
+        ["Shopify"] = "ShopifyAdapter",
+        ["WooCommerce"] = "WooCommerceAdapter",
+        ["Zalando"] = "ZalandoAdapter",
+        ["OpenCart"] = "OpenCartAdapter",
+        ["PttAvm"] = "PttAvmAdapter",
+        ["Pazarama"] = "PazaramaAdapter",
+        ["Etsy"] = "EtsyAdapter",
+        ["AmazonEu"] = "AmazonEuAdapter",
+        ["Bitrix24"] = "Bitrix24Adapter"
+    };
+
     [Benchmark]
     public string? AdapterFactory_Resolve()
     {
-        var platforms = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["Trendyol"] = "TrendyolAdapter",
-            ["Hepsiburada"] = "HepsiburadaAdapter",
-            ["N11"] = "N11Adapter",
-            ["Ciceksepeti"] = "CiceksepetiAdapter",
-            ["Amazon"] = "AmazonTrAdapter",
-            ["eBay"] = "EbayAdapter",
-            ["Ozon"] = "OzonAdapter",
-            ["Shopify"] = "ShopifyAdapter",
-            ["WooCommerce"] = "WooCommerceAdapter",
-            ["Zalando"] = "ZalandoAdapter",
-            ["OpenCart"] = "OpenCartAdapter",
-            ["PttAvm"] = "PttAvmAdapter",
-            ["Pazarama"] = "PazaramaAdapter",
-            ["Etsy"] = "EtsyAdapter",
-            ["AmazonEu"] = "AmazonEuAdapter",
-            ["Bitrix24"] = "Bitrix24Adapter"
-        };
-        return platforms.GetValueOrDefault("Trendyol");
+        return _platformRegistry.GetValueOrDefault("Trendyol");
     }
 }
 
