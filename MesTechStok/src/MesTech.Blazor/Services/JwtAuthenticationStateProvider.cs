@@ -67,6 +67,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     /// <summary>
     /// Extracts claims from a JWT token. For demo tokens (non-JWT format),
     /// returns a minimal set of claims so the app still works in demo mode.
+    /// Validates token expiration to prevent use of expired tokens.
     /// </summary>
     private static List<Claim> ParseClaimsFromToken(string token)
     {
@@ -78,6 +79,15 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
             if (handler.CanReadToken(token))
             {
                 var jwt = handler.ReadJwtToken(token);
+
+                // Validate token expiration — expired tokens must not grant access
+                if (jwt.ValidTo != DateTime.MinValue && jwt.ValidTo < DateTime.UtcNow)
+                {
+                    claims.Add(new Claim(ClaimTypes.Name, "Expired"));
+                    claims.Add(new Claim("token_type", "expired"));
+                    return claims;
+                }
+
                 claims.AddRange(jwt.Claims);
 
                 // Map JWT 'sub' or 'unique_name' to ClaimTypes.Name if not already present
