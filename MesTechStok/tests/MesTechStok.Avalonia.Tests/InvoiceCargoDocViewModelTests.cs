@@ -20,7 +20,7 @@ public class CargoProvidersAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new CargoProvidersAvaloniaViewModel(Mock.Of<IMediator>());
+        var sut = new CargoProvidersAvaloniaViewModel();
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }

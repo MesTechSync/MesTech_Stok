@@ -165,7 +165,7 @@ public class JournalEntryListViewModelTests
     [Fact]
     public void Constructor_ShouldInitializeWithNoErrors()
     {
-        var sut = new JournalEntryListViewModel(Mock.Of<IMediator>());
+        var sut = new JournalEntryListViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
