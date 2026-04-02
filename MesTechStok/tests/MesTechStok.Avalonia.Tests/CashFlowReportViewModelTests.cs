@@ -1,4 +1,6 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,6 +18,22 @@ public class CashFlowReportViewModelTests
     public CashFlowReportViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetCashFlowReportQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CashFlowReportDto
+            {
+                TotalInflow = 245_800.00m,
+                TotalOutflow = 178_350.00m,
+                NetFlow = 67_450.00m,
+                Entries = new List<CashFlowEntryDto>
+                {
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 1, 15), Amount = 82_500.00m, Direction = "Inflow", Category = "Trendyol Satis", Description = "Ocak Trendyol hasilat" },
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 1, 20), Amount = 54_200.00m, Direction = "Outflow", Category = "Tedarikci Odeme", Description = "Ocak mal alimi" },
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 2, 10), Amount = 78_300.00m, Direction = "Inflow", Category = "Hepsiburada Satis", Description = "Subat Hepsiburada hasilat" },
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 2, 18), Amount = 61_150.00m, Direction = "Outflow", Category = "Kargo Gideri", Description = "Subat kargo odemesi" },
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 3, 5), Amount = 85_000.00m, Direction = "Inflow", Category = "Amazon Satis", Description = "Mart Amazon hasilat" },
+                    new() { Id = Guid.NewGuid(), EntryDate = new DateTime(2026, 3, 12), Amount = 63_000.00m, Direction = "Outflow", Category = "Komisyon", Description = "Mart platform komisyonlari" },
+                }
+            });
         _sut = new CashFlowReportViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 

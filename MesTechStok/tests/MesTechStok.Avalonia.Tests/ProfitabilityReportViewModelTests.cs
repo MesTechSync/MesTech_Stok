@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Reports.ProfitabilityReport;
 using MesTech.Avalonia.ViewModels.Accounting;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,6 +17,36 @@ public class ProfitabilityReportViewModelTests
     public ProfitabilityReportViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ProfitabilityReportQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProfitabilityReportDto
+            {
+                FromDate = DateTime.Now.AddMonths(-1),
+                ToDate = DateTime.Now,
+                TotalRevenue = 485_000.00m,
+                TotalCost = 245_000.00m,
+                TotalCommission = 58_200.00m,
+                TotalShipping = 32_400.00m,
+                TotalTax = 24_250.00m,
+                NetProfit = 125_150.00m,
+                ProfitMargin = 25.8m,
+                TotalOrders = 1_842,
+                ByPlatform = new List<PlatformProfitDto>
+                {
+                    new("Trendyol", 820, 195_000m, 98_000m, 23_400m, 13_000m, 9_750m, 50_850m, 26.1m),
+                    new("Hepsiburada", 412, 120_000m, 60_000m, 14_400m, 8_000m, 6_000m, 31_600m, 26.3m),
+                    new("Amazon", 285, 85_000m, 42_500m, 10_200m, 5_700m, 4_250m, 22_350m, 26.3m),
+                    new("N11", 180, 50_000m, 25_000m, 6_000m, 3_400m, 2_500m, 13_100m, 26.2m),
+                    new("Ciceksepeti", 145, 35_000m, 19_500m, 4_200m, 2_300m, 1_750m, 7_250m, 20.7m),
+                },
+                TopProfitableProducts = new List<ProductProfitDto>
+                {
+                    new(Guid.NewGuid(), "SKU-001", "Samsung Galaxy A54", 320, 96_000m, 48_000m, 28_800m, 30.0m),
+                },
+                LeastProfitableProducts = new List<ProductProfitDto>
+                {
+                    new(Guid.NewGuid(), "SKU-099", "USB Kablo 1m", 1200, 12_000m, 10_800m, -600m, -5.0m),
+                }
+            });
         _sut = new ProfitabilityReportViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
