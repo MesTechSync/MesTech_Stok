@@ -74,7 +74,7 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
                 var matches = await _mediator.Send(new GetReconciliationMatchesQuery(_currentUser.TenantId));
                 PendingMatchCount = matches.Count;
             }
-            catch { PendingMatchCount = 0; }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetReconciliationMatches failed: {ex.Message}"); PendingMatchCount = 0; }
 
             ApplyFilters();
         }
