@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -202,14 +202,14 @@ public class CiceksepetiAdapterHardeningTests : IClassFixture<WireMockFixture>, 
         // Arrange — point to a non-existent server port
         var httpClient = new HttpClient
         {
-            BaseAddress = new Uri("http://127.0.0.1:1"),
+            BaseAddress = new Uri("https://127.0.0.1:1"),
             Timeout = TimeSpan.FromSeconds(5)
         };
         var adapter = new CiceksepetiAdapter(httpClient, _logger);
         var creds = new Dictionary<string, string>
         {
             ["ApiKey"] = "cs-key",
-            ["BaseUrl"] = "http://127.0.0.1:1"
+            ["BaseUrl"] = "https://127.0.0.1:1"
         };
 
         // Act

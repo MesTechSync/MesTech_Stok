@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.AI;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +44,7 @@ public sealed class DlqMonitorService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"http://{rabbitHost}:{managementPort}";
+        var baseUrl = $"https://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =

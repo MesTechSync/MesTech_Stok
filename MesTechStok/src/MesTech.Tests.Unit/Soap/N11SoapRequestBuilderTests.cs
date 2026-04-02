@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Soap;
 using Xunit;
@@ -12,7 +12,7 @@ public class N11SoapRequestBuilderTests
     private const string TestSecret = "test-app-secret";
 
     [Fact]
-    public void BuildAuth_ContainsAppKeyAndSecret()
+    public void BuildAuth_WithValidCredentials_ShouldContainAppKeyAndSecret()
     {
         var auth = N11SoapRequestBuilder.BuildAuth(TestKey, TestSecret);
         auth.Element("appKey")!.Value.Should().Be(TestKey);
@@ -20,7 +20,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildAuth_EscapesXmlSpecialChars()
+    public void BuildAuth_WithXmlSpecialCharsInCredentials_ShouldEscapeXmlSpecialChars()
     {
         // XElement auto-escapes &, <, >, " in text content
         var auth = N11SoapRequestBuilder.BuildAuth("key<>&\"test", "secret<>&\"test");
@@ -29,7 +29,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildGetProducts_ContainsPaginationAndAuth()
+    public void BuildGetProducts_WithPaginationAndAuth_ShouldContainPaginationAndAuth()
     {
         var body = N11SoapRequestBuilder.BuildGetProducts(TestKey, TestSecret, 2, 50);
         var xml = body.ToString();
@@ -42,7 +42,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildSaveProduct_ContainsProductFields()
+    public void BuildSaveProduct_WithAllProductFields_ShouldContainAllProductFields()
     {
         var body = N11SoapRequestBuilder.BuildSaveProduct(
             TestKey, TestSecret, "SKU-001", "Test Product", 1001, 99.99m, 10, "Test desc");
@@ -57,7 +57,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildSaveProduct_WithoutDescription_OmitsElement()
+    public void BuildSaveProduct_WithoutDescription_ShouldOmitDescriptionElement()
     {
         var body = N11SoapRequestBuilder.BuildSaveProduct(
             TestKey, TestSecret, "SKU-002", "No Desc", 1002, 50.00m, 5);
@@ -65,7 +65,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildUpdateStock_ContainsProductIdAndQuantity()
+    public void BuildUpdateStock_WithProductIdAndQuantity_ShouldContainProductIdAndQuantity()
     {
         var body = N11SoapRequestBuilder.BuildUpdateStock(TestKey, TestSecret, 12345, 50);
         var xml = body.ToString();
@@ -75,7 +75,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildUpdatePrice_WithListPrice_ContainsOptionPrice()
+    public void BuildUpdatePrice_WithListPrice_ShouldContainOptionAndListPrice()
     {
         var body = N11SoapRequestBuilder.BuildUpdatePrice(TestKey, TestSecret, 12345, 199.99m, 249.99m);
         var xml = body.ToString();
@@ -87,14 +87,14 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildUpdatePrice_WithoutListPrice_NoOptionPrice()
+    public void BuildUpdatePrice_WithoutListPrice_ShouldNotContainOptionPrice()
     {
         var body = N11SoapRequestBuilder.BuildUpdatePrice(TestKey, TestSecret, 12345, 199.99m);
         body.ToString().Should().NotContain("optionPrice");
     }
 
     [Fact]
-    public void BuildGetOrders_WithStatus_ContainsStatusElement()
+    public void BuildGetOrders_WithStatus_ShouldContainStatusElement()
     {
         var body = N11SoapRequestBuilder.BuildGetOrders(TestKey, TestSecret, "New", 0, 50);
         var xml = body.ToString();
@@ -105,7 +105,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildGetOrders_WithoutStatus_NoStatusElement()
+    public void BuildGetOrders_WithoutStatus_ShouldNotContainStatusElement()
     {
         var body = N11SoapRequestBuilder.BuildGetOrders(TestKey, TestSecret, null, 0, 100);
         var searchData = body.Element("searchData");
@@ -114,7 +114,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildUpdateOrderStatus_ContainsOrderItemIdAndStatus()
+    public void BuildUpdateOrderStatus_WithOrderItemIdAndStatus_ShouldContainOrderItemIdAndStatus()
     {
         var body = N11SoapRequestBuilder.BuildUpdateOrderStatus(TestKey, TestSecret, 999, "Approved");
         var xml = body.ToString();
@@ -124,7 +124,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildGetCategories_TopLevel_HasAuthOnly()
+    public void BuildGetCategories_ForTopLevel_ShouldHaveCorrectRequestNameAndAuth()
     {
         var body = N11SoapRequestBuilder.BuildGetCategories(TestKey, TestSecret);
         body.Name.LocalName.Should().Be("GetTopLevelCategoriesRequest");
@@ -132,7 +132,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildGetSubCategories_ContainsParentId()
+    public void BuildGetSubCategories_WithParentId_ShouldContainParentId()
     {
         var body = N11SoapRequestBuilder.BuildGetSubCategories(TestKey, TestSecret, 1001);
         body.Name.LocalName.Should().Be("GetSubCategoriesRequest");
@@ -140,7 +140,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildUpdateShipment_ContainsShipmentFields()
+    public void BuildUpdateShipment_WithShipmentFields_ShouldContainShipmentFields()
     {
         var body = N11SoapRequestBuilder.BuildUpdateShipment(TestKey, TestSecret, 999, "Yurtici", "TR12345");
         var xml = body.ToString();
@@ -151,7 +151,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void BuildGetCities_HasCorrectRequestName()
+    public void BuildGetCities_WhenCalled_ShouldHaveCorrectRequestNameAndAuth()
     {
         var body = N11SoapRequestBuilder.BuildGetCities(TestKey, TestSecret);
         body.Name.LocalName.Should().Be("GetCitiesRequest");
@@ -159,7 +159,7 @@ public class N11SoapRequestBuilderTests
     }
 
     [Fact]
-    public void AllBuilders_UseN11Namespace()
+    public void AllBuilders_WhenCalled_ShouldUseN11Namespace()
     {
         XNamespace ns = "http://www.n11.com/ws/schemas";
 

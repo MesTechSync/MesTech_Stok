@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -23,16 +23,16 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public void Platform_ShouldBeN11()
+    public void Platform_ReturnsN11_WhenCalled()
     {
         _sut.Platform.Should().Be("N11");
     }
 
     [Fact]
-    public async Task ParseAsync_SoapXml_ShouldReturnBatch()
+    public async Task ParseAsync_SoapXmlInput_ReturnsCorrectBatchSummary()
     {
         var xml = """
-        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Envelope xmlns:soap="https://schemas.xmlsoap.org/soap/envelope/">
             <soap:Body>
                 <settlementResponse>
                     <settlementItem>
@@ -73,7 +73,7 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_PlainXml_ShouldFallback()
+    public async Task ParseAsync_PlainXmlInput_FallsBackAndReturnsCorrectBatchSummary()
     {
         var xml = """
         <settlements>
@@ -100,7 +100,7 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_EmptyXml_ShouldReturnEmptyBatch()
+    public async Task ParseAsync_EmptyXmlInput_ReturnsEmptyBatchSummary()
     {
         var xml = "<settlements></settlements>";
 
@@ -114,7 +114,7 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_TurkishDecimal_ShouldParse()
+    public async Task ParseAsync_TurkishDecimalFormat_ParsesCorrectly()
     {
         // N11 parser handles Turkish decimal format (comma separator)
         var xml = """
@@ -139,7 +139,7 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseLinesAsync_ValidBatch_ShouldReturnLines()
+    public async Task ParseLinesAsync_ValidBatch_ReturnsCorrectSettlementLines()
     {
         var xml = """
         <settlements>
@@ -171,7 +171,7 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseLinesAsync_WithoutParseAsync_ShouldReturnEmpty()
+    public async Task ParseLinesAsync_WithoutPriorParse_ReturnsEmptyLines()
     {
         var parser = new N11SettlementParser(_loggerMock.Object);
         var batch = MesTech.Domain.Accounting.Entities.SettlementBatch.Create(
@@ -182,21 +182,21 @@ public class N11SettlementParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_NullRawData_ThrowsArgumentNull()
+    public async Task ParseAsync_NullRawData_ThrowsArgumentNullException()
     {
         var act = async () => await _sut.ParseAsync(TestTenantId, null!, "xml");
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
-    public async Task ParseLinesAsync_NullBatch_ThrowsArgumentNull()
+    public async Task ParseLinesAsync_NullBatch_ThrowsArgumentNullException()
     {
         var act = async () => await _sut.ParseLinesAsync(null!);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
-    public async Task ParseAsync_AlternativeElementNames_ShouldParse()
+    public async Task ParseAsync_AlternativeElementNames_ParsesCorrectly()
     {
         // Uses English element names (orderNo, etc.) as fallback
         var xml = """

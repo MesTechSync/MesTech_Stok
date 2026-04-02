@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Xml.Linq;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Soap;
@@ -50,14 +50,14 @@ public class SimpleSoapClientTests
     // ── Constructor Guards ──
 
     [Fact]
-    public void Constructor_NullHttpClient_ThrowsArgumentNullException()
+    public void Constructor_WhenHttpClientIsNull_ThrowsArgumentNullException()
     {
         var act = () => new SimpleSoapClient(null!, _logger);
         act.Should().Throw<ArgumentNullException>().WithParameterName("httpClient");
     }
 
     [Fact]
-    public void Constructor_NullLogger_ThrowsArgumentNullException()
+    public void Constructor_WhenLoggerIsNull_ThrowsArgumentNullException()
     {
         var act = () => new SimpleSoapClient(new HttpClient(), null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
@@ -66,7 +66,7 @@ public class SimpleSoapClientTests
     // ── SendAsync ──
 
     [Fact]
-    public async Task SendAsync_ValidResponse_ReturnsParsedBodyElement()
+    public async Task SendAsync_WhenResponseIsValid_ReturnsParsedBodyElement()
     {
         var responseXml = BuildSoapResponse("<TestResponse><Value>42</Value></TestResponse>");
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.OK)
@@ -83,7 +83,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public async Task SendAsync_Non2xxStatus_ThrowsHttpRequestException()
+    public async Task SendAsync_WhenStatusIsNot2xx_ThrowsHttpRequestException()
     {
         // Use 400 BadRequest to avoid Polly retry delays (Polly only retries >= 500 and 429)
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -99,7 +99,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public async Task SendAsync_MissingBodyElement_ThrowsInvalidOperationException()
+    public async Task SendAsync_WhenBodyElementIsMissing_ThrowsInvalidOperationException()
     {
         // Response has no soapenv:Body
         const string malformed = """
@@ -123,7 +123,7 @@ public class SimpleSoapClientTests
     // ── ThrowIfFault ──
 
     [Fact]
-    public void ThrowIfFault_WithSoapFault_ThrowsInvalidOperationExceptionWithMessage()
+    public void ThrowIfFault_WhenSoapFaultExists_ThrowsInvalidOperationExceptionWithMessage()
     {
         const string faultXml = """
             <root>
@@ -142,7 +142,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public void ThrowIfFault_NoFault_DoesNotThrow()
+    public void ThrowIfFault_WhenNoFaultExists_DoesNotThrow()
     {
         const string cleanXml = "<TestResponse><Value>OK</Value></TestResponse>";
         var body = XElement.Parse(cleanXml);

@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using FluentAssertions;
@@ -129,7 +129,7 @@ public class ShopifyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public void PlatformCode_IsShopify()
+    public void PlatformCode_WhenCalled_ReturnsShopify()
     {
         var adapter = CreateAdapter();
         adapter.PlatformCode.Should().Be("Shopify");
@@ -140,7 +140,7 @@ public class ShopifyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task TestConnection_ValidShop_ReturnsSuccess()
+    public async Task TestConnection_WithValidCredentials_ReturnsSuccess()
     {
         // Arrange
         StubShopJson("My Test Store");
@@ -163,7 +163,7 @@ public class ShopifyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task TestConnection_NetworkError_ReturnsFailure()
+    public async Task TestConnection_WhenNetworkError_ReturnsFailure()
     {
         // Arrange — stub shop.json to return 401 Unauthorized
         _mockServer
@@ -190,7 +190,7 @@ public class ShopifyAdapterTests : IClassFixture<WireMockFixture>, IDisposable
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task PullProducts_Returns_Mapped()
+    public async Task PullProducts_WhenCalled_ReturnsMappedProducts()
     {
         // Arrange
         var productsJson = @"{""products"":[{""id"":1001,""title"":""Blue T-Shirt"",""status"":""active"",

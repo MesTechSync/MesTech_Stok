@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Domain.Enums;
@@ -113,7 +113,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -149,7 +149,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -179,7 +179,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(500)
                 .WithBody("Internal Server Error"));
@@ -209,7 +209,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(503)
                 .WithBody("Service Unavailable"));

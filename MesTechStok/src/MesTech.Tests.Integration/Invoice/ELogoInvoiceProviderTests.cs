@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.DTOs.Invoice;
@@ -28,7 +28,7 @@ public class ELogoInvoiceProviderTests : IClassFixture<WireMockFixture>, IDispos
     private readonly WireMockFixture _fixture;
     private readonly ILogger<ELogoInvoiceProvider> _logger;
 
-    private const string TestApiKey = "test-elogo-api-key-77777";
+    private const string TestApiKey = "SET_VIA_ENVIRONMENT_VARIABLE_OR_USER_SECRETS";
     private const string TestGibInvoiceId = "GIB2026031000001";
 
     public ELogoInvoiceProviderTests(WireMockFixture fixture)

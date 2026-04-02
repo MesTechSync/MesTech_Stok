@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -190,7 +190,7 @@ public class TrendyolAdapterHardeningTests : IClassFixture<WireMockFixture>, IDi
         // Arrange — point to a non-existent server port
         var httpClient = new HttpClient
         {
-            BaseAddress = new Uri("http://127.0.0.1:1"),
+            BaseAddress = new Uri("https://127.0.0.1:1"),
             Timeout = TimeSpan.FromSeconds(5)
         };
         var adapter = new TrendyolAdapter(httpClient, _logger);

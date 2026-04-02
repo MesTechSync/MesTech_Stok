@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Soap;
 using Xunit;
@@ -15,7 +15,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── ProductSellingService ──
 
     [Fact]
-    public void BuildActivateProductSelling_ContainsProductId()
+    public void BuildActivateProductSelling_WhenCalled_ContainsProductId()
     {
         var body = N11SoapRequestBuilder.BuildActivateProductSelling(TestKey, TestSecret, 12345);
         var xml = body.ToString();
@@ -27,7 +27,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     }
 
     [Fact]
-    public void BuildDeactivateProductSelling_ContainsProductId()
+    public void BuildDeactivateProductSelling_WhenCalled_ContainsProductId()
     {
         var body = N11SoapRequestBuilder.BuildDeactivateProductSelling(TestKey, TestSecret, 99999);
         var xml = body.ToString();
@@ -41,7 +41,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── InvoiceService ──
 
     [Fact]
-    public void BuildSendInvoice_ContainsOrderIdAndInvoiceNo()
+    public void BuildSendInvoice_WhenCalled_ContainsOrderIdAndInvoiceNo()
     {
         var date = new DateTime(2026, 3, 16);
         var body = N11SoapRequestBuilder.BuildSendInvoice(TestKey, TestSecret, 777, "INV-001", date);
@@ -58,7 +58,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── ClaimService ──
 
     [Fact]
-    public void BuildGetClaims_ContainsPagination()
+    public void BuildGetClaims_WhenCalled_ContainsPagination()
     {
         var body = N11SoapRequestBuilder.BuildGetClaims(TestKey, TestSecret, 0, 50);
         var xml = body.ToString();
@@ -71,7 +71,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     }
 
     [Fact]
-    public void BuildApproveClaim_ContainsClaimId()
+    public void BuildApproveClaim_WhenCalled_ContainsClaimId()
     {
         var body = N11SoapRequestBuilder.BuildApproveClaim(TestKey, TestSecret, 5555);
         var xml = body.ToString();
@@ -85,7 +85,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── SettlementService ──
 
     [Fact]
-    public void BuildGetSettlements_ContainsDateRange()
+    public void BuildGetSettlements_WhenCalled_ContainsDateRange()
     {
         var start = new DateTime(2026, 3, 1);
         var end = new DateTime(2026, 3, 31);
@@ -102,7 +102,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── CategoryService (attributes) ──
 
     [Fact]
-    public void BuildGetCategoryAttributes_ContainsCategoryId()
+    public void BuildGetCategoryAttributes_WhenCalled_ContainsCategoryId()
     {
         var body = N11SoapRequestBuilder.BuildGetCategoryAttributes(TestKey, TestSecret, 1001);
         var xml = body.ToString();
@@ -116,7 +116,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     // ── BrandService ──
 
     [Fact]
-    public void BuildGetBrands_ContainsPagination()
+    public void BuildGetBrands_WhenCalled_ContainsPagination()
     {
         var body = N11SoapRequestBuilder.BuildGetBrands(TestKey, TestSecret, 0, 100);
         var xml = body.ToString();
@@ -129,7 +129,7 @@ public class N11SoapRequestBuilderNewEndpointTests
     }
 
     [Fact]
-    public void AllNewBuilders_UseN11Namespace()
+    public void AllBuilders_WhenCalled_UseN11Namespace()
     {
         N11SoapRequestBuilder.BuildActivateProductSelling(TestKey, TestSecret, 1).Name.Namespace.Should().Be(Ns);
         N11SoapRequestBuilder.BuildDeactivateProductSelling(TestKey, TestSecret, 1).Name.Namespace.Should().Be(Ns);
