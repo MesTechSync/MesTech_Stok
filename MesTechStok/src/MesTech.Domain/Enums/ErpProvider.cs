@@ -13,5 +13,6 @@ public enum ErpProvider
     Nebim = 3,
     Parasut = 4,
     BizimHesap = 5,
-    Mikro = 6
+    Mikro = 6,
+    ERPNext = 7
 }

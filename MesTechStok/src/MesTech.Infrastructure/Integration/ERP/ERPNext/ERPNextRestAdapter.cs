@@ -18,8 +18,9 @@ namespace MesTech.Infrastructure.Integration.ERP.ERPNext;
 ///            GET /api/resource/{DocType}/{name} — reads documents.
 ///            GET /api/method/erpnext.accounts.utils.get_balance_on — GL balance.
 /// Implements IERPAdapter for compatibility with ERPAdapterFactory.
+/// Also implements IErpAdapter (Dalga 11 modern interface) for unified ERP access.
 /// </summary>
-public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interfaces.IErpBridgeService
+public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interfaces.Erp.IErpAdapter, MesTech.Application.Interfaces.IErpBridgeService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ERPNextRestAdapter> _logger;
@@ -32,6 +33,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
     };
 
     public string ERPName => "ERPNext";
+    public MesTech.Domain.Enums.ErpProvider Provider => MesTech.Domain.Enums.ErpProvider.ERPNext;
 
     public ERPNextRestAdapter(
         HttpClient httpClient,
@@ -320,4 +322,52 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
         if (!_options.IsConfigured)
             throw new InvalidOperationException("ERPNext is not configured. Set ERP:ERPNext section in appsettings.json.");
     }
+
+    // ═══ IErpAdapter (Dalga 11) ═══
+
+    public async Task<MesTech.Application.DTOs.ERP.ErpSyncResult> SyncOrderAsync(Guid orderId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[ERPNext] SyncOrderAsync: {OrderId}", orderId);
+
+        var docName = await PostResourceAsync("Sales Order", new
+        {
+            customer = "MesTech-Default",
+            transaction_date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+            custom_mestech_order_id = orderId.ToString()
+        }, ct).ConfigureAwait(false);
+
+        return docName is not null
+            ? MesTech.Application.DTOs.ERP.ErpSyncResult.Ok(docName)
+            : MesTech.Application.DTOs.ERP.ErpSyncResult.Fail("ERPNext Sales Order creation failed");
+    }
+
+    public async Task<MesTech.Application.DTOs.ERP.ErpSyncResult> SyncInvoiceAsync(Guid invoiceId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[ERPNext] SyncInvoiceAsync: {InvoiceId}", invoiceId);
+
+        var docName = await PostResourceAsync("Sales Invoice", new
+        {
+            customer = "MesTech-Default",
+            posting_date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+            custom_mestech_invoice_id = invoiceId.ToString()
+        }, ct).ConfigureAwait(false);
+
+        return docName is not null
+            ? MesTech.Application.DTOs.ERP.ErpSyncResult.Ok(docName)
+            : MesTech.Application.DTOs.ERP.ErpSyncResult.Fail("ERPNext Sales Invoice creation failed");
+    }
+
+    public async Task<IReadOnlyList<MesTech.Application.DTOs.ERP.ErpAccountDto>> GetAccountBalancesAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var balance = await GetBalanceAsync("1200 - Debtors - MES", ct).ConfigureAwait(false);
+        return new[]
+        {
+            new MesTech.Application.DTOs.ERP.ErpAccountDto("1200", "Debtors", balance, "TRY")
+        };
+    }
+
+    public Task<bool> PingAsync(CancellationToken ct = default) => TestConnectionAsync(ct);
 }
