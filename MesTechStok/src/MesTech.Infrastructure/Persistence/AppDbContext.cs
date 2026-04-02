@@ -369,6 +369,7 @@ public class AppDbContext : DbContext
             e.HasIndex(p => p.Barcode);
             e.HasIndex(p => p.IsActive);
             e.Property(p => p.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<StockMovement>(e =>
@@ -377,6 +378,7 @@ public class AppDbContext : DbContext
             e.HasIndex(s => s.ProductId);
             e.HasIndex(s => s.Date);
             e.Property(s => s.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<Order>(e =>
@@ -385,6 +387,7 @@ public class AppDbContext : DbContext
             e.HasIndex(o => o.OrderNumber).IsUnique();
             e.HasIndex(o => o.CustomerId);
             e.Property(o => o.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<Category>(e =>
@@ -397,6 +400,7 @@ public class AppDbContext : DbContext
         {
             e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Customers_TenantId");
             e.Property(c => c.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<Warehouse>(e =>
@@ -454,6 +458,7 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             e.Property(i => i.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         // InvoiceLine
@@ -544,6 +549,7 @@ public class AppDbContext : DbContext
             e.Property(r => r.RefundAmount).HasPrecision(18, 2);
             e.Property(r => r.CustomerName).HasMaxLength(300);
             e.Property(r => r.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         // AccountTransaction
@@ -563,6 +569,7 @@ public class AppDbContext : DbContext
         {
             e.HasIndex(a => a.TenantId).HasDatabaseName("IX_CustomerAccounts_TenantId");
             e.Property(a => a.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         // SupplierAccount
@@ -973,6 +980,7 @@ public class AppDbContext : DbContext
             e.Property(l => l.Description).HasMaxLength(500);
             e.HasOne(l => l.Account).WithMany().HasForeignKey(l => l.AccountId).OnDelete(DeleteBehavior.Restrict);
             e.Property(l => l.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<SettlementBatch>(e =>
@@ -986,6 +994,7 @@ public class AppDbContext : DbContext
             e.HasIndex(s => new { s.TenantId, s.Platform, s.PeriodStart }).HasDatabaseName("IX_SettlementBatches_Tenant_Platform_Period");
             e.HasMany(s => s.Lines).WithOne(l => l.SettlementBatch).HasForeignKey(l => l.SettlementBatchId).OnDelete(DeleteBehavior.Cascade);
             e.Property(s => s.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<SettlementLine>(e =>
@@ -999,6 +1008,7 @@ public class AppDbContext : DbContext
             e.Property(l => l.RefundDeduction).HasPrecision(18, 2);
             e.Property(l => l.NetAmount).HasPrecision(18, 2);
             e.Property(l => l.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<CommissionRecord>(e =>
@@ -1014,6 +1024,7 @@ public class AppDbContext : DbContext
             e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CommissionRecords_TenantId");
             e.HasIndex(c => new { c.TenantId, c.Platform }).HasDatabaseName("IX_CommissionRecords_Tenant_Platform");
             e.Property(c => c.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<CargoExpense>(e =>
@@ -1039,6 +1050,7 @@ public class AppDbContext : DbContext
                 .HasFilter("\"IdempotencyKey\" IS NOT NULL")
                 .HasDatabaseName("IX_AccountingBankTransactions_Tenant_IdempotencyKey");
             e.Property(t => t.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<ReconciliationMatch>(e =>
@@ -1049,6 +1061,7 @@ public class AppDbContext : DbContext
             e.HasIndex(m => m.TenantId).HasDatabaseName("IX_ReconciliationMatches_TenantId");
             e.HasIndex(m => new { m.TenantId, m.Status }).HasDatabaseName("IX_ReconciliationMatches_Tenant_Status");
             e.Property(m => m.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<AccountingDocument>(e =>
@@ -1062,6 +1075,7 @@ public class AppDbContext : DbContext
             e.HasIndex(d => new { d.TenantId, d.DocumentType }).HasDatabaseName("IX_AccountingDocuments_Tenant_Type");
             e.HasOne(d => d.Counterparty).WithMany().HasForeignKey(d => d.CounterpartyId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
             e.Property(d => d.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<PersonalExpense>(e =>
@@ -1095,6 +1109,7 @@ public class AppDbContext : DbContext
             e.HasIndex(t => t.TenantId).HasDatabaseName("IX_TaxRecords_TenantId");
             e.HasIndex(t => new { t.TenantId, t.Period }).HasDatabaseName("IX_TaxRecords_Tenant_Period");
             e.Property(t => t.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<TaxWithholding>(e =>
@@ -1107,6 +1122,7 @@ public class AppDbContext : DbContext
             e.HasIndex(w => w.TenantId).HasDatabaseName("IX_TaxWithholdings_TenantId");
             e.HasIndex(w => w.InvoiceId).HasDatabaseName("IX_TaxWithholdings_InvoiceId");
             e.Property(w => w.RowVersion).IsRowVersion();
+            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<CashFlowEntry>(e =>

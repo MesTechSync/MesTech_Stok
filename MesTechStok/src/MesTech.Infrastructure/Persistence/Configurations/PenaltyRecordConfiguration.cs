@@ -24,5 +24,6 @@ public sealed class PenaltyRecordConfiguration : IEntityTypeConfiguration<Penalt
         builder.Property(e => e.Amount).HasPrecision(18, 2);
 
         builder.Property(e => e.RowVersion).IsRowVersion();
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

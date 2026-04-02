@@ -20,5 +20,6 @@ public sealed class ProductWarehouseStockConfiguration : IEntityTypeConfiguratio
             .HasDatabaseName("IX_ProductWarehouseStocks_Tenant_Warehouse");
 
         builder.Property(e => e.RowVersion).IsRowVersion();
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

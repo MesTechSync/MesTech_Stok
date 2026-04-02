@@ -19,5 +19,6 @@ public sealed class PaymentTransactionConfiguration : IEntityTypeConfiguration<P
             .HasDatabaseName("IX_PaymentTransactions_Tenant_Status");
 
         builder.Property(p => p.RowVersion).IsRowVersion();
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }
