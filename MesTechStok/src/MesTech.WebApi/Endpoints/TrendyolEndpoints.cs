@@ -31,12 +31,8 @@ public static class TrendyolEndpoints
                     statusCode: 503);
 
             var products = await adapter.PullProductsAsync(ct);
-            return Results.Ok(new
-            {
-                platform = "Trendyol",
-                count = products.Count,
-                products
-            });
+            return Results.Ok(new PlatformEndpointHelper.PlatformProductsResponse(
+                "Trendyol", products.Count, products));
         })
         .WithName("GetTrendyolProducts")
         .WithSummary("Trendyol urunlerini cek — API uzerinden platform verisi")
@@ -54,12 +50,9 @@ public static class TrendyolEndpoints
                 return Results.Problem(detail: "Trendyol adapter bulunamadi.", statusCode: 503);
 
             var categories = await adapter.GetCategoriesAsync(ct);
-            return Results.Ok(new
-            {
-                platform = "Trendyol",
-                count = categories.Count,
-                categories
-            });
+            return Results.Ok(new PlatformEndpointHelper.PlatformCategoriesResponse(
+                "Trendyol",
+                categories.Count, categories));
         })
         .WithName("GetTrendyolCategories")
         .WithSummary("Trendyol kategori listesi — platform kategori eslemesi icin")
@@ -77,16 +70,10 @@ public static class TrendyolEndpoints
                 return Results.Problem(detail: "Trendyol adapter bulunamadi.", statusCode: 503);
 
             var result = await adapter.TestConnectionAsync(new Dictionary<string, string>(), ct);
-            return Results.Ok(new
-            {
-                platform = "Trendyol",
-                isConnected = result.IsSuccess,
-                storeName = result.StoreName,
-                productCount = result.ProductCount,
-                errorMessage = result.ErrorMessage,
-                responseTimeMs = result.ResponseTime.TotalMilliseconds,
-                testedAt = DateTime.UtcNow
-            });
+            return Results.Ok(new PlatformEndpointHelper.PlatformConnectionResponse(
+                "Trendyol", result.IsSuccess, result.StoreName,
+                result.ProductCount, result.ErrorMessage,
+                result.ResponseTime.TotalMilliseconds));
         })
         .WithName("TestTrendyolConnection")
         .WithSummary("Trendyol API baglanti testi — credential dogrulama")
