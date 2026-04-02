@@ -17,18 +17,18 @@ namespace MesTech.Infrastructure.Integration.Jobs;
 /// </summary>
 public sealed class SocialFeedRefreshJob
 {
-    private readonly AppDbContext _dbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly IEnumerable<ISocialFeedAdapter> _adapters;
     private readonly ILogger<SocialFeedRefreshJob> _logger;
 
     private static readonly TimeSpan ThrottleDelay = TimeSpan.FromSeconds(30);
 
     public SocialFeedRefreshJob(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         IEnumerable<ISocialFeedAdapter> adapters,
         ILogger<SocialFeedRefreshJob> logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         _adapters = adapters ?? throw new ArgumentNullException(nameof(adapters));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -38,7 +38,9 @@ public sealed class SocialFeedRefreshJob
     {
         _logger.LogInformation("[SocialFeedRefresh] Starting feed refresh cycle at {Time}", DateTime.UtcNow);
 
-        var configs = await _dbContext.Set<SocialFeedConfiguration>()
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+
+        var configs = await dbContext.Set<SocialFeedConfiguration>()
             .Where(c => c.IsActive)
             .OrderBy(c => c.Id)
             .Take(1000)
@@ -69,7 +71,7 @@ public sealed class SocialFeedRefreshJob
                 await Task.Delay(wait, ct).ConfigureAwait(false);
             }
 
-            await RefreshSingleFeedAsync(config, adapterMap, ct).ConfigureAwait(false);
+            await RefreshSingleFeedAsync(dbContext, config, adapterMap, ct).ConfigureAwait(false);
             lastRunAt = DateTime.UtcNow;
         }
 
@@ -79,6 +81,7 @@ public sealed class SocialFeedRefreshJob
     // ── Private helpers ───────────────────────────────────────────────────────
 
     private async Task RefreshSingleFeedAsync(
+        AppDbContext dbContext,
         SocialFeedConfiguration config,
         Dictionary<SocialFeedPlatform, ISocialFeedAdapter> adapterMap,
         CancellationToken ct)
@@ -92,7 +95,7 @@ public sealed class SocialFeedRefreshJob
             var msg = $"No adapter registered for platform {config.Platform}.";
             _logger.LogWarning("[SocialFeedRefresh] {Message} Config={ConfigId}", msg, config.Id);
             config.RecordError(msg);
-            await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
             return;
         }
 
@@ -149,7 +152,7 @@ public sealed class SocialFeedRefreshJob
         }
         finally
         {
-            await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
