@@ -52,13 +52,9 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var dashboardTask = _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
-            var stockTask = _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
-
-            await Task.WhenAll(dashboardTask, stockTask);
-
-            var dashboard = await dashboardTask;
-            var stock = await stockTask;
+            // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
+            var dashboard = await _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
+            var stock = await _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
 
             // Sales Report
             TotalSales = $"{dashboard.MonthlySalesAmount:N0} TL";

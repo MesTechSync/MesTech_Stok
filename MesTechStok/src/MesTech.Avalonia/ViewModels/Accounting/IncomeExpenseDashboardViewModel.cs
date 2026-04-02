@@ -42,13 +42,9 @@ public partial class IncomeExpenseDashboardViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var summaryTask = _mediator.Send(new GetIncomeExpenseSummaryQuery(_currentUser.TenantId), ct);
-            var listTask = _mediator.Send(new GetIncomeExpenseListQuery(_currentUser.TenantId, PageSize: 10), ct);
-
-            await Task.WhenAll(summaryTask, listTask);
-
-            var summary = await summaryTask;
-            var list = await listTask;
+            // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
+            var summary = await _mediator.Send(new GetIncomeExpenseSummaryQuery(_currentUser.TenantId), ct);
+            var list = await _mediator.Send(new GetIncomeExpenseListQuery(_currentUser.TenantId, PageSize: 10), ct);
 
             RecentTransactions.Clear();
 

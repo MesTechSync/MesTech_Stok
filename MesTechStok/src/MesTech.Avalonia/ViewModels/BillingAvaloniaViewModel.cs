@@ -44,12 +44,9 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
         ErrorMessage = string.Empty;
         try
         {
-            var subTask = _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
-            var invTask = _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
-            await Task.WhenAll(subTask, invTask);
-
-            var subscription = await subTask;
-            var invoices = await invTask;
+            // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
+            var invoices = await _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
 
             CurrentPlan = subscription?.PlanName ?? "—";
             NextBillingDate = subscription?.NextBillingDate?.ToString("yyyy-MM-dd") ?? "—";
