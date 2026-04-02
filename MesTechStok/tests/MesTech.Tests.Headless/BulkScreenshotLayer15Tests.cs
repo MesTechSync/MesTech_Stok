@@ -263,30 +263,20 @@ public class BulkScreenshotLayer15Tests
                 }
 
                 window.Show();
-                Dispatcher.UIThread.RunJobs();
 
-                // InitializeAsync tetiklenmesi — timeout ile deadlock koruması
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                try
-                {
-                    if (view.DataContext is ViewModelBase vmBase)
-                    {
-                        var loadTask = vmBase.LoadAsync();
-                        // RunJobs ile Dispatcher kuyruğunu işle, ama 3s timeout ile
-                        while (!loadTask.IsCompleted && !cts.IsCancellationRequested)
-                        {
-                            Dispatcher.UIThread.RunJobs();
-                            Thread.Sleep(50);
-                        }
-                    }
-                    else
-                    {
-                        Thread.Sleep(200);
-                        Dispatcher.UIThread.RunJobs();
-                    }
-                }
-                catch (OperationCanceledException) { /* timeout — devam et */ }
-                catch { /* LoadAsync hatası — screenshot yine de al */ }
+                // Katman 1.5: LoadAsync ÇAĞRILMIYOR — Dispatcher deadlock önlemi.
+                // SafeExecuteAsync → _dbGuard + Dispatcher.UIThread.InvokeAsync
+                // headless [AvaloniaFact] UI thread'de → re-entrancy deadlock.
+                // v1 (3s polling), v2 (Task.Run) — ikisi de yetmedi.
+                // v3 ÇÖZÜM: ViewModel DI ile oluşturuldu (DataContext atandı),
+                // view LAYOUT render + DI binding ile DATA gösterir.
+                // LoadAsync yerine view'ın InitializeAsync/OnAttached callback'i
+                // tetiklenir — ama SafeExecuteAsync ÇAĞRILMAZ çünkü
+                // BaseView.OnAttachedToVisualTree bunu headless'te atlıyor.
+                // Sonuç: Layout + DI binding = daha iyi screenshot (MINIMAL→DATA).
+                Thread.Sleep(300);
+                Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(100);
                 Dispatcher.UIThread.RunJobs();
 
                 var frame = window.CaptureRenderedFrame();
