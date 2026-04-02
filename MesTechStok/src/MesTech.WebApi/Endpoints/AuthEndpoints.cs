@@ -143,12 +143,10 @@ public static class AuthEndpoints
 
             var (valid, userId, tenantId) = jwtService.ValidateToken(request.Token);
 
-            return Results.Ok(new
-            {
+            return Results.Ok(new TokenValidationResponse(
                 valid,
-                userId = valid ? userId : (Guid?)null,
-                tenantId = valid ? tenantId : (Guid?)null
-            });
+                valid ? userId : null,
+                valid ? tenantId : null));
         })
         .WithName("ValidateToken")
         .WithSummary("JWT token doğrulama — geçerlilik, userId, tenantId")
@@ -358,4 +356,5 @@ public static class AuthEndpoints
         bool Success, string? Token, string? RefreshToken, DateTime? ExpiresAt, string? Error);
 
     public record RevokeTokenRequest(string RefreshToken);
+    public record TokenValidationResponse(bool Valid, Guid? UserId, Guid? TenantId);
 }
