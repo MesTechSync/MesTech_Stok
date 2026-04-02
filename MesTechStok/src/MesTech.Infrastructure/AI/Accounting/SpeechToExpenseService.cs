@@ -65,7 +65,9 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         _logger = logger;
 
         _httpClient.BaseAddress ??= new Uri("http://localhost:3101");
-        _httpClient.Timeout = TimeSpan.FromSeconds(_configuration.GetValue("Mesa:SpeechToExpense:TimeoutSeconds", 30));
+        var timeoutSection = _configuration.GetSection("Mesa:SpeechToExpense:TimeoutSeconds");
+        var timeoutSeconds = timeoutSection.Exists() && int.TryParse(timeoutSection.Value, out var t) ? t : 30;
+        _httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     }
 
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(
