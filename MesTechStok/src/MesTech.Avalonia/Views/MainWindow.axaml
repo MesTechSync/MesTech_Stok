@@ -217,9 +217,9 @@
                             <TextBlock Classes="sidebar-section" Text="ANA SAYFA"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
+                                    AutomationProperties.Name="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
                                     Command="{Binding NavigateToCommand}"
-                                    CommandParameter="AppHub"
-                                    AutomationProperties.Name="Ana Sayfa Hub">
+                                    CommandParameter="AppHub">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconHome}" Width="16" Height="16"/>
                                     <TextBlock Text="Ana Sayfa" FontWeight="SemiBold"/>
@@ -230,6 +230,7 @@
                             <TextBlock Classes="sidebar-section" Text="DASHBOARD"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kontrol Paneli"
+                                    AutomationProperties.Name="Kontrol Paneli"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Dashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -242,6 +243,7 @@
                             <TextBlock Classes="sidebar-section" Text="ÜRÜNLER"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Urun Listesi"
+                                    AutomationProperties.Name="Urun Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Products">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -251,6 +253,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Toplu Ice Aktarma"
+                                    AutomationProperties.Name="Toplu Ice Aktarma"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportProducts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -263,6 +266,7 @@
                             <TextBlock Classes="sidebar-section" Text="SİPARİŞLER"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Siparisler"
+                                    AutomationProperties.Name="Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Orders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -275,6 +279,7 @@
                             <TextBlock Classes="sidebar-section" Text="STOK"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Stok Takibi"
+                                    AutomationProperties.Name="Stok Takibi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Stock">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -284,6 +289,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Envanter"
+                                    AutomationProperties.Name="Envanter"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Inventory">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -293,6 +299,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Stok Guncelleme"
+                                    AutomationProperties.Name="Stok Guncelleme"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StockMovement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -300,42 +307,42 @@
                                     <TextBlock Text="Stok Güncelleme"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Yerlesim"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Yerlesim" AutomationProperties.Name="Stok Yerlesim"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockPlacement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Stok Yerlesim"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Lot Ekleme"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Lot Ekleme" AutomationProperties.Name="Lot Ekleme"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockLot">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Lot Ekleme"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Depolar Arasi Transfer"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Depolar Arasi Transfer" AutomationProperties.Name="Depolar Arasi Transfer"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockTransfer">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Depolar Arasi Transfer"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Uyarilari"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Uyarilari" AutomationProperties.Name="Stok Uyarilari"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockAlert">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Stok Uyarilari"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Depo Yonetimi"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Depo Yonetimi" AutomationProperties.Name="Depo Yonetimi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="Warehouse">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/>
                                     <TextBlock Text="Depo Yonetimi"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Gecmisi"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Gecmisi" AutomationProperties.Name="Stok Hareket Gecmisi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockTimeline">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
@@ -347,6 +354,7 @@
                             <TextBlock Classes="sidebar-section" Text="KATEGORİLER"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kategoriler"
+                                    AutomationProperties.Name="Kategoriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Category">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -360,6 +368,7 @@
                                        IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kargo Takip"
+                                    AutomationProperties.Name="Kargo Takip"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CargoTracking"
                                     IsVisible="{Binding ShowCargo}">
@@ -370,6 +379,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kargo Firmalari"
+                                    AutomationProperties.Name="Kargo Firmalari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CargoProviders"
                                     IsVisible="{Binding ShowCargo}">
@@ -380,6 +390,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Toplu Gonderim"
+                                    AutomationProperties.Name="Toplu Gonderim"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BulkShipment"
                                     IsVisible="{Binding ShowCargo}">
@@ -390,6 +401,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Etiket Yazdir"
+                                    AutomationProperties.Name="Etiket Yazdir"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="LabelPreview"
                                     IsVisible="{Binding ShowCargo}">
@@ -404,6 +416,7 @@
                                        IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Iade Listesi"
+                                    AutomationProperties.Name="Iade Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ReturnList"
                                     IsVisible="{Binding ShowCargo}">
@@ -418,6 +431,7 @@
                                        IsVisible="{Binding ShowInvoice}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Yonetimi"
+                                    AutomationProperties.Name="Fatura Yonetimi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceManagement"
                                     IsVisible="{Binding ShowInvoice}">
@@ -428,6 +442,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Listesi"
+                                    AutomationProperties.Name="Fatura Listesi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceList"
                                     IsVisible="{Binding ShowInvoice}">
@@ -438,6 +453,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Olustur"
+                                    AutomationProperties.Name="Fatura Olustur"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceCreate"
                                     IsVisible="{Binding ShowInvoice}">
@@ -448,6 +464,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Toplu Fatura"
+                                    AutomationProperties.Name="Toplu Fatura"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BulkInvoice"
                                     IsVisible="{Binding ShowInvoice}">
@@ -458,6 +475,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Provider Ayarlari"
+                                    AutomationProperties.Name="Provider Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceProviders"
                                     IsVisible="{Binding ShowInvoice}">
@@ -468,6 +486,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fatura Raporlari"
+                                    AutomationProperties.Name="Fatura Raporlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="InvoiceReport"
                                     IsVisible="{Binding ShowInvoice}">
@@ -482,6 +501,7 @@
                                        IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kar / Zarar Raporu"
+                                    AutomationProperties.Name="Kar / Zarar Raporu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ProfitLoss"
                                     IsVisible="{Binding ShowReports}">
@@ -492,6 +512,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Giderler"
+                                    AutomationProperties.Name="Giderler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Expenses"
                                     IsVisible="{Binding ShowReports}">
@@ -502,6 +523,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Banka Hesaplari"
+                                    AutomationProperties.Name="Banka Hesaplari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="BankAccounts"
                                     IsVisible="{Binding ShowReports}">
@@ -512,6 +534,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Cari Hesaplar"
+                                    AutomationProperties.Name="Cari Hesaplar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CariHesaplar"
                                     IsVisible="{Binding ShowReports}">
@@ -522,6 +545,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Nakit Akisi"
+                                    AutomationProperties.Name="Nakit Akisi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="NakitAkis"
                                     IsVisible="{Binding ShowReports}">
@@ -532,6 +556,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Teklif Yonetimi"
+                                    AutomationProperties.Name="Teklif Yonetimi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Quotation"
                                     IsVisible="{Binding ShowReports}">
@@ -542,6 +567,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Abonelik ve Faturalama"
+                                    AutomationProperties.Name="Abonelik ve Faturalama"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Billing"
                                     IsVisible="{Binding ShowReports}">
@@ -556,6 +582,7 @@
                                        IsVisible="{Binding ShowAnalytics}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Yevmiye Defteri"
+                                    AutomationProperties.Name="Yevmiye Defteri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="JournalEntries"
                                     IsVisible="{Binding ShowAnalytics}">
@@ -566,6 +593,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Mizan"
+                                    AutomationProperties.Name="Mizan"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="TrialBalance"
                                     IsVisible="{Binding ShowAnalytics}">
@@ -576,6 +604,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Komisyon Oranlari"
+                                    AutomationProperties.Name="Komisyon Oranlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CommissionRates"
                                     IsVisible="{Binding ShowAnalytics}">
@@ -584,7 +613,7 @@
                                     <TextBlock Text="Komisyon Oranları"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Paneli"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Paneli" AutomationProperties.Name="Muhasebe Paneli"
                                     Command="{Binding NavigateToCommand}" CommandParameter="AccountingDashboard"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -592,7 +621,7 @@
                                     <TextBlock Text="Muhasebe Paneli"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Fisleri"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Muhasebe Fisleri" AutomationProperties.Name="Muhasebe Fisleri"
                                     Command="{Binding NavigateToCommand}" CommandParameter="GLTransaction"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -600,7 +629,7 @@
                                     <TextBlock Text="Muhasebe Fisleri"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Kar / Zarar"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Kar / Zarar" AutomationProperties.Name="Kar / Zarar"
                                     Command="{Binding NavigateToCommand}" CommandParameter="KarZarar"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -608,7 +637,7 @@
                                     <TextBlock Text="Kar / Zarar"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Gelir / Gider"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Gelir / Gider" AutomationProperties.Name="Gelir / Gider"
                                     Command="{Binding NavigateToCommand}" CommandParameter="GelirGider"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -616,7 +645,7 @@
                                     <TextBlock Text="Gelir / Gider"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Karlilik Analizi"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Karlilik Analizi" AutomationProperties.Name="Karlilik Analizi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="KarlilikAnalizi"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -624,7 +653,7 @@
                                     <TextBlock Text="Karlilik Analizi"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="KDV Raporu"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="KDV Raporu" AutomationProperties.Name="KDV Raporu"
                                     Command="{Binding NavigateToCommand}" CommandParameter="KdvRapor"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -632,7 +661,7 @@
                                     <TextBlock Text="KDV Raporu"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Mutabakat"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Mutabakat" AutomationProperties.Name="Mutabakat"
                                     Command="{Binding NavigateToCommand}" CommandParameter="Mutabakat"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -645,6 +674,7 @@
                             <TextBlock Classes="sidebar-section" Text="İZLEME"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Gecikmis Siparisler"
+                                    AutomationProperties.Name="Gecikmis Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StaleOrders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -654,6 +684,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Siparis Kanban"
+                                    AutomationProperties.Name="Siparis Kanban"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="OrderKanban">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -667,6 +698,7 @@
                                        IsVisible="{Binding ShowCrm}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Potansiyel Musteriler"
+                                    AutomationProperties.Name="Potansiyel Musteriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Leads"
                                     IsVisible="{Binding ShowCrm}">
@@ -677,6 +709,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kisiler"
+                                    AutomationProperties.Name="Kisiler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Contacts"
                                     IsVisible="{Binding ShowCrm}">
@@ -687,6 +720,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Firsatlar — Kanban"
+                                    AutomationProperties.Name="Firsatlar — Kanban"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Kanban"
                                     IsVisible="{Binding ShowCrm}">
@@ -697,6 +731,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Musteriler"
+                                    AutomationProperties.Name="Musteriler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Customers"
                                     IsVisible="{Binding ShowCrm}">
@@ -711,6 +746,7 @@
                                        IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Platformlar"
+                                    AutomationProperties.Name="Platformlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformList"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -721,6 +757,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Magaza Ekle"
+                                    AutomationProperties.Name="Magaza Ekle"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StoreWizard"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -731,6 +768,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Magaza Ayarlari"
+                                    AutomationProperties.Name="Magaza Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StoreSettings"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -741,6 +779,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Kategori Eslestirme"
+                                    AutomationProperties.Name="Kategori Eslestirme"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CategoryMapping"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -751,6 +790,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Sync Durumu"
+                                    AutomationProperties.Name="Sync Durumu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformSyncStatus"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -761,6 +801,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Sync Gecmisi"
+                                    AutomationProperties.Name="Sync Gecmisi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformSyncHistory"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -771,6 +812,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Baglanti Testi"
+                                    AutomationProperties.Name="Baglanti Testi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="PlatformConnectionTest"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -785,6 +827,7 @@
                                        IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Dropship Paneli"
+                                    AutomationProperties.Name="Dropship Paneli"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipDashboard"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -795,6 +838,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Dropship Siparisler"
+                                    AutomationProperties.Name="Dropship Siparisler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipOrders"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -805,6 +849,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Karlilik Analizi"
+                                    AutomationProperties.Name="Karlilik Analizi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="DropshipProfit"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -815,6 +860,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Tedarikci Feed'leri"
+                                    AutomationProperties.Name="Tedarikci Feed'leri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SupplierFeeds"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -825,6 +871,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Yeni Feed"
+                                    AutomationProperties.Name="Yeni Feed"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FeedCreate"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -835,6 +882,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Ice Aktarma Ayarlari"
+                                    AutomationProperties.Name="Ice Aktarma Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportSettings"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -849,6 +897,7 @@
                                        IsVisible="{Binding ShowMultiPlatform}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Buybox Analizi"
+                                    AutomationProperties.Name="Buybox Analizi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Buybox"
                                     IsVisible="{Binding ShowMultiPlatform}">
@@ -863,6 +912,7 @@
                                        IsVisible="{Binding ShowCargo}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Dashboard"
+                                    AutomationProperties.Name="Fulfillment Dashboard"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FulfillmentDashboard"
                                     IsVisible="{Binding ShowCargo}">
@@ -873,6 +923,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Inbound Gonderimler"
+                                    AutomationProperties.Name="Inbound Gonderimler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FulfillmentInbound"
                                     IsVisible="{Binding ShowCargo}">
@@ -883,6 +934,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Envanter"
+                                    AutomationProperties.Name="Fulfillment Envanter"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FulfillmentInventory"
                                     IsVisible="{Binding ShowCargo}">
@@ -893,6 +945,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Fulfillment Ayarlari"
+                                    AutomationProperties.Name="Fulfillment Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="FulfillmentSettings"
                                     IsVisible="{Binding ShowCargo}">
@@ -907,6 +960,7 @@
                                        IsVisible="{Binding ShowAnalytics}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="ERP Dashboard"
+                                    AutomationProperties.Name="ERP Dashboard"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ErpDashboard"
                                     IsVisible="{Binding ShowAnalytics}">
@@ -917,6 +971,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Cari Esleme"
+                                    AutomationProperties.Name="Cari Esleme"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ErpAccountMapping"
                                     IsVisible="{Binding ShowAnalytics}">
@@ -931,6 +986,7 @@
                                        IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Gelir Gider Dashboard"
+                                    AutomationProperties.Name="Gelir Gider Dashboard"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="IncomeExpenseDashboard"
                                     IsVisible="{Binding ShowReports}">
@@ -941,6 +997,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Gelir Gider Kayitlari"
+                                    AutomationProperties.Name="Gelir Gider Kayitlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="IncomeExpenseList"
                                     IsVisible="{Binding ShowReports}">
@@ -951,6 +1008,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Karlilik Raporu"
+                                    AutomationProperties.Name="Karlilik Raporu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ProfitabilityReport"
                                     IsVisible="{Binding ShowReports}">
@@ -965,6 +1023,7 @@
                                        IsVisible="{Binding ShowReports}"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Belgeler"
+                                    AutomationProperties.Name="Belgeler"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Documents"
                                     IsVisible="{Binding ShowReports}">
@@ -975,6 +1034,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Raporlar"
+                                    AutomationProperties.Name="Raporlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Reports"
                                     IsVisible="{Binding ShowReports}">
@@ -985,6 +1045,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Nakit Akis Raporu"
+                                    AutomationProperties.Name="Nakit Akis Raporu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="CashFlowReport"
                                     IsVisible="{Binding ShowReports}">
@@ -995,6 +1056,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Satis Analizi"
+                                    AutomationProperties.Name="Satis Analizi"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SalesAnalytics"
                                     IsVisible="{Binding ShowReports}">
@@ -1005,6 +1067,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Stok Deger Raporu"
+                                    AutomationProperties.Name="Stok Deger Raporu"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StockValueReport"
                                     IsVisible="{Binding ShowReports}">
@@ -1018,6 +1081,7 @@
                             <TextBlock Classes="sidebar-section" Text="AYARLAR"/>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Ayarlar"
+                                    AutomationProperties.Name="Ayarlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Settings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1027,6 +1091,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="ERP Ayarlari"
+                                    AutomationProperties.Name="ERP Ayarlari"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ErpSettings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1036,6 +1101,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Pazaryerleri"
+                                    AutomationProperties.Name="Pazaryerleri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Marketplaces">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1045,6 +1111,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Platform Senkronizasyon"
+                                    AutomationProperties.Name="Platform Senkronizasyon"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SyncStatus">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1054,6 +1121,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Calisanlar"
+                                    AutomationProperties.Name="Calisanlar"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Employees">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1063,6 +1131,7 @@
                             </Button>
                             <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Izin Talepleri"
+                                    AutomationProperties.Name="Izin Talepleri"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="LeaveRequests">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -1078,63 +1147,63 @@
                             <TextBlock Classes="sidebar-section" Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowMultiPlatform}" />
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol" AutomationProperties.Name="Trendyol"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Trendyol"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada" AutomationProperties.Name="Hepsiburada"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Hepsiburada"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11" AutomationProperties.Name="N11"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="N11"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti" AutomationProperties.Name="Ciceksepeti"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ciceksepeti"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR" AutomationProperties.Name="Amazon TR"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Amazon TR"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart" AutomationProperties.Name="OpenCart"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="OpenCart"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM" AutomationProperties.Name="Bitrix24 CRM"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconPerson}" Width="16" Height="16"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy" AutomationProperties.Name="Etsy"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Etsy"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify" AutomationProperties.Name="Shopify"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Shopify"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce" AutomationProperties.Name="WooCommerce"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="WooCommerce"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando" AutomationProperties.Name="Zalando"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Zalando"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay" AutomationProperties.Name="eBay"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="eBay"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon" AutomationProperties.Name="Ozon"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Ozon"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM" AutomationProperties.Name="PTT AVM"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="PTT AVM"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama" AutomationProperties.Name="Pazarama"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/><TextBlock Text="Pazarama"/></StackPanel>
                             </Button>
@@ -1144,19 +1213,19 @@
                             <TextBlock Classes="sidebar-section" Text="ARAÇLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowExport}" />
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar" AutomationProperties.Name="Kampanyalar"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="Kampanyalar"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Export" ToolTip.Tip="Dışa Aktar"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Export" ToolTip.Tip="Dışa Aktar" AutomationProperties.Name="Dışa Aktar"
                                     IsVisible="{Binding ShowExport}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Disa Aktar"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu" AutomationProperties.Name="Barkod Okuyucu"
                                     IsVisible="{Binding ShowExport}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama" AutomationProperties.Name="AI Urun Aciklama"
                                     IsVisible="{Binding ShowAiInsight}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="AI Aciklama"/></StackPanel>
                             </Button>
@@ -1166,30 +1235,30 @@
                             <TextBlock Classes="sidebar-section" Text="SİSTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowLogViewer}" />
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi" AutomationProperties.Name="Sistem Sagligi"
                                     IsVisible="{Binding ShowHealthMonitor}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="LogViewer" ToolTip.Tip="Log Izleyici"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="LogViewer" ToolTip.Tip="Log Izleyici" AutomationProperties.Name="Log Izleyici"
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Log Izleyici"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi" AutomationProperties.Name="Denetim Kaydi"
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="Denetim Kaydi"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari" AutomationProperties.Name="MFA Ayarlari"
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSettings}" Width="16" Height="16"/><TextBlock Text="MFA Ayarlari"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme" AutomationProperties.Name="Yedekleme"
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Yedekleme"/></StackPanel>
                             </Button>
 
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
-                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Cikis">
+                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Cikis" AutomationProperties.Name="Cikis">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
                                     <TextBlock Text="Çıkış"/>
