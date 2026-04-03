@@ -111,23 +111,41 @@
         </Border>
 
         <!-- ════════════════════════════════════════════════════════════ -->
-        <!-- Row 2: LiveCharts2 — Son 7 Gün Platform Satış Grafiği     -->
-        <!-- WPF002: G053 gerçek veri bağlantısı DEV 1'e bırakıldı     -->
+        <!-- Row 2: Charts — Satış Grafiği + Stok Dağılım Grafiği      -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16" Margin="20,4,20,4"
-                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-            <StackPanel Spacing="12">
-                <TextBlock Text="Son 7 Gün — Platform Bazlı Satışlar"
-                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesDarkSlate}" />
-                <lvc:CartesianChart Series="{Binding SalesChartSeries}"
-                                    XAxes="{Binding SalesChartXAxes}"
-                                    YAxes="{Binding SalesChartYAxes}"
-                                    Height="280"
-                                    TooltipPosition="Top"
-                                    ZoomMode="X" />
-            </StackPanel>
-        </Border>
+        <Grid Grid.Row="2" ColumnDefinitions="3*,2*" Margin="20,4,20,4">
+
+            <!-- Left: Son 7 Gün Platform Satış Grafiği (Çizgi) -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                    Margin="0,0,6,0">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Son 7 Gün — Platform Bazlı Satışlar"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <lvc:CartesianChart Series="{Binding SalesChartSeries}"
+                                        XAxes="{Binding SalesChartXAxes}"
+                                        YAxes="{Binding SalesChartYAxes}"
+                                        Height="280"
+                                        TooltipPosition="Top"
+                                        ZoomMode="X" />
+                </StackPanel>
+            </Border>
+
+            <!-- Right: Stok Dağılım Grafiği (Pasta) -->
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                    Margin="6,0,0,0">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Stok Durumu Dağılımı"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <lvc:PieChart Series="{Binding StockDistributionSeries}"
+                                  Height="280"
+                                  TooltipPosition="Top" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 3: Tables — Son Siparisler + Stok Uyarilari            -->
