@@ -48,8 +48,8 @@ public sealed class AnomalyCheckHandler
             e.JournalEntryId, e.TotalAmount);
 
         // Anomali kontrolleri
-        await CheckDuplicateAsync(e, ct);
-        await CheckAbnormalAmountAsync(e, ct);
+        await CheckDuplicateAsync(e, ct).ConfigureAwait(false);
+        await CheckAbnormalAmountAsync(e, ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public sealed class AnomalyCheckHandler
         var windowEnd = e.EntryDate;
 
         var recentEntries = await _journalEntryRepository.GetByDateRangeAsync(
-            e.TenantId, windowStart, windowEnd, ct);
+            e.TenantId, windowStart, windowEnd, ct).ConfigureAwait(false);
 
         var duplicates = recentEntries
             .Where(je => je.Id != e.JournalEntryId
@@ -98,7 +98,7 @@ public sealed class AnomalyCheckHandler
         var monthEnd = e.EntryDate;
 
         var monthEntries = await _journalEntryRepository.GetByDateRangeAsync(
-            e.TenantId, monthStart, monthEnd, ct);
+            e.TenantId, monthStart, monthEnd, ct).ConfigureAwait(false);
 
         var postedEntries = monthEntries
             .Where(je => je.Id != e.JournalEntryId && je.IsPosted)
@@ -159,7 +159,7 @@ public sealed class AnomalyCheckHandler
             Details = description
         };
 
-        await _publishEndpoint.Publish(integrationEvent, ct);
+        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
         await _mediator.Publish(
             new DomainEventNotification<AnomalyDetectedEvent>(
@@ -172,7 +172,7 @@ public sealed class AnomalyCheckHandler
                     EntityType = entityType,
                     EntityId = entityId
                 }),
-            ct);
+            ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[Anomaly] FinanceAnomalyDetected + AnomalyDetectedEvent yayinlandi: tip={AnomalyType}, aciklama={Description}",
