@@ -18,13 +18,13 @@ public sealed class BankAccountRepository : IBankAccountRepository
         => await _context.BankAccounts
             .Where(a => a.TenantId == tenantId)
             .OrderBy(a => a.BankName)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<BankAccount?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.BankAccounts.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct);
+        => await _context.BankAccounts.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct).ConfigureAwait(false);
 
     public async Task AddAsync(BankAccount account, CancellationToken ct = default)
-        => await _context.BankAccounts.AddAsync(account, ct);
+        => await _context.BankAccounts.AddAsync(account, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(BankAccount account, CancellationToken ct = default)
     {

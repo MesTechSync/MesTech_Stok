@@ -14,20 +14,20 @@ public sealed class CustomerRepository : ICustomerRepository
     }
 
     public async Task<Customer?> GetByIdAsync(Guid id)
-        => await _context.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+        => await _context.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync()
-        => await _context.Customers.OrderBy(c => c.Name).Take(5000).AsNoTracking().ToListAsync(); // G485
+        => await _context.Customers.OrderBy(c => c.Name).Take(5000).AsNoTracking().ToListAsync().ConfigureAwait(false); // G485
 
     public async Task<IReadOnlyList<Customer>> GetActiveAsync()
         => await _context.Customers
             .Where(c => c.IsActive)
             .OrderBy(c => c.Name)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(Customer customer)
-        => await _context.Customers.AddAsync(customer);
+        => await _context.Customers.AddAsync(customer).ConfigureAwait(false);
 
     public Task UpdateAsync(Customer customer)
     {
@@ -38,7 +38,7 @@ public sealed class CustomerRepository : ICustomerRepository
     public async Task DeleteAsync(Guid id)
     {
         // FindAsync bypasses global query filter (tenant isolation) — use FirstOrDefaultAsync
-        var entity = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        var entity = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
         if (entity is not null)
             _context.Customers.Remove(entity);
     }

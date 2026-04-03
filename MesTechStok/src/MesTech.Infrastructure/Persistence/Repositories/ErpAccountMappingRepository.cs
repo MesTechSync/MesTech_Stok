@@ -17,31 +17,31 @@ public sealed class ErpAccountMappingRepository : IErpAccountMappingRepository
             .Where(m => m.TenantId == tenantId)
             .OrderBy(m => m.MesTechAccountCode)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<ErpAccountMapping?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _db.Set<ErpAccountMapping>().FirstOrDefaultAsync(m => m.Id == id, ct);
+        return await _db.Set<ErpAccountMapping>().FirstOrDefaultAsync(m => m.Id == id, ct).ConfigureAwait(false);
     }
 
     public async Task<ErpAccountMapping?> FindByMesTechCodeAsync(
         Guid tenantId, string mesTechCode, CancellationToken ct = default)
     {
         return await _db.Set<ErpAccountMapping>()
-            .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.MesTechAccountCode == mesTechCode, ct);
+            .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.MesTechAccountCode == mesTechCode, ct).ConfigureAwait(false);
     }
 
     public async Task<ErpAccountMapping?> FindByErpCodeAsync(
         Guid tenantId, string erpCode, CancellationToken ct = default)
     {
         return await _db.Set<ErpAccountMapping>()
-            .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.ErpAccountCode == erpCode, ct);
+            .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.ErpAccountCode == erpCode, ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(ErpAccountMapping mapping, CancellationToken ct = default)
     {
-        await _db.Set<ErpAccountMapping>().AddAsync(mapping, ct);
+        await _db.Set<ErpAccountMapping>().AddAsync(mapping, ct).ConfigureAwait(false);
     }
 
     public void Remove(ErpAccountMapping mapping)

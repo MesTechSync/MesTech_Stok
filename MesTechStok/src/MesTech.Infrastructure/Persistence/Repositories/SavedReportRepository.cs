@@ -12,16 +12,16 @@ public sealed class SavedReportRepository : ISavedReportRepository
 
     public async Task<SavedReport?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.SavedReports
-            .AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<SavedReport>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.SavedReports
             .Where(r => r.TenantId == tenantId)
             .OrderByDescending(r => r.CreatedAt)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(SavedReport report, CancellationToken ct = default)
-        => await _context.SavedReports.AddAsync(report, ct);
+        => await _context.SavedReports.AddAsync(report, ct).ConfigureAwait(false);
 
     public Task DeleteAsync(SavedReport report, CancellationToken ct = default)
     {

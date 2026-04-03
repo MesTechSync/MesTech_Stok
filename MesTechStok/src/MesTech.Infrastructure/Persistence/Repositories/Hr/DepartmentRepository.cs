@@ -11,12 +11,12 @@ public sealed class DepartmentRepository : IDepartmentRepository
     public DepartmentRepository(AppDbContext context) => _context = context;
 
     public async Task<Department?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Departments.FirstOrDefaultAsync(e => e.Id == id, ct);
+        => await _context.Departments.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Department>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Departments.Where(d => d.TenantId == tenantId)
-                         .OrderBy(d => d.Name).AsNoTracking().ToListAsync(ct);
+                         .OrderBy(d => d.Name).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Department department, CancellationToken ct = default)
-        => await _context.Departments.AddAsync(department, ct);
+        => await _context.Departments.AddAsync(department, ct).ConfigureAwait(false);
 }

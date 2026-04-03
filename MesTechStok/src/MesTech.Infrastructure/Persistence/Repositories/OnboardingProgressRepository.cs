@@ -15,10 +15,10 @@ public sealed class OnboardingProgressRepository : IOnboardingProgressRepository
 
     public async Task<OnboardingProgress?> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.OnboardingProgress
-            .AsNoTracking().FirstOrDefaultAsync(o => o.TenantId == tenantId, ct);
+            .AsNoTracking().FirstOrDefaultAsync(o => o.TenantId == tenantId, ct).ConfigureAwait(false);
 
     public async Task AddAsync(OnboardingProgress progress, CancellationToken ct = default)
-        => await _context.OnboardingProgress.AddAsync(progress, ct);
+        => await _context.OnboardingProgress.AddAsync(progress, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(OnboardingProgress progress, CancellationToken ct = default)
     {

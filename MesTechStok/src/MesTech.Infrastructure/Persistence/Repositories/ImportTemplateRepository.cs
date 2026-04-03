@@ -15,15 +15,15 @@ public sealed class ImportTemplateRepository : IImportTemplateRepository
             .Where(x => x.TenantId == tenantId && !x.IsDeleted)
             .Include(x => x.Mappings)
             .OrderByDescending(x => x.LastUsedAt)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<ImportTemplate?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _db.Set<ImportTemplate>()
             .Include(x => x.Mappings)
-            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, ct);
+            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, ct).ConfigureAwait(false);
 
     public async Task AddAsync(ImportTemplate template, CancellationToken ct = default)
-        => await _db.Set<ImportTemplate>().AddAsync(template, ct);
+        => await _db.Set<ImportTemplate>().AddAsync(template, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(ImportTemplate template, CancellationToken ct = default)
     {

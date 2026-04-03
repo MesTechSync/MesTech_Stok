@@ -15,7 +15,7 @@ public sealed class LogEntryRepository : ILogEntryRepository
 
     public async Task AddAsync(LogEntry entry, CancellationToken ct = default)
     {
-        await _db.Set<LogEntry>().AddAsync(entry, ct);
+        await _db.Set<LogEntry>().AddAsync(entry, ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<LogEntry>> GetPagedAsync(
@@ -55,7 +55,7 @@ public sealed class LogEntryRepository : ILogEntryRepository
             .OrderByDescending(e => e.Timestamp)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<long> GetCountAsync(Guid tenantId, string? category = null, CancellationToken ct = default)
@@ -66,13 +66,13 @@ public sealed class LogEntryRepository : ILogEntryRepository
         if (!string.IsNullOrWhiteSpace(category))
             query = query.Where(e => e.Category == category);
 
-        return await query.LongCountAsync(ct);
+        return await query.LongCountAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<int> DeleteOlderThanAsync(Guid tenantId, DateTime cutoffDate, CancellationToken ct = default)
     {
         return await _db.Set<LogEntry>()
             .Where(e => e.TenantId == tenantId && e.Timestamp < cutoffDate)
-            .ExecuteDeleteAsync(ct);
+            .ExecuteDeleteAsync(ct).ConfigureAwait(false);
     }
 }

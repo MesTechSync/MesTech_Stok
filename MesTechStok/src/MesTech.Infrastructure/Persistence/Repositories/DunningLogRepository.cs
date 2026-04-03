@@ -18,12 +18,12 @@ public sealed class DunningLogRepository : IDunningLogRepository
             .Where(d => d.TenantSubscriptionId == subscriptionId)
             .OrderByDescending(d => d.AttemptDate)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<int> GetAttemptCountAsync(Guid subscriptionId, CancellationToken ct = default)
         => await _context.DunningLogs
-            .CountAsync(d => d.TenantSubscriptionId == subscriptionId, ct);
+            .CountAsync(d => d.TenantSubscriptionId == subscriptionId, ct).ConfigureAwait(false);
 
     public async Task AddAsync(DunningLog log, CancellationToken ct = default)
-        => await _context.DunningLogs.AddAsync(log, ct);
+        => await _context.DunningLogs.AddAsync(log, ct).ConfigureAwait(false);
 }

@@ -27,7 +27,7 @@ public sealed class StockPlacementRepository : IStockPlacementRepository
             .OrderBy(p => p.WarehouseName)
             .ThenBy(p => p.ShelfCode)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<StockPlacement?> GetByProductAndLocationAsync(
@@ -39,11 +39,11 @@ public sealed class StockPlacementRepository : IStockPlacementRepository
                 p.TenantId == tenantId &&
                 p.ProductId == productId &&
                 p.WarehouseId == warehouseId &&
-                p.ShelfId == shelfId, ct);
+                p.ShelfId == shelfId, ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(StockPlacement placement, CancellationToken ct = default)
     {
-        await _db.Set<StockPlacement>().AddAsync(placement, ct);
+        await _db.Set<StockPlacement>().AddAsync(placement, ct).ConfigureAwait(false);
     }
 }

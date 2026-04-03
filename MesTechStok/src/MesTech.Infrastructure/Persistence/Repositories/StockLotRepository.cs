@@ -19,7 +19,7 @@ public sealed class StockLotRepository : IStockLotRepository
             .OrderByDescending(l => l.ReceivedAt)
             .Take(limit)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<StockLot>> GetByProductAsync(
@@ -29,18 +29,18 @@ public sealed class StockLotRepository : IStockLotRepository
             .Where(l => l.TenantId == tenantId && l.ProductId == productId && l.RemainingQuantity > 0)
             .OrderBy(l => l.ReceivedAt) // FIFO
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<StockLot?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _db.Set<StockLot>()
             .Include(l => l.Product)
-            .FirstOrDefaultAsync(l => l.Id == id, ct);
+            .FirstOrDefaultAsync(l => l.Id == id, ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(StockLot lot, CancellationToken ct = default)
     {
-        await _db.Set<StockLot>().AddAsync(lot, ct);
+        await _db.Set<StockLot>().AddAsync(lot, ct).ConfigureAwait(false);
     }
 }

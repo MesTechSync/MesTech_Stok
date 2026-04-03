@@ -26,14 +26,14 @@ public sealed class TimeEntryRepository : ITimeEntryRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<TimeEntry?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Set<TimeEntry>().FirstOrDefaultAsync(e => e.Id == id, ct);
+        => await _context.Set<TimeEntry>().FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task AddAsync(TimeEntry entry, CancellationToken ct = default)
-        => await _context.Set<TimeEntry>().AddAsync(entry, ct);
+        => await _context.Set<TimeEntry>().AddAsync(entry, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(TimeEntry entry, CancellationToken ct = default)
     {

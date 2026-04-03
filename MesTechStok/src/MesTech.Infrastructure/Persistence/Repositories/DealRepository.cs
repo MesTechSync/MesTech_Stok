@@ -15,22 +15,22 @@ public sealed class DealRepository : IDealRepository
     }
 
     public async Task<Deal?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Deals.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct);
+        => await _context.Deals.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct).ConfigureAwait(false);
 
     public async Task<Deal?> GetByIdTrackedWithContactAsync(Guid id, CancellationToken ct = default)
         => await _context.Deals
             .Include(d => d.Contact)
-            .FirstOrDefaultAsync(d => d.Id == id, ct);
+            .FirstOrDefaultAsync(d => d.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Deal>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Deals
             .Where(d => d.TenantId == tenantId)
             .OrderByDescending(d => d.CreatedAt)
             .Take(5000) // G560: pagination guard
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Deal deal)
-        => await _context.Deals.AddAsync(deal);
+        => await _context.Deals.AddAsync(deal).ConfigureAwait(false);
 
     public Task UpdateAsync(Deal deal)
     {
