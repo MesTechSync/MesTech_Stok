@@ -369,3 +369,12 @@ body {
 .text-mesa    { color: var(--mestech-mesa) !important; }
 .text-amazon  { color: var(--mestech-amazon) !important; }
 .text-hepsi   { color: var(--mestech-hepsi) !important; }
+
+/* MESA AI card gradient — dark mode aware */
+.bg-mesa-gradient {
+  background: linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%);
+}
+[data-theme="dark"] .bg-mesa-gradient,
+@media (prefers-color-scheme: dark) { .bg-mesa-gradient {
+  background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(139,92,246,0.08) 100%);
+} }
