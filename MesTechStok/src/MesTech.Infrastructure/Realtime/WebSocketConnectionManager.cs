@@ -24,8 +24,14 @@ public sealed class WebSocketConnectionManager
 
     public string AddConnection(WebSocket socket)
     {
-        var id = Guid.NewGuid().ToString("N")[..8];
-        _connections.TryAdd(id, socket);
+        // FIX-DEV6-TUR3: 8-char hex = 32-bit collision space, birthday paradox risk.
+        // Full GUID eliminates collision. TryAdd loop handles the theoretical edge case.
+        string id;
+        do
+        {
+            id = Guid.NewGuid().ToString("N");
+        } while (!_connections.TryAdd(id, socket));
+
         _logger.LogInformation("WebSocket baglanti eklendi: {Id} (toplam: {Count})", id, _connections.Count);
         return id;
     }
