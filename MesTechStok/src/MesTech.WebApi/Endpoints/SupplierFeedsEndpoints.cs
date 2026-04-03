@@ -110,6 +110,7 @@ public static class SupplierFeedsEndpoints
                 new { jobId, message = "Sync kuyruğa alındı." });
         })
         .WithName("TriggerFeedSync")
-        .WithSummary("Feed import işlemini arka planda tetikle").Produces(200).Produces(400);
+        .WithSummary("Feed import işlemini arka planda tetikle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
