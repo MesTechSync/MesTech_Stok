@@ -60,7 +60,7 @@ public sealed class AdvisoryAgentClient : IAdvisoryAgentClient
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/accounting/advisory/daily", payload, ct);
+                "/api/v1/accounting/advisory/daily", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -70,7 +70,7 @@ public sealed class AdvisoryAgentClient : IAdvisoryAgentClient
             }
 
             var result = await response.Content.ReadFromJsonAsync<MesaAdvisoryResponse>(
-                cancellationToken: ct);
+                cancellationToken: ct).ConfigureAwait(false);
 
             if (result is null)
             {
