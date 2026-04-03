@@ -175,7 +175,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         }
 
         // Urun sayisi
-        var productCount = await _productRepository.GetCountAsync();
+        var productCount = await _productRepository.GetCountAsync(ct);
 
         return new AnalysisData(reports, commissions, productCount);
     }
