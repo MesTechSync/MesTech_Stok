@@ -38,6 +38,10 @@ public sealed class IncomeRepository : IIncomeRepository
             .Take(5000) // G485
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
+    public async Task<bool> ExistsByOrderIdAsync(Guid tenantId, Guid orderId, CancellationToken ct = default)
+        => await _context.Incomes
+            .AnyAsync(i => i.TenantId == tenantId && i.OrderId == orderId, ct).ConfigureAwait(false);
+
     public async Task AddAsync(Income income)
         => await _context.Incomes.AddAsync(income).ConfigureAwait(false);
 
