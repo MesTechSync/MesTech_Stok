@@ -29,5 +29,8 @@ public sealed class PlatformPaymentConfiguration : IEntityTypeConfiguration<Plat
             .WithMany()
             .HasForeignKey(p => p.StoreId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(p => new { p.TenantId, p.StoreId })
+            .HasDatabaseName("IX_PlatformPayments_Tenant_Store");
     }
 }
