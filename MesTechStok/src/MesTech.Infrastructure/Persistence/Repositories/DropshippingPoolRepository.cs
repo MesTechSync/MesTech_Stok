@@ -14,7 +14,7 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
     public async Task<DropshippingPool?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.DropshippingPools
             .Include(p => p.Products)
-            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct).ConfigureAwait(false);
 
     public async Task<(IReadOnlyList<DropshippingPool> Items, int Total)> GetPoolsPagedAsync(
         Guid tenantId, bool? isActive, int page, int pageSize, CancellationToken ct = default)
@@ -25,12 +25,12 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
         if (isActive.HasValue)
             query = query.Where(p => p.IsActive == isActive.Value);
 
-        var total = await query.CountAsync(ct);
+        var total = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return ((IReadOnlyList<DropshippingPool>)items, total);
     }
@@ -57,12 +57,12 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
         // colorFilter: ReliabilityColor entity'de henüz yok — ileriki sprintlerde
         // entity genişletilince bu filtre aktif edilecek. Şimdilik ignore.
 
-        var total = await query.CountAsync(ct);
+        var total = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return ((IReadOnlyList<DropshippingPoolProduct>)items, total);
     }
@@ -71,7 +71,7 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
         Guid poolProductId, CancellationToken ct = default)
         => await db.DropshippingPoolProducts
             .Include(p => p.Product)
-            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == poolProductId && !p.IsDeleted, ct);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == poolProductId && !p.IsDeleted, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<DropshippingPoolProduct>> GetPoolProductsByIdsAsync(
         Guid poolId, IEnumerable<Guid> productIds, CancellationToken ct = default)
@@ -80,13 +80,13 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
         return await db.DropshippingPoolProducts
             .Include(p => p.Product)
             .Where(p => p.PoolId == poolId && ids.Contains(p.Id) && !p.IsDeleted)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<PoolStats> GetStatsAsync(Guid tenantId, CancellationToken ct = default)
     {
         var total = await db.DropshippingPoolProducts
-            .CountAsync(p => p.TenantId == tenantId && !p.IsDeleted && p.IsActive, ct);
+            .CountAsync(p => p.TenantId == tenantId && !p.IsDeleted && p.IsActive, ct).ConfigureAwait(false);
 
         // ReliabilityColor breakdown: entity'de henüz yok — placeholder
         return new PoolStats(Total: total, Green: 0, Yellow: 0, Orange: 0, Red: 0, AverageScore: 0);
@@ -94,33 +94,33 @@ public sealed class DropshippingPoolRepository(AppDbContext db) : IDropshippingP
 
     public async Task AddAsync(DropshippingPool pool, CancellationToken ct = default)
     {
-        await db.DropshippingPools.AddAsync(pool, ct);
-        await db.SaveChangesAsync(ct);
+        await db.DropshippingPools.AddAsync(pool, ct).ConfigureAwait(false);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task UpdateAsync(DropshippingPool pool, CancellationToken ct = default)
     {
         db.DropshippingPools.Update(pool);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddPoolProductAsync(DropshippingPoolProduct poolProduct, CancellationToken ct = default)
     {
-        await db.DropshippingPoolProducts.AddAsync(poolProduct, ct);
-        await db.SaveChangesAsync(ct);
+        await db.DropshippingPoolProducts.AddAsync(poolProduct, ct).ConfigureAwait(false);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task UpdatePoolProductAsync(
         DropshippingPoolProduct product, CancellationToken ct = default)
     {
         db.DropshippingPoolProducts.Update(product);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemovePoolProductAsync(
         DropshippingPoolProduct product, CancellationToken ct = default)
     {
         db.DropshippingPoolProducts.Remove(product);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }
