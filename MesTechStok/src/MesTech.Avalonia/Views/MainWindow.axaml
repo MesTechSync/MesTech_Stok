@@ -14,6 +14,7 @@
         xmlns:rptviews="using:MesTech.Avalonia.Views.Reports"
         xmlns:controls="using:MesTech.Avalonia.Controls"
         xmlns:ic="using:FluentIcons.Avalonia.Fluent"
+        xmlns:dialogHost="using:DialogHostAvalonia"
         x:Class="MesTech.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="MesTech Entegratör"
@@ -89,6 +90,7 @@
         </Style>
     </Window.Styles>
 
+    <dialogHost:DialogHost Identifier="RootDialog" CloseOnClickAway="False">
     <DockPanel>
 
         <!-- ═══ TOOLBAR (UST) ═══ -->
@@ -1763,4 +1765,5 @@
         </Grid>
 
     </DockPanel>
+    </dialogHost:DialogHost>
 </Window>

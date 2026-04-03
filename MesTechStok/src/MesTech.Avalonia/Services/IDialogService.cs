@@ -1,3 +1,8 @@
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using DialogHostAvalonia;
+
 namespace MesTech.Avalonia.Services;
 
 /// <summary>
@@ -12,122 +17,135 @@ public interface IDialogService
 }
 
 /// <summary>
-/// Avalonia-native dialog service using Window.ShowDialog.
-/// Shows real confirmation dialogs to users — no auto-confirm.
+/// Avalonia dialog service using DialogHost.Avalonia for in-page overlay dialogs.
+/// Replaces Window.ShowDialog with modern Material Design-style dialogs.
 /// </summary>
 public class AvaloniaDialogService : IDialogService
 {
+    private const string RootDialogIdentifier = "RootDialog";
+
     public async Task ShowInfoAsync(string message, string title)
     {
-        var window = GetMainWindow();
-        if (window == null)
+        try
         {
-            System.Diagnostics.Debug.WriteLine($"[{title}] {message}");
-            return;
+            var content = BuildInfoContent(title, message);
+            await DialogHost.Show(content, RootDialogIdentifier);
         }
-
-        var dialog = new global::Avalonia.Controls.Window
+        catch (Exception ex)
         {
-            Title = title,
-            Width = 420,
-            Height = 180,
-            WindowStartupLocation = global::Avalonia.Controls.WindowStartupLocation.CenterOwner,
-            CanResize = false,
-            Content = new global::Avalonia.Controls.StackPanel
-            {
-                Margin = new global::Avalonia.Thickness(24),
-                Spacing = 16,
-                Children =
-                {
-                    new global::Avalonia.Controls.TextBlock
-                    {
-                        Text = message,
-                        TextWrapping = global::Avalonia.Media.TextWrapping.Wrap,
-                        FontSize = 14
-                    },
-                    new global::Avalonia.Controls.Button
-                    {
-                        Content = "Tamam",
-                        HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Right,
-                        Padding = new global::Avalonia.Thickness(24, 8),
-                    }
-                }
-            }
-        };
-
-        var okButton = ((global::Avalonia.Controls.StackPanel)dialog.Content).Children[1] as global::Avalonia.Controls.Button;
-        okButton!.Click += (_, _) => dialog.Close();
-
-        await dialog.ShowDialog(window);
+            // Fallback: headless/test ortamında DialogHost olmayabilir
+            System.Diagnostics.Debug.WriteLine($"[DialogHost] {title}: {message} (fallback: {ex.Message})");
+        }
     }
 
     public async Task<bool> ShowConfirmAsync(string message, string title)
     {
-        var window = GetMainWindow();
-        if (window == null)
+        try
         {
-            System.Diagnostics.Debug.WriteLine($"[{title}] {message} -> no window, defaulting false");
+            var content = BuildConfirmContent(title, message);
+            var result = await DialogHost.Show(content, RootDialogIdentifier);
+            return result is true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DialogHost] {title}: {message} -> fallback false ({ex.Message})");
             return false;
         }
+    }
 
-        var result = false;
-
-        var dialog = new global::Avalonia.Controls.Window
+    private static Border BuildInfoContent(string title, string message)
+    {
+        var closeButton = new Button
         {
-            Title = title,
-            Width = 450,
-            Height = 200,
-            WindowStartupLocation = global::Avalonia.Controls.WindowStartupLocation.CenterOwner,
-            CanResize = false,
+            Content = "Tamam",
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Padding = new global::Avalonia.Thickness(24, 8),
+            Classes = { "accent" },
         };
+        closeButton.Click += (_, _) => DialogHost.Close(RootDialogIdentifier);
 
-        var yesBtn = new global::Avalonia.Controls.Button
+        return new Border
+        {
+            Padding = new global::Avalonia.Thickness(32, 24),
+            MinWidth = 380,
+            MaxWidth = 520,
+            Child = new StackPanel
+            {
+                Spacing = 8,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = title,
+                        FontSize = 18,
+                        FontWeight = FontWeight.SemiBold,
+                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#1A1A2E")),
+                    },
+                    new TextBlock
+                    {
+                        Text = message,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontSize = 14,
+                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#6B7280")),
+                        Margin = new global::Avalonia.Thickness(0, 0, 0, 16),
+                    },
+                    closeButton,
+                }
+            }
+        };
+    }
+
+    private static Border BuildConfirmContent(string title, string message)
+    {
+        var yesBtn = new Button
         {
             Content = "Evet",
             Padding = new global::Avalonia.Thickness(24, 8),
+            Classes = { "accent" },
         };
-        var noBtn = new global::Avalonia.Controls.Button
+        var noBtn = new Button
         {
             Content = "Hayir",
             Padding = new global::Avalonia.Thickness(24, 8),
         };
 
-        yesBtn.Click += (_, _) => { result = true; dialog.Close(); };
-        noBtn.Click += (_, _) => { result = false; dialog.Close(); };
+        yesBtn.Click += (_, _) => DialogHost.Close(RootDialogIdentifier, true);
+        noBtn.Click += (_, _) => DialogHost.Close(RootDialogIdentifier, false);
 
-        dialog.Content = new global::Avalonia.Controls.StackPanel
+        return new Border
         {
-            Margin = new global::Avalonia.Thickness(24),
-            Spacing = 16,
-            Children =
+            Padding = new global::Avalonia.Thickness(32, 24),
+            MinWidth = 380,
+            MaxWidth = 520,
+            Child = new StackPanel
             {
-                new global::Avalonia.Controls.TextBlock
+                Spacing = 8,
+                Children =
                 {
-                    Text = message,
-                    TextWrapping = global::Avalonia.Media.TextWrapping.Wrap,
-                    FontSize = 14
-                },
-                new global::Avalonia.Controls.StackPanel
-                {
-                    Orientation = global::Avalonia.Layout.Orientation.Horizontal,
-                    HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Right,
-                    Spacing = 8,
-                    Children = { yesBtn, noBtn }
+                    new TextBlock
+                    {
+                        Text = title,
+                        FontSize = 18,
+                        FontWeight = FontWeight.SemiBold,
+                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#1A1A2E")),
+                    },
+                    new TextBlock
+                    {
+                        Text = message,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontSize = 14,
+                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#6B7280")),
+                        Margin = new global::Avalonia.Thickness(0, 0, 0, 16),
+                    },
+                    new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Spacing = 8,
+                        Children = { noBtn, yesBtn }
+                    }
                 }
             }
         };
-
-        await dialog.ShowDialog(window);
-        return result;
-    }
-
-    private static global::Avalonia.Controls.Window? GetMainWindow()
-    {
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is not
-            global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-            return null;
-
-        // KÖK-5 FIX: WindowHelper safe resolution — desktop.MainWindow stale olabilir.
-        return Helpers.WindowHelper.GetActiveWindow();
     }
 }

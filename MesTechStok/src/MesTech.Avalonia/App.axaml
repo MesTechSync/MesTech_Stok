@@ -1,6 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="using:MesTech.Avalonia.Converters"
+             xmlns:sty="using:FluentAvalonia.Styling"
              x:Class="MesTech.Avalonia.App"
              RequestedThemeVariant="Light">
     <Application.Resources>
@@ -26,8 +27,9 @@
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
-        <FluentTheme />
+        <sty:FluentAvaloniaTheme PreferSystemTheme="False" CustomAccentColor="#2855AC" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <StyleInclude Source="avares://DialogHost.Avalonia/Styles.xaml" />
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/ButtonStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/CardStyles.axaml"/>
         <StyleInclude Source="avares://MesTech.Avalonia/Themes/Controls/DataGridStyles.axaml"/>
