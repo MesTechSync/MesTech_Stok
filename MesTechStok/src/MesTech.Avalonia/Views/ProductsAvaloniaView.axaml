@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:converters="using:MesTech.Avalonia.Converters"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:asyncImage="using:AsyncImageLoader"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -222,16 +223,24 @@
                                 BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
-                                <!-- Product Image -->
+                                <!-- Product Image (AsyncImageLoader lazy load) -->
                                 <Border Grid.Row="0" Background="{DynamicResource MesBgMist}" CornerRadius="10,10,0,0">
                                     <Grid>
-                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <!-- Placeholder (görsel yoksa veya yüklenirken) -->
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
                                             <TextBlock Text="&#x1F4E6;" FontSize="{StaticResource FontSizeXL}"
                                                        HorizontalAlignment="Center" Opacity="0.4" />
                                             <TextBlock Text="{Binding SKU}" FontSize="{StaticResource FontSizeCaption1}"
                                                        Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                                                        Margin="0,4,0,0" />
                                         </StackPanel>
+                                        <!-- Lazy-loaded product image -->
+                                        <asyncImage:AdvancedImage
+                                            IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            asyncImage:ImageLoader.Source="{Binding ImageUrl}"
+                                            Stretch="UniformToFill"
+                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
                                         <!-- Discount badge -->
                                         <Border IsVisible="{Binding HasDiscount}"
                                                 Background="{DynamicResource MesRedClassic}" CornerRadius="0,0,0,8"
