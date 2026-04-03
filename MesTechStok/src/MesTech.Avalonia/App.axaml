@@ -10,6 +10,13 @@
                 <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDesignTokens.axaml"/>
                 <!-- MesTechComponentStyles is a Styles resource, included via Application.Styles -->
             </ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDarkTokens.axaml"/>
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
             <!-- G041: Converters for OnboardingWizard and conditional views -->
             <converters:EqualConverter x:Key="EqualConverter" />
             <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
