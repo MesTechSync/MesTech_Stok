@@ -228,14 +228,14 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
                     customer_tax_number = req.Customer.TaxNumber,
                     customer_tax_office = req.Customer.TaxOffice,
                     customer_address = req.Customer.Address,
-                    grand_total = req.TotalAmount.ToString(CultureInfo.InvariantCulture),
+                    grand_total = req.TotalAmount,
                     lines = req.Lines.Select(l => new
                     {
                         product_name = l.ProductName,
                         sku = l.SKU,
                         quantity = l.Quantity,
-                        unit_price = l.UnitPrice.ToString(CultureInfo.InvariantCulture),
-                        tax_rate = l.TaxRate.ToString(CultureInfo.InvariantCulture)
+                        unit_price = l.UnitPrice,
+                        tax_rate = l.TaxRate
                     }).ToArray()
                 }
             }).ToArray();
