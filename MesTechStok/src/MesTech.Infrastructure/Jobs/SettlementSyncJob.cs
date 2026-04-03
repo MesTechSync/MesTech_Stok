@@ -5,9 +5,10 @@ using Hangfire;
 namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
-/// Gunde 1 kez TÜM platformların cari hesap ekstresini çeker.
-/// ISettlementCapableAdapter implement eden tüm adapter'ları tarar.
-/// Her platform paralel, per-platform 60s timeout.
+/// [DEPRECATED] Gunde 1 kez TÜM platformların cari hesap ekstresini çeker
+/// ama DB'ye KAYDETMEZ — sadece connectivity check olarak çalışır.
+/// Gerçek settlement persist işlemi SettlementSyncWorker (accounting-settlement-sync, 03:30) tarafından yapılır.
+/// Bu job kaldırılabilir — SettlementSyncWorker yeterlidir.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 [DisableConcurrentExecution(timeoutInSeconds: 600)]
