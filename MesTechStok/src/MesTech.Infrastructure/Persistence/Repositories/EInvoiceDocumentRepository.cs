@@ -14,15 +14,15 @@ public sealed class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
         => await _context.EInvoiceDocuments
             .Include(d => d.Lines)
             .Include(d => d.SendLogs)
-            .AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct).ConfigureAwait(false);
 
     public async Task<EInvoiceDocument?> GetByEttnNoAsync(string ettnNo, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
-            .AsNoTracking().FirstOrDefaultAsync(d => d.EttnNo == ettnNo, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.EttnNo == ettnNo, ct).ConfigureAwait(false);
 
     public async Task<EInvoiceDocument?> GetByGibUuidAsync(string gibUuid, CancellationToken ct = default)
         => await _context.EInvoiceDocuments
-            .AsNoTracking().FirstOrDefaultAsync(d => d.GibUuid == gibUuid, ct);
+            .AsNoTracking().FirstOrDefaultAsync(d => d.GibUuid == gibUuid, ct).ConfigureAwait(false);
 
     public async Task<(IReadOnlyList<EInvoiceDocument> Items, int Total)> GetPagedAsync(
         EInvoiceStatus? status = null,
@@ -43,19 +43,19 @@ public sealed class EInvoiceDocumentRepository : IEInvoiceDocumentRepository
         if (to.HasValue)
             query = query.Where(d => d.IssueDate <= to.Value);
 
-        var total = await query.CountAsync(ct);
+        var total = await query.CountAsync(ct).ConfigureAwait(false);
 
         var items = await query
             .OrderByDescending(d => d.IssueDate)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return (items, total);
     }
 
     public async Task AddAsync(EInvoiceDocument doc, CancellationToken ct = default)
-        => await _context.EInvoiceDocuments.AddAsync(doc, ct);
+        => await _context.EInvoiceDocuments.AddAsync(doc, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(EInvoiceDocument doc, CancellationToken ct = default)
     {
