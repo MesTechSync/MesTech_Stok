@@ -100,6 +100,13 @@ public partial class App : global::Avalonia.Application
                     cfg.RegisterServicesFromAssembly(
                         typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
 
+                // KN-1 / G67 FIX: Override IMediator with scope-per-call wrapper.
+                // Desktop app shares root scope → concurrent DbContext crash.
+                // ScopedMediatorWrapper creates a new DI scope per Send/Publish,
+                // giving each MediatR operation its own DbContext instance.
+                // All 157 ViewModels automatically get scoped behavior.
+                services.AddSingleton<IMediator, MesTech.Avalonia.Services.ScopedMediatorWrapper>();
+
                 // === WebApi HTTP Client (G072 + ORG138 Polly resilience) ===
                 var apiBaseUrl = configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
                 var retryPolicy = HttpPolicyExtensions
