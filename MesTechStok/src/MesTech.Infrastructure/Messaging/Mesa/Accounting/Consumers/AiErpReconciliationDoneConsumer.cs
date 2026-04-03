@@ -97,7 +97,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
 
             if (msg.MismatchCount > 0)
             {
-                await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
             }
 
             _logger.LogInformation(

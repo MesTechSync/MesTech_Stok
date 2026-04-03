@@ -121,7 +121,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 category: msg.ExtractedCategory ?? "Genel");
 
             await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Otomatik gider kaydı olusturuldu (PendingApproval): " +

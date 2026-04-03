@@ -99,7 +99,7 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
             notification.MarkAsSent();
 
             await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AI onerisi NotificationLog olarak kaydedildi: NotificationId={NotificationId}",

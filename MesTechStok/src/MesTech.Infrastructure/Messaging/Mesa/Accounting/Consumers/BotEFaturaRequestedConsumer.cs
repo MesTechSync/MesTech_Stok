@@ -91,7 +91,7 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
             notification.MarkAsSent();
 
             await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Bot e-fatura talebi NotificationLog olarak kaydedildi: " +

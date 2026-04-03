@@ -87,7 +87,7 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
             bankTransactionId: msg.BankTransactionId);
 
         await _matchRepository.AddAsync(match).ConfigureAwait(false);
-        await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AI oneri eslestirmesi kaydedildi (NeedsReview): " +
