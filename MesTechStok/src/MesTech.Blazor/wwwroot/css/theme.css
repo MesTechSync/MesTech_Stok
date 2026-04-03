@@ -10,7 +10,13 @@
   --mestech-bg: #1a1a2e;
   --mestech-surface: #16213e;
   --mestech-text: #e0e0e0;
+  --mestech-text-muted: #8888a0;
   --mestech-border: #2a2a4a;
+  --mestech-kanban-bg: #16213e;
+  --mestech-kanban-card: #1a1a2e;
+  --mestech-calendar-gap: #2a2a4a;
+  --mestech-calendar-cell: #1a1a2e;
+  --mestech-calendar-today: rgba(40, 85, 172, 0.2);
   color-scheme: dark;
 }
 
@@ -79,7 +85,13 @@
   --mestech-bg: #ffffff;
   --mestech-surface: #f8f9fa;
   --mestech-text: #212529;
+  --mestech-text-muted: #6c757d;
   --mestech-border: #dee2e6;
+  --mestech-kanban-bg: #f8f9fa;
+  --mestech-kanban-card: #fff;
+  --mestech-calendar-gap: #dee2e6;
+  --mestech-calendar-cell: #fff;
+  --mestech-calendar-today: #e7f1ff;
   color-scheme: light;
 }
 
