@@ -22,6 +22,7 @@
     --mestech-calendar-cell: #fff;
     --mestech-calendar-today: #e7f1ff;
     --mestech-purple: #6f42c1;
+    --mestech-purple-rgb: 111, 66, 193;
     --mestech-indigo: #6610f2;
     --mestech-orange: #fd7e14;
     --mestech-mesa: #7C3AED;
@@ -39,6 +40,7 @@
         --mestech-surface: #16213e;
         --mestech-text: #e0e0e0;
         --mestech-purple: #9b7bd4;
+        --mestech-purple-rgb: 155, 123, 212;
         --mestech-indigo: #9b7de8;
         --mestech-orange: #ffa54c;
         --mestech-mesa: #a78bfa;

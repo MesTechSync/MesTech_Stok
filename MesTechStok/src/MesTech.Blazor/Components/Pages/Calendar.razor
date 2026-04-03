@@ -250,7 +250,7 @@ else
   private string newEventColor = "#0d6efd";
 
   private readonly string[] dayNames = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
-  private readonly string[] eventColors = ["#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14", "#0dcaf0", "#d63384"];
+  private readonly string[] eventColors = ["#0d6efd", "#198754", "#dc3545", "#ffc107", "var(--mestech-purple)", "#fd7e14", "#0dcaf0", "#d63384"];
 
   private int nextEventId = 100;
 
@@ -307,7 +307,7 @@ else
   [
     new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "#0d6efd"),
     new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "#198754"),
-    new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "#6f42c1"),
+    new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "var(--mestech-purple)"),
     new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "#fd7e14"),
     new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "#dc3545"),
     new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "#0d6efd"),
