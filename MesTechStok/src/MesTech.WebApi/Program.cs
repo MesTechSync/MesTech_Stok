@@ -584,7 +584,7 @@ app.Use(async (context, next) =>
     if (context.Request.Query.ContainsKey("pageSize"))
     {
         var qs = context.Request.Query.ToDictionary(q => q.Key, q => q.Value);
-        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && ps > 200)
+        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && (ps < 1 || ps > 200))
         {
             qs["pageSize"] = new Microsoft.Extensions.Primitives.StringValues(
                 Math.Clamp(ps, 1, 200).ToString());
