@@ -149,7 +149,7 @@ public class PlaceOrderEdgeCaseTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        product.Stock.Should().Be(40); // 50 - 10
+        product.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
     }
 
     [Fact]

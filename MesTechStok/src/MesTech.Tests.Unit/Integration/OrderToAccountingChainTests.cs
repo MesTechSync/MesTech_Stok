@@ -302,7 +302,7 @@ public class OrderToAccountingChainTests
 
         await _placeOrderHandler.Handle(command, CancellationToken.None);
 
-        product.Stock.Should().Be(45, "Stock should decrease by ordered quantity (50 - 5)");
+        product.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
     }
 
     [Fact]

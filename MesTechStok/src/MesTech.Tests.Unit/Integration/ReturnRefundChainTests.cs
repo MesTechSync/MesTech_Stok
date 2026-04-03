@@ -128,9 +128,9 @@ public class ReturnRefundChainTests
         _capturedReturn!.Status.Should().Be(ReturnStatus.Approved);
         _capturedReturn.StockRestored.Should().BeTrue();
 
-        // Verify stock was increased by ApproveReturnHandler (auto-restore)
-        product1.Stock.Should().Be(12, "Product1 stock should increase from 10 to 12 (2 returned)");
-        product2.Stock.Should().Be(6, "Product2 stock should increase from 5 to 6 (1 returned)");
+        // Stock restoration is now handled by ReturnApprovedStockRestorationHandler (Z5a chain), not ApproveReturnHandler
+        product1.Stock.Should().Be(10, "Stock remains unchanged — restoration handled by event handler (Z5a chain)");
+        product2.Stock.Should().Be(5, "Stock remains unchanged — restoration handled by event handler (Z5a chain)");
 
         // === STEP 2: ReturnApprovedStockRestoration (SRP handler — separate event path) ===
         // In the event-driven flow, this handler fires on ReturnApprovedEvent
