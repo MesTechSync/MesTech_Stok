@@ -104,7 +104,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
         });
 
         document.UpdateExtractedData(extractedJson);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AccountingDocument guncellendi (Extracted): DocId={DocumentId}", msg.DocumentId);

@@ -94,7 +94,7 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
         var existingData = document.ExtractedData ?? "{}";
         var combinedData = $"{{\"extraction\":{existingData},\"rejection\":{rejectionJson}}}";
         document.UpdateExtractedData(combinedData);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] Belge red bilgisi kaydedildi: DocId={DocumentId}, sebep={Reason}",
