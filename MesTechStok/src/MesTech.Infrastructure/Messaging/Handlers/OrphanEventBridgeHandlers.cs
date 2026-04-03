@@ -296,20 +296,24 @@ public sealed class EInvoiceSentBridgeHandler
 #region Ürün & Stok
 
 /// <summary>
-/// ProductUpdatedEvent → Ürün güncelleme loglama.
+/// ProductUpdatedEvent → Ürün güncelleme loglama + bildirim + integration event.
 /// Platform sync tetikleyici olarak kullanılabilir.
+/// DEV1 TUR1: NotificationLog dispatch eklendi (G10865).
 /// </summary>
 public sealed class ProductUpdatedBridgeHandler
     : INotificationHandler<DomainEventNotification<ProductUpdatedEvent>>
 {
     private readonly IIntegrationEventPublisher _publisher;
+    private readonly IMediator _mediator;
     private readonly ILogger<ProductUpdatedBridgeHandler> _logger;
 
     public ProductUpdatedBridgeHandler(
         IIntegrationEventPublisher publisher,
+        IMediator mediator,
         ILogger<ProductUpdatedBridgeHandler> logger)
     {
         _publisher = publisher;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -323,6 +327,20 @@ public sealed class ProductUpdatedBridgeHandler
         await _publisher.PublishProductUpdatedAsync(
             e.ProductId, e.SKU, "general", ct)
             .ConfigureAwait(false);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "product-updated",
+                Content: $"Ürün güncellendi: {e.SKU}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ProductUpdated bildirim gönderilemedi — {ProductId}", e.ProductId);
+        }
     }
 }
 
