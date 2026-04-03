@@ -45,7 +45,7 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
         {
-            _logger.LogError(ex, "MESA endpoint erisiлemiyor — {Type} event teslim edilemedi", eventType);
+            _logger.LogError(ex, "MESA endpoint erisilemedi — {Type} event teslim edilemedi", eventType);
         }
     }
 
