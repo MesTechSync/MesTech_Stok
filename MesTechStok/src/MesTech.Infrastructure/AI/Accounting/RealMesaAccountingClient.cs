@@ -60,11 +60,20 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
                 return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
             }
 
+            // Confidence range validation — MESA OS could return invalid values
+            var confidence = Math.Clamp(result.Confidence, 0m, 1m);
+            if (confidence != result.Confidence)
+            {
+                _logger.LogWarning(
+                    "[MESA Real] Classify confidence out of range: {Raw} → clamped to {Clamped}",
+                    result.Confidence, confidence);
+            }
+
             _logger.LogInformation(
                 "[MESA Real] Classify basarili: tip={DocumentType}, guven={Confidence:P0}",
-                result.Type, result.Confidence);
+                result.Type, confidence);
 
-            return new DocumentClassification(result.Type, result.Confidence, result.RawText ?? "");
+            return new DocumentClassification(result.Type, confidence, result.RawText ?? "");
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -153,14 +162,23 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
                     settlementBatchId, candidateBankTransactionIds, ct);
             }
 
+            // Confidence range validation — MESA OS could return invalid values
+            var confidence = Math.Clamp(result.Confidence, 0m, 1m);
+            if (confidence != result.Confidence)
+            {
+                _logger.LogWarning(
+                    "[MESA Real] Reconciliation confidence out of range: {Raw} → clamped to {Clamped}",
+                    result.Confidence, confidence);
+            }
+
             _logger.LogInformation(
                 "[MESA Real] Reconciliation basarili: batch={BatchId}, tx={TxId}, guven={Confidence:P0}",
-                result.SettlementBatchId, result.BankTransactionId, result.Confidence);
+                result.SettlementBatchId, result.BankTransactionId, confidence);
 
             return new ReconciliationSuggestion(
                 result.SettlementBatchId,
                 result.BankTransactionId,
-                result.Confidence,
+                confidence,
                 result.Reason ?? "MESA AI match");
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
