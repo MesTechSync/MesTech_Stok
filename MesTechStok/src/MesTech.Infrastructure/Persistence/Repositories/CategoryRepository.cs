@@ -19,7 +19,7 @@ public sealed class CategoryRepository : ICategoryRepository
         return await _context.Categories
             .Include(c => c.Products)
             .Include(c => c.SubCategories)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken ct = default)
@@ -27,7 +27,7 @@ public sealed class CategoryRepository : ICategoryRepository
         return await _context.Categories
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Category>> GetActiveAsync(CancellationToken ct = default)
@@ -36,12 +36,12 @@ public sealed class CategoryRepository : ICategoryRepository
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(Category category)
     {
-        await _context.Categories.AddAsync(category);
+        await _context.Categories.AddAsync(category).ConfigureAwait(false);
     }
 
     public async Task UpdateAsync(Category category)
@@ -52,7 +52,7 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
         if (entity != null)
         {
             entity.IsDeleted = true;
