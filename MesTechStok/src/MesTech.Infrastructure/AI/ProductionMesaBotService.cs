@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -51,7 +51,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/whatsapp/send", payload, ct);
+                "v1/bot/whatsapp/send", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -59,7 +59,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                     "[MESA Bot] WhatsApp gonderim basarisiz: {StatusCode} — fallback mock (phone={Phone}, template={Template})",
                     response.StatusCode, MaskPhone(phoneNumber), templateName);
                 return await _mockFallback.SendWhatsAppNotificationAsync(
-                    phoneNumber, templateName, templateData, ct);
+                    phoneNumber, templateName, templateData, ct).ConfigureAwait(false);
             }
 
             _logger.LogInformation(
@@ -73,7 +73,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 "[MESA Bot] MESA OS unreachable, falling back to mock (WhatsApp, phone={Phone})",
                 MaskPhone(phoneNumber));
             return await _mockFallback.SendWhatsAppNotificationAsync(
-                phoneNumber, templateName, templateData, ct);
+                phoneNumber, templateName, templateData, ct).ConfigureAwait(false);
         }
     }
 
@@ -92,7 +92,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/telegram/alert", payload, ct);
+                "v1/bot/telegram/alert", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -100,7 +100,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                     "[MESA Bot] Telegram gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel})",
                     response.StatusCode, channelId);
                 return await _mockFallback.SendTelegramAlertAsync(
-                    channelId, message, level, ct);
+                    channelId, message, level, ct).ConfigureAwait(false);
             }
 
             _logger.LogInformation(
@@ -114,7 +114,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 "[MESA Bot] MESA OS unreachable, falling back to mock (Telegram, channel={Channel})",
                 channelId);
             return await _mockFallback.SendTelegramAlertAsync(
-                channelId, message, level, ct);
+                channelId, message, level, ct).ConfigureAwait(false);
         }
     }
 
@@ -134,7 +134,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/bulk/send", payload, ct);
+                "v1/bot/bulk/send", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -142,7 +142,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                     "[MESA Bot] Bulk gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel}, count={Count})",
                     response.StatusCode, channel, recipients.Count);
                 return await _mockFallback.SendBulkNotificationAsync(
-                    channel, recipients, templateName, data, ct);
+                    channel, recipients, templateName, data, ct).ConfigureAwait(false);
             }
 
             _logger.LogInformation(
@@ -156,7 +156,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 "[MESA Bot] MESA OS unreachable, falling back to mock (Bulk, channel={Channel})",
                 channel);
             return await _mockFallback.SendBulkNotificationAsync(
-                channel, recipients, templateName, data, ct);
+                channel, recipients, templateName, data, ct).ConfigureAwait(false);
         }
     }
 
