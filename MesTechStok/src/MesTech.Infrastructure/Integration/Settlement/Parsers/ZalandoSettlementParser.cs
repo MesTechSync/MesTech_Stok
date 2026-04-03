@@ -16,6 +16,7 @@ public sealed class ZalandoSettlementParser : ISettlementParser
 {
     private readonly ILogger<ZalandoSettlementParser> _logger;
     private List<ZalandoTransaction>? _cachedTransactions;
+    private string? _rawFileHash;
     private Guid _tenantId;
 
     public string Platform => "Zalando";
@@ -35,8 +36,7 @@ public sealed class ZalandoSettlementParser : ISettlementParser
         if (tenantId == Guid.Empty) throw new ArgumentException("TenantId cannot be Guid.Empty.", nameof(tenantId));
 
         _tenantId = tenantId;
-        using var sha = SHA256.Create();
-        await sha.ComputeHashAsync(rawData, ct).ConfigureAwait(false);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         using var doc = await JsonDocument.ParseAsync(rawData, cancellationToken: ct).ConfigureAwait(false);
@@ -110,6 +110,12 @@ public sealed class ZalandoSettlementParser : ISettlementParser
                 tx.TransactionDate = d;
         }
         return tx;
+    }
+
+    private static async Task<string> ComputeStreamHashAsync(Stream s, CancellationToken ct)
+    {
+        using var sha = SHA256.Create();
+        return Convert.ToHexString(await sha.ComputeHashAsync(s, ct).ConfigureAwait(false));
     }
 
     private sealed class ZalandoTransaction
