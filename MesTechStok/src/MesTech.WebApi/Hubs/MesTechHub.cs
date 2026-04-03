@@ -39,7 +39,7 @@ public class MesTechHub : Hub
             throw new HubException("Tenant group access denied: tenant mismatch");
         }
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client joined tenant group: connectionId={ConnectionId}, tenantId={TenantId}",
@@ -68,7 +68,7 @@ public class MesTechHub : Hub
         }
 
         // Tenant claim doğrulandı — import group'a erişim güvenli
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}, tenant={TenantId}",
@@ -83,7 +83,7 @@ public class MesTechHub : Hub
         if (string.IsNullOrWhiteSpace(importId))
             return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"import-{importId}");
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"import-{importId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client left import group: connectionId={ConnectionId}, importId={ImportId}",
@@ -98,7 +98,7 @@ public class MesTechHub : Hub
         if (string.IsNullOrWhiteSpace(tenantId))
             return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"tenant-{tenantId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client left tenant group: connectionId={ConnectionId}, tenantId={TenantId}",
@@ -128,7 +128,7 @@ public class MesTechHub : Hub
             category,
             actionUrl,
             timestamp = DateTime.UtcNow
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public class MesTechHub : Hub
             newPrice,
             reason,
             timestamp = DateTime.UtcNow
-        });
+        }).ConfigureAwait(false);
     }
 
     public override async Task OnConnectedAsync()
@@ -161,7 +161,7 @@ public class MesTechHub : Hub
             "SignalR client connected: connectionId={ConnectionId}",
             Context.ConnectionId);
 
-        await base.OnConnectedAsync();
+        await base.OnConnectedAsync().ConfigureAwait(false);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -170,6 +170,6 @@ public class MesTechHub : Hub
             "SignalR client disconnected: connectionId={ConnectionId}, error={Error}",
             Context.ConnectionId, exception?.Message);
 
-        await base.OnDisconnectedAsync(exception);
+        await base.OnDisconnectedAsync(exception).ConfigureAwait(false);
     }
 }
