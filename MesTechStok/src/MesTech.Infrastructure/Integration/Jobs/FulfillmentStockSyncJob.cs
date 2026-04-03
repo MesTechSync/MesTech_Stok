@@ -56,7 +56,7 @@ public sealed class FulfillmentStockSyncJob
         }
 
         // Load all tracked SKUs once (shared across all providers)
-        var products = await _productRepository.GetAllAsync().ConfigureAwait(false);
+        var products = await _productRepository.GetAllAsync(ct).ConfigureAwait(false);
         var skus = products
             .Where(p => !string.IsNullOrWhiteSpace(p.SKU))
             .Select(p => p.SKU)
