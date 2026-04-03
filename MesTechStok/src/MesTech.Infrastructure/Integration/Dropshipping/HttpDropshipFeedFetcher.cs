@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Dropshipping;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Dropshipping;
@@ -32,6 +33,12 @@ public sealed class HttpDropshipFeedFetcher : IDropshipFeedFetcher
     {
         try
         {
+            if (!SsrfGuard.ValidateUrl(endpoint, _logger, nameof(HttpDropshipFeedFetcher)))
+            {
+                _logger.LogWarning("HttpDropshipFeedFetcher — Endpoint rejected by SSRF guard: {Endpoint}", endpoint);
+                return [];
+            }
+
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(30);
 
