@@ -85,9 +85,9 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-#if DEBUG
+            HasError = true;
+            ErrorMessage = $"Kanban verileri yuklenemedi: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"[KanbanAvaloniaViewModel] LoadAsync error: {ex.Message}");
-#endif
             InitDefaultStages();
         }
         finally
