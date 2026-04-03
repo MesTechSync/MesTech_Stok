@@ -82,4 +82,9 @@
     </Content>
   </ItemGroup>
 
+  <!-- Lottie animation JSON files — avares:// URI ile erisilebilir -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Animations\**\*.json" />
+  </ItemGroup>
+
 </Project>
