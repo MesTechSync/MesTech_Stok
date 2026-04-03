@@ -130,14 +130,14 @@ else
                         <div class="d-flex flex-column align-items-center me-3">
                             <div class="rounded-circle d-flex align-items-center justify-content-center"
                                  style="width: 36px; height: 36px; min-width: 36px;
-                                        background-color: @(isActive ? "#2855AC" : "#e9ecef");
-                                        border: @(isCurrent ? "3px solid #0d6efd" : "none");">
+                                        background-color: @(isActive ? "var(--mestech-primary)" : "#e9ecef");
+                                        border: @(isCurrent ? "3px solid var(--mestech-info)" : "none");">
                                 <i class="fas @step.Icon @(isActive ? "text-white" : "text-muted")"
                                    style="font-size: 0.8rem;"></i>
                             </div>
                             @if (i < trackingSteps.Count - 1)
                             {
-                                <div style="width: 2px; height: 30px; background-color: @(isActive ? "#2855AC" : "#e9ecef");"></div>
+                                <div style="width: 2px; height: 30px; background-color: @(isActive ? "var(--mestech-primary)" : "#e9ecef");"></div>
                             }
                         </div>
                         <div class="pt-1">

@@ -40,7 +40,7 @@
       </div>
       @if (i < TotalSteps)
       {
-        <div class="flex-grow-1 mx-1" style="height: 2px; background: @(i < currentStep ? "#198754" : "#dee2e6"); align-self: center; margin-top: -18px;"></div>
+        <div class="flex-grow-1 mx-1" style="height: 2px; background: @(i < currentStep ? "var(--mestech-success)" : "#dee2e6"); align-self: center; margin-top: -18px;"></div>
       }
     }
   </div>
@@ -455,10 +455,10 @@
     private readonly List<(string Name, string Icon, string Color)> _platforms = new()
     {
         ("Trendyol", "fas fa-shopping-bag", "#F27A1A"),
-        ("Hepsiburada", "fas fa-shopping-cart", "#FF6000"),
+        ("Hepsiburada", "fas fa-shopping-cart", "var(--mestech-hepsi)"),
         ("N11", "fas fa-store", "#7B2D8E"),
         ("Ciceksepeti", "fas fa-gift", "#6DC24B"),
-        ("Amazon", "fab fa-amazon", "#FF9900"),
+        ("Amazon", "fab fa-amazon", "var(--mestech-amazon)"),
         ("Pazarama", "fas fa-shopping-basket", "#1A73E8"),
         ("Shopify", "fab fa-shopify", "#96BF48"),
         ("WooCommerce", "fab fa-wordpress", "#96588A")

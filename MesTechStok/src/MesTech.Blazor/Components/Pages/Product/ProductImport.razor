@@ -46,8 +46,8 @@ else
     </div>
     <div class="card-body">
       <div class="border border-2 border-dashed rounded-3 p-5 text-center"
-           style="border-color: #2855AC40 !important; background-color: #f8f9fa;">
-        <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #2855AC; opacity: 0.5;"></i>
+           style="border-color: var(--mestech-primary)40 !important; background-color: #f8f9fa;">
+        <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--mestech-primary); opacity: 0.5;"></i>
         <p class="mb-2 fw-semibold">CSV veya Excel (.xlsx) dosyanizi secin</p>
         <InputFile OnChange="OnFileSelected" accept=".csv,.xlsx,.xls" class="form-control mx-auto" style="max-width: 400px;" />
         @if (_selectedFileName is not null)

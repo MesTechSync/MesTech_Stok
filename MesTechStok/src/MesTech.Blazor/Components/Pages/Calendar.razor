@@ -83,7 +83,7 @@ else
         @foreach (var day in calendarDays)
         {
           <div class="calendar-cell @(day.IsToday ? "today" : "") @(day.IsOtherMonth ? "other-month" : "")"
-               style="cursor: pointer; @(selectedDate == day.Date ? "outline: 2px solid #2855AC; outline-offset: -2px;" : "")"
+               style="cursor: pointer; @(selectedDate == day.Date ? "outline: 2px solid var(--mestech-primary); outline-offset: -2px;" : "")"
                @onclick="() => SelectDate(day.Date)">
             <div class="d-flex justify-content-between align-items-start">
               <span class="fw-semibold @(day.IsToday ? "text-primary" : "")">@day.Date.Day</span>
@@ -247,10 +247,10 @@ else
   private string newEventTime = "09:00";
   private string newEventParticipants = string.Empty;
   private string newEventDescription = string.Empty;
-  private string newEventColor = "#0d6efd";
+  private string newEventColor = "var(--mestech-info)";
 
   private readonly string[] dayNames = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
-  private readonly string[] eventColors = ["#0d6efd", "#198754", "#dc3545", "#ffc107", "var(--mestech-purple)", "#fd7e14", "#0dcaf0", "#d63384"];
+  private readonly string[] eventColors = ["var(--mestech-info)", "var(--mestech-success)", "var(--mestech-danger)", "#ffc107", "var(--mestech-purple)", "var(--mestech-orange)", "#0dcaf0", "#d63384"];
 
   private int nextEventId = 100;
 
@@ -305,15 +305,15 @@ else
 
   private List<CalendarEvent> GetDemoEvents() =>
   [
-    new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "#0d6efd"),
-    new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "#198754"),
+    new(1, "Trendyol Siparis Toplantisi", new DateTime(currentYear, currentMonth, 3), "10:00", "Ahmet, Mehmet", "Aylik siparis degerlendirmesi", "var(--mestech-info)"),
+    new(2, "Depo Sayim Gunu", new DateTime(currentYear, currentMonth, 5), "08:00", "Depo Ekibi", "Aylik fiziksel stok sayimi", "var(--mestech-success)"),
     new(3, "E-Ticaret Fuar Ziyareti", new DateTime(currentYear, currentMonth, 8), "09:00", "Yonetim Ekibi", "Istanbul E-Ticaret Zirvesi 2026", "var(--mestech-purple)"),
-    new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "#fd7e14"),
-    new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "#dc3545"),
-    new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "#0d6efd"),
+    new(4, "Hepsiburada Entegrasyon Testi", new DateTime(currentYear, currentMonth, 10), "14:00", "Yazilim Ekibi", "HB API v3 gecis testi", "var(--mestech-orange)"),
+    new(5, "Tedarikci Gorusmesi - ABC Ltd", new DateTime(currentYear, currentMonth, 12), "11:00", "Satin Alma", "Fiyat guncelleme muzakeresi", "var(--mestech-danger)"),
+    new(6, "Sprint Review", new DateTime(currentYear, currentMonth, 15), "16:00", "Tum Ekip", "Dalga 10 sprint degerlendirilmesi", "var(--mestech-info)"),
     new(7, "Kargo Firma Degisikligi", new DateTime(currentYear, currentMonth, 18), "10:00", "Operasyon", "Yeni kargo anlasma imzasi", "#ffc107"),
     new(8, "Muhasebe Kapanisi", new DateTime(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)), "17:00", "Muhasebe", "Aylik kapanis islemleri", "#d63384"),
-    new(9, "Amazon TR Magaza Acilisi", new DateTime(currentYear, currentMonth, 20), "09:00", "Platform Ekibi", "Amazon Turkiye magaza lansmani", "#fd7e14"),
+    new(9, "Amazon TR Magaza Acilisi", new DateTime(currentYear, currentMonth, 20), "09:00", "Platform Ekibi", "Amazon Turkiye magaza lansmani", "var(--mestech-orange)"),
     new(10, "MESA AI Demo Sunumu", new DateTime(currentYear, currentMonth, 22), "15:00", "AI Ekibi, Yonetim", "Uretim tahmin modeli demo", "#0dcaf0"),
   ];
 
@@ -405,7 +405,7 @@ else
       newEventTime = "09:00";
       newEventParticipants = string.Empty;
       newEventDescription = string.Empty;
-      newEventColor = "#0d6efd";
+      newEventColor = "var(--mestech-info)";
       showEventForm = false;
       BuildCalendarDays();
       successMessage = "Etkinlik basariyla eklendi";

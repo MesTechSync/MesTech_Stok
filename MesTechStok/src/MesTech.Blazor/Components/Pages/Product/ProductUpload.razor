@@ -53,7 +53,7 @@ else
                  style="cursor: pointer;" @onclick="() => SelectPlatform(platform.Code)">
               <div class="card-body text-center py-3">
                 <i class="@platform.Icon fa-2x mb-2 d-block"
-                   style="color: @(platform.Code == _selectedPlatform ? "#2855AC" : "#adb5bd");"></i>
+                   style="color: @(platform.Code == _selectedPlatform ? "var(--mestech-primary)" : "#adb5bd");"></i>
                 <small class="fw-semibold">@platform.Name</small>
               </div>
             </div>

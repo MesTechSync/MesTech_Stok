@@ -167,11 +167,11 @@ else
 
     private static string GetFileColor(string tur) => tur switch
     {
-        "pdf" => "#dc3545",
-        "xlsx" => "#198754",
-        "docx" => "#0d6efd",
+        "pdf" => "var(--mestech-danger)",
+        "xlsx" => "var(--mestech-success)",
+        "docx" => "var(--mestech-info)",
         "png" or "jpg" => "var(--mestech-purple)",
-        "zip" => "#fd7e14",
+        "zip" => "var(--mestech-orange)",
         _ => "#6c757d"
     };
 

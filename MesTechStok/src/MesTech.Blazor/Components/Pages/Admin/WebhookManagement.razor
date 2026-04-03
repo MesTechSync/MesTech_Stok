@@ -56,7 +56,7 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #dc354520;">
+               style="width: 48px; height: 48px; background-color: var(--mestech-danger)20;">
             <i class="fas fa-times-circle text-danger fa-lg"></i>
           </div>
           <h4 class="mb-0 fw-bold">@failedCount</h4>
@@ -68,7 +68,7 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #19875420;">
+               style="width: 48px; height: 48px; background-color: var(--mestech-success)20;">
             <i class="fas fa-check-circle text-success fa-lg"></i>
           </div>
           <h4 class="mb-0 fw-bold">@resolvedCount</h4>
@@ -372,9 +372,9 @@ else
   private static string GetPlatformColor(string platform) => platform switch
   {
     "Trendyol" => "#F27A1A",
-    "HepsiBurada" => "#FF6000",
+    "HepsiBurada" => "var(--mestech-hepsi)",
     "Shopify" => "#96bf48",
-    "Amazon" => "#FF9900",
+    "Amazon" => "var(--mestech-amazon)",
     "N11" => "#7B2D8E",
     "WooCommerce" => "#96588A",
     "eBay" => "#E53238",
