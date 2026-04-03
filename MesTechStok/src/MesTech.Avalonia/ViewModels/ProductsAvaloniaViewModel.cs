@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,6 +16,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IToastService _toast;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedPlatform = "Tumu";
@@ -42,10 +44,11 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
 
     private List<ProductItemDto> _allProducts = [];
 
-    public ProductsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public ProductsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IToastService toast)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _toast = toast;
     }
 
     public override async Task LoadAsync()
@@ -174,7 +177,12 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadAsync();
+    private async Task RefreshAsync()
+    {
+        await LoadAsync();
+        if (!HasError)
+            _toast.ShowSuccess($"{TotalCount} urun yuklendi");
+    }
 
     // GOREV 5: Toggle view command
     [RelayCommand]

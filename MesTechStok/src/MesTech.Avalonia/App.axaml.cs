@@ -105,6 +105,11 @@ public partial class App : global::Avalonia.Application
                 // ScopedMediatorWrapper creates a new DI scope per Send/Publish,
                 // giving each MediatR operation its own DbContext instance.
                 // All 157 ViewModels automatically get scoped behavior.
+                //
+                // IMPORTANT: AddMediatR registers IMediator→Mediator. We override IMediator
+                // with the wrapper, but the wrapper needs to resolve the REAL Mediator from
+                // child scopes. Register concrete Mediator separately to avoid infinite recursion.
+                services.AddTransient<MediatR.Mediator>();
                 services.AddSingleton<IMediator, MesTech.Avalonia.Services.ScopedMediatorWrapper>();
 
                 // === WebApi HTTP Client (G072 + ORG138 Polly resilience) ===
@@ -137,6 +142,7 @@ public partial class App : global::Avalonia.Application
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IFeatureGateService, FeatureGateService>();
                 services.AddSingleton<INotificationService, NotificationService>();
+                services.AddSingleton<IToastService, ToastService>();
 
                 // Views — registered for DI resolution
                 services.AddTransient<MainWindow>();
