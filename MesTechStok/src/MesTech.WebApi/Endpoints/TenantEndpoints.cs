@@ -54,7 +54,7 @@ public static class TenantEndpoints
             var tenant = await sender.Send(new GetTenantQuery(id), ct);
             return tenant is not null
                 ? Results.Ok(tenant)
-                : Results.NotFound(new { error = $"Tenant {id} not found" });
+                : Results.Problem(detail: $"Tenant {id} not found", statusCode: 404);
         })
         .WithName("GetTenantById")
         .WithSummary("Kiracı detayı — admin only")
@@ -68,7 +68,7 @@ public static class TenantEndpoints
         {
             var success = await sender.Send(
                 new UpdateTenantCommand(id, request.Name, request.TaxNumber, request.IsActive), ct);
-            return success ? Results.NoContent() : Results.NotFound(new { error = $"Tenant {id} not found" });
+            return success ? Results.NoContent() : Results.Problem(detail: $"Tenant {id} not found", statusCode: 404);
         })
         .WithName("UpdateTenant")
         .WithSummary("Kiracı bilgilerini güncelle — admin only").Produces(200).Produces(400)

@@ -176,7 +176,7 @@ public static class AccountingEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion?.ToArray()))
-                : Results.Conflict(new { error = result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 409);
         })
         .WithName("UpdateJournalEntry")
         .WithSummary("Yevmiye kaydı güncelle — RowVersion optimistic concurrency (G228)")

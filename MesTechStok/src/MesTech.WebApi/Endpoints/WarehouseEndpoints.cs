@@ -41,7 +41,7 @@ public static class WarehouseEndpoints
             var result = await sender.Send(new GetWarehouseByIdQuery(id), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = $"Warehouse {id} not found" });
+                : Results.Problem(detail: $"Warehouse {id} not found", statusCode: 404);
         })
         .WithName("GetWarehouseById")
         .WithSummary("Depo detayı")
@@ -77,7 +77,7 @@ public static class WarehouseEndpoints
                     request.Description, request.Type, request.IsActive), ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = $"Warehouse {id} not found or update failed" });
+                : Results.Problem(detail: $"Warehouse {id} not found or update failed", statusCode: 404);
         })
         .WithName("UpdateWarehouse")
         .WithSummary("Depo bilgilerini güncelle")
@@ -95,7 +95,7 @@ public static class WarehouseEndpoints
                 new DeleteWarehouseCommand(tenantId, id), ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = $"Warehouse {id} not found or delete failed" });
+                : Results.Problem(detail: $"Warehouse {id} not found or delete failed", statusCode: 404);
         })
         .WithName("DeleteWarehouse")
         .WithSummary("Depo sil / pasife al")
