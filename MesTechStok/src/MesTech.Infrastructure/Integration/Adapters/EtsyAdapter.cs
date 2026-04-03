@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -141,7 +142,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Etsy";
+    public string PlatformCode => nameof(PlatformType.Etsy);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;

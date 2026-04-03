@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -156,7 +157,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Zalando";
+    public string PlatformCode => nameof(PlatformType.Zalando);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;

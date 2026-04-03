@@ -153,7 +153,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "WooCommerce";
+    public string PlatformCode => nameof(PlatformType.WooCommerce);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;

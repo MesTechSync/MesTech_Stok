@@ -157,7 +157,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Shopify";
+    public string PlatformCode => nameof(PlatformType.Shopify);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;
