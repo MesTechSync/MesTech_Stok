@@ -9,6 +9,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MesTech.Infrastructure.Integration.Security;
 using MesTech.Infrastructure.Security;
 using Polly;
 using Polly.Retry;
@@ -104,9 +105,8 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid OpenCart base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[OpenCartAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[OpenCartAdapter] BaseUrl points to private network: {BaseUrl}", baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }

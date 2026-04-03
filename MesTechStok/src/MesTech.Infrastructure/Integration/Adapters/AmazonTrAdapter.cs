@@ -7,6 +7,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -211,9 +212,8 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid AmazonTr base URL scheme: {_baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[AmazonTrAdapter] BaseUrl points to internal/private network: {BaseUrl}", _baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[AmazonTrAdapter] BaseUrl points to private network: {BaseUrl}", _baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }

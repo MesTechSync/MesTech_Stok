@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -129,9 +130,8 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Ciceksepeti base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[CiceksepetiAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[CiceksepetiAdapter] BaseUrl points to private network: {BaseUrl}", rawBaseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
