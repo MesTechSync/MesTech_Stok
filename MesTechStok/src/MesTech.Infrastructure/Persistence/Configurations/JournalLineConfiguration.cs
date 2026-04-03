@@ -22,5 +22,7 @@ public sealed class JournalLineConfiguration : IEntityTypeConfiguration<JournalL
         builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_journal_lines_tenant_id");
         builder.HasIndex(x => new { x.TenantId, x.AccountId })
             .HasDatabaseName("IX_JournalLines_Tenant_Account");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }
