@@ -21,6 +21,16 @@
     --mestech-calendar-gap: #dee2e6;
     --mestech-calendar-cell: #fff;
     --mestech-calendar-today: #e7f1ff;
+    --mestech-purple: #6f42c1;
+    --mestech-indigo: #6610f2;
+    --mestech-orange: #fd7e14;
+    --mestech-mesa: #7C3AED;
+    --mestech-mesa-dark: #5B21B6;
+    --mestech-amazon: #FF9900;
+    --mestech-hepsi: #FF6000;
+    --mestech-modal-overlay: rgba(0, 0, 0, 0.5);
+    --mestech-shadow-sm: rgba(0, 0, 0, 0.1);
+    --mestech-shadow-md: rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +38,16 @@
         --mestech-bg: #1a1a2e;
         --mestech-surface: #16213e;
         --mestech-text: #e0e0e0;
+        --mestech-purple: #9b7bd4;
+        --mestech-indigo: #9b7de8;
+        --mestech-orange: #ffa54c;
+        --mestech-mesa: #a78bfa;
+        --mestech-mesa-dark: #8b5cf6;
+        --mestech-amazon: #ffb84d;
+        --mestech-hepsi: #ff8533;
+        --mestech-modal-overlay: rgba(0, 0, 0, 0.7);
+        --mestech-shadow-sm: rgba(0, 0, 0, 0.3);
+        --mestech-shadow-md: rgba(0, 0, 0, 0.5);
     }
     body { background: var(--mestech-bg); color: var(--mestech-text); }
     .card { background: var(--mestech-surface); border-color: #2a2a4a; }
@@ -314,3 +334,36 @@ body {
 .tree-item { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
 .tree-item:hover { background: var(--mestech-surface); }
 .tree-item.selected { background: var(--mestech-calendar-today); }
+
+/* ── Dark-mode-safe page header icon circles ── */
+.page-icon-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; color: #fff;
+}
+.page-icon-circle.bg-purple   { background-color: var(--mestech-purple); }
+.page-icon-circle.bg-indigo   { background-color: var(--mestech-indigo); }
+.page-icon-circle.bg-orange   { background-color: var(--mestech-orange); }
+.page-icon-circle.bg-mesa     { background-color: var(--mestech-mesa); }
+.page-icon-circle.bg-amazon   { background-color: var(--mestech-amazon); }
+.page-icon-circle.bg-hepsi    { background-color: var(--mestech-hepsi); }
+.page-icon-circle.bg-success  { background-color: var(--mestech-success); }
+.page-icon-circle.bg-danger   { background-color: var(--mestech-danger); }
+.page-icon-circle.bg-info     { background-color: var(--mestech-info); }
+.page-icon-circle.bg-warning  { background-color: var(--mestech-warning); color: #212529; }
+.page-icon-circle.bg-primary  { background-color: var(--mestech-primary); }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--mestech-modal-overlay);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1050;
+}
+
+/* ── Page heading color utilities ── */
+.text-purple  { color: var(--mestech-purple) !important; }
+.text-indigo  { color: var(--mestech-indigo) !important; }
+.text-mesa    { color: var(--mestech-mesa) !important; }
+.text-amazon  { color: var(--mestech-amazon) !important; }
+.text-hepsi   { color: var(--mestech-hepsi) !important; }

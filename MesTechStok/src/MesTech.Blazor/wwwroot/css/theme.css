@@ -17,6 +17,16 @@
   --mestech-calendar-gap: #2a2a4a;
   --mestech-calendar-cell: #1a1a2e;
   --mestech-calendar-today: rgba(40, 85, 172, 0.2);
+  --mestech-purple: #9b7bd4;
+  --mestech-indigo: #9b7de8;
+  --mestech-orange: #ffa54c;
+  --mestech-mesa: #a78bfa;
+  --mestech-mesa-dark: #8b5cf6;
+  --mestech-amazon: #ffb84d;
+  --mestech-hepsi: #ff8533;
+  --mestech-modal-overlay: rgba(0, 0, 0, 0.7);
+  --mestech-shadow-sm: rgba(0, 0, 0, 0.3);
+  --mestech-shadow-md: rgba(0, 0, 0, 0.5);
   color-scheme: dark;
 }
 
