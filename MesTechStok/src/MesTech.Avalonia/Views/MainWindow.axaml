@@ -105,7 +105,7 @@
                     <Button x:Name="SidebarToggleBtn" Classes="icon-btn"
                             ToolTip.Tip="MesTech Entegrator"
                             Click="OnSidebarToggle">
-                        <PathIcon Data="{StaticResource IconMenu}" Width="20" Height="20"/>
+                        <ic:SymbolIcon Symbol="Navigation" FontSize="20"/>
                     </Button>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="12,0,0,0">
                         <TextBlock Text="MesTech Entegratör"
@@ -222,7 +222,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="AppHub">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconHome}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="Home" FontSize="16"/>
                                     <TextBlock Text="Ana Sayfa" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
@@ -235,7 +235,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Dashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconDashboard}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
                                     <TextBlock Text="Kontrol Paneli"/>
                                 </StackPanel>
                             </Button>
@@ -248,7 +248,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Products">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="Box" FontSize="16"/>
                                     <TextBlock Text="Ürün Listesi"/>
                                 </StackPanel>
                             </Button>
@@ -258,7 +258,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportProducts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconUpload}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="16"/>
                                     <TextBlock Text="Toplu İçe Aktarma"/>
                                 </StackPanel>
                             </Button>
@@ -271,7 +271,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Orders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconShoppingCart}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="Cart" FontSize="16"/>
                                     <TextBlock Text="Siparişler"/>
                                 </StackPanel>
                             </Button>
@@ -284,7 +284,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Stock">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <PathIcon Data="{StaticResource IconInventory}" Width="16" Height="16"/>
+                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="16"/>
                                     <TextBlock Text="Stok Takibi"/>
                                 </StackPanel>
                             </Button>
