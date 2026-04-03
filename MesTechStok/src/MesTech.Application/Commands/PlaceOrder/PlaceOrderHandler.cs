@@ -64,7 +64,8 @@ public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, Place
             };
             orderItem.SetQuantityAndPrice(item.Quantity, item.UnitPrice);
             order.AddItem(orderItem);
-            product.AdjustStock(-item.Quantity, StockMovementType.Sale);
+            // Stok düşme burada YAPILMAZ — OrderPlacedStockDeductionHandler (Z1 zinciri) yapar.
+            // Burada AdjustStock çağrılırsa çift düşme olur (handler + event handler = 2x).
         }
 
         order.CalculateTotals();
