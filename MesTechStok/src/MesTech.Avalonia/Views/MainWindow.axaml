@@ -342,7 +342,7 @@
                                     <TextBlock Text="Depo Yonetimi"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Gecmisi" AutomationProperties.Name="Stok Hareket Gecmisi"
+                            <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Geçmişi" AutomationProperties.Name="Stok Hareket Geçmişi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockTimeline">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconDocument}" Width="16" Height="16"/>
@@ -1219,15 +1219,15 @@
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Export" ToolTip.Tip="Dışa Aktar" AutomationProperties.Name="Dışa Aktar"
                                     IsVisible="{Binding ShowExport}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Disa Aktar"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16"/><TextBlock Text="Dışa Aktar"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu" AutomationProperties.Name="Barkod Okuyucu"
                                     IsVisible="{Binding ShowExport}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
                             </Button>
-                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Urun Aciklama" AutomationProperties.Name="AI Urun Aciklama"
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Ürün Açıklama" AutomationProperties.Name="AI Ürün Açıklama"
                                     IsVisible="{Binding ShowAiInsight}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="AI Aciklama"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Data="{StaticResource IconStar}" Width="16" Height="16"/><TextBlock Text="AI Ürün Açıklama"/></StackPanel>
                             </Button>
 
                             <!-- Sistem Yönetimi -->
@@ -1258,7 +1258,7 @@
 
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
-                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Cikis" AutomationProperties.Name="Cikis">
+                            <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Çıkış" AutomationProperties.Name="Çıkış">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <PathIcon Data="{StaticResource IconLogout}" Width="16" Height="16"/>
                                     <TextBlock Text="Çıkış"/>
