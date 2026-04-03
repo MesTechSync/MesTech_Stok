@@ -1013,11 +1013,7 @@ public class EdgeCaseTests
         [Fact]
         public void Brand_SpecialCharsInName_Preserved()
         {
-            var brand = new Brand
-            {
-                TenantId = Guid.NewGuid(),
-                Name = "L'Oreal Paris & Co."
-            };
+            var brand = Brand.Create(Guid.NewGuid(), "L'Oreal Paris & Co.");
 
             brand.Name.Should().Be("L'Oreal Paris & Co.");
         }

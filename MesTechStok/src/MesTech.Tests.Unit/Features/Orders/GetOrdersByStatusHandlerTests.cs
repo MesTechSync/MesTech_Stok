@@ -51,8 +51,9 @@ public class GetOrdersByStatusHandlerTests
 
     private Order CreateOrder(OrderStatus status, decimal total)
     {
-        var order = Order.Create(_tenantId, $"ORD-{Guid.NewGuid():N}", "Test Customer", total);
-        typeof(Order).GetProperty("Status")?.SetValue(order, status);
+        var order = Order.CreateManual(_tenantId, Guid.NewGuid(), "Test Customer", null, "SALE");
+        order.SetFinancials(total, 0m, total);
+        typeof(Order).GetProperty("Status")!.SetValue(order, status);
         return order;
     }
 }

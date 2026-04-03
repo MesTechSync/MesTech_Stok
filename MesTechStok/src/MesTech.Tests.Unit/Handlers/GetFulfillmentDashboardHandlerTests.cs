@@ -15,6 +15,7 @@ public class GetFulfillmentDashboardHandlerTests
     {
         _sut = new GetFulfillmentDashboardHandler(
             Mock.Of<IProductRepository>(),
+            Mock.Of<IFulfillmentShipmentRepository>(),
             Mock.Of<ILogger<GetFulfillmentDashboardHandler>>());
     }
 

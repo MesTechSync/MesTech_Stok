@@ -45,11 +45,13 @@ public class GetStockPlacementsHandlerTests
 
     private static MesTech.Domain.Entities.StockPlacement CreatePlacement(string warehouse, string shelf, string product)
     {
-        var p = new MesTech.Domain.Entities.StockPlacement();
-        typeof(MesTech.Domain.Entities.StockPlacement).GetProperty("WarehouseName")?.SetValue(p, warehouse);
-        typeof(MesTech.Domain.Entities.StockPlacement).GetProperty("ShelfCode")?.SetValue(p, shelf);
-        typeof(MesTech.Domain.Entities.StockPlacement).GetProperty("ProductName")?.SetValue(p, product);
-        typeof(MesTech.Domain.Entities.StockPlacement).GetProperty("Quantity")?.SetValue(p, 10);
-        return p;
+        return MesTech.Domain.Entities.StockPlacement.Create(
+            tenantId: Guid.NewGuid(),
+            productId: Guid.NewGuid(),
+            warehouseId: Guid.NewGuid(),
+            quantity: 10,
+            warehouseName: warehouse,
+            shelfCode: shelf,
+            productName: product);
     }
 }

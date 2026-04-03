@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Cargo;
 using MesTech.Application.Features.Cargo.Queries.GetShipmentLabel;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,8 @@ public class GetShipmentLabelHandlerTests
         var adapters = new List<ICargoAdapter>();
         var sut = new GetShipmentLabelHandler(adapters, _loggerMock.Object);
 
-        var result = await sut.Handle(new GetShipmentLabelQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await sut.Handle(
+            new GetShipmentLabelQuery(Guid.NewGuid(), "SHP-001"), CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("Etiket");
@@ -28,12 +30,18 @@ public class GetShipmentLabelHandlerTests
     {
         var adapterMock = new Mock<ICargoAdapter>();
         adapterMock.Setup(a => a.SupportsLabelGeneration).Returns(true);
-        adapterMock.Setup(a => a.GetShipmentLabelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ShipmentLabelData(new byte[] { 0x25, 0x50, 0x44, 0x46 }, "label.pdf"));
+        adapterMock.Setup(a => a.GetShipmentLabelAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LabelResult
+            {
+                Data = new byte[] { 0x25, 0x50, 0x44, 0x46 },
+                FileName = "label.pdf",
+                Format = LabelFormat.Pdf
+            });
 
         var sut = new GetShipmentLabelHandler(new[] { adapterMock.Object }, _loggerMock.Object);
 
-        var result = await sut.Handle(new GetShipmentLabelQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await sut.Handle(
+            new GetShipmentLabelQuery(Guid.NewGuid(), "SHP-001"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.ContentType.Should().Be("application/pdf");

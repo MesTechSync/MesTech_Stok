@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Returns.Queries.GetReturnList;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -21,7 +22,7 @@ public class GetReturnListHandlerTests
     {
         var returns = new List<ReturnRequest>
         {
-            ReturnRequest.Create(_tenantId, Guid.NewGuid(), MesTech.Domain.Enums.ReturnReason.Defective, 150m),
+            CreateReturnWithRefund(_tenantId, 150m),
         };
         _returnRepoMock.Setup(r => r.GetByTenantAsync(_tenantId, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(returns);
@@ -41,5 +42,21 @@ public class GetReturnListHandlerTests
         var result = await _sut.Handle(new GetReturnListQuery(_tenantId, 20), CancellationToken.None);
 
         result.Should().BeEmpty();
+    }
+
+    private static ReturnRequest CreateReturnWithRefund(Guid tenantId, decimal refundAmount)
+    {
+        var ret = ReturnRequest.Create(
+            Guid.NewGuid(), tenantId, PlatformType.Trendyol,
+            ReturnReason.DefectiveProduct, "Test Customer");
+        ret.AddLine(new ReturnRequestLine
+        {
+            TenantId = tenantId,
+            ProductName = "Test Product",
+            Quantity = 1,
+            UnitPrice = refundAmount,
+            RefundAmount = refundAmount
+        });
+        return ret;
     }
 }

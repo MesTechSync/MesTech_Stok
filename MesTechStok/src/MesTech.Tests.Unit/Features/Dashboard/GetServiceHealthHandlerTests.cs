@@ -17,7 +17,7 @@ public class GetServiceHealthHandlerTests
     [Fact]
     public async Task Handle_ReturnsAllServiceStatuses()
     {
-        var results = new List<HealthCheckResult>
+        var results = new List<ServiceHealthResult>
         {
             new("PostgreSQL", true, "12ms"),
             new("Redis", true, "3ms"),
@@ -39,7 +39,7 @@ public class GetServiceHealthHandlerTests
     public async Task Handle_NoServices_ReturnsEmpty()
     {
         _healthMock.Setup(h => h.CheckAllAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<HealthCheckResult>());
+            .ReturnsAsync(new List<ServiceHealthResult>());
 
         var result = await _sut.Handle(new GetServiceHealthQuery(), CancellationToken.None);
 

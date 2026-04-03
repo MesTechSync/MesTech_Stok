@@ -31,7 +31,7 @@ public class InvoiceGeneratedExpenseHandlerTests
         var tenantId = Guid.NewGuid();
         var invoiceId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
-        var evt = new InvoiceCreatedEvent(invoiceId, orderId, tenantId, InvoiceType.Sales, 2500m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(invoiceId, orderId, tenantId, InvoiceType.EFatura, 2500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _mediatorMock
@@ -56,7 +56,7 @@ public class InvoiceGeneratedExpenseHandlerTests
     public async Task Handle_ReturnInvoice_IncludesTypeInTitle()
     {
         // Arrange
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Return, 100m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EArsiv, 100m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _mediatorMock
@@ -69,7 +69,7 @@ public class InvoiceGeneratedExpenseHandlerTests
         // Assert
         _mediatorMock.Verify(
             m => m.Send(It.Is<CreateExpenseCommand>(cmd =>
-                cmd.Title.Contains("Return")),
+                cmd.Title.Contains("EArsiv")),
                 It.IsAny<CancellationToken>()),
             Times.Once());
     }
@@ -78,7 +78,7 @@ public class InvoiceGeneratedExpenseHandlerTests
     public async Task Handle_ZeroTotal_StillCreatesExpense()
     {
         // Arrange
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Sales, 0m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 0m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _mediatorMock
@@ -99,7 +99,7 @@ public class InvoiceGeneratedExpenseHandlerTests
     public async Task Handle_MediatorThrows_PropagatesException()
     {
         // Arrange — no try/catch, should propagate
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Sales, 500m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _mediatorMock
@@ -118,7 +118,7 @@ public class InvoiceGeneratedExpenseHandlerTests
     {
         // Arrange
         var occurredAt = new DateTime(2026, 4, 3, 12, 0, 0, DateTimeKind.Utc);
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Sales, 750m, occurredAt);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 750m, occurredAt);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _mediatorMock

@@ -52,11 +52,8 @@ public class GetSalesAnalyticsHandlerTests
 
     private static Order CreateOrderWithItems(Guid tenantId, decimal total, int itemCount)
     {
-        var order = Order.Create(tenantId, $"ORD-{Guid.NewGuid():N}", "Customer", total);
-        for (int i = 0; i < itemCount; i++)
-        {
-            order.AddItem(Guid.NewGuid(), $"Product {i}", $"SKU-{i}", total / itemCount, 1);
-        }
+        var order = Order.CreateManual(tenantId, Guid.NewGuid(), "Customer", null, "SALE");
+        order.SetFinancials(total, 0m, total);
         return order;
     }
 }

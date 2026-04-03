@@ -27,7 +27,7 @@ public class GetStockSummaryHandlerTests
         _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(products);
 
-        var result = await _sut.Handle(new GetStockSummaryQuery(), CancellationToken.None);
+        var result = await _sut.Handle(new GetStockSummaryQuery(Guid.NewGuid()), CancellationToken.None);
 
         result.TotalProducts.Should().Be(3);
         result.InStockProducts.Should().Be(2);
@@ -42,7 +42,7 @@ public class GetStockSummaryHandlerTests
         _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
 
-        var result = await _sut.Handle(new GetStockSummaryQuery(), CancellationToken.None);
+        var result = await _sut.Handle(new GetStockSummaryQuery(Guid.NewGuid()), CancellationToken.None);
 
         result.TotalProducts.Should().Be(0);
         result.TotalStockValue.Should().Be(0);
@@ -50,9 +50,14 @@ public class GetStockSummaryHandlerTests
 
     private static Product CreateProduct(int stock, int minStock, decimal salePrice)
     {
-        var p = Product.Create(Guid.NewGuid(), $"SKU-{Guid.NewGuid():N}", $"Product-{Guid.NewGuid():N}", salePrice);
-        typeof(Product).GetProperty("Stock")?.SetValue(p, stock);
-        typeof(Product).GetProperty("MinimumStock")?.SetValue(p, minStock);
-        return p;
+        return new Product
+        {
+            TenantId = Guid.NewGuid(),
+            SKU = $"SKU-{Guid.NewGuid():N}",
+            Name = $"Product-{Guid.NewGuid():N}",
+            SalePrice = salePrice,
+            Stock = stock,
+            MinimumStock = minStock
+        };
     }
 }

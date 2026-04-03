@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Events;
 using MesTech.Infrastructure.Messaging;
@@ -29,7 +29,7 @@ public class InvoiceCreatedIntegrationHandlerTests
         // Arrange
         var invoiceId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
-        var evt = new InvoiceCreatedEvent(invoiceId, orderId, Guid.NewGuid(), InvoiceType.Sales, 1500m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(invoiceId, orderId, Guid.NewGuid(), InvoiceType.EFatura, 1500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         // Act
@@ -47,7 +47,7 @@ public class InvoiceCreatedIntegrationHandlerTests
     public async Task Handle_ZeroTotal_StillPublishes()
     {
         // Arrange
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Return, 0m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 0m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         // Act
@@ -65,7 +65,7 @@ public class InvoiceCreatedIntegrationHandlerTests
     public async Task Handle_PublisherThrows_PropagatesException()
     {
         // Arrange — no try/catch in this handler, exception should propagate
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Sales, 100m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 100m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         _publisherMock
@@ -88,7 +88,7 @@ public class InvoiceCreatedIntegrationHandlerTests
         // Arrange
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
-        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.Sales, 250m, DateTime.UtcNow);
+        var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 250m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
         // Act
