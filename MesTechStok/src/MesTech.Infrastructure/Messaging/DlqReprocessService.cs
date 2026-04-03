@@ -81,9 +81,10 @@ public sealed class DlqReprocessService
                 var reprocessCount = 0;
                 if (msg.TryGetProperty("properties", out var props) &&
                     props.TryGetProperty("headers", out var headers) &&
-                    headers.TryGetProperty("x-reprocess-count", out var countProp))
+                    headers.TryGetProperty("x-reprocess-count", out var countProp) &&
+                    countProp.TryGetInt32(out var parsedCount))
                 {
-                    reprocessCount = countProp.GetInt32();
+                    reprocessCount = parsedCount;
                 }
 
                 if (reprocessCount >= 3)
