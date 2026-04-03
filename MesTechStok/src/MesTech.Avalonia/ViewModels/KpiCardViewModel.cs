@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -10,6 +11,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class KpiCardViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public KpiCardViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty]
     private string _value = "0";
 
