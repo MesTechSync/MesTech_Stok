@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -59,6 +60,12 @@ public sealed class ProductScraperService : IProductScraperService
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
         {
             _logger.LogWarning("ScrapeFromUrlAsync called with invalid URL: {Url}", url);
+            return null;
+        }
+
+        if (SsrfGuard.IsPrivateHost(uri.Host))
+        {
+            _logger.LogWarning("ScrapeFromUrlAsync rejected — private network URL: {Url}", url);
             return null;
         }
 
