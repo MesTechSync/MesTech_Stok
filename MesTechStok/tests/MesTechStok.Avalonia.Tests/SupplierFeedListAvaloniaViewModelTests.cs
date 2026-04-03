@@ -1,6 +1,8 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.Dropshipping.Queries;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -9,9 +11,21 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class SupplierFeedListAvaloniaViewModelTests
 {
+    private static readonly List<FeedSourceDto> DemoFeeds =
+    [
+        new(Guid.NewGuid(), "Mega Elektronik XML", "https://mega.com/feed.xml", "XML", 15.0m, 60, true, "Success", new DateTime(2026, 3, 1, 10, 30, 0), null, 1200),
+        new(Guid.NewGuid(), "Deniz Tech CSV", "https://deniz.com/export.csv", "CSV", 12.0m, 120, true, "Success", new DateTime(2026, 3, 1, 8, 0, 0), null, 850),
+        new(Guid.NewGuid(), "ABC API Feed", "https://abc.com/api/products", "API", 10.0m, 30, true, "Failed", new DateTime(2026, 2, 28, 14, 0, 0), "Timeout", 430),
+        new(Guid.NewGuid(), "Star Excel Import", "https://star.com/products.xlsx", "Excel", 18.0m, 1440, true, "Success", new DateTime(2026, 2, 27, 9, 0, 0), null, 320),
+        new(Guid.NewGuid(), "Eski Tedarikci Feed", "https://eski.com/feed.xml", "XML", 20.0m, 60, false, "Success", null, null, 0),
+    ];
+
     private static SupplierFeedListAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
+        mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetFeedSourcesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PagedResult<FeedSourceDto>.Create(DemoFeeds, DemoFeeds.Count, 1, 50));
         return new SupplierFeedListAvaloniaViewModel(mediatorMock.Object);
     }
 
