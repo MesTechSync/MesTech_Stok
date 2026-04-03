@@ -79,11 +79,27 @@ public sealed class SettlementBatch : BaseEntity, ITenantEntity
     {
         Status = SettlementStatus.Reconciled;
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new SettlementReconciledEvent
+        {
+            TenantId = TenantId,
+            SettlementBatchId = Id,
+            Platform = Platform,
+            TotalNet = TotalNet
+        });
     }
 
     public void MarkDisputed()
     {
         Status = SettlementStatus.Disputed;
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new SettlementDisputedEvent
+        {
+            TenantId = TenantId,
+            SettlementBatchId = Id,
+            Platform = Platform,
+            TotalNet = TotalNet
+        });
     }
 }
