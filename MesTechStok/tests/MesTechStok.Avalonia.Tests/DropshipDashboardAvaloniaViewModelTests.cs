@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -19,6 +20,8 @@ public class DropshipDashboardAvaloniaViewModelTests
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetDropshipDashboardQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MesTech.Application.DTOs.Platform.DropshipDashboardDto());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetDropshipSuppliersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<MesTech.Application.DTOs.Dropshipping.DropshipSupplierDto>)Array.Empty<MesTech.Application.DTOs.Dropshipping.DropshipSupplierDto>());
         _sut = new DropshipDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
