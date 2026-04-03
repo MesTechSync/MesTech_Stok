@@ -1,7 +1,10 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
+using MesTech.Application.Queries.GetStoresByTenant;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -10,11 +13,18 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class OpenCartAvaloniaViewModelTests
 {
-    private static OpenCartAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private OpenCartAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPlatformDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformDashboardDto());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetStoresByTenantQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<MesTech.Application.DTOs.StoreDto>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<SyncPlatformCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MesTech.Application.DTOs.SyncResultDto { IsSuccess = true });
         var currentUserMock = new Mock<ICurrentUserService>();
-        return new OpenCartAvaloniaViewModel(mediatorMock.Object, currentUserMock.Object);
+        return new OpenCartAvaloniaViewModel(_mediatorMock.Object, currentUserMock.Object);
     }
 
     [Fact]

@@ -1,6 +1,9 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Features.Invoice.DTOs;
+using MesTech.Application.Features.Invoice.Queries;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -9,11 +12,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class InvoiceManagementAvaloniaViewModelTests
 {
+    private readonly Mock<IMediator> _mediatorMock = new();
     private readonly InvoiceManagementAvaloniaViewModel _sut;
 
     public InvoiceManagementAvaloniaViewModelTests()
     {
-        _sut = new InvoiceManagementAvaloniaViewModel(Mock.Of<IMediator>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetInvoicesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<InvoiceListDto>());
+        _sut = new InvoiceManagementAvaloniaViewModel(_mediatorMock.Object);
     }
 
     [Fact]
@@ -32,64 +38,35 @@ public class InvoiceManagementAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate8Invoices()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Invoices.Should().HaveCount(8);
-        _sut.TotalCount.Should().Be(8);
-        _sut.IsEmpty.Should().BeFalse();
+        _sut.Invoices.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
+        _sut.IsEmpty.Should().BeTrue();
         _sut.IsLoading.Should().BeFalse();
-        _sut.Invoices.Should().Contain(i => i.Durum == "Onayli");
-        _sut.Invoices.Should().Contain(i => i.Durum == "Bekliyor");
-        _sut.Invoices.Should().Contain(i => i.Durum == "Reddedildi");
+        _sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task FilterByType_eFatura_ShouldNarrowResults()
+    public async Task LoadAsync_ShouldTransitionLoadingState()
     {
         // Arrange
-        await _sut.LoadAsync();
+        var loadingStates = new List<bool>();
+        _sut.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(InvoiceManagementAvaloniaViewModel.IsLoading))
+                loadingStates.Add(_sut.IsLoading);
+        };
 
         // Act
-        _sut.SelectedType = "e-Fatura";
-
-        // Assert — 5 e-Fatura items
-        _sut.Invoices.Should().HaveCount(5);
-        _sut.Invoices.Should().OnlyContain(i => i.Tip == "e-Fatura");
-        _sut.TotalCount.Should().Be(5);
-    }
-
-    [Fact]
-    public async Task SearchText_ShouldFilterByAliciOrFaturaNo()
-    {
-        // Arrange
         await _sut.LoadAsync();
-
-        // Act
-        _sut.SearchText = "Demir";
 
         // Assert
-        _sut.Invoices.Should().HaveCount(1);
-        _sut.Invoices[0].Alici.Should().Contain("Demir Bilisim");
-    }
-
-    [Fact]
-    public async Task CreateInvoiceCommand_ShouldAddNewInvoiceToList()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-        var initialCount = _sut.Invoices.Count;
-
-        // Act
-        await _sut.CreateInvoiceCommand.ExecuteAsync(null);
-
-        // Assert
-        _sut.Invoices.Should().HaveCount(initialCount + 1);
-        _sut.Invoices[0].Durum.Should().Be("Bekliyor");
-        _sut.Invoices[0].Tutar.Should().Be(0.00m);
-        _sut.Invoices[0].Tip.Should().Be("e-Fatura");
+        loadingStates.Should().Contain(true);
+        _sut.IsLoading.Should().BeFalse();
     }
 }

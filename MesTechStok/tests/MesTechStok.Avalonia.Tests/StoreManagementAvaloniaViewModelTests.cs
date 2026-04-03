@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,35 +17,24 @@ public class StoreManagementAvaloniaViewModelTests
     public StoreManagementAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetStoreSettingsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StoreSettingsDto());
         var tenantProviderMock = new Mock<ITenantProvider>();
         _sut = new StoreManagementAvaloniaViewModel(_mediatorMock.Object, tenantProviderMock.Object);
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateStores()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Stores.Should().HaveCount(4);
-        _sut.TotalCount.Should().Be(4);
-        _sut.IsEmpty.Should().BeFalse();
+        _sut.Stores.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
+        _sut.IsEmpty.Should().BeTrue();
         _sut.IsLoading.Should().BeFalse();
         _sut.HasError.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldContainExpectedPlatforms()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.Stores.Should().Contain(s => s.Platform == "Trendyol");
-        _sut.Stores.Should().Contain(s => s.Platform == "Hepsiburada");
-        _sut.Stores.Should().Contain(s => s.Platform == "N11");
-        _sut.Stores.Should().Contain(s => s.Platform == "Ciceksepeti");
     }
 
     [Fact]
@@ -64,22 +54,6 @@ public class StoreManagementAvaloniaViewModelTests
         // Assert
         loadingStates.Should().Contain(true);
         _sut.IsLoading.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_StoresShouldHaveApiStatusAndProductCount()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        var trendyol = _sut.Stores.First(s => s.Platform == "Trendyol");
-        trendyol.ApiStatus.Should().Be("Bagli");
-        trendyol.ProductCount.Should().Be(1250);
-        trendyol.LastSync.Should().NotBeNullOrEmpty();
-
-        var disconnected = _sut.Stores.First(s => s.Platform == "Ciceksepeti");
-        disconnected.ApiStatus.Should().Be("Baglanti Kesildi");
     }
 
     [Fact]

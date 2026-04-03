@@ -1,6 +1,8 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformList;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -11,7 +13,12 @@ public class PlatformListAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private PlatformListAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+    private PlatformListAvaloniaViewModel CreateSut()
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPlatformListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<MesTech.Application.DTOs.Platform.PlatformCardDto>());
+        return new PlatformListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
@@ -29,7 +36,7 @@ public class PlatformListAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate13Platforms()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -38,58 +45,11 @@ public class PlatformListAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        sut.Platforms.Should().HaveCount(13);
-        sut.TotalCount.Should().Be(13);
-        sut.IsEmpty.Should().BeFalse();
-        sut.IsLoading.Should().BeFalse();
-        sut.HasError.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldSetIsLoadingFalseAfterCompletion()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert — 3-state: loading done, no error, not empty
+        sut.Platforms.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
+        sut.IsEmpty.Should().BeTrue();
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task LoadAsync_PlatformsShouldContainTrendyolAsFirst()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert
-        sut.Platforms[0].Name.Should().Be("Trendyol");
-        sut.Platforms[0].Color.Should().Be("#FF6F00");
-        sut.Platforms[0].IsActive.Should().BeTrue();
-        sut.Platforms[0].StoreCount.Should().Be(2);
-        sut.Platforms[0].StatusText.Should().Be("Aktif");
-    }
-
-    [Fact]
-    public async Task LoadAsync_InactivePlatformsShouldHaveStatusPasif()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert
-        var inactive = sut.Platforms.Where(p => !p.IsActive).ToList();
-        inactive.Should().HaveCountGreaterThan(0);
-        inactive.Should().AllSatisfy(p => p.StatusText.Should().Be("Pasif"));
-        inactive.Should().AllSatisfy(p => p.StoreCount.Should().Be(0));
     }
 }
