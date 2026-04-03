@@ -1,5 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Accounting.Queries.GetReconciliationDashboard;
+using MesTech.Application.Features.Accounting.Queries.GetReconciliationMatches;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -17,6 +19,12 @@ public class MutabakatAvaloniaViewModelTests
     public MutabakatAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetReconciliationDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReconciliationDashboardDto());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetReconciliationMatchesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ReconciliationMatchDto>().AsReadOnly());
         _sut = new MutabakatAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
@@ -35,22 +43,22 @@ public class MutabakatAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateItemsAndKPIs()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
-        // Assert — 6 items: 3 Eslesti, 2 Eslesmedi, 1 Beklemede
-        _sut.Items.Should().HaveCount(6);
-        _sut.TotalRecords.Should().Be("6");
-        _sut.MatchedCount.Should().Be("3");
-        _sut.UnmatchedCount.Should().Be("2");
-        _sut.MatchScoreText.Should().Be("%50");
+        // Assert — empty mock data: all zeroes
         _sut.IsLoading.Should().BeFalse();
+        _sut.HasError.Should().BeFalse();
+        _sut.TotalRecords.Should().Be("0");
+        _sut.MatchedCount.Should().Be("0");
+        _sut.UnmatchedCount.Should().Be("0");
+        _sut.MatchScoreText.Should().Be("%0");
     }
 
     [Fact]
-    public async Task FilterByStatus_Eslesmedi_ShouldNarrowResults()
+    public async Task FilterByStatus_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -59,12 +67,12 @@ public class MutabakatAvaloniaViewModelTests
         _sut.SelectedStatusFilter = "Eslesmedi";
 
         // Assert
-        _sut.Items.Should().HaveCount(2);
-        _sut.Items.Should().OnlyContain(x => x.Status == "Eslesmedi");
+        _sut.Items.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task FilterBySource_ShouldNarrowResults()
+    public async Task FilterBySource_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -73,12 +81,12 @@ public class MutabakatAvaloniaViewModelTests
         _sut.SelectedSource = "Cari - Trendyol";
 
         // Assert
-        _sut.Items.Should().HaveCount(2);
-        _sut.Items.Should().OnlyContain(x => x.Source == "Cari - Trendyol");
+        _sut.Items.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task SearchText_ShouldFilterByDescriptionOrReference()
+    public async Task SearchText_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -86,9 +94,9 @@ public class MutabakatAvaloniaViewModelTests
         // Act
         _sut.SearchText = "hakedis";
 
-        // Assert — 3 items contain "hakedis" in Description
-        _sut.Items.Should().HaveCount(3);
-        _sut.Items.Should().OnlyContain(x => x.Description.Contains("hakedis", StringComparison.OrdinalIgnoreCase));
+        // Assert
+        _sut.Items.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]

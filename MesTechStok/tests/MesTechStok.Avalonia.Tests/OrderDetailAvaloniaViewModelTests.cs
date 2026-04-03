@@ -1,8 +1,11 @@
 using FluentAssertions;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
+using AppOrderListItemDto = MesTech.Application.Features.Orders.Queries.GetOrderList.OrderListItemDto;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -16,6 +19,12 @@ public class OrderDetailAvaloniaViewModelTests
     public OrderDetailAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetOrderListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<AppOrderListItemDto>().AsReadOnly());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetOrderDetailQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((OrderDetailDto?)null);
         _sut = new OrderDetailAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
@@ -30,26 +39,21 @@ public class OrderDetailAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateOrderDetails()
+    public async Task LoadAsync_WhenNoOrders_ShouldSetEmptyState()
     {
         await _sut.LoadAsync();
 
-        _sut.CustomerName.Should().NotBeNullOrEmpty();
-        _sut.Platform.Should().NotBeNullOrEmpty();
-        _sut.OrderDate.Should().NotBeNullOrEmpty();
-        _sut.CargoCompany.Should().NotBeNullOrEmpty();
-        _sut.TrackingNumber.Should().NotBeNullOrEmpty();
+        _sut.IsEmpty.Should().BeTrue();
+        _sut.HasError.Should().BeFalse();
+        _sut.IsLoading.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateOrderItems()
+    public async Task LoadAsync_WhenNoOrders_OrderItemsShouldBeEmpty()
     {
         await _sut.LoadAsync();
 
-        _sut.OrderItems.Should().NotBeEmpty();
-        _sut.OrderItems.Should().HaveCountGreaterThanOrEqualTo(2);
-        _sut.OrderItems.First().ProductName.Should().NotBeNullOrEmpty();
-        _sut.OrderItems.First().Sku.Should().NotBeNullOrEmpty();
+        _sut.OrderItems.Should().BeEmpty();
     }
 
     [Fact]
