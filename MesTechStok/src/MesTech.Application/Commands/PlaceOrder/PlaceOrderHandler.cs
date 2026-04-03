@@ -12,17 +12,20 @@ public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly StockCalculationService _stockCalculation;
+    private readonly ITenantProvider _tenantProvider;
 
     public PlaceOrderHandler(
         IOrderRepository orderRepository,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
-        StockCalculationService stockCalculation)
+        StockCalculationService stockCalculation,
+        ITenantProvider tenantProvider)
     {
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _stockCalculation = stockCalculation ?? throw new ArgumentNullException(nameof(stockCalculation));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<PlaceOrderResult> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -31,6 +34,7 @@ public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, Place
 
         var order = new Order
         {
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             OrderNumber = $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpperInvariant()}",
             CustomerId = request.CustomerId,
             CustomerName = request.CustomerName,
