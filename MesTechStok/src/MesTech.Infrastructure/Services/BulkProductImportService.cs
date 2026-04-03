@@ -481,6 +481,8 @@ public sealed class BulkProductImportService : IBulkProductImportService
         var cell = ws.Cell(row, col);
         if (cell.TryGetValue(out double d))
         {
+            if (double.IsNaN(d) || double.IsInfinity(d) || d > int.MaxValue || d < int.MinValue)
+                return false;
             value = (int)d;
             return true;
         }
