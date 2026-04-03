@@ -9,11 +9,13 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
-    public CreateProductHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    public CreateProductHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
+        _tenantProvider = tenantProvider;
     }
 
     public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -26,6 +28,7 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
 
         var product = new Product
         {
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Name = request.Name,
             SKU = request.SKU,
             Barcode = request.Barcode,
