@@ -248,8 +248,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         // OrderPlacedEvent burada fırlatılMAZ — Pending = taslak.
         // Place() çağrıldığında Confirmed statüsüne geçer ve event fırlatır.
         // Aksi halde OrderPlacedStockDeductionHandler çift stok düşürür.
-        order.RaiseDomainEvent(new OrderReceivedEvent(
-            order.Id, tenantId, "Manual", order.OrderNumber, 0m, DateTime.UtcNow));
+        // NOT: OrderReceivedEvent burada fırlatılMAZ — MarkAsDelivered()'da fırlatılır.
+        // Pending taslakta event fırlatmak çift gelir kaydı oluşturuyordu (G10869).
 
         return order;
     }
