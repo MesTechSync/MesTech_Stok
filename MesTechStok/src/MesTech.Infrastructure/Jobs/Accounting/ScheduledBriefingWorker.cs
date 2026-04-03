@@ -104,7 +104,7 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
             var orderCount = yesterdayOrders.Count;
 
             // 3. Dusuk stok uyarilari
-            var lowStockProducts = await _productRepository.GetLowStockAsync().ConfigureAwait(false);
+            var lowStockProducts = await _productRepository.GetLowStockAsync(ct).ConfigureAwait(false);
             var stockAlerts = lowStockProducts
                 .Take(10)
                 .Select(p => $"{p.Name} (SKU: {p.SKU}) — Stok: {p.Stock}")
