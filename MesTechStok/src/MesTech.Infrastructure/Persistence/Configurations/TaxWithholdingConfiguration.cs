@@ -16,5 +16,7 @@ public sealed class TaxWithholdingConfiguration : IEntityTypeConfiguration<TaxWi
         builder.Property(e => e.TaxExclusiveAmount).HasPrecision(18, 2);
         builder.Property(e => e.Rate).HasPrecision(5, 4);
         builder.Property(e => e.WithholdingAmount).HasPrecision(18, 2);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }
