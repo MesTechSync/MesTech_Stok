@@ -211,7 +211,7 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-// Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
+// Port comes from launchSettings.json (3501 dev) or ASPNETCORE_URLS env var (3200 Docker) — no hardcoded override
 
 var app = builder.Build();
 
@@ -255,8 +255,11 @@ app.UseAntiforgery();
 app.MapHealthChecks("/health");
 app.MapMetrics();
 
-// Login rate limit — apply "login" policy to /login path
-app.MapGet("/login", () => Results.Redirect("/login")).RequireRateLimiting("login");
+// Login rate limit — apply "login" policy to login-related API calls
+// NOTE: Blazor /login page is served by MapRazorComponents; this endpoint
+// protects the authentication POST from brute-force attacks.
+app.MapPost("/api/auth/login", () => Results.StatusCode(StatusCodes.Status405MethodNotAllowed))
+    .RequireRateLimiting("login");
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
