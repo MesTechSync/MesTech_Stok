@@ -716,6 +716,18 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
             Application.EventHandlers.MiscNotificationHandler>();
 
+        // ERPNext handlers (DEV1 TUR1 fix: 5 missing DI registrations):
+        services.AddScoped<Application.EventHandlers.IERPNextCustomerHandler,
+            Application.EventHandlers.ERPNextCustomerHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextSalesInvoiceHandler,
+            Application.EventHandlers.ERPNextSalesInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextStockEntryHandler,
+            Application.EventHandlers.ERPNextStockEntryHandler>();
+        services.AddScoped<Application.EventHandlers.IShipmentCostJournalHandler,
+            Application.EventHandlers.ShipmentCostJournalHandler>();
+        services.AddScoped<Application.EventHandlers.IStaleOrderNotificationHandler,
+            Application.EventHandlers.StaleOrderNotificationHandler>();
+
         // Repository implementations (DEV1 TUR 6: 7 missing repos):
         services.AddScoped<Domain.Interfaces.IBankAccountRepository,
             Persistence.Repositories.BankAccountRepository>();
