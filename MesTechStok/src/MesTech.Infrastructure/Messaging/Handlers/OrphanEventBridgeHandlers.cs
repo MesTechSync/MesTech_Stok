@@ -576,23 +576,41 @@ public sealed class PlatformMessageReceivedBridgeHandler
 #region CRM & İK
 
 /// <summary>
-/// CalendarEventCreatedEvent → Takvim etkinliği loglama.
+/// CalendarEventCreatedEvent → Takvim etkinliği loglama + bildirim.
+/// DEV1 TUR17: log-only → SendNotificationCommand dispatch eklendi.
 /// </summary>
 public sealed class CalendarEventCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<CalendarEventCreatedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<CalendarEventCreatedBridgeHandler> _logger;
 
-    public CalendarEventCreatedBridgeHandler(ILogger<CalendarEventCreatedBridgeHandler> logger)
-        => _logger = logger;
+    public CalendarEventCreatedBridgeHandler(IMediator mediator, ILogger<CalendarEventCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<CalendarEventCreatedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<CalendarEventCreatedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] CalendarEventCreated — EventId={EventId}, StartAt={StartAt}",
             e.EventId, e.StartAt);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "calendar-event-created",
+                Content: $"Yeni takvim etkinliği: {e.StartAt:dd.MM.yyyy HH:mm}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "CalendarEventCreated bildirim gönderilemedi — {EventId}", e.EventId);
+        }
     }
 }
 
@@ -721,23 +739,41 @@ public sealed class TaskOverdueBridgeHandler
 #region Sistem & Doküman
 
 /// <summary>
-/// DocumentUploadedEvent → Doküman yükleme loglama.
+/// DocumentUploadedEvent → Doküman yükleme loglama + bildirim.
+/// DEV1 TUR17: log-only → SendNotificationCommand dispatch eklendi.
 /// </summary>
 public sealed class DocumentUploadedBridgeHandler
     : INotificationHandler<DomainEventNotification<DocumentUploadedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<DocumentUploadedBridgeHandler> _logger;
 
-    public DocumentUploadedBridgeHandler(ILogger<DocumentUploadedBridgeHandler> logger)
-        => _logger = logger;
+    public DocumentUploadedBridgeHandler(IMediator mediator, ILogger<DocumentUploadedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<DocumentUploadedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<DocumentUploadedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] DocumentUploaded — DocumentId={DocId}, FileName={FileName}, Size={Size}",
             e.DocumentId, e.FileName, e.FileSizeBytes);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "document-uploaded",
+                Content: $"Belge yüklendi: {e.FileName} ({e.FileSizeBytes / 1024} KB)"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "DocumentUploaded bildirim gönderilemedi — {DocId}", e.DocumentId);
+        }
     }
 }
 
