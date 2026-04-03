@@ -74,7 +74,7 @@ public sealed class XAdESSignatureService : IDigitalSignatureService
             using var ms = new MemoryStream();
             doc.Save(ms);
             return ms.ToArray();
-        }, ct);
+        }, ct).ConfigureAwait(false);
     }
 
     public async Task<SignatureVerificationResult> VerifySignatureAsync(
@@ -108,7 +108,7 @@ public sealed class XAdESSignatureService : IDigitalSignatureService
             {
                 return new SignatureVerificationResult(false, SignatureStatus.Invalid, null, null, ex.Message);
             }
-        }, ct);
+        }, ct).ConfigureAwait(false);
     }
 
     public Task<bool> IsCertificateAvailableAsync(CancellationToken ct = default)
