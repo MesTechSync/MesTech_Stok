@@ -156,7 +156,7 @@ public sealed class ProcessPaymentWebhookHandler
         return false;
     }
 
-    private bool VerifyStripeSignature(string body, string signature, string? secret)
+    private static bool VerifyStripeSignature(string body, string signature, string? secret)
     {
         if (string.IsNullOrWhiteSpace(secret))
             return true;

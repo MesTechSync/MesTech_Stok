@@ -20,6 +20,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CA1014</NoWarn>
     <UserSecretsId>mestech-application-b2c3d4e5-f6a7-8901-bcde-f12345678901</UserSecretsId>
   </PropertyGroup>
 

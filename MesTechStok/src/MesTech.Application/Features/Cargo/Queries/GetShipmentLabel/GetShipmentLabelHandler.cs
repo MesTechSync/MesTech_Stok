@@ -30,10 +30,12 @@ public sealed class GetShipmentLabelHandler : IRequestHandler<GetShipmentLabelQu
                     FileName = result.FileName
                 };
             }
+#pragma warning disable CA1031 // Intentional: iterate adapters, log failure, try next provider
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Label generation failed for adapter {Provider}", adapter.Provider);
             }
+#pragma warning restore CA1031
         }
 
         return new ShipmentLabelResult { ErrorMessage = "Etiket uretilemedi" };

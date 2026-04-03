@@ -370,8 +370,8 @@ public static class ProductEndpoints
         .WithName("BulkAutoCompetePrice")
         .WithSummary("Toplu otomatik fiyat rekabet — tenant'ın tüm ürünleri veya platform bazlı Buybox kazanma")
         .Produces(200).Produces(400)
-        .WithRequestTimeout("LongRunning")
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
         group.MapGet("/platform/{platformCode}", async (
