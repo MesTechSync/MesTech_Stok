@@ -158,17 +158,23 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
 
         // Dalga 8: Ozon — Client-Id + Api-Key header auth
+        if (configuration is not null)
+            services.Configure<OzonOptions>(configuration.GetSection(OzonOptions.Section));
         services.AddSingleton<OzonAdapter>(sp =>
             new OzonAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ozon),
-                sp.GetRequiredService<ILogger<OzonAdapter>>()));
+                sp.GetRequiredService<ILogger<OzonAdapter>>(),
+                sp.GetService<IOptions<OzonOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OzonAdapter>());
 
         // Dalga 8: PTT AVM — username/password Bearer token
+        if (configuration is not null)
+            services.Configure<PttAvmOptions>(configuration.GetSection(PttAvmOptions.Section));
         services.AddSingleton<PttAvmAdapter>(sp =>
             new PttAvmAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttAvm),
-                sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
+                sp.GetRequiredService<ILogger<PttAvmAdapter>>(),
+                sp.GetService<IOptions<PttAvmOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
 
         // Dalga 14 S3: YurticiKargo options — sandbox toggle + environment-aware URLs
