@@ -22,7 +22,7 @@ public sealed class FeedReliabilityScoreServiceAdapter(
         Guid supplierFeedId, CancellationToken ct = default)
     {
         var feed = await db.SupplierFeeds
-            .FirstOrDefaultAsync(f => f.Id == supplierFeedId && !f.IsDeleted, ct);
+            .FirstOrDefaultAsync(f => f.Id == supplierFeedId && !f.IsDeleted, ct).ConfigureAwait(false);
 
         if (feed is null)
             throw new InvalidOperationException($"SupplierFeed {supplierFeedId} not found or deleted.");
