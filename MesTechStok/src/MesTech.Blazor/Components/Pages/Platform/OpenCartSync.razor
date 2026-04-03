@@ -23,12 +23,11 @@ else if (errorMessage is not null)
 else
 {
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-sync-alt text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">OpenCart Senkronizasyon</h3>
+      <h3 class="mb-0" >OpenCart Senkronizasyon</h3>
       <small class="text-muted">Urun, siparis ve stok senkronizasyon durumu</small>
     </div>
     <button class="btn btn-primary ms-auto" @onclick="SyncNow" disabled="@isSyncing">
@@ -51,7 +50,7 @@ else
               </div>
               <div class="rounded-circle d-flex align-items-center justify-content-center"
                    style="width: 40px; height: 40px; background-color: #f8f9fa;">
-                <i class="fas @card.Icon" style="color: #2855AC;"></i>
+                <i class="fas @card.Icon" ></i>
               </div>
             </div>
             <small class="@(card.IsOk ? "text-success" : "text-warning")">
@@ -73,7 +72,7 @@ else
   <!-- Sync History -->
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Senkronizasyon Gecmisi</h6>
+      <h6 class="mb-0"><i class="fas fa-history me-2" ></i>Senkronizasyon Gecmisi</h6>
       <span class="badge bg-secondary">@syncHistory.Count kayit</span>
     </div>
     <div class="card-body p-0">

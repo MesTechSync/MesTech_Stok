@@ -22,12 +22,11 @@ else if (errorMessage is not null)
 else
 {
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-file-import text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Urun Icerik Aktarimi</h3>
+      <h3 class="mb-0" >Urun Icerik Aktarimi</h3>
       <small class="text-muted">CSV veya Excel dosyasindan toplu urun aktarimi</small>
     </div>
   </div>
@@ -43,7 +42,7 @@ else
   <!-- Dosya Yukleme -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-upload me-2" style="color: #2855AC;"></i>Dosya Yukle</h6>
+      <h6 class="mb-0"><i class="fas fa-upload me-2" ></i>Dosya Yukle</h6>
     </div>
     <div class="card-body">
       <div class="border border-2 border-dashed rounded-3 p-5 text-center"
@@ -66,7 +65,7 @@ else
   {
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white">
-        <h6 class="mb-0"><i class="fas fa-columns me-2" style="color: #2855AC;"></i>Kolon Eslestirme Onizleme</h6>
+        <h6 class="mb-0"><i class="fas fa-columns me-2" ></i>Kolon Eslestirme Onizleme</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -121,8 +120,7 @@ else
             <small class="text-muted">@_importProgress%</small>
           </div>
           <div class="progress" style="height: 20px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                 role="progressbar" style="width: @(_importProgress)%; background-color: #2855AC;"
+            <div class="progress-bar progress-bar-striped progress-bar-animated"role="progressbar" style="width: @(_importProgress)%; background-color: var(--mestech-primary);"
                  aria-valuenow="@_importProgress" aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
@@ -163,7 +161,7 @@ else
 
     <!-- Aktar Butonu -->
     <div class="d-flex gap-2 mb-5">
-      <button class="btn text-white px-4" style="background-color: #2855AC;"
+      <button class="btn text-white px-4"
               @onclick="StartImport" disabled="@_isImporting">
         @if (_isImporting)
         {

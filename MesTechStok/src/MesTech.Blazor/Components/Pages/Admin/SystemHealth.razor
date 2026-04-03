@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-heartbeat text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Sistem Saglik Durumu</h3>
+    <h3 class="mb-0" >Sistem Saglik Durumu</h3>
     <small class="text-muted">Altyapi servisleri, zamanlanmis isler ve AI araclari</small>
   </div>
 </div>
@@ -61,7 +60,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
       <h6 class="mb-0">
-        <i class="fab fa-docker me-2" style="color: #2855AC;"></i>Docker Servisleri
+        <i class="fab fa-docker me-2" ></i>Docker Servisleri
       </h6>
     </div>
     <div class="card-body">
@@ -88,7 +87,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <h6 class="mb-0">
-        <i class="fas fa-clock me-2" style="color: #2855AC;"></i>Zamanlanmis Isler (Hangfire)
+        <i class="fas fa-clock me-2" ></i>Zamanlanmis Isler (Hangfire)
       </h6>
       <span class="badge bg-secondary">@hangfireJobs.Count Is</span>
     </div>
@@ -120,8 +119,7 @@ else
                 <td class="text-end">
                   <div class="d-flex align-items-center justify-content-end">
                     <div class="progress flex-grow-1 me-2" style="height: 6px; max-width: 80px;">
-                      <div class="progress-bar @GetProgressBarClass(job.BasariOrani)"
-                           role="progressbar"
+                      <div class="progress-bar @GetProgressBarClass(job.BasariOrani)"role="progressbar"
                            style="width: @job.BasariOrani%"></div>
                     </div>
                     <small class="fw-semibold">%@job.BasariOrani</small>
@@ -146,7 +144,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
       <h6 class="mb-0">
-        <i class="fas fa-robot me-2" style="color: #2855AC;"></i>MESA AI Araclari
+        <i class="fas fa-robot me-2" ></i>MESA AI Araclari
       </h6>
     </div>
     <div class="card-body">

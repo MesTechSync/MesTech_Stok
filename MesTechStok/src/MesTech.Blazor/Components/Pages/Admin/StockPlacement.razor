@@ -22,12 +22,11 @@ else if (errorMessage is not null)
 else
 {
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-warehouse text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Stok Yerlestirme</h3>
+      <h3 class="mb-0" >Stok Yerlestirme</h3>
       <small class="text-muted">Depo, zon, raf ve urun yerlesim yonetimi</small>
     </div>
   </div>
@@ -55,7 +54,7 @@ else
   <!-- Zone/Rack/Shelf Visual Grid -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-th me-2" style="color: #2855AC;"></i>Zon / Raf Haritasi</h6>
+      <h6 class="mb-0"><i class="fas fa-th me-2" ></i>Zon / Raf Haritasi</h6>
     </div>
     <div class="card-body">
       @if (!zones.Any(z => z.WarehouseId == selectedWarehouse))
@@ -90,7 +89,7 @@ else
   <!-- Product Placement Form -->
   <div class="card shadow-sm">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Urun Yerlestir</h6>
+      <h6 class="mb-0"><i class="fas fa-plus-circle me-2" ></i>Urun Yerlestir</h6>
     </div>
     <div class="card-body">
       <div class="row g-3">

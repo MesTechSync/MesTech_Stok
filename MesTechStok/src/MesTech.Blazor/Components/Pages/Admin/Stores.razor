@@ -13,16 +13,15 @@
 
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div class="d-flex align-items-center">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-store text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Magaza Yonetimi</h3>
+      <h3 class="mb-0" >Magaza Yonetimi</h3>
       <small class="text-muted">Platform baglantilari ve magaza ayarlari</small>
     </div>
   </div>
-  <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ToggleNewStoreForm">
+  <button class="btn btn-sm"  @onclick="ToggleNewStoreForm">
     <i class="fas fa-plus me-1"></i>Yeni Magaza
   </button>
 </div>
@@ -60,10 +59,10 @@ else
   <!-- New Store Form -->
   @if (showNewStoreForm)
   {
-    <div class="card shadow-sm mb-4 border-start border-4" style="border-color: #2855AC !important;">
+    <div class="card shadow-sm mb-4 border-start border-4" >
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
         <h6 class="mb-0">
-          <i class="fas fa-plus me-2" style="color: #2855AC;"></i>Yeni Magaza Olustur
+          <i class="fas fa-plus me-2" ></i>Yeni Magaza Olustur
         </h6>
         <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleNewStoreForm">
           <i class="fas fa-times"></i>
@@ -111,7 +110,7 @@ else
                 }
                 <i class="fas fa-plug me-1"></i>Baglanti Test
               </button>
-              <button type="submit" class="btn flex-fill" style="background-color: #2855AC; color: white;" disabled="@isSubmitting">
+              <button type="submit" class="btn flex-fill"  disabled="@isSubmitting">
                 @if (isSubmitting)
                 {
                   <span class="spinner-border spinner-border-sm me-1"></span>

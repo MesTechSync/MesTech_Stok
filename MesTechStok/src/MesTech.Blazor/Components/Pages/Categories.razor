@@ -11,12 +11,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-sitemap text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Kategori Yonetimi</h3>
+        <h3 class="mb-0" >Kategori Yonetimi</h3>
         <small class="text-muted">Urun kategori hiyerarsisi ve platform eslemeleri</small>
     </div>
 </div>
@@ -170,7 +169,7 @@ else
                         <ValidationSummary class="text-danger mb-3" />
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Kategori Adi</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="modalForm.Name"
+                            <InputText class="form-control form-control-sm"@bind-Value="modalForm.Name"
                                        placeholder="Kategori adi girin" />
                             <ValidationMessage For="@(() => modalForm.Name)" />
                         </div>
@@ -186,7 +185,7 @@ else
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Aciklama</label>
-                            <InputTextArea class="form-control form-control-sm" rows="3" @bind-Value="modalForm.Description"
+                            <InputTextArea class="form-control form-control-sm"rows="3" @bind-Value="modalForm.Description"
                                            placeholder="Kategori aciklamasi" />
                         </div>
                     </div>

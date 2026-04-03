@@ -10,12 +10,11 @@
 <div class="container-fluid">
   <!-- Page Header -->
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-book text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.JournalEntry"]</h3>
+      <h3 class="mb-0" >@L["PageTitle.JournalEntry"]</h3>
       <small class="text-muted">Yevmiye fisi olusturma ve muhasebe kaydi</small>
     </div>
   </div>
@@ -45,7 +44,7 @@
   <!-- Date + Description Card -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-info-circle me-2" style="color: #2855AC;"></i>@L["UI.VoucherInfo"]</h6>
+      <h6 class="mb-0"><i class="fas fa-info-circle me-2" ></i>@L["UI.VoucherInfo"]</h6>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -55,7 +54,7 @@
         </div>
         <div class="col-12 col-md-8">
           <label class="form-label fw-semibold text-muted small text-uppercase">Aciklama</label>
-          <InputTextArea class="form-control" rows="2" placeholder="Yevmiye fisi aciklamasi..."
+          <InputTextArea class="form-control"rows="2" placeholder="Yevmiye fisi aciklamasi..."
                          @bind-Value="description" />
         </div>
       </div>
@@ -65,8 +64,8 @@
   <!-- Journal Lines Table -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.JournalLines"]</h6>
-      <button class="btn btn-sm text-white" style="background-color: #2855AC;"
+      <h6 class="mb-0"><i class="fas fa-list me-2" ></i>@L["UI.JournalLines"]</h6>
+      <button class="btn btn-sm text-white"
               @onclick="AddRow">
         <i class="fas fa-plus me-1"></i>@L["UI.AddRow"]
       </button>
@@ -100,27 +99,27 @@
               <tr>
                 <td class="text-muted">@(index + 1)</td>
                 <td>
-                  <InputText class="form-control form-control-sm" placeholder="100"
+                  <InputText class="form-control form-control-sm"placeholder="100"
                              Value="@row.AccountCode"
                              ValueChanged="(string val) => OnAccountCodeChanged(index, val)"
                              ValueExpression="() => row.AccountCode" />
                 </td>
                 <td>
-                  <InputText class="form-control form-control-sm" placeholder="Hesap adi"
+                  <InputText class="form-control form-control-sm"placeholder="Hesap adi"
                              @bind-Value="row.AccountName" readonly />
                 </td>
                 <td>
-                  <InputNumber class="form-control form-control-sm text-end" TValue="decimal"
+                  <InputNumber class="form-control form-control-sm text-end"TValue="decimal"
                                @bind-Value="row.Debit" min="0" step="0.01" />
                 </td>
                 <td>
-                  <InputNumber class="form-control form-control-sm text-end" TValue="decimal"
+                  <InputNumber class="form-control form-control-sm text-end"TValue="decimal"
                                @bind-Value="row.Credit" min="0" step="0.01" />
                 </td>
                 <td class="text-center">
                   @if (rows.Count > 2)
                   {
-                    <button class="btn btn-outline-danger btn-sm" title="Satir Sil"
+                    <button class="btn btn-outline-danger btn-sm"title="Satir Sil"
                             @onclick="() => RemoveRow(index)">
                       <i class="fas fa-trash-alt"></i>
                     </button>
@@ -174,7 +173,7 @@
 
   <!-- Action Buttons -->
   <div class="d-flex gap-2 mb-4">
-    <button class="btn text-white px-4" style="background-color: #2855AC;"
+    <button class="btn text-white px-4"
             @onclick="SaveEntry" disabled="@isSaving">
       @if (isSaving)
       {

@@ -11,12 +11,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-plus-circle text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Yeni E-Fatura Olustur</h3>
+        <h3 class="mb-0" >Yeni E-Fatura Olustur</h3>
         <small class="text-muted">E-Fatura, e-Arsiv, e-SMM veya e-Ihracat faturasi olusturun</small>
     </div>
 </div>
@@ -74,7 +73,7 @@ else
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Fatura No</label>
-                <InputText class="form-control form-control-sm" @bind-Value="form.FaturaNo"
+                <InputText class="form-control form-control-sm"@bind-Value="form.FaturaNo"
                        placeholder="Otomatik olusturulacak" readonly />
             </div>
         </div>
@@ -91,7 +90,7 @@ else
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">VKN / TCKN</label>
                 <div class="input-group input-group-sm">
-                    <InputText class="form-control" @bind-Value="form.AliciVkn"
+                    <InputText class="form-control"@bind-Value="form.AliciVkn"
                            placeholder="Vergi / TC Kimlik No" maxlength="11" />
                     <button type="button" class="btn btn-outline-primary" @onclick="CheckVkn" disabled="@isVknChecking">
                         <i class="fas @(isVknChecking ? "fa-spinner fa-spin" : "fa-search") me-1"></i>Sorgula
@@ -101,18 +100,18 @@ else
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Unvan</label>
-                <InputText class="form-control form-control-sm" @bind-Value="form.AliciUnvan"
+                <InputText class="form-control form-control-sm"@bind-Value="form.AliciUnvan"
                        placeholder="Sirket / Kisi adi" />
                 <ValidationMessage For="() => form.AliciUnvan" />
             </div>
             <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold">Vergi Dairesi</label>
-                <InputText class="form-control form-control-sm" @bind-Value="form.VergiDairesi"
+                <InputText class="form-control form-control-sm"@bind-Value="form.VergiDairesi"
                        placeholder="Vergi dairesi" />
             </div>
             <div class="col-12">
                 <label class="form-label fw-semibold">Adres</label>
-                <InputTextArea class="form-control form-control-sm" rows="2" @bind-Value="form.Adres"
+                <InputTextArea class="form-control form-control-sm"rows="2" @bind-Value="form.Adres"
                           placeholder="Fatura adresi" />
             </div>
         </div>

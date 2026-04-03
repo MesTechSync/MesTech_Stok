@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-calendar-alt text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Takvim</h3>
+    <h3 class="mb-0" >Takvim</h3>
     <small class="text-muted">Etkinlik ve gorev takvimi</small>
   </div>
 </div>
@@ -55,7 +54,7 @@ else
           </button>
         </div>
         <div class="col text-center text-md-start">
-          <h5 class="mb-0 fw-bold" style="color: #2855AC;">@GetMonthName(currentMonth) @currentYear</h5>
+          <h5 class="mb-0 fw-bold" >@GetMonthName(currentMonth) @currentYear</h5>
         </div>
         <div class="col-auto">
           <button class="btn btn-sm btn-primary" @onclick="() => showEventForm = true">
@@ -113,7 +112,7 @@ else
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
         <h6 class="mb-0">
-          <i class="fas fa-calendar-check me-2" style="color: #2855AC;"></i>
+          <i class="fas fa-calendar-check me-2" ></i>
           @selectedDate.Value.ToString("dd MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("tr-TR")) - Etkinlikler
         </h6>
         <button class="btn btn-sm btn-outline-primary" @onclick="() => { showEventForm = true; newEventDate = selectedDate.Value; }">
@@ -175,7 +174,7 @@ else
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" style="color: #2855AC;"></i>Yeni Etkinlik</h5>
+            <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" ></i>Yeni Etkinlik</h5>
             <button type="button" class="btn-close" @onclick="() => showEventForm = false"></button>
           </div>
           <div class="modal-body">

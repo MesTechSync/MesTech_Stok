@@ -21,12 +21,11 @@
 
   <!-- Page Header -->
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-money-check-alt text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Maas Yonetimi</h3>
+      <h3 class="mb-0" >Maas Yonetimi</h3>
       <small class="text-muted">Calisan maas bordrolari ve isci maliyeti takibi</small>
     </div>
   </div>
@@ -139,7 +138,7 @@
             <label class="form-label small text-muted mb-0">Ara</label>
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-              <input type="text" class="form-control" placeholder="Calisan ara..."
+              <input type="text" class="form-control"placeholder="Calisan ara..."
                      @bind="_searchText" @bind:event="oninput" />
             </div>
           </div>
@@ -156,7 +155,7 @@
     <!-- Data Table -->
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-table me-2" style="color: #2855AC;"></i>Maas Bordrosu — @GetMonthName(_selectedMonth) @_selectedYear</h6>
+        <h6 class="mb-0"><i class="fas fa-table me-2" ></i>Maas Bordrosu — @GetMonthName(_selectedMonth) @_selectedYear</h6>
         <span class="badge bg-secondary">@FilteredSalaries.Count kayit</span>
       </div>
       <div class="card-body p-0">

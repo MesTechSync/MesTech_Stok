@@ -11,12 +11,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-truck text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Kargo Takip</h3>
+        <h3 class="mb-0" >Kargo Takip</h3>
         <small class="text-muted">Gonderi takibi ve kargo firma karsilastirmasi</small>
     </div>
 </div>
@@ -61,7 +60,7 @@ else
                 <label class="form-label fw-semibold">Barkod / Takip Numarasi</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" @bind="trackingNumber"
+                    <input type="text" class="form-control"@bind="trackingNumber"
                            placeholder="Takip numarasi veya barkod girin..." />
                     <button class="btn btn-primary" @onclick="SearchTracking" disabled="@isSearching">
                         @if (isSearching)
@@ -197,8 +196,7 @@ else if (trackingSearched && trackingResult is null)
                             <td class="text-end d-none d-lg-table-cell">@cargo.GonderiSayisi</td>
                             <td>
                                 <div class="progress" style="height: 20px; min-width: 80px;">
-                                    <div class="progress-bar @GetProgressClass(cargo.TeslimOrani)"
-                                         role="progressbar"
+                                    <div class="progress-bar @GetProgressClass(cargo.TeslimOrani)"role="progressbar"
                                          style="width: @cargo.TeslimOrani%;">
                                         %@cargo.TeslimOrani.ToString("N0")
                                     </div>

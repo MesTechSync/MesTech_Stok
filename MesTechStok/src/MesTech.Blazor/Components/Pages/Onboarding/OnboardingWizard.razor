@@ -14,7 +14,7 @@
     <small class="text-muted fw-semibold">@L["Onboarding.StepOf", currentStep, TotalSteps]</small>
   </div>
   <div class="progress mb-4" style="height: 8px;">
-    <div class="progress-bar bg-primary" role="progressbar"
+    <div class="progress-bar bg-primary"role="progressbar"
          style="width: @(currentStep * 100 / TotalSteps)%"
          aria-valuenow="@currentStep" aria-valuemin="0" aria-valuemax="@TotalSteps"></div>
   </div>
@@ -374,7 +374,7 @@
 
       @if (currentStep < TotalSteps)
       {
-        <button class="btn btn-primary" @onclick="NextStep"
+        <button class="btn btn-primary"@onclick="NextStep"
                 disabled="@(!IsCurrentStepValid())">
           @L["Common.Button.Next"] <i class="fas fa-arrow-right ms-1"></i>
         </button>

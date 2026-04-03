@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-sync-alt text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Platform Sync Durumu</h3>
+        <h3 class="mb-0" >Platform Sync Durumu</h3>
         <small class="text-muted">11 platform senkronizasyon izleme ve yonetimi</small>
     </div>
 </div>
@@ -106,8 +105,7 @@ else
                                     }
                                 </td>
                                 <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary"
-                                            @onclick="() => SyncPlatform(sync)"
+                                    <button class="btn btn-sm btn-outline-primary"@onclick="() => SyncPlatform(sync)"
                                             disabled="@(sync.IsSyncing)">
                                         @if (sync.IsSyncing)
                                         {

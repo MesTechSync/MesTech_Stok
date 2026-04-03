@@ -13,12 +13,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-file-invoice-dollar text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Expenses"]</h3>
+      <h3 class="mb-0" >@L["PageTitle.Expenses"]</h3>
       <small class="text-muted">Gider kayitlari ve kategori takibi</small>
     </div>
   </div>
@@ -46,7 +45,7 @@
           </select>
         </div>
         <div class="col-12 col-md-3">
-          <button class="btn w-100" style="background-color: #2855AC; color: white;" @onclick="ApplyFilter">
+          <button class="btn w-100"  @onclick="ApplyFilter">
             <i class="fas fa-filter me-1"></i>@L["Common.Filter"]
           </button>
         </div>
@@ -69,7 +68,7 @@
   {
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.ExpenseList"]</h6>
+        <h6 class="mb-0"><i class="fas fa-list me-2" ></i>@L["UI.ExpenseList"]</h6>
         <span class="badge bg-secondary">@FilteredExpenses.Count kayit</span>
       </div>
       <div class="card-body p-0">

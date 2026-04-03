@@ -22,12 +22,11 @@ else if (errorMessage is not null)
 else
 {
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-pallet text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Lot Bazli Stok Girisi</h3>
+      <h3 class="mb-0" >Lot Bazli Stok Girisi</h3>
       <small class="text-muted">Urunleri lot numarasi ile depoya kaydedin</small>
     </div>
   </div>
@@ -43,7 +42,7 @@ else
   <!-- Lot Giris Formu -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-box-open me-2" style="color: #2855AC;"></i>Lot Bilgileri</h6>
+      <h6 class="mb-0"><i class="fas fa-box-open me-2" ></i>Lot Bilgileri</h6>
     </div>
     <div class="card-body">
       <EditForm Model="@_form" OnValidSubmit="SaveLot">
@@ -98,7 +97,7 @@ else
         </div>
 
         <div class="mt-3 d-flex gap-2">
-          <button type="submit" class="btn text-white px-4" style="background-color: #2855AC;"
+          <button type="submit" class="btn text-white px-4"
                   disabled="@_isSaving">
             @if (_isSaving)
             {
@@ -117,7 +116,7 @@ else
   <!-- Son Lot Girisleri -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white">
-      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Son Lot Girisleri</h6>
+      <h6 class="mb-0"><i class="fas fa-history me-2" ></i>Son Lot Girisleri</h6>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
