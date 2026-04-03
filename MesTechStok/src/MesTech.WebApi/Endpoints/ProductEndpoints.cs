@@ -40,7 +40,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
             var result = await mediator.Send(
@@ -212,7 +212,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var result = await mediator.Send(
                 new GetProductsQuery(tenantId.Value, null, null, true, null,
                     page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
