@@ -1,6 +1,8 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -12,7 +14,15 @@ public class StockTransferAvaloniaViewModelTests
     private static StockTransferAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new StockTransferAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetStockTransfersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<StockTransferItemDto>)new List<StockTransferItemDto>
+            {
+                new() { Id = Guid.NewGuid(), ProductName = "Samsung Galaxy S24", SKU = "SKU-1001", Quantity = 10, MovementType = "Ana Depo", Reference = "Yedek Depo", MovementDate = DateTime.Now.AddDays(-1) },
+                new() { Id = Guid.NewGuid(), ProductName = "Apple MacBook Air M3", SKU = "SKU-1002", Quantity = 5, MovementType = "Yedek Depo", Reference = "Ana Depo", MovementDate = DateTime.Now.AddDays(-2) },
+                new() { Id = Guid.NewGuid(), ProductName = "Sony WH-1000XM5", SKU = "SKU-1003", Quantity = 20, MovementType = "Ana Depo", Reference = "Iade Depo", MovementDate = DateTime.Now.AddDays(-3) }
+            });
+        return new StockTransferAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     // ── 3-State: Default ──

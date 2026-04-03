@@ -2,6 +2,7 @@
 using Avalonia.Headless.XUnit;
 using Avalonia.VisualTree;
 using FluentAssertions;
+using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Avalonia.Views;
 using MesTech.Domain.Interfaces;
@@ -104,6 +105,9 @@ public class DashboardViewTests
                 It.IsAny<MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary.GetDashboardSummaryQuery>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(summaryDto);
+        mockMediator
+            .Setup(m => m.Send(It.IsAny<GetSalesChartDataQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SalesChartDataDto());
 
         var vm = new DashboardAvaloniaViewModel(mockMediator.Object, mockTenant.Object);
 

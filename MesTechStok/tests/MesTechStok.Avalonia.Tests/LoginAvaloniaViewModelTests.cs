@@ -9,11 +9,16 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class LoginAvaloniaViewModelTests
 {
+    private readonly Mock<IAuthService> _authMock;
     private readonly LoginAvaloniaViewModel _sut;
 
     public LoginAvaloniaViewModelTests()
     {
-        _sut = new LoginAvaloniaViewModel(Mock.Of<IAuthService>());
+        _authMock = new Mock<IAuthService>();
+        _authMock
+            .Setup(a => a.ValidateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(AuthResult.Success(Guid.NewGuid(), Guid.NewGuid(), "Admin"));
+        _sut = new LoginAvaloniaViewModel(_authMock.Object);
     }
 
     [Fact]

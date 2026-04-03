@@ -1,6 +1,8 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.System.Queries.GetAuditLogs;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -10,7 +12,27 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class AuditLogAvaloniaViewModelTests
 {
-    private static AuditLogAvaloniaViewModel CreateSut() => new(new Mock<ISender>().Object, Mock.Of<ICurrentUserService>());
+    private static AuditLogAvaloniaViewModel CreateSut()
+    {
+        var senderMock = new Mock<ISender>();
+        var logs = Enumerable.Range(1, 10).Select(i => new AccessLog
+        {
+            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Action = i % 2 == 0 ? "Update" : "Create",
+            Resource = "Product",
+            IsAllowed = true,
+            AccessTime = DateTime.Now.AddMinutes(-i * 10),
+            IpAddress = "192.168.1.1",
+            UserAgent = "MesTech/1.0",
+            AdditionalInfo = $"Test entry {i}"
+        }).ToList();
+        senderMock
+            .Setup(m => m.Send(It.IsAny<GetAuditLogsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<AccessLog>)logs);
+        return new AuditLogAvaloniaViewModel(senderMock.Object, Mock.Of<ICurrentUserService>());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()

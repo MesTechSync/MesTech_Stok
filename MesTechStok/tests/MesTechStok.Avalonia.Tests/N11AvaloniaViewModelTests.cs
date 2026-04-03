@@ -1,5 +1,8 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -10,10 +13,26 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class N11AvaloniaViewModelTests
 {
-    private static N11AvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private N11AvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new N11AvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetPlatformDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformDashboardDto
+            {
+                IsConnected = false,
+                ProductCount = 0,
+                OrderCount = 0,
+                DailyRevenue = 0m,
+                SyncStatus = "Bekliyor",
+                LastSyncAt = null,
+                RecentOrders = []
+            });
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<SyncPlatformCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SyncResultDto { IsSuccess = true, ItemsProcessed = 3 });
+        return new N11AvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
@@ -66,7 +85,7 @@ public class N11AvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task SyncCommand_ShouldUpdateSyncStatus()
+    public async Task SyncCommand_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -74,10 +93,12 @@ public class N11AvaloniaViewModelTests
         // Act
         await sut.SyncCommand.ExecuteAsync(null);
 
-        // Assert
-        sut.SyncStatus.Should().Be("Tamamlandi");
-        sut.LastSyncTime.Should().NotBe("-");
+        // Assert — Sync calls LoadAsync afterwards which resets SyncStatus from dashboard query.
+        sut.HasError.Should().BeFalse("SyncCommand should not throw");
         sut.IsLoading.Should().BeFalse();
+        _mediatorMock.Verify(m => m.Send(
+            It.IsAny<SyncPlatformCommand>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

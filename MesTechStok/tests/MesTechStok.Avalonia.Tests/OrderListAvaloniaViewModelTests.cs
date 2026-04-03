@@ -1,7 +1,10 @@
 using FluentAssertions;
+using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
+using OrderQueryDto = MesTech.Application.Features.Orders.Queries.GetOrderList.OrderListItemDto;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -15,7 +18,17 @@ public class OrderListAvaloniaViewModelTests
     public OrderListAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetOrderListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<OrderQueryDto>)new List<OrderQueryDto>
+            {
+                new() { Id = Guid.NewGuid(), OrderNumber = "SIP-001", CustomerName = "Ali Yilmaz", Status = "Yeni", SourcePlatform = "Trendyol", TotalAmount = 450m, OrderDate = DateTime.Now.AddDays(-1) },
+                new() { Id = Guid.NewGuid(), OrderNumber = "SIP-002", CustomerName = "Veli Demir", Status = "Hazirlaniyor", SourcePlatform = "Hepsiburada", TotalAmount = 890m, OrderDate = DateTime.Now.AddDays(-2) },
+                new() { Id = Guid.NewGuid(), OrderNumber = "SIP-003", CustomerName = "Ayse Kaya", Status = "Kargoda", SourcePlatform = "Trendyol", TotalAmount = 320m, OrderDate = DateTime.Now.AddDays(-3) },
+                new() { Id = Guid.NewGuid(), OrderNumber = "SIP-004", CustomerName = "Mehmet Can", Status = "Teslim Edildi", SourcePlatform = "N11", TotalAmount = 1200m, OrderDate = DateTime.Now.AddDays(-4) },
+                new() { Id = Guid.NewGuid(), OrderNumber = "SIP-005", CustomerName = "Zeynep Ak", Status = "Yeni", SourcePlatform = "Hepsiburada", TotalAmount = 650m, OrderDate = DateTime.Now.AddDays(-5) }
+            });
+        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

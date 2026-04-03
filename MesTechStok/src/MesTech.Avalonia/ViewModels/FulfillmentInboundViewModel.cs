@@ -63,7 +63,13 @@ public partial class FulfillmentInboundViewModel : ViewModelBase
                     allResults.Add(new InboundShipmentDto
                     {
                         ShipmentId = order.OrderId,
-                        Provider = center.ToString(),
+                        Provider = center switch
+                        {
+                            FulfillmentCenter.AmazonFBA => "Amazon FBA",
+                            FulfillmentCenter.Hepsilojistik => "Hepsilojistik",
+                            FulfillmentCenter.TrendyolFulfillment => "Trendyol Fulfillment",
+                            _ => center.ToString()
+                        },
                         Status = order.Status,
                         ItemCount = order.Items.Count,
                         CreatedDate = order.ShippedDate?.ToString("dd.MM.yyyy") ?? "-",

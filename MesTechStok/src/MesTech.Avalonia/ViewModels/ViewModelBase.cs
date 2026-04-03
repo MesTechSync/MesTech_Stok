@@ -82,6 +82,48 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         ErrorMessage = message;
     }
 
+    /// <summary>
+    /// Run action on UI thread if available; fall back to direct call in test context.
+    /// </summary>
+    private async Task RunOnUIAsync(Func<Task> action)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            await action();
+        }
+        else
+        {
+            try
+            {
+                await Dispatcher.UIThread.InvokeAsync(action);
+            }
+            catch (InvalidOperationException)
+            {
+                // No Dispatcher available (unit test context) — execute directly
+                await action();
+            }
+        }
+    }
+
+    private async Task RunOnUIAsync(Action action)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            action();
+        }
+        else
+        {
+            try
+            {
+                await Dispatcher.UIThread.InvokeAsync(action);
+            }
+            catch (InvalidOperationException)
+            {
+                action();
+            }
+        }
+    }
+
     /// <summary>API çağrısını try-catch + DbContext concurrency guard ile sarmala.</summary>
     protected async Task SafeExecuteAsync(Func<Task> action, string context = "")
     {
@@ -90,7 +132,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         {
             // KÖK-4 FIX: ObservableCollection mutations + IsLoading must run on UI thread.
             // action() may contain .Clear()/.Add() on ObservableCollections.
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            await RunOnUIAsync(async () =>
             {
                 IsLoading = true;
                 ClearError();
@@ -103,11 +145,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
+            await RunOnUIAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            await RunOnUIAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }
@@ -118,7 +160,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            await RunOnUIAsync(async () =>
             {
                 IsLoading = true;
                 ClearError();
@@ -131,11 +173,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
+            await RunOnUIAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            await RunOnUIAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }
