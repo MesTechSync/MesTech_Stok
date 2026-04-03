@@ -6,7 +6,8 @@ public sealed class InMemoryProcessedMessageStore : IProcessedMessageStore
 {
     private readonly ConcurrentDictionary<Guid, DateTimeOffset> _processed = new();
     private readonly TimeSpan _ttl = TimeSpan.FromDays(7);
-    private DateTimeOffset _lastCleanup = DateTimeOffset.UtcNow;
+    private long _lastCleanupTicks = DateTimeOffset.UtcNow.UtcTicks;
+    private int _cleanupRunning;
 
     public Task<bool> IsProcessedAsync(Guid messageId, CancellationToken ct = default)
     {
@@ -23,15 +24,27 @@ public sealed class InMemoryProcessedMessageStore : IProcessedMessageStore
 
     private void CleanupIfNeeded()
     {
-        if (DateTimeOffset.UtcNow - _lastCleanup < TimeSpan.FromHours(1))
+        var lastTicks = Interlocked.Read(ref _lastCleanupTicks);
+        if (DateTimeOffset.UtcNow.UtcTicks - lastTicks < TimeSpan.FromHours(1).Ticks)
             return;
 
-        var cutoff = DateTimeOffset.UtcNow - _ttl;
-        foreach (var kvp in _processed)
+        // Ensure only one thread runs cleanup at a time
+        if (Interlocked.CompareExchange(ref _cleanupRunning, 1, 0) != 0)
+            return;
+
+        try
         {
-            if (kvp.Value < cutoff)
-                _processed.TryRemove(kvp.Key, out _);
+            var cutoff = DateTimeOffset.UtcNow - _ttl;
+            foreach (var kvp in _processed)
+            {
+                if (kvp.Value < cutoff)
+                    _processed.TryRemove(kvp.Key, out _);
+            }
+            Interlocked.Exchange(ref _lastCleanupTicks, DateTimeOffset.UtcNow.UtcTicks);
         }
-        _lastCleanup = DateTimeOffset.UtcNow;
+        finally
+        {
+            Interlocked.Exchange(ref _cleanupRunning, 0);
+        }
     }
 }
