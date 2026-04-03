@@ -72,7 +72,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
     {
         try
         {
-            await HandleRequestAsync(context);
+            await HandleRequestAsync(context).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
