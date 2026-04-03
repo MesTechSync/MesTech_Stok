@@ -25,7 +25,7 @@ public static class BarcodeEndpoints
                 new GetProductByBarcodeQuery(safeCode), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { Message = $"Barkod '{code}' ile eşleşen ürün bulunamadı" });
+                : Results.Problem(detail: $"Barkod '{code}' ile eşleşen ürün bulunamadı.", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("SearchByBarcode")

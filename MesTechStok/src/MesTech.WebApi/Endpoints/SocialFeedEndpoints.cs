@@ -55,7 +55,7 @@ public static class SocialFeedEndpoints
             var result = await adapter.GenerateFeedAsync(request, ct);
             return result.Success
                 ? Results.Ok(result)
-                : Results.UnprocessableEntity(new { result.Errors });
+                : Results.Problem(detail: string.Join("; ", result.Errors ?? Array.Empty<string>()), statusCode: 422);
         })
         .WithName("GenerateFeed")
         .WithSummary("Belirtilen platform için feed üretimini tetikle").Produces(200).Produces(400)

@@ -23,7 +23,7 @@ public static class PaymentEndpoints
             var result = await paymentProvider.ProcessPaymentAsync(request, ct);
             return result.Success
                 ? Results.Ok(result)
-                : Results.UnprocessableEntity(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 422);
         })
         .WithName("InitiatePayment")
         .WithSummary("Ödeme işlemi başlat — provider query param: PayTRDirect, PayTRiFrame, Iyzico, Stripe")
@@ -57,7 +57,7 @@ public static class PaymentEndpoints
             var result = await paymentProvider.RefundAsync(transactionId, request.Amount, ct);
             return result.Success
                 ? Results.Ok(result)
-                : Results.UnprocessableEntity(new { result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 422);
         })
         .WithName("RefundPayment")
         .WithSummary("Ödeme iadesi başlat")
