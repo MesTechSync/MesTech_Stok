@@ -90,7 +90,7 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 $"Muhasebe islemi bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
             await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(

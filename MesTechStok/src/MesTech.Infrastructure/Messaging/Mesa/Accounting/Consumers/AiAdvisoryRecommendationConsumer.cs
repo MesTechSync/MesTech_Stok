@@ -98,7 +98,7 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 $"{msg.Title}: {msg.Description}");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
             await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(

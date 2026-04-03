@@ -86,7 +86,7 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
             settlementBatchId: msg.SettlementBatchId,
             bankTransactionId: msg.BankTransactionId);
 
-        await _matchRepository.AddAsync(match).ConfigureAwait(false);
+        await _matchRepository.AddAsync(match, context.CancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(

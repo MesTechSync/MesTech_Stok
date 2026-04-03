@@ -120,7 +120,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 source: Domain.Accounting.Enums.ExpenseSource.AI,
                 category: msg.ExtractedCategory ?? "Genel");
 
-            await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
+            await _expenseRepository.AddAsync(expense, context.CancellationToken).ConfigureAwait(false);
             await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(

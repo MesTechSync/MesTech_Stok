@@ -87,7 +87,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
                     confidence: 0.0m, // AI ERP mismatch — no confidence, needs human review
                     status: ReconciliationStatus.NeedsReview);
 
-                await _matchRepository.AddAsync(match).ConfigureAwait(false);
+                await _matchRepository.AddAsync(match, context.CancellationToken).ConfigureAwait(false);
 
                 _logger.LogDebug(
                     "[MESA Consumer] ERP mismatch ReconciliationMatch olusturuldu: " +
