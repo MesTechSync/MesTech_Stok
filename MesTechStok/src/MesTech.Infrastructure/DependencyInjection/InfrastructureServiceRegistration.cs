@@ -211,6 +211,9 @@ public static class InfrastructureServiceRegistration
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
+        // Scoped MediatR — desktop app concurrent DbContext fix (KN-1 / G67)
+        services.AddSingleton<IScopedMediator, ScopedMediator>();
+
         // Domain Services
         services.AddSingleton<StockCalculationService>();
         services.AddSingleton<PricingService>();
