@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using MassTransit;
 using MediatR;
 using MesTech.Application.Commands.RejectAccountingEntry;
@@ -46,6 +47,15 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
                 "[MESA Consumer] Rejection event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.accounting.rejected", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(BotAccountingRejectedEvent), context.MessageId);
@@ -81,19 +91,32 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
             return;
         }
 
-        // Belgeye red bilgisi ekle (ExtractedData JSON'una)
-        var rejectionJson = System.Text.Json.JsonSerializer.Serialize(new
+        // Belgeye red bilgisi ekle (JsonNode ile güvenli birleştirme)
+        var rejectionNode = new JsonObject
         {
-            Status = "Rejected",
-            msg.RejectedBy,
-            msg.RejectionSource,
-            msg.Reason,
-            RejectedAt = msg.OccurredAt
-        });
+            ["Status"] = "Rejected",
+            ["RejectedBy"] = msg.RejectedBy,
+            ["RejectionSource"] = msg.RejectionSource,
+            ["Reason"] = msg.Reason,
+            ["RejectedAt"] = msg.OccurredAt
+        };
 
-        var existingData = document.ExtractedData ?? "{}";
-        var combinedData = $"{{\"extraction\":{existingData},\"rejection\":{rejectionJson}}}";
-        document.UpdateExtractedData(combinedData);
+        JsonNode? existingNode;
+        try
+        {
+            existingNode = JsonNode.Parse(document.ExtractedData ?? "{}");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            existingNode = new JsonObject();
+        }
+
+        var combinedNode = new JsonObject
+        {
+            ["extraction"] = existingNode,
+            ["rejection"] = rejectionNode
+        };
+        document.UpdateExtractedData(combinedNode.ToJsonString());
         await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(

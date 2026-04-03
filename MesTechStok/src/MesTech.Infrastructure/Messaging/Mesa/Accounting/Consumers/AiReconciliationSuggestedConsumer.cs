@@ -51,6 +51,15 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.reconciliation.suggested", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiReconciliationSuggestedEvent), context.MessageId);
