@@ -11,7 +11,7 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
     public UserNotificationRepository(AppDbContext db) => _db = db;
 
     public async Task<UserNotification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => await _db.UserNotifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+        => await _db.UserNotifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken).ConfigureAwait(false);
 
     public async Task<(IReadOnlyList<UserNotification> Items, int TotalCount)> GetPagedAsync(
         Guid tenantId, Guid userId, int page, int pageSize, bool unreadOnly = false,
@@ -23,12 +23,12 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
         if (unreadOnly)
             query = query.Where(n => !n.IsRead);
 
-        var total = await query.CountAsync(cancellationToken);
+        var total = await query.CountAsync(cancellationToken).ConfigureAwait(false);
         var items = await query
             .OrderByDescending(n => n.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(cancellationToken);
+            .AsNoTracking().ToListAsync(cancellationToken).ConfigureAwait(false);
 
         return (items, total);
     }
@@ -36,14 +36,14 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
     public async Task<int> GetUnreadCountAsync(Guid tenantId, Guid userId,
         CancellationToken cancellationToken = default)
         => await _db.UserNotifications
-            .CountAsync(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead, cancellationToken);
+            .CountAsync(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead, cancellationToken).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<UserNotification>> GetUnreadByUserAsync(Guid tenantId, Guid userId,
         CancellationToken cancellationToken = default)
         => await _db.UserNotifications
             .Where(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead)
             .OrderByDescending(n => n.CreatedAt)
-            .AsNoTracking().ToListAsync(cancellationToken);
+            .AsNoTracking().ToListAsync(cancellationToken).ConfigureAwait(false);
 
     public async Task<int> MarkAllAsReadAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
         => await _db.UserNotifications
@@ -51,10 +51,10 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
             .ExecuteUpdateAsync(s => s
                 .SetProperty(n => n.IsRead, true)
                 .SetProperty(n => n.ReadAt, DateTime.UtcNow)
-                .SetProperty(n => n.UpdatedAt, DateTime.UtcNow), cancellationToken);
+                .SetProperty(n => n.UpdatedAt, DateTime.UtcNow), cancellationToken).ConfigureAwait(false);
 
     public async Task AddAsync(UserNotification notification, CancellationToken cancellationToken = default)
-        => await _db.UserNotifications.AddAsync(notification, cancellationToken);
+        => await _db.UserNotifications.AddAsync(notification, cancellationToken).ConfigureAwait(false);
 
     public Task UpdateAsync(UserNotification notification, CancellationToken cancellationToken = default)
     {
