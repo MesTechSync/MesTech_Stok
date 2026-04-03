@@ -81,7 +81,9 @@ public static class HrEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetTimeEntriesQuery(tenantId, from, to, userId, page ?? 1, pageSize ?? 50), ct);
+                new GetTimeEntriesQuery(tenantId, from, to, userId,
+                    Math.Max(1, page ?? 1),
+                    Math.Clamp(pageSize ?? 50, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetTimeEntries")
