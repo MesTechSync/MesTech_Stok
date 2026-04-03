@@ -116,7 +116,8 @@ public static class BulkProductEndpoints
 
             foreach (var p in exportProducts)
             {
-                csvLines.Add($"\"{p.SKU}\",\"{p.Name}\",{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
+                // CSV escape: double-quote → doubled, formula injection guard (=,+,-,@,\t,\r)
+                csvLines.Add($"{CsvEscape(p.SKU)},{CsvEscape(p.Name)},{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
             }
 
             var csvContent = string.Join(Environment.NewLine, csvLines);
@@ -222,4 +223,18 @@ public static class BulkProductEndpoints
 
     public sealed record BulkUpdateResponse(
         int SuccessCount, int FailedCount, IReadOnlyList<BulkUpdateFailureItem> Failures);
+
+    /// <summary>
+    /// CSV field escape: double-quote wrapping + formula injection guard (OWASP).
+    /// </summary>
+    private static string CsvEscape(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return "\"\"";
+        // Formula injection guard: prefix with single-quote if starts with =, +, -, @, \t, \r
+        var safe = value;
+        if (safe.Length > 0 && "=+-@\t\r".Contains(safe[0]))
+            safe = "'" + safe;
+        // RFC 4180: double-quote escaping
+        return "\"" + safe.Replace("\"", "\"\"") + "\"";
+    }
 }
