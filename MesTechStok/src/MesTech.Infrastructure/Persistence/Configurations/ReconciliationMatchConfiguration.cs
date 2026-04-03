@@ -15,5 +15,7 @@ public sealed class ReconciliationMatchConfiguration : IEntityTypeConfiguration<
         builder.HasIndex(x => x.SettlementBatchId);
         builder.HasIndex(x => x.BankTransactionId);
         builder.HasIndex(x => x.Status);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }
