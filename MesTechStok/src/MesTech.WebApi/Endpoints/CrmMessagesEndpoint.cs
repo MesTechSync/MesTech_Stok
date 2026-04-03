@@ -50,7 +50,8 @@ public static class CrmMessagesEndpoint
             return Results.NoContent();
         })
         .WithName("ReplyToMessage")
-        .WithSummary("Platform mesajına yanıt gönder (EMR-09)").Produces(200).Produces(400);
+        .WithSummary("Platform mesajına yanıt gönder (EMR-09)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     /// <summary>Request DTO for message reply.</summary>

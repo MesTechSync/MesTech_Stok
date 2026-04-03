@@ -77,7 +77,8 @@ public static class SupplierFeedsEndpoints
             return Results.Created($"/api/v1/supplier-feeds/{id}", ApiResponse<CreatedResponse>.Ok(new CreatedResponse(id)));
         })
         .WithName("CreateSupplierFeed")
-        .WithSummary("Yeni tedarikçi feed kaynağı oluştur").Produces(201).Produces(400);
+        .WithSummary("Yeni tedarikçi feed kaynağı oluştur").Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/supplier-feeds/{id} — feed kaynağını güncelle
         group.MapPut("/{id:guid}", async (Guid id, UpdateFeedSourceCommand command, ISender mediator, CancellationToken ct) =>
@@ -89,7 +90,8 @@ public static class SupplierFeedsEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateSupplierFeed")
-        .WithSummary("Tedarikçi feed kaynağını güncelle").Produces(200).Produces(400);
+        .WithSummary("Tedarikçi feed kaynağını güncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/supplier-feeds/{id} — feed kaynağını sil (soft-delete)
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>

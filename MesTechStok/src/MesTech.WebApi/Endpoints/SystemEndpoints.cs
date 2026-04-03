@@ -102,7 +102,8 @@ public static class SystemEndpoints
         .WithSummary("N8N/automation workflow webhook receiver (G130)")
         .Produces(200).Produces(401)
         .AllowAnonymous()
-        .RequireRateLimiting("WebhookRateLimit"); // DEV6-TUR8: Automation webhook flood protection
+        .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR8: Automation webhook flood protection
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/system/automation/status — N8N entegrasyon durumu
         group.MapGet("/automation/status", (IConfiguration configuration) =>
@@ -155,7 +156,8 @@ public static class SystemEndpoints
         })
         .WithName("TriggerBackup")
         .WithSummary("Manuel veritabanı yedekleme tetikle (G207)")
-        .Produces(201).Produces(400);
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     public sealed record RateLimitStatusResponse(

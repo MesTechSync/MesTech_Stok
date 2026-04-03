@@ -80,7 +80,8 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("DeletePersonalData")
-        .WithSummary("KVKK — kişisel veri silme talebi").Produces(200).Produces(400);
+        .WithSummary("KVKK — kişisel veri silme talebi").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/admin/system/kvkk/export — kişisel veri dışa aktarma (KVKK hakkı)
         group.MapGet("/kvkk/export", async (

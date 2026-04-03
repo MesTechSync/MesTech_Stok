@@ -38,6 +38,7 @@ public static class CategoryMappingEndpoint
             return Results.Created($"/api/v1/category-mappings/{id}", new CreatedResponse(id));
         })
         .WithName("MapCategory")
-        .WithSummary("Yeni kategori eşleştirmesi oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni kategori eşleştirmesi oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

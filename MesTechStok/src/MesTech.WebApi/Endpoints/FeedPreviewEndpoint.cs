@@ -36,7 +36,8 @@ public static class FeedPreviewEndpoint
             return Results.Ok(result);
         })
         .WithName("ImportFromFeed")
-        .WithSummary("Feed'den seçili ürünleri içe aktar").Produces(200).Produces(400);
+        .WithSummary("Feed'den seçili ürünleri içe aktar").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     /// <summary>
