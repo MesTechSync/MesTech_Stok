@@ -355,6 +355,18 @@ if (app.Environment.IsProduction())
         throw new InvalidOperationException(
             "STARTUP BLOCKED: Jwt:Secret is placeholder or empty. " +
             "Set a secure 32+ character secret via user-secrets before deploying to production.");
+
+    // Payment webhook secret validation — missing secret = webhook bypass risk (DEV6-TUR24)
+    var stripeSecret = app.Configuration["Stripe:WebhookSecret"];
+    var iyzicoSecret = app.Configuration["Iyzico:WebhookSecret"];
+    if (string.IsNullOrWhiteSpace(stripeSecret) && string.IsNullOrWhiteSpace(iyzicoSecret))
+    {
+        var startupLogger = app.Services.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MesTech.WebApi.Startup");
+        startupLogger.LogWarning(
+            "SECURITY WARNING: No payment webhook secrets configured (Stripe:WebhookSecret, Iyzico:WebhookSecret). " +
+            "Webhook signature verification is BYPASSED — configure secrets before accepting live payments.");
+    }
 }
 
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
