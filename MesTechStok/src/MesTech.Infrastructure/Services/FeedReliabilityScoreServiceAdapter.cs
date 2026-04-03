@@ -25,7 +25,7 @@ public sealed class FeedReliabilityScoreServiceAdapter(
             .FirstOrDefaultAsync(f => f.Id == supplierFeedId && !f.IsDeleted, ct);
 
         if (feed is null)
-            return null!;
+            throw new InvalidOperationException($"SupplierFeed {supplierFeedId} not found or deleted.");
 
         // Girdi metrikleri feed entity'den türet
         double stockAccuracy = feed.LastSyncProductCount > 0
