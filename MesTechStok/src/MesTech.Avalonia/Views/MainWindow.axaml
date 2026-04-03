@@ -13,6 +13,7 @@
         xmlns:fulfillviews="using:MesTech.Avalonia.Views.Fulfillment"
         xmlns:rptviews="using:MesTech.Avalonia.Views.Reports"
         xmlns:controls="using:MesTech.Avalonia.Controls"
+        xmlns:ic="using:FluentIcons.Avalonia.Fluent"
         x:Class="MesTech.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="MesTech Entegratör"
@@ -135,10 +136,10 @@
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Classes="icon-btn" ToolTip.Tip="Bildirimler">
-                        <PathIcon Data="{StaticResource IconNotification}" Width="18" Height="18"/>
+                        <ic:SymbolIcon Symbol="Alert" FontSize="18"/>
                     </Button>
                     <Button Classes="icon-btn" ToolTip.Tip="Profil">
-                        <PathIcon Data="{StaticResource IconPerson}" Width="18" Height="18"/>
+                        <ic:SymbolIcon Symbol="Person" FontSize="18"/>
                     </Button>
                     <TextBlock Text="Admin"
                                FontSize="{StaticResource FontSizeSmall}"
