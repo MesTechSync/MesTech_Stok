@@ -12,10 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class AuditLogAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
-    public AuditLogAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
+    public AuditLogAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _currentUser = currentUser;

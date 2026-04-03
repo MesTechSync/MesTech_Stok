@@ -14,7 +14,7 @@ public class AuditLogAvaloniaViewModelTests
 {
     private static AuditLogAvaloniaViewModel CreateSut()
     {
-        var senderMock = new Mock<ISender>();
+        var senderMock = new Mock<IMediator>();
         var logs = Enumerable.Range(1, 10).Select(i => new AccessLog
         {
             Id = Guid.NewGuid(),
