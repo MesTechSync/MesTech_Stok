@@ -43,21 +43,21 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
             content.Add(new ByteArrayContent(fileData), "file", "document");
             content.Add(new StringContent(mimeType), "mimeType");
 
-            var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct);
+            var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
                     "[MESA Real] Classify failed: {StatusCode}", response.StatusCode);
-                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
+                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
             }
 
             var result = await response.Content.ReadFromJsonAsync<MesaClassifyResponse>(
-                cancellationToken: ct);
+                cancellationToken: ct).ConfigureAwait(false);
 
             if (result is null)
             {
                 _logger.LogWarning("[MESA Real] Classify response deserialization failed");
-                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
+                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
             }
 
             // Confidence range validation — MESA OS could return invalid values
@@ -78,7 +78,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (classify)");
-            return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
+            return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
         }
     }
 
@@ -93,21 +93,21 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
             content.Add(new StringContent(classification.Confidence.ToString("F2",
                 System.Globalization.CultureInfo.InvariantCulture)), "confidence");
 
-            var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct);
+            var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
                     "[MESA Real] Extract failed: {StatusCode}", response.StatusCode);
-                return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
+                return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
             }
 
             var result = await response.Content.ReadFromJsonAsync<MesaExtractResponse>(
-                cancellationToken: ct);
+                cancellationToken: ct).ConfigureAwait(false);
 
             if (result is null)
             {
                 _logger.LogWarning("[MESA Real] Extract response deserialization failed");
-                return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
+                return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
             }
 
             _logger.LogInformation(
@@ -125,7 +125,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (extract)");
-            return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
+            return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
         }
     }
 
@@ -142,24 +142,24 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/accounting/reconcile/suggest", payload, ct);
+                "/api/v1/accounting/reconcile/suggest", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
                     "[MESA Real] Reconciliation suggest failed: {StatusCode}", response.StatusCode);
                 return await _mockFallback.SuggestReconciliationAsync(
-                    settlementBatchId, candidateBankTransactionIds, ct);
+                    settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
             }
 
             var result = await response.Content.ReadFromJsonAsync<MesaReconciliationResponse>(
-                cancellationToken: ct);
+                cancellationToken: ct).ConfigureAwait(false);
 
             if (result is null)
             {
                 _logger.LogWarning("[MESA Real] Reconciliation response deserialization failed");
                 return await _mockFallback.SuggestReconciliationAsync(
-                    settlementBatchId, candidateBankTransactionIds, ct);
+                    settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
             }
 
             // Confidence range validation — MESA OS could return invalid values
@@ -185,7 +185,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (reconcile)");
             return await _mockFallback.SuggestReconciliationAsync(
-                settlementBatchId, candidateBankTransactionIds, ct);
+                settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
         }
     }
 }
