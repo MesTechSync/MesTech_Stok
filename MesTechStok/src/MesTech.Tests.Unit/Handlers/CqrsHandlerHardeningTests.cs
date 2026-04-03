@@ -89,7 +89,7 @@ public class CqrsHandlerHardeningTests
     {
         _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>())).ReturnsAsync((Product?)null);
 
-        var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object);
+        var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
         var command = new CreateProductCommand(
             Name: "Test Product",
             SKU: null!,
@@ -107,7 +107,7 @@ public class CqrsHandlerHardeningTests
     {
         _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>())).ReturnsAsync((Product?)null);
 
-        var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object);
+        var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
         var command = new CreateProductCommand(
             Name: "Free Product",
             SKU: "FREE-001",
@@ -130,7 +130,7 @@ public class CqrsHandlerHardeningTests
         var stockCalc = new StockCalculationService();
         var handler = new PlaceOrderHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _uowMock.Object, stockCalc);
+            _uowMock.Object, stockCalc, new Mock<ITenantProvider>().Object);
 
         var act = () => handler.Handle(null!, CancellationToken.None);
 
@@ -147,7 +147,7 @@ public class CqrsHandlerHardeningTests
         var stockCalc = new StockCalculationService();
         var handler = new PlaceOrderHandler(
             _orderRepoMock.Object, _productRepoMock.Object,
-            _uowMock.Object, stockCalc);
+            _uowMock.Object, stockCalc, new Mock<ITenantProvider>().Object);
 
         var command = new PlaceOrderCommand(
             CustomerId: Guid.NewGuid(),
@@ -169,7 +169,7 @@ public class CqrsHandlerHardeningTests
         _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
 
         var handler = new AddStockHandler(
-            _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object);
+            _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
 
         var command = new AddStockCommand(
             ProductId: Guid.NewGuid(),
@@ -189,7 +189,7 @@ public class CqrsHandlerHardeningTests
         _productRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
 
         var handler = new AddStockHandler(
-            _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object);
+            _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
 
         var command = new AddStockCommand(
             ProductId: product.Id,
@@ -534,7 +534,7 @@ public class CqrsHandlerHardeningTests
         var stockCalc = new StockCalculationService();
         var handler = new RemoveStockHandler(
             _productRepoMock.Object, _movementRepoMock.Object,
-            _uowMock.Object, stockCalc);
+            _uowMock.Object, stockCalc, Mock.Of<ITenantProvider>());
 
         var act = () => handler.Handle(null!, CancellationToken.None);
 
@@ -549,7 +549,7 @@ public class CqrsHandlerHardeningTests
         var stockCalc = new StockCalculationService();
         var handler = new RemoveStockHandler(
             _productRepoMock.Object, _movementRepoMock.Object,
-            _uowMock.Object, stockCalc);
+            _uowMock.Object, stockCalc, Mock.Of<ITenantProvider>());
 
         var command = new RemoveStockCommand(
             ProductId: Guid.NewGuid(),

@@ -28,7 +28,7 @@ public class AdjustStockHandlerTests
         _lockService.Setup(l => l.AcquireLockAsync(
                 It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Mock.Of<IAsyncDisposable>());
-        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, _lockService.Object, Mock.Of<ILogger<AdjustStockHandler>>());
+        _sut = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, _lockService.Object, Mock.Of<ILogger<AdjustStockHandler>>(), Mock.Of<ITenantProvider>());
     }
 
     [Fact]

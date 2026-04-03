@@ -28,9 +28,10 @@ public class PlaceOrderEdgeCaseTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private PlaceOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -179,7 +180,7 @@ public class PlaceOrderEdgeCaseTests
     public void PlaceOrderHandler_NullStockCalc_ThrowsArgumentNullException()
     {
         var act = () => new PlaceOrderHandler(
-            _orderRepo.Object, _productRepo.Object, _unitOfWork.Object, null!);
+            _orderRepo.Object, _productRepo.Object, _unitOfWork.Object, null!, _tenantProvider.Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("stockCalculation");
     }
 }
@@ -192,9 +193,10 @@ public class RemoveStockEdgeCaseTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -279,7 +281,7 @@ public class RemoveStockEdgeCaseTests
     public void RemoveStockHandler_NullProductRepo_ThrowsArgumentNullException()
     {
         var act = () => new RemoveStockHandler(
-            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("productRepository");
     }
 
@@ -287,7 +289,7 @@ public class RemoveStockEdgeCaseTests
     public void RemoveStockHandler_NullStockCalc_ThrowsArgumentNullException()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!);
+            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!, _tenantProvider.Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("stockCalc");
     }
 }

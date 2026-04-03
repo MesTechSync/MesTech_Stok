@@ -55,7 +55,7 @@ public class OrderToAccountingChainTests
             .Returns(Task.CompletedTask);
 
         _placeOrderHandler = new PlaceOrderHandler(
-            _orderRepo.Object, _productRepo.Object, _uow.Object, _stockCalc);
+            _orderRepo.Object, _productRepo.Object, _uow.Object, _stockCalc, Mock.Of<ITenantProvider>());
 
         _revenueHandler = new OrderConfirmedRevenueHandler(
             _incomeRepo.Object, _uow.Object,

@@ -483,7 +483,7 @@ public class GetWarehousesHandlerTests
             new() { Name = "Old", Code = "WH2", Type = "AUX", IsActive = false }
         };
         warehouses[0].SetAsDefault();
-        _warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(warehouses.AsReadOnly());
+        _warehouseRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(warehouses.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetWarehousesQuery(ActiveOnly: true), CancellationToken.None);
@@ -501,7 +501,7 @@ public class GetWarehousesHandlerTests
             new() { Name = "WH-A", Code = "A", Type = "MAIN", IsActive = true },
             new() { Name = "WH-B", Code = "B", Type = "COLD", IsActive = false, HasClimateControl = true }
         };
-        _warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(warehouses.AsReadOnly());
+        _warehouseRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(warehouses.AsReadOnly());
 
         var handler = CreateHandler();
         var result = await handler.Handle(new GetWarehousesQuery(ActiveOnly: false), CancellationToken.None);
@@ -513,7 +513,7 @@ public class GetWarehousesHandlerTests
     [Fact]
     public async Task Handle_Empty_ShouldReturnEmpty()
     {
-        _warehouseRepo.Setup(r => r.GetAllAsync())
+        _warehouseRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Warehouse>().AsReadOnly());
 
         var handler = CreateHandler();

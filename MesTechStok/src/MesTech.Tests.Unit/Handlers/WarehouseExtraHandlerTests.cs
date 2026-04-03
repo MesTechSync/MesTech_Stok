@@ -87,7 +87,7 @@ public class WarehouseExtraHandlerTests
         var activeWarehouse = new Warehouse { Name = "Active", Code = "WH-A", IsActive = true };
         var inactiveWarehouse = new Warehouse { Name = "Inactive", Code = "WH-I", IsActive = false };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { activeWarehouse, inactiveWarehouse });
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse> { activeWarehouse, inactiveWarehouse });
         var sut = new GetWarehousesHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehousesQuery(ActiveOnly: true), CancellationToken.None);
@@ -102,7 +102,7 @@ public class WarehouseExtraHandlerTests
         var w1 = new Warehouse { Name = "A", Code = "WH-A", IsActive = true };
         var w2 = new Warehouse { Name = "B", Code = "WH-B", IsActive = false };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { w1, w2 });
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse> { w1, w2 });
         var sut = new GetWarehousesHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehousesQuery(ActiveOnly: false), CancellationToken.None);
@@ -191,7 +191,7 @@ public class WarehouseExtraHandlerTests
     public async Task GetWarehouseSummary_ValidRequest_ReturnsEmptyList()
     {
         var warehouseRepo = new Mock<IWarehouseRepository>();
-        warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse>().AsReadOnly());
+        warehouseRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse>().AsReadOnly());
         var sut = new GetWarehouseSummaryHandler(
             warehouseRepo.Object,
             new Mock<IProductRepository>().Object);

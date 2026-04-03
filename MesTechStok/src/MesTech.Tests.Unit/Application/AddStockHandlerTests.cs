@@ -14,9 +14,10 @@ public class AddStockHandlerTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private AddStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_ValidCommand_ShouldIncreaseStock()

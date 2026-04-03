@@ -17,9 +17,10 @@ public class PlaceOrderHandlerTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private PlaceOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_ValidSingleItem_ShouldCreateOrder()
