@@ -217,10 +217,17 @@ var app = builder.Build();
 
 // Forwarded headers — MUST be first middleware for correct client IP behind proxy/Traefik
 // Required for rate limiting to work correctly (prevents X-Forwarded-For spoofing bypass)
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+// KnownNetworks: trust Docker internal networks (172.16.0.0/12, 10.0.0.0/8) as proxy sources
+var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-});
+    ForwardLimit = 2, // client → nginx/traefik → blazor (max 2 hops)
+};
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("172.16.0.0"), 12));
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("10.0.0.0"), 8));
+app.UseForwardedHeaders(forwardedOptions);
 
 if (!app.Environment.IsDevelopment())
 {
