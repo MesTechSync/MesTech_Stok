@@ -23,12 +23,12 @@ public sealed class RequirePermissionFilter : IEndpointFilter
             return Results.Unauthorized();
 
         var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
-        var hasPermission = await permissionService.HasPermissionAsync(userId, _permissionName);
+        var hasPermission = await permissionService.HasPermissionAsync(userId, _permissionName).ConfigureAwait(false);
 
         if (!hasPermission)
             return Results.Forbid();
 
-        return await next(context);
+        return await next(context).ConfigureAwait(false);
     }
 }
 
