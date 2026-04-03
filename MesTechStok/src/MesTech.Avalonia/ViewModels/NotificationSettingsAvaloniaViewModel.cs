@@ -15,7 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class NotificationSettingsAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private Guid _tenantId;
     private Guid _userId;
 
@@ -45,7 +45,7 @@ public partial class NotificationSettingsAvaloniaViewModel : ViewModelBase
     // Category notification matrix
     public ObservableCollection<NotificationCategoryItem> Categories { get; } = new();
 
-    public NotificationSettingsAvaloniaViewModel(ISender mediator)
+    public NotificationSettingsAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
     }
