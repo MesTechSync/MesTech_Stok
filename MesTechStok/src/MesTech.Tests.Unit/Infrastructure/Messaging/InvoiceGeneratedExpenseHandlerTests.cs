@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MediatR;
 using MesTech.Application.Features.Finance.Commands.CreateExpense;
 using MesTech.Domain.Enums;

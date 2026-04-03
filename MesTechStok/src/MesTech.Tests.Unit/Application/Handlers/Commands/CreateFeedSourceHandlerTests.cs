@@ -3,7 +3,6 @@ using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application.Handlers.Commands;
@@ -13,11 +12,17 @@ namespace MesTech.Tests.Unit.Application.Handlers.Commands;
 public class CreateFeedSourceHandlerTests
 {
     private readonly Mock<ISupplierFeedRepository> _feedRepoMock = new();
-    private readonly Mock<IUnitOfWork> _uowMock = new();
-    private readonly Mock<ILogger<CreateFeedSourceHandler>> _loggerMock = new();
+    private readonly Mock<ICurrentUserService> _currentUserMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
 
-    private CreateFeedSourceHandler CreateHandler() =>
-        new(_feedRepoMock.Object, _uowMock.Object, _loggerMock.Object);
+    public CreateFeedSourceHandlerTests()
+    {
+        _tenantProviderMock.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
+        _currentUserMock.Setup(u => u.UserId).Returns(Guid.NewGuid());
+    }
+
+    private CreateFeedSourceCommandHandler CreateHandler() =>
+        new(_feedRepoMock.Object, _currentUserMock.Object, _tenantProviderMock.Object);
 
     private static CreateFeedSourceCommand CreateCommand() =>
         new(Guid.NewGuid(), "Test Feed", "https://example.com/feed.xml",
@@ -30,7 +35,6 @@ public class CreateFeedSourceHandlerTests
 
         result.Should().NotBeEmpty();
         _feedRepoMock.Verify(r => r.AddAsync(It.IsAny<SupplierFeed>(), It.IsAny<CancellationToken>()), Times.Once);
-        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -49,5 +53,8 @@ public class CreateFeedSourceHandlerTests
         capturedFeed.Format.Should().Be(FeedFormat.Xml);
         capturedFeed.PriceMarkupPercent.Should().Be(10m);
         capturedFeed.SupplierId.Should().Be(command.SupplierId);
+        capturedFeed.IsActive.Should().BeTrue();
+        capturedFeed.SyncIntervalMinutes.Should().Be(60);
+        capturedFeed.AutoDeactivateOnZeroStock.Should().BeFalse();
     }
 }
