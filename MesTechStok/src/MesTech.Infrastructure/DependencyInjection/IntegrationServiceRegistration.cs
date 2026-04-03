@@ -235,6 +235,16 @@ public static class IntegrationServiceRegistration
         // Decorator: wrap all IIntegratorAdapter registrations with Prometheus instrumentation
         services.DecorateAllIntegratorAdapters();
 
+        // IPingableAdapter: resolve from existing IIntegratorAdapter singletons so
+        // AdapterConnectivityValidator can receive IEnumerable<IPingableAdapter> for health checks.
+        // InstrumentedAdapterDecorator implements IPingableAdapter — cast is safe.
+        // We use a single IEnumerable<IPingableAdapter> registration that resolves from the
+        // already-registered IIntegratorAdapter instances (no duplicate instances created).
+        services.AddSingleton<IEnumerable<IPingableAdapter>>(sp =>
+            sp.GetServices<IIntegratorAdapter>()
+              .OfType<IPingableAdapter>()
+              .ToList());
+
         // Factory — receives IEnumerable<IIntegratorAdapter> (now instrumented)
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
 
