@@ -53,7 +53,8 @@ public static class HangfireConfig
         services.AddScoped<OpenCartStockSyncJob>();
         services.AddScoped<InvoiceRetryJob>();
         services.AddScoped<HealthCheckJob>();
-        services.AddScoped<SettlementSyncJob>();
+        // SettlementSyncJob KALDIRILDI — deprecated connectivity-only job.
+        // Gerçek persist: SettlementSyncWorker (accounting-settlement-sync, 03:30)
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
 
@@ -171,10 +172,8 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             "* * * * *");
 
-        RecurringJob.AddOrUpdate<SettlementSyncJob>(
-            "settlement-sync",
-            job => job.ExecuteAsync(CancellationToken.None),
-            "0 3 * * *");
+        // SettlementSyncJob KALDIRILDI — SettlementSyncWorker (03:30) yeterli
+        RecurringJob.RemoveIfExists("settlement-sync");
 
         RecurringJob.AddOrUpdate<CategorySyncJob>(
             "category-sync",
