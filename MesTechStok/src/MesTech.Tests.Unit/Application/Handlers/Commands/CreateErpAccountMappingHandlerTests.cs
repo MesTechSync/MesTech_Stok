@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Erp.Commands.CreateErpAccountMapping;
 using MesTech.Domain.Entities.Erp;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -42,7 +43,7 @@ public class CreateErpAccountMappingHandlerTests
     public async Task Handle_DuplicateMesTechCode_ShouldReturnFailure()
     {
         var existing = ErpAccountMapping.Create(
-            Guid.NewGuid(), Domain.Enums.ErpProvider.Parasut,
+            Guid.NewGuid(), ErpProvider.Parasut,
             "100-SATIS", "Satis", "Gelir", "600", "Rev");
         _repoMock.Setup(r => r.FindByMesTechCodeAsync(It.IsAny<Guid>(), "100-SATIS", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
@@ -61,7 +62,7 @@ public class CreateErpAccountMappingHandlerTests
             .ReturnsAsync((ErpAccountMapping?)null);
 
         var existing = ErpAccountMapping.Create(
-            Guid.NewGuid(), Domain.Enums.ErpProvider.Parasut,
+            Guid.NewGuid(), ErpProvider.Parasut,
             "200", "X", "Y", "600-REVENUE", "Rev");
         _repoMock.Setup(r => r.FindByErpCodeAsync(It.IsAny<Guid>(), "600-REVENUE", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);

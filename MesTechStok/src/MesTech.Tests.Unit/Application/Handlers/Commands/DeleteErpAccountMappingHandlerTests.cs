@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Erp.Commands.DeleteErpAccountMapping;
 using MesTech.Domain.Entities.Erp;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -37,7 +38,7 @@ public class DeleteErpAccountMappingHandlerTests
         var tenantA = Guid.NewGuid();
         var tenantB = Guid.NewGuid();
         var mapping = ErpAccountMapping.Create(
-            tenantA, Domain.Enums.ErpProvider.Parasut,
+            tenantA, ErpProvider.Parasut,
             "100", "Name", "Type", "600", "ErpName");
 
         _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -55,7 +56,7 @@ public class DeleteErpAccountMappingHandlerTests
     {
         var tenantId = Guid.NewGuid();
         var mapping = ErpAccountMapping.Create(
-            tenantId, Domain.Enums.ErpProvider.Parasut,
+            tenantId, ErpProvider.Parasut,
             "100", "Name", "Type", "600", "ErpName");
 
         _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
