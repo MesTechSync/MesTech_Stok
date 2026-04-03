@@ -149,12 +149,12 @@ public class AutoCompetePriceHandlerTests
             .ReturnsAsync(true);
         _adapterFactoryMock.Setup(f => f.Resolve(It.IsAny<string>())).Returns(adapterMock.Object);
 
-        var result = await CreateHandler().Handle(CreateCommand(floorPrice: 50m), CancellationToken.None);
+        var result = await CreateHandler().Handle(CreateCommand(floorPrice: 50m, maxDiscount: 30m), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.PriceChanged.Should().BeTrue();
         result.OldPrice.Should().Be(100m);
-        result.NewPrice.Should().Be(89.1m); // 90 * 0.99
+        result.NewPrice.Should().Be(89.1m); // 90 * 0.99, maxDiscount=30% allows this
         result.CompetitorName.Should().Be("Rival");
     }
 
