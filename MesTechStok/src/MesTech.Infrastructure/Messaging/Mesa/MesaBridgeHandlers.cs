@@ -88,9 +88,7 @@ public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNoti
 
         await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("stock.low");
-
-        // WPF realtime WebSocket push
-        await _notifier.NotifyLowStockAsync(e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, ct).ConfigureAwait(false);
+        // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
     }
 }
 
@@ -497,10 +495,7 @@ public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNot
 
         await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
         _monitor.RecordPublish("sync.error");
-
-        // WPF realtime sync error push
-        await _notifier.NotifySyncStatusAsync(
-            e.Platform, $"error:{e.ErrorType}", 0, 0, ct).ConfigureAwait(false);
+        // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
     }
 }
 
