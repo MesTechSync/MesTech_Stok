@@ -40,7 +40,7 @@ public sealed class SignalRNotificationBridge :
             e.PlatformCode, e.PlatformOrderId);
 
         await _notifier.NotifyNewOrderAsync(
-            e.PlatformCode, e.PlatformOrderId, e.TotalAmount, 0, cancellationToken);
+            e.PlatformCode, e.PlatformOrderId, e.TotalAmount, 0, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -53,7 +53,7 @@ public sealed class SignalRNotificationBridge :
             e.SKU, e.CurrentStock, e.MinimumStock);
 
         await _notifier.NotifyLowStockAsync(
-            e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, cancellationToken);
+            e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -66,7 +66,7 @@ public sealed class SignalRNotificationBridge :
             e.InvoiceId, e.GrandTotal);
 
         await _notifier.NotifyInvoiceGeneratedAsync(
-            e.InvoiceId.ToString(), "Webhook", e.GrandTotal, cancellationToken);
+            e.InvoiceId.ToString(), "Webhook", e.GrandTotal, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -84,7 +84,7 @@ public sealed class SignalRNotificationBridge :
             e.OrderId.ToString(),
             e.PlatformOrderId,
             e.Reason ?? "Order cancelled via webhook",
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -97,7 +97,7 @@ public sealed class SignalRNotificationBridge :
             e.SKU, e.CurrentPrice, e.CompetitorPrice);
 
         await _notifier.NotifyBuyboxLostAsync(
-            e.TenantId, e.SKU, e.CurrentPrice, e.CompetitorPrice, e.CompetitorName, cancellationToken);
+            e.TenantId, e.SKU, e.CurrentPrice, e.CompetitorPrice, e.CompetitorName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -110,6 +110,6 @@ public sealed class SignalRNotificationBridge :
             e.Platform, e.ErrorType, e.Message);
 
         await _notifier.NotifySyncStatusAsync(
-            e.Platform, $"error:{e.ErrorType}", 0, 0, cancellationToken);
+            e.Platform, $"error:{e.ErrorType}", 0, 0, cancellationToken).ConfigureAwait(false);
     }
 }
