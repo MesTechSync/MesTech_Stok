@@ -10,15 +10,18 @@ public sealed class AddStockHandler : IRequestHandler<AddStockCommand, AddStockR
     private readonly IProductRepository _productRepository;
     private readonly IStockMovementRepository _movementRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
     public AddStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ITenantProvider tenantProvider)
     {
         _productRepository = productRepository;
         _movementRepository = movementRepository;
         _unitOfWork = unitOfWork;
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<AddStockResult> Handle(AddStockCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,7 @@ public sealed class AddStockHandler : IRequestHandler<AddStockCommand, AddStockR
         var movement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = request.Quantity,
             UnitCost = request.UnitCost,
             TotalCost = request.Quantity * request.UnitCost,

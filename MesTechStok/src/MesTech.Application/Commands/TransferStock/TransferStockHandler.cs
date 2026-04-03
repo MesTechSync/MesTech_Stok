@@ -11,17 +11,20 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
     private readonly IStockMovementRepository _movementRepository;
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
     public TransferStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
         IWarehouseRepository warehouseRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ITenantProvider tenantProvider)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _movementRepository = movementRepository ?? throw new ArgumentNullException(nameof(movementRepository));
         _warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
 #pragma warning disable MA0051 // Method is too long — warehouse transfer requires atomic dual-movement creation
@@ -57,6 +60,7 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         var outMovement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = -request.Quantity,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
@@ -71,6 +75,7 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         var inMovement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = request.Quantity,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,

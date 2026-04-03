@@ -13,17 +13,20 @@ public sealed class RemoveStockHandler : IRequestHandler<RemoveStockCommand, Rem
     private readonly IStockMovementRepository _movementRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly StockCalculationService _stockCalc;
+    private readonly ITenantProvider _tenantProvider;
 
     public RemoveStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
         IUnitOfWork unitOfWork,
-        StockCalculationService stockCalc)
+        StockCalculationService stockCalc,
+        ITenantProvider tenantProvider)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _movementRepository = movementRepository ?? throw new ArgumentNullException(nameof(movementRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _stockCalc = stockCalc ?? throw new ArgumentNullException(nameof(stockCalc));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<RemoveStockResult> Handle(RemoveStockCommand request, CancellationToken cancellationToken)
@@ -49,6 +52,7 @@ public sealed class RemoveStockHandler : IRequestHandler<RemoveStockCommand, Rem
         var movement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = -request.Quantity,
             Reason = request.Reason,
             DocumentNumber = request.DocumentNumber,
