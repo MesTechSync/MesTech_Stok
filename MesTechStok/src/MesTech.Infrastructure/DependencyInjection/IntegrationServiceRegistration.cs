@@ -393,6 +393,9 @@ public static class IntegrationServiceRegistration
         services.AddMemoryCache();
         services.AddScoped<IGibMukellefService, GibMukellefService>();
 
+        // TOTP (RFC 6238) — MFA enable/disable/verify handlers need this
+        services.AddSingleton<ITotpService, Integration.Auth.TotpService>();
+
         // Product scraper service — URL-based product info via platform APIs (G440: config-driven URLs)
         if (configuration is not null)
             services.Configure<ProductScraperOptions>(configuration.GetSection("Scraping:PlatformApiUrls"));
