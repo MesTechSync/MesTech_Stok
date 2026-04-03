@@ -13,8 +13,8 @@ public sealed class WarehouseRepository : IWarehouseRepository
     public async Task<Warehouse?> GetByIdAsync(Guid id)
         => await _context.Warehouses.FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Warehouse>> GetAllAsync()
-        => await _context.Warehouses.AsNoTracking().ToListAsync().ConfigureAwait(false);
+    public async Task<IReadOnlyList<Warehouse>> GetAllAsync(CancellationToken ct = default)
+        => await _context.Warehouses.AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<Warehouse?> GetDefaultAsync()
         => await _context.Warehouses.AsNoTracking().FirstOrDefaultAsync(w => w.IsDefault).ConfigureAwait(false);

@@ -91,7 +91,7 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
     public async Task<IReadOnlyList<FifoCostResultDto>> CalculateAllCOGSAsync(
         Guid tenantId, CancellationToken ct = default)
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productRepository.GetAllAsync(ct);
         var tenantProducts = products.Where(p => p.TenantId == tenantId && !p.IsDeleted).ToList();
 
         // Batch query — N+1 yerine tek SQL (100 ürün = 1 query instead of 100)

@@ -16,7 +16,7 @@ public sealed class GetCategoriesPagedHandler : IRequestHandler<GetCategoriesPag
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var allCategories = await _categoryRepository.GetAllAsync().ConfigureAwait(false);
+        var allCategories = await _categoryRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var filtered = string.IsNullOrWhiteSpace(request.SearchTerm)
             ? allCategories
