@@ -125,6 +125,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "iyzico refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }

@@ -109,6 +109,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Stripe refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }
