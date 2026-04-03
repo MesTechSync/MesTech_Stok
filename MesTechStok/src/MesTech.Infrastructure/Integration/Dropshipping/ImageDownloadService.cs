@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
@@ -87,6 +88,9 @@ public sealed class ImageDownloadService(
     private async Task<DownloadedImage?> DownloadWithPolicyAsync(
         string url, ImageDownloadOptions options, CancellationToken ct)
     {
+        if (!SsrfGuard.ValidateUrl(url, logger, nameof(ImageDownloadService)))
+            return null;
+
         var timeout = options.Timeout == default
             ? TimeSpan.FromSeconds(30)
             : options.Timeout;
