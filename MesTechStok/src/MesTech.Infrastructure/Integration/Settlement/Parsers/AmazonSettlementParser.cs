@@ -16,16 +16,18 @@ namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
 public sealed class AmazonSettlementParser : ISettlementParser
 {
     private readonly ILogger<AmazonSettlementParser> _logger;
+    private readonly string _platformOverride;
 
     // Parsed lines cached between ParseAsync and ParseLinesAsync calls
     private List<AmazonSettlementLine>? _cachedLines;
     private string? _rawFileHash;
 
-    public string Platform => "Amazon";
+    public string Platform => _platformOverride;
 
-    public AmazonSettlementParser(ILogger<AmazonSettlementParser> logger)
+    public AmazonSettlementParser(ILogger<AmazonSettlementParser> logger, string? platformOverride = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _platformOverride = platformOverride ?? "Amazon";
     }
 
     [Obsolete("Use ParseAsync(tenantId, rawData, format, ct) — Guid.Empty is a multi-tenant risk (BORÇ-N)")]

@@ -17,7 +17,7 @@ public sealed class AmazonEuSettlementParser : ISettlementParser
 
     public AmazonEuSettlementParser(ILogger<AmazonSettlementParser> logger)
     {
-        _inner = new AmazonSettlementParser(logger);
+        _inner = new AmazonSettlementParser(logger, platformOverride: "AmazonEu");
     }
 
     public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)
