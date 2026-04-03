@@ -76,7 +76,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         try
         {
             // Son 30 gun verilerini topla
-            var analysisData = await CollectAnalysisDataAsync(tenantId, ct);
+            var analysisData = await CollectAnalysisDataAsync(tenantId, ct).ConfigureAwait(false);
 
             // MESA AI'ya gonder
             var payload = new
@@ -104,7 +104,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/accounting/advisory/sales", payload, ct);
+                "/api/v1/accounting/advisory/sales", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -114,7 +114,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
             }
 
             var result = await response.Content.ReadFromJsonAsync<MesaSalesAdviceResponse>(
-                cancellationToken: ct);
+                cancellationToken: ct).ConfigureAwait(false);
 
             if (result is null)
             {
@@ -145,7 +145,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         {
             _logger.LogError(ex, "[Advisory V2] MESA OS erisim sorunu, kural tabanlı tavsiye uretiliyor");
 
-            var analysisData = await CollectAnalysisDataAsync(tenantId, ct);
+            var analysisData = await CollectAnalysisDataAsync(tenantId, ct).ConfigureAwait(false);
             return GenerateRuleBasedAdvice(analysisData);
         }
     }
@@ -160,7 +160,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         for (var day = thirtyDaysAgo; day <= today; day = day.AddDays(1))
         {
             var period = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var dayReports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct);
+            var dayReports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
             reports.AddRange(dayReports);
         }
 
@@ -170,12 +170,12 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         foreach (var platform in platforms)
         {
             var platformCommissions = await _commissionRepository
-                .GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct);
+                .GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct).ConfigureAwait(false);
             commissions.AddRange(platformCommissions);
         }
 
         // Urun sayisi
-        var productCount = await _productRepository.GetCountAsync(ct);
+        var productCount = await _productRepository.GetCountAsync(ct).ConfigureAwait(false);
 
         return new AnalysisData(reports, commissions, productCount);
     }
