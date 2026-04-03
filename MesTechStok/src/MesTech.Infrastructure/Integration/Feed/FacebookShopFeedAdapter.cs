@@ -19,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Feed;
 /// </summary>
 public class FacebookShopFeedAdapter : ISocialFeedAdapter
 {
-    private readonly AppDbContext _dbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly ILogger<FacebookShopFeedAdapter> _logger;
     private readonly FeedOptions _feedOptions;
 
@@ -30,11 +30,11 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
     public virtual SocialFeedPlatform Platform => SocialFeedPlatform.FacebookShop;
 
     public FacebookShopFeedAdapter(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         ILogger<FacebookShopFeedAdapter> logger,
         IOptions<FeedOptions>? feedOptions = null)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _feedOptions = feedOptions?.Value ?? new FeedOptions();
     }
@@ -51,7 +51,8 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
 
         try
         {
-            var query = _dbContext.Products
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+            var query = dbContext.Products
                 .Where(p => p.TenantId == request.StoreId && p.IsActive && !p.IsDeleted);
 
             if (request.CategoryFilter is { Count: > 0 })

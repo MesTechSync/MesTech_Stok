@@ -1,6 +1,7 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -16,10 +17,10 @@ public sealed class InstagramShopFeedAdapter : FacebookShopFeedAdapter
     public override SocialFeedPlatform Platform => SocialFeedPlatform.InstagramShop;
 
     public InstagramShopFeedAdapter(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         ILogger<InstagramShopFeedAdapter> logger,
         IOptions<FeedOptions>? feedOptions = null)
-        : base(dbContext, logger, feedOptions)
+        : base(dbContextFactory, logger, feedOptions)
     {
     }
 }

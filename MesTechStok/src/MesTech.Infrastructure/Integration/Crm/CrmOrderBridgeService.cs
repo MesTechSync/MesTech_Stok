@@ -15,23 +15,24 @@ namespace MesTech.Infrastructure.Integration.Crm;
 /// </summary>
 public sealed class CrmOrderBridgeService : ICrmOrderBridgeService
 {
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly IUnitOfWork _uow;
     private readonly ILogger<CrmOrderBridgeService> _logger;
 
     public CrmOrderBridgeService(
-        AppDbContext context,
+        IDbContextFactory<AppDbContext> contextFactory,
         IUnitOfWork uow,
         ILogger<CrmOrderBridgeService> logger)
     {
-        _context = context;
+        _contextFactory = contextFactory;
         _uow = uow;
         _logger = logger;
     }
 
     public async Task<Guid> CreateOrderFromDealAsync(Guid dealId, CancellationToken ct = default)
     {
-        var deal = await _context.Set<Deal>()
+        await using var context = await _contextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+        var deal = await context.Set<Deal>()
             .Include(d => d.Contact)
             .FirstOrDefaultAsync(d => d.Id == dealId, ct)
             .ConfigureAwait(false);
@@ -55,7 +56,8 @@ public sealed class CrmOrderBridgeService : ICrmOrderBridgeService
 
     public async Task<Guid?> CreateLeadFromOrderAsync(Guid orderId, CancellationToken ct = default)
     {
-        var order = await _context.Set<Order>()
+        await using var context = await _contextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+        var order = await context.Set<Order>()
             .FirstOrDefaultAsync(o => o.Id == orderId, ct)
             .ConfigureAwait(false);
 
@@ -68,7 +70,7 @@ public sealed class CrmOrderBridgeService : ICrmOrderBridgeService
         var customerName = order.CustomerName ?? "Bilinmeyen Musteri";
 
         // Ayni musteri adi ile aktif lead var mi?
-        var existingLead = await _context.Set<Lead>()
+        var existingLead = await context.Set<Lead>()
             .AnyAsync(l => l.TenantId == order.TenantId
                         && l.FullName == customerName
                         && l.Status != LeadStatus.Lost, ct)
@@ -88,7 +90,7 @@ public sealed class CrmOrderBridgeService : ICrmOrderBridgeService
             email: order.CustomerEmail,
             phone: null);
 
-        await _context.Set<Lead>().AddAsync(lead, ct).ConfigureAwait(false);
+        await context.Set<Lead>().AddAsync(lead, ct).ConfigureAwait(false);
         await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(
