@@ -25,7 +25,8 @@ public static class LogEndpoints
             return Results.Created($"/api/v1/logs/{logId}", new CreatedResponse(logId));
         })
         .WithName("CreateLogEntry")
-        .WithSummary("Yeni log kaydı oluştur").Produces(200).Produces(400);
+        .WithSummary("Yeni log kaydı oluştur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/logs — log listesi (sayfalanmış, filtreli)
         group.MapGet("/", async (
