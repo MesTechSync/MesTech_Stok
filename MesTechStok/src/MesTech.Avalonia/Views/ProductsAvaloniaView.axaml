@@ -4,6 +4,7 @@
              xmlns:converters="using:MesTech.Avalonia.Converters"
              xmlns:controls="using:MesTech.Avalonia.Controls"
              xmlns:asyncImage="using:AsyncImageLoader"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -238,7 +239,7 @@
                                         <!-- Lazy-loaded product image -->
                                         <asyncImage:AdvancedImage
                                             IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                            asyncImage:ImageLoader.Source="{Binding ImageUrl}"
+                                            Source="{Binding ImageUrl}"
                                             Stretch="UniformToFill"
                                             VerticalAlignment="Center" HorizontalAlignment="Center" />
                                         <!-- Discount badge -->
@@ -315,24 +316,19 @@
                 ActionCommand="{Binding RefreshCommand}" />
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"
-                                   TextWrapping="Wrap" MaxWidth="400" />
-                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                                Command="{Binding RefreshCommand}"
-                                Padding="16,6" Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0" Grid.ColumnSpan="4"
+                    Title="Bir sorun oluştu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>
