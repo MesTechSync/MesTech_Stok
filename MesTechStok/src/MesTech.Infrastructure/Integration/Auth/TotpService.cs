@@ -24,6 +24,8 @@ public sealed class TotpService : ITotpService
         return ToBase32(secretBytes);
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI return type",
+        Justification = "ITotpService interface returns string — otpauth:// URI as string is standard")]
     public string GenerateQrCodeUri(string secret, string userEmail, string issuer = "MesTech")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(secret);
@@ -61,6 +63,7 @@ public sealed class TotpService : ITotpService
     private static long GetCurrentTimeStep()
         => DateTimeOffset.UtcNow.ToUnixTimeSeconds() / TimeStep;
 
+    #pragma warning disable CA5350 // HMACSHA1 required by RFC 6238 TOTP — Google Authenticator compatibility
     private static string ComputeTotp(byte[] secret, long timeStep)
     {
         var timeBytes = BitConverter.GetBytes(timeStep);
@@ -81,6 +84,7 @@ public sealed class TotpService : ITotpService
         var otp = binaryCode % (int)Math.Pow(10, CodeDigits);
         return otp.ToString().PadLeft(CodeDigits, '0');
     }
+    #pragma warning restore CA5350
 
     private static string ToBase32(byte[] data)
     {
