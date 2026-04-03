@@ -46,9 +46,10 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
             TotalCount = statuses.Count;
             Summary = $"Pazaryeri yonetimi ekrani hazir. {statuses.Count} platform entegrasyonu aktif.";
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Fallback to default summary on error
+            HasError = true;
+            ErrorMessage = $"Platform verileri yuklenemedi: {ex.Message}";
             PlatformCount = 10;
             Summary = "Pazaryeri yonetimi ekrani hazir. 10 platform entegrasyonu, API ayarlari, senkronizasyon durumu ve hata loglari burada yer alacak.";
         }
