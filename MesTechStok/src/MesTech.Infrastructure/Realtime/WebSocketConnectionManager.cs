@@ -52,7 +52,7 @@ public sealed class WebSocketConnectionManager
             {
                 if (socket.State == WebSocketState.Open)
                 {
-                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct);
+                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
                 }
                 else
                 {
