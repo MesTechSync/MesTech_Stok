@@ -37,7 +37,8 @@ public sealed class CustomerRepository : ICustomerRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _context.Customers.FindAsync(id);
+        // FindAsync bypasses global query filter (tenant isolation) — use FirstOrDefaultAsync
+        var entity = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
         if (entity is not null)
             _context.Customers.Remove(entity);
     }
