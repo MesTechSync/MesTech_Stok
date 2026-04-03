@@ -18,5 +18,13 @@ public class GetStockMovementsValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task DefaultQuery_ShouldProduceNoErrors()
+    {
+        var input = new GetStockMovementsQuery();
+        var result = await _sut.ValidateAsync(input);
+        result.Errors.Should().BeEmpty();
+    }
+
     private static GetStockMovementsQuery CreateValidQuery() => new();
 }

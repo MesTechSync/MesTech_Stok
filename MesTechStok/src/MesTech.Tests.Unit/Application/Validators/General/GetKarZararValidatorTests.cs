@@ -18,5 +18,15 @@ public class GetKarZararValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task ToBeforeFrom_ShouldFail()
+    {
+        var now = DateTime.UtcNow;
+        var input = new GetKarZararQuery(From: now, To: now.AddMonths(-1));
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "To");
+    }
+
     private static GetKarZararQuery CreateValidQuery() => new(From: DateTime.UtcNow.AddMonths(-1), To: DateTime.UtcNow);
 }

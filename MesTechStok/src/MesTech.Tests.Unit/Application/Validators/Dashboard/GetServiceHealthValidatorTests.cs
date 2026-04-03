@@ -18,5 +18,13 @@ public class GetServiceHealthValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task DefaultQuery_ShouldProduceNoErrors()
+    {
+        var input = new GetServiceHealthQuery();
+        var result = await _sut.ValidateAsync(input);
+        result.Errors.Should().BeEmpty();
+    }
+
     private static GetServiceHealthQuery CreateValidQuery() => new();
 }

@@ -18,5 +18,14 @@ public class GetCargoComparisonValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task NullShipmentRequest_ShouldFail()
+    {
+        var input = CreateValidQuery() with { ShipmentRequest = null! };
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "ShipmentRequest");
+    }
+
     private static GetCargoComparisonQuery CreateValidQuery() => new(ShipmentRequest: new MesTech.Application.DTOs.Cargo.ShipmentRequest { OrderId = Guid.NewGuid(), Weight = 1.5m, Desi = 2 });
 }
