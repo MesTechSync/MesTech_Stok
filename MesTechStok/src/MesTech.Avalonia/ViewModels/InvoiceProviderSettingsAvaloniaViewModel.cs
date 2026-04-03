@@ -11,11 +11,11 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string testingProvider = string.Empty;
 
-    public InvoiceProviderSettingsAvaloniaViewModel(ISender mediator)
+    public InvoiceProviderSettingsAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
     }
