@@ -124,7 +124,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
         Stream fileStream,
         ImportOptions options,
         CancellationToken cancellationToken = default)
-        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken);
+        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken).ConfigureAwait(false);
 
     public async Task<ImportResult> ImportProductsAsync(
         Stream fileStream,
