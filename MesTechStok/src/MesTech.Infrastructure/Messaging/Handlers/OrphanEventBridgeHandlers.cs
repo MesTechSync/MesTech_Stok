@@ -327,24 +327,41 @@ public sealed class ProductUpdatedBridgeHandler
 }
 
 /// <summary>
-/// ProductActivatedEvent → Ürün aktif loglama.
+/// ProductActivatedEvent → Ürün aktif loglama + bildirim.
 /// Platform'larda ürün satışa açılır.
 /// </summary>
 public sealed class ProductActivatedBridgeHandler
     : INotificationHandler<DomainEventNotification<ProductActivatedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<ProductActivatedBridgeHandler> _logger;
 
-    public ProductActivatedBridgeHandler(ILogger<ProductActivatedBridgeHandler> logger)
-        => _logger = logger;
+    public ProductActivatedBridgeHandler(IMediator mediator, ILogger<ProductActivatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<ProductActivatedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<ProductActivatedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] ProductActivated — ProductId={ProductId}, SKU={SKU}",
             e.ProductId, e.SKU);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "product-activated",
+                Content: $"Ürün aktifleştirildi: {e.SKU}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ProductActivated bildirim gönderilemedi — {ProductId}", e.ProductId);
+        }
     }
 }
 
@@ -1248,46 +1265,80 @@ public sealed class SubscriptionPlanChangedBridgeHandler
 #region Katalog & Tedarik (DEV6 TUR19 — son 2 orphan event)
 
 /// <summary>
-/// CategoryCreatedEvent → Kategori oluşturma loglama.
-/// DEV6 TUR19: G462 orphan event kapatma.
+/// CategoryCreatedEvent → Kategori oluşturma loglama + bildirim.
+/// DEV6 TUR19: G462 orphan event kapatma. DEV1: bildirim eklendi.
 /// </summary>
 public sealed class CategoryCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<CategoryCreatedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<CategoryCreatedBridgeHandler> _logger;
 
-    public CategoryCreatedBridgeHandler(ILogger<CategoryCreatedBridgeHandler> logger)
-        => _logger = logger;
+    public CategoryCreatedBridgeHandler(IMediator mediator, ILogger<CategoryCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<CategoryCreatedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<CategoryCreatedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] CategoryCreated — CategoryId={CategoryId}, Name={Name}, Code={Code}, TenantId={TenantId}",
             e.CategoryId, e.CategoryName, e.Code, e.TenantId);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "category-created",
+                Content: $"Yeni kategori oluşturuldu: {e.CategoryName} (Kod: {e.Code})"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "CategoryCreated bildirim gönderilemedi — {CategoryId}", e.CategoryId);
+        }
     }
 }
 
 /// <summary>
-/// SupplierCreatedEvent → Tedarikçi oluşturma loglama.
-/// DEV6 TUR19: G462 orphan event kapatma.
+/// SupplierCreatedEvent → Tedarikçi oluşturma loglama + bildirim.
+/// DEV6 TUR19: G462 orphan event kapatma. DEV1: bildirim eklendi.
 /// </summary>
 public sealed class SupplierCreatedBridgeHandler
     : INotificationHandler<DomainEventNotification<SupplierCreatedEvent>>
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<SupplierCreatedBridgeHandler> _logger;
 
-    public SupplierCreatedBridgeHandler(ILogger<SupplierCreatedBridgeHandler> logger)
-        => _logger = logger;
+    public SupplierCreatedBridgeHandler(IMediator mediator, ILogger<SupplierCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
 
-    public Task Handle(DomainEventNotification<SupplierCreatedEvent> notification, CancellationToken ct)
+    public async Task Handle(DomainEventNotification<SupplierCreatedEvent> notification, CancellationToken ct)
     {
         var e = notification.DomainEvent;
         _logger.LogInformation(
             "[Event] SupplierCreated — SupplierId={SupplierId}, Name={Name}, Code={Code}, TenantId={TenantId}",
             e.SupplierId, e.SupplierName, e.Code, e.TenantId);
-        return Task.CompletedTask;
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "supplier-created",
+                Content: $"Yeni tedarikçi eklendi: {e.SupplierName} (Kod: {e.Code})"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "SupplierCreated bildirim gönderilemedi — {SupplierId}", e.SupplierId);
+        }
     }
 }
 
