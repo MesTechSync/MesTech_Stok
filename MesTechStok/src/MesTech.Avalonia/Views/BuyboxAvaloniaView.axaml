@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.BuyboxAvaloniaView"
              x:Name="RootBuyboxAvaloniaView"
              x:DataType="vm:BuyboxAvaloniaViewModel"
@@ -10,6 +11,12 @@
     <!-- FIX-18 Gorev #13: Buybox Analizi View -->
 
     <Grid RowDefinitions="Auto,*">
+        <!-- Loading Skeleton -->
+        <Border Background="{DynamicResource BackgroundBrush}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader />
+        </Border>
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesBrandPrimary}" Padding="20,14">

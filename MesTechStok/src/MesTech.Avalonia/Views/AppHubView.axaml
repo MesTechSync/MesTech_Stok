@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.AppHubView"
              x:Name="RootAppHubView"
              x:DataType="vm:AppHubViewModel"
@@ -13,6 +14,13 @@
 
     <!-- Loading State -->
     <Panel>
+    <!-- Loading Skeleton -->
+    <Border Background="{DynamicResource BackgroundBrush}"
+            IsVisible="{Binding IsLoading}"
+            ZIndex="100">
+        <controls:SkeletonLoader />
+    </Border>
+
     <Border IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="40">
         <StackPanel Spacing="12" HorizontalAlignment="Center">
             <ProgressBar IsIndeterminate="True" Width="200" />

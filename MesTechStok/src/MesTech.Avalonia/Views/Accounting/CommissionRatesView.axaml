@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.Accounting.CommissionRatesView"
              x:Name="RootCommissionRatesView"
              x:DataType="vm:CommissionRatesViewModel"
@@ -8,6 +9,13 @@
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Loading Skeleton -->
+        <Border Background="{DynamicResource BackgroundBrush}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader />
+        </Border>
+
         <!-- Aciklama -->
         <Border Grid.Row="0" Padding="12" Background="{DynamicResource MesBgSecondary}"
                 CornerRadius="{StaticResource MesRadiusMd}" Margin="12,12,12,0">

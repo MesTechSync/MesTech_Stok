@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.CrmDashboardAvaloniaView"
              x:Name="RootCrmDashboardAvaloniaView"
              x:DataType="vm:CrmDashboardAvaloniaViewModel"
@@ -8,6 +9,12 @@
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+        <!-- Loading Skeleton -->
+        <Border Background="{DynamicResource BackgroundBrush}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader />
+        </Border>
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
