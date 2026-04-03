@@ -21,7 +21,7 @@ public sealed class GetWarehouseSummaryHandler : IRequestHandler<GetWarehouseSum
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var warehouses = await _warehouseRepo.GetAllAsync().ConfigureAwait(false);
+        var warehouses = await _warehouseRepo.GetAllAsync(cancellationToken).ConfigureAwait(false);
         if (warehouses.Count == 0)
             return Array.Empty<WarehouseSummaryDto>();
 
