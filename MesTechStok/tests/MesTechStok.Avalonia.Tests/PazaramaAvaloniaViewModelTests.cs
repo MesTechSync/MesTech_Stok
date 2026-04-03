@@ -1,5 +1,8 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -10,10 +13,26 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class PazaramaAvaloniaViewModelTests
 {
-    private static PazaramaAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private PazaramaAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new PazaramaAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetPlatformDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformDashboardDto
+            {
+                IsConnected = false,
+                ProductCount = 0,
+                OrderCount = 0,
+                DailyRevenue = 0m,
+                SyncStatus = "Bekliyor",
+                LastSyncAt = null,
+                RecentOrders = []
+            });
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<SyncPlatformCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SyncResultDto { IsSuccess = true, ItemsProcessed = 2 });
+        return new PazaramaAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
@@ -77,7 +96,7 @@ public class PazaramaAvaloniaViewModelTests
         await sut.SyncCommand.ExecuteAsync(null);
 
         // Assert
-        sut.SyncStatus.Should().Be("Tamamlandi");
+        sut.SyncStatus.Should().Contain("Tamamlandi");
         sut.LastSyncTime.Should().NotBe("-");
         sut.IsLoading.Should().BeFalse();
     }
