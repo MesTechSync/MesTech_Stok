@@ -1,4 +1,6 @@
 using FluentAssertions;
+using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
+using MesTech.Application.Features.Finance.Queries.GetCashRegisters;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -17,6 +19,33 @@ public class GelirGiderAvaloniaViewModelTests
     {
         _mediatorMock = new Mock<IMediator>();
         var tenantMock = new Mock<ITenantProvider>();
+        tenantMock.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
+
+        // 7 seed items: 4 Satis/Gelir + 3 Gider (non-Satis)
+        // Income: 4520 + 2180 + 1240 + 3890 = 11830
+        // Expense: -380 + -6500 + -542.40 = -7422.40
+        var seedItems = new List<IncomeExpenseItemDto>
+        {
+            new(Guid.NewGuid(), "Trendyol satis hasilat", 4520m, "Gelir", "Satis", DateTime.Now.AddDays(-1), null),
+            new(Guid.NewGuid(), "Hepsiburada satis hasilat", 2180m, "Gelir", "Satis", DateTime.Now.AddDays(-2), null),
+            new(Guid.NewGuid(), "N11 satis hasilat", 1240m, "Gelir", "Satis", DateTime.Now.AddDays(-3), null),
+            new(Guid.NewGuid(), "Amazon satis hasilat", 3890m, "Gelir", "Satis", DateTime.Now.AddDays(-4), null),
+            new(Guid.NewGuid(), "Kargo gider", -380m, "Gider", "Kargo", DateTime.Now.AddDays(-5), null),
+            new(Guid.NewGuid(), "Depo kira odemesi", -6500m, "Gider", "Genel Gider", DateTime.Now.AddDays(-6), null),
+            new(Guid.NewGuid(), "Pazaryeri komisyon kesintisi", -542.40m, "Gider", "Pazaryeri Komisyon", DateTime.Now.AddDays(-7), null),
+        };
+
+        var resultDto = new IncomeExpenseListResultDto(seedItems, seedItems.Count);
+
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetIncomeExpenseListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(resultDto);
+
+        // GetCashRegistersQuery — secondary call at end of LoadAsync
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCashRegistersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CashRegisterDto>() as IReadOnlyList<CashRegisterDto>);
+
         _sut = new GelirGiderAvaloniaViewModel(_mediatorMock.Object, tenantMock.Object);
     }
 

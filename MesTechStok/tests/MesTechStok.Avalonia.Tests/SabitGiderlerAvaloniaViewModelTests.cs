@@ -18,12 +18,38 @@ namespace MesTechStok.Avalonia.Tests;
 public class SabitGiderlerAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mockMediator;
+    private readonly Mock<ICurrentUserService> _mockCurrentUser;
     private readonly SabitGiderlerAvaloniaViewModel _sut;
+
+    /// <summary>
+    /// 6 seed items matching test expectations:
+    /// Monthly (EndDate=null): Ofis Kirasi(15000), AWS Sunucu(2100), Personel Yemek(5000), Muhasebe Yazilimi(1800) = 23900
+    /// Yearly  (EndDate set):  Isyeri Sigortasi(4500), Domain + SSL(750) = 5250
+    /// YearlyTotal = 23900*12 + 5250 = 292050
+    /// </summary>
+    private static IReadOnlyList<FixedExpenseDto> CreateSeedExpenses() =>
+        new List<FixedExpenseDto>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Ofis Kirasi",        MonthlyAmount = 15000m, Currency = "TL", DayOfMonth = 1,  Notes = "Kira",      EndDate = null,                         IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "AWS Sunucu",         MonthlyAmount = 2100m,  Currency = "TL", DayOfMonth = 15, Notes = "Teknoloji",  EndDate = null,                         IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Personel Yemek",     MonthlyAmount = 5000m,  Currency = "TL", DayOfMonth = 25, Notes = "Personel",   EndDate = null,                         IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Muhasebe Yazilimi",  MonthlyAmount = 1800m,  Currency = "TL", DayOfMonth = 10, Notes = "Abonelik",   EndDate = null,                         IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Isyeri Sigortasi",   MonthlyAmount = 4500m,  Currency = "TL", DayOfMonth = 1,  Notes = "Sigorta",    EndDate = DateTime.Now.AddYears(1),     IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Domain + SSL",       MonthlyAmount = 750m,   Currency = "TL", DayOfMonth = 20, Notes = "Teknoloji",  EndDate = DateTime.Now.AddMonths(6),    IsActive = true },
+        };
 
     public SabitGiderlerAvaloniaViewModelTests()
     {
         _mockMediator = new Mock<IMediator>();
-        _sut = new SabitGiderlerAvaloniaViewModel(_mockMediator.Object, Mock.Of<ICurrentUserService>());
+        _mockCurrentUser = new Mock<ICurrentUserService>();
+        _mockCurrentUser.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+
+        // Default setup: return 6 seed items for all tests that call LoadAsync
+        _mockMediator
+            .Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSeedExpenses());
+
+        _sut = new SabitGiderlerAvaloniaViewModel(_mockMediator.Object, _mockCurrentUser.Object);
     }
 
     [Fact]
@@ -163,12 +189,12 @@ public class SabitGiderlerAvaloniaViewModelTests
         mediator.Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("DB down"));
 
-        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, _mockCurrentUser.Object);
         await sut.LoadAsync();
 
         sut.HasError.Should().BeTrue();
         sut.ErrorMessage.Should().NotBeNullOrEmpty();
-        sut.IsLoading.Should().BeFalse(); // KÇ-13
+        sut.IsLoading.Should().BeFalse(); // KC-13
     }
 
     [Fact]
@@ -178,7 +204,7 @@ public class SabitGiderlerAvaloniaViewModelTests
         mediator.Setup(m => m.Send(It.IsAny<GetFixedExpensesQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<FixedExpenseDto>)new List<FixedExpenseDto>());
 
-        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        var sut = new SabitGiderlerAvaloniaViewModel(mediator.Object, _mockCurrentUser.Object);
         await sut.LoadAsync();
 
         sut.IsEmpty.Should().BeTrue();
