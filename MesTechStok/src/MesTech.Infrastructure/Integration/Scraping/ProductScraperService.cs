@@ -199,13 +199,14 @@ public sealed class ProductScraperService : IProductScraperService
 
     private string? BuildApiUrl(string platform, string productId)
     {
+        var encoded = Uri.EscapeDataString(productId);
         return platform switch
         {
-            "Trendyol" => $"{_options.TrendyolBaseUrl.TrimEnd('/')}/{productId}",
-            "Hepsiburada" => $"{_options.HepsiburadaBaseUrl.TrimEnd('/')}/{productId}",
-            "N11" => $"{_options.N11BaseUrl.TrimEnd('/')}/{productId}",
-            "Ciceksepeti" => $"{_options.CiceksepetiBaseUrl.TrimEnd('/')}/{productId}",
-            "Pazarama" => $"{_options.PazaramaBaseUrl.TrimEnd('/')}/{productId}",
+            "Trendyol" => $"{_options.TrendyolBaseUrl.TrimEnd('/')}/{encoded}",
+            "Hepsiburada" => $"{_options.HepsiburadaBaseUrl.TrimEnd('/')}/{encoded}",
+            "N11" => $"{_options.N11BaseUrl.TrimEnd('/')}/{encoded}",
+            "Ciceksepeti" => $"{_options.CiceksepetiBaseUrl.TrimEnd('/')}/{encoded}",
+            "Pazarama" => $"{_options.PazaramaBaseUrl.TrimEnd('/')}/{encoded}",
             _ => null
         };
     }
