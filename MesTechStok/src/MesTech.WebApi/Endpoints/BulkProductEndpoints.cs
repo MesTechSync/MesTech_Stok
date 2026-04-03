@@ -95,28 +95,34 @@ public static class BulkProductEndpoints
             IProductRepository productRepository,
             CancellationToken ct) =>
         {
+            const int maxExportLimit = 50_000; // OOM koruması — 50K üründen fazlası sayfalanmalı
             var format = request.Format?.ToLowerInvariant() ?? "csv";
 
-            // Tüm ürünleri getir
-            var products = await productRepository.GetAllAsync();
+            var products = await productRepository.GetAllAsync(ct);
 
             if (products.Count == 0)
                 return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
 
+            // Güvenlik limiti — büyük kataloglar için uyarı
+            var exportProducts = products.Count > maxExportLimit
+                ? products.Take(maxExportLimit).ToList()
+                : (IList<MesTech.Domain.Entities.Product>)products;
+
             // CSV formatında dışa aktar
-            var csvLines = new List<string>
+            var csvLines = new List<string>(exportProducts.Count + 1)
             {
                 "SKU,Name,PurchasePrice,SalePrice,Stock,MinimumStock,CategoryId,IsActive"
             };
 
-            foreach (var p in products)
+            foreach (var p in exportProducts)
             {
                 csvLines.Add($"\"{p.SKU}\",\"{p.Name}\",{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
             }
 
             var csvContent = string.Join(Environment.NewLine, csvLines);
             var bytes = System.Text.Encoding.UTF8.GetBytes(csvContent);
-            var filename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}.{format}";
+            var suffix = products.Count > maxExportLimit ? $"-partial-{maxExportLimit}" : "";
+            var filename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}{suffix}.{format}";
 
             return Results.File(bytes, "text/csv", filename);
         })
