@@ -12,7 +12,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
     public ErpSyncLogRepository(AppDbContext context) => _context = context;
 
     public async Task AddAsync(ErpSyncLog log, CancellationToken ct = default)
-        => await _context.ErpSyncLogs.AddAsync(log, ct);
+        => await _context.ErpSyncLogs.AddAsync(log, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(ErpSyncLog log, CancellationToken ct = default)
     {
@@ -23,7 +23,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
     public async Task<ErpSyncLog?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.ErpSyncLogs
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<ErpSyncLog?> GetLatestByEntityAsync(
         Guid tenantId,
@@ -35,7 +35,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
                 && e.EntityType == entityType
                 && e.EntityId == entityId)
             .OrderByDescending(e => e.CreatedAt)
-            .AsNoTracking().FirstOrDefaultAsync(ct);
+            .AsNoTracking().FirstOrDefaultAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetPendingRetriesAsync(
         Guid tenantId,
@@ -45,7 +45,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
             .Where(e => e.TenantId == tenantId
                 && e.NextRetryAt != null
                 && e.NextRetryAt <= asOf)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetFailedByProviderAsync(
         Guid tenantId,
@@ -56,7 +56,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
             .Where(e => e.TenantId == tenantId && e.Provider == provider && !e.Success)
             .OrderByDescending(e => e.CreatedAt)
             .Take(limit)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetByTenantPagedAsync(
         Guid tenantId, int page, int pageSize, CancellationToken ct = default)
@@ -65,5 +65,5 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
             .OrderByDescending(e => e.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 }
