@@ -34,6 +34,10 @@ public sealed class MesaStatusEndpoint : BackgroundService
         _listener = new HttpListener();
         _listener.Prefixes.Add($"http://localhost:{_port}/");
 
+        // FIX: HttpListener.GetContextAsync() does NOT support CancellationToken.
+        // Register callback to close listener on shutdown — otherwise ExecuteAsync hangs forever.
+        using var ctr = stoppingToken.Register(() => _listener.Close());
+
         try
         {
             _listener.Start();
@@ -46,13 +50,21 @@ public sealed class MesaStatusEndpoint : BackgroundService
                 _ = SafeHandleRequestAsync(context);
             }
         }
+        catch (HttpListenerException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener closed via CancellationToken callback — graceful shutdown
+        }
+        catch (ObjectDisposedException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener disposed during shutdown
+        }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogError(ex, "MESA status endpoint hatasi");
         }
         finally
         {
-            _listener?.Stop();
+            try { _listener?.Stop(); } catch (ObjectDisposedException) { }
         }
     }
 
@@ -68,7 +80,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
         }
     }
 
-    private Task HandleRequestAsync(HttpListenerContext context)
+    private async Task HandleRequestAsync(HttpListenerContext context)
     {
         var response = context.Response;
 
@@ -87,7 +99,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
                 response.ContentType = "application/json";
                 var buffer = System.Text.Encoding.UTF8.GetBytes(json);
                 response.ContentLength64 = buffer.Length;
-                response.OutputStream.Write(buffer, 0, buffer.Length);
+                await response.OutputStream.WriteAsync(buffer).ConfigureAwait(false);
             }
             else
             {
@@ -103,8 +115,6 @@ public sealed class MesaStatusEndpoint : BackgroundService
         {
             response.Close();
         }
-
-        return Task.CompletedTask;
     }
 
     public override void Dispose()
