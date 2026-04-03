@@ -24,7 +24,8 @@ public sealed class XmlFeedParser : IFeedParserService
             Async = true,
             IgnoreWhitespace = true,
             IgnoreComments = true,
-            DtdProcessing = DtdProcessing.Ignore
+            DtdProcessing = DtdProcessing.Ignore,
+            XmlResolver = null
         };
 
         try
@@ -76,7 +77,8 @@ public sealed class XmlFeedParser : IFeedParserService
         {
             Async = true,
             IgnoreWhitespace = true,
-            DtdProcessing = DtdProcessing.Ignore
+            DtdProcessing = DtdProcessing.Ignore,
+            XmlResolver = null
         };
 
         try
