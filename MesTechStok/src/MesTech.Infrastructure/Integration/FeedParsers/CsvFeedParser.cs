@@ -157,7 +157,7 @@ public sealed class CsvFeedParser : IFeedParserService
             if (field != null && headerIndex.TryGetValue(field, out var idx) && idx < values.Length)
             {
                 mapped.Add(field);
-                var val = values[idx].Trim();
+                var val = values[idx]?.Trim();
                 return string.IsNullOrEmpty(val) ? null : val;
             }
             return null;
