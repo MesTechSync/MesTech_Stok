@@ -1,6 +1,7 @@
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.FeedParsers;
@@ -31,6 +32,11 @@ public sealed class FeedHealthCheckService
     {
         _logger.LogInformation("Feed health check: {FeedName} ({Format}) → {Url}",
             feed.Name, feed.Format, feed.FeedUrl);
+
+        // SSRF guard — reject private/internal network URLs
+        if (!SsrfGuard.ValidateUrl(feed.FeedUrl, _logger, nameof(FeedHealthCheckService)))
+            return new FeedHealthResult(FeedHealthStatus.Unhealthy,
+                "Feed URL rejected by SSRF guard — private network.", null, null, null);
 
         // Step 1: HTTP HEAD check
         HttpResponseMessage headResponse;
