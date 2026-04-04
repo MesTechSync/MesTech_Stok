@@ -39,6 +39,14 @@ public record PendingExpense(string Title, decimal Amount, string Category, deci
 /// </summary>
 public sealed class SpeechToExpenseService : ISpeechToExpenseService
 {
+    private static readonly JsonSerializerOptions s_itemJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        MaxDepth = 10,
+        AllowTrailingCommas = false,
+        ReadCommentHandling = JsonCommentHandling.Disallow
+    };
+
     private readonly HttpClient _httpClient;
     private readonly IMesaAccountingService _accountingService;
     private readonly IAccountingDocumentRepository _documentRepository;
@@ -160,7 +168,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         {
             try
             {
-                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, MaxDepth = 10, AllowTrailingCommas = false, ReadCommentHandling = JsonCommentHandling.Disallow });
+                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, s_itemJsonOptions);
                 if (items != null)
                 {
                     foreach (var item in items)
