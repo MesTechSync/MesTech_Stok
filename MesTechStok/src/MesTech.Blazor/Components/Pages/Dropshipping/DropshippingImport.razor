@@ -217,10 +217,34 @@ else
         }
     }
 
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".xlsx", ".xls", ".csv"
+    };
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
+
     private void HandleFileSelected(InputFileChangeEventArgs e)
     {
-        _selectedFile = e.File;
         _importResult = null;
+        var file = e.File;
+        var ext = Path.GetExtension(file.Name);
+
+        if (!AllowedExtensions.Contains(ext))
+        {
+            errorMessage = $"Desteklenmeyen dosya türü: {ext}. Sadece .xlsx, .xls, .csv kabul edilir.";
+            _selectedFile = null;
+            return;
+        }
+
+        if (file.Size > MaxFileSize)
+        {
+            errorMessage = $"Dosya çok büyük: {file.Size / 1024 / 1024} MB. Maksimum 10 MB.";
+            _selectedFile = null;
+            return;
+        }
+
+        errorMessage = null;
+        _selectedFile = file;
     }
 
     private async Task ImportFileAsync()
