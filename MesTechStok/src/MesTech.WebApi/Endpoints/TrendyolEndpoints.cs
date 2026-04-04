@@ -106,18 +106,21 @@ public static class TrendyolEndpoints
         // Review Endpoints (DEV3 TUR5)
         // ═══════════════════════════════════════════
 
-        // GET /api/v1/trendyol/reviews — urun degerlendirmelerini cek
+        // GET /api/v1/trendyol/reviews — urun degerlendirmelerini cek (filtre destekli)
         group.MapGet("/reviews", async (
             IAdapterFactory adapterFactory,
             int page,
             int size,
+            long? productId,
+            int? minRating,
+            bool? unrepliedOnly,
             CancellationToken ct) =>
         {
             var adapter = adapterFactory.Resolve("trendyol") as TrendyolAdapter;
             if (adapter is null)
                 return Results.Problem(detail: "TrendyolAdapter bulunamadi.", statusCode: 503);
 
-            var reviews = await adapter.GetProductReviewsAsync(page, size, ct);
+            var reviews = await adapter.GetProductReviewsAsync(page, size, productId, minRating, unrepliedOnly ?? false, ct);
             return Results.Ok(new { platform = "Trendyol", count = reviews.Count, reviews });
         })
         .WithName("GetTrendyolReviews")

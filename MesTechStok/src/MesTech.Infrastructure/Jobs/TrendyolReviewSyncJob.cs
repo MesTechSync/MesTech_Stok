@@ -52,7 +52,7 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
 
             while (!ct.IsCancellationRequested)
             {
-                var reviews = await adapter.GetProductReviewsAsync(page, pageSize, ct).ConfigureAwait(false);
+                var reviews = await adapter.GetProductReviewsAsync(page, pageSize, ct: ct).ConfigureAwait(false);
                 if (reviews.Count == 0) break;
 
                 totalFetched += reviews.Count;
