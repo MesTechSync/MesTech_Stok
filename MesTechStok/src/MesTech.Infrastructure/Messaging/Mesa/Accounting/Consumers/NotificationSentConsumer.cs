@@ -45,6 +45,15 @@ public sealed class NotificationSentConsumer : IConsumer<BotNotificationSentEven
             "Processing {Event} — {Id}",
             nameof(BotNotificationSentEvent), context.MessageId);
 
+        if (msg.TenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] NotificationSent event has Guid.Empty TenantId — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.notification.sent", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("NotificationSent event rejected: TenantId is Guid.Empty");
+        }
+
         try
         {
             await _mediator.Send(new MarkNotificationDeliveredCommand
