@@ -1,13 +1,14 @@
 using System;
 using MesTechStok.Core.Integrations.OpenCart.Telemetry;
-using MesTech.Infrastructure.Persistence;
 using MesTech.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
 {
     /// <summary>
-    /// Persists resilience + API call telemetry into SQL Server via AppDbContext.
+    /// Persists resilience + API call telemetry into SQL Server via DbContext.
+    /// Uses service locator to resolve DbContext without direct Infrastructure reference.
     /// Lightweight, fire-and-forget; failures swallowed.
     /// </summary>
     internal sealed class SqlServerResilienceTelemetry : IResilienceTelemetry
@@ -26,8 +27,15 @@ namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
             try
             {
                 using var scope = _sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
-                db.CircuitStateLogs.Add(new CircuitStateLog
+                // Resolve DbContext by its concrete type via service locator — avoids Core→Infrastructure reference
+                var dbType = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a => { try { return a.GetTypes(); } catch { return Type.EmptyTypes; } })
+                    .FirstOrDefault(t => t.Name == "AppDbContext" && typeof(DbContext).IsAssignableFrom(t));
+
+                if (dbType is null) return;
+
+                var db = (DbContext)scope.ServiceProvider.GetRequiredService(dbType);
+                db.Set<CircuitStateLog>().Add(new CircuitStateLog
                 {
                     PreviousState = oldState.ToString(),
                     NewState = newState.ToString(),
@@ -57,13 +65,20 @@ namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
                 _ => "Unknown"
             };
         }
+
         public void OnApiCall(string endpoint, string method, TimeSpan duration, bool success, int? statusCode, OpenCartErrorCategory category, string? correlationId)
         {
             try
             {
                 using var scope = _sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
-                db.ApiCallLogs.Add(new ApiCallLog
+                var dbType = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a => { try { return a.GetTypes(); } catch { return Type.EmptyTypes; } })
+                    .FirstOrDefault(t => t.Name == "AppDbContext" && typeof(DbContext).IsAssignableFrom(t));
+
+                if (dbType is null) return;
+
+                var db = (DbContext)scope.ServiceProvider.GetRequiredService(dbType);
+                db.Set<ApiCallLog>().Add(new ApiCallLog
                 {
                     Endpoint = endpoint,
                     Method = method,

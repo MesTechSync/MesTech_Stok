@@ -974,13 +974,13 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         try
         {
-            var token = await GetOrRefreshTokenAsync(ct).ConfigureAwait(false);
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var response = await ThrottledExecuteAsync(
                 async innerCt =>
                 {
                     using var req = new HttpRequestMessage(HttpMethod.Get,
-                        $"{ApiBase}/merchants/{_merchantId}/product-reviews?page_token={page}&page_size={size}");
+                        $"{ApiBase}/merchants/{_options.ClientId}/product-reviews?page_token={page}&page_size={size}");
                     req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                     return await _httpClient.SendAsync(req, innerCt).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);

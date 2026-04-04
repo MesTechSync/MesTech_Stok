@@ -1400,7 +1400,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
         try
         {
-            var token = await GetOrRefreshTokenAsync(ct).ConfigureAwait(false);
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
             var offset = page * size;
 
             var response = await ThrottledExecuteAsync(async innerToken =>
