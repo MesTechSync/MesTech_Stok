@@ -104,6 +104,7 @@ public class FulfillmentHandlerTests
 
         var sut = new FulfillmentCostReportHandler(
             factory.Object,
+            Mock.Of<IShipmentCostRepository>(),
             NullLogger<FulfillmentCostReportHandler>.Instance);
 
         var query = new FulfillmentCostReportQuery(
@@ -119,8 +120,10 @@ public class FulfillmentHandlerTests
     public async Task FulfillmentCostReport_NullRequest_ThrowsAnyException()
     {
         var factory = new Mock<IFulfillmentProviderFactory>();
+        var costRepo = new Mock<MesTech.Domain.Interfaces.IShipmentCostRepository>();
         var sut = new FulfillmentCostReportHandler(
             factory.Object,
+            costRepo.Object,
             NullLogger<FulfillmentCostReportHandler>.Instance);
 
         await Assert.ThrowsAnyAsync<Exception>(
