@@ -392,7 +392,7 @@ END $$;");
                 table: "JournalEntries",
                 columns: new[] { "TenantId", "ReferenceNumber" },
                 unique: true,
-                filter: "[ReferenceNumber] IS NOT NULL");
+                filter: "\"ReferenceNumber\" IS NOT NULL");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ImportFieldMapping_ImportTemplate_ImportTemplateId",
