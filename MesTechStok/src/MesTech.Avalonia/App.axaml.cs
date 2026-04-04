@@ -95,10 +95,17 @@ public partial class App : global::Avalonia.Application
                 // so each view gets fresh DbContext + repositories. No Transient override needed.
                 // IDbContextFactory also registered for Hangfire/background parallel queries.
 
-                // MediatR — Application CQRS handlers
+                // MediatR — Application CQRS handlers + pipeline behaviors
                 services.AddMediatR(cfg =>
+                {
                     cfg.RegisterServicesFromAssembly(
-                        typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+                        typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ValidationBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.LoggingBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TenantFilterBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ExceptionBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TransactionBehavior<,>));
+                });
 
                 // KN-1 / G67 FIX: Override IMediator with scope-per-call wrapper.
                 // Desktop app shares root scope → concurrent DbContext crash.
