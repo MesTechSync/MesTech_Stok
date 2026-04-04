@@ -1,4 +1,6 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:vm="clr-namespace:MesTech.Avalonia.Dialogs"
+        x:DataType="vm:ReplyDialogViewModel"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ReplyDialog"
         Title="Yanit"

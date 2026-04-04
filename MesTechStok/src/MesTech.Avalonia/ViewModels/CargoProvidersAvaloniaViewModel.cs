@@ -1,8 +1,9 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Avalonia.Controls;
 using MesTech.Domain.Enums;
+using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -12,6 +13,13 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
+    public CargoProvidersAvaloniaViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     [ObservableProperty] private int totalProviders;
     [ObservableProperty] private int connectedProviders;
 

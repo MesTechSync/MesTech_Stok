@@ -1,4 +1,5 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:vm="clr-namespace:MesTech.Avalonia.Dialogs"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.SearchSelectDialog"
         Title="Arama ve Secim"
