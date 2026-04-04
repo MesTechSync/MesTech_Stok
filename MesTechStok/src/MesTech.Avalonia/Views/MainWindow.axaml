@@ -1287,6 +1287,9 @@
                 <!-- Dynamic Content -->
                 <ContentControl Content="{Binding CurrentView}" Margin="0">
                     <ContentControl.DataTemplates>
+                        <DataTemplate DataType="vm:AppHubViewModel">
+                            <views:AppHubView />
+                        </DataTemplate>
                         <DataTemplate DataType="vm:DashboardAvaloniaViewModel">
                             <views:DashboardAvaloniaView />
                         </DataTemplate>
@@ -1757,6 +1760,40 @@
                         </DataTemplate>
                         <DataTemplate DataType="erpvm:ErpDashboardViewModel">
                             <erpviews:ErpDashboardView />
+                        </DataTemplate>
+                        <!-- G101/KN-9: Missing DataTemplate fix — raw class name prevention -->
+                        <DataTemplate DataType="vm:Bitrix24AvaloniaViewModel">
+                            <views:Bitrix24AvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CampaignAvaloniaViewModel">
+                            <views:CampaignAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ShopifyAvaloniaViewModel">
+                            <views:ShopifyAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:WooCommerceAvaloniaViewModel">
+                            <views:WooCommerceAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ZalandoAvaloniaViewModel">
+                            <views:ZalandoAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:EtsyAvaloniaViewModel">
+                            <views:EtsyAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:BillingAvaloniaViewModel">
+                            <views:BillingAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:QuotationAvaloniaViewModel">
+                            <views:QuotationAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:MfaSetupViewModel">
+                            <views:MfaSetupView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:ProductDescriptionAIViewModel">
+                            <views:ProductDescriptionAIView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:StaleOrdersAvaloniaViewModel">
+                            <views:StaleOrdersAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
