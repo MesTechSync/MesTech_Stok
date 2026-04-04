@@ -65,13 +65,9 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol));
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol), ct);
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;
@@ -82,17 +78,7 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             foreach (var o in result.RecentOrders)
                 _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
             ApplyFilter();
-        }
-        catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Trendyol verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Trendyol verileri yuklenirken hata");
     }
 
     // ── WPF013: Test Connection — real adapter ping via TestStoreConnectionCommand ──
