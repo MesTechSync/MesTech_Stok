@@ -4,6 +4,9 @@
     <!-- ═══ SPOTLIGHT WELCOME SCREEN — DESIGN TOKENS ═══ -->
     <!-- DK-15: Layer yapisi (0-5) DEGISMEZ. Sadece renk token'lari. -->
 
+    <!-- ═══ SPOTLIGHT TYPOGRAPHY ═══ -->
+    <x:Double x:Key="FontSizeSpotlightClock">72</x:Double>
+
     <!-- ═══ LAYER BACKGROUNDS ═══ -->
     <Color x:Key="MesSpotDarkBase">#0D1117</Color>
     <Color x:Key="MesSpotGradientDeep">#0F2847</Color>

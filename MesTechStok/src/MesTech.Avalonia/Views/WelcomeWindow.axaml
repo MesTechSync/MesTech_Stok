@@ -123,10 +123,10 @@
                     </Border.Transitions>
                     <StackPanel VerticalAlignment="Center"
                                 HorizontalAlignment="Center" Spacing="6">
-                      <TextBlock Text="{Binding Icon}" FontSize="24"
+                      <TextBlock Text="{Binding Icon}" FontSize="{StaticResource FontSizeHeader}"
                                  HorizontalAlignment="Center"
                                  Opacity="0.95"/>
-                      <TextBlock Text="{Binding Name}" FontSize="10"
+                      <TextBlock Text="{Binding Name}" FontSize="{StaticResource FontSizeCaption1}"
                                  FontWeight="SemiBold"
                                  Foreground="{DynamicResource MesSpotTextPrimary}"
                                  HorizontalAlignment="Center"
@@ -153,7 +153,7 @@
           <!-- Clock + Date (Windows lock screen style — large clock on top) -->
           <StackPanel Spacing="-4" Margin="0,0,0,16">
             <TextBlock x:Name="ClockDisplay" Text="{Binding ClockText}"
-                       FontSize="72" FontWeight="ExtraLight"
+                       FontSize="{StaticResource FontSizeSpotlightClock}" FontWeight="ExtraLight"
                        Foreground="{DynamicResource MesSpotTextPrimary}" Opacity="0.95"
                        LetterSpacing="2">
               <TextBlock.Effect>
@@ -161,7 +161,7 @@
               </TextBlock.Effect>
             </TextBlock>
             <TextBlock x:Name="DateDisplay" Text="{Binding DateText}"
-                       FontSize="16" Foreground="{DynamicResource MesSpotTextDate}" Margin="3,0,0,0"
+                       FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSpotTextDate}" Margin="3,0,0,0"
                        LetterSpacing="0.5">
               <TextBlock.Effect>
                 <DropShadowEffect Color="Black" BlurRadius="10" OffsetX="0" OffsetY="1" Opacity="0.3"/>
@@ -170,7 +170,7 @@
           </StackPanel>
 
           <!-- Brand name -->
-          <TextBlock Text="MesTech" FontSize="28" FontWeight="Bold"
+          <TextBlock Text="MesTech" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
                      Foreground="{DynamicResource MesSpotTextPrimary}" Opacity="0.9"
                      LetterSpacing="1.5">
             <TextBlock.Effect>
@@ -180,7 +180,7 @@
 
           <!-- Subtitle -->
           <TextBlock Text="Entegrator  |  Coklu Pazaryeri Yonetim Platformu"
-                     FontSize="13" Foreground="{DynamicResource MesSpotTextSubtitle}" Margin="1,0,0,0"
+                     FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSpotTextSubtitle}" Margin="1,0,0,0"
                      LetterSpacing="0.3">
             <TextBlock.Effect>
               <DropShadowEffect Color="Black" BlurRadius="8" OffsetX="0" OffsetY="1" Opacity="0.3"/>
@@ -190,26 +190,26 @@
           <!-- Quick stats row -->
           <StackPanel Orientation="Horizontal" Spacing="16" Margin="1,8,0,0">
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="{Binding ModuleCount}" FontSize="16" FontWeight="SemiBold"
+              <TextBlock Text="{Binding ModuleCount}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                          Foreground="{DynamicResource MesSpotAccentBlue}"/>
-              <TextBlock Text="Modul" FontSize="12" Foreground="{DynamicResource MesSpotTextLabel}"
+              <TextBlock Text="Modul" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSpotTextLabel}"
                          VerticalAlignment="Center"/>
             </StackPanel>
-            <TextBlock Text="|" Foreground="{DynamicResource MesSpotTextSeparator}" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="|" Foreground="{DynamicResource MesSpotTextSeparator}" VerticalAlignment="Center" FontSize="{StaticResource FontSizeSmall}"/>
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="{Binding PlatformCount}" FontSize="16" FontWeight="SemiBold"
+              <TextBlock Text="{Binding PlatformCount}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
                          Foreground="{DynamicResource MesSpotAccentGreen}"/>
-              <TextBlock Text="Platform" FontSize="12" Foreground="{DynamicResource MesSpotTextLabel}"
+              <TextBlock Text="Platform" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSpotTextLabel}"
                          VerticalAlignment="Center"/>
             </StackPanel>
-            <TextBlock Text="|" Foreground="{DynamicResource MesSpotTextSeparator}" VerticalAlignment="Center" FontSize="12"/>
-            <TextBlock Text="{Binding VersionText}" FontSize="12"
+            <TextBlock Text="|" Foreground="{DynamicResource MesSpotTextSeparator}" VerticalAlignment="Center" FontSize="{StaticResource FontSizeSmall}"/>
+            <TextBlock Text="{Binding VersionText}" FontSize="{StaticResource FontSizeSmall}"
                        Foreground="{DynamicResource MesSpotTextMuted}" VerticalAlignment="Center"/>
           </StackPanel>
 
           <!-- Image name (like Bing "Kesfet: Zhangjiajie") -->
           <TextBlock Text="{Binding CurrentImageName, StringFormat='Kesfet: {0}'}"
-                     FontSize="12" Foreground="{DynamicResource MesSpotTextImageName}" Margin="1,10,0,0"
+                     FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSpotTextImageName}" Margin="1,10,0,0"
                      IsVisible="{Binding HasSpotlightImages}"
                      FontStyle="Italic"
                      LetterSpacing="0.3"/>
@@ -220,7 +220,7 @@
                     ToolTip.Tip="Kullanici adi ve sifre ile giris yap"
                     Command="{Binding ToggleLoginModeCommand}"
                     Background="{DynamicResource MesSpotBtnBg}" Foreground="{DynamicResource MesSpotTextPrimary}"
-                    FontSize="12" FontWeight="SemiBold"
+                    FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                     Padding="14,6" CornerRadius="16"
                     BorderThickness="1" BorderBrush="{DynamicResource MesSpotBtnBorder}"
                     Cursor="Hand" Opacity="0.9">
@@ -234,7 +234,7 @@
                     ToolTip.Tip="Demo hesabiyla uygulamayi kesfet"
                     Command="{Binding DemoLoginCommand}"
                     Background="Transparent" Foreground="{DynamicResource MesSpotTextDemoBtnLabel}"
-                    FontSize="12" FontWeight="SemiBold"
+                    FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
                     Padding="14,6" CornerRadius="16"
                     BorderThickness="1" BorderBrush="{DynamicResource MesSpotBtnDemoBorder}"
                     Cursor="Hand" Opacity="0.85">
@@ -248,7 +248,7 @@
                     ToolTip.Tip="Pencereyi kapat (Esc)"
                     Command="{Binding CloseCommand}"
                     Background="Transparent" Foreground="{DynamicResource MesSpotTextMuted}"
-                    FontSize="11" Padding="10,6" CornerRadius="16"
+                    FontSize="{StaticResource FontSizeCaption}" Padding="10,6" CornerRadius="16"
                     BorderThickness="0" Cursor="Hand"/>
           </StackPanel>
         </StackPanel>
@@ -274,22 +274,22 @@
 
               <!-- Card header -->
               <StackPanel Spacing="4" Margin="0,0,0,4">
-                <TextBlock Text="Giris Yap" FontSize="20" FontWeight="SemiBold"
+                <TextBlock Text="Giris Yap" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
                            Foreground="{DynamicResource MesSpotTextPrimary}" HorizontalAlignment="Center"
                            LetterSpacing="0.5"/>
                 <TextBlock Text="MesTech hesabinizla devam edin"
-                           FontSize="12" Foreground="{DynamicResource MesSpotTextImageName}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSpotTextImageName}"
                            HorizontalAlignment="Center"/>
               </StackPanel>
 
               <!-- Username -->
               <StackPanel Spacing="6">
-                <TextBlock Text="Kullanici Adi" FontSize="11" Foreground="{DynamicResource MesSpotTextLabel}"
+                <TextBlock Text="Kullanici Adi" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSpotTextLabel}"
                            LetterSpacing="0.5"/>
                 <TextBox x:Name="UsernameBox"
                          Text="{Binding Username, Mode=TwoWay}"
                          Watermark="Kullanici adinizi girin"
-                         FontSize="14"
+                         FontSize="{StaticResource FontSizeBody}"
                          Padding="14,11"
                          CornerRadius="10"
                          Background="{DynamicResource MesSpotInputBg}"
@@ -300,14 +300,14 @@
 
               <!-- Password -->
               <StackPanel Spacing="6">
-                <TextBlock Text="Sifre" FontSize="11" Foreground="{DynamicResource MesSpotTextLabel}"
+                <TextBlock Text="Sifre" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSpotTextLabel}"
                            LetterSpacing="0.5"/>
                 <Grid>
                   <TextBox x:Name="PasswordBox"
                            Text="{Binding Password, Mode=TwoWay}"
                            PasswordChar="●"
                            Watermark="Sifrenizi girin"
-                           FontSize="14"
+                           FontSize="{StaticResource FontSizeBody}"
                            Padding="14,11"
                            CornerRadius="10"
                            Background="{DynamicResource MesSpotInputBg}"
@@ -322,7 +322,7 @@
                           Cursor="Hand"
                           Command="{Binding TogglePasswordVisibilityCommand}">
                     <TextBlock x:Name="PasswordToggleIcon" Text="*"
-                               FontSize="16" Foreground="{DynamicResource MesSpotTextMuted}"/>
+                               FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSpotTextMuted}"/>
                   </Button>
                 </Grid>
               </StackPanel>
@@ -331,14 +331,14 @@
               <CheckBox x:Name="RememberMeCheck"
                         Content="Beni Hatirla"
                         IsChecked="{Binding RememberMe}"
-                        Foreground="{DynamicResource MesSpotTextRememberMe}" FontSize="12"/>
+                        Foreground="{DynamicResource MesSpotTextRememberMe}" FontSize="{StaticResource FontSizeSmall}"/>
 
               <!-- Login button -->
               <Button x:Name="LoginButton"
                       HorizontalAlignment="Stretch"
                       HorizontalContentAlignment="Center"
                       Height="46" CornerRadius="12"
-                      FontSize="14" FontWeight="SemiBold"
+                      FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                       Background="{DynamicResource MesSpotLoginBtnBg}"
                       Foreground="{DynamicResource MesSpotTextPrimary}"
                       Command="{Binding LoginCommand}"
@@ -363,7 +363,7 @@
                       Background="{DynamicResource MesSpotErrorBg}" CornerRadius="10"
                       Padding="14,10">
                 <TextBlock Text="{Binding LoginErrorMessage}"
-                           Foreground="{DynamicResource MesSpotErrorText}" FontSize="12"
+                           Foreground="{DynamicResource MesSpotErrorText}" FontSize="{StaticResource FontSizeSmall}"
                            TextWrapping="Wrap"/>
               </Border>
 
@@ -372,12 +372,12 @@
                       Background="{DynamicResource MesSpotLockoutBg}" CornerRadius="10"
                       Padding="14,10">
                 <TextBlock Text="{Binding LockoutMessage}"
-                           Foreground="{DynamicResource MesSpotLockoutText}" FontSize="12"/>
+                           Foreground="{DynamicResource MesSpotLockoutText}" FontSize="{StaticResource FontSizeSmall}"/>
               </Border>
 
               <!-- Demo hint -->
               <TextBlock Text="Demo: admin / Admin123!"
-                         FontSize="10" Foreground="{DynamicResource MesSpotTextHint}"
+                         FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSpotTextHint}"
                          HorizontalAlignment="Center" Margin="0,2,0,0"
                          LetterSpacing="0.5"/>
             </StackPanel>
