@@ -9,8 +9,8 @@ namespace MesTech.Domain.Accounting.Events;
 public record ReconciliationCompletedEvent : AccountingDomainEvent
 {
     public Guid MatchId { get; init; }
-    public Guid SettlementBatchId { get; init; }
-    public Guid BankTransactionId { get; init; }
+    public Guid? SettlementBatchId { get; init; }
+    public Guid? BankTransactionId { get; init; }
     public ReconciliationStatus FinalStatus { get; init; }
     public decimal Confidence { get; init; }
 }
