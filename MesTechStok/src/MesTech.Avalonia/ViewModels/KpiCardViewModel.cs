@@ -10,6 +10,7 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class KpiCardViewModel : ViewModelBase
 {
+    public KpiCardViewModel(MediatR.IMediator mediator) { }
     public KpiCardViewModel() { }
 
     public KpiCardViewModel(string title, string value)
@@ -43,7 +44,7 @@ public partial class KpiCardViewModel : ViewModelBase
     private StreamGeometry? _iconData;
 
     [ObservableProperty]
-    private IBrush _iconBackground = new SolidColorBrush(Color.Parse("#0078D4"));
+    private IBrush _iconBackground = new SolidColorBrush(T("MesPrimaryBlue"));
 
     [ObservableProperty]
     private IBrush? _valueColor;
@@ -53,9 +54,12 @@ public partial class KpiCardViewModel : ViewModelBase
     /// <summary>
     /// Trend color: green (#2E7D32) for positive, red (#D32F2F) for negative.
     /// </summary>
+    private static Color T(string key) =>
+        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+
     public IBrush TrendColor => IsPositiveTrend
-        ? new SolidColorBrush(Color.Parse("#2E7D32"))
-        : new SolidColorBrush(Color.Parse("#D32F2F"));
+        ? new SolidColorBrush(T("MesGreenDark"))
+        : new SolidColorBrush(T("MesDangerDark"));
 
     /// <summary>
     /// Trend arrow icon: up triangle for positive, down triangle for negative.

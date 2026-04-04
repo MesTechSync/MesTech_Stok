@@ -79,14 +79,14 @@ public class AvaloniaDialogService : IDialogService
                         Text = title,
                         FontSize = 18,
                         FontWeight = FontWeight.SemiBold,
-                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#1A1A2E")),
+                        Foreground = new SolidColorBrush(global::Avalonia.Application.Current?.FindResource("MesDarkNavy") is global::Avalonia.Media.Color cn ? cn : global::Avalonia.Media.Colors.Black),
                     },
                     new TextBlock
                     {
                         Text = message,
                         TextWrapping = TextWrapping.Wrap,
                         FontSize = 14,
-                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#6B7280")),
+                        Foreground = new SolidColorBrush(global::Avalonia.Application.Current?.FindResource("MesCoolGray") is global::Avalonia.Media.Color cg ? cg : global::Avalonia.Media.Colors.Gray),
                         Margin = new global::Avalonia.Thickness(0, 0, 0, 16),
                     },
                     closeButton,
@@ -127,14 +127,14 @@ public class AvaloniaDialogService : IDialogService
                         Text = title,
                         FontSize = 18,
                         FontWeight = FontWeight.SemiBold,
-                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#1A1A2E")),
+                        Foreground = new SolidColorBrush(global::Avalonia.Application.Current?.FindResource("MesDarkNavy") is global::Avalonia.Media.Color cn ? cn : global::Avalonia.Media.Colors.Black),
                     },
                     new TextBlock
                     {
                         Text = message,
                         TextWrapping = TextWrapping.Wrap,
                         FontSize = 14,
-                        Foreground = new SolidColorBrush(global::Avalonia.Media.Color.Parse("#6B7280")),
+                        Foreground = new SolidColorBrush(global::Avalonia.Application.Current?.FindResource("MesCoolGray") is global::Avalonia.Media.Color cg ? cg : global::Avalonia.Media.Colors.Gray),
                         Margin = new global::Avalonia.Thickness(0, 0, 0, 16),
                     },
                     new StackPanel

@@ -18,6 +18,9 @@ namespace MesTech.Avalonia.ViewModels.Erp;
 /// </summary>
 public partial class ErpDashboardViewModel : ViewModelBase
 {
+    private static Color Tk(string key) =>
+        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private static readonly CultureInfo TrCulture = new("tr-TR");
@@ -63,7 +66,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
                 Name = "Parasut",
                 IsConnected = false,
                 StatusText = "Bagli Degil",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                StatusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray")),
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
@@ -71,7 +74,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
                 Name = "BizimHesap",
                 IsConnected = false,
                 StatusText = "Bagli Degil",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                StatusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray")),
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
@@ -79,7 +82,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
                 Name = "Logo",
                 IsConnected = false,
                 StatusText = "Bagli Degil",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                StatusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray")),
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
@@ -87,7 +90,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
                 Name = "Netsis",
                 IsConnected = false,
                 StatusText = "Bagli Degil",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                StatusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray")),
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
             Providers.Add(new ErpProviderCardItem
@@ -95,7 +98,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
                 Name = "Nebim",
                 IsConnected = false,
                 StatusText = "Bagli Degil",
-                StatusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8")),
+                StatusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray")),
                 LastSyncDisplay = "Henuz senkronize edilmedi"
             });
 
@@ -143,7 +146,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
             {
                 provider.IsConnected = true;
                 provider.StatusText = "Bagli";
-                provider.StatusBadgeBackground = new SolidColorBrush(Color.Parse("#22C55E"));
+                provider.StatusBadgeBackground = new SolidColorBrush(Tk("MesSuccessVivid"));
                 provider.LastSyncDisplay = $"Son test: {DateTime.Now:dd.MM.yyyy HH:mm}";
                 ConnectedCount = Providers.Count(p => p.IsConnected);
             }
@@ -155,7 +158,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
             {
                 provider.IsConnected = false;
                 provider.StatusText = "Hata";
-                provider.StatusBadgeBackground = new SolidColorBrush(Color.Parse("#EF4444"));
+                provider.StatusBadgeBackground = new SolidColorBrush(Tk("MesRedBright"));
             }
             ErrorMessage = $"Baglanti testi basarisiz: {ex.Message}";
         }
@@ -182,7 +185,7 @@ public partial class ErpProviderCardItem : ObservableObject
     [ObservableProperty] private string name = string.Empty;
     [ObservableProperty] private bool isConnected;
     [ObservableProperty] private string statusText = "Bagli Degil";
-    [ObservableProperty] private IBrush statusBadgeBackground = new SolidColorBrush(Color.Parse("#94A3B8"));
+    [ObservableProperty] private IBrush statusBadgeBackground = new SolidColorBrush(Tk("MesMutedGray"));
     [ObservableProperty] private string lastSyncDisplay = "Henuz senkronize edilmedi";
 }
 

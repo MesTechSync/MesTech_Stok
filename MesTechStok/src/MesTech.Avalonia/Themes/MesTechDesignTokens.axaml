@@ -98,6 +98,18 @@
     <Color x:Key="MesTealMaterial">#00897B</Color>
     <Color x:Key="MesTealDark">#00695C</Color>
 
+    <!-- ═══ SEMANTIC STATUS (C# code-behind) ═══ -->
+    <Color x:Key="MesDangerDark">#D32F2F</Color>
+    <Color x:Key="MesGreenForest">#388E3C</Color>
+    <Color x:Key="MesGreenDark">#2E7D32</Color>
+    <Color x:Key="MesWarningOrange">#FF9800</Color>
+    <Color x:Key="MesWarningDark">#F57C00</Color>
+    <Color x:Key="MesBlueMaterial">#2196F3</Color>
+    <Color x:Key="MesSuccessVivid">#22C55E</Color>
+    <Color x:Key="MesDarkNavy">#1A1A2E</Color>
+    <Color x:Key="MesDarkCharcoal">#1F2937</Color>
+    <Color x:Key="MesGrayLight">#9CA3AF</Color>
+
     <!-- ═══ CARGO BRAND COLORS ═══ -->
     <Color x:Key="MesBrandYurtici">#E31E24</Color>
     <Color x:Key="MesBrandAras">#00A651</Color>
