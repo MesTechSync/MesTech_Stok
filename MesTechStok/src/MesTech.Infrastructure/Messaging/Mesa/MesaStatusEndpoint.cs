@@ -14,6 +14,12 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// </summary>
 public sealed class MesaStatusEndpoint : BackgroundService
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
+
     private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaStatusEndpoint> _logger;
     private readonly int _port;
@@ -89,11 +95,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
             if (context.Request.Url?.AbsolutePath == "/api/mesa/status")
             {
                 var status = _monitor.GetStatus();
-                var json = JsonSerializer.Serialize(status, new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-                });
+                var json = JsonSerializer.Serialize(status, s_jsonOptions);
 
                 response.StatusCode = 200;
                 response.ContentType = "application/json";
