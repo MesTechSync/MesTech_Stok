@@ -299,6 +299,7 @@ builder.Services.AddOutputCache(options =>
     options.AddPolicy("Lookup60s", b => b.Expire(TimeSpan.FromSeconds(60)).SetVaryByQuery("*"));
     options.AddPolicy("Dashboard30s", b => b.Expire(TimeSpan.FromSeconds(30)).SetVaryByQuery("*"));
     options.AddPolicy("Report120s", b => b.Expire(TimeSpan.FromSeconds(120)).SetVaryByQuery("*"));
+    options.AddPolicy("Catalog300s", b => b.Expire(TimeSpan.FromSeconds(300)).SetVaryByQuery("*")); // Kategori/brand — nadiren değişir
 });
 
 // SignalR real-time bildirim hub'i (G-02)
