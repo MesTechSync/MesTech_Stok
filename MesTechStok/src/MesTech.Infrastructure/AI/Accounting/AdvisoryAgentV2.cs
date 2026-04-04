@@ -181,12 +181,14 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         var reports = await _profitReportRepository
             .GetByDateRangeAsync(tenantId, thirtyDaysAgo, today, ct: ct).ConfigureAwait(false);
 
-        // FIX-DEV6-G010: 5 sequential platform queries → parallel Task.WhenAll
+        // Sequential — Task.WhenAll causes concurrent DbContext access (G67/KÖK-1)
         var platforms = new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon" };
-        var commissionTasks = platforms.Select(platform =>
-            _commissionRepository.GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct));
-        var commissionResults = await Task.WhenAll(commissionTasks).ConfigureAwait(false);
-        var commissions = commissionResults.SelectMany(c => c).ToList();
+        var commissions = new List<Domain.Accounting.Entities.CommissionRecord>();
+        foreach (var platform in platforms)
+        {
+            var records = await _commissionRepository.GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct).ConfigureAwait(false);
+            commissions.AddRange(records);
+        }
 
         // Urun sayisi
         var productCount = await _productRepository.GetCountAsync(ct).ConfigureAwait(false);
