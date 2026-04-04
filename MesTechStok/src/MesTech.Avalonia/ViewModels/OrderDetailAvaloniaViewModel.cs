@@ -43,13 +43,9 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var orders = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId, 1));
+            var orders = await _mediator.Send(new GetOrderListQuery(_currentUser.TenantId, 1), ct);
 
             if (orders.Count > 0)
             {
@@ -68,8 +64,8 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
                 };
                 TrackingNumber = o.TrackingNumber ?? string.Empty;
 
-                // GetOrderDetailQuery ile line items çek
-                var detail = await _mediator.Send(new GetOrderDetailQuery(_currentUser.TenantId, o.Id));
+                // GetOrderDetailQuery ile line items cek
+                var detail = await _mediator.Send(new GetOrderDetailQuery(_currentUser.TenantId, o.Id), ct);
                 _allOrderItems.Clear();
                 if (detail?.LineItems is { Count: > 0 })
                 {
@@ -94,16 +90,7 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Siparis detayi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Siparis detayi yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

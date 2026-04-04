@@ -38,13 +38,9 @@ public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDropshipProfitabilityQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetDropshipProfitabilityQuery(_currentUser.TenantId), ct);
 
             Items.Clear();
             foreach (var dto in result)
@@ -69,16 +65,7 @@ public partial class DropshipProfitAvaloniaViewModel : ViewModelBase
 
             TotalCount = Items.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Karlilik verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Dropship karlilik verileri yuklenirken hata");
     }
 
     [RelayCommand]

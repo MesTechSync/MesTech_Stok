@@ -27,13 +27,9 @@ public partial class MultiTenantAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetTenantsQuery());
+            var result = await _mediator.Send(new GetTenantsQuery(), ct);
 
             Tenants.Clear();
             foreach (var t in result.Items)
@@ -53,16 +49,7 @@ public partial class MultiTenantAvaloniaViewModel : ViewModelBase
                 ActiveTenantName = first.Name;
                 ActiveTenantId = first.Id.ToString();
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Multi-Tenant yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Tenant verileri yuklenirken hata");
     }
 
     [RelayCommand]

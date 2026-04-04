@@ -44,11 +44,7 @@ public partial class FulfillmentInboundViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var centers = new[] { FulfillmentCenter.AmazonFBA, FulfillmentCenter.Hepsilojistik, FulfillmentCenter.TrendyolFulfillment };
             var allResults = new List<InboundShipmentDto>();
@@ -56,7 +52,7 @@ public partial class FulfillmentInboundViewModel : ViewModelBase
             foreach (var center in centers)
             {
                 var query = new GetFulfillmentOrdersQuery(center, DateTime.UtcNow.AddDays(-90));
-                var orders = await _mediator.Send(query);
+                var orders = await _mediator.Send(query, ct);
 
                 foreach (var order in orders)
                 {
@@ -80,16 +76,7 @@ public partial class FulfillmentInboundViewModel : ViewModelBase
 
             _allShipments = allResults;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Inbound verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Fulfillment inbound verileri yuklenirken hata");
     }
 
     private void ApplyFilters()

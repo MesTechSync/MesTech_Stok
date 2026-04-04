@@ -34,14 +34,10 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             // Load chart of accounts for filter dropdown
-            var accounts = await _mediator.Send(new GetChartOfAccountsQuery(_currentUser.TenantId));
+            var accounts = await _mediator.Send(new GetChartOfAccountsQuery(_currentUser.TenantId), ct);
             if (Accounts.Count <= 1)
             {
                 foreach (var a in accounts)
@@ -50,7 +46,7 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
 
             var from = StartDate?.DateTime ?? DateTime.Today.AddMonths(-1);
             var to = EndDate?.DateTime ?? DateTime.Today;
-            var entries = await _mediator.Send(new GetJournalEntriesQuery(_currentUser.TenantId, from, to));
+            var entries = await _mediator.Send(new GetJournalEntriesQuery(_currentUser.TenantId, from, to), ct);
 
             _allItems = entries.SelectMany(e => e.Lines.Count > 0
                 ? e.Lines.Select(l => new GLTransactionItemDto
@@ -72,16 +68,7 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
                 }]).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Muhasebe hareketleri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Muhasebe hareketleri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

@@ -63,13 +63,11 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var orders = await _mediator.Send(
-                new GetOrderListQuery(tenantId, 50), CancellationToken);
+                new GetOrderListQuery(tenantId, 50), ct);
 
             Orders.Clear();
             foreach (var o in orders)
@@ -86,13 +84,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = Orders.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Siparisler yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Fatura olusturma siparisleri yuklenirken hata");
     }
 
     [RelayCommand]

@@ -37,14 +37,10 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new GetOrderListQuery(_tenantProvider.GetCurrentTenantId(), 100));
+                new GetOrderListQuery(_tenantProvider.GetCurrentTenantId(), 100), ct);
 
             _allOrders = result.Select(o => new OrderItemDto
             {
@@ -58,16 +54,7 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Siparisler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Siparisler yuklenirken hata");
     }
 
     private void ApplyFilters()

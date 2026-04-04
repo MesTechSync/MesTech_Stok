@@ -58,12 +58,9 @@ public partial class NotificationSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var settings = await _mediator.Send(new GetNotificationSettingsQuery(_tenantId, _userId));
+            var settings = await _mediator.Send(new GetNotificationSettingsQuery(_tenantId, _userId), ct);
 
             Categories.Clear();
 
@@ -96,16 +93,7 @@ public partial class NotificationSettingsAvaloniaViewModel : ViewModelBase
             Categories.Add(new NotificationCategoryItem("Platform Senkron Hatasi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
             Categories.Add(new NotificationCategoryItem("Fatura Olusturuldu", true, false, false, false));
             Categories.Add(new NotificationCategoryItem("Sistem Bakimi", true, IsEmailEnabled, IsTelegramEnabled, IsWhatsAppEnabled));
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Bildirim ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Bildirim ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

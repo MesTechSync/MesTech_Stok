@@ -43,14 +43,10 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var platform = SelectedPlatform == "Tumu" ? null : SelectedPlatform;
-            var report = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, "Aylik", platform));
+            var report = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, "Aylik", platform), ct);
 
             if (report is null)
             {
@@ -78,16 +74,7 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
             ];
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Karlilik analizi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Karlilik analizi yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

@@ -40,16 +40,12 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var from = StartDate?.DateTime ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var to = EndDate?.DateTime ?? DateTime.Now;
 
-            var report = await _mediator.Send(new GetCashFlowReportQuery(_currentUser.TenantId, from, to));
+            var report = await _mediator.Send(new GetCashFlowReportQuery(_currentUser.TenantId, from, to), ct);
 
             TotalInflow = $"{report.TotalInflow:N2} TL";
             TotalOutflow = $"{report.TotalOutflow:N2} TL";
@@ -80,22 +76,13 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
             // Cash flow trend (G540 orphan wire)
             try
             {
-                var trend = await _mediator.Send(new GetCashFlowTrendQuery(_currentUser.TenantId));
+                var trend = await _mediator.Send(new GetCashFlowTrendQuery(_currentUser.TenantId), ct);
                 TrendSummary = $"{trend.Months.Count} ay trend | Kümülatif: {trend.CumulativeNet:N0} TL";
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetCashFlowTrend failed: {ex.Message}"); TrendSummary = "—"; }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Nakit akis verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Nakit akis verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

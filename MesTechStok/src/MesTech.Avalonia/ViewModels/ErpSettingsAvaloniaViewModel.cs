@@ -99,12 +99,9 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var settings = await _mediator.Send(new GetErpSettingsQuery(_currentUser.TenantId));
+            var settings = await _mediator.Send(new GetErpSettingsQuery(_currentUser.TenantId), ct);
 
             SelectedErpProvider = settings.ActiveProvider.ToString();
             IsConnected = settings.IsConnected;
@@ -129,16 +126,7 @@ public partial class ErpSettingsAvaloniaViewModel : ViewModelBase
                     Duration = h.Duration
                 });
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"ERP ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "ERP ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

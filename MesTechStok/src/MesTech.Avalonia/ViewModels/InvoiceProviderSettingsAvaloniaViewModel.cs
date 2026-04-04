@@ -24,11 +24,9 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var providerStatuses = await _mediator.Send(new GetInvoiceProvidersQuery());
+            var providerStatuses = await _mediator.Send(new GetInvoiceProvidersQuery(), ct);
 
             Providers.Clear();
             var idx = 0;
@@ -48,13 +46,7 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
                     LastTestDate = p.IsActive ? DateTime.UtcNow : null
                 });
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Provider bilgileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Fatura provider bilgileri yuklenirken hata");
     }
 
     [RelayCommand]

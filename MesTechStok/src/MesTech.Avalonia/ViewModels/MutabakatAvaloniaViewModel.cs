@@ -42,13 +42,9 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var dashboard = await _mediator.Send(new GetReconciliationDashboardQuery(_currentUser.TenantId));
+            var dashboard = await _mediator.Send(new GetReconciliationDashboardQuery(_currentUser.TenantId), ct);
 
             var total = dashboard.AutoMatchedCount + dashboard.NeedsReviewCount + dashboard.UnmatchedCount;
             var score = total > 0 ? (double)dashboard.AutoMatchedCount / total * 100 : 0;
@@ -71,22 +67,13 @@ public partial class MutabakatAvaloniaViewModel : ViewModelBase
             // Reconciliation matches (G540 orphan wire)
             try
             {
-                var matches = await _mediator.Send(new GetReconciliationMatchesQuery(_currentUser.TenantId));
+                var matches = await _mediator.Send(new GetReconciliationMatchesQuery(_currentUser.TenantId), ct);
                 PendingMatchCount = matches.Count;
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetReconciliationMatches failed: {ex.Message}"); PendingMatchCount = 0; }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Mutabakat verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Mutabakat verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

@@ -43,12 +43,9 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var settings = await _mediator.Send(new GetFulfillmentSettingsQuery(_currentUser.TenantId));
+            var settings = await _mediator.Send(new GetFulfillmentSettingsQuery(_currentUser.TenantId), ct);
 
             if (settings.AmazonFba is not null)
             {
@@ -61,16 +58,7 @@ public partial class FulfillmentSettingsViewModel : ViewModelBase
                 HepsiAutoReplenish = settings.Hepsilojistik.AutoReplenish;
                 HepsiConnectionStatus = settings.Hepsilojistik.ConnectionStatus;
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Fulfillment ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Fulfillment ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

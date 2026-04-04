@@ -37,15 +37,11 @@ public partial class FulfillmentInventoryViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var fbaInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.AmazonFBA, Array.Empty<string>()));
-            var hepsiInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.Hepsilojistik, Array.Empty<string>()));
-            var localInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.OwnWarehouse, Array.Empty<string>()));
+            var fbaInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.AmazonFBA, Array.Empty<string>()), ct);
+            var hepsiInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.Hepsilojistik, Array.Empty<string>()), ct);
+            var localInventory = await _mediator.Send(new GetFulfillmentInventoryQuery(FulfillmentCenter.OwnWarehouse, Array.Empty<string>()), ct);
 
             // Merge by SKU
             var skuSet = new HashSet<string>();
@@ -91,16 +87,7 @@ public partial class FulfillmentInventoryViewModel : ViewModelBase
             }).OrderBy(i => i.Sku).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Envanter verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Fulfillment envanter verileri yuklenirken hata");
     }
 
     private void ApplyFilters()

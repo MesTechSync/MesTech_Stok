@@ -42,14 +42,10 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetCommissionSummaryQuery(
-                _currentUser.TenantId, DateTime.UtcNow.AddMonths(-3), DateTime.UtcNow));
+                _currentUser.TenantId, DateTime.UtcNow.AddMonths(-3), DateTime.UtcNow), ct);
 
             _allItems = result.ByPlatform.Select(p => new CommissionItemDto
             {
@@ -67,16 +63,7 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
             N11AvgRate = lookup.TryGetValue("n11", out var n11) ? $"%{n11:F1}" : "%0.0";
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Komisyon verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Komisyon verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

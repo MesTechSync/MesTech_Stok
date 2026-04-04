@@ -50,14 +50,11 @@ public partial class OnboardingWizardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-
-        try
+        await SafeExecuteAsync(async ct =>
         {
             if (TenantId != Guid.Empty)
             {
-                var progress = await _mediator.Send(new GetOnboardingProgressQuery(TenantId));
+                var progress = await _mediator.Send(new GetOnboardingProgressQuery(TenantId), ct);
                 if (progress is not null)
                 {
                     CurrentStep = (int)progress.CurrentStep;
@@ -68,17 +65,8 @@ public partial class OnboardingWizardAvaloniaViewModel : ViewModelBase
             }
 
             // G540: V5 readiness check
-            try { _ = await _mediator.Send(new GetV5ReadinessCheckQuery(TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetV5ReadinessCheck failed: {ex.Message}"); }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = ex.Message;
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            try { _ = await _mediator.Send(new GetV5ReadinessCheckQuery(TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetV5ReadinessCheck failed: {ex.Message}"); }
+        }, "Onboarding durumu yuklenirken hata");
     }
 
     [RelayCommand]

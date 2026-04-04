@@ -43,13 +43,10 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var logs = await _mediator.Send(
-                new GetAuditLogsQuery(TenantId: _currentUser.TenantId), CancellationToken);
+                new GetAuditLogsQuery(TenantId: _currentUser.TenantId), ct);
 
             _allEntries.Clear();
             foreach (var log in logs)
@@ -74,23 +71,10 @@ public partial class LogViewerAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (OperationCanceledException)
-        {
-            // View kapandı
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Log kayıtları yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
 
-        // G540 orphan: log count
-        try { TotalLogCount = await _mediator.Send(new GetLogCountQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetLogCount failed: {ex.Message}"); }
+            // G540 orphan: log count
+            try { TotalLogCount = await _mediator.Send(new GetLogCountQuery(_currentUser.TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetLogCount failed: {ex.Message}"); }
+        }, "Log kayitlari yuklenirken hata");
     }
 
     private void ApplyFilter()

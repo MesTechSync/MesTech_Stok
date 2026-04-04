@@ -40,16 +40,12 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var from = new DateTime(_currentPeriod.Year, _currentPeriod.Month, 1);
             var to = from.AddMonths(1).AddDays(-1);
 
-            var dto = await _mediator.Send(new GetKarZararQuery(from, to, _currentUser.TenantId));
+            var dto = await _mediator.Send(new GetKarZararQuery(from, to, _currentUser.TenantId), ct);
 
             var margin = dto.ToplamGelir > 0 ? dto.NetKar / dto.ToplamGelir * 100 : 0;
 
@@ -63,16 +59,7 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
             LineItems.Add(new KarZararLineItemDto { Name = "Toplam Gider", Type = "Gider", AmountFormatted = $"-{dto.ToplamGider:N2} TL", PercentFormatted = dto.ToplamGelir > 0 ? $"%{dto.ToplamGider / dto.ToplamGelir * 100:N1}" : "%0,0" });
 
             IsEmpty = LineItems.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kar/Zarar raporu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kar/Zarar raporu yuklenirken hata");
     }
 
     [RelayCommand]

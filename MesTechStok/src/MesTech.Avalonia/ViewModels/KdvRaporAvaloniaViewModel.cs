@@ -54,17 +54,13 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Array.IndexOf(MonthNames, SelectedMonth) + 1;
             if (monthIndex <= 0) monthIndex = DateTime.Now.Month;
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
 
-            var report = await _mediator.Send(new GetKdvReportQuery(_currentUser.TenantId, year, monthIndex));
+            var report = await _mediator.Send(new GetKdvReportQuery(_currentUser.TenantId, year, monthIndex), ct);
 
             SalesVat = $"{report.HesaplananKdv:N2} TL";
             PurchaseVat = $"{report.IndirilecekKdv:N2} TL";
@@ -88,25 +84,16 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
             // Withholding rates (G540 orphan wire)
             try
             {
-                var rates = await _mediator.Send(new GetWithholdingRatesQuery());
+                var rates = await _mediator.Send(new GetWithholdingRatesQuery(), ct);
                 WithholdingRateCount = rates.Count;
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetWithholdingRates failed: {ex.Message}"); WithholdingRateCount = 0; }
 
             // G540: KDV declaration draft
-            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}")); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetKdvDeclarationDraft failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}"), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetKdvDeclarationDraft failed: {ex.Message}"); }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"KDV raporu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "KDV raporu yuklenirken hata");
     }
 
     partial void OnSelectedInvoiceTypeChanged(string value) => ApplyFilters();
