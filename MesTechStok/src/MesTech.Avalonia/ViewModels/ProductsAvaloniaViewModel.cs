@@ -53,13 +53,9 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetTopProductsQuery(_currentUser.TenantId, 50)) ?? [];
+            var result = await _mediator.Send(new GetTopProductsQuery(_currentUser.TenantId, 50), ct) ?? [];
 
             _allProducts = result.Select(dto => new ProductItemDto
             {
@@ -78,13 +74,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Urunler yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Urunler yuklenirken hata");
     }
 
     private void ApplyFilters()
