@@ -23,6 +23,9 @@ public sealed class SettlementBatch : BaseEntity, ITenantEntity
     private readonly List<SettlementLine> _lines = new();
     public IReadOnlyList<SettlementLine> Lines => _lines.AsReadOnly();
 
+    private readonly List<CommissionRecord> _commissionRecords = new();
+    public IReadOnlyList<CommissionRecord> CommissionRecords => _commissionRecords.AsReadOnly();
+
     private SettlementBatch() { }
 
     public static SettlementBatch Create(
@@ -73,6 +76,11 @@ public sealed class SettlementBatch : BaseEntity, ITenantEntity
     public void AddLine(SettlementLine line)
     {
         _lines.Add(line);
+    }
+
+    public void AddCommissionRecord(CommissionRecord record)
+    {
+        _commissionRecords.Add(record);
     }
 
     public void MarkReconciled()
