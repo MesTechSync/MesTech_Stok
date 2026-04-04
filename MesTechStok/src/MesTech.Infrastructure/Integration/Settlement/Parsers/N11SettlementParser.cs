@@ -131,7 +131,7 @@ public sealed class N11SettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.KomisyonTutari != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SatisTutari,
@@ -139,7 +139,7 @@ public sealed class N11SettlementParser : ISettlementParser
                     commissionAmount: item.KomisyonTutari,
                     serviceFee: 0m,
                     orderId: item.SiparisNo,
-                    category: item.Kategori);
+                    category: item.Kategori));
             }
         }
 

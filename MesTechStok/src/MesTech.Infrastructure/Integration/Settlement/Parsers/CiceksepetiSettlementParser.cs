@@ -149,7 +149,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.CommissionAmount != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SaleAmount,
@@ -157,7 +157,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
                     commissionAmount: item.CommissionAmount,
                     serviceFee: item.ServiceFee,
                     orderId: item.OrderNo,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

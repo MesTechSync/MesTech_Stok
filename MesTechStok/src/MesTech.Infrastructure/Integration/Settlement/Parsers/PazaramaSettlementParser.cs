@@ -148,7 +148,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.Commission != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.Amount,
@@ -156,7 +156,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
                     commissionAmount: item.Commission,
                     serviceFee: 0m,
                     orderId: item.OrderId,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

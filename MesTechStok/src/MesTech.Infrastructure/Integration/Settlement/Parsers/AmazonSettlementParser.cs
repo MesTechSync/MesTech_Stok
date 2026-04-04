@@ -169,14 +169,14 @@ public sealed class AmazonSettlementParser : ISettlementParser
                     ? Math.Round(commission / gross * 100m, 2)
                     : 0m;
 
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: gross,
                     commissionRate: commissionRate,
                     commissionAmount: commission,
                     serviceFee: serviceFee,
-                    orderId: orderId);
+                    orderId: orderId));
             }
         }
 

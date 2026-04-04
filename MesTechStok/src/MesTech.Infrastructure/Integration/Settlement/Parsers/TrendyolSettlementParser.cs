@@ -149,7 +149,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
             if (commission != 0m)
             {
                 var commissionRate = NormalizeTurkishDecimal(item.CommissionRate);
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: gross,
@@ -157,7 +157,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
                     commissionAmount: commission,
                     serviceFee: serviceFee,
                     orderId: item.OrderNumber,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 
