@@ -44,7 +44,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushIncome for income {IncomeId}", incomeId);
 
-        var income = await _incomeRepository.GetByIdAsync(incomeId).ConfigureAwait(false);
+        var income = await _incomeRepository.GetByIdAsync(incomeId, ct).ConfigureAwait(false);
         if (income is null)
         {
             _logger.LogWarning("Parasut PushIncome: income {IncomeId} not found", incomeId);
@@ -75,7 +75,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushExpense for expense {ExpenseId}", expenseId);
 
-        var expense = await _expenseRepository.GetByIdAsync(expenseId).ConfigureAwait(false);
+        var expense = await _expenseRepository.GetByIdAsync(expenseId, ct).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("Parasut PushExpense: expense {ExpenseId} not found", expenseId);

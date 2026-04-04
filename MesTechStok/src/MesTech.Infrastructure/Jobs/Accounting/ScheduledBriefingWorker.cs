@@ -74,7 +74,7 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
             var report = reports.Count > 0 ? reports[0] : null;
 
             // FIX-DEV6-TUR4: Fetch orders once — reuse for fallback calc and order count
-            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
+            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today, ct).ConfigureAwait(false);
             var orderCount = yesterdayOrders.Count;
 
             decimal totalRevenue = 0m;

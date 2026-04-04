@@ -100,7 +100,7 @@ public sealed class ErpInvoiceCreationHandler
             }
 
             // 4b. Fetch invoice from repository for order reference
-            var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+            var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
             if (invoice is null)
             {
                 _logger.LogWarning(

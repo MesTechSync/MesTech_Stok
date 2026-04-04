@@ -97,7 +97,7 @@ public sealed class ErpPriceSyncJob : ISyncJob
                 {
                     ct.ThrowIfCancellationRequested();
 
-                    var product = await _productRepository.GetBySKUAsync(priceItem.ProductCode).ConfigureAwait(false);
+                    var product = await _productRepository.GetBySKUAsync(priceItem.ProductCode, ct).ConfigureAwait(false);
                     if (product is null)
                     {
                         providerSkipped++;
@@ -116,7 +116,7 @@ public sealed class ErpPriceSyncJob : ISyncJob
                     if (priceItem.ListPrice.HasValue)
                         product.ListPrice = priceItem.ListPrice.Value;
 
-                    await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                    await _productRepository.UpdateAsync(product, ct).ConfigureAwait(false);
                     providerUpdated++;
                 }
 

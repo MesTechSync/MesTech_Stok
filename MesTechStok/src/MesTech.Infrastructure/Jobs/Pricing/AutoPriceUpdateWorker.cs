@@ -107,7 +107,7 @@ public sealed class AutoPriceUpdateWorker
 
         foreach (var lost in lostBuyboxes)
         {
-            var product = await _productRepository.GetByIdAsync(lost.ProductId).ConfigureAwait(false);
+            var product = await _productRepository.GetByIdAsync(lost.ProductId, ct).ConfigureAwait(false);
             if (product is null)
             {
                 skipped++;

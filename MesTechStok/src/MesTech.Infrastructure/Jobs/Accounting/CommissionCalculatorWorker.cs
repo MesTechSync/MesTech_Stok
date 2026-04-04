@@ -54,7 +54,7 @@ public sealed class CommissionCalculatorWorker : IAccountingJob
             // Son 24 saatin siparislerini al
             var from = DateTime.UtcNow.AddDays(-1);
             var to = DateTime.UtcNow;
-            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to).ConfigureAwait(false);
+            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] {Count} siparis bulundu ({From:g} - {To:g})",

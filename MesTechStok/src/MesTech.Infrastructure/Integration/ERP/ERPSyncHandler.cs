@@ -49,7 +49,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
 
         try
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
             if (invoice is null)
             {
                 _logger.LogWarning("[ERPSync] Invoice not found: {InvoiceId}", invoiceId);
@@ -167,7 +167,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
     {
         _logger.LogInformation("[ERPSync] Hangfire retry: InvoiceId={InvoiceId}", invoiceId);
 
-        var invoice = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepository.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning("[ERPSync] Retry: Invoice not found — {InvoiceId}", invoiceId);

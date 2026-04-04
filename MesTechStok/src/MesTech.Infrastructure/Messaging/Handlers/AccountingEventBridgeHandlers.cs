@@ -51,7 +51,7 @@ public sealed class InvoiceApprovedGLBridge
     {
         var e = notification.DomainEvent;
 
-        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning(
@@ -94,7 +94,7 @@ public sealed class InvoiceCancelledReversalBridge
     {
         var e = notification.DomainEvent;
 
-        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning(

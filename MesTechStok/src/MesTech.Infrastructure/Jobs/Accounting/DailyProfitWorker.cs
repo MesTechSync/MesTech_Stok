@@ -80,7 +80,7 @@ public sealed class DailyProfitWorker : IAccountingJob
             }
 
             // Bugunku siparisleri al
-            var orders = await _orderRepository.GetByDateRangeAsync(today, tomorrow).ConfigureAwait(false);
+            var orders = await _orderRepository.GetByDateRangeAsync(today, tomorrow, ct).ConfigureAwait(false);
 
             if (orders.Count == 0)
             {

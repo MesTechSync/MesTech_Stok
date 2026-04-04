@@ -40,7 +40,7 @@ public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotific
     {
         var e = notification.DomainEvent;
 
-        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId).ConfigureAwait(false);
+        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId, cancellationToken).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("ExpensePaid: Expense {ExpenseId} not found in DB", e.ExpenseId);

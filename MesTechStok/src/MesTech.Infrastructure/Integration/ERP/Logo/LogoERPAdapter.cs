@@ -339,7 +339,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
         try
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            var invoice = await _invoiceRepository.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
             if (invoice is null)
             {
                 _logger.LogWarning(

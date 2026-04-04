@@ -106,7 +106,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            var inv = await _invoiceRepository.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
             if (inv is null) return ErpSyncResult.Fail("Not found");
 
             var payload = new

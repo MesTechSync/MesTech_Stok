@@ -195,7 +195,7 @@ public sealed class SupplierFeedSyncJob
             preloadedBySku.TryGetValue(parsed.SKU, out existing);
 
         if (existing == null && !string.IsNullOrWhiteSpace(parsed.Barcode))
-            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode).ConfigureAwait(false);
+            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode, ct).ConfigureAwait(false);
 
         bool wasUpdated = false;
         bool wasDeactivated = false;
@@ -245,7 +245,7 @@ public sealed class SupplierFeedSyncJob
             {
                 existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = "supplier-feed-sync";
-                await _productRepository.UpdateAsync(existing).ConfigureAwait(false);
+                await _productRepository.UpdateAsync(existing, ct).ConfigureAwait(false);
             }
 
             return (existing, wasUpdated, wasDeactivated);
@@ -272,7 +272,7 @@ public sealed class SupplierFeedSyncJob
                 UpdatedBy = "supplier-feed-sync"
             };
 
-            await _productRepository.AddAsync(newProduct).ConfigureAwait(false);
+            await _productRepository.AddAsync(newProduct, ct).ConfigureAwait(false);
 
             _logger.LogDebug(
                 "[SupplierFeedSync] Created new product {SKU} from feed {FeedName}",

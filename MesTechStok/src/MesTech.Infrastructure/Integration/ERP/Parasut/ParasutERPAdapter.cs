@@ -129,7 +129,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
 
         try
         {
-            var inv = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
+            var inv = await _invoiceRepository.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
             if (inv is null) return ErpSyncResult.Fail("Not found");
 
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
