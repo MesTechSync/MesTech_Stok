@@ -44,10 +44,12 @@ public class PlatformCommissionTests
     }
 
     [Fact]
-    public void Calculate_Tiered_UsesPercentageFormula()
+    public void Calculate_Tiered_ThrowsNotSupported()
     {
         var commission = MakeCommission(CommissionType.Tiered, rate: 8m);
-        commission.Calculate(100m).Should().Be(8m); // tiered uses same formula as percentage
+        var act = () => commission.Calculate(100m);
+        act.Should().Throw<NotSupportedException>()
+            .WithMessage("*bracket*");
     }
 
     [Fact]
