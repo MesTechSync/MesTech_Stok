@@ -58,6 +58,19 @@ public class CrmHandlerTests
             () => sut.Handle(null!, CancellationToken.None));
     }
 
+    [Fact]
+    public async Task GetActiveCampaigns_EmptyRepo_ReturnsEmptyResult()
+    {
+        _campaignRepo.Setup(r => r.GetActiveByTenantAsync(_tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Campaign>());
+
+        var sut = new GetActiveCampaignsHandler(_campaignRepo.Object);
+        var result = await sut.Handle(
+            new GetActiveCampaignsQuery(_tenantId), CancellationToken.None);
+
+        result.Items.Should().BeEmpty();
+    }
+
     // ═══════ GetDealsHandler ═══════
 
     [Fact]
@@ -67,6 +80,21 @@ public class CrmHandlerTests
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetDeals_EmptyRepo_ReturnsEmptyResult()
+    {
+        _dealRepo.Setup(r => r.GetByTenantPagedAsync(
+                _tenantId, null, 1, 50, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Deal>());
+
+        var sut = new GetDealsHandler(_dealRepo.Object);
+        var result = await sut.Handle(
+            new GetDealsQuery(_tenantId), CancellationToken.None);
+
+        result.Items.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
     }
 
     // ═══════ GetLeadsHandler ═══════
@@ -80,6 +108,21 @@ public class CrmHandlerTests
             () => sut.Handle(null!, CancellationToken.None));
     }
 
+    [Fact]
+    public async Task GetLeads_EmptyRepo_ReturnsEmptyResult()
+    {
+        _leadRepo.Setup(r => r.GetPagedAsync(
+                _tenantId, null, null, 1, 50, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<Lead>() as IReadOnlyList<Lead>, 0));
+
+        var sut = new GetLeadsHandler(_leadRepo.Object);
+        var result = await sut.Handle(
+            new GetLeadsQuery(_tenantId), CancellationToken.None);
+
+        result.Items.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
+
     // ═══════ GetCustomerPointsHandler ═══════
 
     [Fact]
@@ -89,5 +132,24 @@ public class CrmHandlerTests
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetCustomerPoints_EmptyRepo_ReturnsZeroBalance()
+    {
+        var customerId = Guid.NewGuid();
+        _loyaltyTxRepo.Setup(r => r.GetPointsSumByTypeAsync(
+                _tenantId, customerId, It.IsAny<MesTech.Domain.Enums.LoyaltyTransactionType>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        _loyaltyTxRepo.Setup(r => r.GetByCustomerPagedAsync(
+                _tenantId, customerId, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<LoyaltyTransaction>());
+
+        var sut = new GetCustomerPointsHandler(_loyaltyTxRepo.Object);
+        var result = await sut.Handle(
+            new MesTech.Application.Features.Crm.Queries.GetCustomerPoints.GetCustomerPointsQuery(_tenantId, customerId), CancellationToken.None);
+
+        result.AvailableBalance.Should().Be(0);
+        result.TransactionHistory.Should().BeEmpty();
     }
 }
