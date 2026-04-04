@@ -48,7 +48,7 @@
                                     CommandParameter="{Binding Key}"
                                     ToolTip.Tip="{Binding Label}"
                                     Padding="12,6"
-                                    CornerRadius="4"
+                                    CornerRadius="{StaticResource MesRadiusSm}"
                                     FontSize="{StaticResource FontSizeSmall}"
                                     FontWeight="SemiBold" />
                         </DataTemplate>
@@ -112,7 +112,7 @@
                     <DataGridTemplateColumn Header="Segment" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:CustomerItemDto">
-                                <Border Background="{Binding SegmentRenk}" CornerRadius="4"
+                                <Border Background="{Binding SegmentRenk}" CornerRadius="{StaticResource MesRadiusSm}"
                                         Padding="8,2" HorizontalAlignment="Left" Margin="4,2">
                                     <TextBlock Text="{Binding Segment}"
                                                Foreground="White" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />

@@ -141,7 +141,7 @@
                     <TextBlock Text="İlk Senkronizasyon" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
                     <TextBlock Text="Platformunuzdan ürün, sipariş ve stok verilerinizi çekiyoruz. Bu işlem birkaç dakika sürebilir."
                                TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeCallout}" />
-                    <ProgressBar IsIndeterminate="{Binding IsLoading}" Height="6" CornerRadius="3"
+                    <ProgressBar IsIndeterminate="{Binding IsLoading}" Height="6" CornerRadius="{StaticResource MesRadiusSm}"
                                  Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,16" />
                 </StackPanel>
 
@@ -176,28 +176,28 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri" Command="{Binding PreviousStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=1}"
-                        Padding="16,10" CornerRadius="6"
+                        Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Önceki adıma dön" />
 
                 <!-- Step 1: Register button -->
                 <Button Grid.Column="2" Content="Kaydol ve Başla" Command="{Binding RegisterCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=1}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Firma ve admin bilgilerini kaydet, kuruluma başla" />
 
                 <!-- Steps 2-6: Next button -->
                 <Button Grid.Column="2" Content="Devam Et" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource BetweenConverter}, ConverterParameter=2-6}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Sonraki adima devam et" />
 
                 <!-- Step 7: Go to Dashboard -->
                 <Button Grid.Column="2" Content="Dashboard'a Git" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=7}"
                         Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="Bold" Padding="24,10" CornerRadius="6"
+                        FontWeight="Bold" Padding="24,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Kurulumu tamamla ve ana panele git" />
             </Grid>
         </Border>

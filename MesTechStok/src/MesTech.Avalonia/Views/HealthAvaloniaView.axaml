@@ -184,7 +184,7 @@
                                 <DataTemplate x:DataType="vm:ServiceHealthItem">
                                     <!-- Service Card -->
                                     <Border Background="{DynamicResource MesBgSurface}"
-                                            CornerRadius="8"
+                                            CornerRadius="{StaticResource MesRadiusMd}"
                                             BorderBrush="{DynamicResource MesBorderLight}"
                                             BorderThickness="1"
                                             Padding="14,12"

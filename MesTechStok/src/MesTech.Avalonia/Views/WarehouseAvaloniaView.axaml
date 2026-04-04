@@ -88,8 +88,8 @@
                                         <TextBlock Grid.Column="1" Text="{Binding CapacityPercent, StringFormat='{}{0}%'}"
                                                    FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesSlateGray}" FontWeight="SemiBold" />
                                     </Grid>
-                                    <Border Background="{DynamicResource MesBorderSoft}" CornerRadius="3" Height="8">
-                                        <Border Background="{Binding CapacityColor}" CornerRadius="3"
+                                    <Border Background="{DynamicResource MesBorderSoft}" CornerRadius="{StaticResource MesRadiusSm}" Height="8">
+                                        <Border Background="{Binding CapacityColor}" CornerRadius="{StaticResource MesRadiusSm}"
                                                 HorizontalAlignment="Left"
                                                 Width="{Binding CapacityBarWidth}" />
                                     </Border>

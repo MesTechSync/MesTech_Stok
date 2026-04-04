@@ -106,7 +106,7 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                         <ProgressBar Value="{Binding ExportProgress}" Maximum="100"
-                                     Height="8" CornerRadius="4" />
+                                     Height="8" CornerRadius="{StaticResource MesRadiusSm}" />
                         <TextBlock FontSize="{StaticResource FontSizeCaption}"
                                    Foreground="{DynamicResource MesSlateGray}">
                             <Run Text="{Binding ExportProgress}" />

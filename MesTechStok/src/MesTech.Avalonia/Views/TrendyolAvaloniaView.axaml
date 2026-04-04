@@ -293,7 +293,7 @@
                                            Foreground="{DynamicResource MesDarkSlate}" />
                             </Grid>
                             <ProgressBar Value="{Binding RateLimitPercent}" Minimum="0" Maximum="100" Height="8"
-                                         CornerRadius="4" />
+                                         CornerRadius="{StaticResource MesRadiusSm}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

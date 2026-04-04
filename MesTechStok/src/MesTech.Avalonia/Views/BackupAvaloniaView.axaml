@@ -67,7 +67,7 @@
                                        Foreground="{DynamicResource MesAmber}" VerticalAlignment="Center" />
                         </StackPanel>
                         <ProgressBar Value="{Binding BackupProgress}" Maximum="100"
-                                     Height="6" CornerRadius="3" />
+                                     Height="6" CornerRadius="{StaticResource MesRadiusSm}" />
                     </StackPanel>
                 </Border>
 

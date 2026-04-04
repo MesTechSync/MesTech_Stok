@@ -110,8 +110,8 @@
                         CommandParameter="{Binding}"
                         Padding="0" BorderThickness="0" Background="Transparent"
                         Cursor="Hand"
-                        CornerRadius="12">
-                  <Border Width="110" Height="72" CornerRadius="12"
+                        CornerRadius="{StaticResource MesRadiusLg}">
+                  <Border Width="110" Height="72" CornerRadius="{StaticResource MesRadiusLg}"
                           ClipToBounds="True"
                           Background="{DynamicResource MesSpotThumbBg}"
                           BorderBrush="{DynamicResource MesSpotThumbBorder}" BorderThickness="1">
@@ -221,7 +221,7 @@
                     Command="{Binding ToggleLoginModeCommand}"
                     Background="{DynamicResource MesSpotBtnBg}" Foreground="{DynamicResource MesSpotTextPrimary}"
                     FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
-                    Padding="14,6" CornerRadius="16"
+                    Padding="14,6" CornerRadius="{StaticResource MesRadiusXl}"
                     BorderThickness="1" BorderBrush="{DynamicResource MesSpotBtnBorder}"
                     Cursor="Hand" Opacity="0.9">
               <Button.Transitions>
@@ -235,7 +235,7 @@
                     Command="{Binding DemoLoginCommand}"
                     Background="Transparent" Foreground="{DynamicResource MesSpotTextDemoBtnLabel}"
                     FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
-                    Padding="14,6" CornerRadius="16"
+                    Padding="14,6" CornerRadius="{StaticResource MesRadiusXl}"
                     BorderThickness="1" BorderBrush="{DynamicResource MesSpotBtnDemoBorder}"
                     Cursor="Hand" Opacity="0.85">
               <Button.Transitions>
@@ -248,14 +248,14 @@
                     ToolTip.Tip="Pencereyi kapat (Esc)"
                     Command="{Binding CloseCommand}"
                     Background="Transparent" Foreground="{DynamicResource MesSpotTextMuted}"
-                    FontSize="{StaticResource FontSizeCaption}" Padding="10,6" CornerRadius="16"
+                    FontSize="{StaticResource FontSizeCaption}" Padding="10,6" CornerRadius="{StaticResource MesRadiusXl}"
                     BorderThickness="0" Cursor="Hand"/>
           </StackPanel>
         </StackPanel>
 
         <!-- ─── BOTTOM-RIGHT: Login card ─── -->
         <Border Grid.Column="1" VerticalAlignment="Bottom"
-                Width="370" CornerRadius="16"
+                Width="370" CornerRadius="{StaticResource MesRadiusXl}"
                 IsVisible="{Binding IsLoginMode}"
                 BoxShadow="0 12 40 0 #60000000"
                 ClipToBounds="True"
@@ -267,7 +267,7 @@
           </Border.Transitions>
 
           <!-- Glass overlay -->
-          <Border CornerRadius="16"
+          <Border CornerRadius="{StaticResource MesRadiusXl}"
                   BorderBrush="{DynamicResource MesSpotGlassBorder}" BorderThickness="1"
                   Background="{DynamicResource MesSpotGlassBg}">
             <StackPanel Margin="30,28" Spacing="16">
@@ -291,7 +291,7 @@
                          Watermark="Kullanici adinizi girin"
                          FontSize="{StaticResource FontSizeBody}"
                          Padding="14,11"
-                         CornerRadius="10"
+                         CornerRadius="{StaticResource MesRadiusMdLg}"
                          Background="{DynamicResource MesSpotInputBg}"
                          Foreground="{DynamicResource MesSpotTextPrimary}"
                          BorderBrush="{DynamicResource MesSpotInputBorder}"
@@ -309,7 +309,7 @@
                            Watermark="Sifrenizi girin"
                            FontSize="{StaticResource FontSizeBody}"
                            Padding="14,11"
-                           CornerRadius="10"
+                           CornerRadius="{StaticResource MesRadiusMdLg}"
                            Background="{DynamicResource MesSpotInputBg}"
                            Foreground="{DynamicResource MesSpotTextPrimary}"
                            BorderBrush="{DynamicResource MesSpotInputBorder}"
@@ -337,7 +337,7 @@
               <Button x:Name="LoginButton"
                       HorizontalAlignment="Stretch"
                       HorizontalContentAlignment="Center"
-                      Height="46" CornerRadius="12"
+                      Height="46" CornerRadius="{StaticResource MesRadiusLg}"
                       FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                       Background="{DynamicResource MesSpotLoginBtnBg}"
                       Foreground="{DynamicResource MesSpotTextPrimary}"
@@ -360,7 +360,7 @@
 
               <!-- Error panel -->
               <Border IsVisible="{Binding ShowLoginError}"
-                      Background="{DynamicResource MesSpotErrorBg}" CornerRadius="10"
+                      Background="{DynamicResource MesSpotErrorBg}" CornerRadius="{StaticResource MesRadiusMdLg}"
                       Padding="14,10">
                 <TextBlock Text="{Binding LoginErrorMessage}"
                            Foreground="{DynamicResource MesSpotErrorText}" FontSize="{StaticResource FontSizeSmall}"
@@ -369,7 +369,7 @@
 
               <!-- Lockout panel -->
               <Border IsVisible="{Binding ShowLockout}"
-                      Background="{DynamicResource MesSpotLockoutBg}" CornerRadius="10"
+                      Background="{DynamicResource MesSpotLockoutBg}" CornerRadius="{StaticResource MesRadiusMdLg}"
                       Padding="14,10">
                 <TextBlock Text="{Binding LockoutMessage}"
                            Foreground="{DynamicResource MesSpotLockoutText}" FontSize="{StaticResource FontSizeSmall}"/>
