@@ -30,7 +30,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouses")
         .WithSummary("Depo listesi (aktif/tümü filtresi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseListDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/warehouses/{id} — depo detayı
@@ -45,7 +45,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouseById")
         .WithSummary("Depo detayı")
-        .Produces(200)
+        .Produces<WarehouseListDto>(200)
         .Produces(404)
         .CacheOutput("Lookup60s");
 
@@ -112,7 +112,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouseStock")
         .WithSummary("Depo bazlı stok listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseStockDto>>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/warehouses/summary — depo özet raporu
@@ -125,7 +125,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouseSummary")
         .WithSummary("Tüm depoların özet raporu")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseSummaryDto>>(200)
         .CacheOutput("Dashboard30s");
     }
 

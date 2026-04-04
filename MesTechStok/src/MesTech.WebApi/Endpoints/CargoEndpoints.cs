@@ -46,7 +46,7 @@ public static class CargoEndpoints
         })
         .WithName("GetCargoTrackingList")
         .WithSummary("Kargo takip listesi — gönderim durumları")
-        .Produces(200)
+        .Produces<IReadOnlyList<CargoTrackingItemDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/cargo/label/{shipmentId} — kargo etiketi
@@ -62,7 +62,7 @@ public static class CargoEndpoints
         })
         .WithName("GetShipmentLabel")
         .WithSummary("Kargo etiketi (ZPL/PDF)")
-        .Produces(200).Produces(404);
+        .Produces<ShipmentLabelResult>(200).Produces(404);
     }
 
     private static string GetDisplayName(CargoProvider provider)

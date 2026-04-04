@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Domain.Common;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
@@ -28,7 +29,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeeds")
         .WithSummary("Tedarikçi feed kaynakları listesi")
-        .Produces(200)
+        .Produces<PagedResult<FeedSourceDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/stats — dashboard istatistikleri
@@ -39,7 +40,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeedStats")
         .WithSummary("Havuz istatistikleri (toplam, renk dağılımı, son sync)")
-        .Produces(200)
+        .Produces<PoolDashboardStatsDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/supplier-feeds/{id} — tek feed kaynağı
@@ -50,7 +51,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetSupplierFeedById")
         .WithSummary("Tedarikçi feed kaynağını ID ile getir")
-        .Produces(200)
+        .Produces<FeedSourceDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/supplier-feeds/{id}/logs — import geçmişi
@@ -67,7 +68,7 @@ public static class SupplierFeedsEndpoints
         })
         .WithName("GetFeedImportLogs")
         .WithSummary("Feed import geçmişi ve log kayıtları")
-        .Produces(200)
+        .Produces<PagedResult<FeedImportLogDto>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/supplier-feeds — yeni feed kaynağı oluştur

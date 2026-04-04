@@ -1,4 +1,6 @@
 using MediatR;
+using MesTech.Application.DTOs.Reports;
+using MesTech.Application.DTOs.Shipping;
 using MesTech.Application.Features.Reports.CargoPerformanceReport;
 using MesTech.Application.Features.Shipping.Commands.AutoShipOrder;
 using MesTech.Application.Features.Shipping.Commands.BatchShipOrders;
@@ -52,7 +54,7 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetShipmentStatus")
-        .WithSummary("Kargo takip numarasıyla gönderi durumu sorgula").Produces(200).Produces(400);
+        .WithSummary("Kargo takip numarasıyla gönderi durumu sorgula").Produces<ShipmentStatusDto>(200).Produces(400);
 
         // GET /api/v1/shipping/comparison — kargo firma karşılaştırma (son 90 gün)
         group.MapGet("/comparison", async (
@@ -67,7 +69,7 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetShippingPerformanceComparison")
-        .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)").Produces(200).Produces(400);
+        .WithSummary("Kargo firma karşılaştırma raporu (son 90 gün performans)").Produces<IReadOnlyList<CargoPerformanceReportDto>>(200).Produces(400);
 
         // GET /api/v1/shipping/track/{trackingNumber} — basit kargo takip (tüm sağlayıcıları dener)
         group.MapGet("/track/{trackingNumber}", async (
@@ -96,6 +98,6 @@ public static class ShippingEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("TrackShipment")
-        .WithSummary("Kargo takip numarasıyla gönderi ara (tüm sağlayıcıları dener)").Produces(200).Produces(400);
+        .WithSummary("Kargo takip numarasıyla gönderi ara (tüm sağlayıcıları dener)").Produces<ShipmentStatusDto>(200).Produces(400);
     }
 }

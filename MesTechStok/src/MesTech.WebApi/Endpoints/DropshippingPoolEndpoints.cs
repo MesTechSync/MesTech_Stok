@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Features.Dropshipping.Commands;
 using MesTech.Application.Features.Dropshipping.Queries;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Common;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
@@ -36,7 +37,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPoolProducts")
-        .WithSummary("Dropshipping havuz ürünleri (güvenilirlik rengi + arama filtresi)").Produces(200).Produces(400);
+        .WithSummary("Dropshipping havuz ürünleri (güvenilirlik rengi + arama filtresi)").Produces<PagedResult<PoolProductDto>>(200).Produces(400);
 
         // GET /api/v1/dropshipping/pool/stats — havuz özet istatistikleri
         group.MapGet("/pool/stats", async (ISender mediator, CancellationToken ct) =>
@@ -46,7 +47,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPoolStats")
-        .WithSummary("Dropshipping havuzu özet istatistikleri").Produces(200).Produces(400);
+        .WithSummary("Dropshipping havuzu özet istatistikleri").Produces<PoolDashboardStatsDto>(200).Produces(400);
 
         // GET /api/v1/dropshipping/pool/products/{id} — tekil havuz ürünü (G207-DEV6)
         group.MapGet("/pool/products/{id:guid}", async (
@@ -57,7 +58,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPoolProductById")
-        .WithSummary("Tekil dropshipping havuz ürünü detayı").Produces(200).Produces(404);
+        .WithSummary("Tekil dropshipping havuz ürünü detayı").Produces<PoolProductDto>(200).Produces(404);
 
         // GET /api/v1/dropshipping/pools — havuz listesi (G207-DEV6)
         group.MapGet("/pools", async (
@@ -70,7 +71,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetDropshippingPools")
-        .WithSummary("Dropshipping havuz listesi (aktif/pasif filtreli)").Produces(200);
+        .WithSummary("Dropshipping havuz listesi (aktif/pasif filtreli)").Produces<PagedResult<DropshippingPoolDto>>(200);
 
         // GET /api/v1/dropshipping/pool/reliability/{feedId} — tedarikçi güvenilirlik (G207-DEV6)
         group.MapGet("/pool/reliability/{feedId:guid}", async (
@@ -81,7 +82,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSupplierReliability")
-        .WithSummary("Tedarikçi güvenilirlik skoru (renk + trend)").Produces(200);
+        .WithSummary("Tedarikçi güvenilirlik skoru (renk + trend)").Produces<SupplierReliabilityDto>(200);
 
         // GET /api/v1/dropshipping/pool/export-history — export geçmişi (G207-DEV6)
         group.MapGet("/pool/export-history", async (
@@ -94,7 +95,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetExportHistory")
-        .WithSummary("Dropshipping export geçmişi").Produces(200);
+        .WithSummary("Dropshipping export geçmişi").Produces<PagedResult<ExportHistoryDto>>(200);
 
         // GET /api/v1/dropshipping/pool/feeds — feed kaynakları listesi (G207-DEV6)
         group.MapGet("/pool/feeds", async (
@@ -107,7 +108,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFeedSources")
-        .WithSummary("Feed kaynak listesi (aktif/pasif filtreli)").Produces(200);
+        .WithSummary("Feed kaynak listesi (aktif/pasif filtreli)").Produces<PagedResult<FeedSourceDto>>(200);
 
         // GET /api/v1/dropshipping/pool/feeds/{feedId} — tekil feed kaynağı (G207-DEV6)
         group.MapGet("/pool/feeds/{feedId:guid}", async (
@@ -118,7 +119,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFeedSourceById")
-        .WithSummary("Tekil feed kaynağı detayı").Produces(200).Produces(404);
+        .WithSummary("Tekil feed kaynağı detayı").Produces<FeedSourceDto>(200).Produces(404);
 
         // GET /api/v1/dropshipping/pool/feeds/{feedId}/history — feed import geçmişi (G207-DEV6)
         group.MapGet("/pool/feeds/{feedId:guid}/history", async (
@@ -131,7 +132,7 @@ public static class DropshippingPoolEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFeedImportHistory")
-        .WithSummary("Feed import geçmişi (sayfalanmış)").Produces(200);
+        .WithSummary("Feed import geçmişi (sayfalanmış)").Produces<PagedResult<FeedImportLogDto>>(200);
 
         // POST /api/v1/dropshipping/pool/export — havuz ürünleri platforma export et
         group.MapPost("/pool/export", async (
