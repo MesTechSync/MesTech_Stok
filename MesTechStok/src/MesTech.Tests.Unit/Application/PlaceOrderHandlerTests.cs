@@ -41,7 +41,7 @@ public class PlaceOrderHandlerTests
         result.OrderNumber.Should().StartWith("ORD-");
         result.OrderId.Should().NotBeEmpty();
         product.Stock.Should().Be(100, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -87,7 +87,7 @@ public class PlaceOrderHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain(missingId.ToString());
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Never);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
