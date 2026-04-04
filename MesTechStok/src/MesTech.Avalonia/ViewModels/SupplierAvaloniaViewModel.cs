@@ -29,15 +29,11 @@ public partial class SupplierAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetSuppliersCrmQuery(
                 TenantId: _currentUser.TenantId,
-                SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText));
+                SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText), ct);
 
             Suppliers.Clear();
             foreach (var dto in result.Items)
@@ -55,16 +51,7 @@ public partial class SupplierAvaloniaViewModel : ViewModelBase
 
             TotalCount = result.TotalCount;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Tedarikciler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Tedarikciler yuklenirken hata");
     }
 
     [RelayCommand]

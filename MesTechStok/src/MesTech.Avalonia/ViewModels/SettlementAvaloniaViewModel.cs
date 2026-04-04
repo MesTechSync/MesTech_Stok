@@ -45,18 +45,14 @@ public partial class SettlementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             DateTime? from = FromDate?.DateTime;
             DateTime? to = ToDate?.DateTime;
             string? platform = SelectedPlatform == "Tumu" ? null : SelectedPlatform;
 
             var result = await _mediator.Send(
-                new GetSettlementBatchesQuery(_currentUser.TenantId, from, to, platform));
+                new GetSettlementBatchesQuery(_currentUser.TenantId, from, to, platform), ct);
 
             _allBatches = result.ToList();
             ApplyFilter();
@@ -71,17 +67,7 @@ public partial class SettlementAvaloniaViewModel : ViewModelBase
             TotalNetText = $"₺{totalNet:N2}";
             TotalCount = _allBatches.Count;
             IsEmpty = _allBatches.Count == 0;
-        }
-        catch (OperationCanceledException) { }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Settlement verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Settlement verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

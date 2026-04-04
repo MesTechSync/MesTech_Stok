@@ -29,15 +29,10 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var settings = await _mediator.Send(new GetStoreSettingsQuery(tenantId), CancellationToken);
+            var settings = await _mediator.Send(new GetStoreSettingsQuery(tenantId), ct);
 
             Stores.Clear();
             foreach (var s in settings.Stores)
@@ -52,16 +47,7 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 
             TotalCount = Stores.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Magaza bilgileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Magaza bilgileri yuklenirken hata");
     }
 
     [RelayCommand]

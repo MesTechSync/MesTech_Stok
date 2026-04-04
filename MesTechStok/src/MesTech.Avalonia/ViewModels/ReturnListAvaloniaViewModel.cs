@@ -37,13 +37,9 @@ public partial class ReturnListAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId)) ?? [];
+            var result = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId), ct) ?? [];
 
             _allItems.Clear();
             _allItems.AddRange(result.Select(r => new ReturnListItemDto
@@ -59,13 +55,7 @@ public partial class ReturnListAvaloniaViewModel : ViewModelBase
             }));
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Iade listesi yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Iade listesi yuklenirken hata");
     }
 
     partial void OnSelectedStatusChanged(string value) => ApplyFilter();

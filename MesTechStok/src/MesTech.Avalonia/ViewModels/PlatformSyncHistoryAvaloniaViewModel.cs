@@ -41,16 +41,12 @@ public partial class PlatformSyncHistoryAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var platformFilter = SelectedPlatform == "Tumu" ? null : SelectedPlatform;
             var result = await _mediator.Send(
-                new GetSyncHistoryQuery(tenantId, PlatformFilter: platformFilter, Count: 50), CancellationToken);
+                new GetSyncHistoryQuery(tenantId, PlatformFilter: platformFilter, Count: 50), ct);
 
             SyncHistory.Clear();
             foreach (var item in result)
@@ -60,16 +56,7 @@ public partial class PlatformSyncHistoryAvaloniaViewModel : ViewModelBase
             SuccessCount = SyncHistory.Count(s => s.IsSuccess);
             FailCount = SyncHistory.Count(s => !s.IsSuccess);
             IsEmpty = SyncHistory.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Senkronizasyon gecmisi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Senkronizasyon gecmisi yuklenirken hata");
     }
 
     partial void OnSelectedPlatformChanged(string value) => _ = LoadAsync();

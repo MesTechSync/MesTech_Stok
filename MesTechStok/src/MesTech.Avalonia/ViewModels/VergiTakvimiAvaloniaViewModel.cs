@@ -47,17 +47,12 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
             var records = await _mediator.Send(
-                new GetTaxRecordsQuery(tenantId, Year: year), CancellationToken);
+                new GetTaxRecordsQuery(tenantId, Year: year), ct);
 
             var now = DateTime.Now;
             _allItems = records.Select(r =>
@@ -83,22 +78,13 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
             try
             {
                 var period = $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}";
-                var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period));
+                var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period), ct);
                 TaxSummaryText = $"Toplam: {summary.TotalTax:N2} TL | Odenmis: {summary.TotalPaid:N2} TL";
             }
             catch (Exception ex) { TaxSummaryText = "—"; System.Diagnostics.Debug.WriteLine($"[WARNING] TaxSummary query failed: {ex.Message}"); }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Vergi takvimi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Vergi takvimi yuklenirken hata");
     }
 
     partial void OnSelectedStatusChanged(string value) => ApplyFilters();

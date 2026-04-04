@@ -35,13 +35,9 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var quotations = await _mediator.Send(new ListQuotationsQuery());
+            var quotations = await _mediator.Send(new ListQuotationsQuery(), ct);
             _allItems = quotations.Select(q => new QuotationListItemDto
             {
                 QuotationNumber = q.QuotationNumber,
@@ -63,16 +59,7 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
             AcceptedCount = accepted.ToString();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Teklif verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Teklifler yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

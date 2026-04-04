@@ -39,14 +39,10 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var period = _currentPeriod.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
-            var result = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, period)) ?? new();
+            var result = await _mediator.Send(new GetProfitReportQuery(_currentUser.TenantId, period), ct) ?? new();
 
             if (result is not null)
             {
@@ -111,16 +107,7 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = LineItems.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Failed to load profit/loss report: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kar/zarar raporu yuklenirken hata");
     }
 
     [RelayCommand]

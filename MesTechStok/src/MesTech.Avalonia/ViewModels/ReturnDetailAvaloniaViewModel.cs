@@ -57,12 +57,9 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 100));
+            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 100), ct);
 
             _allReturns = returns.Select(r => new ReturnSummaryItemDto
             {
@@ -101,13 +98,7 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
                 Timeline.Add(new() { Step = "Kargo Bekleniyor", Date = null, IsCompleted = false, Description = "Urun kargoya verilecek" });
                 Timeline.Add(new() { Step = "Iade Tamamlandi", Date = null, IsCompleted = false, Description = "Iade sureci tamamlanacak" });
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Iade detaylari yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Iade detaylari yuklenirken hata");
     }
 
     [RelayCommand]

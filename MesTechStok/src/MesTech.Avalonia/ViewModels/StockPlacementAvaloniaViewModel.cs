@@ -38,13 +38,9 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId)) ?? [];
+            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId), ct) ?? [];
 
             Warehouses.Clear();
             var warehouseNames = placements.Select(p => p.WarehouseName ?? "—").Distinct().OrderBy(w => w);
@@ -64,13 +60,7 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
                 SelectedWarehouse = Warehouses[0];
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Yerlesim verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Yerlesim verileri yuklenirken hata");
     }
 
     partial void OnSelectedWarehouseChanged(string? value)

@@ -30,14 +30,10 @@ public partial class WorkTaskAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var query = new GetProjectTasksQuery(_currentUser.TenantId);
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(query, ct);
 
             Tasks.Clear();
             foreach (var task in result)
@@ -53,16 +49,7 @@ public partial class WorkTaskAvaloniaViewModel : ViewModelBase
 
             TotalCount = Tasks.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Gorevler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Gorevler yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value)

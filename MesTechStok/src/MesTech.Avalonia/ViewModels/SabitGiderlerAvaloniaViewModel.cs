@@ -41,13 +41,9 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var expenses = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId, true));
+            var expenses = await _mediator.Send(new GetFixedExpensesQuery(_currentUser.TenantId, true), ct);
 
             _allItems = expenses.Select(e => new RecurringExpenseItemDto
             {
@@ -67,16 +63,7 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
 
             IsEmpty = _allItems.Count == 0;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Sabit gider verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Sabit giderler yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

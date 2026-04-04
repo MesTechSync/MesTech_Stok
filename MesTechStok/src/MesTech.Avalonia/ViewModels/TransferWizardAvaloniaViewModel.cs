@@ -50,25 +50,16 @@ public partial class TransferWizardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            _warehouseList = await _mediator.Send(new GetWarehousesQuery(ActiveOnly: true));
+            _warehouseList = await _mediator.Send(new GetWarehousesQuery(ActiveOnly: true), ct);
 
             Warehouses.Clear();
             foreach (var wh in _warehouseList)
                 Warehouses.Add(wh.Name);
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Depolar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
+
             IsEmpty = TransferItems.Count == 0;
-        }
+        }, "Depolar yuklenirken hata");
     }
 
     partial void OnSelectedSourceWarehouseChanged(string? value)

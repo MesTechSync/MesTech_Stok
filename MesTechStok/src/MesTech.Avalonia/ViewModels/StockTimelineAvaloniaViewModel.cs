@@ -48,14 +48,9 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
-            var movements = await _mediator.Send(new GetStockMovementsQuery(), CancellationToken) ?? [];
+            var movements = await _mediator.Send(new GetStockMovementsQuery(), ct) ?? [];
 
             _allMovements.Clear();
             foreach (var m in movements)
@@ -71,13 +66,7 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok hareketleri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Stok hareketleri yuklenirken hata");
     }
 
     [RelayCommand] private async Task Refresh() => await LoadAsync();

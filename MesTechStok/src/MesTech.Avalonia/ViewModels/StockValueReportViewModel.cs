@@ -33,17 +33,13 @@ public partial class StockValueReportViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             WarehouseStocks.Clear();
             AgingBuckets.Clear();
 
             var result = await _mediator.Send(
-                new GetStockValueReportQuery(_currentUser.TenantId));
+                new GetStockValueReportQuery(_currentUser.TenantId), ct);
 
             // Map top value products to warehouse view items
             foreach (var p in result.TopValueProducts)
@@ -75,16 +71,7 @@ public partial class StockValueReportViewModel : ViewModelBase
             var avgTurnover = result.TotalProducts > 0 ? (int)(result.TotalValue / Math.Max(result.TotalCostValue, 1m) * 30) : 0;
             AverageTurnoverText = $"{avgTurnover} gun ort. ({result.ZeroStockProducts} stoksuz)";
             IsEmpty = result.TotalProducts == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok deger verisi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Stok deger raporu yuklenirken hata");
     }
 
     [RelayCommand]

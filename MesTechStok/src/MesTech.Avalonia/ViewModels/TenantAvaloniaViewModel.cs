@@ -31,28 +31,15 @@ public partial class TenantAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId), ct);
             if (subscription is not null)
             {
                 TenantPlan = subscription.PlanName;
                 TenantCode = subscription.Id.ToString("N")[..8].ToUpperInvariant();
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Tenant yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Tenant yuklenirken hata");
     }
 
     [RelayCommand]

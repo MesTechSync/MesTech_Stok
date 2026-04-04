@@ -35,13 +35,9 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetWarehousesQuery()) ?? [];
+            var result = await _mediator.Send(new GetWarehousesQuery(), ct) ?? [];
 
             _allItems = result.Select(w => new WarehouseCardDto
             {
@@ -56,16 +52,7 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Depo verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Depo verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value)

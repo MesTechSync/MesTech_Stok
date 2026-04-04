@@ -37,13 +37,9 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId), ct);
             var store = stores.FirstOrDefault(s => s.IsActive);
 
             if (store is null)
@@ -53,7 +49,7 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
                 return;
             }
 
-            var detail = await _mediator.Send(new GetStoreDetailQuery(_currentUser.TenantId, store.Id));
+            var detail = await _mediator.Send(new GetStoreDetailQuery(_currentUser.TenantId, store.Id), ct);
             if (detail is null)
             {
                 IsEmpty = true;
@@ -69,16 +65,7 @@ public partial class StoreDetailAvaloniaViewModel : ViewModelBase
             AdapterVersion = detail.WebhookStatus;
 
             IsEmpty = false;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Magaza detaylari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Magaza detaylari yuklenirken hata");
     }
 
     [RelayCommand]

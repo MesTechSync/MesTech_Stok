@@ -45,14 +45,10 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        SaveStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var lots = await _mediator.Send(new GetStockLotsQuery(_currentUser.TenantId));
+            SaveStatus = string.Empty;
+            var lots = await _mediator.Send(new GetStockLotsQuery(_currentUser.TenantId), ct);
 
             Suppliers.Clear();
             var supplierNames = lots.Select(l => l.SupplierName).Where(s => !string.IsNullOrEmpty(s)).Distinct();
@@ -79,13 +75,7 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = RecentLots.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Lot verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Lot verileri yuklenirken hata");
     }
 
     partial void OnProductSearchTextChanged(string value)
