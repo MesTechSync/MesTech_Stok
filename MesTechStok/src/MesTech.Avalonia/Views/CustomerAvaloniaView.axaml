@@ -115,7 +115,7 @@
                                 <Border Background="{Binding SegmentRenk}" CornerRadius="4"
                                         Padding="8,2" HorizontalAlignment="Left" Margin="4,2">
                                     <TextBlock Text="{Binding Segment}"
-                                               Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                               Foreground="White" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -144,7 +144,7 @@
                                     ToolTip.Tip="Detay panelini kapat"
                                     Background="Transparent"
                                     Padding="8,4"
-                                    FontSize="14" />
+                                    FontSize="{StaticResource FontSizeBody}" />
                         </Grid>
                     </Border>
 
@@ -156,12 +156,12 @@
                             <Border Background="{Binding SelectedCustomer.SegmentRenk}"
                                     CornerRadius="6" Padding="12,6" HorizontalAlignment="Left">
                                 <TextBlock Text="{Binding SelectedCustomer.Segment}"
-                                           Foreground="White" FontWeight="Bold" FontSize="13" />
+                                           Foreground="White" FontWeight="Bold" FontSize="{StaticResource FontSizeCallout}" />
                             </Border>
 
                             <!-- Personal Info -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="KİŞİSEL BİLGİLER" FontSize="10" FontWeight="Bold"
+                                <TextBlock Text="KİŞİSEL BİLGİLER" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesSlateGray}"
                                            LetterSpacing="1" />
                                 <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" >
@@ -193,7 +193,7 @@
 
                             <!-- Order Summary -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="SİPARİŞ ÖZETİ" FontSize="10" FontWeight="Bold"
+                                <TextBlock Text="SİPARİŞ ÖZETİ" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesSlateGray}"
                                            LetterSpacing="1" />
                                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12">

@@ -19,7 +19,7 @@
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                     <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusFull}" Width="96" Height="96"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="M" FontSize="44" FontWeight="Bold"
+                        <TextBlock Text="M" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
                                    Foreground="{DynamicResource MesPrimaryBlue}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>

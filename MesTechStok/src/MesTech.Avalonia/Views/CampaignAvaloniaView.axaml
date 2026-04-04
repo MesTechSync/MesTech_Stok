@@ -105,9 +105,9 @@
                 Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="40" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Spacing="8" HorizontalAlignment="Center">
-                <TextBlock Text="📢" FontSize="40" HorizontalAlignment="Center" />
+                <TextBlock Text="📢" FontSize="{StaticResource FontSizeXL}" HorizontalAlignment="Center" />
                 <TextBlock Text="Henuz kampanya yok" FontSize="16" Foreground="{DynamicResource MesTextSecondary}" HorizontalAlignment="Center" />
-                <TextBlock Text="Yukaridaki formu kullanarak ilk kampanyanizi olusturun." FontSize="12"
+                <TextBlock Text="Yukaridaki formu kullanarak ilk kampanyanizi olusturun." FontSize="{StaticResource FontSizeSmall}"
                            Foreground="{DynamicResource MesTextTertiary}" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

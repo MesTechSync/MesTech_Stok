@@ -125,7 +125,7 @@
                                 Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusBase}"
                                 Padding="24" MinHeight="120" HorizontalAlignment="Stretch">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-                                <TextBlock Text="📦" FontSize="32" HorizontalAlignment="Center" />
+                                <TextBlock Text="📦" FontSize="{StaticResource FontSizeDisplay}" HorizontalAlignment="Center" />
                                 <TextBlock Text="Hicbir platform yapilandirilmamis"
                                            FontSize="14" Foreground="{DynamicResource MesTextSecondary}"
                                            HorizontalAlignment="Center" />

@@ -36,7 +36,7 @@
     <!-- Empty State -->
     <Border IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center">
         <StackPanel Spacing="8" HorizontalAlignment="Center">
-            <TextBlock Text="Pipeline bos" FontSize="18" FontWeight="Bold"
+            <TextBlock Text="Pipeline bos" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
                        HorizontalAlignment="Center" Foreground="{DynamicResource MesDarkSlate}" />
             <TextBlock Text="Henuz anlaşma bulunamadi. Bitrix24 entegrasyonunu kontrol edin."
                        FontSize="13" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center" />
@@ -54,7 +54,7 @@
         <!-- Row 0: Header -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
             <StackPanel Grid.Column="0" Spacing="4">
-                <TextBlock Text="Bitrix24 CRM Pipeline" FontSize="24" FontWeight="Bold"
+                <TextBlock Text="Bitrix24 CRM Pipeline" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
                            Foreground="{DynamicResource MesDarkSlate}" />
                 <StackPanel Orientation="Horizontal" Spacing="16">
                     <TextBlock Foreground="{DynamicResource MesTextSecondary}" FontSize="{StaticResource FontSizeSmall}">
@@ -154,7 +154,7 @@
                             <Border IsVisible="{Binding !DealCount}" Padding="0,24"
                                     HorizontalAlignment="Center">
                                 <StackPanel Spacing="4" HorizontalAlignment="Center">
-                                    <TextBlock Text="📋" FontSize="24" HorizontalAlignment="Center" />
+                                    <TextBlock Text="📋" FontSize="{StaticResource FontSizeHeader}" HorizontalAlignment="Center" />
                                     <TextBlock Text="Anlasma yok" FontSize="{StaticResource FontSizeCaption}"
                                                Foreground="{DynamicResource MesTextTertiary}"
                                                HorizontalAlignment="Center" />

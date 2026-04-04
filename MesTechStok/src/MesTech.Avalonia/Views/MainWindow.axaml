@@ -107,7 +107,7 @@
                     <Button x:Name="SidebarToggleBtn" Classes="icon-btn"
                             ToolTip.Tip="MesTech Entegrator"
                             Click="OnSidebarToggle">
-                        <ic:SymbolIcon Symbol="Navigation" FontSize="20"/>
+                        <ic:SymbolIcon Symbol="Navigation" FontSize="{StaticResource FontSizeTitle}"/>
                     </Button>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="12,0,0,0">
                         <TextBlock Text="MesTech Entegratör"
@@ -115,7 +115,7 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <!-- DEV2-03: Breadcrumb -->
                         <TextBlock Text="{Binding Breadcrumb}"
-                                   FontSize="11"
+                                   FontSize="{StaticResource FontSizeCaption}"
                                    Foreground="{DynamicResource MesSlateGray}"
                                    Margin="0,-2,0,0"/>
                     </StackPanel>
@@ -138,10 +138,10 @@
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Classes="icon-btn" ToolTip.Tip="Bildirimler">
-                        <ic:SymbolIcon Symbol="Alert" FontSize="18"/>
+                        <ic:SymbolIcon Symbol="Alert" FontSize="{StaticResource FontSizeH3}"/>
                     </Button>
                     <Button Classes="icon-btn" ToolTip.Tip="Profil">
-                        <ic:SymbolIcon Symbol="Person" FontSize="18"/>
+                        <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeH3}"/>
                     </Button>
                     <TextBlock Text="Admin"
                                FontSize="{StaticResource FontSizeSmall}"
@@ -192,7 +192,7 @@
                             BorderBrush="{DynamicResource SidebarBorderBrush}"
                             BorderThickness="0,0,0,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                            <ic:SymbolIcon Symbol="Navigation" FontSize="16"
+                            <ic:SymbolIcon Symbol="Navigation" FontSize="{StaticResource FontSizeSubtitle}"
                                       Foreground="{DynamicResource SidebarTextActiveBrush}"/>
                             <TextBlock x:Name="SidebarTitle" Text="MesTech"
                                        Foreground="{DynamicResource SidebarTextActiveBrush}"
@@ -223,7 +223,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="AppHub">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Home" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Home" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Hos Geldiniz" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
@@ -236,7 +236,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Dashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kontrol Paneli"/>
                                 </StackPanel>
                             </Button>
@@ -249,7 +249,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Products">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Box" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Box" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Ürün Listesi"/>
                                 </StackPanel>
                             </Button>
@@ -259,7 +259,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ImportProducts">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Toplu İçe Aktarma"/>
                                 </StackPanel>
                             </Button>
@@ -272,7 +272,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Orders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Cart" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Siparişler"/>
                                 </StackPanel>
                             </Button>
@@ -285,7 +285,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Stock">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Takibi"/>
                                 </StackPanel>
                             </Button>
@@ -295,7 +295,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Inventory">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ScanDash" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ScanDash" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Envanter"/>
                                 </StackPanel>
                             </Button>
@@ -305,49 +305,49 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StockMovement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Güncelleme"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Stok Yerlesim" AutomationProperties.Name="Stok Yerlesim"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockPlacement">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Yerlesim"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Lot Ekleme" AutomationProperties.Name="Lot Ekleme"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockLot">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Lot Ekleme"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Depolar Arasi Transfer" AutomationProperties.Name="Depolar Arasi Transfer"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockTransfer">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Depolar Arasi Transfer"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Stok Uyarilari" AutomationProperties.Name="Stok Uyarilari"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockAlert">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Uyarilari"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Depo Yonetimi" AutomationProperties.Name="Depo Yonetimi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="Warehouse">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Depo Yonetimi"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" ToolTip.Tip="Stok Hareket Geçmişi" AutomationProperties.Name="Stok Hareket Geçmişi"
                                     Command="{Binding NavigateToCommand}" CommandParameter="StockTimeline">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Document" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Document" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Hareket Geçmişi"/>
                                 </StackPanel>
                             </Button>
@@ -360,7 +360,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Category">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Tag" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Tag" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kategoriler"/>
                                 </StackPanel>
                             </Button>
@@ -375,7 +375,7 @@
                                     CommandParameter="CargoTracking"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kargo Takip"/>
                                 </StackPanel>
                             </Button>
@@ -386,7 +386,7 @@
                                     CommandParameter="CargoProviders"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kargo Firmalari"/>
                                 </StackPanel>
                             </Button>
@@ -397,7 +397,7 @@
                                     CommandParameter="BulkShipment"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="VehicleTruckProfile" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Toplu Gonderim"/>
                                 </StackPanel>
                             </Button>
@@ -408,7 +408,7 @@
                                     CommandParameter="LabelPreview"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Print" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Print" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Etiket Yazdir"/>
                                 </StackPanel>
                             </Button>
@@ -423,7 +423,7 @@
                                     CommandParameter="ReturnList"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Iade Listesi"/>
                                 </StackPanel>
                             </Button>
@@ -438,7 +438,7 @@
                                     CommandParameter="InvoiceManagement"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Receipt" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Receipt" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Fatura Yönetimi"/>
                                 </StackPanel>
                             </Button>
@@ -449,7 +449,7 @@
                                     CommandParameter="InvoiceList"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Receipt" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Receipt" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Fatura Listesi"/>
                                 </StackPanel>
                             </Button>
@@ -460,7 +460,7 @@
                                     CommandParameter="InvoiceCreate"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Add" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Add" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Fatura Oluştur"/>
                                 </StackPanel>
                             </Button>
@@ -471,7 +471,7 @@
                                     CommandParameter="BulkInvoice"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Receipt" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Receipt" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Toplu Fatura"/>
                                 </StackPanel>
                             </Button>
@@ -482,7 +482,7 @@
                                     CommandParameter="InvoiceProviders"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Provider Ayarları"/>
                                 </StackPanel>
                             </Button>
@@ -493,7 +493,7 @@
                                     CommandParameter="InvoiceReport"
                                     IsVisible="{Binding ShowInvoice}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Fatura Raporları"/>
                                 </StackPanel>
                             </Button>
@@ -508,7 +508,7 @@
                                     CommandParameter="ProfitLoss"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kâr / Zarar Raporu"/>
                                 </StackPanel>
                             </Button>
@@ -519,7 +519,7 @@
                                     CommandParameter="Expenses"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Giderler"/>
                                 </StackPanel>
                             </Button>
@@ -530,7 +530,7 @@
                                     CommandParameter="BankAccounts"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Save" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Save" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Banka Hesapları"/>
                                 </StackPanel>
                             </Button>
@@ -541,7 +541,7 @@
                                     CommandParameter="CariHesaplar"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Person" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Cari Hesaplar"/>
                                 </StackPanel>
                             </Button>
@@ -552,7 +552,7 @@
                                     CommandParameter="NakitAkis"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Nakit Akışı"/>
                                 </StackPanel>
                             </Button>
@@ -563,7 +563,7 @@
                                     CommandParameter="Quotation"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Document" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Document" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Teklif Yönetimi"/>
                                 </StackPanel>
                             </Button>
@@ -574,7 +574,7 @@
                                     CommandParameter="Billing"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Abonelik / Faturalama"/>
                                 </StackPanel>
                             </Button>
@@ -589,7 +589,7 @@
                                     CommandParameter="JournalEntries"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Document" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Document" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Yevmiye Defteri"/>
                                 </StackPanel>
                             </Button>
@@ -600,7 +600,7 @@
                                     CommandParameter="TrialBalance"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Mizan"/>
                                 </StackPanel>
                             </Button>
@@ -611,7 +611,7 @@
                                     CommandParameter="CommissionRates"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Komisyon Oranları"/>
                                 </StackPanel>
                             </Button>
@@ -619,7 +619,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="AccountingDashboard"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Muhasebe Paneli"/>
                                 </StackPanel>
                             </Button>
@@ -627,7 +627,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="GLTransaction"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Muhasebe Fisleri"/>
                                 </StackPanel>
                             </Button>
@@ -635,7 +635,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="KarZarar"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kar / Zarar"/>
                                 </StackPanel>
                             </Button>
@@ -643,7 +643,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="GelirGider"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Gelir / Gider"/>
                                 </StackPanel>
                             </Button>
@@ -651,7 +651,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="KarlilikAnalizi"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Karlilik Analizi"/>
                                 </StackPanel>
                             </Button>
@@ -659,7 +659,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="KdvRapor"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="KDV Raporu"/>
                                 </StackPanel>
                             </Button>
@@ -667,7 +667,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="Mutabakat"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Building" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Mutabakat"/>
                                 </StackPanel>
                             </Button>
@@ -680,7 +680,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="StaleOrders">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Alert" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Alert" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Gecikmiş Siparişler"/>
                                 </StackPanel>
                             </Button>
@@ -690,7 +690,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="OrderKanban">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Sipariş Kanban"/>
                                 </StackPanel>
                             </Button>
@@ -705,7 +705,7 @@
                                     CommandParameter="Leads"
                                     IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Person" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Potansiyel Müşteriler"/>
                                 </StackPanel>
                             </Button>
@@ -716,7 +716,7 @@
                                     CommandParameter="Contacts"
                                     IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Person" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kişiler"/>
                                 </StackPanel>
                             </Button>
@@ -727,7 +727,7 @@
                                     CommandParameter="Kanban"
                                     IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Fırsatlar — Kanban"/>
                                 </StackPanel>
                             </Button>
@@ -738,7 +738,7 @@
                                     CommandParameter="Customers"
                                     IsVisible="{Binding ShowCrm}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Person" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Müşteriler"/>
                                 </StackPanel>
                             </Button>
@@ -753,7 +753,7 @@
                                     CommandParameter="PlatformList"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Platformlar"/>
                                 </StackPanel>
                             </Button>
@@ -764,7 +764,7 @@
                                     CommandParameter="StoreWizard"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Add" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Add" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Mağaza Ekle"/>
                                 </StackPanel>
                             </Button>
@@ -775,7 +775,7 @@
                                     CommandParameter="StoreSettings"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Mağaza Ayarları"/>
                                 </StackPanel>
                             </Button>
@@ -786,7 +786,7 @@
                                     CommandParameter="CategoryMapping"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Tag" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Tag" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kategori Eşleştirme"/>
                                 </StackPanel>
                             </Button>
@@ -797,7 +797,7 @@
                                     CommandParameter="PlatformSyncStatus"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Sync Durumu"/>
                                 </StackPanel>
                             </Button>
@@ -808,7 +808,7 @@
                                     CommandParameter="PlatformSyncHistory"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Sync Gecmisi"/>
                                 </StackPanel>
                             </Button>
@@ -819,7 +819,7 @@
                                     CommandParameter="PlatformConnectionTest"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Baglanti Testi"/>
                                 </StackPanel>
                             </Button>
@@ -834,7 +834,7 @@
                                     CommandParameter="DropshipDashboard"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Dropship Paneli"/>
                                 </StackPanel>
                             </Button>
@@ -845,7 +845,7 @@
                                     CommandParameter="DropshipOrders"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Cart" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Dropship Siparişler"/>
                                 </StackPanel>
                             </Button>
@@ -856,7 +856,7 @@
                                     CommandParameter="DropshipProfit"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kârlılık Analizi"/>
                                 </StackPanel>
                             </Button>
@@ -867,7 +867,7 @@
                                     CommandParameter="SupplierFeeds"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Tedarikçi Feed'leri"/>
                                 </StackPanel>
                             </Button>
@@ -878,7 +878,7 @@
                                     CommandParameter="FeedCreate"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Add" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Add" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Yeni Feed"/>
                                 </StackPanel>
                             </Button>
@@ -889,7 +889,7 @@
                                     CommandParameter="ImportSettings"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="İçe Aktarma Ayarları"/>
                                 </StackPanel>
                             </Button>
@@ -904,7 +904,7 @@
                                     CommandParameter="Buybox"
                                     IsVisible="{Binding ShowMultiPlatform}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Buybox Analizi"/>
                                 </StackPanel>
                             </Button>
@@ -919,7 +919,7 @@
                                     CommandParameter="FulfillmentDashboard"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Dashboard"/>
                                 </StackPanel>
                             </Button>
@@ -930,7 +930,7 @@
                                     CommandParameter="FulfillmentInbound"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowUpload" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Inbound Gonderimler"/>
                                 </StackPanel>
                             </Button>
@@ -941,7 +941,7 @@
                                     CommandParameter="FulfillmentInventory"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Envanter"/>
                                 </StackPanel>
                             </Button>
@@ -952,7 +952,7 @@
                                     CommandParameter="FulfillmentSettings"
                                     IsVisible="{Binding ShowCargo}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Ayarlar"/>
                                 </StackPanel>
                             </Button>
@@ -967,7 +967,7 @@
                                     CommandParameter="ErpDashboard"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="ERP Dashboard"/>
                                 </StackPanel>
                             </Button>
@@ -978,7 +978,7 @@
                                     CommandParameter="ErpAccountMapping"
                                     IsVisible="{Binding ShowAnalytics}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Copy" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Copy" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Cari Esleme"/>
                                 </StackPanel>
                             </Button>
@@ -993,7 +993,7 @@
                                     CommandParameter="IncomeExpenseDashboard"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Grid" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Grid" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Dashboard"/>
                                 </StackPanel>
                             </Button>
@@ -1004,7 +1004,7 @@
                                     CommandParameter="IncomeExpenseList"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Receipt" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Receipt" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Kayitlar"/>
                                 </StackPanel>
                             </Button>
@@ -1015,7 +1015,7 @@
                                     CommandParameter="ProfitabilityReport"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Karlilik Raporu"/>
                                 </StackPanel>
                             </Button>
@@ -1030,7 +1030,7 @@
                                     CommandParameter="Documents"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Copy" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Copy" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Belgeler"/>
                                 </StackPanel>
                             </Button>
@@ -1041,7 +1041,7 @@
                                     CommandParameter="Reports"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Raporlar"/>
                                 </StackPanel>
                             </Button>
@@ -1052,7 +1052,7 @@
                                     CommandParameter="CashFlowReport"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="DataBarVertical" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Nakit Akis"/>
                                 </StackPanel>
                             </Button>
@@ -1063,7 +1063,7 @@
                                     CommandParameter="SalesAnalytics"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ChartMultiple" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Satis Analizi"/>
                                 </StackPanel>
                             </Button>
@@ -1074,7 +1074,7 @@
                                     CommandParameter="StockValueReport"
                                     IsVisible="{Binding ShowReports}">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="BoxCheckmark" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Stok Deger"/>
                                 </StackPanel>
                             </Button>
@@ -1087,7 +1087,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Settings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Ayarlar"/>
                                 </StackPanel>
                             </Button>
@@ -1097,7 +1097,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="ErpSettings">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="ERP Ayarlari"/>
                                 </StackPanel>
                             </Button>
@@ -1107,7 +1107,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Marketplaces">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Cart" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Pazaryerleri"/>
                                 </StackPanel>
                             </Button>
@@ -1117,7 +1117,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="SyncStatus">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="ArrowSync" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Platform Senkronizasyon"/>
                                 </StackPanel>
                             </Button>
@@ -1127,7 +1127,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Employees">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Person" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Çalışanlar"/>
                                 </StackPanel>
                             </Button>
@@ -1137,7 +1137,7 @@
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="LeaveRequests">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="Home" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="Home" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="İzin Talepleri"/>
                                 </StackPanel>
                             </Button>
@@ -1146,123 +1146,123 @@
 
                             <!-- Pazaryeri Detay -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Classes="sidebar-section" Text="PAZARYERI DETAY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="PAZARYERI DETAY" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowMultiPlatform}" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Trendyol" ToolTip.Tip="Trendyol" AutomationProperties.Name="Trendyol"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Trendyol"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Trendyol"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Hepsiburada" ToolTip.Tip="Hepsiburada" AutomationProperties.Name="Hepsiburada"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Hepsiburada"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Hepsiburada"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="N11" ToolTip.Tip="N11" AutomationProperties.Name="N11"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="N11"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="N11"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ciceksepeti" ToolTip.Tip="Ciceksepeti" AutomationProperties.Name="Ciceksepeti"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Ciceksepeti"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Ciceksepeti"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Amazon" ToolTip.Tip="Amazon TR" AutomationProperties.Name="Amazon TR"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Amazon TR"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Amazon TR"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="OpenCart" ToolTip.Tip="OpenCart" AutomationProperties.Name="OpenCart"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="OpenCart"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="OpenCart"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Bitrix24" ToolTip.Tip="Bitrix24 CRM" AutomationProperties.Name="Bitrix24 CRM"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Person" FontSize="16"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Person" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Bitrix24 CRM"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Etsy" ToolTip.Tip="Etsy" AutomationProperties.Name="Etsy"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Etsy"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Etsy"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Shopify" ToolTip.Tip="Shopify" AutomationProperties.Name="Shopify"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Shopify"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Shopify"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="WooCommerce" ToolTip.Tip="WooCommerce" AutomationProperties.Name="WooCommerce"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="WooCommerce"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="WooCommerce"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Zalando" ToolTip.Tip="Zalando" AutomationProperties.Name="Zalando"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Zalando"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Zalando"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ebay" ToolTip.Tip="eBay" AutomationProperties.Name="eBay"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="eBay"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="eBay"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Ozon" ToolTip.Tip="Ozon" AutomationProperties.Name="Ozon"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Ozon"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Ozon"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PttAvm" ToolTip.Tip="PTT AVM" AutomationProperties.Name="PTT AVM"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="PTT AVM"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="PTT AVM"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Pazarama" ToolTip.Tip="Pazarama" AutomationProperties.Name="Pazarama"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="16"/><TextBlock Text="Pazarama"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Cart" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Pazarama"/></StackPanel>
                             </Button>
 
                             <!-- Kampanya & Araçlar -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Classes="sidebar-section" Text="ARAÇLAR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="ARAÇLAR" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowExport}" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Campaign" ToolTip.Tip="Kampanyalar" AutomationProperties.Name="Kampanyalar"
                                     IsVisible="{Binding ShowMultiPlatform}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Building" FontSize="16"/><TextBlock Text="Kampanyalar"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Kampanyalar"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Export" ToolTip.Tip="Dışa Aktar" AutomationProperties.Name="Dışa Aktar"
                                     IsVisible="{Binding ShowExport}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="ArrowDownload" FontSize="16"/><TextBlock Text="Dışa Aktar"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="ArrowDownload" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Dışa Aktar"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="BarcodeScanner" ToolTip.Tip="Barkod Okuyucu" AutomationProperties.Name="Barkod Okuyucu"
                                     IsVisible="{Binding ShowExport}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Search" FontSize="16"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Search" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Barkod Okuyucu"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="ProductDescriptionAI" ToolTip.Tip="AI Ürün Açıklama" AutomationProperties.Name="AI Ürün Açıklama"
                                     IsVisible="{Binding ShowAiInsight}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Building" FontSize="16"/><TextBlock Text="AI Ürün Açıklama"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Building" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="AI Ürün Açıklama"/></StackPanel>
                             </Button>
 
                             <!-- Sistem Yönetimi -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,4"/>
-                            <TextBlock Classes="sidebar-section" Text="SİSTEM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
+                            <TextBlock Classes="sidebar-section" Text="SİSTEM" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold" Foreground="{DynamicResource SidebarMutedBrush}"
                                        Margin="20,8,0,4"
                                        IsVisible="{Binding ShowLogViewer}" />
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Health" ToolTip.Tip="Sistem Sagligi" AutomationProperties.Name="Sistem Sagligi"
                                     IsVisible="{Binding ShowHealthMonitor}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="16"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="LogViewer" ToolTip.Tip="Log Izleyici" AutomationProperties.Name="Log Izleyici"
                                     IsVisible="{Binding ShowLogViewer}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="16"/><TextBlock Text="Log Izleyici"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Log Izleyici"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="AuditLog" ToolTip.Tip="Denetim Kaydi" AutomationProperties.Name="Denetim Kaydi"
                                     IsVisible="{Binding ShowLogViewer}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="16"/><TextBlock Text="Denetim Kaydi"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Denetim Kaydi"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="MfaSetup" ToolTip.Tip="MFA Ayarlari" AutomationProperties.Name="MFA Ayarlari"
                                     IsVisible="{Binding ShowLogViewer}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="16"/><TextBlock Text="MFA Ayarlari"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="MFA Ayarlari"/></StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="Backup" ToolTip.Tip="Yedekleme" AutomationProperties.Name="Yedekleme"
                                     IsVisible="{Binding ShowLogViewer}">
-                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="ArrowDownload" FontSize="16"/><TextBlock Text="Yedekleme"/></StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="ArrowDownload" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Yedekleme"/></StackPanel>
                             </Button>
 
                             <!-- Cikis -->
                             <Border Height="1" Background="{DynamicResource SidebarBorderBrush}" Margin="16,8"/>
                             <Button Classes="sidebar-btn" x:Name="LogoutBtn" Click="OnLogout" ToolTip.Tip="Çıkış" AutomationProperties.Name="Çıkış">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <ic:SymbolIcon Symbol="SignOut" FontSize="16"/>
+                                    <ic:SymbolIcon Symbol="SignOut" FontSize="{StaticResource FontSizeSubtitle}"/>
                                     <TextBlock Text="Çıkış"/>
                                 </StackPanel>
                             </Button>

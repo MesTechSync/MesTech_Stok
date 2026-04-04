@@ -89,7 +89,7 @@
                             <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="4,2"
                                     Background="{Binding LevelColor, Converter={x:Static StringConverters.IsNullOrEmpty}, FallbackValue=Transparent}">
                                 <TextBlock Text="{Binding Level}"
-                                           FontSize="11" FontWeight="SemiBold"
+                                           FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
                                            Foreground="{Binding LevelColor}" />
                             </Border>
                         </DataTemplate>
