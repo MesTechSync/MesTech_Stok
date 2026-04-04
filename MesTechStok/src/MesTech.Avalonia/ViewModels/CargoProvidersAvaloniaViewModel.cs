@@ -28,7 +28,7 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async _ =>
+        await SafeExecuteAsync(_ =>
         {
             Providers.Clear();
             Providers.Add(new() { Provider = CargoProvider.YurticiKargo, IsConnected = true, LastShipmentText = "2 saat once", TodayStats = "24 gonderim", AvgDeliveryDays = 2.1 });
@@ -42,6 +42,7 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
             TotalProviders = Providers.Count;
             ConnectedProviders = Providers.Count(p => p.IsConnected);
             IsEmpty = Providers.Count == 0;
+            return Task.CompletedTask;
         }, "Kargo firmalari yuklenirken hata");
     }
 

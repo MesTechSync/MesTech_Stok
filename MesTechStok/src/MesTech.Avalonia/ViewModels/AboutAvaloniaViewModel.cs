@@ -20,12 +20,13 @@ public partial class AboutAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async _ =>
+        await SafeExecuteAsync(_ =>
         {
             var asm = typeof(AboutAvaloniaViewModel).Assembly;
             var ver = asm.GetName().Version;
             if (ver is not null)
                 VersionText = $"v{ver.Major}.{ver.Minor}.{ver.Build}";
+            return Task.CompletedTask;
         }, "Hakkinda bilgileri yuklenirken hata");
     }
 

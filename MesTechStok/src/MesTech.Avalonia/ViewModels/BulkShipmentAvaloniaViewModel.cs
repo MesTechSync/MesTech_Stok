@@ -62,7 +62,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async _ =>
+        await SafeExecuteAsync(_ =>
         {
             _allOrders.Clear();
             _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1001", CustomerName = "Ahmet Yilmaz", City = "Istanbul", Weight = 1.2m, Status = "Bekliyor" });
@@ -72,6 +72,7 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
             _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1005", CustomerName = "Ali Ozturk", City = "Antalya", Weight = 2.3m, Status = "Bekliyor" });
 
             ApplyFilter();
+            return Task.CompletedTask;
         }, "Siparis listesi yuklenirken hata");
     }
 

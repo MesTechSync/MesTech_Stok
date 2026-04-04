@@ -35,9 +35,10 @@ public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async _ =>
+        await SafeExecuteAsync(_ =>
         {
             // Settings loaded from persistence
+            return Task.CompletedTask;
         }, "Kargo ayarlari yuklenirken hata");
     }
 
