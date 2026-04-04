@@ -68,7 +68,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoices")
         .WithSummary("Fatura listesi (tip, durum, platform, tarih filtresi)")
-        .Produces(200)
+        .Produces<PagedResult<InvoiceListDto>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/invoices/{id}/approve — fatura onayla
@@ -106,7 +106,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceProviders")
         .WithSummary("Fatura sağlayıcı listesi ve durumları")
-        .Produces(200)
+        .Produces<List<InvoiceProviderStatusDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/invoices/report — fatura raporu
@@ -120,7 +120,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceReport")
         .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)")
-        .Produces(200)
+        .Produces<InvoiceReportDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/invoices/settings — invoice settings (provider config, defaults)
@@ -133,7 +133,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceSettings")
         .WithSummary("Fatura ayarları — sağlayıcı konfigürasyonu ve varsayılanlar")
-        .Produces(200)
+        .Produces<InvoiceSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/invoices/{id}/send — send invoice to provider (e-Fatura/e-Arşiv)
