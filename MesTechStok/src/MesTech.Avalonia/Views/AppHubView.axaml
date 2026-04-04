@@ -61,7 +61,7 @@
                 BoxShadow="{DynamicResource MesElevation1}">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="4">
-                    <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}">
+                    <TextBlock FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0}! 👋">
                                 <Binding Path="Greeting" />
@@ -87,7 +87,7 @@
                 <StackPanel Spacing="4">
                     <TextBlock Text="Bugun Siparis" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesTextSecondary}" />
-                    <TextBlock Text="{Binding TodayOrderCount}" FontSize="32" FontWeight="Bold"
+                    <TextBlock Text="{Binding TodayOrderCount}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource MesPrimaryBlue}" />
                 </StackPanel>
             </Border>
@@ -97,7 +97,7 @@
                 <StackPanel Spacing="4">
                     <TextBlock Text="Bugun Gelir" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesTextSecondary}" />
-                    <TextBlock Text="{Binding TodayRevenue, StringFormat='₺{0:N0}'}" FontSize="32" FontWeight="Bold"
+                    <TextBlock Text="{Binding TodayRevenue, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource MesGreenSuccess}" />
                 </StackPanel>
             </Border>
@@ -107,7 +107,7 @@
                 <StackPanel Spacing="4">
                     <TextBlock Text="Yeni Musteri" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesTextSecondary}" />
-                    <TextBlock Text="{Binding NewCustomerCount}" FontSize="32" FontWeight="Bold"
+                    <TextBlock Text="{Binding NewCustomerCount}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource MesPurpleAccent}" />
                 </StackPanel>
             </Border>
@@ -117,7 +117,7 @@
                 <StackPanel Spacing="4">
                     <TextBlock Text="Bekleyen Kargo" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesTextSecondary}" />
-                    <TextBlock Text="{Binding PendingShipmentCount}" FontSize="32" FontWeight="Bold"
+                    <TextBlock Text="{Binding PendingShipmentCount}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource MesAmberDark}" />
                 </StackPanel>
             </Border>
@@ -269,7 +269,7 @@
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" ToolTip.Tip="Yeni siparis olustur">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="📦" FontSize="16" />
+                        <TextBlock Text="📦" FontSize="{StaticResource FontSizeSubtitle}" />
                         <TextBlock Text="Siparis Ekle" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -277,7 +277,7 @@
                         Background="{DynamicResource MesGreenSuccess}" Foreground="{DynamicResource MesBgPrimary}"
                         FontWeight="SemiBold" ToolTip.Tip="Stok miktarlarini guncelle">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="📊" FontSize="16" />
+                        <TextBlock Text="📊" FontSize="{StaticResource FontSizeSubtitle}" />
                         <TextBlock Text="Stok Guncelle" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -286,7 +286,7 @@
                         FontWeight="SemiBold" ToolTip.Tip="E-fatura olustur"
                         Command="{Binding CreateQuickInvoiceCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="🧾" FontSize="16" />
+                        <TextBlock Text="🧾" FontSize="{StaticResource FontSizeSubtitle}" />
                         <TextBlock Text="Fatura Kes" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -295,7 +295,7 @@
                         FontWeight="SemiBold" ToolTip.Tip="Tum platformlari senkronize et"
                         Command="{Binding SyncAllPlatformsCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="🔄" FontSize="16" />
+                        <TextBlock Text="🔄" FontSize="{StaticResource FontSizeSubtitle}" />
                         <TextBlock Text="Senkron Et" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
