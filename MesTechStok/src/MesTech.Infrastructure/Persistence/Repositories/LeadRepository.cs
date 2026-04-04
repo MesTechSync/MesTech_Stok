@@ -28,10 +28,10 @@ public sealed class LeadRepository : ILeadRepository
         => await _context.Leads
             .AnyAsync(l => l.TenantId == tenantId && l.FullName == name, ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Lead lead)
-        => await _context.Leads.AddAsync(lead).ConfigureAwait(false);
+    public async Task AddAsync(Lead lead, CancellationToken ct = default)
+        => await _context.Leads.AddAsync(lead, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Lead lead)
+    public Task UpdateAsync(Lead lead, CancellationToken ct = default)
     {
         _context.Leads.Update(lead);
         return Task.CompletedTask;
