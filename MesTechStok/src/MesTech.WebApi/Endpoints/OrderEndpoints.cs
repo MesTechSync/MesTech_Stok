@@ -34,7 +34,7 @@ public static class OrderEndpoints
         })
         .WithName("ListOrders")
         .WithSummary("Sipariş listesi (tarih + durum filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderListDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/orders — yeni sipariş oluştur
@@ -79,7 +79,7 @@ public static class OrderEndpoints
         })
         .WithName("GetStaleOrders")
         .WithSummary("Gecikmiş siparişler — platform bazlı SLA aşımı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StaleOrderDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/list — tenant-scoped order list (paged)
@@ -94,7 +94,7 @@ public static class OrderEndpoints
         })
         .WithName("GetOrderList")
         .WithSummary("Tenant bazlı sipariş listesi (son N adet)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderListItemDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/orders/by-status — kanban view: orders grouped by status
@@ -108,7 +108,7 @@ public static class OrderEndpoints
         })
         .WithName("GetOrdersByStatus")
         .WithSummary("Sipariş kanban görünümü — duruma göre gruplu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<OrderKanbanResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/{id} — sipariş detayı (P0 — DEV6 TUR10)
