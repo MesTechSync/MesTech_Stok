@@ -1,4 +1,7 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.DTOs.Finance;
+using MesTech.Application.DTOs.Reports;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetExpenseReport;
@@ -45,7 +48,7 @@ public static class ReportEndpoints
         })
         .WithName("GetProfitLossReport")
         .WithSummary("Aylik kar/zarar raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ProfitLossDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/monthly-summary/{year}/{month} — aylik ozet rapor
@@ -64,7 +67,7 @@ public static class ReportEndpoints
         })
         .WithName("GetMonthlySummary")
         .WithSummary("Aylik ozet raporu (satis, komisyon, gider, vergi metrikleri)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<MonthlySummaryDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/kdv/{year}/{month} — KDV raporu
@@ -83,7 +86,7 @@ public static class ReportEndpoints
         })
         .WithName("GetKdvReport")
         .WithSummary("KDV raporu (hesaplanan, indirilecek, odenecek KDV)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<KdvReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/reports/generate-tax-calendar/{year} — vergi takvimi olustur (legacy compat)
@@ -114,7 +117,7 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformComparison")
         .WithSummary("Platform bazli satis karsilastirma raporu (tarih araligi + platform filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<PlatformSalesReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/profitability — karlilik raporu (Net Kar formulu)
@@ -128,7 +131,7 @@ public static class ReportEndpoints
         })
         .WithName("GetProfitabilityReport")
         .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ProfitabilityReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── DEFTER KAPATMA: 7 eksik rapor endpoint [ENT-DEV6] ───
@@ -144,7 +147,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCargoPerformanceReport")
         .WithSummary("Kargo performans raporu (firma bazlı teslimat süresi + maliyet)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CargoPerformanceReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-lifetime-value — müşteri yaşam boyu değeri
@@ -158,7 +161,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerLifetimeValueReport")
         .WithSummary("Müşteri yaşam boyu değeri raporu (CLV)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CustomerLifetimeValueReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-segments — müşteri segment raporu
@@ -172,7 +175,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerSegmentReport")
         .WithSummary("Müşteri segment analizi (RFM bazlı)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CustomerSegmentReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/inventory-valuation — envanter değerleme raporu
@@ -186,7 +189,7 @@ public static class ReportEndpoints
         })
         .WithName("GetInventoryValuationReport")
         .WithSummary("Envanter değerleme raporu (kategori filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<InventoryValuationReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/order-fulfillment — sipariş karşılama raporu
@@ -200,7 +203,7 @@ public static class ReportEndpoints
         })
         .WithName("GetOrderFulfillmentReport")
         .WithSummary("Sipariş karşılama performans raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderFulfillmentReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/stock-turnover — stok devir hızı raporu
@@ -214,7 +217,7 @@ public static class ReportEndpoints
         })
         .WithName("GetStockTurnoverReport")
         .WithSummary("Stok devir hızı raporu (kategori filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockTurnoverReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/tax-summary — vergi özet raporu
@@ -228,7 +231,7 @@ public static class ReportEndpoints
         })
         .WithName("GetTaxSummaryReport")
         .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<TaxSummaryReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── V5 YENİ RAPOR ENDPOINT'LERİ [ENT-DEV6] ───
@@ -245,7 +248,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCommissionReport")
         .WithSummary("Platform bazlı komisyon raporu — dönem karşılaştırmalı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<CommissionReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/fulfillment-cost — fulfillment maliyet raporu
@@ -263,7 +266,7 @@ public static class ReportEndpoints
         })
         .WithName("GetFulfillmentCostReport")
         .WithSummary("FBA + Hepsilojistik maliyet analizi raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<FulfillmentCostReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/erp-reconciliation — ERP cari mutabakat raporu
@@ -277,7 +280,7 @@ public static class ReportEndpoints
         })
         .WithName("GetErpReconciliationReport")
         .WithSummary("ERP cari hesap mutabakat raporu (MesTech vs ERP eşleştirme)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ErpReconciliationReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/platform-performance — platform performans raporu
@@ -291,7 +294,7 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformPerformanceReport")
         .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<PlatformPerformanceReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── V5 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
@@ -443,7 +446,7 @@ public static class ReportEndpoints
         })
         .WithName("GetSalesAnalytics")
         .WithSummary("Satış analiz raporu — platform bazlı gelir, adet, trend")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<SalesAnalyticsDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // G564 endpoints
@@ -525,7 +528,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCommissionReport")
         .WithSummary("Komisyon raporu — platform bazli komisyon ozeti")
-        .Produces(200).Produces(400)
+        .Produces<CommissionReportDto>(200).Produces(400)
         .CacheOutput("Report120s")
         .WithRequestTimeout("LongRunning");
 
@@ -540,7 +543,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerLifetimeValueReport")
         .WithSummary("Musteri yasam boyu degeri raporu — LTV analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<CustomerLifetimeValueReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-segment
@@ -554,7 +557,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerSegmentReport")
         .WithSummary("Musteri segmentasyon raporu — RFM analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<CustomerSegmentReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/platform-sales
@@ -568,7 +571,7 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformSalesReport")
         .WithSummary("Platform satis raporu — kanal bazli gelir analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<PlatformSalesReportDto>>(200).Produces(400)
         .CacheOutput("Report120s")
         .WithRequestTimeout("LongRunning");
     }
