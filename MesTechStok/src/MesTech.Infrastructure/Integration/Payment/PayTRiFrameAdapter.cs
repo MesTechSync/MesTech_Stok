@@ -90,7 +90,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 _options.MerchantId,
                 request.CustomerIp,
                 merchantOid,
-                "customer@mestech.app",
+                request.CustomerEmail,
                 paymentAmount.ToString(),
                 basketJson,
                 "0",    // no_installment
@@ -106,7 +106,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["merchant_id"] = _options.MerchantId,
                 ["user_ip"] = request.CustomerIp,
                 ["merchant_oid"] = merchantOid,
-                ["email"] = "customer@mestech.app",
+                ["email"] = request.CustomerEmail,
                 ["payment_amount"] = paymentAmount.ToString(),
                 ["paytr_token"] = token,
                 ["user_basket"] = basketJson,
