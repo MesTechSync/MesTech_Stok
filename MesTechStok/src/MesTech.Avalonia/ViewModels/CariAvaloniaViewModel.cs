@@ -38,15 +38,11 @@ public partial class CariAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var results = await _mediator.Send(
                 new GetCounterpartiesQuery(_currentUser.TenantId),
-                CancellationToken);
+                ct);
 
             _allAccounts = results.Select(c => new CariItemDto
             {
@@ -63,16 +59,7 @@ public partial class CariAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Cari hesaplar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Cari hesaplar yuklenirken hata");
     }
 
     private void ApplyFilters()

@@ -46,14 +46,10 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetInventoryPagedQuery(
-                Page: 1, PageSize: 500, SearchTerm: null));
+                Page: 1, PageSize: 500, SearchTerm: null), ct);
 
             _allItems = result.Items.Select(i => new InventoryItemDto
             {
@@ -83,13 +79,7 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
 
             CurrentPage = 1;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Envanter yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Envanter yuklenirken hata");
     }
 
     private void ApplyFilters()

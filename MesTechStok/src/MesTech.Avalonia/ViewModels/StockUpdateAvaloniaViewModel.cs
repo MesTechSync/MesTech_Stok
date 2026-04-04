@@ -33,16 +33,12 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
         UpdateStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
                 new GetProductsQuery(_tenantProvider.GetCurrentTenantId(), SearchTerm: null, IsActive: true, Page: 1, PageSize: 200),
-                CancellationToken);
+                ct);
 
             _allItems = result.Items.Select(p => new StockUpdateItemDto
             {
@@ -54,16 +50,7 @@ public partial class StockUpdateAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Stok verileri yuklenirken hata");
     }
 
     private void ApplyFilters()

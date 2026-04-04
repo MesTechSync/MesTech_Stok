@@ -54,11 +54,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetEInvoicesQuery(
                 From: DateTime.UtcNow.AddMonths(-3),
@@ -66,7 +62,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
                 Status: null,
                 ProviderId: null,
                 Page: CurrentPage,
-                PageSize: PageSize));
+                PageSize: PageSize), ct);
 
             _allInvoices = result.Items.Select(inv => new InvoiceListItemDto
             {
@@ -83,13 +79,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
             TotalCount = result.TotalCount;
             TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Faturalar yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Faturalar yuklenirken hata");
     }
 
     private void ApplyFilters()

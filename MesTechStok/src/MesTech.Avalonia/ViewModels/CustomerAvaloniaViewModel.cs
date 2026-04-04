@@ -44,11 +44,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetCustomersCrmQuery(
                 _currentUser.TenantId,
@@ -56,7 +52,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
                 IsActive: null,
                 SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
                 Page: 1,
-                PageSize: 200));
+                PageSize: 200), ct);
 
             _allItems.Clear();
 
@@ -84,13 +80,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Musteriler yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Musteriler yuklenirken hata");
     }
 
     private static string SegmentColor(string segment) => segment switch
