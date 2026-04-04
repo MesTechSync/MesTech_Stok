@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -25,7 +26,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;
@@ -954,5 +956,76 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogWarning(ex, "[Zalando] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Zalando Merchant API.
+    /// GET /merchants/{merchantId}/product-reviews?page_token={page}&amp;page_size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var token = await GetOrRefreshTokenAsync(ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(
+                async innerCt =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Get,
+                        $"{ApiBase}/merchants/{_merchantId}/product-reviews?page_token={page}&page_size={size}");
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    return await _httpClient.SendAsync(req, innerCt).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Zalando GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("items", out var itemArr) ? itemArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? id.GetString()?.GetHashCode() ?? 0 : 0,
+                        ProductId: item.TryGetProperty("simple_sku", out var sku) ? sku.GetString()?.GetHashCode() ?? 0 : 0,
+                        Comment: item.TryGetProperty("title", out var title) ? title.GetString() ?? ""
+                            : item.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("star_rating", out var sr) ? sr.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("nickname", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("merchant_reply", out var reply) && reply.ValueKind != JsonValueKind.Null));
+                }
+            }
+
+            _logger.LogInformation("Zalando GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Zalando GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 }
