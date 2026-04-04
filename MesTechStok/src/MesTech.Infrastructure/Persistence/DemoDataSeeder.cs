@@ -29,7 +29,7 @@ public sealed class DemoDataSeeder
 
     /// <summary>Demo login credentials.</summary>
     public const string DemoUsername = "demo";
-    public const string DemoPassword = "Demo123!";
+    internal const string DemoPassword = "Demo123!"; // internal — never expose via public API
     public const string DemoEmail = "demo@mestech.tr";
 
     private readonly AppDbContext _context;
