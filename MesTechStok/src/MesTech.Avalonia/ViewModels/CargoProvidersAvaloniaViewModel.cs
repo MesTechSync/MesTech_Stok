@@ -26,14 +26,10 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
     public ObservableCollection<CargoProviderCardViewModel> Providers { get; } = [];
 
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        try
+        await SafeExecuteAsync(async _ =>
         {
-
             Providers.Clear();
             Providers.Add(new() { Provider = CargoProvider.YurticiKargo, IsConnected = true, LastShipmentText = "2 saat once", TodayStats = "24 gonderim", AvgDeliveryDays = 2.1 });
             Providers.Add(new() { Provider = CargoProvider.ArasKargo, IsConnected = true, LastShipmentText = "45 dk once", TodayStats = "18 gonderim", AvgDeliveryDays = 2.4 });
@@ -46,14 +42,7 @@ public partial class CargoProvidersAvaloniaViewModel : ViewModelBase
             TotalProviders = Providers.Count;
             ConnectedProviders = Providers.Count(p => p.IsConnected);
             IsEmpty = Providers.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kargo firmalari yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
-        return Task.CompletedTask;
+        }, "Kargo firmalari yuklenirken hata");
     }
 
     [RelayCommand]

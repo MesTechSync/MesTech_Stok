@@ -33,25 +33,12 @@ public partial class CargoSettingsAvaloniaViewModel : ViewModelBase
     {
     }
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async _ =>
         {
             // Settings loaded from persistence
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kargo ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        return Task.CompletedTask;
+        }, "Kargo ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

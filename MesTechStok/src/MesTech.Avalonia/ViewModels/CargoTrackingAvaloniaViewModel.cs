@@ -39,14 +39,10 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new GetCargoTrackingListQuery(_tenantProvider.GetCurrentTenantId(), 100));
+                new GetCargoTrackingListQuery(_tenantProvider.GetCurrentTenantId(), 100), ct);
 
             _allItems.Clear();
             _allItems.AddRange(result.Select(c => new CargoTrackingItemDto
@@ -64,13 +60,7 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
             }));
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kargo verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Kargo verileri yuklenirken hata");
     }
 
     partial void OnSelectedFirmChanged(string value) => ApplyFilter();

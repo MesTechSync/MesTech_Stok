@@ -42,16 +42,12 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Months.IndexOf(SelectedMonth) + 1;
             int.TryParse(SelectedYear, out var year);
             var salaries = await _mediator.Send(new GetSalaryRecordsQuery(
-                _currentUser.TenantId, year > 0 ? year : null, monthIndex > 0 ? monthIndex : null));
+                _currentUser.TenantId, year > 0 ? year : null, monthIndex > 0 ? monthIndex : null), ct);
 
             _allItems = salaries.Select(s => new PayrollItemDto
             {
@@ -76,16 +72,7 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
 
             IsEmpty = _allItems.Count == 0;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Bordro verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Bordro verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

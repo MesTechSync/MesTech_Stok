@@ -30,13 +30,9 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDocumentsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetDocumentsQuery(_currentUser.TenantId), ct);
             Documents.Clear();
             foreach (var doc in result.Documents)
             {
@@ -53,16 +49,7 @@ public partial class DocumentManagerAvaloniaViewModel : ViewModelBase
             }
             TotalCount = result.TotalCount;
             IsEmpty = Documents.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Belgeler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Belgeler yuklenirken hata");
     }
 
     [RelayCommand]

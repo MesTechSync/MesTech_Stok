@@ -43,12 +43,10 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var result = await _mediator.Send(new GetActiveCampaignsQuery(tenantId), CancellationToken);
+            var result = await _mediator.Send(new GetActiveCampaignsQuery(tenantId), ct);
 
             Campaigns.Clear();
             foreach (var c in result.Items)
@@ -57,17 +55,7 @@ public partial class CampaignAvaloniaViewModel : ViewModelBase
             ActiveCampaignCount = Campaigns.Count(c => c.IsActive);
             TotalProductsInCampaign = Campaigns.Sum(c => c.ProductCount);
             IsEmpty = Campaigns.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kampanyalar yuklenemedi: {ex.Message}";
-            _logger.LogError(ex, "Campaign load failed");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kampanyalar yuklenirken hata");
     }
 
     [RelayCommand]

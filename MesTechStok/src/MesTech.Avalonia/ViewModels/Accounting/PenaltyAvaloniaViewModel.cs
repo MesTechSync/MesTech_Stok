@@ -39,13 +39,9 @@ public partial class PenaltyAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPenaltyRecordsQuery(_currentUser.TenantId)) ?? [];
+            var result = await _mediator.Send(new GetPenaltyRecordsQuery(_currentUser.TenantId), ct) ?? [];
 
             _allItems = result.Select(p => new PenaltyItemDto
             {
@@ -68,16 +64,7 @@ public partial class PenaltyAvaloniaViewModel : ViewModelBase
             PendingAmount = $"{pending:N2} TL";
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Ceza kayitlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Ceza kayitlari yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

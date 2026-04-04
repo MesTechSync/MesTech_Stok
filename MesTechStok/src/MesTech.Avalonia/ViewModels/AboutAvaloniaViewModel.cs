@@ -18,28 +18,15 @@ public partial class AboutAvaloniaViewModel : ViewModelBase
         CopyrightText = $"© {DateTime.Now.Year} MesTech Yazilim. Tum haklari saklidir.";
     }
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async _ =>
         {
             var asm = typeof(AboutAvaloniaViewModel).Assembly;
             var ver = asm.GetName().Version;
             if (ver is not null)
                 VersionText = $"v{ver.Major}.{ver.Minor}.{ver.Build}";
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Bilgiler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        return Task.CompletedTask;
+        }, "Hakkinda bilgileri yuklenirken hata");
     }
 
     [RelayCommand]

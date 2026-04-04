@@ -40,12 +40,9 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var history = await _mediator.Send(new GetBackupHistoryQuery(_currentUser.TenantId));
+            var history = await _mediator.Send(new GetBackupHistoryQuery(_currentUser.TenantId), ct);
             BackupHistory.Clear();
             foreach (var entry in history)
             {
@@ -56,17 +53,8 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
                     "—",
                     entry.Status));
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Yedekleme gecmisi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = BackupHistory.Count == 0;
-        }
+        }, "Yedekleme gecmisi yuklenirken hata");
     }
 
     [RelayCommand]

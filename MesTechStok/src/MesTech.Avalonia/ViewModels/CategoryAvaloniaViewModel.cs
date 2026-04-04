@@ -28,13 +28,9 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true)) ?? [];
+            var result = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true), ct) ?? [];
 
             // Build parent name lookup for hierarchy display
             var lookup = result.ToDictionary(c => c.Id, c => c.Name);
@@ -49,16 +45,7 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kategoriler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kategoriler yuklenirken hata");
     }
 
     private void ApplyFilters()

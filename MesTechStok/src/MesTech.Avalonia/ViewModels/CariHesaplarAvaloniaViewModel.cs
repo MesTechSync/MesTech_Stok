@@ -39,14 +39,10 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new GetCariHesaplarQuery(TenantId: _tenantProvider.GetCurrentTenantId()));
+                new GetCariHesaplarQuery(TenantId: _tenantProvider.GetCurrentTenantId()), ct);
 
             _allItems.Clear();
             _allItems.AddRange(result.Select(c => new CariHesapItemDto
@@ -59,16 +55,7 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
             }));
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Cari hesaplar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Cari hesaplar yuklenirken hata");
     }
 
     partial void OnSelectedTypeChanged(string value) => ApplyFilter();

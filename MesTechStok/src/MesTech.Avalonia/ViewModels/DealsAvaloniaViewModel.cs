@@ -32,13 +32,9 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDealsQuery(_currentUser.TenantId, Page: 1, PageSize: 100)) ?? new();
+            var result = await _mediator.Send(new GetDealsQuery(_currentUser.TenantId, Page: 1, PageSize: 100), ct) ?? new();
 
             Deals.Clear();
             foreach (var deal in result.Items)
@@ -57,16 +53,7 @@ public partial class DealsAvaloniaViewModel : ViewModelBase
             TotalCount = result.TotalCount;
             TotalAmount = $"{Deals.Sum(d => d.Amount):N0} TL";
             IsEmpty = Deals.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Firsatlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Firsatlar yuklenirken hata");
     }
 
     [RelayCommand]

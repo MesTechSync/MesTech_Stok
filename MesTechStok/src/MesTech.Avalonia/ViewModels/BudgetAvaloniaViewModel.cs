@@ -39,17 +39,13 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Months.IndexOf(SelectedMonth) + 1;
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
             var month = monthIndex > 0 ? monthIndex : DateTime.Now.Month;
 
-            var result = await _mediator.Send(new GetBudgetSummaryQuery(_currentUser.TenantId, year, month));
+            var result = await _mediator.Send(new GetBudgetSummaryQuery(_currentUser.TenantId, year, month), ct);
 
             Items.Clear();
             foreach (var cat in result.Categories)
@@ -73,16 +69,7 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
             UsageRate = $"%{result.UtilizationPercent:N0}";
 
             IsEmpty = Items.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Butce verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Butce verileri yuklenirken hata");
     }
 
     [RelayCommand]

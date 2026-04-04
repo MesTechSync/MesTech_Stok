@@ -38,13 +38,9 @@ public partial class FixedAssetAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetFixedAssetsQuery(_currentUser.TenantId)) ?? [];
+            var result = await _mediator.Send(new GetFixedAssetsQuery(_currentUser.TenantId), ct) ?? [];
 
             _allItems = result.Select(a => new FixedAssetItemDto
             {
@@ -69,16 +65,7 @@ public partial class FixedAssetAvaloniaViewModel : ViewModelBase
             NetBookValue = $"{netBook:N2} TL";
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Sabit kiymet verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Sabit varliklar yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
