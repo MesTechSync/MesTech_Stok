@@ -63,9 +63,9 @@ public partial class AppHubViewModel : ViewModelBase
             var now = DateTime.Now;
             Greeting = now.Hour switch
             {
-                < 12 => "Gunaydin",
-                < 18 => "Iyi gunler",
-                _ => "Iyi aksamlar"
+                < 12 => "Günaydın",
+                < 18 => "İyi günler",
+                _ => "İyi akşamlar"
             };
             TodayDate = now.ToString("dd MMMM yyyy, dddd", new System.Globalization.CultureInfo("tr-TR"));
 
@@ -74,7 +74,7 @@ public partial class AppHubViewModel : ViewModelBase
             await LoadLowStockAsync();
             await LoadPendingInvoicesAsync();
             await LoadServiceStatusAsync();
-        }, "Hub verileri yuklenirken hata");
+        }, "Hub verileri yüklenirken hata");
     }
 
     private async Task LoadDashboardSummaryAsync()
@@ -114,7 +114,7 @@ public partial class AppHubViewModel : ViewModelBase
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "GetRecentOrdersQuery failed, using fallback");
-            RecentOrders.Add(new("—", "—", "Veri yuklenemedi", 0));
+            RecentOrders.Add(new("—", "—", "Veri yüklenemedi", 0));
         }
     }
 
@@ -176,7 +176,7 @@ public partial class AppHubViewModel : ViewModelBase
         }
         catch
         {
-            ServiceStatuses.Add(new("Platform API", false, "baglanti yok"));
+            ServiceStatuses.Add(new("Platform API", false, "bağlantı yok"));
         }
 
         // G540 orphan handler wiring — 4 dashboard queries (optional — failures logged)
