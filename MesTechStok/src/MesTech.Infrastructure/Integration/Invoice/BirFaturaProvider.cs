@@ -380,33 +380,60 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
     private async Task<InvoiceResult> PostInvoiceAsync(string url, object payload, CancellationToken ct)
     {
-        try
-        {
-            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+        const int maxRetries = 3;
 
-            if (!response.IsSuccessStatusCode)
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("BirFatura POST {Url} failed: {Status} — {Error}",
-                    url, response.StatusCode, errorBody);
-                return new InvoiceResult(false, null, null, errorBody);
+                var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+
+                if ((int)response.StatusCode == 429 || (int)response.StatusCode >= 500)
+                {
+                    var retryBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("BirFatura POST {Url} retry {Attempt}/{Max}: {Status} — {Error}",
+                        url, attempt, maxRetries, response.StatusCode, retryBody);
+
+                    if (attempt < maxRetries)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+                        continue;
+                    }
+
+                    return new InvoiceResult(false, null, null, $"HTTP {(int)response.StatusCode} after {maxRetries} retries: {retryBody}");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("BirFatura POST {Url} failed: {Status} — {Error}",
+                        url, response.StatusCode, errorBody);
+                    return new InvoiceResult(false, null, null, errorBody);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(responseJson);
+                var root = doc.RootElement;
+
+                var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
+                var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
+
+                return new InvoiceResult(true, gibId, pdfUrl, null);
             }
-
-            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(responseJson);
-            var root = doc.RootElement;
-
-            var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
-            var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
-
-            return new InvoiceResult(true, gibId, pdfUrl, null);
+            catch (HttpRequestException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning(ex, "BirFatura POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "BirFatura POST {Url} exception", url);
+                return new InvoiceResult(false, null, null, ex.Message);
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "BirFatura POST {Url} exception", url);
-            return new InvoiceResult(false, null, null, ex.Message);
-        }
+
+        return new InvoiceResult(false, null, null, "Max retries exhausted");
     }
 }
