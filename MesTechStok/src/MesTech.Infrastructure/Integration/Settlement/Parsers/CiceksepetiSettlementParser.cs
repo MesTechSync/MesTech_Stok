@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +25,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
     private List<CiceksepetiSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Ciceksepeti";
+    public string Platform => nameof(PlatformType.Ciceksepeti);
 
     public CiceksepetiSettlementParser(ILogger<CiceksepetiSettlementParser> logger)
     {

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +24,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
     private List<PazaramaSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Pazarama";
+    public string Platform => nameof(PlatformType.Pazarama);
 
     public PazaramaSettlementParser(ILogger<PazaramaSettlementParser> logger)
     {

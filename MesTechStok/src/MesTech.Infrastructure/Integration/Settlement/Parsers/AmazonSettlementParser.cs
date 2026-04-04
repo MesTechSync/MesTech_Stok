@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +28,7 @@ public sealed class AmazonSettlementParser : ISettlementParser
     public AmazonSettlementParser(ILogger<AmazonSettlementParser> logger, string? platformOverride = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _platformOverride = platformOverride ?? "Amazon";
+        _platformOverride = platformOverride ?? nameof(PlatformType.Amazon);
     }
 
     [Obsolete("Use ParseAsync(tenantId, rawData, format, ct) — Guid.Empty is a multi-tenant risk (BORÇ-N)")]

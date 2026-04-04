@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public sealed class HepsiburadaSettlementParser : ISettlementParser
     private List<HepsiburadaSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Hepsiburada";
+    public string Platform => nameof(PlatformType.Hepsiburada);
 
     public HepsiburadaSettlementParser(ILogger<HepsiburadaSettlementParser> logger)
     {
