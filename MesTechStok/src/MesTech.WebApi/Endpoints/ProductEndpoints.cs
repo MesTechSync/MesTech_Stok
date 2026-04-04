@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Domain.Common;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Commands.CreateBulkProducts;
@@ -50,7 +51,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductList")
         .WithSummary("Sayfalanmış ürün listesi")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/status — DB connectivity + counts
@@ -61,7 +62,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductStatus")
         .WithSummary("Ürün DB bağlantı durumu ve sayılar")
-        .Produces(200)
+        .Produces<ProductDbStatusDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/low-stock — products below minimum stock
@@ -72,7 +73,7 @@ public static class ProductEndpoints
         })
         .WithName("GetLowStockProducts")
         .WithSummary("Minimum stok altı ürünler")
-        .Produces(200)
+        .Produces<IReadOnlyList<ProductDto>>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/products/{id} — get single product by ID
@@ -83,7 +84,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductById")
         .WithSummary("Tekil ürün detayı")
-        .Produces(200)
+        .Produces<ProductDto>(200)
         .Produces(404)
         .CacheOutput("Lookup60s");
 
@@ -204,7 +205,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProducts")
         .WithSummary("Sayfalanmış ürün arama (kategori, stok, aktiflik filtresi)")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/prices — product list with price data (Blazor PriceUpdate.razor)
@@ -223,7 +224,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductPrices")
         .WithSummary("Ürün fiyat listesi — toplu fiyat güncelleme için")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/import/templates — import template listesi (Blazor ProductImport.razor)
@@ -269,7 +270,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductBuyboxStatus")
         .WithSummary("Ürün buybox pozisyon durumu")
-        .Produces(200)
+        .Produces<BuyboxStatusResult>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/products/search-by-image — görsel benzerlik ile ürün arama
