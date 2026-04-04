@@ -11,17 +11,17 @@ public sealed class ReturnRequestRepository : IReturnRequestRepository
     public ReturnRequestRepository(AppDbContext context)
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<ReturnRequest?> GetByIdAsync(Guid id)
+    public async Task<ReturnRequest?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.ReturnRequests
             .Include(r => r.Lines)
-            .FirstOrDefaultAsync(r => r.Id == id).ConfigureAwait(false);
+            .FirstOrDefaultAsync(r => r.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<ReturnRequest>> GetByOrderIdAsync(Guid orderId)
+    public async Task<IReadOnlyList<ReturnRequest>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
         => await _context.ReturnRequests
             .Where(r => r.OrderId == orderId)
             .OrderByDescending(r => r.RequestDate)
             .Take(1000) // G485: pagination guard
-            .AsNoTracking().ToListAsync()
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ReturnRequest>> GetByTenantAsync(Guid tenantId, int count, CancellationToken ct = default)
@@ -33,10 +33,10 @@ public sealed class ReturnRequestRepository : IReturnRequestRepository
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
-    public async Task AddAsync(ReturnRequest returnRequest)
-        => await _context.ReturnRequests.AddAsync(returnRequest).ConfigureAwait(false);
+    public async Task AddAsync(ReturnRequest returnRequest, CancellationToken ct = default)
+        => await _context.ReturnRequests.AddAsync(returnRequest, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(ReturnRequest returnRequest)
+    public Task UpdateAsync(ReturnRequest returnRequest, CancellationToken ct = default)
     {
         _context.ReturnRequests.Update(returnRequest);
         return Task.CompletedTask;
