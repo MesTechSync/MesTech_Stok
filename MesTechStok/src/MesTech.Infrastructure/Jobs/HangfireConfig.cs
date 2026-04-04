@@ -105,6 +105,10 @@ public static class HangfireConfig
         services.AddScoped<GenericPlatformClaimSyncJob>();
         services.AddScoped<GenericPlatformPriceSyncJob>();
 
+        // Trendyol Review + Ads sync (DEV 3 — yeni endpoint job'lari)
+        services.AddScoped<TrendyolReviewSyncJob>();
+        services.AddScoped<TrendyolAdsSyncJob>();
+
         // Pricing — Buybox recovery auto-price update (G506 FIX)
         services.AddScoped<AutoPriceUpdateWorker>();
 
@@ -473,6 +477,20 @@ public static class HangfireConfig
             "fulfillment-stock-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/30 * * * *");
+
+        // === Trendyol Review + Ads Sync (DEV 3) ===
+
+        // Her saat basi — urun degerlendirme cekme
+        RecurringJob.AddOrUpdate<TrendyolReviewSyncJob>(
+            "trendyol-review-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *");
+
+        // Her gun 07:00 — reklam kampanya performans raporu
+        RecurringJob.AddOrUpdate<TrendyolAdsSyncJob>(
+            "trendyol-ads-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 7 * * *");
 
         // === Pricing — Buybox Recovery (G506 FIX) ===
 
