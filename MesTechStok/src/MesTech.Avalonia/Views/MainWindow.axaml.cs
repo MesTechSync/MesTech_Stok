@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     private readonly DesktopSessionManager _session;
     private bool _sidebarExpanded; // default collapsed (icon-only)
     private DateTime _lastActivity = DateTime.Now;
+    private MainWindowViewModel? _subscribedVm;
 
     public MainWindow()
     {
@@ -53,15 +54,26 @@ public partial class MainWindow : Window
         Opened += (_, _) => ApplySidebarState();
 
         // DEV2-01: Highlight active sidebar button when navigation changes
-        DataContextChanged += (_, _) =>
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        // Unsubscribe previous VM to prevent double-subscription leak
+        if (_subscribedVm is not null)
+            _subscribedVm.PropertyChanged -= OnVmPropertyChanged;
+
+        if (DataContext is MainWindowViewModel vm)
         {
-            if (DataContext is MainWindowViewModel vm)
-                vm.PropertyChanged += (_, args) =>
-                {
-                    if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem))
-                        HighlightSidebarButton(vm.SelectedMenuItem);
-                };
-        };
+            vm.PropertyChanged += OnVmPropertyChanged;
+            _subscribedVm = vm;
+        }
+    }
+
+    private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem) && sender is MainWindowViewModel vm)
+            HighlightSidebarButton(vm.SelectedMenuItem);
     }
 
     public void SetCurrentUser(string username)
