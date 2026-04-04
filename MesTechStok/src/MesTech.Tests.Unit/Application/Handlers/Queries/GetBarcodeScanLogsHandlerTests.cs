@@ -38,9 +38,14 @@ public class GetBarcodeScanLogsHandlerTests
             new() { Barcode = "8690000222222", Format = "EAN13", Source = "Scanner2", IsValid = false }
         };
 
-        _repo.Setup(r => r.GetPagedAsync(1, 50, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(logs.AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(2);
 
         var handler = CreateHandler();
@@ -57,9 +62,14 @@ public class GetBarcodeScanLogsHandlerTests
     [Fact]
     public async Task Handle_EmptyResult_ShouldReturnEmptyItems()
     {
-        _repo.Setup(r => r.GetPagedAsync(1, 50, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BarcodeScanLog>().AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
         var handler = CreateHandler();
@@ -75,9 +85,16 @@ public class GetBarcodeScanLogsHandlerTests
         var from = new DateTime(2026, 1, 1);
         var to = new DateTime(2026, 3, 31);
 
-        _repo.Setup(r => r.GetPagedAsync(2, 10, "8690", "Scanner1", true, from, to))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 2), It.Is<int>(ps => ps == 10),
+                It.Is<string?>(b => b == "8690"), It.Is<string?>(s => s == "Scanner1"),
+                It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+                It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BarcodeScanLog>().AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync("8690", "Scanner1", true, from, to))
+        _repo.Setup(r => r.GetCountAsync(
+                It.Is<string?>(b => b == "8690"), It.Is<string?>(s => s == "Scanner1"),
+                It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+                It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
         var handler = CreateHandler();
@@ -88,16 +105,28 @@ public class GetBarcodeScanLogsHandlerTests
 
         await handler.Handle(query, CancellationToken.None);
 
-        _repo.Verify(r => r.GetPagedAsync(2, 10, "8690", "Scanner1", true, from, to), Times.Once);
-        _repo.Verify(r => r.GetCountAsync("8690", "Scanner1", true, from, to), Times.Once);
+        _repo.Verify(r => r.GetPagedAsync(
+            It.Is<int>(p => p == 2), It.Is<int>(ps => ps == 10),
+            It.Is<string?>(b => b == "8690"), It.Is<string?>(s => s == "Scanner1"),
+            It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+            It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.GetCountAsync(
+            It.Is<string?>(b => b == "8690"), It.Is<string?>(s => s == "Scanner1"),
+            It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+            It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnCorrectPagination()
     {
-        _repo.Setup(r => r.GetPagedAsync(3, 25, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 3), It.Is<int>(ps => ps == 25),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BarcodeScanLog>().AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(100);
 
         var handler = CreateHandler();
