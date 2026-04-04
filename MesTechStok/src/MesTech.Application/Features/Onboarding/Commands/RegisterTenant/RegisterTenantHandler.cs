@@ -45,7 +45,7 @@ public sealed class RegisterTenantHandler
             request.CompanyName, request.AdminUsername);
 
         // 1. Kullanıcı adı benzersizliği kontrol
-        var existingUser = await _userRepo.GetByUsernameAsync(request.AdminUsername)
+        var existingUser = await _userRepo.GetByUsernameAsync(request.AdminUsername, cancellationToken)
             .ConfigureAwait(false);
         if (existingUser is not null)
             throw new InvalidOperationException($"Kullanıcı adı zaten kullanılıyor: {request.AdminUsername}");
@@ -71,7 +71,7 @@ public sealed class RegisterTenantHandler
             LastName = request.AdminLastName,
             IsActive = true
         };
-        await _userRepo.AddAsync(adminUser).ConfigureAwait(false);
+        await _userRepo.AddAsync(adminUser, cancellationToken).ConfigureAwait(false);
 
         // 4. Trial subscription başlat (en düşük plan, 14 gün)
         var plans = await _planRepo.GetActiveAsync(cancellationToken).ConfigureAwait(false);

@@ -81,14 +81,14 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
     public async Task<FifoCostResultDto> CalculateCOGSAsync(
         Guid tenantId, Guid productId, CancellationToken ct = default)
     {
-        var product = await _productRepository.GetByIdAsync(productId);
+        var product = await _productRepository.GetByIdAsync(productId, ct);
         if (product == null || product.TenantId != tenantId)
         {
             _logger.LogWarning("Product {ProductId} not found for tenant {TenantId}", productId, tenantId);
             return CreateEmptyResult(productId);
         }
 
-        var movements = await _movementRepository.GetByProductIdAsync(productId);
+        var movements = await _movementRepository.GetByProductIdAsync(productId, ct);
 
         // Filter by tenant and sort chronologically
         var sorted = movements

@@ -70,7 +70,7 @@ public sealed class CreateShipmentHandler : IRequestHandler<CreateShipmentComman
 
         var trackingNumber = result.TrackingNumber ?? string.Empty;
         order.MarkAsShipped(trackingNumber, request.CargoProvider);
-        await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        await _orderRepository.UpdateAsync(order, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(

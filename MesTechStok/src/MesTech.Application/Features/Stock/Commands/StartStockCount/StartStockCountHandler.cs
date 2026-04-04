@@ -19,7 +19,7 @@ public sealed class StartStockCountHandler : IRequestHandler<StartStockCountComm
         string? warehouseName = null;
         if (request.WarehouseId.HasValue)
         {
-            var wh = await _warehouseRepo.GetByIdAsync(request.WarehouseId.Value).ConfigureAwait(false);
+            var wh = await _warehouseRepo.GetByIdAsync(request.WarehouseId.Value, cancellationToken).ConfigureAwait(false);
             warehouseName = wh?.Name;
         }
 

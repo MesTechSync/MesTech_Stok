@@ -25,7 +25,7 @@ public sealed class GetInventoryPagedHandler : IRequestHandler<GetInventoryPaged
         // 1. Fetch products
         var products = string.IsNullOrWhiteSpace(request.SearchTerm)
             ? await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false)
-            : await _productRepository.SearchAsync(request.SearchTerm).ConfigureAwait(false);
+            : await _productRepository.SearchAsync(request.SearchTerm, cancellationToken).ConfigureAwait(false);
 
         // 2. Build category lookup for name resolution
         var categories = await _categoryRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);

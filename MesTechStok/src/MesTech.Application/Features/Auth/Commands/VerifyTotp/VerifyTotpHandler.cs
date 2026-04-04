@@ -26,7 +26,7 @@ public sealed class VerifyTotpHandler : IRequestHandler<VerifyTotpCommand, Verif
 
     public async Task<VerifyTotpResult> Handle(VerifyTotpCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.GetByIdAsync(request.UserId).ConfigureAwait(false);
+        var user = await _userRepo.GetByIdAsync(request.UserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
             return new VerifyTotpResult { ErrorMessage = "Kullanici bulunamadi" };
 
@@ -44,7 +44,7 @@ public sealed class VerifyTotpHandler : IRequestHandler<VerifyTotpCommand, Verif
         {
             user.IsMfaEnabled = true;
             user.MfaEnabledAt = DateTime.UtcNow;
-            await _userRepo.UpdateAsync(user).ConfigureAwait(false);
+            await _userRepo.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
             await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("MFA aktif edildi: UserId={UserId}", request.UserId);
         }

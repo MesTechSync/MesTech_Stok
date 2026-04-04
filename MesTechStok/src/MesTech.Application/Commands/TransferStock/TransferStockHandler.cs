@@ -39,15 +39,15 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         if (request.SourceWarehouseId == request.TargetWarehouseId)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = "Kaynak ve hedef depo aynı olamaz." };
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
-        var sourceWarehouse = await _warehouseRepository.GetByIdAsync(request.SourceWarehouseId).ConfigureAwait(false);
+        var sourceWarehouse = await _warehouseRepository.GetByIdAsync(request.SourceWarehouseId, cancellationToken).ConfigureAwait(false);
         if (sourceWarehouse == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Source warehouse {request.SourceWarehouseId} not found." };
 
-        var targetWarehouse = await _warehouseRepository.GetByIdAsync(request.TargetWarehouseId).ConfigureAwait(false);
+        var targetWarehouse = await _warehouseRepository.GetByIdAsync(request.TargetWarehouseId, cancellationToken).ConfigureAwait(false);
         if (targetWarehouse == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Target warehouse {request.TargetWarehouseId} not found." };
 
@@ -86,8 +86,8 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         inMovement.SetStockLevels(previousStock - request.Quantity, previousStock);
         inMovement.SetMovementType(StockMovementType.Transfer);
 
-        await _movementRepository.AddAsync(outMovement).ConfigureAwait(false);
-        await _movementRepository.AddAsync(inMovement).ConfigureAwait(false);
+        await _movementRepository.AddAsync(outMovement, cancellationToken).ConfigureAwait(false);
+        await _movementRepository.AddAsync(inMovement, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new TransferStockResult

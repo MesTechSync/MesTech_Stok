@@ -19,11 +19,11 @@ public sealed class GetCariHesaplarHandler : IRequestHandler<GetCariHesaplarQuer
         ArgumentNullException.ThrowIfNull(request);
         if (request.Type.HasValue)
         {
-            var byType = await _cariHesapRepository.GetByTypeAsync(request.Type.Value, request.TenantId).ConfigureAwait(false);
+            var byType = await _cariHesapRepository.GetByTypeAsync(request.Type.Value, request.TenantId, cancellationToken).ConfigureAwait(false);
             return byType.Adapt<List<CariHesapDto>>().AsReadOnly();
         }
 
-        var all = await _cariHesapRepository.GetAllAsync(request.TenantId).ConfigureAwait(false);
+        var all = await _cariHesapRepository.GetAllAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
         return all.Adapt<List<CariHesapDto>>().AsReadOnly();
     }
 }

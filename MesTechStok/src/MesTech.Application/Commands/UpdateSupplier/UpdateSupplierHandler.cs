@@ -19,7 +19,7 @@ public sealed class UpdateSupplierHandler : IRequestHandler<UpdateSupplierComman
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var supplier = await _supplierRepository.GetByIdAsync(request.Id).ConfigureAwait(false);
+        var supplier = await _supplierRepository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (supplier == null)
             return new SupplierCommandResult { IsSuccess = false, ErrorMessage = $"Supplier {request.Id} not found." };
 
@@ -35,7 +35,7 @@ public sealed class UpdateSupplierHandler : IRequestHandler<UpdateSupplierComman
         supplier.PaymentTermDays = request.PaymentTermDays;
         supplier.IsActive = request.IsActive;
 
-        await _supplierRepository.UpdateAsync(supplier).ConfigureAwait(false);
+        await _supplierRepository.UpdateAsync(supplier, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new SupplierCommandResult

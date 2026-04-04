@@ -44,7 +44,7 @@ public sealed class CreateBulkProductsHandler : IRequestHandler<CreateBulkProduc
             };
             product.MarkAsCreated();
 
-            await _productRepo.AddAsync(product).ConfigureAwait(false);
+            await _productRepo.AddAsync(product, cancellationToken).ConfigureAwait(false);
             created++;
         }
 

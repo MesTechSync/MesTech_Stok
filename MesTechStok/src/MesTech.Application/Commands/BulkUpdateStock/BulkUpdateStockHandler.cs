@@ -91,7 +91,7 @@ public sealed class BulkUpdateStockHandler : IRequestHandler<BulkUpdateStockComm
                 var delta = item.NewStock - product.Stock;
                 if (delta != 0)
                     product.AdjustStock(delta, StockMovementType.Adjustment, "Bulk stock update");
-                await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
                 successCount++;
             }
 

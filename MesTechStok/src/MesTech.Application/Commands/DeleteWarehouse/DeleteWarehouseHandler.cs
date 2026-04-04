@@ -11,9 +11,9 @@ public sealed class DeleteWarehouseHandler : IRequestHandler<DeleteWarehouseComm
 
     public async Task<bool> Handle(DeleteWarehouseCommand request, CancellationToken cancellationToken)
     {
-        var wh = await _repo.GetByIdAsync(request.WarehouseId).ConfigureAwait(false);
+        var wh = await _repo.GetByIdAsync(request.WarehouseId, cancellationToken).ConfigureAwait(false);
         if (wh is null || wh.TenantId != request.TenantId) return false;
-        await _repo.DeleteAsync(request.WarehouseId).ConfigureAwait(false);
+        await _repo.DeleteAsync(request.WarehouseId, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return true;
     }

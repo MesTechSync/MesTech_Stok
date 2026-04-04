@@ -13,13 +13,13 @@ public sealed class DeleteExpenseHandler : IRequestHandler<DeleteExpenseCommand>
 
     public async Task Handle(DeleteExpenseCommand request, CancellationToken cancellationToken)
     {
-        var expense = await _repository.GetByIdAsync(request.Id)
+        var expense = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Expense {request.Id} not found.");
 
         expense.IsDeleted = true;
         expense.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(expense).ConfigureAwait(false);
+        await _repository.UpdateAsync(expense, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

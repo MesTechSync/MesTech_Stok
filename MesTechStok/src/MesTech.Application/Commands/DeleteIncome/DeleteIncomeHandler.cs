@@ -13,13 +13,13 @@ public sealed class DeleteIncomeHandler : IRequestHandler<DeleteIncomeCommand>
 
     public async Task Handle(DeleteIncomeCommand request, CancellationToken cancellationToken)
     {
-        var income = await _repository.GetByIdAsync(request.Id)
+        var income = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Income {request.Id} not found.");
 
         income.IsDeleted = true;
         income.DeletedAt = DateTime.UtcNow;
 
-        await _repository.UpdateAsync(income).ConfigureAwait(false);
+        await _repository.UpdateAsync(income, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

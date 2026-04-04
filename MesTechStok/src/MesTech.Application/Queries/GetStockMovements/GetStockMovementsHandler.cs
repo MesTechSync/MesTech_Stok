@@ -24,7 +24,7 @@ public sealed class GetStockMovementsHandler : IRequestHandler<GetStockMovements
         ArgumentNullException.ThrowIfNull(request);
         if (request.ProductId.HasValue)
         {
-            var movements = await _movementRepository.GetByProductIdAsync(request.ProductId.Value).ConfigureAwait(false);
+            var movements = await _movementRepository.GetByProductIdAsync(request.ProductId.Value, cancellationToken).ConfigureAwait(false);
             return movements.Adapt<List<StockMovementDto>>().AsReadOnly();
         }
 

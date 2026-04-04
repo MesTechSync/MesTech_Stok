@@ -19,7 +19,7 @@ public sealed class GetBuyboxStatusHandler
     public async Task<BuyboxStatusResult> Handle(
         GetBuyboxStatusQuery request, CancellationToken cancellationToken)
     {
-        var product = await _productRepo.GetByIdAsync(request.ProductId)
+        var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken)
             .ConfigureAwait(false);
 
         if (product is null)

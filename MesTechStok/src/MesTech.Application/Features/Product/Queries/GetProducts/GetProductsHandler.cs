@@ -16,9 +16,9 @@ public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, Paged
         ArgumentNullException.ThrowIfNull(request);
 
         var allProducts = !string.IsNullOrWhiteSpace(request.SearchTerm)
-            ? await _productRepo.SearchAsync(request.SearchTerm)
+            ? await _productRepo.SearchAsync(request.SearchTerm, cancellationToken)
             : request.CategoryId.HasValue
-                ? await _productRepo.GetByCategoryAsync(request.CategoryId.Value)
+                ? await _productRepo.GetByCategoryAsync(request.CategoryId.Value, cancellationToken)
                 : await _productRepo.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var filtered = allProducts.AsEnumerable();

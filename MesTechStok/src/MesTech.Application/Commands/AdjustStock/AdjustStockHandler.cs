@@ -49,7 +49,7 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
             return new AdjustStockResult { IsSuccess = false, ErrorMessage = "Stok kilidi alınamadı. Lütfen tekrar deneyin." };
         }
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new AdjustStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -71,8 +71,8 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.Adjustment);
 
-        await _movementRepository.AddAsync(movement).ConfigureAwait(false);
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _movementRepository.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new AdjustStockResult

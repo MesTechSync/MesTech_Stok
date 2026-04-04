@@ -102,12 +102,12 @@ public sealed class SyncSupplierPricesHandler : IRequestHandler<SyncSupplierPric
             // Linked ürünse ana Product.PurchasePrice'ı da güncelle
             if (dropshipProduct.IsLinked && dropshipProduct.ProductId.HasValue)
             {
-                var mainProduct = await _mainProductRepository.GetByIdAsync(dropshipProduct.ProductId.Value).ConfigureAwait(false);
+                var mainProduct = await _mainProductRepository.GetByIdAsync(dropshipProduct.ProductId.Value, cancellationToken).ConfigureAwait(false);
                 if (mainProduct is not null)
                 {
                     mainProduct.PurchasePrice = feedItem.Price.Value;
                     mainProduct.UpdatedAt = DateTime.UtcNow;
-                    await _mainProductRepository.UpdateAsync(mainProduct).ConfigureAwait(false);
+                    await _mainProductRepository.UpdateAsync(mainProduct, cancellationToken).ConfigureAwait(false);
                 }
             }
 

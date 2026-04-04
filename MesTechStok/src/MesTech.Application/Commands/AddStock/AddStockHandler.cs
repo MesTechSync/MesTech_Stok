@@ -27,7 +27,7 @@ public sealed class AddStockHandler : IRequestHandler<AddStockCommand, AddStockR
     public async Task<AddStockResult> Handle(AddStockCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new AddStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -53,8 +53,8 @@ public sealed class AddStockHandler : IRequestHandler<AddStockCommand, AddStockR
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockIn);
 
-        await _movementRepository.AddAsync(movement).ConfigureAwait(false);
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _movementRepository.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new AddStockResult

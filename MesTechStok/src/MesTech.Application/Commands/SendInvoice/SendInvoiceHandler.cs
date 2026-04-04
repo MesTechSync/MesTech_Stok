@@ -24,7 +24,7 @@ public sealed class SendInvoiceHandler : IRequestHandler<SendInvoiceCommand, Sen
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice == null)
             return new SendInvoiceResult { IsSuccess = false, ErrorMessage = $"Invoice {request.InvoiceId} not found." };
 
@@ -32,7 +32,7 @@ public sealed class SendInvoiceHandler : IRequestHandler<SendInvoiceCommand, Sen
         {
             // Mark invoice as sent — actual e-invoice provider dispatch handled by domain events / consumers
             invoice.MarkAsSent(gibInvoiceId: null, pdfUrl: null);
-            await _invoiceRepository.UpdateAsync(invoice).ConfigureAwait(false);
+            await _invoiceRepository.UpdateAsync(invoice, cancellationToken).ConfigureAwait(false);
             await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("Invoice {InvoiceId} marked as sent", request.InvoiceId);

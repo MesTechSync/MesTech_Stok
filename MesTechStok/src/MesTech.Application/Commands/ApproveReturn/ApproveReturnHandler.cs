@@ -30,7 +30,7 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId).ConfigureAwait(false);
+        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId, cancellationToken).ConfigureAwait(false);
         if (returnRequest is null)
             return new ApproveReturnResult
             {
@@ -64,7 +64,7 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
             stockRestored = true;
         }
 
-        await _returnRepo.UpdateAsync(returnRequest).ConfigureAwait(false);
+        await _returnRepo.UpdateAsync(returnRequest, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new ApproveReturnResult

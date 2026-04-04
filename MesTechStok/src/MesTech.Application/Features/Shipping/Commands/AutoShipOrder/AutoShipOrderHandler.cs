@@ -59,7 +59,7 @@ public sealed class AutoShipOrderHandler : IRequestHandler<AutoShipOrderCommand,
 
         var trackingNumber = shipmentResult.TrackingNumber ?? string.Empty;
         order.MarkAsShipped(trackingNumber, recommendation.Provider);
-        await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        await _orderRepository.UpdateAsync(order, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return AutoShipResult.Succeeded(

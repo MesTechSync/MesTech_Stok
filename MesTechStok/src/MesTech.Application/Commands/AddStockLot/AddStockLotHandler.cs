@@ -32,7 +32,7 @@ public sealed class AddStockLotHandler : IRequestHandler<AddStockLotCommand, Add
         if (string.IsNullOrWhiteSpace(request.LotNumber))
             return new AddStockLotResult { IsSuccess = false, ErrorMessage = "Lot numarası boş olamaz." };
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new AddStockLotResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -72,8 +72,8 @@ public sealed class AddStockLotHandler : IRequestHandler<AddStockLotCommand, Add
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.Purchase);
 
-        await _movementRepository.AddAsync(movement).ConfigureAwait(false);
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _movementRepository.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new AddStockLotResult

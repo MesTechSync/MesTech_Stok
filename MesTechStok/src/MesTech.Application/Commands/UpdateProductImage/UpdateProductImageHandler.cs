@@ -21,7 +21,7 @@ public sealed class UpdateProductImageHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new UpdateProductImageResult
             {
@@ -30,7 +30,7 @@ public sealed class UpdateProductImageHandler
             };
 
         product.ImageUrl = request.ImageUrl;
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new UpdateProductImageResult { IsSuccess = true };

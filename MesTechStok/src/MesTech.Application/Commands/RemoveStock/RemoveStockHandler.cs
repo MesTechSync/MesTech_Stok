@@ -33,7 +33,7 @@ public sealed class RemoveStockHandler : IRequestHandler<RemoveStockCommand, Rem
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new RemoveStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -61,8 +61,8 @@ public sealed class RemoveStockHandler : IRequestHandler<RemoveStockCommand, Rem
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockOut);
 
-        await _movementRepository.AddAsync(movement).ConfigureAwait(false);
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _movementRepository.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new RemoveStockResult

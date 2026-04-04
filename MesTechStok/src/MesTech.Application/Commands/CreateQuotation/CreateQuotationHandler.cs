@@ -52,7 +52,7 @@ public sealed class CreateQuotationHandler : IRequestHandler<CreateQuotationComm
             }
         }
 
-        await _quotationRepository.AddAsync(quotation).ConfigureAwait(false);
+        await _quotationRepository.AddAsync(quotation, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateQuotationResult

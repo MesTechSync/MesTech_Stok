@@ -40,7 +40,7 @@ public sealed class AuthenticateHandler : IRequestHandler<AuthenticateCommand, A
                 return AuthenticateResult.Failure(authResult.ErrorMessage ?? "Gecersiz kullanici adi veya sifre.");
             }
 
-            var user = await _userRepo.GetByUsernameAsync(request.Username).ConfigureAwait(false);
+            var user = await _userRepo.GetByUsernameAsync(request.Username, cancellationToken).ConfigureAwait(false);
             var role = user?.GetType().GetProperty("Role")?.GetValue(user)?.ToString();
 
             // Token generation placeholder — will be wired to IJwtService in WebApi layer

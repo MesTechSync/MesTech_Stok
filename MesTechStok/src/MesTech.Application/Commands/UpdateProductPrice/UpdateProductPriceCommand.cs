@@ -37,8 +37,8 @@ public sealed class UpdateProductPriceHandler : IRequestHandler<UpdateProductPri
 
     public async Task Handle(UpdateProductPriceCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false)
-                      ?? await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false)
+                      ?? await _productRepository.GetBySKUAsync(request.SKU, cancellationToken).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogWarning("UpdateProductPrice: Product not found — ProductId={ProductId}, SKU={SKU}", request.ProductId, request.SKU);
@@ -59,7 +59,7 @@ public sealed class UpdateProductPriceHandler : IRequestHandler<UpdateProductPri
             Reasoning = request.Reasoning ?? string.Empty,
             Source = "ai.price.recommended"
         };
-        await _priceRecommendationRepository.AddAsync(recommendation).ConfigureAwait(false);
+        await _priceRecommendationRepository.AddAsync(recommendation, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("UpdateProductPrice: PriceRecommendation saved — SKU={SKU}, Id={Id}", request.SKU, recommendation.Id);

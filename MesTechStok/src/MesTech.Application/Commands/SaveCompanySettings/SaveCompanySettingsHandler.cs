@@ -71,7 +71,7 @@ public sealed class SaveCompanySettingsHandler : IRequestHandler<SaveCompanySett
                     Phone = wh.Phone,
                     Code = $"WH-{DateTime.UtcNow.Ticks % 100000}"
                 };
-                await _warehouseRepo.AddAsync(warehouse).ConfigureAwait(false);
+                await _warehouseRepo.AddAsync(warehouse, cancellationToken).ConfigureAwait(false);
             }
         }
 

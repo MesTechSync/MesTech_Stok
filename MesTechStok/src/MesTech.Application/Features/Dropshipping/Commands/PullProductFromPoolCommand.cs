@@ -39,7 +39,7 @@ public sealed class PullProductFromPoolCommandHandler(
             throw new InvalidOperationException("Ürün mevcut değil veya pasif durumda.");
 
         // Stok hareketi oluştur
-        var product = await productRepo.GetByIdAsync(poolProduct.ProductId)
+        var product = await productRepo.GetByIdAsync(poolProduct.ProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"Product '{poolProduct.ProductId}' bulunamadı.");
 
         var previousStock = product.Stock;
@@ -58,8 +58,8 @@ public sealed class PullProductFromPoolCommandHandler(
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.StockIn);
 
-        await movementRepo.AddAsync(movement).ConfigureAwait(false);
-        await productRepo.UpdateAsync(product).ConfigureAwait(false);
+        await movementRepo.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await productRepo.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;

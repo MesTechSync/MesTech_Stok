@@ -35,7 +35,7 @@ public sealed class ProcessBotReturnRequestHandler : IRequestHandler<ProcessBotR
 
     public async Task Handle(ProcessBotReturnRequestCommand request, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetByOrderNumberAsync(request.OrderNumber).ConfigureAwait(false);
+        var order = await _orderRepository.GetByOrderNumberAsync(request.OrderNumber, cancellationToken).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogWarning("ProcessBotReturnRequest: Order not found — OrderNumber={OrderNumber}", request.OrderNumber);
@@ -53,7 +53,7 @@ public sealed class ProcessBotReturnRequestHandler : IRequestHandler<ProcessBotR
             Notes = $"Bot return request — channel: {request.RequestChannel}"
         };
 
-        await _returnRequestRepository.AddAsync(returnRequest).ConfigureAwait(false);
+        await _returnRequestRepository.AddAsync(returnRequest, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(

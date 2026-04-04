@@ -21,7 +21,7 @@ public sealed class InventoryValuationReportHandler
     {
         ArgumentNullException.ThrowIfNull(request);
         var products = request.CategoryFilter.HasValue
-            ? await _productRepository.GetByCategoryAsync(request.CategoryFilter.Value)
+            ? await _productRepository.GetByCategoryAsync(request.CategoryFilter.Value, cancellationToken)
             : await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var result = products

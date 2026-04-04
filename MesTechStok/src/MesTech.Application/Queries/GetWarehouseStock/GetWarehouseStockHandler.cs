@@ -20,7 +20,7 @@ public sealed class GetWarehouseStockHandler : IRequestHandler<GetWarehouseStock
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var warehouse = await _warehouseRepository.GetByIdAsync(request.WarehouseId).ConfigureAwait(false);
+        var warehouse = await _warehouseRepository.GetByIdAsync(request.WarehouseId, cancellationToken).ConfigureAwait(false);
         if (warehouse == null)
             return Array.Empty<WarehouseStockDto>();
 

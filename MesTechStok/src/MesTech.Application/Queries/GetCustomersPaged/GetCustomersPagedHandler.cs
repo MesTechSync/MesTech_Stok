@@ -16,7 +16,7 @@ public sealed class GetCustomersPagedHandler : IRequestHandler<GetCustomersPaged
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var allCustomers = await _customerRepository.GetAllAsync().ConfigureAwait(false);
+        var allCustomers = await _customerRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var filtered = string.IsNullOrWhiteSpace(request.SearchTerm)
             ? allCustomers

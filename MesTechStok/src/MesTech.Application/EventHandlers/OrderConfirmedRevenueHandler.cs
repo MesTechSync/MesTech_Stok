@@ -64,7 +64,7 @@ public sealed class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
         };
         income.SetAmount(totalAmount);
 
-        await _incomeRepo.AddAsync(income).ConfigureAwait(false);
+        await _incomeRepo.AddAsync(income, ct).ConfigureAwait(false);
         await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(

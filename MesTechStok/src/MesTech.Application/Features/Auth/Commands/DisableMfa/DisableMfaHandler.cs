@@ -26,7 +26,7 @@ public sealed class DisableMfaHandler : IRequestHandler<DisableMfaCommand, Disab
 
     public async Task<DisableMfaResult> Handle(DisableMfaCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.GetByIdAsync(request.UserId).ConfigureAwait(false);
+        var user = await _userRepo.GetByIdAsync(request.UserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
             return new DisableMfaResult { ErrorMessage = "Kullanici bulunamadi" };
 
@@ -42,7 +42,7 @@ public sealed class DisableMfaHandler : IRequestHandler<DisableMfaCommand, Disab
 
         user.IsMfaEnabled = false;
         user.TotpSecret = null;
-        await _userRepo.UpdateAsync(user).ConfigureAwait(false);
+        await _userRepo.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("MFA devre disi birakildi: UserId={UserId}", request.UserId);

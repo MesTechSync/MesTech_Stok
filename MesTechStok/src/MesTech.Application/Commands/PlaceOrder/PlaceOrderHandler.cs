@@ -71,7 +71,7 @@ public sealed class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, Place
         order.CalculateTotals();
         order.Place();
 
-        await _orderRepository.AddAsync(order).ConfigureAwait(false);
+        await _orderRepository.AddAsync(order, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new PlaceOrderResult

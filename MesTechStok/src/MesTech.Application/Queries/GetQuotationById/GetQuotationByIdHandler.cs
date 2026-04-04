@@ -16,7 +16,7 @@ public sealed class GetQuotationByIdHandler : IRequestHandler<GetQuotationByIdQu
 
     public async Task<QuotationDto?> Handle(GetQuotationByIdQuery request, CancellationToken cancellationToken)
     {
-        var quotation = await _quotationRepository.GetByIdWithLinesAsync(request.Id).ConfigureAwait(false);
+        var quotation = await _quotationRepository.GetByIdWithLinesAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (quotation is null) return null;
 
         return MapToDto(quotation);

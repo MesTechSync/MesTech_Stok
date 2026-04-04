@@ -99,7 +99,7 @@ public sealed class DeletePersonalDataHandler : IRequestHandler<DeletePersonalDa
         {
             order.CustomerName = "ANONIM";
             order.CustomerEmail = null;
-            await _orderRepo.UpdateAsync(order).ConfigureAwait(false);
+            await _orderRepo.UpdateAsync(order, cancellationToken).ConfigureAwait(false);
             anonymized++;
         }
 
