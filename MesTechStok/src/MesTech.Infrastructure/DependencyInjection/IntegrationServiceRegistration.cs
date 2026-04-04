@@ -466,7 +466,8 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IFeedCredentialProtector>(sp =>
         {
             var key = configuration?["FeedCredentials:EncryptionKey"];
-            return new FeedCredentialProtector(key);
+            var logger = sp.GetService<ILogger<FeedCredentialProtector>>();
+            return new FeedCredentialProtector(key, logger);
         });
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3
