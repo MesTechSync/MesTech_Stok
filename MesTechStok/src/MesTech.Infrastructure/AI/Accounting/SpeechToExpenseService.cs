@@ -78,6 +78,8 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         _httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     }
 
+    private const int MaxAudioSizeBytes = 50 * 1024 * 1024; // 50 MB
+
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(
         byte[] audioData,
         string mimeType,
@@ -86,6 +88,11 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
     {
         ArgumentNullException.ThrowIfNull(audioData);
         ArgumentException.ThrowIfNullOrWhiteSpace(mimeType);
+
+        if (audioData.Length > MaxAudioSizeBytes)
+            throw new ArgumentException(
+                $"Audio file size ({audioData.Length:N0} bytes) exceeds maximum allowed ({MaxAudioSizeBytes:N0} bytes).",
+                nameof(audioData));
 
         _logger.LogInformation(
             "[SpeechToExpense] Ses isleme basliyor: boyut={Size} byte, mimeType={MimeType}, tenant={TenantId}",
