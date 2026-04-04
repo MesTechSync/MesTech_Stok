@@ -26,6 +26,9 @@ public sealed class DepreciationCalculationService
         if (asset.NetBookValue <= 0)
             return 0m;
 
+        if (asset.UsefulLifeYears <= 0)
+            throw new ArgumentException("Faydali omur 0 veya negatif olamaz.", nameof(asset));
+
         return asset.Method switch
         {
             DepreciationMethod.StraightLine => CalculateStraightLineAnnual(asset),
@@ -40,6 +43,9 @@ public sealed class DepreciationCalculationService
     public IReadOnlyList<DepreciationScheduleEntry> GenerateSchedule(FixedAsset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
+
+        if (asset.UsefulLifeYears <= 0)
+            throw new ArgumentException("Faydali omur 0 veya negatif olamaz.", nameof(asset));
 
         return asset.Method switch
         {
