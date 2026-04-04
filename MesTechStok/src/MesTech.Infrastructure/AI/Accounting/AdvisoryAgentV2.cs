@@ -103,7 +103,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
                 productCount = analysisData.ProductCount
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "/api/v1/accounting/advisory/sales", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

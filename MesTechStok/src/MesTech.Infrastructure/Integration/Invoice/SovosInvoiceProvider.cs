@@ -98,7 +98,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -133,7 +133,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         EnsureConfigured();
         _logger.LogInformation("Sovos GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -147,7 +147,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -179,7 +179,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -237,7 +237,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -294,7 +294,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         {
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -348,7 +348,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -377,7 +377,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { reason };
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -405,7 +405,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -458,7 +458,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(
+            using var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/api/invoices/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -514,7 +514,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -547,7 +547,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/einvoice/{providerRef}/pdf-url", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -579,7 +579,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { providerRef, reason };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -605,7 +605,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/einvoice/taxpayer/{vkn}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -642,7 +642,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -733,7 +733,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         {
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

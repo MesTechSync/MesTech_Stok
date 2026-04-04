@@ -126,7 +126,7 @@ public sealed class ProductScraperService : IProductScraperService
             return null;
         }
 
-        var response = await _httpClient.GetAsync(apiUrl, ct).ConfigureAwait(false);
+        using var response = await _httpClient.GetAsync(apiUrl, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning("API call to {Platform} failed: {Status} for product {ProductId}",

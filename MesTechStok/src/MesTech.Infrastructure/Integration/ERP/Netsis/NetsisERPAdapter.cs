@@ -108,7 +108,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisOrder, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/siparisler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -168,7 +168,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -208,7 +208,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         {
             SetBasicAuthHeader();
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/cariler?limit=200", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -259,7 +259,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -322,7 +322,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -368,7 +368,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -409,7 +409,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             SetBasicAuthHeader();
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/faturalar?baslangic={fromStr}&bitis={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -467,7 +467,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             {
                 Content = content
             };
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -519,7 +519,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -557,7 +557,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -612,7 +612,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -650,7 +650,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/cariler?arama={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -719,7 +719,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -766,7 +766,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -822,7 +822,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(hareket, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/stoklar/{productCode}/hareket", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -879,7 +879,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisWaybill, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -918,7 +918,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -962,7 +962,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/bankTransaction?startDate={fromStr}&endDate={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1025,7 +1025,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisPayment, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1087,7 +1087,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1133,7 +1133,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;

@@ -59,7 +59,7 @@ public sealed class AdvisoryAgentClient : IAdvisoryAgentClient
                 date = date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "/api/v1/accounting/advisory/daily", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

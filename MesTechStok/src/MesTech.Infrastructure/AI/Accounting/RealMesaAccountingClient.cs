@@ -43,7 +43,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
             content.Add(new ByteArrayContent(fileData), "file", "document");
             content.Add(new StringContent(mimeType), "mimeType");
 
-            var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
@@ -93,7 +93,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
             content.Add(new StringContent(classification.Confidence.ToString("F2",
                 System.Globalization.CultureInfo.InvariantCulture)), "confidence");
 
-            var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
@@ -141,7 +141,7 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
                 candidateBankTransactionIds
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "/api/v1/accounting/reconcile/suggest", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

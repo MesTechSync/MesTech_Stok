@@ -97,7 +97,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -132,7 +132,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         EnsureConfigured();
         _logger.LogInformation("e-Logo GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -146,7 +146,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -176,7 +176,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -234,7 +234,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -291,7 +291,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         {
             var fromStr = startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -343,7 +343,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{invoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -370,7 +370,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { reason };
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{invoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -396,7 +396,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

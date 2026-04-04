@@ -108,7 +108,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
 
         try
         {
-            var response = await _httpClient.GetAsync("accounts", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync("accounts", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -180,7 +180,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             var toDate = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             var url = $"transaction_documents?filter[issue_date_gte]={fromDate}&filter[issue_date_lte]={toDate}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -265,7 +265,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
 
-            var response = await _httpClient.PostAsync(endpoint, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(endpoint, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

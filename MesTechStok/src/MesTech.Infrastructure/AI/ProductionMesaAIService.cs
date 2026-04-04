@@ -72,7 +72,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     imageUrls = imageUrls ?? new List<string>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/content/description", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -121,7 +121,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
             {
                 var payload = new { sku, sourceImageUrls };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/images/generate", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -173,7 +173,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     competitors = competitors ?? new List<CompetitorPrice>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/price/recommend", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -230,7 +230,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     history = history ?? new List<StockHistoryPoint>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/stock/predict", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -282,7 +282,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
             {
                 var payload = new { productName, description, targetPlatform };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/category/suggest", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -337,7 +337,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
             {
                 var payload = new { messageBody, customerName, orderContext };
 
-                var response = await _httpClient.PostAsJsonAsync(
+                using var response = await _httpClient.PostAsJsonAsync(
                     "v1/ai/crm/suggest-reply", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)

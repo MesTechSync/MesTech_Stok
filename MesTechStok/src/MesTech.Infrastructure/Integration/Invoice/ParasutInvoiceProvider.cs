@@ -91,7 +91,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -133,7 +133,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -149,7 +149,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -185,7 +185,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var request = new HttpRequestMessage(HttpMethod.Delete,
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}");
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -247,7 +247,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             content.Headers.ContentType = JsonApiMediaType;
 
             var url = $"{_baseUrl}/v4/{_companyId}/e_invoices/bulk";
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -386,7 +386,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = JsonApiMediaType;
 
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

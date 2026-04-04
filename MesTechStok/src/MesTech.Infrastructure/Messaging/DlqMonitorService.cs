@@ -54,7 +54,7 @@ public sealed class DlqMonitorService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("[DLQ Monitor] RabbitMQ Management API unreachable: {StatusCode}",

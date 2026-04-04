@@ -312,7 +312,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
 
         _logger.LogDebug("GibPortal SOAP request action={Action} to {BaseUrl}", soapAction, _baseUrl);
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)

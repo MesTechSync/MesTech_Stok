@@ -113,7 +113,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimOrder, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -175,7 +175,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -215,7 +215,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             SetApiKeyHeader();
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers?officeCode={_options.OfficeCode}&limit=200", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -268,7 +268,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/api/ping", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/api/ping", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -307,7 +307,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/inventory/levels?warehouseCode={_options.WarehouseCode}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -363,7 +363,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/inventory/levels?productCode={productCode}&warehouseCode={_options.WarehouseCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -425,7 +425,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(payload, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/inventory/levels", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -492,7 +492,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -532,7 +532,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -569,7 +569,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             SetApiKeyHeader();
             var url = $"{BaseUrl}/api/invoices?fromDate={from:yyyy-MM-dd}&toDate={to:yyyy-MM-dd}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -620,7 +620,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel")
             { Content = content };
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -666,7 +666,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var content = new StringContent(
                 JsonSerializer.Serialize(nebimAccount, JsonOptions), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/customers", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/customers", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -693,7 +693,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -747,7 +747,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(request.AccountCode)}")
             { Content = content };
 
-            var response = await _httpClient.SendAsync(httpRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(httpRequest, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
@@ -771,7 +771,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers?search={Uri.EscapeDataString(query)}&officeCode={_options.OfficeCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -813,7 +813,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -871,7 +871,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimDispatch, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/dispatches", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/dispatches", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -910,7 +910,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/dispatches/{Uri.EscapeDataString(waybillNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -977,7 +977,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/products?officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1035,7 +1035,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/products/{Uri.EscapeDataString(productCode)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -1084,7 +1084,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var fromStr = from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/api/payments?startDate={fromStr}&endDate={toStr}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1149,7 +1149,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(payload),
                 System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payments", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/payments", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

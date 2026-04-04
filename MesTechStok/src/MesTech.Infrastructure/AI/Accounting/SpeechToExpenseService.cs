@@ -93,7 +93,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
             content.Add(new ByteArrayContent(audioData), "audio", "recording");
             content.Add(new StringContent(mimeType), "mimeType");
 
-            var response = await _httpClient.PostAsync("/api/v1/stt/transcribe", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync("/api/v1/stt/transcribe", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

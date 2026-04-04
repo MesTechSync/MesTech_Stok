@@ -119,7 +119,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["merchant_fail_url"] = request.ReturnUrl
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(TokenEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -174,7 +174,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(StatusEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -228,7 +228,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(BinEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -283,7 +283,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(RefundEndpoint, payload), ct).ConfigureAwait(false);
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

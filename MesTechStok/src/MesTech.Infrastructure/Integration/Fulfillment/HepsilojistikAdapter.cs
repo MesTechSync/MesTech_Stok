@@ -130,7 +130,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/shipments");
@@ -194,7 +194,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var skuParam = string.Join(",", batch.Select(Uri.EscapeDataString));
                 var path = $"/inventory?merchantSkus={skuParam}";
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -265,7 +265,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         {
             var path = $"/shipments/{Uri.EscapeDataString(shipmentId)}/status";
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -333,7 +333,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var path = $"/orders?since={Uri.EscapeDataString(sinceStr)}" +
                            $"&page={page}&size={pageSize}";
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -437,7 +437,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     {
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/inventory?limit=1"), ct).ConfigureAwait(false);
 
             var available = response.IsSuccessStatusCode || (int)response.StatusCode < 500;

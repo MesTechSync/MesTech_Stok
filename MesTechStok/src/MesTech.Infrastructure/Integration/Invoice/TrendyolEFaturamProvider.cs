@@ -94,7 +94,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -129,7 +129,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
         EnsureConfigured();
         _logger.LogInformation("TrendyolEFaturam GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -143,7 +143,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/taxpayer/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -173,7 +173,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -236,7 +236,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -288,7 +288,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -339,7 +339,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
             };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(
+            using var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -426,7 +426,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
         {
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

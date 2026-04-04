@@ -58,7 +58,7 @@ public sealed class DlqReprocessService
             });
 
             var getContent = new StringContent(getBody, System.Text.Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(
+            using var response = await client.PostAsync(
                 $"{baseUrl}/api/queues/%2f/{Uri.EscapeDataString(errorQueue)}/get", getContent, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -162,7 +162,7 @@ public sealed class DlqReprocessService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return result;
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

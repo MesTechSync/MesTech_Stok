@@ -59,7 +59,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
         try
         {
-            var response = await _httpClient.GetAsync("api/method/frappe.auth.get_logged_user", ct)
+            using var response = await _httpClient.GetAsync("api/method/frappe.auth.get_logged_user", ct)
                 .ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -211,7 +211,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             var url = $"api/method/erpnext.accounts.utils.get_balance_on?account={Uri.EscapeDataString(accountCode)}" +
                       $"&date={DateTime.UtcNow:yyyy-MM-dd}&company={Uri.EscapeDataString(_options.Company)}";
 
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -297,7 +297,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
         var json = JsonSerializer.Serialize(new { data = payload }, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync($"api/resource/{doctype}", content, ct)
+        using var response = await _httpClient.PostAsync($"api/resource/{doctype}", content, ct)
             .ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)

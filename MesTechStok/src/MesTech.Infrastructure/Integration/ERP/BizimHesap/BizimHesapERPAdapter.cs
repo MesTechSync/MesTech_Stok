@@ -45,7 +45,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync("companies/me", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync("companies/me", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -83,7 +83,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 totalAmount = order.TotalAmount
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/orders", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/orders", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -116,7 +116,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 totalAmount = inv.GrandTotal
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -137,7 +137,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
     {
         try
         {
-            var response = await _apiClient.GetAsync("api/v1/contacts", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync("api/v1/contacts", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return Array.Empty<ErpAccountDto>();
 
             var items = await _apiClient.DeserializeResponseAsync<List<BizimHesapAccountResponse>>(response, ct).ConfigureAwait(false);
@@ -181,7 +181,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
             try
             {
                 var payload = BizimHesapMappingProfile.MapInvoice(invoice);
-                var response = await _apiClient.PostJsonAsync("invoices", payload, ct).ConfigureAwait(false);
+                using var response = await _apiClient.PostJsonAsync("invoices", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -230,7 +230,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
             try
             {
                 var payload = BizimHesapMappingProfile.MapExpense(expense);
-                var response = await _apiClient.PostJsonAsync("expenses", payload, ct).ConfigureAwait(false);
+                using var response = await _apiClient.PostJsonAsync("expenses", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -279,7 +279,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
             try
             {
                 var payload = BizimHesapMappingProfile.MapCounterparty(party);
-                var response = await _apiClient.PostJsonAsync("contacts", payload, ct).ConfigureAwait(false);
+                using var response = await _apiClient.PostJsonAsync("contacts", payload, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -320,7 +320,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"accounts/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"accounts/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -381,7 +381,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 }).ToList()
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/invoices", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -413,7 +413,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -448,7 +448,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
         {
             var startDate = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var endDate = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _apiClient.GetAsync($"api/v1/invoices?startDate={startDate}&endDate={endDate}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/invoices?startDate={startDate}&endDate={endDate}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -483,7 +483,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
         try
         {
             var payload = new { reason };
-            var response = await _apiClient.PutJsonAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PutJsonAsync($"api/v1/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -523,7 +523,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 email = request.Email
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/contacts", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/contacts", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -553,7 +553,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts?taxNumber={Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/contacts?taxNumber={Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -596,7 +596,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 email = request.Email
             };
 
-            var response = await _apiClient.PutJsonAsync($"api/v1/contacts/{Uri.EscapeDataString(request.AccountCode)}", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PutJsonAsync($"api/v1/contacts/{Uri.EscapeDataString(request.AccountCode)}", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -626,7 +626,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts?search={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/contacts?search={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -658,7 +658,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/contacts/{Uri.EscapeDataString(accountCode)}/balance", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/contacts/{Uri.EscapeDataString(accountCode)}/balance", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -692,7 +692,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -727,7 +727,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -763,7 +763,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
         try
         {
             var payload = new { quantity, warehouseCode };
-            var response = await _apiClient.PutJsonAsync($"api/v1/stock-items/{Uri.EscapeDataString(productCode)}/quantity", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PutJsonAsync($"api/v1/stock-items/{Uri.EscapeDataString(productCode)}/quantity", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -791,7 +791,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync("api/v1/stock-items", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -825,7 +825,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/stock-items?code={Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -873,7 +873,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 }).ToArray()
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/waybills", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/waybills", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -901,7 +901,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
 
         try
         {
-            var response = await _apiClient.GetAsync($"api/v1/waybills/{Uri.EscapeDataString(waybillNumber)}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/waybills/{Uri.EscapeDataString(waybillNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -931,7 +931,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
         {
             var fromStr = from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-            var response = await _apiClient.GetAsync($"api/v1/bank-transactions?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
+            using var response = await _apiClient.GetAsync($"api/v1/bank-transactions?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -975,7 +975,7 @@ public sealed class BizimHesapERPAdapter : IERPAdapter, IErpAdapter, IErpInvoice
                 description = request.Description
             };
 
-            var response = await _apiClient.PostJsonAsync("api/v1/payments", payload, ct).ConfigureAwait(false);
+            using var response = await _apiClient.PostJsonAsync("api/v1/payments", payload, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

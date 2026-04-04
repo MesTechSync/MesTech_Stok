@@ -50,7 +50,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 data = templateData
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "v1/bot/whatsapp/send", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -91,7 +91,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 level = level.ToString().ToLowerInvariant()
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "v1/bot/telegram/alert", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -133,7 +133,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
                 data
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "v1/bot/bulk/send", payload, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

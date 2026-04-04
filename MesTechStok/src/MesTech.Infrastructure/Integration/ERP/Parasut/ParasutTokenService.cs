@@ -93,7 +93,7 @@ public sealed class ParasutTokenService
             };
 
             var content = new FormUrlEncodedContent(formData);
-            var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
