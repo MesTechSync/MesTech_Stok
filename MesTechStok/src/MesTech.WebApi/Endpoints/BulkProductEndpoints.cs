@@ -114,7 +114,9 @@ public static class BulkProductEndpoints
                 return Results.File(exportBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", xlsxFilename);
             }
 
-            // CSV fallback — use original path but with DB-level limited data
+            // CSV fallback — PERF NOTE: GetAllAsync loads all products into memory.
+            // TODO-PERF: Replace with paginated repository method when IProductRepository
+            // gets GetPagedAsync (DEV6-G009). Excel path above uses DB-level Take(50K).
             var products = await productRepository.GetAllAsync(ct);
 
             if (products.Count == 0)
