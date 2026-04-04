@@ -13,9 +13,9 @@ public sealed class SupplierRepository : ISupplierRepository
         _context = context;
     }
 
-    public async Task<Supplier?> GetByIdAsync(Guid id)
+    public async Task<Supplier?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
+        return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Supplier>> GetAllAsync(CancellationToken ct = default)
@@ -35,20 +35,20 @@ public sealed class SupplierRepository : ISupplierRepository
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
-    public async Task AddAsync(Supplier supplier)
+    public async Task AddAsync(Supplier supplier, CancellationToken ct = default)
     {
-        await _context.Suppliers.AddAsync(supplier).ConfigureAwait(false);
+        await _context.Suppliers.AddAsync(supplier, ct).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(Supplier supplier)
+    public Task UpdateAsync(Supplier supplier, CancellationToken ct = default)
     {
         _context.Suppliers.Update(supplier);
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var entity = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
+        var entity = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
         if (entity != null)
         {
             entity.IsDeleted = true;

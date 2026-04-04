@@ -11,41 +11,41 @@ public sealed class IncomeRepository : IIncomeRepository
 
     public IncomeRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Income?> GetByIdAsync(Guid id)
+    public async Task<Income?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Incomes
-            .AsNoTracking().FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(i => i.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Income>> GetAllAsync(Guid? tenantId = null)
+    public async Task<IReadOnlyList<Income>> GetAllAsync(Guid? tenantId = null, CancellationToken ct = default)
         => await _context.Incomes
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Income>> GetByDateRangeAsync(DateTime from, DateTime to, Guid? tenantId = null)
+    public async Task<IReadOnlyList<Income>> GetByDateRangeAsync(DateTime from, DateTime to, Guid? tenantId = null, CancellationToken ct = default)
         => await _context.Incomes
             .Where(i => i.Date >= from && i.Date <= to)
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Income>> GetByTypeAsync(IncomeType type, Guid? tenantId = null)
+    public async Task<IReadOnlyList<Income>> GetByTypeAsync(IncomeType type, Guid? tenantId = null, CancellationToken ct = default)
         => await _context.Incomes
             .Where(i => i.IncomeType == type)
             .Where(i => tenantId == null || i.TenantId == tenantId.Value)
             .OrderByDescending(i => i.Date)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<bool> ExistsByOrderIdAsync(Guid tenantId, Guid orderId, CancellationToken ct = default)
         => await _context.Incomes
             .AnyAsync(i => i.TenantId == tenantId && i.OrderId == orderId, ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Income income)
-        => await _context.Incomes.AddAsync(income).ConfigureAwait(false);
+    public async Task AddAsync(Income income, CancellationToken ct = default)
+        => await _context.Incomes.AddAsync(income, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Income income)
+    public Task UpdateAsync(Income income, CancellationToken ct = default)
     {
         _context.Incomes.Update(income);
         return Task.CompletedTask;

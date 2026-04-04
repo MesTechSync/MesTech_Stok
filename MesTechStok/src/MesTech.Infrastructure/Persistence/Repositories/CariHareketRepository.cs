@@ -10,20 +10,20 @@ public sealed class CariHareketRepository : ICariHareketRepository
 
     public CariHareketRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<IReadOnlyList<CariHareket>> GetByCariHesapIdAsync(Guid cariHesapId)
+    public async Task<IReadOnlyList<CariHareket>> GetByCariHesapIdAsync(Guid cariHesapId, CancellationToken ct = default)
         => await _context.CariHareketler
             .Where(h => h.CariHesapId == cariHesapId)
             .OrderByDescending(h => h.Date)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<CariHareket>> GetByDateRangeAsync(Guid cariHesapId, DateTime from, DateTime to)
+    public async Task<IReadOnlyList<CariHareket>> GetByDateRangeAsync(Guid cariHesapId, DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.CariHareketler
             .Where(h => h.CariHesapId == cariHesapId && h.Date >= from && h.Date <= to)
             .OrderByDescending(h => h.Date)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(CariHareket hareket)
-        => await _context.CariHareketler.AddAsync(hareket).ConfigureAwait(false);
+    public async Task AddAsync(CariHareket hareket, CancellationToken ct = default)
+        => await _context.CariHareketler.AddAsync(hareket, ct).ConfigureAwait(false);
 }
