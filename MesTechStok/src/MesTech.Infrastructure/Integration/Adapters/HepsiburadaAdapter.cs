@@ -1089,7 +1089,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            var initialResponse = await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
                 await ApplyAuthHeaderAsync(request, token).ConfigureAwait(false);
@@ -1097,8 +1097,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             }, ct).ConfigureAwait(false);
 
             // K1c-04: On 401 — invalidate token, refresh, retry once
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized && _tokenService is not null)
+            HttpResponseMessage response;
+            if (initialResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized && _tokenService is not null)
             {
+                initialResponse.Dispose();
                 _logger.LogWarning("{Platform} received 401 — refreshing OAuth token and retrying", PlatformCode);
                 _tokenService.InvalidateToken();
 
@@ -1108,6 +1110,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     await ApplyAuthHeaderAsync(retryRequest, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(retryRequest, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
+            }
+            else
+            {
+                response = initialResponse;
             }
 
             return response;
