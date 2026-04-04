@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.LabelPreviewAvaloniaView"
              x:Name="RootLabelPreviewAvaloniaView"
              x:DataType="vm:LabelPreviewAvaloniaViewModel">
@@ -127,23 +128,18 @@
           </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="1" Grid.RowSpan="1"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
-            </StackPanel>
-        </Border>
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
              xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.AppHubView"
              x:Name="RootAppHubView"
              x:DataType="vm:AppHubViewModel"
@@ -36,18 +37,19 @@
                    HorizontalAlignment="Center" Opacity="0.6" />
     </Border>
 
-    <!-- Error State -->
-    <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-            CornerRadius="{StaticResource MesRadiusBase}" Padding="20" Margin="20"
-            VerticalAlignment="Top" HorizontalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="⚠" FontSize="18" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
-            <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" Padding="8,4"
-                    ToolTip.Tip="Verileri tekrar yukle"
-                    CornerRadius="{StaticResource MesRadiusMd}" />
-        </StackPanel>
-    </Border>
+            <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
     <!-- Main Content -->
     <ScrollViewer VerticalScrollBarVisibility="Auto">

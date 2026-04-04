@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
              xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.PlatformSyncHistoryAvaloniaView"
              x:Name="RootPlatformSyncHistoryAvaloniaView"
              x:DataType="vm:PlatformSyncHistoryAvaloniaViewModel"
@@ -77,21 +78,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}" ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource MesErrorRed}" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
-                           MaxWidth="400" HorizontalAlignment="Center" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
-                        ToolTip.Tip="Tekrar dene"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
-            </StackPanel>
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
         <!-- Sync History DataGrid -->
         <DataGrid Grid.Row="2" ItemsSource="{Binding SyncHistory}"
