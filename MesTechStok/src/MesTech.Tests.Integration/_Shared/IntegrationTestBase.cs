@@ -13,6 +13,7 @@ public abstract class IntegrationTestBase : IDisposable
 {
     protected readonly AppDbContext Context;
     protected readonly TestTenantProvider TenantProvider;
+    protected readonly IDbContextFactory<AppDbContext> ContextFactory;
 
     protected IntegrationTestBase()
     {
@@ -24,6 +25,13 @@ public abstract class IntegrationTestBase : IDisposable
 
         Context = new AppDbContext(options, TenantProvider);
         Context.Database.EnsureCreated();
+        ContextFactory = new TestDbContextFactory(Context);
+    }
+
+    /// <summary>Test-only IDbContextFactory wrapper — returns the shared InMemory AppDbContext.</summary>
+    private sealed class TestDbContextFactory(AppDbContext context) : IDbContextFactory<AppDbContext>
+    {
+        public AppDbContext CreateDbContext() => context;
     }
 
     protected void SetCurrentTenant(Guid tenantId)
