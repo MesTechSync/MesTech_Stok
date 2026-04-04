@@ -19,6 +19,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
     public async Task<IReadOnlyList<RefreshToken>> GetActiveByUserAsync(Guid userId, CancellationToken ct = default)
         => await _context.Set<RefreshToken>()
             .Where(t => t.UserId == userId && !t.IsRevoked && t.ExpiresAt > DateTime.UtcNow)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);
@@ -30,6 +31,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
     {
         var activeTokens = await _context.Set<RefreshToken>()
             .Where(t => t.UserId == userId && !t.IsRevoked)
+            .Take(1000) // G485: pagination guard
             .ToListAsync(ct)
             .ConfigureAwait(false);
 

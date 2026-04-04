@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ public sealed class N11SettlementParser : ISettlementParser
     private List<N11SettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "N11";
+    public string Platform => nameof(PlatformType.N11);
 
     public N11SettlementParser(ILogger<N11SettlementParser> logger)
     {
@@ -130,7 +131,7 @@ public sealed class N11SettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.KomisyonTutari != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SatisTutari,
@@ -138,7 +139,7 @@ public sealed class N11SettlementParser : ISettlementParser
                     commissionAmount: item.KomisyonTutari,
                     serviceFee: 0m,
                     orderId: item.SiparisNo,
-                    category: item.Kategori);
+                    category: item.Kategori));
             }
         }
 

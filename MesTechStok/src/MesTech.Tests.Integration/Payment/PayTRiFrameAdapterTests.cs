@@ -78,6 +78,7 @@ public class PayTRiFrameAdapterTests : IClassFixture<WireMockFixture>, IDisposab
             CardToken: null,
             ReturnUrl: "https://mestech.app/payment/return",
             CustomerIp: "10.0.0.1",
+            CustomerEmail: "test@example.com",
             BasketItems: new List<BasketItem>
             {
                 new BasketItem("ITEM-2", "iFrame Test Urunu", "Giyim", 150.00m)

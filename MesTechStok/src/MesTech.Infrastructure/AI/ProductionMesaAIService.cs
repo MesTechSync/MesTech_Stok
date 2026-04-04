@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+using System.Diagnostics;
+using System.Net.Http.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -60,10 +61,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string sku, string productName, string? category,
         List<string>? imageUrls, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "description"));
                 var payload = new
                 {
                     sku,
@@ -72,8 +75,8 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     imageUrls = imageUrls ?? new List<string>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/content/description", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/content/description", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -81,18 +84,18 @@ public sealed class ProductionMesaAIService : IMesaAIService
                         "[MESA AI] GenerateDescription failed: {StatusCode} — falling back to mock (sku={SKU})",
                         response.StatusCode, sku);
                     return await _mockFallback.GenerateProductDescriptionAsync(
-                        sku, productName, category, imageUrls, ct);
+                        sku, productName, category, imageUrls, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaContentResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaContentResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result?.Content is null)
                 {
                     _logger.LogWarning(
                         "[MESA AI] GenerateDescription deserialization failed — falling back (sku={SKU})", sku);
                     return await _mockFallback.GenerateProductDescriptionAsync(
-                        sku, productName, category, imageUrls, ct);
+                        sku, productName, category, imageUrls, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -100,7 +103,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     sku, result.Content.Length);
 
                 return new AiContentResult(true, result.Content, null, null);
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
@@ -108,38 +111,45 @@ public sealed class ProductionMesaAIService : IMesaAIService
             _logger.LogError(ex,
                 "[MESA AI] MESA OS unreachable, falling back to mock (GenerateDescription, sku={SKU})", sku);
             return await _mockFallback.GenerateProductDescriptionAsync(
-                sku, productName, category, imageUrls, ct);
+                sku, productName, category, imageUrls, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "description"));
         }
     }
 
     public async Task<AiImageResult> GenerateProductImagesAsync(
         string sku, List<string> sourceImageUrls, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "images"));
                 var payload = new { sku, sourceImageUrls };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/images/generate", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/images/generate", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning(
                         "[MESA AI] GenerateImages failed: {StatusCode} — falling back (sku={SKU})",
                         response.StatusCode, sku);
-                    return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct);
+                    return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaImageResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaImageResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result?.ImageUrls is null or { Count: 0 })
                 {
                     _logger.LogWarning(
                         "[MESA AI] GenerateImages empty response — falling back (sku={SKU})", sku);
-                    return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct);
+                    return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -147,14 +157,19 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     sku, result.ImageUrls.Count);
 
                 return new AiImageResult(true, result.ImageUrls, null);
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA AI] MESA OS unreachable, falling back to mock (GenerateImages, sku={SKU})", sku);
-            return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct);
+            return await _mockFallback.GenerateProductImagesAsync(sku, sourceImageUrls, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "images"));
         }
     }
 
@@ -162,10 +177,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string sku, decimal currentPrice, List<CompetitorPrice>? competitors,
         CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "price"));
                 var payload = new
                 {
                     sku,
@@ -173,25 +190,25 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     competitors = competitors ?? new List<CompetitorPrice>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/price/recommend", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/price/recommend", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning(
                         "[MESA AI] RecommendPrice failed: {StatusCode} — falling back (sku={SKU})",
                         response.StatusCode, sku);
-                    return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct);
+                    return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaPriceResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaPriceResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result?.RecommendedPrice is null)
                 {
                     _logger.LogWarning(
                         "[MESA AI] RecommendPrice null response — falling back (sku={SKU})", sku);
-                    return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct);
+                    return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -204,14 +221,19 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     result.MinPrice ?? Math.Round(result.RecommendedPrice.Value * 0.85m, 2),
                     result.MaxPrice ?? Math.Round(result.RecommendedPrice.Value * 1.10m, 2),
                     result.Reasoning ?? "MESA AI fiyat onerisi");
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA AI] MESA OS unreachable, falling back to mock (RecommendPrice, sku={SKU})", sku);
-            return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct);
+            return await _mockFallback.RecommendPriceAsync(sku, currentPrice, competitors, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "price"));
         }
     }
 
@@ -219,10 +241,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string sku, int currentStock, List<StockHistoryPoint>? history,
         CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "stock"));
                 var payload = new
                 {
                     sku,
@@ -230,25 +254,25 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     history = history ?? new List<StockHistoryPoint>()
                 };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/stock/predict", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/stock/predict", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning(
                         "[MESA AI] PredictStock failed: {StatusCode} — falling back (sku={SKU})",
                         response.StatusCode, sku);
-                    return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct);
+                    return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaStockPredictionResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaStockPredictionResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result is null)
                 {
                     _logger.LogWarning(
                         "[MESA AI] PredictStock null response — falling back (sku={SKU})", sku);
-                    return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct);
+                    return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -261,14 +285,19 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     result.ReorderSuggestion,
                     result.DaysUntilStockout,
                     result.Reasoning ?? "MESA AI stok tahmini");
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA AI] MESA OS unreachable, falling back to mock (PredictStock, sku={SKU})", sku);
-            return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct);
+            return await _mockFallback.PredictStockAsync(sku, currentStock, history, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "stock"));
         }
     }
 
@@ -276,14 +305,16 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string productName, string? description,
         string targetPlatform, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "category"));
                 var payload = new { productName, description, targetPlatform };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/category/suggest", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/category/suggest", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -291,18 +322,18 @@ public sealed class ProductionMesaAIService : IMesaAIService
                         "[MESA AI] SuggestCategory failed: {StatusCode} — falling back (product={Name})",
                         response.StatusCode, productName);
                     return await _mockFallback.SuggestCategoryAsync(
-                        productName, description, targetPlatform, ct);
+                        productName, description, targetPlatform, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaCategoryResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaCategoryResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result is null)
                 {
                     _logger.LogWarning(
                         "[MESA AI] SuggestCategory null response — falling back (product={Name})", productName);
                     return await _mockFallback.SuggestCategoryAsync(
-                        productName, description, targetPlatform, ct);
+                        productName, description, targetPlatform, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -314,7 +345,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     result.CategoryId ?? $"{targetPlatform}-cat-genel",
                     result.CategoryName ?? "Genel Urunler",
                     result.Confidence);
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
@@ -323,7 +354,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
                 "[MESA AI] MESA OS unreachable, falling back to mock (SuggestCategory, product={Name})",
                 productName);
             return await _mockFallback.SuggestCategoryAsync(
-                productName, description, targetPlatform, ct);
+                productName, description, targetPlatform, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "category"));
         }
     }
 
@@ -331,14 +367,16 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string messageBody, string? customerName,
         string? orderContext, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "reply"));
                 var payload = new { messageBody, customerName, orderContext };
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    "v1/ai/crm/suggest-reply", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/ai/crm/suggest-reply", payload, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -346,18 +384,18 @@ public sealed class ProductionMesaAIService : IMesaAIService
                         "[MESA AI] SuggestReply failed: {StatusCode} — falling back (customer={Customer})",
                         response.StatusCode, customerName);
                     return await _mockFallback.SuggestReplyAsync(
-                        messageBody, customerName, orderContext, ct);
+                        messageBody, customerName, orderContext, ct).ConfigureAwait(false);
                 }
 
                 var result = await response.Content
-                    .ReadFromJsonAsync<MesaReplyResponse>(cancellationToken: ct);
+                    .ReadFromJsonAsync<MesaReplyResponse>(cancellationToken: ct).ConfigureAwait(false);
 
                 if (result?.SuggestedReply is null)
                 {
                     _logger.LogWarning(
                         "[MESA AI] SuggestReply null response — falling back (customer={Customer})", customerName);
                     return await _mockFallback.SuggestReplyAsync(
-                        messageBody, customerName, orderContext, ct);
+                        messageBody, customerName, orderContext, ct).ConfigureAwait(false);
                 }
 
                 _logger.LogInformation(
@@ -365,7 +403,7 @@ public sealed class ProductionMesaAIService : IMesaAIService
                     customerName, result.SuggestedReply.Length);
 
                 return new AiReplyResult(true, result.SuggestedReply, null);
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                        or OperationCanceledException or BrokenCircuitException)
@@ -374,7 +412,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
                 "[MESA AI] MESA OS unreachable, falling back to mock (SuggestReply, customer={Customer})",
                 customerName);
             return await _mockFallback.SuggestReplyAsync(
-                messageBody, customerName, orderContext, ct);
+                messageBody, customerName, orderContext, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "reply"));
         }
     }
 }

@@ -13,6 +13,7 @@ public sealed class TaxWithholdingRepository : ITaxWithholdingRepository
         => await _context.TaxWithholdings
             .Where(w => w.InvoiceId == invoiceId)
             .OrderByDescending(w => w.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<decimal> GetTotalWithholdingAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -36,6 +37,7 @@ public sealed class TaxWithholdingRepository : ITaxWithholdingRepository
 
         return await query
             .OrderByDescending(w => w.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 }

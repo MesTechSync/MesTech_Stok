@@ -14,7 +14,7 @@ public sealed class GetStockValueReportHandler
     public async Task<StockValueReportResult> Handle(
         GetStockValueReportQuery request, CancellationToken cancellationToken)
     {
-        var products = await _productRepo.GetAllAsync()
+        var products = await _productRepo.GetAllAsync(cancellationToken)
             .ConfigureAwait(false);
 
         var lines = products

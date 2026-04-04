@@ -21,6 +21,16 @@ public static class SettlementEndpoints
             ISender mediator,
             CancellationToken ct) =>
         {
+            // Content-Type doğrulama — parser confusion önleme
+            var contentType = request.ContentType?.Split(';')[0].Trim().ToLowerInvariant();
+            if (contentType is not ("application/json" or "text/csv" or "text/tab-separated-values"
+                or "application/octet-stream"))
+            {
+                return Results.Problem(
+                    detail: $"Desteklenmeyen Content-Type: {contentType}. JSON, CSV veya TSV bekleniyor.",
+                    statusCode: 415);
+            }
+
             using var ms = new MemoryStream();
             await request.Body.CopyToAsync(ms, ct);
 

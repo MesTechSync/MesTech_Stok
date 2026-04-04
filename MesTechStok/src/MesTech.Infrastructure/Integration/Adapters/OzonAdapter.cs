@@ -7,6 +7,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -175,9 +176,8 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             if (!Uri.TryCreate(rawOzonBaseUrl, UriKind.Absolute, out var parsedUri) ||
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Ozon base URL scheme: {rawOzonBaseUrl}. Only HTTP(S) allowed.");
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[OzonAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawOzonBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[OzonAdapter] BaseUrl points to private network: {BaseUrl}", rawOzonBaseUrl);
             _baseUrl = rawOzonBaseUrl;
         }
 
@@ -215,7 +215,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             // Probe call to verify credentials — POST /v1/seller/info
             using var probe = BuildPostRequest("/v1/seller/info", new { });
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(probe, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -311,7 +311,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v2/product/import", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -518,7 +518,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v2/products/stocks", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -592,7 +592,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v1/product/import/prices", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -672,7 +672,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v3/posting/fbs/list", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -826,7 +826,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var payload = new { language = "DEFAULT" };
             using var request = BuildPostRequest("/v1/description-category/tree", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -931,7 +931,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v3/posting/fbs/ship", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -996,7 +996,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             request.Headers.Add(ClientIdHeader, _clientId);
             request.Headers.Add(ApiKeyHeader, _apiKey);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1025,7 +1025,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             request.Headers.Add(ClientIdHeader, _clientId);
             request.Headers.Add(ApiKeyHeader, _apiKey);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1075,7 +1075,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_baseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Ozon ping: {StatusCode}", response.StatusCode);
             return true;
@@ -1132,7 +1132,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v3/finance/transaction/list", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -1262,7 +1262,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v2/returns/company/fbs", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -1370,7 +1370,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         try
         {
             using var request = BuildPostRequest($"/v2/returns/company/{claimId}/approve", new { });
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1403,7 +1403,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var payload = new { comment = reason };
             using var request = BuildPostRequest($"/v2/returns/company/{claimId}/reject", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)

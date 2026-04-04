@@ -20,19 +20,20 @@ public sealed class StoreCredentialRepository : IStoreCredentialRepository
     public async Task<StoreCredential?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _context.Set<StoreCredential>()
-            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<StoreCredential>> GetByStoreIdAsync(Guid storeId, CancellationToken ct = default)
     {
         return await _context.Set<StoreCredential>()
             .Where(c => c.StoreId == storeId && !c.IsDeleted)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(StoreCredential credential, CancellationToken ct = default)
     {
-        await _context.Set<StoreCredential>().AddAsync(credential, ct);
+        await _context.Set<StoreCredential>().AddAsync(credential, ct).ConfigureAwait(false);
     }
 
     public async Task UpdateAsync(StoreCredential credential, CancellationToken ct = default)

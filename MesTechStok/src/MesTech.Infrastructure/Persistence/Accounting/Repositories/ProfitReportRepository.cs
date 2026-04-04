@@ -18,7 +18,7 @@ public sealed class ProfitReportRepository : IProfitReportRepository
             .Where(r => r.TenantId == tenantId && r.Period == period);
         if (!string.IsNullOrWhiteSpace(platform))
             q = q.Where(r => r.Platform == platform);
-        return await q.OrderByDescending(r => r.ReportDate).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(r => r.ReportDate).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<ProfitReport?> GetLatestAsync(Guid tenantId, string? platform = null, CancellationToken ct = default)
@@ -27,6 +27,15 @@ public sealed class ProfitReportRepository : IProfitReportRepository
         if (!string.IsNullOrWhiteSpace(platform))
             q = q.Where(r => r.Platform == platform);
         return await q.OrderByDescending(r => r.ReportDate).AsNoTracking().FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<ProfitReport>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, string? platform = null, CancellationToken ct = default)
+    {
+        var q = _context.ProfitReports
+            .Where(r => r.TenantId == tenantId && r.ReportDate >= from && r.ReportDate <= to);
+        if (!string.IsNullOrWhiteSpace(platform))
+            q = q.Where(r => r.Platform == platform);
+        return await q.OrderByDescending(r => r.ReportDate).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task AddAsync(ProfitReport report, CancellationToken ct = default)

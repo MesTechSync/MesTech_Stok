@@ -23,7 +23,7 @@ public sealed class StartStockCountHandler : IRequestHandler<StartStockCountComm
             warehouseName = wh?.Name;
         }
 
-        var products = await _productRepo.GetAllAsync().ConfigureAwait(false);
+        var products = await _productRepo.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var items = products.Select(p => new StockCountItemDto
         {

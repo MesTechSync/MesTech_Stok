@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lottie="using:Avalonia.Labs.Lottie"
+             x:Class="MesTech.Avalonia.Controls.EmptyStateControl"
+             x:Name="Root">
+
+    <!--
+      EmptyStateControl — Reusable empty state with Lottie animation.
+      Properties: Title, Subtitle, LottieSource, ActionText, ActionCommand
+      Usage:
+        <controls:EmptyStateControl
+            Title="Urun bulunamadi"
+            Subtitle="Ilk urununuzu ekleyin"
+            LottieSource="avares://MesTech.Avalonia/Assets/Animations/empty-box.json"
+            ActionText="Urun Ekle"
+            ActionCommand="{Binding AddProductCommand}" />
+    -->
+
+    <Border Background="Transparent" Padding="24">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Spacing="8" MaxWidth="400">
+
+            <!-- Lottie Animation -->
+            <lottie:Lottie Path="{Binding LottieSource, ElementName=Root}"
+                           RepeatCount="-1"
+                           Width="160" Height="160"
+                           HorizontalAlignment="Center"
+                           IsVisible="{Binding LottieSource, ElementName=Root, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <!-- Fallback icon when no Lottie -->
+            <TextBlock Text="&#x1F4E6;"
+                       FontSize="64"
+                       HorizontalAlignment="Center"
+                       Opacity="0.4"
+                       IsVisible="{Binding !LottieSource, ElementName=Root, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <!-- Title -->
+            <TextBlock Text="{Binding Title, ElementName=Root}"
+                       FontSize="{StaticResource FontSizeTitle}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource MesDarkSlate}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap" />
+
+            <!-- Subtitle -->
+            <TextBlock Text="{Binding Subtitle, ElementName=Root}"
+                       FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{DynamicResource MesSlateGray}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Opacity="0.8"
+                       IsVisible="{Binding Subtitle, ElementName=Root, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <!-- Action Button -->
+            <Button Content="{Binding ActionText, ElementName=Root}"
+                    Command="{Binding ActionCommand, ElementName=Root}"
+                    HorizontalAlignment="Center"
+                    Padding="20,10"
+                    Margin="0,12,0,0"
+                    FontWeight="SemiBold"
+                    Classes="accent"
+                    CornerRadius="{StaticResource MesRadiusBase}"
+                    IsVisible="{Binding ActionText, ElementName=Root, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        </StackPanel>
+    </Border>
+</UserControl>

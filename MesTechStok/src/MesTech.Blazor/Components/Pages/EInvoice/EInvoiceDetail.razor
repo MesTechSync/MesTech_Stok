@@ -11,12 +11,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-file-invoice text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Fatura Detay — #@invoice?.No</h3>
+        <h3 class="mb-0" >Fatura Detay — #@invoice?.No</h3>
         <small class="text-muted">Fatura bilgileri ve gonderim gecmisi</small>
     </div>
 </div>
@@ -305,8 +304,8 @@ else
             timeline =
             [
                 new("Fatura olusturuldu", new DateTime(2026, 3, 1, 9, 15, 0), "fa-plus", "#6c757d"),
-                new("GIB'e gonderildi", new DateTime(2026, 3, 1, 9, 20, 0), "fa-paper-plane", "#0d6efd"),
-                new("GIB tarafindan onaylandi", new DateTime(2026, 3, 1, 9, 22, 0), "fa-check-circle", "#198754"),
+                new("GIB'e gonderildi", new DateTime(2026, 3, 1, 9, 20, 0), "fa-paper-plane", "var(--mestech-info)"),
+                new("GIB tarafindan onaylandi", new DateTime(2026, 3, 1, 9, 22, 0), "fa-check-circle", "var(--mestech-success)"),
             ];
         }
         catch (Exception ex)
@@ -330,8 +329,8 @@ else
             timeline =
             [
                 new("Fatura olusturuldu", new DateTime(2026, 3, 1, 9, 15, 0), "fa-plus", "#6c757d"),
-                new("GIB'e gonderildi", new DateTime(2026, 3, 1, 9, 20, 0), "fa-paper-plane", "#0d6efd"),
-                new("GIB tarafindan onaylandi", new DateTime(2026, 3, 1, 9, 22, 0), "fa-check-circle", "#198754"),
+                new("GIB'e gonderildi", new DateTime(2026, 3, 1, 9, 20, 0), "fa-paper-plane", "var(--mestech-info)"),
+                new("GIB tarafindan onaylandi", new DateTime(2026, 3, 1, 9, 22, 0), "fa-check-circle", "var(--mestech-success)"),
             ];
         }
         finally
@@ -355,7 +354,7 @@ else
             if (invoice is not null)
             {
                 invoice = invoice with { Durum = "Gonderildi" };
-                timeline.Add(new("GIB'e gonderildi", DateTime.Now, "fa-paper-plane", "#0d6efd"));
+                timeline.Add(new("GIB'e gonderildi", DateTime.Now, "fa-paper-plane", "var(--mestech-info)"));
                 actionMessage = "Fatura basariyla gonderildi.";
                 successMessage = "Fatura basariyla gonderildi";
             }
@@ -385,7 +384,7 @@ else
             if (invoice is not null)
             {
                 invoice = invoice with { Durum = "Iptal" };
-                timeline.Add(new("Fatura iptal edildi", DateTime.Now, "fa-ban", "#dc3545"));
+                timeline.Add(new("Fatura iptal edildi", DateTime.Now, "fa-ban", "var(--mestech-danger)"));
                 actionMessage = "Fatura iptal edildi.";
                 successMessage = "Fatura iptal islemi tamamlandi";
             }

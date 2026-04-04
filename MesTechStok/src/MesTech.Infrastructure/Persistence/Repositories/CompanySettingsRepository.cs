@@ -15,10 +15,10 @@ public sealed class CompanySettingsRepository : ICompanySettingsRepository
 
     public async Task<CompanySettings?> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.CompanySettings
-            .AsNoTracking().FirstOrDefaultAsync(s => s.TenantId == tenantId, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.TenantId == tenantId, ct).ConfigureAwait(false);
 
     public async Task AddAsync(CompanySettings settings, CancellationToken ct = default)
-        => await _context.CompanySettings.AddAsync(settings, ct);
+        => await _context.CompanySettings.AddAsync(settings, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(CompanySettings settings, CancellationToken ct = default)
     {

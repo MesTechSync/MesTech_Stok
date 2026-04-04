@@ -21,5 +21,7 @@ public sealed class SettlementBatchConfiguration : IEntityTypeConfiguration<Sett
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => x.Platform);
         builder.HasIndex(x => new { x.PeriodStart, x.PeriodEnd });
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

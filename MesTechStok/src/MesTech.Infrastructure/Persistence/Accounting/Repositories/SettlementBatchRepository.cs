@@ -28,6 +28,7 @@ public sealed class SettlementBatchRepository : ISettlementBatchRepository
             .Include(b => b.Lines)
             .Where(b => b.TenantId == tenantId && b.Platform == platform)
             .OrderByDescending(b => b.PeriodEnd)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<SettlementBatch>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -35,6 +36,7 @@ public sealed class SettlementBatchRepository : ISettlementBatchRepository
             .Include(b => b.Lines)
             .Where(b => b.TenantId == tenantId && b.PeriodStart >= from && b.PeriodEnd <= to)
             .OrderByDescending(b => b.PeriodEnd)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<SettlementBatch>> GetUnmatchedAsync(Guid tenantId, CancellationToken ct = default)
@@ -42,6 +44,7 @@ public sealed class SettlementBatchRepository : ISettlementBatchRepository
             .Include(b => b.Lines)
             .Where(b => b.TenantId == tenantId && b.Status == MesTech.Domain.Accounting.Enums.SettlementStatus.Imported)
             .OrderByDescending(b => b.PeriodEnd)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(SettlementBatch batch, CancellationToken ct = default)

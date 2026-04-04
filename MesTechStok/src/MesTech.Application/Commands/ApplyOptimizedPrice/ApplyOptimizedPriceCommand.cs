@@ -55,7 +55,8 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
         }
 
         var clampedPrice = Math.Clamp(request.RecommendedPrice, request.MinPrice, request.MaxPrice);
-        product.SalePrice = clampedPrice;
+        var previousPrice = product.SalePrice;
+        product.UpdatePrice(clampedPrice);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("ApplyOptimizedPrice: {SKU} price -> {Price:C} (confidence={Confidence:P0})", request.SKU, clampedPrice, request.Confidence);
@@ -66,7 +67,7 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
             TenantId = request.TenantId,
             ProductId = product.Id,
             RecommendedPrice = request.RecommendedPrice,
-            CurrentPrice = product.SalePrice,
+            CurrentPrice = previousPrice,
             CompetitorMinPrice = request.CompetitorMinPrice,
             Confidence = request.Confidence,
             Reasoning = request.Reasoning ?? string.Empty,

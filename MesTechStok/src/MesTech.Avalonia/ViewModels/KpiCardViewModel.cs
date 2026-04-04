@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,6 +10,17 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class KpiCardViewModel : ViewModelBase
 {
+    public KpiCardViewModel() { }
+
+    public KpiCardViewModel(string title, string value)
+    {
+        _title = title;
+        _value = value;
+    }
+
+    [ObservableProperty]
+    private string _title = string.Empty;
+
     [ObservableProperty]
     private string _value = "0";
 

@@ -18,5 +18,7 @@ public sealed class AccountingBankTransactionConfiguration : IEntityTypeConfigur
         builder.HasIndex(x => x.IdempotencyKey)
             .IsUnique()
             .HasDatabaseName("IX_BankTransactions_IdempotencyKey");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

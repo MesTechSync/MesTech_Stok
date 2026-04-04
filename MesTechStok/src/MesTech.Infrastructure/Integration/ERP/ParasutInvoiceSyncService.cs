@@ -56,7 +56,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/sales_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -80,7 +80,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/e_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -102,7 +102,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/e_archives", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -112,7 +112,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
 
     public async Task<byte[]?> GetInvoicePdfAsync(string eInvoiceId, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"/v4/{_options.CompanyId}/e_invoices/{eInvoiceId}/pdf", ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);

@@ -89,7 +89,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             };
             request.Headers.Add("Token", _token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -129,7 +129,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/earsiv-services/download?token={Uri.EscapeDataString(_token!)}&ettn={Uri.EscapeDataString(providerRef)}");
 
-            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -173,7 +173,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             };
             request.Headers.Add("Token", _token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -214,7 +214,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
                 { "jp", JsonSerializer.Serialize(new { vknTckn = vkn }, JsonOpts) }
             });
 
-            var response = await _httpClient.PostAsync(mukellefUrl, formContent, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(mukellefUrl, formContent, ct).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -283,7 +283,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             { "pageName", "R_LANDING" }
         });
 
-        var response = await _httpClient.PostAsync(
+        using var response = await _httpClient.PostAsync(
             $"{BaseUrl}/earsiv-services/assos-login", loginContent, ct).ConfigureAwait(false);
 
         var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

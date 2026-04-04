@@ -18,6 +18,7 @@ public sealed class PriceRecommendationRepository : IPriceRecommendationReposito
         => await _context.PriceRecommendations
             .Where(p => p.ProductId == productId)
             .OrderByDescending(p => p.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 

@@ -12,12 +12,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-address-book text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Cari Hesaplar</h3>
+      <h3 class="mb-0" >Cari Hesaplar</h3>
       <small class="text-muted">Musteri ve tedarikci hesap yonetimi</small>
     </div>
   </div>
@@ -120,7 +119,7 @@
           <div class="col-12 col-sm-3 col-md-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-              <input type="text" class="form-control" placeholder="Cari ara..."
+              <input type="text" class="form-control"placeholder="Cari ara..."
                      @bind="searchText" @bind:event="oninput" />
             </div>
           </div>
@@ -141,11 +140,11 @@
     <!-- New Cari Modal -->
     @if (showNewCariModal)
     {
-      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal d-block" tabindex="-1" style="background-color: var(--mestech-modal-overlay);">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Cari Hesap</h5>
+              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" ></i>Yeni Cari Hesap</h5>
               <button type="button" class="btn-close" @onclick="CloseNewCariModal"></button>
             </div>
             <EditForm Model="@newCari" OnValidSubmit="SaveNewCari">
@@ -196,11 +195,11 @@
     <!-- New Hareket Form -->
     @if (showNewHareketForm)
     {
-      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal d-block" tabindex="-1" style="background-color: var(--mestech-modal-overlay);">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Yeni Hareket - @selectedCari?.Unvan</h5>
+              <h5 class="modal-title"><i class="fas fa-exchange-alt me-2" ></i>Yeni Hareket - @selectedCari?.Unvan</h5>
               <button type="button" class="btn-close" @onclick="CloseNewHareketForm"></button>
             </div>
             <EditForm Model="@newHareket" OnValidSubmit="SaveNewHareket">
@@ -247,7 +246,7 @@
     <!-- Master Table -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Cari Hesap Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-list me-2" ></i>Cari Hesap Listesi</h6>
         <span class="badge bg-secondary">@filteredCariHesaplar.Count hesap</span>
       </div>
       <div class="card-body p-0">
@@ -303,7 +302,7 @@
       <div class="card shadow-sm border-primary">
         <div class="card-header bg-white d-flex align-items-center justify-content-between">
           <h6 class="mb-0">
-            <i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>
+            <i class="fas fa-exchange-alt me-2" ></i>
             @selectedCari.Unvan - Hareket Gecmisi
           </h6>
           <button class="btn btn-sm btn-primary" @onclick="ShowNewHareketForm">

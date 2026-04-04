@@ -287,3 +287,93 @@ public class OAuth2AuthProviderTests
         await act.Should().ThrowAsync<HttpRequestException>();
     }
 }
+
+// ── SsrfGuard Tests (TUR11 DEV3) ──
+
+[Trait("Category", "Unit")]
+public class SsrfGuardTests
+{
+    [Theory]
+    [InlineData("localhost")]
+    [InlineData("127.0.0.1")]
+    [InlineData("::1")]
+    [InlineData("[::1]")]
+    public void IsPrivateHost_Loopback_ReturnsTrue(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeTrue();
+
+    [Theory]
+    [InlineData("10.0.0.1")]
+    [InlineData("10.255.255.255")]
+    [InlineData("192.168.1.1")]
+    [InlineData("192.168.0.100")]
+    public void IsPrivateHost_Rfc1918_Class_A_C_ReturnsTrue(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeTrue();
+
+    [Theory]
+    [InlineData("172.16.0.1")]
+    [InlineData("172.20.5.10")]
+    [InlineData("172.31.255.255")]
+    public void IsPrivateHost_Rfc1918_ClassB_ReturnsTrue(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeTrue();
+
+    [Theory]
+    [InlineData("169.254.1.1")]
+    [InlineData("169.254.169.254")]
+    public void IsPrivateHost_LinkLocal_CloudMetadata_ReturnsTrue(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeTrue();
+
+    [InlineData("metadata.google.internal")]
+    [Theory]
+    public void IsPrivateHost_GoogleMetadata_ReturnsTrue(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeTrue();
+
+    [Theory]
+    [InlineData("api.trendyol.com")]
+    [InlineData("apigw.hepsiburada.com")]
+    [InlineData("8.8.8.8")]
+    [InlineData("api.n11.com")]
+    [InlineData("openapi.etsy.com")]
+    public void IsPrivateHost_PublicHosts_ReturnsFalse(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeFalse();
+
+    [Theory]
+    [InlineData("172.15.0.1")]  // Just below 172.16 range
+    [InlineData("172.32.0.1")]  // Just above 172.31 range
+    [InlineData("11.0.0.1")]    // Not 10.x
+    public void IsPrivateHost_EdgeCases_ReturnsFalse(string host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host).Should().BeFalse();
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void IsPrivateHost_NullOrEmpty_ReturnsTrue(string? host)
+        => MesTech.Infrastructure.Integration.Security.SsrfGuard.IsPrivateHost(host!).Should().BeTrue();
+
+    [Fact]
+    public void ValidateUrl_ValidPublicUrl_ReturnsTrue()
+    {
+        var logger = new Mock<ILogger>();
+        MesTech.Infrastructure.Integration.Security.SsrfGuard
+            .ValidateUrl("https://api.trendyol.com/v1/products", logger.Object, "Test")
+            .Should().BeTrue();
+    }
+
+    [Fact]
+    public void ValidateUrl_PrivateUrl_ReturnsFalse()
+    {
+        var logger = new Mock<ILogger>();
+        MesTech.Infrastructure.Integration.Security.SsrfGuard
+            .ValidateUrl("http://192.168.1.100/api", logger.Object, "Test")
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateUrl_InvalidScheme_ReturnsFalse()
+    {
+        var logger = new Mock<ILogger>();
+        MesTech.Infrastructure.Integration.Security.SsrfGuard
+            .ValidateUrl("ftp://files.internal/data", logger.Object, "Test")
+            .Should().BeFalse();
+    }
+}

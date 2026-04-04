@@ -13,6 +13,7 @@ public sealed class CargoExpenseRepository : ICargoExpenseRepository
         => await _context.CargoExpenses
             .Where(e => e.TenantId == tenantId && e.CreatedAt >= from && e.CreatedAt <= to)
             .OrderByDescending(e => e.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<decimal> GetTotalCostAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)

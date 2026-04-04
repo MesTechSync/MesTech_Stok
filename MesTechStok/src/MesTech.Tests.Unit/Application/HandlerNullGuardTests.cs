@@ -32,7 +32,8 @@ public class HandlerNullGuardTests
             null!,
             new Mock<IProductRepository>().Object,
             new Mock<IUnitOfWork>().Object,
-            new StockCalculationService());
+            new StockCalculationService(),
+            new Mock<ITenantProvider>().Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("orderRepository");
     }
 
@@ -43,7 +44,8 @@ public class HandlerNullGuardTests
             new Mock<IOrderRepository>().Object,
             null!,
             new Mock<IUnitOfWork>().Object,
-            new StockCalculationService());
+            new StockCalculationService(),
+            new Mock<ITenantProvider>().Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("productRepository");
     }
 
@@ -54,7 +56,8 @@ public class HandlerNullGuardTests
             new Mock<IOrderRepository>().Object,
             new Mock<IProductRepository>().Object,
             null!,
-            new StockCalculationService());
+            new StockCalculationService(),
+            new Mock<ITenantProvider>().Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("unitOfWork");
     }
 
@@ -65,7 +68,8 @@ public class HandlerNullGuardTests
             new Mock<IOrderRepository>().Object,
             new Mock<IProductRepository>().Object,
             new Mock<IUnitOfWork>().Object,
-            null!);
+            null!,
+            new Mock<ITenantProvider>().Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("stockCalculation");
     }
 
@@ -161,7 +165,7 @@ public class HandlerNullGuardTests
             HasClimateControl = false
         };
         wh.SetAsDefault();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { wh }.AsReadOnly());
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse> { wh }.AsReadOnly());
 
         var handler = new GetWarehousesHandler(repo.Object);
         var result = await handler.Handle(new GetWarehousesQuery(ActiveOnly: false), CancellationToken.None);

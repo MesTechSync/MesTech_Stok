@@ -163,6 +163,7 @@ public sealed class Invoice : BaseEntity, ITenantEntity
         ArgumentException.ThrowIfNullOrWhiteSpace(platformInvoiceUrl);
         PlatformInvoiceUrl = platformInvoiceUrl;
         Status = InvoiceStatus.PlatformSent;
+        RaiseDomainEvent(new InvoicePlatformSentEvent(Id, TenantId, OrderId, platformInvoiceUrl, DateTime.UtcNow));
     }
 
     public static Invoice CreateForOrder(Order order, InvoiceType type, string invoiceNumber)

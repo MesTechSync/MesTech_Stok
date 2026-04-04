@@ -1,6 +1,10 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Features.Stock.Queries.GetStockLots;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -10,10 +14,27 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class StockLotAvaloniaViewModelTests
 {
-    private static StockLotAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private StockLotAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new StockLotAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetStockLotsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<StockLotDto>)new List<StockLotDto>
+            {
+                new() { Id = Guid.NewGuid(), LotNumber = "LOT-2026-001", ProductName = "Samsung Galaxy S24", ProductSku = "SKU-1001", Quantity = 100, RemainingQuantity = 80, UnitCost = 25000m, SupplierName = "Tedarikci A", WarehouseName = "Ana Depo", ReceivedAt = DateTime.Now.AddDays(-5) },
+                new() { Id = Guid.NewGuid(), LotNumber = "LOT-2026-002", ProductName = "Apple MacBook Air M3", ProductSku = "SKU-1002", Quantity = 50, RemainingQuantity = 45, UnitCost = 45000m, SupplierName = "Tedarikci B", WarehouseName = "Yedek Depo", ReceivedAt = DateTime.Now.AddDays(-3) },
+                new() { Id = Guid.NewGuid(), LotNumber = "LOT-2026-003", ProductName = "Sony WH-1000XM5", ProductSku = "SKU-1003", Quantity = 200, RemainingQuantity = 180, UnitCost = 8500m, SupplierName = "Tedarikci C", WarehouseName = "Iade Depo", ReceivedAt = DateTime.Now.AddDays(-1) },
+                new() { Id = Guid.NewGuid(), LotNumber = "LOT-2026-004", ProductName = "Logitech MX Master", ProductSku = "SKU-1004", Quantity = 300, RemainingQuantity = 290, UnitCost = 3200m, SupplierName = "Tedarikci D", WarehouseName = "Ana Depo", ReceivedAt = DateTime.Now }
+            });
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetProductsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PagedResult<ProductDto>.Create(
+                new List<ProductDto>
+                {
+                    new() { Id = Guid.NewGuid(), Name = "Samsung Galaxy S24", SKU = "SKU-1001" }
+                }, 1, 1, 10));
+        return new StockLotAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     // ── 3-State: Loading ──
@@ -55,7 +76,7 @@ public class StockLotAvaloniaViewModelTests
         sut.IsEmpty.Should().BeFalse();
         sut.Suppliers.Should().HaveCount(4);
         sut.Warehouses.Should().HaveCount(3);
-        sut.RecentLots.Should().HaveCount(3);
+        sut.RecentLots.Should().HaveCount(4);
         sut.RecentLots[0].LotNo.Should().Be("LOT-2026-001");
     }
 

@@ -9,11 +9,11 @@
 
 <div class="d-flex align-items-center mb-4">
   <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #6f42c1;">
+       style="width: 48px; height: 48px; background-color: var(--mestech-purple);">
     <i class="fas fa-truck text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #6f42c1;">Tedarikciler</h3>
+    <h3 class="mb-0" style="color: var(--mestech-purple);">Tedarikciler</h3>
     <small class="text-muted">Tedarikci listesi ve bakiye takibi</small>
   </div>
 </div>
@@ -25,7 +25,7 @@
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tedarikci ara..."
+                    <input type="text" class="form-control"placeholder="Tedarikci ara..."
                            @bind="searchText" @bind:event="oninput" />
                 </div>
             </div>

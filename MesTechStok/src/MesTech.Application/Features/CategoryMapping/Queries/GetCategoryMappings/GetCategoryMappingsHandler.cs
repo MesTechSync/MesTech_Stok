@@ -24,7 +24,7 @@ public sealed class GetCategoryMappingsHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var categories = await _categoryRepository.GetAllAsync().ConfigureAwait(false);
+        var categories = await _categoryRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var mappings = await _mappingRepository
             .GetByTenantAsync(request.TenantId, request.Platform, cancellationToken);
 

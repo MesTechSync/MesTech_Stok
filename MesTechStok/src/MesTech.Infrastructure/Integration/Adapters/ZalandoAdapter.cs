@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -57,6 +58,10 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         TokenUrl = _options.TokenUrl;
         ApiBase = _options.ApiBaseUrl;
+
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(ApiBase, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[ZalandoAdapter] ApiBaseUrl points to private network: {Url}", ApiBase);
 
         // Seed from options if credentials provided
         if (!string.IsNullOrWhiteSpace(_options.ClientId))
@@ -152,7 +157,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Zalando";
+    public string PlatformCode => nameof(PlatformType.Zalando);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;
@@ -180,7 +185,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             ["grant_type"] = "client_credentials"
         });
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -249,7 +254,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             // Probe: fetch a single article to confirm API access
             var url = $"{ApiBase}/partner/articles?page=0&pageSize=1";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -305,7 +310,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             while (hasMore)
             {
                 var url = $"{ApiBase}/partner/articles?page={page}&pageSize={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -404,7 +409,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/inventory");
@@ -457,7 +462,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/prices");
@@ -524,7 +529,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             {
                 var url = $"{ApiBase}/partner/orders?createdAfter={Uri.EscapeDataString(sinceStr)}" +
                           $"&page={page}&pageSize={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -723,7 +728,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -764,7 +769,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(ApiBase, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Zalando ping: {StatusCode}", response.StatusCode);
             return true;
@@ -786,7 +791,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
             var payload = JsonSerializer.Serialize(new { tracking_number = trackingNumber, carrier = provider.ToString() });
 
-            var response = await ThrottledExecuteAsync(async c =>
+            using var response = await ThrottledExecuteAsync(async c =>
             {
                 using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/orders/{platformOrderId}/shipments")
                 { Content = new StringContent(payload, Encoding.UTF8, "application/json") };
@@ -822,7 +827,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(async c =>
+            using var response = await ThrottledExecuteAsync(async c =>
             {
                 using var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiBase}/merchants/returns?status=APPROVED");
                 req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -878,7 +883,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 event_types = new[] { "ORDER_CREATED", "ORDER_UPDATED", "RETURN_CREATED" }
             }, _jsonOptions);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async c =>
                 {
                     using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/webhooks")
@@ -912,7 +917,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async c =>
                 {
                     using var req = new HttpRequestMessage(HttpMethod.Delete, $"{ApiBase}/merchants/webhooks");

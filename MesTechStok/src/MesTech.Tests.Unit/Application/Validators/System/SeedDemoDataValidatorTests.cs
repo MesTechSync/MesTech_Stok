@@ -17,4 +17,12 @@ public class SeedDemoDataValidatorTests
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task DefaultCommand_ShouldProduceNoErrors()
+    {
+        var cmd = new SeedDemoDataCommand();
+        var result = await _sut.ValidateAsync(cmd);
+        result.Errors.Should().BeEmpty();
+    }
 }

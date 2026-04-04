@@ -29,8 +29,14 @@ public class FulfillmentHandlerTests
     public async Task GetFulfillmentDashboard_ReturnsDto()
     {
         var productRepo = new Mock<IProductRepository>();
+        var shipmentRepo = new Mock<IFulfillmentShipmentRepository>();
+        productRepo.Setup(r => r.CountByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        shipmentRepo.Setup(r => r.CountByTenantAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         var sut = new GetFulfillmentDashboardHandler(
             productRepo.Object,
+            shipmentRepo.Object,
             NullLogger<GetFulfillmentDashboardHandler>.Instance);
 
         var result = await sut.Handle(
@@ -44,8 +50,10 @@ public class FulfillmentHandlerTests
     public async Task GetFulfillmentDashboard_NullRequest_ThrowsAnyException()
     {
         var productRepo = new Mock<IProductRepository>();
+        var shipmentRepo = new Mock<IFulfillmentShipmentRepository>();
         var sut = new GetFulfillmentDashboardHandler(
             productRepo.Object,
+            shipmentRepo.Object,
             NullLogger<GetFulfillmentDashboardHandler>.Instance);
 
         await Assert.ThrowsAnyAsync<Exception>(

@@ -3,11 +3,35 @@
 /* ── Design Tokens ── */
 :root {
     --mestech-primary: #2855AC;
+    --mestech-primary-hover: #1e4490;
     --mestech-secondary: #1a2332;
     --mestech-accent: #f27a1a;
     --mestech-bg: #ffffff;
     --mestech-surface: #f8f9fa;
     --mestech-text: #212529;
+    --mestech-text-muted: #6c757d;
+    --mestech-sidebar-text: #c2c7d0;
+    --mestech-border: #dee2e6;
+    --mestech-success: #198754;
+    --mestech-danger: #dc3545;
+    --mestech-warning: #ffc107;
+    --mestech-info: #0d6efd;
+    --mestech-kanban-bg: #f8f9fa;
+    --mestech-kanban-card: #fff;
+    --mestech-calendar-gap: #dee2e6;
+    --mestech-calendar-cell: #fff;
+    --mestech-calendar-today: #e7f1ff;
+    --mestech-purple: #6f42c1;
+    --mestech-purple-rgb: 111, 66, 193;
+    --mestech-indigo: #6610f2;
+    --mestech-orange: #fd7e14;
+    --mestech-mesa: #7C3AED;
+    --mestech-mesa-dark: #5B21B6;
+    --mestech-amazon: #FF9900;
+    --mestech-hepsi: #FF6000;
+    --mestech-modal-overlay: rgba(0, 0, 0, 0.5);
+    --mestech-shadow-sm: rgba(0, 0, 0, 0.1);
+    --mestech-shadow-md: rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +39,17 @@
         --mestech-bg: #1a1a2e;
         --mestech-surface: #16213e;
         --mestech-text: #e0e0e0;
+        --mestech-purple: #9b7bd4;
+        --mestech-purple-rgb: 155, 123, 212;
+        --mestech-indigo: #9b7de8;
+        --mestech-orange: #ffa54c;
+        --mestech-mesa: #a78bfa;
+        --mestech-mesa-dark: #8b5cf6;
+        --mestech-amazon: #ffb84d;
+        --mestech-hepsi: #ff8533;
+        --mestech-modal-overlay: rgba(0, 0, 0, 0.7);
+        --mestech-shadow-sm: rgba(0, 0, 0, 0.3);
+        --mestech-shadow-md: rgba(0, 0, 0, 0.5);
     }
     body { background: var(--mestech-bg); color: var(--mestech-text); }
     .card { background: var(--mestech-surface); border-color: #2a2a4a; }
@@ -24,12 +59,12 @@
 
 /* Sidebar */
 .mestech-sidebar {
-  background-color: #1a2332;
-  color: #c2c7d0;
+  background-color: var(--mestech-secondary);
+  color: var(--mestech-sidebar-text);
 }
 
 .sidebar-link {
-  color: #c2c7d0 !important;
+  color: var(--mestech-sidebar-text) !important;
   transition: all 0.2s ease;
 }
 
@@ -39,7 +74,7 @@
 }
 
 .sidebar-link.active {
-  background-color: #0d6efd !important;
+  background-color: var(--mestech-info) !important;
   color: #ffffff !important;
 }
 
@@ -75,11 +110,11 @@
 }
 
 /* Lead status badges */
-.badge-yeni        { background-color: #0d6efd; color: #fff; }
+.badge-yeni        { background-color: var(--mestech-info); color: #fff; }
 .badge-iletisim    { background-color: #6f42c1; color: #fff; }
-.badge-nitelikli   { background-color: #198754; color: #fff; }
+.badge-nitelikli   { background-color: var(--mestech-success); color: #fff; }
 .badge-donusturuldu { background-color: #20c997; color: #fff; }
-.badge-kaybedildi  { background-color: #dc3545; color: #fff; }
+.badge-kaybedildi  { background-color: var(--mestech-danger); color: #fff; }
 
 /* Period navigation */
 .period-nav .btn {
@@ -111,36 +146,36 @@
 
 /* MesTech brand color utility */
 .text-mestech {
-  color: #2855AC !important;
+  color: var(--mestech-primary) !important;
 }
 
 .bg-mestech {
-  background-color: #2855AC !important;
+  background-color: var(--mestech-primary) !important;
 }
 
 .border-mestech {
-  border-color: #2855AC !important;
+  border-color: var(--mestech-primary) !important;
 }
 
 /* Login page */
 .login-container .form-control:focus {
-  border-color: #2855AC;
+  border-color: var(--mestech-primary);
   box-shadow: 0 0 0 0.2rem rgba(40, 85, 172, 0.25);
 }
 
 .login-container .input-group-text {
-  border-color: #dee2e6;
+  border-color: var(--mestech-border);
 }
 
 .login-container .btn:hover:not(:disabled) {
-  background-color: #1e4490 !important;
+  background-color: var(--mestech-primary-hover) !important;
 }
 
 /* Page header with icon circle */
 .page-header-icon {
   width: 48px;
   height: 48px;
-  background-color: #2855AC;
+  background-color: var(--mestech-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -239,7 +274,7 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #2855AC;
+  background-color: var(--mestech-primary);
   color: #fff;
   border: none;
   box-shadow: 0 4px 12px rgba(40, 85, 172, 0.4);
@@ -275,29 +310,71 @@ body {
 }
 
 /* ── Panel D — Module-specific badges ── */
-.badge-taslak      { background-color: #6c757d; color: #fff; }
-.badge-gonderildi  { background-color: #198754; color: #fff; }
-.badge-iptal       { background-color: #dc3545; color: #fff; }
-.badge-onaylandi   { background-color: #198754; color: #fff; }
-.badge-reddedildi  { background-color: #dc3545; color: #fff; }
-.badge-beklemede   { background-color: #ffc107; color: #212529; }
-.badge-aktif       { background-color: #0d6efd; color: #fff; }
-.badge-pasif       { background-color: #6c757d; color: #fff; }
-.badge-tamamlandi  { background-color: #198754; color: #fff; }
+.badge-taslak      { background-color: var(--mestech-text-muted); color: #fff; }
+.badge-gonderildi  { background-color: var(--mestech-success); color: #fff; }
+.badge-iptal       { background-color: var(--mestech-danger); color: #fff; }
+.badge-onaylandi   { background-color: var(--mestech-success); color: #fff; }
+.badge-reddedildi  { background-color: var(--mestech-danger); color: #fff; }
+.badge-beklemede   { background-color: var(--mestech-warning); color: #212529; }
+.badge-aktif       { background-color: var(--mestech-info); color: #fff; }
+.badge-pasif       { background-color: var(--mestech-text-muted); color: #fff; }
+.badge-tamamlandi  { background-color: var(--mestech-success); color: #fff; }
 
 /* Kanban board */
-.kanban-column { min-height: 200px; background: #f8f9fa; border-radius: 8px; padding: 12px; }
-.kanban-card { background: #fff; border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid #dee2e6; cursor: pointer; }
+.kanban-column { min-height: 200px; background: var(--mestech-kanban-bg); border-radius: 8px; padding: 12px; }
+.kanban-card { background: var(--mestech-kanban-card); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--mestech-border); cursor: pointer; color: var(--mestech-text); }
 .kanban-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
 /* Calendar grid */
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #dee2e6; }
-.calendar-cell { background: #fff; min-height: 80px; padding: 4px 8px; font-size: 0.85rem; }
-.calendar-cell.today { background: #e7f1ff; }
-.calendar-cell.other-month { color: #adb5bd; }
-.calendar-event { font-size: 0.75rem; background: #0d6efd; color: #fff; border-radius: 3px; padding: 1px 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--mestech-calendar-gap); }
+.calendar-cell { background: var(--mestech-calendar-cell); min-height: 80px; padding: 4px 8px; font-size: 0.85rem; color: var(--mestech-text); }
+.calendar-cell.today { background: var(--mestech-calendar-today); }
+.calendar-cell.other-month { color: var(--mestech-text-muted); }
+.calendar-event { font-size: 0.75rem; background: var(--mestech-info); color: #fff; border-radius: 3px; padding: 1px 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Tree view */
 .tree-item { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
-.tree-item:hover { background: #f0f0f0; }
-.tree-item.selected { background: #e7f1ff; }
+.tree-item:hover { background: var(--mestech-surface); }
+.tree-item.selected { background: var(--mestech-calendar-today); }
+
+/* ── Dark-mode-safe page header icon circles ── */
+.page-icon-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; color: #fff;
+}
+.page-icon-circle.bg-purple   { background-color: var(--mestech-purple); }
+.page-icon-circle.bg-indigo   { background-color: var(--mestech-indigo); }
+.page-icon-circle.bg-orange   { background-color: var(--mestech-orange); }
+.page-icon-circle.bg-mesa     { background-color: var(--mestech-mesa); }
+.page-icon-circle.bg-amazon   { background-color: var(--mestech-amazon); }
+.page-icon-circle.bg-hepsi    { background-color: var(--mestech-hepsi); }
+.page-icon-circle.bg-success  { background-color: var(--mestech-success); }
+.page-icon-circle.bg-danger   { background-color: var(--mestech-danger); }
+.page-icon-circle.bg-info     { background-color: var(--mestech-info); }
+.page-icon-circle.bg-warning  { background-color: var(--mestech-warning); color: #212529; }
+.page-icon-circle.bg-primary  { background-color: var(--mestech-primary); }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--mestech-modal-overlay);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1050;
+}
+
+/* ── Page heading color utilities ── */
+.text-purple  { color: var(--mestech-purple) !important; }
+.text-indigo  { color: var(--mestech-indigo) !important; }
+.text-mesa    { color: var(--mestech-mesa) !important; }
+.text-amazon  { color: var(--mestech-amazon) !important; }
+.text-hepsi   { color: var(--mestech-hepsi) !important; }
+
+/* MESA AI card gradient — dark mode aware */
+.bg-mesa-gradient {
+  background: linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%);
+}
+[data-theme="dark"] .bg-mesa-gradient,
+@media (prefers-color-scheme: dark) { .bg-mesa-gradient {
+  background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(139,92,246,0.08) 100%);
+} }

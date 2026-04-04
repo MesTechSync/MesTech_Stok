@@ -78,7 +78,7 @@ public sealed class TelegramAlertService
                 disable_notification = alert.Severity.ToLowerInvariant() != "critical"
             };
 
-            var response = await _httpClient.PostAsJsonAsync(url, payload, ct);
+            using var response = await _httpClient.PostAsJsonAsync(url, payload, ct);
 
             if (response.IsSuccessStatusCode)
             {

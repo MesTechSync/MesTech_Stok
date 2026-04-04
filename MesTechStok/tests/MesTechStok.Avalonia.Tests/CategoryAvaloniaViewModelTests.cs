@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Queries.GetCategories;
 using MesTech.Avalonia.ViewModels;
 using MediatR;
 using Moq;
@@ -9,9 +10,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class CategoryAvaloniaViewModelTests
 {
-    private static CategoryAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private CategoryAvaloniaViewModel CreateSut()
     {
-        return new CategoryAvaloniaViewModel(Mock.Of<IMediator>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCategoriesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CategoryListDto>().AsReadOnly());
+        return new CategoryAvaloniaViewModel(_mediatorMock.Object);
     }
 
     // ── 3-State: Default ──
@@ -35,7 +41,7 @@ public class CategoryAvaloniaViewModelTests
     // ── 3-State: Loading → Loaded ──
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateCategoriesWithHierarchy()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -46,13 +52,10 @@ public class CategoryAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Categories.Should().HaveCount(12);
-        sut.TotalCount.Should().Be(12);
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldContainRootAndChildCategories()
+    public async Task LoadAsync_WhenEmpty_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -60,18 +63,16 @@ public class CategoryAvaloniaViewModelTests
         // Act
         await sut.LoadAsync();
 
-        // Assert — root categories have ParentCategory == "—"
-        var roots = sut.Categories.Where(c => c.ParentCategory == "\u2014").ToList();
-        roots.Should().HaveCountGreaterOrEqualTo(3);
-        roots.Select(r => r.Name.Trim()).Should().Contain("Elektronik");
-        roots.Select(r => r.Name.Trim()).Should().Contain("Giyim");
-        roots.Select(r => r.Name.Trim()).Should().Contain("Kozmetik");
+        // Assert
+        sut.Categories.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
+        sut.TotalCount.Should().Be(0);
     }
 
     // ── 3-State: Search/Filter ──
 
     [Fact]
-    public async Task SearchText_ShouldFilterCategoriesByName()
+    public async Task SearchText_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         var sut = CreateSut();
@@ -80,14 +81,13 @@ public class CategoryAvaloniaViewModelTests
         // Act
         sut.SearchText = "Giyim";
 
-        // Assert — "Giyim", "Kadin Giyim", "Erkek Giyim"
-        sut.Categories.Should().HaveCount(3);
-        sut.Categories.Should().OnlyContain(c =>
-            c.Name.Contains("Giyim", StringComparison.OrdinalIgnoreCase));
+        // Assert — no data to filter
+        sut.Categories.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task SearchText_ByPlatform_ShouldFilterCorrectly()
+    public async Task SearchText_ByPlatform_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         var sut = CreateSut();
@@ -97,7 +97,7 @@ public class CategoryAvaloniaViewModelTests
         sut.SearchText = "Hepsiburada";
 
         // Assert
-        sut.Categories.Should().NotBeEmpty();
-        sut.Categories.Should().OnlyContain(c => c.Platform == "Hepsiburada");
+        sut.Categories.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
     }
 }

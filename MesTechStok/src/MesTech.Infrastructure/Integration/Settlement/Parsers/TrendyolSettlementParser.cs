@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
     private List<TrendyolSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Trendyol";
+    public string Platform => nameof(PlatformType.Trendyol);
 
     public TrendyolSettlementParser(ILogger<TrendyolSettlementParser> logger)
     {
@@ -148,7 +149,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
             if (commission != 0m)
             {
                 var commissionRate = NormalizeTurkishDecimal(item.CommissionRate);
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: gross,
@@ -156,7 +157,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
                     commissionAmount: commission,
                     serviceFee: serviceFee,
                     orderId: item.OrderNumber,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

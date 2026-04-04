@@ -73,6 +73,10 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
             var reports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
             var report = reports.Count > 0 ? reports[0] : null;
 
+            // FIX-DEV6-TUR4: Fetch orders once — reuse for fallback calc and order count
+            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
+            var orderCount = yesterdayOrders.Count;
+
             decimal totalRevenue = 0m;
             decimal totalCommission = 0m;
             decimal totalCargo = 0m;
@@ -91,20 +95,15 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
                     "[{JobId}] {Period} donemi icin ProfitReport bulunamadi — ham verilerden hesaplaniyor",
                     JobId, period);
 
-                // Fallback: ham verilerden hesapla
-                var orders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
-                totalRevenue = orders.Sum(o => o.TotalAmount);
+                // Fallback: ham verilerden hesapla (yesterdayOrders already fetched above)
+                totalRevenue = yesterdayOrders.Sum(o => o.TotalAmount);
                 totalCommission = await _commissionRepository.GetTotalCommissionAsync(tenantId, yesterday, today, ct).ConfigureAwait(false);
                 totalCargo = await _cargoExpenseRepository.GetTotalCostAsync(tenantId, yesterday, today, ct).ConfigureAwait(false);
                 netProfit = totalRevenue - totalCommission - totalCargo;
             }
 
-            // 2. Siparis sayisi
-            var yesterdayOrders = await _orderRepository.GetByDateRangeAsync(yesterday, today).ConfigureAwait(false);
-            var orderCount = yesterdayOrders.Count;
-
             // 3. Dusuk stok uyarilari
-            var lowStockProducts = await _productRepository.GetLowStockAsync().ConfigureAwait(false);
+            var lowStockProducts = await _productRepository.GetLowStockAsync(ct).ConfigureAwait(false);
             var stockAlerts = lowStockProducts
                 .Take(10)
                 .Select(p => $"{p.Name} (SKU: {p.SKU}) — Stok: {p.Stock}")

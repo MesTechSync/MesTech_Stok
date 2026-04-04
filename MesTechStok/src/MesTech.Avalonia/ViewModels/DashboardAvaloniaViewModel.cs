@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,6 +11,7 @@ using MesTech.Application.DTOs.Dashboard;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Domain.Interfaces;
+using LiveChartsCore.Measure;
 using SkiaSharp;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -61,12 +62,12 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string _lastRefreshText = "";
 
     // ── Premium KPI Card ViewModels (6 cards) ─────────────────────────────
-    [ObservableProperty] private KpiCardViewModel _todaySalesKpi = new();
-    [ObservableProperty] private KpiCardViewModel _weekRevenueKpi = new();
-    [ObservableProperty] private KpiCardViewModel _totalProductsKpi = new();
-    [ObservableProperty] private KpiCardViewModel _lowStockKpi = new();
-    [ObservableProperty] private KpiCardViewModel _pendingOrdersKpi = new();
-    [ObservableProperty] private KpiCardViewModel _returnsKpi = new();
+    [ObservableProperty] private KpiCardViewModel _todaySalesKpi = new("Bugün Satış", "₺0");
+    [ObservableProperty] private KpiCardViewModel _weekRevenueKpi = new("Haftalık Gelir", "₺0");
+    [ObservableProperty] private KpiCardViewModel _totalProductsKpi = new("Toplam Ürün", "0");
+    [ObservableProperty] private KpiCardViewModel _lowStockKpi = new("Kritik Stok", "0");
+    [ObservableProperty] private KpiCardViewModel _pendingOrdersKpi = new("Bekleyen Sipariş", "0");
+    [ObservableProperty] private KpiCardViewModel _returnsKpi = new("İade Oranı", "%0.0");
 
     // ── Platform Health (15 platforms) ────────────────────────────────────
     [ObservableProperty]
@@ -83,6 +84,9 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private ISeries[] _salesChartSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _salesChartXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _salesChartYAxes = Array.Empty<Axis>();
+
+    // ── LiveCharts2 — Stok Dağılım Pasta Grafiği ────────────────────────
+    [ObservableProperty] private ISeries[] _stockDistributionSeries = Array.Empty<ISeries>();
 
     public ObservableCollection<RecentOrderDto> RecentOrders { get; } = [];
     public ObservableCollection<CriticalStockDto> CriticalStockItems { get; } = [];
@@ -226,6 +230,9 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
             // ── Grafik verisi — GetSalesChartDataQuery ile gerçek DB'den ──
             await BuildChartDataAsync();
 
+            // ── Stok dağılım pasta grafiği ──
+            BuildStockDistributionChart(summary);
+
             // ── Refresh timestamp ──
             _lastRefresh = DateTime.Now;
             LastUpdated = _lastRefresh.ToString("HH:mm:ss");
@@ -306,6 +313,41 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         SalesChartYAxes = new Axis[]
         {
             new Axis { Name = "Sipariş" }
+        };
+    }
+
+    /// <summary>
+    /// Stok dağılım pasta grafiği — Kritik / Düşük / Normal stok oranları.
+    /// Mevcut DashboardSummaryDto'dan hesaplanır.
+    /// </summary>
+    private void BuildStockDistributionChart(DashboardSummaryDto summary)
+    {
+        var critical = summary.CriticalStockCount;
+        var total = summary.ActiveProductCount;
+        // Düşük stok: kritik eşiğin 2x üstü (yaklaşık) — CriticalStockItems listesinden ayrıştırılabilir
+        // Basitleştirilmiş dağılım: Critical / Normal
+        var normal = Math.Max(0, total - critical);
+
+        StockDistributionSeries = new ISeries[]
+        {
+            new PieSeries<int>
+            {
+                Name = "Normal",
+                Values = new[] { normal },
+                Fill = new SolidColorPaint(SKColor.Parse("#16A34A")),
+                DataLabelsPaint = new SolidColorPaint(SKColors.White),
+                DataLabelsPosition = PolarLabelsPosition.Middle,
+                DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:N0}"
+            },
+            new PieSeries<int>
+            {
+                Name = "Kritik",
+                Values = new[] { critical },
+                Fill = new SolidColorPaint(SKColor.Parse("#E53935")),
+                DataLabelsPaint = new SolidColorPaint(SKColors.White),
+                DataLabelsPosition = PolarLabelsPosition.Middle,
+                DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:N0}"
+            }
         };
     }
 

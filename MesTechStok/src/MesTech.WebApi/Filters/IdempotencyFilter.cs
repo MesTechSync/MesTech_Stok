@@ -30,18 +30,18 @@ public sealed class IdempotencyFilter : IEndpointFilter
 
         var method = httpContext.Request.Method;
         if (!HttpMethods.IsPost(method) && !HttpMethods.IsPut(method))
-            return await next(context);
+            return await next(context).ConfigureAwait(false);
 
         var idempotencyKey = httpContext.Request.Headers[HeaderName].FirstOrDefault();
         if (string.IsNullOrWhiteSpace(idempotencyKey))
-            return await next(context);
+            return await next(context).ConfigureAwait(false);
 
         var cache = httpContext.RequestServices.GetRequiredService<IDistributedCache>();
         var logger = httpContext.RequestServices.GetRequiredService<ILogger<IdempotencyFilter>>();
         var cacheKey = $"idempotency:{idempotencyKey}";
 
         // Cache hit → replay
-        var cached = await cache.GetAsync(cacheKey, httpContext.RequestAborted);
+        var cached = await cache.GetAsync(cacheKey, httpContext.RequestAborted).ConfigureAwait(false);
         if (cached is not null)
         {
             logger.LogInformation("Idempotency hit: key={Key}, returning cached response", idempotencyKey);
@@ -54,7 +54,7 @@ public sealed class IdempotencyFilter : IEndpointFilter
                     httpContext.Response.StatusCode = cachedResponse.StatusCode;
                     httpContext.Response.ContentType = "application/json";
                     httpContext.Response.Headers["X-Idempotency-Replayed"] = "true";
-                    await httpContext.Response.WriteAsync(cachedResponse.Body, httpContext.RequestAborted);
+                    await httpContext.Response.WriteAsync(cachedResponse.Body, httpContext.RequestAborted).ConfigureAwait(false);
                     return null;
                 }
             }
@@ -62,12 +62,12 @@ public sealed class IdempotencyFilter : IEndpointFilter
             {
                 // OWASP A08 guard: corrupted/poisoned cache entry — discard and re-execute
                 logger.LogWarning(ex, "Idempotency cache corrupted for key={Key}, discarding", idempotencyKey);
-                await cache.RemoveAsync(cacheKey, httpContext.RequestAborted);
+                await cache.RemoveAsync(cacheKey, httpContext.RequestAborted).ConfigureAwait(false);
             }
         }
 
         // Cache miss → execute handler
-        var result = await next(context);
+        var result = await next(context).ConfigureAwait(false);
 
         // Cache the response — extract value from IResult properly
         try
@@ -101,7 +101,7 @@ public sealed class IdempotencyFilter : IEndpointFilter
             await cache.SetAsync(cacheKey, entryBytes, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = CacheTtl
-            }, httpContext.RequestAborted);
+            }, httpContext.RequestAborted).ConfigureAwait(false);
 
             logger.LogDebug("Idempotency cached: key={Key}, status={Status}, bodyLen={Len}",
                 idempotencyKey, statusCode, body.Length);

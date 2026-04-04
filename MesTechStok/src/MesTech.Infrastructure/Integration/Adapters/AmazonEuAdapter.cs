@@ -7,6 +7,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -208,7 +209,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var lwaRequest = CreateRequest(HttpMethod.Post, _lwaEndpoint);
         lwaRequest.Content = content;
-        var response = await _httpClient.SendAsync(lwaRequest, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(lwaRequest, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -271,9 +272,8 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid AmazonEu base URL scheme: {_baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[AmazonEuAdapter] BaseUrl points to internal/private network: {BaseUrl}", _baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[AmazonEuAdapter] BaseUrl points to private network: {BaseUrl}", _baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -313,7 +313,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
 
             // Test: catalog items with limit=1 against the active EU marketplace
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -392,7 +392,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -494,7 +494,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var sku = Uri.EscapeDataString(product.SKU);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -529,7 +529,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -600,7 +600,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var url = $"/orders/v0/orders?MarketplaceIds={_activeMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -682,7 +682,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     {
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -895,7 +895,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var uploadRequest = CreateRequest(HttpMethod.Put, uploadUrl);
         uploadRequest.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
-        var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+        using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
 
         if (!uploadResponse.IsSuccessStatusCode)
         {
@@ -976,7 +976,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         {
             var feedXml = BuildShipmentConfirmFeed(platformOrderId, trackingNumber, carrierCode);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var req = CreateRequest(HttpMethod.Post, "/feeds/2021-06-30/feeds");
@@ -1035,7 +1035,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             cts.CancelAfter(TimeSpan.FromSeconds(5));
 
             var request = CreateRequest(HttpMethod.Head, _baseUrl);
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Amazon EU ping: {StatusCode}", response.StatusCode);
             return true;
@@ -1066,7 +1066,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(async token =>
+            using var response = await ThrottledExecuteAsync(async token =>
             {
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
@@ -1241,7 +1241,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             else
                 url += "&CreatedAfter=" + DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -1379,7 +1379,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             uploadRequest.Content = new ByteArrayContent(pdfBytes);
             uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 
-            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
             if (!uploadResponse.IsSuccessStatusCode)
             {
                 var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

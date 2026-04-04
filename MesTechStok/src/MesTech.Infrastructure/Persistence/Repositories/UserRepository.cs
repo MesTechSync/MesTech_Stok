@@ -12,18 +12,19 @@ public sealed class UserRepository(AppDbContext db) : IUserRepository
     public async Task<User?> GetByIdAsync(Guid id) =>
         await db.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == id).ConfigureAwait(false);
 
     public async Task<User?> GetByUsernameAsync(string username) =>
         await db.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default) =>
-        await db.Users.OrderBy(u => u.Username).ToListAsync(ct);
+        await db.Users.OrderBy(u => u.Username).Take(1000) // G485: pagination guard
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(User user) =>
-        await db.Users.AddAsync(user);
+        await db.Users.AddAsync(user).ConfigureAwait(false);
 
     public Task UpdateAsync(User user)
     {
@@ -32,5 +33,5 @@ public sealed class UserRepository(AppDbContext db) : IUserRepository
     }
 
     public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default) =>
-        await db.Users.CountAsync(u => u.TenantId == tenantId, ct);
+        await db.Users.CountAsync(u => u.TenantId == tenantId, ct).ConfigureAwait(false);
 }

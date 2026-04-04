@@ -93,13 +93,14 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
                 IsEmpty = true;
             }
 
-            Timeline.Clear();
-            Timeline.Add(new() { Step = "Talep Olusturuldu", Date = new DateTime(2026, 3, 18, 10, 30, 0), IsCompleted = true, Description = "Musteri iade talebi olusturdu" });
-            Timeline.Add(new() { Step = "Onay Bekliyor", Date = null, IsCompleted = false, IsCurrent = true, Description = "Iade talebi inceleniyor" });
-            Timeline.Add(new() { Step = "Kargo Bekleniyor", Date = null, IsCompleted = false, Description = "Urun kargoya verilecek" });
-            Timeline.Add(new() { Step = "Iade Tamamlandi", Date = null, IsCompleted = false, Description = "Iade sureci tamamlanacak" });
-
-            IsEmpty = false;
+            if (returns.Count > 0)
+            {
+                Timeline.Clear();
+                Timeline.Add(new() { Step = "Talep Olusturuldu", Date = new DateTime(2026, 3, 18, 10, 30, 0), IsCompleted = true, Description = "Musteri iade talebi olusturdu" });
+                Timeline.Add(new() { Step = "Onay Bekliyor", Date = null, IsCompleted = false, IsCurrent = true, Description = "Iade talebi inceleniyor" });
+                Timeline.Add(new() { Step = "Kargo Bekleniyor", Date = null, IsCompleted = false, Description = "Urun kargoya verilecek" });
+                Timeline.Add(new() { Step = "Iade Tamamlandi", Date = null, IsCompleted = false, Description = "Iade sureci tamamlanacak" });
+            }
         }
         catch (Exception ex)
         {

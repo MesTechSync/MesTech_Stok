@@ -44,6 +44,14 @@ public sealed class InvoiceApprovedGLHandler : IInvoiceApprovedGLHandler
             return;
         }
 
+        if (taxAmount < 0 || netAmount < 0)
+        {
+            _logger.LogError(
+                "Negatif tutar — GL kaydi reddedildi. InvoiceId={InvoiceId}, Tax={Tax}, Net={Net}",
+                invoiceId, taxAmount, netAmount);
+            return;
+        }
+
         // Idempotency guard — MassTransit retry'da çift yevmiye önle
         if (await _journalRepo.ExistsByReferenceAsync(tenantId, invoiceNumber, ct))
         {

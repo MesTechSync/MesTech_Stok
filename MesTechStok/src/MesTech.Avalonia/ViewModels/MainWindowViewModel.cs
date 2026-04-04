@@ -198,7 +198,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "NotificationSettings" => "Bildirim Ayarlari",
             "ReportDashboard" => "Rapor Merkezi",
             "AuditLog" => "Denetim Kayitlari",
-            "ProductDescriptionAI" => "AI Urun Aciklama",
+            "ProductDescriptionAI" => "AI Ürün Açıklama",
             "Backup" => "Yedekleme",
             "Buybox" => "Buybox Analizi",
             "ImportProducts" => "Urun Iceaktar",

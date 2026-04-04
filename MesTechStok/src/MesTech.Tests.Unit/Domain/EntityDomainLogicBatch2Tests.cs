@@ -105,7 +105,7 @@ public class FinanceExpenseDomainTests
         var expense = CreateDraft();
         expense.Submit();
         expense.Approve(Guid.NewGuid());
-        expense.DomainEvents.Should().ContainSingle();
+        expense.DomainEvents.Should().HaveCount(2); // ExpenseSubmittedEvent + ExpenseApprovedEvent
     }
 
     [Fact]

@@ -81,7 +81,8 @@ public sealed class SubscriptionRenewalWorker
                         Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                         CardToken: null, // stored payment token — will be resolved by provider
                         ReturnUrl: string.Empty,
-                        CustomerIp: ServerInitiatedIp),
+                        CustomerIp: ServerInitiatedIp,
+                        CustomerEmail: "billing@mestech.app"),
                     ct).ConfigureAwait(false);
 
                 if (paymentResult.Success)

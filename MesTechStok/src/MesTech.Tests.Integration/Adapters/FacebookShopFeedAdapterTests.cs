@@ -26,7 +26,7 @@ public class FacebookShopFeedAdapterTests : IntegrationTestBase
     {
         SetCurrentTenant(TestTenantId);
         _adapter = new FacebookShopFeedAdapter(
-            Context,
+            ContextFactory,
             new LoggerFactory().CreateLogger<FacebookShopFeedAdapter>());
     }
 

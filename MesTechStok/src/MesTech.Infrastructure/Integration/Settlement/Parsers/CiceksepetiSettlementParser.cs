@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +25,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
     private List<CiceksepetiSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Ciceksepeti";
+    public string Platform => nameof(PlatformType.Ciceksepeti);
 
     public CiceksepetiSettlementParser(ILogger<CiceksepetiSettlementParser> logger)
     {
@@ -148,7 +149,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.CommissionAmount != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SaleAmount,
@@ -156,7 +157,7 @@ public sealed class CiceksepetiSettlementParser : ISettlementParser
                     commissionAmount: item.CommissionAmount,
                     serviceFee: item.ServiceFee,
                     orderId: item.OrderNo,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

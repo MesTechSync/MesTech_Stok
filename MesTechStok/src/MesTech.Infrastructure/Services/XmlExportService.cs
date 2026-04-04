@@ -10,19 +10,19 @@ public sealed class XmlExportService : IXmlExportService
     public async Task<Stream> ExportProductsAsync(IEnumerable<ProductExportDto> products, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(products);
-        return await Task.Run(() => BuildProductsXml(products), ct);
+        return await Task.Run(() => BuildProductsXml(products), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportStockAsync(IEnumerable<StockExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildStockXml(items), ct);
+        return await Task.Run(() => BuildStockXml(items), ct).ConfigureAwait(false);
     }
 
     public async Task<Stream> ExportPricesAsync(IEnumerable<PriceExportDto> items, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(items);
-        return await Task.Run(() => BuildPricesXml(items), ct);
+        return await Task.Run(() => BuildPricesXml(items), ct).ConfigureAwait(false);
     }
 
     private static MemoryStream BuildProductsXml(IEnumerable<ProductExportDto> products)

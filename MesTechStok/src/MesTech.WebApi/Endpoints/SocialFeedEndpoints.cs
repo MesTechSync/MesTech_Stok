@@ -50,12 +50,12 @@ public static class SocialFeedEndpoints
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
-                return Results.NotFound(new { error = $"Platform adaptörü bulunamadı: {platform}" });
+                return Results.Problem(detail: $"Platform adaptörü bulunamadı: {platform}", statusCode: 404);
 
             var result = await adapter.GenerateFeedAsync(request, ct);
             return result.Success
                 ? Results.Ok(result)
-                : Results.UnprocessableEntity(new { result.Errors });
+                : Results.Problem(detail: string.Join("; ", result.Errors ?? Array.Empty<string>()), statusCode: 422);
         })
         .WithName("GenerateFeed")
         .WithSummary("Belirtilen platform için feed üretimini tetikle").Produces(200).Produces(400)
@@ -72,7 +72,7 @@ public static class SocialFeedEndpoints
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
-                return Results.NotFound(new { error = $"Platform adaptörü bulunamadı: {platform}" });
+                return Results.Problem(detail: $"Platform adaptörü bulunamadı: {platform}", statusCode: 404);
 
             var status = await adapter.GetFeedStatusAsync(ct);
             return Results.Ok(status);
@@ -93,7 +93,7 @@ public static class SocialFeedEndpoints
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
-                return Results.NotFound(new { error = $"Platform adaptörü bulunamadı: {platform}" });
+                return Results.Problem(detail: $"Platform adaptörü bulunamadı: {platform}", statusCode: 404);
 
             var result = await adapter.ValidateFeedAsync(request.FeedUrl, ct);
             return Results.Ok(result);
@@ -114,7 +114,7 @@ public static class SocialFeedEndpoints
 
             var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
             if (adapter is null)
-                return Results.NotFound(new { error = $"Platform adaptörü bulunamadı: {platform}" });
+                return Results.Problem(detail: $"Platform adaptörü bulunamadı: {platform}", statusCode: 404);
 
             await adapter.ScheduleRefreshAsync(request.Interval, ct);
             return Results.NoContent();

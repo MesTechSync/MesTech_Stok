@@ -46,6 +46,15 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.document.classified", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiDocumentClassifiedEvent), context.MessageId);
@@ -93,7 +102,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
             });
 
             document.UpdateExtractedData(extractedJson);
-            await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+            await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AccountingDocument guncellendi: DocId={DocumentId}", msg.DocumentId);

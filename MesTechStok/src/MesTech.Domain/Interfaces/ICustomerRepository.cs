@@ -4,10 +4,10 @@ namespace MesTech.Domain.Interfaces;
 
 public interface ICustomerRepository
 {
-    Task<Customer?> GetByIdAsync(Guid id);
-    Task<IReadOnlyList<Customer>> GetAllAsync();
-    Task<IReadOnlyList<Customer>> GetActiveAsync();
-    Task AddAsync(Customer customer);
-    Task UpdateAsync(Customer customer);
-    Task DeleteAsync(Guid id);
+    Task<Customer?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<Customer>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<Customer>> GetActiveAsync(CancellationToken ct = default);
+    Task AddAsync(Customer customer, CancellationToken ct = default);
+    Task UpdateAsync(Customer customer, CancellationToken ct = default);
+    Task DeleteAsync(Guid id, CancellationToken ct = default);
 }

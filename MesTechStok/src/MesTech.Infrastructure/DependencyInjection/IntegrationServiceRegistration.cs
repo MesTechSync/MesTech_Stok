@@ -158,17 +158,23 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<EbayAdapter>());
 
         // Dalga 8: Ozon — Client-Id + Api-Key header auth
+        if (configuration is not null)
+            services.Configure<OzonOptions>(configuration.GetSection(OzonOptions.Section));
         services.AddSingleton<OzonAdapter>(sp =>
             new OzonAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Ozon),
-                sp.GetRequiredService<ILogger<OzonAdapter>>()));
+                sp.GetRequiredService<ILogger<OzonAdapter>>(),
+                sp.GetService<IOptions<OzonOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<OzonAdapter>());
 
         // Dalga 8: PTT AVM — username/password Bearer token
+        if (configuration is not null)
+            services.Configure<PttAvmOptions>(configuration.GetSection(PttAvmOptions.Section));
         services.AddSingleton<PttAvmAdapter>(sp =>
             new PttAvmAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.PttAvm),
-                sp.GetRequiredService<ILogger<PttAvmAdapter>>()));
+                sp.GetRequiredService<ILogger<PttAvmAdapter>>(),
+                sp.GetService<IOptions<PttAvmOptions>>()));
         services.AddSingleton<IIntegratorAdapter>(sp => sp.GetRequiredService<PttAvmAdapter>());
 
         // Dalga 14 S3: YurticiKargo options — sandbox toggle + environment-aware URLs
@@ -228,6 +234,16 @@ public static class IntegrationServiceRegistration
 
         // Decorator: wrap all IIntegratorAdapter registrations with Prometheus instrumentation
         services.DecorateAllIntegratorAdapters();
+
+        // IPingableAdapter: resolve from existing IIntegratorAdapter singletons so
+        // AdapterConnectivityValidator can receive IEnumerable<IPingableAdapter> for health checks.
+        // InstrumentedAdapterDecorator implements IPingableAdapter — cast is safe.
+        // We use a single IEnumerable<IPingableAdapter> registration that resolves from the
+        // already-registered IIntegratorAdapter instances (no duplicate instances created).
+        services.AddSingleton<IEnumerable<IPingableAdapter>>(sp =>
+            sp.GetServices<IIntegratorAdapter>()
+              .OfType<IPingableAdapter>()
+              .ToList());
 
         // Factory — receives IEnumerable<IIntegratorAdapter> (now instrumented)
         services.AddSingleton<IAdapterFactory, AdapterFactory>();
@@ -377,6 +393,9 @@ public static class IntegrationServiceRegistration
         services.AddMemoryCache();
         services.AddScoped<IGibMukellefService, GibMukellefService>();
 
+        // TOTP (RFC 6238) — MFA enable/disable/verify handlers need this
+        services.AddSingleton<ITotpService, Integration.Auth.TotpService>();
+
         // Product scraper service — URL-based product info via platform APIs (G440: config-driven URLs)
         if (configuration is not null)
             services.Configure<ProductScraperOptions>(configuration.GetSection("Scraping:PlatformApiUrls"));
@@ -447,7 +466,8 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<IFeedCredentialProtector>(sp =>
         {
             var key = configuration?["FeedCredentials:EncryptionKey"];
-            return new FeedCredentialProtector(key);
+            var logger = sp.GetService<ILogger<FeedCredentialProtector>>();
+            return new FeedCredentialProtector(key, logger);
         });
 
         // New invoice provider configs — Dalga 5 (D-06): adapters to be built by DEV3

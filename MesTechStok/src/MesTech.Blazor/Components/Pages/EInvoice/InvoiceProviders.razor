@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-plug text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Fatura Entegrasyon Saglayicilari</h3>
+    <h3 class="mb-0" >Fatura Entegrasyon Saglayicilari</h3>
     <small class="text-muted">E-fatura, e-arsiv ve e-SMM saglayici yonetimi</small>
   </div>
 </div>
@@ -43,7 +42,7 @@ else
           <div class="card-body">
             <div class="d-flex align-items-center mb-3">
               <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                   style="width: 48px; height: 48px; background-color: @(provider.IsActive ? "#19875420" : "#6c757d20");">
+                   style="width: 48px; height: 48px; background-color: @(provider.IsActive ? "var(--mestech-success)20" : "#6c757d20");">
                 <i class="fas @provider.Icon @(provider.IsActive ? "text-success" : "text-secondary") fa-lg"></i>
               </div>
               <div>

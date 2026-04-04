@@ -2,6 +2,7 @@ using FluentAssertions;
 using MediatR;
 using MesTech.Application.DTOs.Dashboard;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
+using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -18,6 +19,9 @@ public class DashboardAvaloniaViewModelTests
     private DashboardAvaloniaViewModel CreateSut()
     {
         _tenantMock.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetSalesChartDataQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SalesChartDataDto());
         return new DashboardAvaloniaViewModel(_mediatorMock.Object, _tenantMock.Object);
     }
 

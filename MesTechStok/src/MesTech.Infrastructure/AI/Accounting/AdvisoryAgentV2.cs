@@ -4,6 +4,8 @@ using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.AI.Accounting;
 
@@ -38,12 +40,12 @@ public record PlatformHealth(string Platform, string MarginTrend, decimal AvgMar
 public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
     private readonly IProfitReportRepository _profitReportRepository;
     private readonly ICommissionRecordRepository _commissionRepository;
     private readonly IProductRepository _productRepository;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<AdvisoryAgentV2> _logger;
+    private readonly AsyncCircuitBreakerPolicy _circuitBreaker;
 
     public AdvisoryAgentV2(
         HttpClient httpClient,
@@ -55,16 +57,30 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         ILogger<AdvisoryAgentV2> logger)
     {
         _httpClient = httpClient;
-        _configuration = configuration;
         _profitReportRepository = profitReportRepository;
         _commissionRepository = commissionRepository;
         _productRepository = productRepository;
         _tenantProvider = tenantProvider;
         _logger = logger;
 
-        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
+        var baseUrl = configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
-        _httpClient.Timeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("Mesa:Advisory:TimeoutSeconds", 30));
+        _httpClient.Timeout = TimeSpan.FromSeconds(configuration.GetValue<int>("Mesa:Advisory:TimeoutSeconds", 30));
+
+        _circuitBreaker = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .Or<OperationCanceledException>()
+            .CircuitBreakerAsync(
+                exceptionsAllowedBeforeBreaking: 3,
+                durationOfBreak: TimeSpan.FromSeconds(60),
+                onBreak: (ex, ts) => _logger.LogWarning(
+                    "[Advisory V2] Circuit OPEN — {Duration}s. Error: {Error}",
+                    ts.TotalSeconds, ex.Message),
+                onReset: () => _logger.LogInformation(
+                    "[Advisory V2] Circuit CLOSED — MESA baglanti yeniden aktif"),
+                onHalfOpen: () => _logger.LogInformation(
+                    "[Advisory V2] Circuit HALF-OPEN — test cagrisi yapiliyor"));
     }
 
     public async Task<DailySalesAdvice> GenerateSalesAdviceAsync(
@@ -76,51 +92,55 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         try
         {
             // Son 30 gun verilerini topla
-            var analysisData = await CollectAnalysisDataAsync(tenantId, ct);
+            var analysisData = await CollectAnalysisDataAsync(tenantId, ct).ConfigureAwait(false);
 
-            // MESA AI'ya gonder
-            var payload = new
+            // MESA AI'ya gonder (circuit breaker korumali)
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                tenantId,
-                date = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                profitReports = analysisData.Reports.Select(r => new
+                var payload = new
                 {
-                    r.Platform,
-                    r.TotalRevenue,
-                    r.TotalCommission,
-                    r.TotalCargo,
-                    r.NetProfit,
-                    r.Period
-                }),
-                commissions = analysisData.Commissions.Select(c => new
+                    tenantId,
+                    date = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    profitReports = analysisData.Reports.Select(r => new
+                    {
+                        r.Platform,
+                        r.TotalRevenue,
+                        r.TotalCommission,
+                        r.TotalCargo,
+                        r.NetProfit,
+                        r.Period
+                    }),
+                    commissions = analysisData.Commissions.Select(c => new
+                    {
+                        c.Platform,
+                        c.GrossAmount,
+                        c.CommissionRate,
+                        c.CommissionAmount,
+                        c.Category
+                    }),
+                    productCount = analysisData.ProductCount
+                };
+
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "advisory_v2"));
+
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "/api/v1/accounting/advisory/sales", payload, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    c.Platform,
-                    c.GrossAmount,
-                    c.CommissionRate,
-                    c.CommissionAmount,
-                    c.Category
-                }),
-                productCount = analysisData.ProductCount
-            };
+                    _logger.LogWarning(
+                        "[Advisory V2] MESA satis tavsiyesi basarisiz: {StatusCode}", response.StatusCode);
+                    return GenerateRuleBasedAdvice(analysisData);
+                }
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/accounting/advisory/sales", payload, ct);
+                var result = await response.Content.ReadFromJsonAsync<MesaSalesAdviceResponse>(
+                    cancellationToken: ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning(
-                    "[Advisory V2] MESA satis tavsiyesi basarisiz: {StatusCode}", response.StatusCode);
-                return GenerateRuleBasedAdvice(analysisData);
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<MesaSalesAdviceResponse>(
-                cancellationToken: ct);
-
-            if (result is null)
-            {
-                _logger.LogWarning("[Advisory V2] MESA yanit deserialization basarisiz");
-                return GenerateRuleBasedAdvice(analysisData);
-            }
+                if (result is null)
+                {
+                    _logger.LogWarning("[Advisory V2] MESA yanit deserialization basarisiz");
+                    return GenerateRuleBasedAdvice(analysisData);
+                }
 
             _logger.LogInformation(
                 "[Advisory V2] MESA satis tavsiyesi alindi: {RecCount} oneri, {WarnCount} uyari",
@@ -140,12 +160,14 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
                     .ToList()
                     ?? new List<PlatformHealth>(),
                 GeneratedAt: DateTime.UtcNow);
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex, "[Advisory V2] MESA OS erisim sorunu, kural tabanlı tavsiye uretiliyor");
 
-            var analysisData = await CollectAnalysisDataAsync(tenantId, ct);
+            var analysisData = await CollectAnalysisDataAsync(tenantId, ct).ConfigureAwait(false);
             return GenerateRuleBasedAdvice(analysisData);
         }
     }
@@ -160,7 +182,7 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         for (var day = thirtyDaysAgo; day <= today; day = day.AddDays(1))
         {
             var period = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var dayReports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct);
+            var dayReports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
             reports.AddRange(dayReports);
         }
 
@@ -170,12 +192,12 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         foreach (var platform in platforms)
         {
             var platformCommissions = await _commissionRepository
-                .GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct);
+                .GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct).ConfigureAwait(false);
             commissions.AddRange(platformCommissions);
         }
 
         // Urun sayisi
-        var productCount = await _productRepository.GetCountAsync();
+        var productCount = await _productRepository.GetCountAsync(ct).ConfigureAwait(false);
 
         return new AnalysisData(reports, commissions, productCount);
     }

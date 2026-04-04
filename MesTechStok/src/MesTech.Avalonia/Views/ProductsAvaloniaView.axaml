@@ -3,6 +3,8 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:converters="using:MesTech.Avalonia.Converters"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:asyncImage="using:AsyncImageLoader"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -222,16 +224,24 @@
                                 BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
-                                <!-- Product Image -->
+                                <!-- Product Image (AsyncImageLoader lazy load) -->
                                 <Border Grid.Row="0" Background="{DynamicResource MesBgMist}" CornerRadius="10,10,0,0">
                                     <Grid>
-                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <!-- Placeholder (görsel yoksa veya yüklenirken) -->
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
                                             <TextBlock Text="&#x1F4E6;" FontSize="{StaticResource FontSizeXL}"
                                                        HorizontalAlignment="Center" Opacity="0.4" />
                                             <TextBlock Text="{Binding SKU}" FontSize="{StaticResource FontSizeCaption1}"
                                                        Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                                                        Margin="0,4,0,0" />
                                         </StackPanel>
+                                        <!-- Lazy-loaded product image -->
+                                        <asyncImage:AdvancedImage
+                                            IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            Source="{Binding ImageUrl}"
+                                            Stretch="UniformToFill"
+                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
                                         <!-- Discount badge -->
                                         <Border IsVisible="{Binding HasDiscount}"
                                                 Background="{DynamicResource MesRedClassic}" CornerRadius="0,0,0,8"
@@ -293,38 +303,32 @@
             <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
-        <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
+        <!-- Empty State (Lottie + EmptyStateControl) -->
+        <Border Grid.Row="1" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeTitle}"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
-                <TextBlock Text="Arama kriterlerine uygun urun bulunamadi"
-                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" Opacity="0.7" />
-            </StackPanel>
+            <controls:EmptyStateControl
+                Title="Urun bulunamadi"
+                Subtitle="Arama kriterlerine uygun urun bulunamadi. Filtreleri degistirmeyi deneyin."
+                LottieSource="avares://MesTech.Avalonia/Assets/Animations/empty-box.json"
+                ActionText="Yenile"
+                ActionCommand="{Binding RefreshCommand}" />
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"
-                                   TextWrapping="Wrap" MaxWidth="400" />
-                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                                Command="{Binding RefreshCommand}"
-                                Padding="16,6" Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0" Grid.ColumnSpan="4"
+                    Title="Bir sorun oluştu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

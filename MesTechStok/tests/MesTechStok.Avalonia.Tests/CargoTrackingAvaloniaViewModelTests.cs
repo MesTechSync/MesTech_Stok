@@ -1,8 +1,10 @@
 ﻿using FluentAssertions;
+using MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
+using CargoQueryDto = MesTech.Application.Features.Cargo.Queries.GetCargoTrackingList.CargoTrackingItemDto;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -14,7 +16,20 @@ public class CargoTrackingAvaloniaViewModelTests
 
     public CargoTrackingAvaloniaViewModelTests()
     {
-        _sut = new CargoTrackingAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ITenantProvider>());
+        var mediatorMock = new Mock<IMediator>();
+        // 10 shipments: 4 Yurtiçi, 3 Aras, 3 Sürat
+        var items = new List<CargoQueryDto>();
+        for (int i = 1; i <= 4; i++)
+            items.Add(new CargoQueryDto { OrderId = Guid.NewGuid(), OrderNumber = $"ORD-YK-{i:000}", TrackingNumber = $"TRK-YK-{i:000}", CargoProvider = "Yurtiçi Kargo", ShippedAt = DateTime.Now.AddDays(-i), Status = "Shipped" });
+        for (int i = 1; i <= 3; i++)
+            items.Add(new CargoQueryDto { OrderId = Guid.NewGuid(), OrderNumber = $"ORD-AR-{i:000}", TrackingNumber = $"TRK-AR-{i:000}", CargoProvider = "Aras Kargo", ShippedAt = DateTime.Now.AddDays(-i), Status = "Delivered" });
+        for (int i = 1; i <= 3; i++)
+            items.Add(new CargoQueryDto { OrderId = Guid.NewGuid(), OrderNumber = $"ORD-SK-{i:000}", TrackingNumber = $"TRK-SK-{i:000}", CargoProvider = "Sürat Kargo", ShippedAt = DateTime.Now.AddDays(-i), Status = "Shipped" });
+
+        mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCargoTrackingListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<CargoQueryDto>)items);
+        _sut = new CargoTrackingAvaloniaViewModel(mediatorMock.Object, Mock.Of<ITenantProvider>());
     }
 
     [Fact]

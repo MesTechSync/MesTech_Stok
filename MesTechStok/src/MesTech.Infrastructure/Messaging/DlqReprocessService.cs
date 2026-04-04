@@ -58,7 +58,7 @@ public sealed class DlqReprocessService
             });
 
             var getContent = new StringContent(getBody, System.Text.Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(
+            using var response = await client.PostAsync(
                 $"{baseUrl}/api/queues/%2f/{Uri.EscapeDataString(errorQueue)}/get", getContent, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -81,9 +81,10 @@ public sealed class DlqReprocessService
                 var reprocessCount = 0;
                 if (msg.TryGetProperty("properties", out var props) &&
                     props.TryGetProperty("headers", out var headers) &&
-                    headers.TryGetProperty("x-reprocess-count", out var countProp))
+                    headers.TryGetProperty("x-reprocess-count", out var countProp) &&
+                    countProp.TryGetInt32(out var parsedCount))
                 {
-                    reprocessCount = countProp.GetInt32();
+                    reprocessCount = parsedCount;
                 }
 
                 if (reprocessCount >= 3)
@@ -113,7 +114,7 @@ public sealed class DlqReprocessService
                 });
 
                 var publishContent = new StringContent(publishBody, System.Text.Encoding.UTF8, "application/json");
-                var publishResponse = await client.PostAsync(
+                using var publishResponse = await client.PostAsync(
                     $"{baseUrl}/api/exchanges/%2f/amq.default/publish", publishContent, ct).ConfigureAwait(false);
 
                 if (publishResponse.IsSuccessStatusCode)
@@ -161,7 +162,7 @@ public sealed class DlqReprocessService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return result;
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

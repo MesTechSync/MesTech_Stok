@@ -22,11 +22,13 @@ public sealed class GetCargoTrackingListHandler : IRequestHandler<GetCargoTracki
         {
             orders = await _orderRepo.GetRecentAsync(request.TenantId, request.Count, cancellationToken).ConfigureAwait(false);
         }
+#pragma warning disable CA1031 // Intentional: DB unavailable → graceful degradation, return empty list
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "DB unavailable for CargoTrackingList — returning empty list");
             return Array.Empty<CargoTrackingItemDto>();
         }
+#pragma warning restore CA1031
 
         return orders
             .Where(o => o.ShippedAt.HasValue || o.TrackingNumber != null)

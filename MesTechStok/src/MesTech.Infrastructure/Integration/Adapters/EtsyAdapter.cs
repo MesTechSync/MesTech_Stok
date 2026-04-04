@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -53,6 +54,10 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _options = options?.Value ?? new EtsyOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         BaseUrl = _options.BaseUrl;
+
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[EtsyAdapter] BaseUrl points to private network: {Url}", BaseUrl);
 
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.ShopId))
@@ -137,7 +142,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Etsy";
+    public string PlatformCode => nameof(PlatformType.Etsy);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;
@@ -237,7 +242,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             // GET shop info
             var url = $"{BaseUrl}/application/shops/{_shopId}";
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
 
@@ -300,7 +305,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             {
                 var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}";
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-                var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -377,7 +382,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -486,7 +491,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Put, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -614,7 +619,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 }
 
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-                var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -682,7 +687,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -897,7 +902,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}&includes=images";
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1014,7 +1019,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"{BaseUrl}/application/openapi-ping");
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)
@@ -1039,7 +1044,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
             request.Headers.Add("x-api-key", _accessToken);
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -1069,7 +1074,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/application/shops/{_shopId}/receipts?was_canceled=true&limit=25");
             request.Headers.Add("x-api-key", _accessToken);
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>();
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -1119,7 +1124,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                     Encoding.UTF8, "application/json")
             };
             request.Headers.Add("x-api-key", _accessToken);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1145,7 +1150,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/application/shops/{_shopId}/webhooks");
             request.Headers.Add("x-api-key", _accessToken);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

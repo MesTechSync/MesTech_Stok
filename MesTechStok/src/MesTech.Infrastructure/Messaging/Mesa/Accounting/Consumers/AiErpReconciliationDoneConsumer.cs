@@ -51,6 +51,15 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.erp.reconciliation.done", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiErpReconciliationDoneIntegrationEvent), context.MessageId);
@@ -87,7 +96,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
                     confidence: 0.0m, // AI ERP mismatch — no confidence, needs human review
                     status: ReconciliationStatus.NeedsReview);
 
-                await _matchRepository.AddAsync(match).ConfigureAwait(false);
+                await _matchRepository.AddAsync(match, context.CancellationToken).ConfigureAwait(false);
 
                 _logger.LogDebug(
                     "[MESA Consumer] ERP mismatch ReconciliationMatch olusturuldu: " +
@@ -97,7 +106,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
 
             if (msg.MismatchCount > 0)
             {
-                await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+                await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
             }
 
             _logger.LogInformation(

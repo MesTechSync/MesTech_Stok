@@ -32,6 +32,10 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
         _listener = new HttpListener();
         _listener.Prefixes.Add($"http://localhost:{_port}/");
 
+        // FIX: HttpListener.GetContextAsync() does NOT support CancellationToken.
+        // Register callback to close listener on shutdown — otherwise ExecuteAsync hangs forever.
+        using var ctr = stoppingToken.Register(() => _listener.Close());
+
         try
         {
             _listener.Start();
@@ -39,9 +43,17 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var context = await _listener.GetContextAsync();
+                var context = await _listener.GetContextAsync().ConfigureAwait(false);
                 _ = SafeHandleRequestAsync(context, stoppingToken);
             }
+        }
+        catch (HttpListenerException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener closed via CancellationToken callback — graceful shutdown
+        }
+        catch (ObjectDisposedException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener disposed during shutdown
         }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
         {
@@ -49,7 +61,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
         }
         finally
         {
-            _listener?.Stop();
+            try { _listener?.Stop(); } catch (ObjectDisposedException) { }
         }
     }
 
@@ -57,7 +69,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
     {
         try
         {
-            await HandleRequestAsync(context, ct);
+            await HandleRequestAsync(context, ct).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
@@ -69,7 +81,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
     {
         if (context.Request.Url?.AbsolutePath == "/ws/dashboard" && context.Request.IsWebSocketRequest)
         {
-            await HandleWebSocketAsync(context, ct);
+            await HandleWebSocketAsync(context, ct).ConfigureAwait(false);
         }
         else if (context.Request.Url?.AbsolutePath == "/ws/status")
         {
@@ -85,7 +97,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
             response.ContentType = "application/json";
             response.StatusCode = 200;
             response.ContentLength64 = buffer.Length;
-            await response.OutputStream.WriteAsync(buffer, ct);
+            await response.OutputStream.WriteAsync(buffer, ct).ConfigureAwait(false);
             response.Close();
         }
         else
@@ -102,7 +114,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
 
         try
         {
-            wsContext = await context.AcceptWebSocketAsync(null);
+            wsContext = await context.AcceptWebSocketAsync(null).ConfigureAwait(false);
             connectionId = _connectionManager.AddConnection(wsContext.WebSocket);
 
             // Baglanti acik kaldigi surece dinle (heartbeat + close frame)
@@ -110,12 +122,12 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
             while (wsContext.WebSocket.State == WebSocketState.Open && !ct.IsCancellationRequested)
             {
                 var result = await wsContext.WebSocket.ReceiveAsync(
-                    new ArraySegment<byte>(buffer), ct);
+                    new ArraySegment<byte>(buffer), ct).ConfigureAwait(false);
 
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
                     await wsContext.WebSocket.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure, "Client closed", ct);
+                        WebSocketCloseStatus.NormalClosure, "Client closed", ct).ConfigureAwait(false);
                 }
             }
         }

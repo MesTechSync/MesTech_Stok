@@ -2,50 +2,73 @@ using System.Net.Http.Json;
 using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
 
 /// <summary>
 /// MESA OS REST API gercek entegrasyon.
 /// Feature flag: Mesa:BridgeEnabled=true olunca Mock yerine bu kullanilir.
+/// Circuit Breaker: 3 ardisik hata sonrasi 60s acik kalir — MESA down iken gereksiz HTTP beklemesini onler.
 /// </summary>
 public sealed class RealMesaEventPublisher : IMesaEventPublisher
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _config;
+    private readonly string _mesaEndpoint;
+    private readonly string _apiKey;
     private readonly ILogger<RealMesaEventPublisher> _logger;
+    private readonly AsyncCircuitBreakerPolicy _circuitBreaker;
 
     public RealMesaEventPublisher(HttpClient httpClient,
         IConfiguration config, ILogger<RealMesaEventPublisher> logger)
     {
         _httpClient = httpClient;
-        _config = config;
         _logger = logger;
+        _mesaEndpoint = config["Mesa:BaseUrl"] ?? "http://localhost:3000";
+        _apiKey = config["Mesa:ApiKey"] ?? string.Empty;
+
+        _circuitBreaker = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .Or<OperationCanceledException>()
+            .CircuitBreakerAsync(
+                exceptionsAllowedBeforeBreaking: 3,
+                durationOfBreak: TimeSpan.FromSeconds(60),
+                onBreak: (ex, ts) => _logger.LogWarning(
+                    "[MESA Publisher] Circuit OPEN — {Duration}s. Error: {Error}",
+                    ts.TotalSeconds, ex.Message),
+                onReset: () => _logger.LogInformation(
+                    "[MESA Publisher] Circuit CLOSED — MESA OS baglantisi yeniden aktif"),
+                onHalfOpen: () => _logger.LogInformation(
+                    "[MESA Publisher] Circuit HALF-OPEN — test cagrisi yapiliyor"));
     }
 
     private async Task PostEventAsync(string eventType, object data, CancellationToken ct)
     {
-        var mesaEndpoint = _config["Mesa:BaseUrl"] ?? "http://localhost:3000";
-        var apiKey = _config["Mesa:ApiKey"] ?? string.Empty;
         try
         {
-            var payload = new { type = eventType, data };
-            using var request = new HttpRequestMessage(HttpMethod.Post, $"{mesaEndpoint}/api/v1/events");
-            request.Headers.TryAddWithoutValidation("X-Api-Key", apiKey);
-            request.Content = JsonContent.Create(payload);
-            var resp = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-            if (!resp.IsSuccessStatusCode)
+            await _circuitBreaker.ExecuteAsync(async () =>
             {
-                _logger.LogWarning("MESA {Type} HTTP {Status} — event delivery failed", eventType, (int)resp.StatusCode);
-            }
-            else
-            {
-                _logger.LogInformation("MESA event gonderildi: {Type}", eventType);
-            }
+                var payload = new { type = eventType, data };
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"{_mesaEndpoint}/api/v1/events");
+                request.Headers.TryAddWithoutValidation("X-Api-Key", _apiKey);
+                request.Content = JsonContent.Create(payload);
+                using var resp = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("MESA {Type} HTTP {Status} — event delivery failed", eventType, (int)resp.StatusCode);
+                }
+                else
+                {
+                    _logger.LogInformation("MESA event gonderildi: {Type}", eventType);
+                }
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
-            _logger.LogError(ex, "MESA endpoint erisiлemiyor — {Type} event teslim edilemedi", eventType);
+            _logger.LogError(ex, "MESA endpoint erisilemedi — {Type} event teslim edilemedi", eventType);
         }
     }
 

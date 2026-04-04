@@ -96,13 +96,21 @@ public static class InfrastructureServiceRegistration
 
         // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
         // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        // KN-1 FIX: Factory context MUST include interceptors — without them:
+        //   - TenantContextInterceptor missing → TenantId not set → global filter returns empty
+        //   - AuditInterceptor missing → audit trail gaps
+        //   - SlowQueryInterceptor missing → no performance monitoring
         services.AddDbContextFactory<AppDbContext>((sp, options) =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.EnableRetryOnFailure(3);
             });
-        }, ServiceLifetime.Singleton);
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<TenantContextInterceptor>(),
+                sp.GetRequiredService<SlowQueryInterceptor>());
+        }, ServiceLifetime.Scoped);
 
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
@@ -210,6 +218,9 @@ public static class InfrastructureServiceRegistration
 
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        // Scoped MediatR — desktop app concurrent DbContext fix (KN-1 / G67)
+        services.AddSingleton<IScopedMediator, ScopedMediator>();
 
         // Domain Services
         services.AddSingleton<StockCalculationService>();
@@ -369,6 +380,9 @@ public static class InfrastructureServiceRegistration
                 new HealthCheckEndpoint(
                     sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
+
+        // ── Event Publishing ──
+        services.AddSingleton<IEventPublisher, Messaging.InMemoryEventPublisher>();
 
         // ── Realtime Dashboard (port 3102) ──
         services.AddSingleton<WebSocketConnectionManager>();
@@ -712,6 +726,18 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.SubscriptionNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
             Application.EventHandlers.MiscNotificationHandler>();
+
+        // ERPNext handlers (DEV1 TUR1 fix: 5 missing DI registrations):
+        services.AddScoped<Application.EventHandlers.IERPNextCustomerHandler,
+            Application.EventHandlers.ERPNextCustomerHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextSalesInvoiceHandler,
+            Application.EventHandlers.ERPNextSalesInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextStockEntryHandler,
+            Application.EventHandlers.ERPNextStockEntryHandler>();
+        services.AddScoped<Application.EventHandlers.IShipmentCostJournalHandler,
+            Application.EventHandlers.ShipmentCostJournalHandler>();
+        services.AddScoped<Application.EventHandlers.IStaleOrderNotificationHandler,
+            Application.EventHandlers.StaleOrderNotificationHandler>();
 
         // Repository implementations (DEV1 TUR 6: 7 missing repos):
         services.AddScoped<Domain.Interfaces.IBankAccountRepository,

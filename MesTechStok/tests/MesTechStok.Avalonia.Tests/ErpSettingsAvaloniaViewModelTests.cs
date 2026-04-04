@@ -1,5 +1,8 @@
 using FluentAssertions;
+using MesTech.Application.Features.Settings.Commands.TestErpConnection;
+using MesTech.Application.Features.Settings.Queries.GetErpSettings;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
@@ -16,6 +19,27 @@ public class ErpSettingsAvaloniaViewModelTests
     public ErpSettingsAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetErpSettingsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ErpSettingsDto
+            {
+                ActiveProvider = ErpProvider.None,
+                IsConnected = false,
+                AutoSyncStock = true,
+                AutoSyncInvoice = true,
+                StockSyncPeriodMinutes = 30,
+                PriceSyncPeriodMinutes = 60,
+                RecentSyncHistory = new List<ErpSyncHistoryItemDto>
+                {
+                    new() { SyncDate = DateTime.Now.AddHours(-1), SyncType = "Stok", RecordCount = 245, Status = "Basarili", Duration = "2.3s" },
+                    new() { SyncDate = DateTime.Now.AddHours(-2), SyncType = "Fatura", RecordCount = 18, Status = "Basarili", Duration = "1.1s" },
+                    new() { SyncDate = DateTime.Now.AddHours(-5), SyncType = "Stok", RecordCount = 0, Status = "Hata: Timeout", Duration = "30s" },
+                    new() { SyncDate = DateTime.Now.AddDays(-1), SyncType = "Fiyat", RecordCount = 120, Status = "Basarili", Duration = "3.5s" }
+                }
+            });
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<TestErpConnectionCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(TestErpConnectionResult.Success(150));
         _sut = new ErpSettingsAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 

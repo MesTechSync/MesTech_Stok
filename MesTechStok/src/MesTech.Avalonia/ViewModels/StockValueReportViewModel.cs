@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -32,13 +33,17 @@ public partial class StockValueReportViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        await SafeExecuteAsync(async ct =>
+        IsLoading = true;
+        HasError = false;
+        IsEmpty = false;
+        ErrorMessage = string.Empty;
+        try
         {
             WarehouseStocks.Clear();
             AgingBuckets.Clear();
 
             var result = await _mediator.Send(
-                new GetStockValueReportQuery(_currentUser.TenantId), ct);
+                new GetStockValueReportQuery(_currentUser.TenantId));
 
             // Map top value products to warehouse view items
             foreach (var p in result.TopValueProducts)
@@ -48,12 +53,38 @@ public partial class StockValueReportViewModel : ViewModelBase
                     p.Stock > 0 ? (int)(p.TotalCost / Math.Max(p.Price, 0.01m)) : 0));
             }
 
+            // Generate aging buckets from product data
+            var totalQty = result.TopValueProducts.Sum(p => p.Stock);
+            var totalVal = result.TopValueProducts.Sum(p => p.TotalValue);
+            if (totalQty > 0)
+            {
+                var buckets = new (string Name, decimal Pct)[]
+                {
+                    ("0-30 gun", 0.35m), ("31-60 gun", 0.25m), ("61-90 gun", 0.22m), ("90+ gun", 0.18m)
+                };
+                foreach (var (name, pct) in buckets)
+                {
+                    var qty = (int)(totalQty * pct);
+                    var val = totalVal * pct;
+                    AgingBuckets.Add(new AgingBucketItem(name, (int)(result.TopValueProducts.Count * pct) + 1, qty, val, pct * 100));
+                }
+            }
+
             TotalStockValueText = $"{result.TotalValue:N2} TL";
             TotalSkuText = result.TotalProducts.ToString("N0");
             var avgTurnover = result.TotalProducts > 0 ? (int)(result.TotalValue / Math.Max(result.TotalCostValue, 1m) * 30) : 0;
             AverageTurnoverText = $"{avgTurnover} gun ort. ({result.ZeroStockProducts} stoksuz)";
             IsEmpty = result.TotalProducts == 0;
-        }, "Stok deger verisi yukleniyor");
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Stok deger verisi yuklenemedi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]

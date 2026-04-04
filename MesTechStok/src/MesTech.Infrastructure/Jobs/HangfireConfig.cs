@@ -53,7 +53,8 @@ public static class HangfireConfig
         services.AddScoped<OpenCartStockSyncJob>();
         services.AddScoped<InvoiceRetryJob>();
         services.AddScoped<HealthCheckJob>();
-        services.AddScoped<SettlementSyncJob>();
+        // SettlementSyncJob KALDIRILDI — deprecated connectivity-only job.
+        // Gerçek persist: SettlementSyncWorker (accounting-settlement-sync, 03:30)
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
 
@@ -103,6 +104,13 @@ public static class HangfireConfig
         // Platform claim + price sync (G498 + G499 FIX)
         services.AddScoped<GenericPlatformClaimSyncJob>();
         services.AddScoped<GenericPlatformPriceSyncJob>();
+
+        // Trendyol Review + Ads sync (DEV 3 — yeni endpoint job'lari)
+        services.AddScoped<TrendyolReviewSyncJob>();
+        services.AddScoped<TrendyolAdsSyncJob>();
+
+        // Generic platform review sync (DEV 3 TUR7)
+        services.AddScoped<GenericPlatformReviewSyncJob>();
 
         // Pricing — Buybox recovery auto-price update (G506 FIX)
         services.AddScoped<AutoPriceUpdateWorker>();
@@ -171,10 +179,8 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             "* * * * *");
 
-        RecurringJob.AddOrUpdate<SettlementSyncJob>(
-            "settlement-sync",
-            job => job.ExecuteAsync(CancellationToken.None),
-            "0 3 * * *");
+        // SettlementSyncJob KALDIRILDI — SettlementSyncWorker (03:30) yeterli
+        RecurringJob.RemoveIfExists("settlement-sync");
 
         RecurringJob.AddOrUpdate<CategorySyncJob>(
             "category-sync",
@@ -474,6 +480,37 @@ public static class HangfireConfig
             "fulfillment-stock-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/30 * * * *");
+
+        // === Trendyol Review + Ads Sync (DEV 3) ===
+
+        // Her saat basi — urun degerlendirme cekme
+        RecurringJob.AddOrUpdate<TrendyolReviewSyncJob>(
+            "trendyol-review-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *");
+
+        // Her gun 07:00 — reklam kampanya performans raporu
+        RecurringJob.AddOrUpdate<TrendyolAdsSyncJob>(
+            "trendyol-ads-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 7 * * *");
+
+        // === Generic Platform Review Sync (DEV3 TUR7) ===
+        // Trendyol review → kendi TrendyolReviewSyncJob kullanir (saatlik, daha detayli)
+        // Diger platformlar → GenericPlatformReviewSyncJob (2 saatte bir)
+        var reviewSyncPlatforms = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "0 */2 * * *"),
+            ("Ciceksepeti",  "0 */2 * * *"),
+        };
+
+        foreach (var (code, cron) in reviewSyncPlatforms)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformReviewSyncJob>(
+                $"review-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
 
         // === Pricing — Buybox Recovery (G506 FIX) ===
 

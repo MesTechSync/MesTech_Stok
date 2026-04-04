@@ -22,6 +22,7 @@ public sealed class PenaltyRecordRepository : IPenaltyRecordRepository
 
         return await query
             .OrderByDescending(r => r.PenaltyDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 

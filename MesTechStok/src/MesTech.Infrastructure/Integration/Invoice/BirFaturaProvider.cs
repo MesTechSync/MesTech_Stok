@@ -90,7 +90,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/v1/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -125,7 +125,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
         EnsureConfigured();
         _logger.LogInformation("BirFatura GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/api/v1/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -139,7 +139,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/v1/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -169,7 +169,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/v1/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -232,7 +232,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/v1/invoices/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -297,7 +297,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
             };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(
+            using var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/api/v1/settings/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -384,7 +384,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
         {
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

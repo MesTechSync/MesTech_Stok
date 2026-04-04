@@ -16,7 +16,7 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
     public async Task<TenantSubscription?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.TenantSubscriptions
             .Include(s => s.Plan)
-            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
 
     public async Task<TenantSubscription?> GetActiveByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.TenantSubscriptions
@@ -24,7 +24,7 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.TenantId == tenantId &&
                         (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
             .OrderByDescending(s => s.CreatedAt)
-            .AsNoTracking().FirstOrDefaultAsync(ct);
+            .AsNoTracking().FirstOrDefaultAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<TenantSubscription>> GetExpiringAsync(int withinDays, CancellationToken ct = default)
     {
@@ -34,7 +34,8 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.Status == SubscriptionStatus.Active &&
                         s.NextBillingDate.HasValue &&
                         s.NextBillingDate.Value <= cutoff)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<TenantSubscription>> GetDueForRenewalAsync(DateTime asOfDate, CancellationToken ct = default)
@@ -43,16 +44,18 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.Status == SubscriptionStatus.Active &&
                         s.NextBillingDate.HasValue &&
                         s.NextBillingDate.Value <= asOfDate)
-            .ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<TenantSubscription>> GetByStatusAsync(SubscriptionStatus status, CancellationToken ct = default)
         => await _context.TenantSubscriptions
             .Include(s => s.Plan)
             .Where(s => s.Status == status)
-            .ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(TenantSubscription subscription, CancellationToken ct = default)
-        => await _context.TenantSubscriptions.AddAsync(subscription, ct);
+        => await _context.TenantSubscriptions.AddAsync(subscription, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(TenantSubscription subscription, CancellationToken ct = default)
     {

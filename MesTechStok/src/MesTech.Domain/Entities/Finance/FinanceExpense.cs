@@ -56,6 +56,7 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
             throw new InvalidOperationException($"Cannot submit an expense in {Status} status.");
         Status = ExpenseStatus.Submitted;
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ExpenseSubmittedEvent(Id, TenantId, DateTime.UtcNow));
     }
 
     public void Approve(Guid approverUserId)
@@ -76,6 +77,7 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
         Status = ExpenseStatus.Rejected;
         Notes = string.IsNullOrWhiteSpace(reason) ? Notes : $"Red: {reason}";
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ExpenseRejectedEvent(Id, TenantId, reason, DateTime.UtcNow));
     }
 
     public void MarkAsPaid(Guid bankAccountId)

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using MassTransit;
 using MediatR;
 using MesTech.Application.Commands.ApproveAccountingEntry;
@@ -73,6 +74,15 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting to prevent cross-tenant data leak. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.accounting.approved", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(BotAccountingApprovedEvent), context.MessageId);
@@ -136,20 +146,33 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
             }
         }
 
-        // Belgeye onay bilgisi ekle
-        var approvalJson = JsonSerializer.Serialize(new
+        // Belgeye onay bilgisi ekle (JsonNode ile güvenli birleştirme)
+        var approvalNode = new JsonObject
         {
-            Status = "Approved",
-            msg.ApprovedBy,
-            msg.ApprovalSource,
-            JournalEntryId = journalEntryId,
-            ApprovedAt = msg.OccurredAt
-        });
+            ["Status"] = "Approved",
+            ["ApprovedBy"] = msg.ApprovedBy,
+            ["ApprovalSource"] = msg.ApprovalSource,
+            ["JournalEntryId"] = journalEntryId?.ToString(),
+            ["ApprovedAt"] = msg.OccurredAt
+        };
 
-        var existingData = document.ExtractedData ?? "{}";
-        var combinedData = $"{{\"extraction\":{existingData},\"approval\":{approvalJson}}}";
-        document.UpdateExtractedData(combinedData);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        JsonNode? existingNode;
+        try
+        {
+            existingNode = JsonNode.Parse(document.ExtractedData ?? "{}");
+        }
+        catch (JsonException)
+        {
+            existingNode = new JsonObject();
+        }
+
+        var combinedNode = new JsonObject
+        {
+            ["extraction"] = existingNode,
+            ["approval"] = approvalNode
+        };
+        document.UpdateExtractedData(combinedNode.ToJsonString());
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] Belge onay bilgisi kaydedildi: DocId={DocumentId}", msg.DocumentId);

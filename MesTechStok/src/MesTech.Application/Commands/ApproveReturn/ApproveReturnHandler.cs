@@ -56,15 +56,9 @@ public sealed class ApproveReturnHandler : IRequestHandler<ApproveReturnCommand,
             var products = (await _productRepo.GetByIdsAsync(productIds, cancellationToken))
                 .ToDictionary(p => p.Id);
 
-            foreach (var line in returnRequest.Lines)
-            {
-                if (line.ProductId.HasValue && line.Quantity > 0
-                    && products.TryGetValue(line.ProductId.Value, out var product))
-                {
-                    product.AdjustStock(line.Quantity, StockMovementType.StockIn);
-                    await _productRepo.UpdateAsync(product).ConfigureAwait(false);
-                }
-            }
+            // Stok geri ekleme burada YAPILMAZ — ReturnApprovedStockRestorationHandler (Z5a) yapar.
+            // Burada AdjustStock çağrılırsa çift ekleme olur (handler + event handler = 2x).
+            _ = products; // suppress unused warning — batch fetch kept for future validation
 
             returnRequest.MarkStockRestored();
             stockRestored = true;

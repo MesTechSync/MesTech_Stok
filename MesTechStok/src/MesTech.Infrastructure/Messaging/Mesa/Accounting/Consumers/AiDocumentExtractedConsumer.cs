@@ -54,6 +54,15 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.document.extracted", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiDocumentExtractedEvent), context.MessageId);
@@ -104,7 +113,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
         });
 
         document.UpdateExtractedData(extractedJson);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AccountingDocument guncellendi (Extracted): DocId={DocumentId}", msg.DocumentId);
@@ -120,8 +129,8 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 source: Domain.Accounting.Enums.ExpenseSource.AI,
                 category: msg.ExtractedCategory ?? "Genel");
 
-            await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _expenseRepository.AddAsync(expense, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Otomatik gider kaydı olusturuldu (PendingApproval): " +

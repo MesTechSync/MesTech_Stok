@@ -41,6 +41,7 @@ public static class DemoEndpoints
         .Produces<ApiResponse<DemoSessionResult>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status429TooManyRequests)
         .Produces(StatusCodes.Status500InternalServerError)
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

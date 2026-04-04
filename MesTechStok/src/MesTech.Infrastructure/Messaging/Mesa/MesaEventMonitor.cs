@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.AI;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
 
@@ -17,14 +18,15 @@ public sealed class MesaEventMonitor : IMesaEventMonitor
     {
         var counter = _counters.GetOrAdd(eventType, _ => new MutableEventCounter());
         Interlocked.Increment(ref counter.Published);
-        counter.LastPublishAt = DateTime.UtcNow;
+        Interlocked.Exchange(ref counter.LastPublishTicks, DateTime.UtcNow.Ticks);
     }
 
     public void RecordConsume(string eventType)
     {
         var counter = _counters.GetOrAdd(eventType, _ => new MutableEventCounter());
         Interlocked.Increment(ref counter.Consumed);
-        counter.LastConsumeAt = DateTime.UtcNow;
+        Interlocked.Exchange(ref counter.LastConsumeTicks, DateTime.UtcNow.Ticks);
+        MesaMetrics.ConsumerProcessedTotal.Add(1, new KeyValuePair<string, object?>("event_type", eventType));
     }
 
     public void RecordError(string eventType, string errorMessage)
@@ -37,12 +39,17 @@ public sealed class MesaEventMonitor : IMesaEventMonitor
     {
         var events = _counters.ToDictionary(
             kv => kv.Key,
-            kv => new EventCounter(
-                Interlocked.Read(ref kv.Value.Published),
-                Interlocked.Read(ref kv.Value.Consumed),
-                Interlocked.Read(ref kv.Value.Errors),
-                kv.Value.LastPublishAt,
-                kv.Value.LastConsumeAt));
+            kv =>
+            {
+                var pubTicks = Interlocked.Read(ref kv.Value.LastPublishTicks);
+                var conTicks = Interlocked.Read(ref kv.Value.LastConsumeTicks);
+                return new EventCounter(
+                    Interlocked.Read(ref kv.Value.Published),
+                    Interlocked.Read(ref kv.Value.Consumed),
+                    Interlocked.Read(ref kv.Value.Errors),
+                    pubTicks > 0 ? new DateTime(pubTicks, DateTimeKind.Utc) : null,
+                    conTicks > 0 ? new DateTime(conTicks, DateTimeKind.Utc) : null);
+            });
 
         var uptimeSeconds = (long)(DateTime.UtcNow - _startedAt).TotalSeconds;
 
@@ -54,7 +61,7 @@ public sealed class MesaEventMonitor : IMesaEventMonitor
         public long Published;
         public long Consumed;
         public long Errors;
-        public DateTime? LastPublishAt;
-        public DateTime? LastConsumeAt;
+        public long LastPublishTicks;
+        public long LastConsumeTicks;
     }
 }

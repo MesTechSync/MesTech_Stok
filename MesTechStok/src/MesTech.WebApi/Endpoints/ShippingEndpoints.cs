@@ -92,7 +92,7 @@ public static class ShippingEndpoints
                 }
             }
 
-            return Results.NotFound(new { error = $"Tracking number '{trackingNumber}' not found in any carrier" });
+            return Results.Problem(detail: $"Tracking number '{trackingNumber}' not found in any carrier.", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("TrackShipment")

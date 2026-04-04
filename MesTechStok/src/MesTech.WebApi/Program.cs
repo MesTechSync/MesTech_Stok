@@ -337,6 +337,10 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireRole("Admin", "SuperAdmin"));
 });
 
 var app = builder.Build();
@@ -355,6 +359,18 @@ if (app.Environment.IsProduction())
         throw new InvalidOperationException(
             "STARTUP BLOCKED: Jwt:Secret is placeholder or empty. " +
             "Set a secure 32+ character secret via user-secrets before deploying to production.");
+
+    // Payment webhook secret validation — missing secret = webhook bypass risk (DEV6-TUR24)
+    var stripeSecret = app.Configuration["Stripe:WebhookSecret"];
+    var iyzicoSecret = app.Configuration["Iyzico:WebhookSecret"];
+    if (string.IsNullOrWhiteSpace(stripeSecret) && string.IsNullOrWhiteSpace(iyzicoSecret))
+    {
+        var startupLogger = app.Services.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MesTech.WebApi.Startup");
+        startupLogger.LogWarning(
+            "SECURITY WARNING: No payment webhook secrets configured (Stripe:WebhookSecret, Iyzico:WebhookSecret). " +
+            "Webhook signature verification is BYPASSED — configure secrets before accepting live payments.");
+    }
 }
 
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
@@ -572,7 +588,7 @@ app.Use(async (context, next) =>
     if (context.Request.Query.ContainsKey("pageSize"))
     {
         var qs = context.Request.Query.ToDictionary(q => q.Key, q => q.Value);
-        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && ps > 200)
+        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && (ps < 1 || ps > 200))
         {
             qs["pageSize"] = new Microsoft.Extensions.Primitives.StringValues(
                 Math.Clamp(ps, 1, 200).ToString());

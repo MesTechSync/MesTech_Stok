@@ -5,6 +5,7 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
 using MesTech.Infrastructure.Integration.Soap;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -103,9 +104,8 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
             throw new ArgumentException($"Invalid N11 SOAP base URL scheme: {soapBaseUrl}. Only HTTP(S) allowed.");
 
-        if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-            parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-            _logger.LogWarning("[N11Adapter] soapBaseUrl points to internal/private network: {BaseUrl}", soapBaseUrl);
+        if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[N11Adapter] soapBaseUrl points to private network: {BaseUrl}", soapBaseUrl);
 
         _soapBaseUrl = soapBaseUrl.TrimEnd('/');
 
@@ -1200,7 +1200,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var http = _httpClientFactory.CreateClient("N11Ping");
-            var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
+            using var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex)

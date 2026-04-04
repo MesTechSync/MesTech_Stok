@@ -1,7 +1,7 @@
 using System;
 using MesTechStok.Core.Integrations.OpenCart.Telemetry;
-using MesTechStok.Core.Data;
-using MesTechStok.Core.Data.Models;
+using MesTech.Infrastructure.Persistence;
+using MesTech.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
@@ -26,8 +26,8 @@ namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
             try
             {
                 using var scope = _sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.CircuitStateLogs.Add(new Data.Models.CircuitStateLog
+                var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
+                db.CircuitStateLogs.Add(new CircuitStateLog
                 {
                     PreviousState = oldState.ToString(),
                     NewState = newState.ToString(),
@@ -62,7 +62,7 @@ namespace MesTechStok.Core.Integrations.OpenCart.Telemetry
             try
             {
                 using var scope = _sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<MesTech.Infrastructure.Persistence.AppDbContext>();
                 db.ApiCallLogs.Add(new ApiCallLog
                 {
                     Endpoint = endpoint,

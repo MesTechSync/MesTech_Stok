@@ -77,7 +77,7 @@ public class ReportDashboardAvaloniaViewModelTests
     public void Constructor_ShouldInitialize()
     {
         var sut = new ReportDashboardAvaloniaViewModel(
-            Mock.Of<ISender>(),
+            Mock.Of<IMediator>(),
             Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
@@ -114,7 +114,7 @@ public class BackupAvaloniaViewModelTests
     [Fact]
     public void Constructor_ShouldInitialize()
     {
-        var sut = new BackupAvaloniaViewModel(Mock.Of<ISender>(), Mock.Of<ICurrentUserService>());
+        var sut = new BackupAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
 
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();

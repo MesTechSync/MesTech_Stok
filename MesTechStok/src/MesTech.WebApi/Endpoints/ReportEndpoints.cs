@@ -100,7 +100,8 @@ public static class ReportEndpoints
             return Results.Ok(new CalendarGenerationResponse(year, count));
         })
         .WithName("GenerateTaxCalendarFromReports")
-        .WithSummary("Vergi takvimi olustur (yillik ~40 etkinlik)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .WithSummary("Vergi takvimi olustur (yillik ~40 etkinlik)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/reports/platform-comparison — platform bazli satis karsilastirmasi
         group.MapGet("/platform-comparison", async (

@@ -32,11 +32,11 @@ public class InstagramShopFeedAdapterTests : IntegrationTestBase
         SetCurrentTenant(TestTenantId);
 
         _adapter = new InstagramShopFeedAdapter(
-            Context,
+            ContextFactory,
             new LoggerFactory().CreateLogger<InstagramShopFeedAdapter>());
 
         _facebookAdapter = new FacebookShopFeedAdapter(
-            Context,
+            ContextFactory,
             new LoggerFactory().CreateLogger<FacebookShopFeedAdapter>());
     }
 

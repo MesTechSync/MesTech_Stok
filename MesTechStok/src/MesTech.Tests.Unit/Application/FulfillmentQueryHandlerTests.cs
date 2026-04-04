@@ -14,9 +14,10 @@ public class FulfillmentQueryHandlerTests
     public async Task GetFulfillmentDashboard_ReturnsDto()
     {
         var productRepo = new Mock<IProductRepository>();
+        var shipmentRepo = new Mock<IFulfillmentShipmentRepository>();
         var logger = new Mock<ILogger<GetFulfillmentDashboardHandler>>();
 
-        var handler = new GetFulfillmentDashboardHandler(productRepo.Object, logger.Object);
+        var handler = new GetFulfillmentDashboardHandler(productRepo.Object, shipmentRepo.Object, logger.Object);
         var result = await handler.Handle(
             new GetFulfillmentDashboardQuery(TenantId: Guid.NewGuid()),
             CancellationToken.None);

@@ -18,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Feed;
 /// </summary>
 public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 {
-    private readonly AppDbContext _dbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly ILogger<GoogleMerchantFeedAdapter> _logger;
     private readonly FeedOptions _feedOptions;
 
@@ -32,11 +32,11 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     public SocialFeedPlatform Platform => SocialFeedPlatform.GoogleMerchant;
 
     public GoogleMerchantFeedAdapter(
-        AppDbContext dbContext,
+        IDbContextFactory<AppDbContext> dbContextFactory,
         ILogger<GoogleMerchantFeedAdapter> logger,
         IOptions<FeedOptions>? feedOptions = null)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _feedOptions = feedOptions?.Value ?? new FeedOptions();
     }
@@ -53,7 +53,8 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
 
         try
         {
-            var query = _dbContext.Products
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
+            var query = dbContext.Products
                 .Where(p => p.TenantId == request.StoreId && p.IsActive && !p.IsDeleted);
 
             if (request.CategoryFilter is { Count: > 0 })
@@ -220,9 +221,9 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
         var clean = value
+            .Replace("&", "&amp;")
             .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("&", "&amp;");
+            .Replace(">", "&gt;");
         return clean.Length > maxLength ? clean[..maxLength] : clean;
     }
 }

@@ -431,7 +431,7 @@ public class FinanceEntityTests
         fe.Status.Should().Be(ExpenseStatus.Approved);
         fe.ApprovedByUserId.Should().Be(approverId);
         fe.ApprovedAt.Should().NotBeNull();
-        fe.DomainEvents.Should().ContainSingle();
+        fe.DomainEvents.Should().HaveCount(2); // ExpenseSubmittedEvent + ExpenseApprovedEvent
     }
 
     [Fact]

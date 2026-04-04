@@ -50,6 +50,15 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.efatura.requested", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(BotEFaturaRequestedIntegrationEvent), context.MessageId);
@@ -90,8 +99,8 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 $"Muhasebe islemi bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Bot e-fatura talebi NotificationLog olarak kaydedildi: " +

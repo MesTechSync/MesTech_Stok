@@ -270,7 +270,8 @@ public static class BuyboxEndpoints
         .WithName("TriggerAutoPrice")
         .WithSummary("Manuel auto-price tetikle — zamanlanmış döngüyü hemen çalıştır")
         .Produces(200)
-        .Produces(503);
+        .Produces(503)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     // ── Typed Response DTOs — Swagger contract stability (G538) ──

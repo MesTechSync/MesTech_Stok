@@ -112,6 +112,13 @@ builder.Services.AddHttpClient<MesTechApiClient>(client =>
 .AddPolicyHandler(retryPolicy)
 .AddPolicyHandler(circuitBreakerPolicy);
 
+// Named HttpClient for Login.razor and other direct API calls (replaces new HttpClient())
+builder.Services.AddHttpClient("MesTechApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 // ── Authentication & Authorization (JWT token-based, scoped per circuit) ──
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -211,16 +218,23 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-// Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
+// Port comes from launchSettings.json (3501 dev) or ASPNETCORE_URLS env var (3200 Docker) — no hardcoded override
 
 var app = builder.Build();
 
 // Forwarded headers — MUST be first middleware for correct client IP behind proxy/Traefik
 // Required for rate limiting to work correctly (prevents X-Forwarded-For spoofing bypass)
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+// KnownNetworks: trust Docker internal networks (172.16.0.0/12, 10.0.0.0/8) as proxy sources
+var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-});
+    ForwardLimit = 2, // client → nginx/traefik → blazor (max 2 hops)
+};
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("172.16.0.0"), 12));
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("10.0.0.0"), 8));
+app.UseForwardedHeaders(forwardedOptions);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -255,8 +269,11 @@ app.UseAntiforgery();
 app.MapHealthChecks("/health");
 app.MapMetrics();
 
-// Login rate limit — apply "login" policy to /login path
-app.MapGet("/login", () => Results.Redirect("/login")).RequireRateLimiting("login");
+// Login rate limit — apply "login" policy to login-related API calls
+// NOTE: Blazor /login page is served by MapRazorComponents; this endpoint
+// protects the authentication POST from brute-force attacks.
+app.MapPost("/api/auth/login", () => Results.StatusCode(StatusCodes.Status405MethodNotAllowed))
+    .RequireRateLimiting("login");
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

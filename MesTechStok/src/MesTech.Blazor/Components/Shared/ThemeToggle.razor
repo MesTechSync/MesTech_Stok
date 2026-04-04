@@ -1,7 +1,6 @@
 @using Microsoft.JSInterop
 
-<button class="btn btn-sm btn-outline-secondary theme-toggle-btn"
-        @onclick="ToggleTheme"
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn"@onclick="ToggleTheme"
         title="@(_isDark ? "Acik Tema" : "Koyu Tema")">
   <i class="fa-solid @(_isDark ? "fa-sun" : "fa-moon")"></i>
 </button>

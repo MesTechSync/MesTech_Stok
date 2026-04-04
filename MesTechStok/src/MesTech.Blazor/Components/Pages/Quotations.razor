@@ -12,12 +12,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-file-signature text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Teklif Yonetimi</h3>
+      <h3 class="mb-0" >Teklif Yonetimi</h3>
       <small class="text-muted">Teklif olustur, takip et ve faturaya cevir</small>
     </div>
   </div>
@@ -41,7 +40,7 @@
           <div class="col-12 col-sm-6 col-md-3">
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-              <input type="text" class="form-control" placeholder="Teklif veya musteri ara..."
+              <input type="text" class="form-control"placeholder="Teklif veya musteri ara..."
                      @bind="searchText" @bind:event="oninput" />
             </div>
           </div>
@@ -72,7 +71,7 @@
     {
       <div class="card shadow-sm mb-4 border-primary">
         <div class="card-header bg-white">
-          <h6 class="mb-0"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Teklif Olustur</h6>
+          <h6 class="mb-0"><i class="fas fa-plus-circle me-2" ></i>Yeni Teklif Olustur</h6>
         </div>
         <div class="card-body">
           <EditForm Model="@newQuotation" OnValidSubmit="SaveQuotation">
@@ -177,7 +176,7 @@
     <!-- Quotations Table -->
     <div class="card shadow-sm">
       <div class="card-header bg-white">
-        <h6 class="mb-0"><i class="fas fa-file-alt me-2" style="color: #2855AC;"></i>Teklif Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-file-alt me-2" ></i>Teklif Listesi</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -220,25 +219,25 @@
                     <td class="d-none d-md-table-cell">
                       @if (q.Durum == "Taslak" || q.Durum == "Beklemede")
                       {
-                        <button class="btn btn-sm btn-outline-success me-1" @onclick="() => AcceptQuotation(q)"
+                        <button class="btn btn-sm btn-outline-success me-1"@onclick="() => AcceptQuotation(q)"
                                 title="Onayla" disabled="@isSubmitting">
                           <i class="fas fa-check"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger me-1" @onclick="() => RejectQuotation(q)"
+                        <button class="btn btn-sm btn-outline-danger me-1"@onclick="() => RejectQuotation(q)"
                                 title="Reddet" disabled="@isSubmitting">
                           <i class="fas fa-times"></i>
                         </button>
                       }
                       @if (q.Durum == "Onaylandi")
                       {
-                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ConvertToInvoice(q)"
+                        <button class="btn btn-sm btn-outline-primary me-1"@onclick="() => ConvertToInvoice(q)"
                                 title="Faturaya Cevir" disabled="@isSubmitting">
                           <i class="fas fa-file-invoice"></i>
                         </button>
                       }
                       @if (q.Durum != "Faturaya Cevrildi")
                       {
-                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => ConfirmDeleteQuotation(q)"
+                        <button class="btn btn-sm btn-outline-secondary"@onclick="() => ConfirmDeleteQuotation(q)"
                                 title="Sil">
                           <i class="fas fa-trash"></i>
                         </button>

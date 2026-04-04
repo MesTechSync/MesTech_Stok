@@ -34,7 +34,7 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
                 TotalRows = totalRows,
                 Percentage = percentage,
                 Errors = errorCount
-            }, ct);
+            }, ct).ConfigureAwait(false);
     }
 
     public async Task ReportCompletedAsync(
@@ -53,6 +53,6 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
                 ImportedCount = importedCount,
                 Errors = errorCount,
                 DurationMs = (int)duration.TotalMilliseconds
-            }, ct);
+            }, ct).ConfigureAwait(false);
     }
 }

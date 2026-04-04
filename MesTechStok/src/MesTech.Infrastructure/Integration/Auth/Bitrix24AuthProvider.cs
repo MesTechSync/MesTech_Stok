@@ -180,7 +180,7 @@ public sealed class Bitrix24AuthProvider : IAuthenticationProvider
             Content = content
         };
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {

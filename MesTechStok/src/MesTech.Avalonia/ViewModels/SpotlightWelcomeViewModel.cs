@@ -461,15 +461,16 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     private bool _pendingAutoLogin;
 
     /// <summary>Auto-login if "Beni Hatırla" session is valid (< 7 days).</summary>
-    public async Task TryAutoLoginAsync()
+    public Task TryAutoLoginAsync()
     {
-        if (!_pendingAutoLogin || string.IsNullOrEmpty(Username)) return;
+        if (!_pendingAutoLogin || string.IsNullOrEmpty(Username)) return Task.CompletedTask;
         _pendingAutoLogin = false;
 
         // Skip brute-force check for auto-login
         _tracker.RecordSuccess(Username);
         _auditLogger.Log(Username, true, "auto_login");
         LoginCompleted?.Invoke(true);
+        return Task.CompletedTask;
     }
 
     /// <summary>Dispose loaded bitmaps.</summary>

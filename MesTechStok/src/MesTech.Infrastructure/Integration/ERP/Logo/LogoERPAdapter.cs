@@ -85,7 +85,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
         try
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
-            var response = await _httpClient.GetAsync($"{BaseUrl}/api/v1/companies", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/api/v1/companies", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -238,7 +238,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(accountCode)}/balance";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -389,7 +389,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/balances";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -520,7 +520,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/salesInvoices/{Uri.EscapeDataString(invoiceNumber)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -572,7 +572,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/salesInvoices?filter=DATE_ ge '{fromStr}' and DATE_ le '{toStr}'";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -631,7 +631,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Headers.Add("X-Cancel-Reason", reason ?? "Cancelled");
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -715,7 +715,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(accountCode)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -771,7 +771,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/currentAccounts/{Uri.EscapeDataString(request.AccountCode)}";
 
-            var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PutAsync(url, content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -808,7 +808,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/currentAccounts?filter=TITLE_ contains '{Uri.EscapeDataString(query)}'";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -863,7 +863,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items?filter=ACTIVE eq 1";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -924,7 +924,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items/{Uri.EscapeDataString(productCode)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1063,7 +1063,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/salesDispatches/{Uri.EscapeDataString(waybillNumber)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1111,7 +1111,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/bankSlips?filter=DATE_ ge '{fromStr}' and DATE_ le '{toStr}'";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1214,7 +1214,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var json = JsonSerializer.Serialize(payload, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1258,7 +1258,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             var json = JsonSerializer.Serialize(payload, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/{endpoint}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1312,7 +1312,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items?filter=ACTIVE eq 1";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1362,7 +1362,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
             var url = $"{BaseUrl}/items/{Uri.EscapeDataString(productCode)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;

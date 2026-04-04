@@ -60,7 +60,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
                 ["description"] = description ?? "MesTech Subscription"
             });
 
-            var response = await http.PostAsync("/v1/payment_intents", formData, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/v1/payment_intents", formData, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -99,7 +99,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
             if (partialAmount.HasValue)
                 formData["amount"] = ((int)(partialAmount.Value * CurrencySubunitMultiplier)).ToString();
 
-            var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
@@ -109,6 +109,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Stripe refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }

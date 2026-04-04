@@ -49,6 +49,7 @@ public static class CrmLeadsEndpoint
             return Results.Created($"/api/v1/crm/leads/{id}", new CreatedResponse(id));
         })
         .WithName("CreateLeadFull")
-        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)").Produces(200).Produces(400);
+        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

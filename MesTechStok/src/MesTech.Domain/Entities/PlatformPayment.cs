@@ -69,6 +69,7 @@ public sealed class PlatformPayment : BaseEntity, ITenantEntity
         Status = PaymentStatus.Completed;
         ActualPaymentDate = DateTime.UtcNow;
         BankReference = bankReference;
+        RaiseDomainEvent(new PaymentCompletedEvent(TenantId, Id, NetAmount, bankReference, DateTime.UtcNow));
     }
 
     public void MarkAsFailed(string? reason = null)

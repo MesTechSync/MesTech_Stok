@@ -52,7 +52,8 @@ public static class IncomeEndpoints
             return Results.Created($"/api/v1/accounting/incomes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateIncome")
-        .WithSummary("Yeni gelir kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni gelir kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/incomes/{id} — gelir kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -64,7 +65,8 @@ public static class IncomeEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateIncome")
-        .WithSummary("Gelir kaydi guncelle").Produces(200).Produces(400);
+        .WithSummary("Gelir kaydi guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/incomes/{id} — gelir kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (

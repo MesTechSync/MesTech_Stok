@@ -18,6 +18,7 @@ public sealed record ApiResponse<T>
     public string? ErrorCode { get; init; }
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
 
+#pragma warning disable CA1000 // Deliberate factory pattern on generic type — Ok()/Fail() API ergonomics
     public static ApiResponse<T> Ok(T data) => new()
     {
         Success = true,
@@ -32,6 +33,7 @@ public sealed record ApiResponse<T>
         ErrorCode = errorCode,
         Timestamp = DateTime.UtcNow
     };
+#pragma warning restore CA1000
 }
 
 /// <summary>Standart creation response — { id: Guid }.</summary>

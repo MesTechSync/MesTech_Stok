@@ -20,5 +20,7 @@ public sealed class CashFlowEntryConfiguration : IEntityTypeConfiguration<CashFl
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => x.EntryDate);
         builder.HasIndex(x => x.Direction);
+        builder.HasIndex(x => new { x.TenantId, x.CounterpartyId })
+            .HasDatabaseName("IX_CashFlowEntries_Tenant_Counterparty");
     }
 }

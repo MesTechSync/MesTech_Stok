@@ -124,7 +124,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
         Stream fileStream,
         ImportOptions options,
         CancellationToken cancellationToken = default)
-        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken);
+        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken).ConfigureAwait(false);
 
     public async Task<ImportResult> ImportProductsAsync(
         Stream fileStream,
@@ -201,7 +201,12 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (options.UpdateExisting)
                         {
                             var product = await _dbContext.Set<Product>()
-                                .FirstAsync(p => p.Id == existingId, cancellationToken).ConfigureAwait(false);
+                                .FindAsync(new object[] { existingId }, cancellationToken).ConfigureAwait(false);
+                            if (product is null)
+                            {
+                                skippedCount++;
+                                continue;
+                            }
                             MapRowToProduct(ws, row, headerMap, product, options);
                             product.UpdatedAt = DateTime.UtcNow;
                             updatedCount++;
@@ -295,8 +300,11 @@ public sealed class BulkProductImportService : IBulkProductImportService
             query = query.Where(p => p.Stock <= 0);
         }
 
+        // G485: DB-level pagination guard — OOM koruması (büyük kataloglar için)
+        const int maxExportRows = 50_000;
         var products = await query
             .OrderBy(p => p.SKU)
+            .Take(maxExportRows)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
 
         using var workbook = new XLWorkbook();
@@ -481,6 +489,8 @@ public sealed class BulkProductImportService : IBulkProductImportService
         var cell = ws.Cell(row, col);
         if (cell.TryGetValue(out double d))
         {
+            if (double.IsNaN(d) || double.IsInfinity(d) || d > int.MaxValue || d < int.MinValue)
+                return false;
             value = (int)d;
             return true;
         }

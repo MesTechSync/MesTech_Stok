@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.Accounting.CommissionRatesView"
              x:Name="RootCommissionRatesView"
              x:DataType="vm:CommissionRatesViewModel"
@@ -8,6 +10,13 @@
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding LoadDataCommand}" />    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Loading Skeleton -->
+        <Border Background="{DynamicResource BackgroundBrush}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader />
+        </Border>
+
         <!-- Aciklama -->
         <Border Grid.Row="0" Padding="12" Background="{DynamicResource MesBgSecondary}"
                 CornerRadius="{StaticResource MesRadiusMd}" Margin="12,12,12,0">
@@ -51,7 +60,7 @@
         </DataGrid>
     
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="2"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -61,19 +70,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
-            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           TextWrapping="Wrap" />
-                <Button Content="Tekrar Dene" Command="{Binding LoadDataCommand}"
-                        ToolTip.Tip="Verileri tekrar yukle"
-                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding LoadDataCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
 
         <!-- Loading State -->

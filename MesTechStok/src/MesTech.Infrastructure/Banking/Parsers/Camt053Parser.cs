@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
@@ -33,7 +34,9 @@ public sealed class Camt053Parser : IBankStatementParser
         Guid bankAccountId,
         CancellationToken ct = default)
     {
-        var doc = await XDocument.LoadAsync(data, LoadOptions.None, ct);
+        var readerSettings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, Async = true };
+        using var xmlReader = XmlReader.Create(data, readerSettings);
+        var doc = await XDocument.LoadAsync(xmlReader, LoadOptions.None, ct);
         var transactions = new List<BankTransaction>();
 
         // Try with namespace, fallback without

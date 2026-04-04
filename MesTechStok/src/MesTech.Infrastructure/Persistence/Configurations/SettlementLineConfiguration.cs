@@ -20,5 +20,9 @@ public sealed class SettlementLineConfiguration : IEntityTypeConfiguration<Settl
         builder.HasIndex(x => x.OrderId);
 
         builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_settlement_lines_tenant_id");
+        builder.HasIndex(x => new { x.TenantId, x.SettlementBatchId })
+            .HasDatabaseName("IX_SettlementLines_Tenant_Batch");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

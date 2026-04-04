@@ -24,7 +24,7 @@ public sealed class GetWarehouseStockHandler : IRequestHandler<GetWarehouseStock
         if (warehouse == null)
             return Array.Empty<WarehouseStockDto>();
 
-        var allProducts = await _productRepository.GetAllAsync().ConfigureAwait(false);
+        var allProducts = await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         return allProducts
             .Where(p => p.WarehouseId == request.WarehouseId && p.TenantId == request.TenantId && p.IsActive)

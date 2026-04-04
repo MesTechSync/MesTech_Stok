@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 using FluentAssertions;
@@ -6,7 +6,9 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Feed;
+using MesTech.Infrastructure.Persistence;
 using MesTech.Tests.Integration._Shared;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Tests.Integration.Feed;
@@ -28,7 +30,7 @@ public class GoogleMerchantFeedAdapterTests : IntegrationTestBase
     {
         SetCurrentTenant(TestTenantId);
         _adapter = new GoogleMerchantFeedAdapter(
-            Context,
+            ContextFactory,
             new LoggerFactory().CreateLogger<GoogleMerchantFeedAdapter>());
     }
 
@@ -137,7 +139,7 @@ public class GoogleMerchantFeedAdapterTests : IntegrationTestBase
     // ════ 4. GenerateFeed_PriceFormat_TRY ════
 
     [Fact]
-    public void GenerateFeed_PriceFormat_TRY()
+    public void PriceFormatting_WhenCurrencyIsTRY_ThenUsesDotSeparatorAndTRYSuffix()
     {
         // Arrange — build XML using the same static helpers as the adapter
         var product = new Product

@@ -1,5 +1,8 @@
 ﻿using FluentAssertions;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipDashboard;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -15,62 +18,39 @@ public class DropshipDashboardAvaloniaViewModelTests
     public DropshipDashboardAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new DropshipDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetDropshipDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MesTech.Application.DTOs.Platform.DropshipDashboardDto());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetDropshipSuppliersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<MesTech.Application.DTOs.Dropshipping.DropshipSupplierDto>)Array.Empty<MesTech.Application.DTOs.Dropshipping.DropshipSupplierDto>());
+        _sut = new DropshipDashboardAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateKPIs()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.TotalOrders.Should().Be(347);
-        _sut.TotalRevenue.Should().Be(284_500.00m);
-        _sut.TotalProfit.Should().Be(42_675.00m);
-        _sut.AverageMargin.Should().Be(15.0m);
+        _sut.TotalOrders.Should().Be(0);
+        _sut.TotalRevenue.Should().Be(0);
+        _sut.TotalProfit.Should().Be(0);
+        _sut.AverageMargin.Should().Be(0);
         _sut.IsLoading.Should().BeFalse();
         _sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateEnhancedKPIs()
+    public async Task LoadAsync_WithEmptyData_ShouldHaveEmptyCollections()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.SupplierCount.Should().Be(12);
-        _sut.ActiveSupplierText.Should().Contain("aktif");
-        _sut.ActiveProductCount.Should().Be(1_284);
-        _sut.ProductGrowthText.Should().Contain("+42");
-        _sut.AverageDeliveryDays.Should().BeApproximately(2.8, 0.01);
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldPopulateSuppliersAndProducts()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.Suppliers.Should().HaveCount(4);
-        _sut.Suppliers[0].SupplierName.Should().Be("ABC Elektronik");
-        _sut.Suppliers[0].FulfillRate.Should().BeApproximately(97.2, 0.1);
-
-        _sut.TopProfitableProducts.Should().HaveCount(10);
-        _sut.TopProfitableProducts[0].ProductName.Should().Contain("Samsung Galaxy S24");
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldSetAutoOrderDefaults()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.IsAutoOrderEnabled.Should().BeTrue();
-        _sut.AutoOrderThreshold.Should().Be(5);
+        _sut.Suppliers.Should().BeEmpty();
+        _sut.TopProfitableProducts.Should().BeEmpty();
+        _sut.SupplierCount.Should().Be(0);
+        _sut.ActiveProductCount.Should().Be(0);
     }
 
     [Fact]
@@ -90,5 +70,14 @@ public class DropshipDashboardAvaloniaViewModelTests
         // Assert
         loadingStates.Should().Contain(true);
         _sut.IsLoading.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Constructor_ShouldSetDefaults()
+    {
+        _sut.IsLoading.Should().BeFalse();
+        _sut.HasError.Should().BeFalse();
+        _sut.TotalOrders.Should().Be(0);
+        _sut.TotalRevenue.Should().Be(0);
     }
 }

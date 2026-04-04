@@ -42,6 +42,11 @@ public sealed class CategoryPlatformMapping : BaseEntity, ITenantEntity
         bool isAutoMapped = false,
         decimal? matchConfidence = null)
     {
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException("CategoryId is required.", nameof(categoryId));
+        if (storeId == Guid.Empty)
+            throw new ArgumentException("StoreId is required.", nameof(storeId));
+
         return new CategoryPlatformMapping
         {
             CategoryId = categoryId,

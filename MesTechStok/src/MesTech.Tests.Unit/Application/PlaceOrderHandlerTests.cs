@@ -17,9 +17,10 @@ public class PlaceOrderHandlerTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private PlaceOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_ValidSingleItem_ShouldCreateOrder()
@@ -39,7 +40,7 @@ public class PlaceOrderHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.OrderNumber.Should().StartWith("ORD-");
         result.OrderId.Should().NotBeEmpty();
-        product.Stock.Should().Be(95);
+        product.Stock.Should().Be(100, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
         _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -65,8 +66,8 @@ public class PlaceOrderHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        p1.Stock.Should().Be(40);
-        p2.Stock.Should().Be(60);
+        p1.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain)");
+        p2.Stock.Should().Be(80, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain)");
     }
 
     [Fact]

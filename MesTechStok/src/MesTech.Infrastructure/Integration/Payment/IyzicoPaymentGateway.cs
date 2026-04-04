@@ -73,7 +73,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/auth", content, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/payment/auth", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -115,7 +115,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/refund", content, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/payment/refund", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
@@ -125,6 +125,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "iyzico refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }

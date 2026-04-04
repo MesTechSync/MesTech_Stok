@@ -7,6 +7,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -129,9 +130,8 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedUri) ||
             (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
             throw new ArgumentException($"Invalid MngKargo base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
-        if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-            parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-            _logger.LogWarning("[MngKargoAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+        if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[MngKargoAdapter] BaseUrl points to private network: {BaseUrl}", baseUrl);
         _httpClient.BaseAddress = parsedUri;
 
         _isConfigured = true;
@@ -149,7 +149,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!_isConfigured) return false;
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => CreateAuthenticatedRequest(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
@@ -189,7 +189,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = CreateAuthenticatedRequest(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -235,7 +235,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => CreateAuthenticatedRequest(HttpMethod.Get,
                     $"/api/v1/tracking/{trackingNumber}"), ct).ConfigureAwait(false);
 
@@ -289,7 +289,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => CreateAuthenticatedRequest(HttpMethod.Delete,
                 $"/api/v1/shipments/{shipmentId}"), ct).ConfigureAwait(false);
 
@@ -318,7 +318,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
             _ => ""
         };
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => CreateAuthenticatedRequest(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label{formatQuery}"), ct).ConfigureAwait(false);
 

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -25,7 +26,7 @@ public sealed class EbaySettlementParser : ISettlementParser
     // Tenant ID set from the tenantId overload — required for multi-tenant safety
     private Guid _tenantId;
 
-    public string Platform => "eBay";
+    public string Platform => nameof(PlatformType.eBay);
 
     public EbaySettlementParser(ILogger<EbaySettlementParser> logger)
     {

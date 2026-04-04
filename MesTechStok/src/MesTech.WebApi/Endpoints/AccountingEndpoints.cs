@@ -176,11 +176,12 @@ public static class AccountingEndpoints
             var result = await mediator.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(new MesTech.Application.DTOs.RowVersionResponse(result.NewRowVersion?.ToArray()))
-                : Results.Conflict(new { error = result.ErrorMessage });
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 409);
         })
         .WithName("UpdateJournalEntry")
         .WithSummary("Yevmiye kaydı güncelle — RowVersion optimistic concurrency (G228)")
-        .Produces(200).Produces(409).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).Produces(409).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/journal-entries/{id}/approve — yevmiye onayla ve postala
         group.MapPost("/journal-entries/{id:guid}/approve", async (
@@ -201,7 +202,8 @@ public static class AccountingEndpoints
         })
         .WithName("ApproveAccountingEntry")
         .WithSummary("Yevmiye kaydını onayla ve GL'ye postala")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/expenses — masraf listesi
         group.MapGet("/expenses", async (

@@ -17,12 +17,14 @@ public sealed class ReconciliationMatchRepository : IReconciliationMatchReposito
         => await _context.ReconciliationMatches
             .Where(m => m.TenantId == tenantId && m.Status == status)
             .OrderByDescending(m => m.MatchDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<ReconciliationMatch>> GetByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.ReconciliationMatches
             .Where(m => m.TenantId == tenantId && m.MatchDate >= from && m.MatchDate <= to)
             .OrderByDescending(m => m.MatchDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<(IReadOnlyList<ReconciliationMatch> Items, int TotalCount)> GetPendingReviewsPagedAsync(

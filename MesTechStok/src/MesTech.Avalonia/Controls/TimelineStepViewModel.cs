@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Media;
 
 namespace MesTech.Avalonia.Controls;
@@ -11,7 +11,7 @@ public class TimelineStepViewModel
     public bool IsCurrent { get; set; }
     public bool IsLastStep { get; set; }
 
-    public string DateTimeText => CompletedAt?.ToString("dd.MM HH:mm") ?? "—";
+    public string DateTimeText => CompletedAt?.ToString("dd.MM HH:mm") ?? "-";
     public FontWeight TitleWeight => IsCurrent ? FontWeight.Bold : FontWeight.Normal;
 
     public ISolidColorBrush StepColor => IsCompleted

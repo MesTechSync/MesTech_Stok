@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public sealed class HepsiburadaSettlementParser : ISettlementParser
     private List<HepsiburadaSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Hepsiburada";
+    public string Platform => nameof(PlatformType.Hepsiburada);
 
     public HepsiburadaSettlementParser(ILogger<HepsiburadaSettlementParser> logger)
     {
@@ -151,7 +152,7 @@ public sealed class HepsiburadaSettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.CommissionAmount != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SaleAmount,
@@ -159,7 +160,7 @@ public sealed class HepsiburadaSettlementParser : ISettlementParser
                     commissionAmount: item.CommissionAmount,
                     serviceFee: 0m,
                     orderId: item.OrderId,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

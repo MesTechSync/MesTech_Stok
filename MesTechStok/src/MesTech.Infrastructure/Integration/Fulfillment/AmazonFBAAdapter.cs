@@ -154,7 +154,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             ["client_secret"] = _clientSecret
         });
 
-        var response = await lwaClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
+        using var response = await lwaClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -222,7 +222,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(
                     HttpMethod.Post,
@@ -291,7 +291,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                            "&granularityType=Marketplace" +
                            $"&granularityId={TurkeyMarketplaceId}";
 
-                var response = await _retryPipeline.ExecuteAsync(async token =>
+                using var response = await _retryPipeline.ExecuteAsync(async token =>
                 {
                     var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -370,7 +370,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             var path = $"/inbound/fba/2024-03-20/inboundPlans/{Uri.EscapeDataString(shipmentId)}/operationStatus";
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                 return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -441,7 +441,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                     ? $"/fba/outbound/2020-07-01/fulfillmentOrders?nextToken={Uri.EscapeDataString(nextToken)}"
                     : $"/fba/outbound/2020-07-01/fulfillmentOrders?queryStartDate={Uri.EscapeDataString(queryDate)}";
 
-                var response = await _retryPipeline.ExecuteAsync(async token =>
+                using var response = await _retryPipeline.ExecuteAsync(async token =>
                 {
                     var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -532,7 +532,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                        "&granularityType=Marketplace" +
                        $"&granularityId={TurkeyMarketplaceId}&details=false";
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                 return await _httpClient.SendAsync(req, token).ConfigureAwait(false);

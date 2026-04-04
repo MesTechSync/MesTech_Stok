@@ -30,7 +30,7 @@ public sealed class PlatformCommissionRepository : IPlatformCommissionRepository
         if (isActive.HasValue)
             query = query.Where(c => c.IsActive == isActive.Value);
 
-        return await query.AsNoTracking().ToListAsync(ct);
+        return await query.Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task AddAsync(PlatformCommission commission, CancellationToken ct = default)

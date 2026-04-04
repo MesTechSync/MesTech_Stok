@@ -15,6 +15,7 @@ public partial class BarcodeReaderView : BaseView
 
     protected override void SubscribeEvents()
     {
+        base.SubscribeEvents();
         // Auto-focus barcode input for USB HID keyboard wedge
         var inputBox = this.FindControl<TextBox>("BarcodeInputBox");
         inputBox?.Focus();

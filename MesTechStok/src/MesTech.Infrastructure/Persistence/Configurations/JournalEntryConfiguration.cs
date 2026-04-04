@@ -1,4 +1,4 @@
-using MesTech.Domain.Accounting.Entities;
+﻿using MesTech.Domain.Accounting.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,7 +19,7 @@ public sealed class JournalEntryConfiguration : IEntityTypeConfiguration<Journal
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => x.EntryDate);
         builder.HasIndex(x => x.ReferenceNumber);
-        builder.Property(x => x.RowVersion).IsRowVersion();
+
         builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

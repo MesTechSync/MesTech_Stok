@@ -154,7 +154,8 @@ public static class BillingEndpoints
         .Produces(200).Produces(400).Produces(422)
         .AllowAnonymous() // Webhook'lar JWT olmadan gelir
         .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR8: Payment webhook flood protection
-        .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)); // G088: 1MB limit
+        .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)) // G088: 1MB limit
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/billing/features — tenant feature flags (plan bazlı)
         group.MapGet("/features", async (

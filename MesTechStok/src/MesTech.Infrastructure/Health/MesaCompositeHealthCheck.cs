@@ -83,7 +83,7 @@ public sealed class MesaCompositeHealthCheck : IHealthCheck
             client.Timeout = TimeSpan.FromSeconds(5);
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var response = await client.GetAsync($"{baseUrl}/api/health", ct);
+            using var response = await client.GetAsync($"{baseUrl}/api/health", ct);
             sw.Stop();
 
             if (response.IsSuccessStatusCode)

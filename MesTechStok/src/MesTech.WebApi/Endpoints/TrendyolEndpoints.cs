@@ -1,5 +1,7 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Adapters;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -9,6 +11,10 @@ namespace MesTech.WebApi.Endpoints;
 /// GET  /api/v1/trendyol/categories  — Trendyol kategori listesi
 /// GET  /api/v1/trendyol/connection  — Trendyol bağlantı testi
 /// POST /api/v1/trendyol/sync        — Trendyol senkronizasyon tetikle
+/// GET  /api/v1/trendyol/reviews     — Ürün değerlendirmeleri
+/// POST /api/v1/trendyol/reviews/{reviewId}/reply — Değerlendirmeye cevap
+/// GET  /api/v1/trendyol/ads/campaigns — Reklam kampanyaları
+/// GET  /api/v1/trendyol/ads/campaigns/{campaignId}/performance — Kampanya performansı
 /// </summary>
 public static class TrendyolEndpoints
 {
@@ -95,5 +101,101 @@ public static class TrendyolEndpoints
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces(200)
         .Produces(400);
+
+        // ═══════════════════════════════════════════
+        // Review Endpoints (DEV3 TUR5)
+        // ═══════════════════════════════════════════
+
+        // GET /api/v1/trendyol/reviews — urun degerlendirmelerini cek (filtre destekli)
+        group.MapGet("/reviews", async (
+            IAdapterFactory adapterFactory,
+            int page,
+            int size,
+            long? productId,
+            int? minRating,
+            bool? unrepliedOnly,
+            CancellationToken ct) =>
+        {
+            var adapter = adapterFactory.Resolve("trendyol") as TrendyolAdapter;
+            if (adapter is null)
+                return Results.Problem(detail: "TrendyolAdapter bulunamadi.", statusCode: 503);
+
+            var reviews = await adapter.GetProductReviewsAsync(page, size, productId, minRating, unrepliedOnly ?? false, ct);
+            return Results.Ok(new { platform = "Trendyol", count = reviews.Count, reviews });
+        })
+        .WithName("GetTrendyolReviews")
+        .WithSummary("Trendyol urun degerlendirmelerini cek — sayfalama destekli")
+        .Produces<object>(200)
+        .ProducesProblem(503);
+
+        // POST /api/v1/trendyol/reviews/{reviewId}/reply — degerlendirmeye cevap yaz
+        group.MapPost("/reviews/{reviewId:long}/reply", async (
+            IAdapterFactory adapterFactory,
+            long reviewId,
+            ReviewReplyRequest request,
+            CancellationToken ct) =>
+        {
+            var adapter = adapterFactory.Resolve("trendyol") as TrendyolAdapter;
+            if (adapter is null)
+                return Results.Problem(detail: "TrendyolAdapter bulunamadi.", statusCode: 503);
+
+            if (string.IsNullOrWhiteSpace(request.Text))
+                return Results.BadRequest("Cevap metni bos olamaz.");
+
+            var success = await adapter.ReplyToReviewAsync(reviewId, request.Text, ct);
+            return success
+                ? Results.Ok(new { reviewId, replied = true })
+                : Results.Problem(detail: "Review cevabi gonderilemedi.", statusCode: 502);
+        })
+        .WithName("ReplyToTrendyolReview")
+        .WithSummary("Trendyol urun degerlendirmesine cevap yaz")
+        .Produces<object>(200)
+        .ProducesProblem(502)
+        .Produces(400);
+
+        // ═══════════════════════════════════════════
+        // Ads Endpoints (DEV3 TUR5)
+        // ═══════════════════════════════════════════
+
+        // GET /api/v1/trendyol/ads/campaigns — reklam kampanyalarini listele
+        group.MapGet("/ads/campaigns", async (
+            IAdapterFactory adapterFactory,
+            CancellationToken ct) =>
+        {
+            var adapter = adapterFactory.Resolve("trendyol") as TrendyolAdapter;
+            if (adapter is null)
+                return Results.Problem(detail: "TrendyolAdapter bulunamadi.", statusCode: 503);
+
+            var campaigns = await adapter.GetAdCampaignsAsync(ct);
+            return Results.Ok(new { platform = "Trendyol", count = campaigns.Count, campaigns });
+        })
+        .WithName("GetTrendyolAdCampaigns")
+        .WithSummary("Trendyol reklam kampanyalarini listele")
+        .Produces<object>(200)
+        .ProducesProblem(503)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/trendyol/ads/campaigns/{campaignId}/performance — kampanya performansi
+        group.MapGet("/ads/campaigns/{campaignId:long}/performance", async (
+            IAdapterFactory adapterFactory,
+            long campaignId,
+            DateTime startDate,
+            DateTime endDate,
+            CancellationToken ct) =>
+        {
+            var adapter = adapterFactory.Resolve("trendyol") as TrendyolAdapter;
+            if (adapter is null)
+                return Results.Problem(detail: "TrendyolAdapter bulunamadi.", statusCode: 503);
+
+            var metrics = await adapter.GetAdPerformanceAsync(campaignId, startDate, endDate, ct);
+            return Results.Ok(new { platform = "Trendyol", campaignId, count = metrics.Count, metrics });
+        })
+        .WithName("GetTrendyolAdPerformance")
+        .WithSummary("Trendyol reklam kampanya performansi — tarih aralikli")
+        .Produces<object>(200)
+        .ProducesProblem(503);
     }
+
+    // DTO — review reply request body
+    public record ReviewReplyRequest(string Text);
 }

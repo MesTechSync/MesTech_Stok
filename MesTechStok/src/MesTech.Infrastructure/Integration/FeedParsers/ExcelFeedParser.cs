@@ -128,7 +128,7 @@ public sealed class ExcelFeedParser : IFeedParserService
             if (col.HasValue)
             {
                 mapped.Add(col.Value);
-                var val = ws.Cell(row, col.Value).GetString().Trim();
+                var val = ws.Cell(row, col.Value).GetString()?.Trim();
                 return string.IsNullOrEmpty(val) ? null : val;
             }
             return null;

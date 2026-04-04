@@ -16,21 +16,22 @@ public sealed class CashRegisterRepository : ICashRegisterRepository
     public async Task<CashRegister?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.CashRegisters
             .Include(c => c.Transactions)
-            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<CashRegister>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.CashRegisters
             .Where(c => c.TenantId == tenantId && c.IsActive)
             .OrderByDescending(c => c.IsDefault)
             .ThenBy(c => c.Name)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<CashRegister?> GetDefaultAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.CashRegisters
-            .AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId && c.IsDefault && c.IsActive, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId && c.IsDefault && c.IsActive, ct).ConfigureAwait(false);
 
     public async Task AddAsync(CashRegister cashRegister, CancellationToken ct = default)
-        => await _context.CashRegisters.AddAsync(cashRegister, ct);
+        => await _context.CashRegisters.AddAsync(cashRegister, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(CashRegister cashRegister, CancellationToken ct = default)
     {

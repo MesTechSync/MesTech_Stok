@@ -28,7 +28,7 @@ public sealed class RedisDistributedLockService : IDistributedLockService, IDisp
         end
         """;
 
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IConnectionMultiplexer? _redis;
     private readonly ILogger<RedisDistributedLockService> _logger;
 
     public RedisDistributedLockService(
@@ -51,7 +51,7 @@ public sealed class RedisDistributedLockService : IDistributedLockService, IDisp
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Redis connection failed for distributed lock service. Locks will not be acquired.");
-            _redis = null!;
+            _redis = null;
         }
     }
 

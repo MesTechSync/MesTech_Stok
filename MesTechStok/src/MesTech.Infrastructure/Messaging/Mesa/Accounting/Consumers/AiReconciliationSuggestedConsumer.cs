@@ -51,6 +51,15 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.reconciliation.suggested", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiReconciliationSuggestedEvent), context.MessageId);
@@ -86,8 +95,8 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
             settlementBatchId: msg.SettlementBatchId,
             bankTransactionId: msg.BankTransactionId);
 
-        await _matchRepository.AddAsync(match).ConfigureAwait(false);
-        await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+        await _matchRepository.AddAsync(match, context.CancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AI oneri eslestirmesi kaydedildi (NeedsReview): " +

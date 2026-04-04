@@ -20,9 +20,10 @@ public class RemoveStockHandlerEdgeCaseTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     // ── Constructor Null Guards ──
 
@@ -30,7 +31,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullProductRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("productRepository");
@@ -40,7 +41,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullMovementRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, null!, _unitOfWork.Object, _stockCalc);
+            _productRepo.Object, null!, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("movementRepository");
@@ -50,7 +51,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullUnitOfWork_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, null!, _stockCalc);
+            _productRepo.Object, _movementRepo.Object, null!, _stockCalc, _tenantProvider.Object);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("unitOfWork");
@@ -60,7 +61,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullStockCalc_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!);
+            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!, _tenantProvider.Object);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("stockCalc");

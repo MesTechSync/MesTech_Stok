@@ -50,6 +50,15 @@ public sealed class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraft
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.einvoice.draft.generated", "TenantId is Guid.Empty — aborted");
+            return;
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiEInvoiceDraftGeneratedIntegrationEvent), context.MessageId);
@@ -88,8 +97,8 @@ public sealed class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraft
                 $"Muhasebe onay bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AI e-fatura taslagi NotificationLog olarak kaydedildi: " +

@@ -20,6 +20,7 @@ public sealed class ReturnRequestRepository : IReturnRequestRepository
         => await _context.ReturnRequests
             .Where(r => r.OrderId == orderId)
             .OrderByDescending(r => r.RequestDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 

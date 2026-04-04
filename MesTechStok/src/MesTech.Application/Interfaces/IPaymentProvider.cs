@@ -21,6 +21,7 @@ public record PaymentRequest(
     string? CardToken,
     string ReturnUrl,
     string CustomerIp,
+    string CustomerEmail,
     IReadOnlyList<BasketItem>? BasketItems = null);
 
 public record BasketItem(

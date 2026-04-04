@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +24,7 @@ public sealed class OpenCartSettlementParser : ISettlementParser
     private List<OpenCartSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "OpenCart";
+    public string Platform => nameof(PlatformType.OpenCart);
 
     public OpenCartSettlementParser(ILogger<OpenCartSettlementParser> logger)
     {

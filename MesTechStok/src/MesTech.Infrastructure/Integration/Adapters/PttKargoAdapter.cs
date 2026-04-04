@@ -50,6 +50,10 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _soapClient = new SimpleSoapClient(httpClient, logger);
 
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(_options.BaseUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[PttKargoAdapter] BaseUrl points to private network: {Url}", _options.BaseUrl);
+
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             // HTTP 429 rate-limit retry
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>

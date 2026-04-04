@@ -12,10 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class BackupAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
-    public BackupAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
+    public BackupAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _currentUser = currentUser;

@@ -33,7 +33,7 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "Profile settings not found" });
+                : Results.Problem(detail: "Profile settings not found", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsProfile")
@@ -47,7 +47,7 @@ public static class SettingsEndpoints
             var success = await sender.Send(command, ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = "Tenant not found" });
+                : Results.Problem(detail: "Tenant not found", statusCode: 404);
         })
         .WithName("UpdateSettingsProfile")
         .WithSummary("Kullanici profil ayarlarini guncelle").Produces(200).Produces(400)
@@ -73,7 +73,7 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetGeneralSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "General settings not found" });
+                : Results.Problem(detail: "General settings not found", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsNotifications")
@@ -174,7 +174,7 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "User settings not found" });
+                : Results.Problem(detail: "User settings not found", statusCode: 404);
         })
         .WithName("GetUserSettings")
         .WithSummary("Kullanıcı ayarları (profil alias)")

@@ -56,6 +56,9 @@ public sealed class LogoTokenService
     /// </summary>
     public async Task<string> GetAccessTokenAsync(CancellationToken ct = default)
     {
+        if (string.IsNullOrEmpty(_baseUrl) || string.IsNullOrEmpty(_username))
+            throw new InvalidOperationException("Logo ERP is not configured. Set ERP:Logo:BaseUrl and ERP:Logo:Username in configuration.");
+
         // Fast path: return cached token without lock
         if (_cache.TryGetValue(CacheKey, out string? cachedToken) && !string.IsNullOrEmpty(cachedToken))
         {
@@ -83,7 +86,7 @@ public sealed class LogoTokenService
 
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/v1/token", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

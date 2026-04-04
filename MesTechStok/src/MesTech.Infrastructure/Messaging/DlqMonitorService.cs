@@ -44,7 +44,8 @@ public sealed class DlqMonitorService
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"https://{rabbitHost}:{managementPort}";
+        var scheme = _configuration["RabbitMQ:ManagementScheme"] ?? "http";
+        var baseUrl = $"{scheme}://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =
@@ -53,7 +54,7 @@ public sealed class DlqMonitorService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("[DLQ Monitor] RabbitMQ Management API unreachable: {StatusCode}",

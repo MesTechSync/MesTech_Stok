@@ -1,5 +1,7 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
+using MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -17,12 +19,56 @@ namespace MesTechStok.Avalonia.Tests;
 public class NakitAkisAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mockMediator;
+    private readonly Mock<ICurrentUserService> _mockCurrentUser;
     private readonly NakitAkisAvaloniaViewModel _sut;
 
     public NakitAkisAvaloniaViewModelTests()
     {
         _mockMediator = new Mock<IMediator>();
-        _sut = new NakitAkisAvaloniaViewModel(_mockMediator.Object, Mock.Of<ICurrentUserService>());
+        _mockCurrentUser = new Mock<ICurrentUserService>();
+        _mockCurrentUser.Setup(c => c.TenantId).Returns(Guid.NewGuid());
+
+        // 6 seed entries: 3 inflow + 3 outflow
+        // Inflow: 12480 + 8920 + 3150 = 24550
+        // Outflow: 1240 + 6500 + 2100 = 9840
+        // Net: 24550 - 9840 = 14710
+        var seedEntries = new List<CashFlowEntryDto>
+        {
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-1), Amount = 12480m, Direction = "Inflow", Description = "Trendyol hakedis odemesi" },
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-2), Amount = 8920m, Direction = "Inflow", Description = "Hepsiburada hakedis odemesi" },
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-3), Amount = 3150m, Direction = "Inflow", Description = "N11 hakedis odemesi" },
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-4), Amount = 1240m, Direction = "Outflow", Description = "Kargo toplu odeme" },
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-5), Amount = 6500m, Direction = "Outflow", Description = "AWS sunucu odemesi" },
+            new() { Id = Guid.NewGuid(), EntryDate = DateTime.Now.AddDays(-6), Amount = 2100m, Direction = "Outflow", Description = "Depo kira odemesi" },
+        };
+
+        var reportDto = new CashFlowReportDto
+        {
+            TotalInflow = 24550m,
+            TotalOutflow = 9840m,
+            NetFlow = 14710m,
+            Entries = seedEntries
+        };
+
+        _mockMediator
+            .Setup(m => m.Send(It.IsAny<GetCashFlowReportQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reportDto);
+
+        // GetCashFlowTrendQuery — secondary call in LoadAsync
+        var trendDto = new CashFlowTrendDto(
+            new List<CashFlowMonthDto>
+            {
+                new("2026-01", 20000m, 8000m, 12000m),
+                new("2026-02", 22000m, 9000m, 13000m),
+                new("2026-03", 24550m, 9840m, 14710m),
+            },
+            CumulativeNet: 39710m);
+
+        _mockMediator
+            .Setup(m => m.Send(It.IsAny<GetCashFlowTrendQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trendDto);
+
+        _sut = new NakitAkisAvaloniaViewModel(_mockMediator.Object, _mockCurrentUser.Object);
     }
 
     [Fact]
@@ -140,12 +186,12 @@ public class NakitAkisAvaloniaViewModelTests
         mediator.Setup(m => m.Send(It.IsAny<GetCashFlowReportQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("DB down"));
 
-        var sut = new NakitAkisAvaloniaViewModel(mediator.Object, Mock.Of<ICurrentUserService>());
+        var sut = new NakitAkisAvaloniaViewModel(mediator.Object, _mockCurrentUser.Object);
         await sut.LoadAsync();
 
         sut.HasError.Should().BeTrue();
         sut.ErrorMessage.Should().NotBeNullOrEmpty();
-        sut.IsLoading.Should().BeFalse(); // KÇ-13
+        sut.IsLoading.Should().BeFalse(); // KC-13
     }
 
     [Fact]

@@ -95,10 +95,29 @@ public partial class App : global::Avalonia.Application
                 // so each view gets fresh DbContext + repositories. No Transient override needed.
                 // IDbContextFactory also registered for Hangfire/background parallel queries.
 
-                // MediatR — Application CQRS handlers
+                // MediatR — Application CQRS handlers + pipeline behaviors
                 services.AddMediatR(cfg =>
+                {
                     cfg.RegisterServicesFromAssembly(
-                        typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly));
+                        typeof(global::MesTech.Application.Commands.CreateProduct.CreateProductHandler).Assembly);
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ValidationBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.LoggingBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TenantFilterBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.ExceptionBehavior<,>));
+                    cfg.AddOpenBehavior(typeof(MesTech.Application.Behaviors.TransactionBehavior<,>));
+                });
+
+                // KN-1 / G67 FIX: Override IMediator with scope-per-call wrapper.
+                // Desktop app shares root scope → concurrent DbContext crash.
+                // ScopedMediatorWrapper creates a new DI scope per Send/Publish,
+                // giving each MediatR operation its own DbContext instance.
+                // All 157 ViewModels automatically get scoped behavior.
+                //
+                // IMPORTANT: AddMediatR registers IMediator→Mediator. We override IMediator
+                // with the wrapper, but the wrapper needs to resolve the REAL Mediator from
+                // child scopes. Register concrete Mediator separately to avoid infinite recursion.
+                services.AddTransient<MediatR.Mediator>();
+                services.AddSingleton<IMediator, MesTech.Avalonia.Services.ScopedMediatorWrapper>();
 
                 // === WebApi HTTP Client (G072 + ORG138 Polly resilience) ===
                 var apiBaseUrl = configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
@@ -130,6 +149,7 @@ public partial class App : global::Avalonia.Application
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IFeatureGateService, FeatureGateService>();
                 services.AddSingleton<INotificationService, NotificationService>();
+                services.AddSingleton<IToastService, ToastService>();
 
                 // Views — registered for DI resolution
                 services.AddTransient<MainWindow>();

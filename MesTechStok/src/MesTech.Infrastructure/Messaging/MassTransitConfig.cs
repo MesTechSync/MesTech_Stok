@@ -1,5 +1,6 @@
 using MassTransit;
 using MesTech.Infrastructure.Messaging.Filters;
+using MesTech.Infrastructure.Messaging.Consumers;
 using MesTech.Infrastructure.Messaging.Mesa;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Consumers;
 using MesTech.Infrastructure.Messaging.Mesa.Accounting.Events;
@@ -55,6 +56,10 @@ public static class MassTransitConfig
             bus.AddConsumer<AiEInvoiceDraftGeneratedConsumer>();
             bus.AddConsumer<AiErpReconciliationDoneConsumer>();
             bus.AddConsumer<BotEFaturaRequestedConsumer>();
+
+            // Trendyol Review + Ads Consumers (DEV3 TUR4)
+            bus.AddConsumer<ProductReviewReceivedConsumer>();
+            bus.AddConsumer<AdBudgetAlertConsumer>();
 
             // Finance Audit Consumers — loopback monitoring (DEV3-TUR1 G703)
             bus.AddConsumer<FinanceAnomalyDetectedAuditConsumer>();
@@ -213,6 +218,12 @@ public static class MassTransitConfig
                 // Accounting: Vergi taslagi hazır — MesTech -> MESA (publish)
                 cfg.Message<FinanceTaxPrepReadyEvent>(x =>
                     x.SetEntityName("mestech.mesa.finance.tax-prep.ready.v1"));
+
+                // Trendyol Review + Ads exchange'leri (DEV3 TUR4)
+                cfg.Message<ProductReviewReceivedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.review.received"));
+                cfg.Message<AdBudgetAlertIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.ads.budget.alert"));
 
                 // Prefetch count — prevent overwhelming consumers under high load (G177)
                 cfg.PrefetchCount = 16;

@@ -54,6 +54,19 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
 #pragma warning restore CS0618
     };
 
+    // COGS hesabini ETKILEMEYEN hareket turleri — duzeltme, transfer, sync
+    // Bu hareketler gercek alis/satis degil, FIFO katmanlarini degistirmemeli.
+    private static readonly HashSet<string> SkippedTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        nameof(StockMovementType.Adjustment),
+        nameof(StockMovementType.Transfer),
+        nameof(StockMovementType.PlatformSync),
+        nameof(StockMovementType.OpenCartSync),
+        nameof(StockMovementType.TrendyolSync),
+        nameof(StockMovementType.MarketplaceSync),
+        nameof(StockMovementType.None)
+    };
+
     public FifoCostCalculationService(
         IStockMovementRepository movementRepository,
         IProductRepository productRepository,
@@ -91,7 +104,7 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
     public async Task<IReadOnlyList<FifoCostResultDto>> CalculateAllCOGSAsync(
         Guid tenantId, CancellationToken ct = default)
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productRepository.GetAllAsync(ct);
         var tenantProducts = products.Where(p => p.TenantId == tenantId && !p.IsDeleted).ToList();
 
         // Batch query — N+1 yerine tek SQL (100 ürün = 1 query instead of 100)
@@ -208,10 +221,12 @@ public sealed class FifoCostCalculationService : IFifoCostCalculationService
     }
 
     private static bool IsInbound(StockMovement m) =>
-        InboundTypes.Contains(m.MovementType) || m.Quantity > 0 && !OutboundTypes.Contains(m.MovementType);
+        InboundTypes.Contains(m.MovementType) ||
+        (m.Quantity > 0 && !OutboundTypes.Contains(m.MovementType) && !SkippedTypes.Contains(m.MovementType));
 
     private static bool IsOutbound(StockMovement m) =>
-        OutboundTypes.Contains(m.MovementType) || m.Quantity < 0 && !InboundTypes.Contains(m.MovementType);
+        OutboundTypes.Contains(m.MovementType) ||
+        (m.Quantity < 0 && !InboundTypes.Contains(m.MovementType) && !SkippedTypes.Contains(m.MovementType));
 
     private static FifoCostResultDto CreateEmptyResult(Guid productId) => new()
     {

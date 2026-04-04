@@ -24,16 +24,18 @@ namespace MesTech.Tests.Unit.Handlers;
 [Trait("Layer", "Dropshipping")]
 public class DropshippingBatchTests
 {
-    // ── 1. CreateFeedSourceHandler ──
+    // ── 1. CreateFeedSourceCommandHandler ──
 
     [Fact]
     public async Task CreateFeedSourceHandler_ValidRequest_AddsFeedAndReturnsId()
     {
         // Arrange
         var feedRepo = new Mock<ISupplierFeedRepository>();
-        var uow = new Mock<IUnitOfWork>();
-        var logger = new Mock<ILogger<CreateFeedSourceHandler>>();
-        var sut = new CreateFeedSourceHandler(feedRepo.Object, uow.Object, logger.Object);
+        var currentUser = new Mock<ICurrentUserService>();
+        var tenantProvider = new Mock<ITenantProvider>();
+        currentUser.Setup(u => u.UserId).Returns(Guid.NewGuid());
+        tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
+        var sut = new CreateFeedSourceCommandHandler(feedRepo.Object, currentUser.Object, tenantProvider.Object);
 
         var command = new CreateFeedSourceCommand(
             SupplierId: Guid.NewGuid(),
@@ -52,7 +54,6 @@ public class DropshippingBatchTests
         // Assert
         result.Should().NotBeEmpty();
         feedRepo.Verify(r => r.AddAsync(It.IsAny<SupplierFeed>(), It.IsAny<CancellationToken>()), Times.Once);
-        uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ── 2. ImportFromFeedHandler ──

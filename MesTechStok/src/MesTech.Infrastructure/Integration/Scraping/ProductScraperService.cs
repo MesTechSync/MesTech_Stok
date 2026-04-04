@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -62,6 +63,12 @@ public sealed class ProductScraperService : IProductScraperService
             return null;
         }
 
+        if (SsrfGuard.IsPrivateHost(uri.Host))
+        {
+            _logger.LogWarning("ScrapeFromUrlAsync rejected — private network URL: {Url}", url);
+            return null;
+        }
+
         var platform = DetectPlatform(uri.Host);
         if (platform is null)
         {
@@ -119,7 +126,7 @@ public sealed class ProductScraperService : IProductScraperService
             return null;
         }
 
-        var response = await _httpClient.GetAsync(apiUrl, ct).ConfigureAwait(false);
+        using var response = await _httpClient.GetAsync(apiUrl, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning("API call to {Platform} failed: {Status} for product {ProductId}",
@@ -192,13 +199,14 @@ public sealed class ProductScraperService : IProductScraperService
 
     private string? BuildApiUrl(string platform, string productId)
     {
+        var encoded = Uri.EscapeDataString(productId);
         return platform switch
         {
-            "Trendyol" => $"{_options.TrendyolBaseUrl.TrimEnd('/')}/{productId}",
-            "Hepsiburada" => $"{_options.HepsiburadaBaseUrl.TrimEnd('/')}/{productId}",
-            "N11" => $"{_options.N11BaseUrl.TrimEnd('/')}/{productId}",
-            "Ciceksepeti" => $"{_options.CiceksepetiBaseUrl.TrimEnd('/')}/{productId}",
-            "Pazarama" => $"{_options.PazaramaBaseUrl.TrimEnd('/')}/{productId}",
+            "Trendyol" => $"{_options.TrendyolBaseUrl.TrimEnd('/')}/{encoded}",
+            "Hepsiburada" => $"{_options.HepsiburadaBaseUrl.TrimEnd('/')}/{encoded}",
+            "N11" => $"{_options.N11BaseUrl.TrimEnd('/')}/{encoded}",
+            "Ciceksepeti" => $"{_options.CiceksepetiBaseUrl.TrimEnd('/')}/{encoded}",
+            "Pazarama" => $"{_options.PazaramaBaseUrl.TrimEnd('/')}/{encoded}",
             _ => null
         };
     }

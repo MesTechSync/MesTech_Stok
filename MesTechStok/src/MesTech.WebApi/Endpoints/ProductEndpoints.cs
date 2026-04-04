@@ -40,7 +40,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
             var result = await mediator.Send(
@@ -118,7 +118,8 @@ public static class ProductEndpoints
         .WithName("SaveProductVariants")
         .WithSummary("Ürün varyantlarını toplu kaydet/güncelle — renk/beden/fiyat/stok")
         .Produces<SaveProductVariantsResult>(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -150,7 +151,8 @@ public static class ProductEndpoints
         .WithName("UpdateProduct")
         .WithSummary("Ürün güncelle")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -180,7 +182,8 @@ public static class ProductEndpoints
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/products/search — paginated product search with filters
         group.MapGet("/search", async (
@@ -212,7 +215,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var result = await mediator.Send(
                 new GetProductsQuery(tenantId.Value, null, null, true, null,
                     page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
@@ -252,7 +255,8 @@ public static class ProductEndpoints
         .WithName("CreateBulkProducts")
         .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/products/{productId}/buybox-status — buybox durumu
         group.MapGet("/{productId:guid}/buybox-status", async (
@@ -291,7 +295,8 @@ public static class ProductEndpoints
         })
         .WithName("GenerateProductDescription")
         .WithSummary("AI ile ürün açıklaması oluştur")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
@@ -351,7 +356,8 @@ public static class ProductEndpoints
         })
         .WithName("AutoCompetePrice")
         .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
-        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/auto-compete/bulk — toplu otomatik fiyat rekabet
         group.MapPost("/auto-compete/bulk", async (
@@ -364,6 +370,7 @@ public static class ProductEndpoints
         .WithName("BulkAutoCompetePrice")
         .WithSummary("Toplu otomatik fiyat rekabet — tenant'ın tüm ürünleri veya platform bazlı Buybox kazanma")
         .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
