@@ -105,6 +105,9 @@ public static class HangfireConfig
         services.AddScoped<GenericPlatformClaimSyncJob>();
         services.AddScoped<GenericPlatformPriceSyncJob>();
 
+        // Platform product import (DEV3 — ürün DB persist)
+        services.AddScoped<GenericPlatformProductSyncJob>();
+
         // Trendyol Review + Ads sync (DEV 3 — yeni endpoint job'lari)
         services.AddScoped<TrendyolReviewSyncJob>();
         services.AddScoped<TrendyolAdsSyncJob>();
@@ -494,6 +497,13 @@ public static class HangfireConfig
             "trendyol-ads-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "0 7 * * *");
+
+        // === Generic Platform Product Import (DEV3) ===
+        // Ürün import: platformdan DB'ye çekme (günlük 1x yeterli — 9000+ ürün)
+        RecurringJob.AddOrUpdate<GenericPlatformProductSyncJob>(
+            "product-import-trendyol",
+            job => job.ExecuteAsync("Trendyol", CancellationToken.None),
+            Cron.Daily(5)); // Her gün 05:00
 
         // === Generic Platform Review Sync (DEV3 TUR7) ===
         // Trendyol review → kendi TrendyolReviewSyncJob kullanir (saatlik, daha detayli)
