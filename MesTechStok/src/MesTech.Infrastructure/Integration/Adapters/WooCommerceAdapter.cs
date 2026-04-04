@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Platform;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -27,7 +28,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
 public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;
@@ -1348,6 +1350,74 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogWarning(ex, "[WooCommerce] Webhook payload parse failed ({Len}b)", payload.Length);
         }
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from WooCommerce REST API.
+    /// GET /wp-json/wc/v3/products/reviews?page={page+1}&amp;per_page={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var wooPage = page + 1; // WooCommerce 1-based
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Get,
+                        $"/wp-json/wc/v3/products/reviews?page={wooPage}&per_page={size}");
+                    req.Headers.TryAddWithoutValidation("User-Agent", "MesTech-WooCommerce-Client/3.0");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("WooCommerce GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("review", out var review) ? review.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("reviewer", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("date_created", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: false)); // WooCommerce review reply = comment thread (not tracked)
+                }
+            }
+
+            _logger.LogInformation("WooCommerce GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "WooCommerce GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ── IPingableAdapter ──
