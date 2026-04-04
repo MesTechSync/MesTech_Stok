@@ -17,12 +17,14 @@ public sealed class AccountingDocumentRepository : IAccountingDocumentRepository
         => await _context.AccountingDocuments
             .Where(d => d.TenantId == tenantId && d.DocumentType == type)
             .OrderByDescending(d => d.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<AccountingDocument>> GetByCounterpartyAsync(Guid tenantId, Guid counterpartyId, CancellationToken ct = default)
         => await _context.AccountingDocuments
             .Where(d => d.TenantId == tenantId && d.CounterpartyId == counterpartyId)
             .OrderByDescending(d => d.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(AccountingDocument document, CancellationToken ct = default)

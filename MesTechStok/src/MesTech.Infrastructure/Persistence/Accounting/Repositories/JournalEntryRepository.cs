@@ -24,6 +24,7 @@ public sealed class JournalEntryRepository : IJournalEntryRepository
             .Include(e => e.Lines)
             .Where(e => e.TenantId == tenantId && e.EntryDate >= from && e.EntryDate <= to)
             .OrderByDescending(e => e.EntryDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<JournalEntry>> GetByAccountIdAsync(Guid tenantId, Guid accountId, CancellationToken ct = default)
@@ -31,6 +32,7 @@ public sealed class JournalEntryRepository : IJournalEntryRepository
             .Include(e => e.Lines)
             .Where(e => e.TenantId == tenantId && e.Lines.Any(l => l.AccountId == accountId))
             .OrderByDescending(e => e.EntryDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(JournalEntry entry, CancellationToken ct = default)

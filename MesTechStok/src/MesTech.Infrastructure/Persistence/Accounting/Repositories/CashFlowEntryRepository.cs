@@ -19,7 +19,7 @@ public sealed class CashFlowEntryRepository : ICashFlowEntryRepository
             .Include(e => e.Counterparty)
             .Where(e => e.TenantId == tenantId && e.EntryDate >= from && e.EntryDate <= to);
         if (direction.HasValue) q = q.Where(e => e.Direction == direction.Value);
-        return await q.OrderByDescending(e => e.EntryDate).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(e => e.EntryDate).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<decimal> GetTotalByDirectionAsync(Guid tenantId, CashFlowDirection direction, DateTime from, DateTime to, CancellationToken ct = default)

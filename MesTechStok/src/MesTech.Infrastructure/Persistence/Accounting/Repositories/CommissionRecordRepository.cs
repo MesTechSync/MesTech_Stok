@@ -15,7 +15,7 @@ public sealed class CommissionRecordRepository : ICommissionRecordRepository
             .Where(r => r.TenantId == tenantId && r.Platform == platform);
         if (from.HasValue) q = q.Where(r => r.CreatedAt >= from.Value);
         if (to.HasValue) q = q.Where(r => r.CreatedAt <= to.Value);
-        return await q.OrderByDescending(r => r.CreatedAt).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(r => r.CreatedAt).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<decimal> GetTotalCommissionAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
