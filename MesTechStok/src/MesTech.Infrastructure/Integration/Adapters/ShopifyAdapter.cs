@@ -30,7 +30,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
 public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;
@@ -1866,6 +1867,73 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         return Task.FromResult(true);
     }
 
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Shopify REST Admin API.
+    /// Uses GET /admin/api/2024-01/reviews.json with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/admin/api/2024-01/reviews.json?page={page}&limit={size}");
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Shopify GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? (pid.ValueKind == JsonValueKind.Number ? (int)pid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("body", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("author", out var author) ? author.GetString() ?? ""
+                            : item.TryGetProperty("reviewer", out var reviewer) ? reviewer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_at", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Shopify GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Shopify GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)
     {
@@ -1883,6 +1951,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             return false;
         }
     }
+
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
