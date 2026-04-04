@@ -1,3 +1,4 @@
+using MesTech.Domain.Common;
 using MesTech.Domain.Entities;
 
 namespace MesTech.Domain.Interfaces;
@@ -19,5 +20,6 @@ public interface IProductRepository
     Task<int> GetCountAsync(CancellationToken ct = default);
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
     Task AddPlatformMappingAsync(ProductPlatformMapping mapping, CancellationToken ct = default);
+    Task<PagedResult<Product>> GetPagedAsync(int page = 1, int pageSize = 50, bool activeOnly = true);
     Task<IReadOnlyList<Product>> GetByWarehouseAsync(Guid warehouseId, CancellationToken ct = default);
 }
