@@ -2437,7 +2437,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
-                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews?{queryParams}", UriKind.Relative));
+                        new Uri($"/integration/product/sellers/{_supplierId}/reviews?{queryParams}", UriKind.Relative));
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
@@ -2500,7 +2500,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
-                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews/{reviewId}/replies", UriKind.Relative),
+                        new Uri($"/integration/product/sellers/{_supplierId}/reviews/{reviewId}/replies", UriKind.Relative),
                         new StringContent(json, Encoding.UTF8, "application/json"));
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
@@ -2543,7 +2543,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
-                        new Uri($"/sapigw/sellers/{_supplierId}/ads/campaigns", UriKind.Relative));
+                        new Uri($"/integration/product/sellers/{_supplierId}/ads/campaigns", UriKind.Relative));
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
@@ -2607,7 +2607,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
-                        new Uri($"/sapigw/sellers/{_supplierId}/ads/campaigns/{campaignId}/performance?startDate={startStr}&endDate={endStr}", UriKind.Relative));
+                        new Uri($"/integration/product/sellers/{_supplierId}/ads/campaigns/{campaignId}/performance?startDate={startStr}&endDate={endStr}", UriKind.Relative));
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
