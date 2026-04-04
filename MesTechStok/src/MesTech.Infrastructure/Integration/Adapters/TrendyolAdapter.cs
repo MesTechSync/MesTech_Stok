@@ -2398,6 +2398,240 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     }
 
     // ═══════════════════════════════════════════
+    // Product Reviews (Ürün Değerlendirme)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews for the seller.
+    /// GET /sapigw/sellers/{supplierId}/products/reviews?page={page}&amp;size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews?page={page}&size={size}", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            if (doc.RootElement.TryGetProperty("content", out var contentArr))
+            {
+                foreach (var item in contentArr.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("productId", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("comment", out var comment) ? comment.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rate", out var rate) ? rate.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("userFullName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("createdDate", out var cd) && cd.TryGetInt64(out var ts)
+                            ? DateTimeOffset.FromUnixTimeMilliseconds(ts).UtcDateTime
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Trendyol GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
+    /// <summary>
+    /// Replies to a product review.
+    /// POST /sapigw/sellers/{supplierId}/products/reviews/{reviewId}/replies
+    /// </summary>
+    public async Task<bool> ReplyToReviewAsync(long reviewId, string replyText, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(replyText);
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.ReplyToReviewAsync: ReviewId={ReviewId}", reviewId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = new { text = replyText };
+            var json = JsonSerializer.Serialize(payload, _jsonOptions);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews/{reviewId}/replies", UriKind.Relative),
+                        new StringContent(json, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol ReplyToReview failed: {Status} - {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("Trendyol ReplyToReview success: ReviewId={ReviewId}", reviewId);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol ReplyToReview exception: ReviewId={ReviewId}", reviewId);
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Trendyol Ads (Reklam API)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets active ad campaigns for the seller.
+    /// GET /sapigw/sellers/{supplierId}/ads/campaigns
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolAdCampaignDto>> GetAdCampaignsAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetAdCampaignsAsync");
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/sapigw/sellers/{_supplierId}/ads/campaigns", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol GetAdCampaigns failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolAdCampaignDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var campaigns = new List<TrendyolAdCampaignDto>();
+            if (doc.RootElement.TryGetProperty("content", out var contentArr))
+            {
+                foreach (var item in contentArr.EnumerateArray())
+                {
+                    campaigns.Add(new TrendyolAdCampaignDto(
+                        CampaignId: item.TryGetProperty("campaignId", out var cid) ? cid.GetInt64() : 0,
+                        Name: item.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
+                        Status: item.TryGetProperty("status", out var status) ? status.GetString() ?? "" : "",
+                        DailyBudget: item.TryGetProperty("dailyBudget", out var db) ? db.GetDecimal() : 0,
+                        TotalSpent: item.TryGetProperty("totalSpent", out var ts) ? ts.GetDecimal() : 0,
+                        StartDate: item.TryGetProperty("startDate", out var sd) && sd.TryGetInt64(out var sdMs)
+                            ? DateTimeOffset.FromUnixTimeMilliseconds(sdMs).UtcDateTime
+                            : DateTime.MinValue,
+                        EndDate: item.TryGetProperty("endDate", out var ed) && ed.TryGetInt64(out var edMs)
+                            ? DateTimeOffset.FromUnixTimeMilliseconds(edMs).UtcDateTime
+                            : null));
+                }
+            }
+
+            _logger.LogInformation("Trendyol GetAdCampaigns: {Count} campaigns fetched", campaigns.Count);
+            return campaigns;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetAdCampaigns exception");
+            return Array.Empty<TrendyolAdCampaignDto>();
+        }
+    }
+
+    /// <summary>
+    /// Gets ad performance metrics for a campaign within a date range.
+    /// GET /sapigw/sellers/{supplierId}/ads/campaigns/{campaignId}/performance?startDate={}&amp;endDate={}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolAdPerformanceDto>> GetAdPerformanceAsync(long campaignId, DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("TrendyolAdapter.GetAdPerformanceAsync: CampaignId={CampaignId}", campaignId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var startStr = startDate.ToString("yyyy-MM-dd");
+            var endStr = endDate.ToString("yyyy-MM-dd");
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/sapigw/sellers/{_supplierId}/ads/campaigns/{campaignId}/performance?startDate={startStr}&endDate={endStr}", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Trendyol GetAdPerformance failed: {CampaignId} {Status} - {Error}", campaignId, response.StatusCode, error);
+                return Array.Empty<TrendyolAdPerformanceDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var metrics = new List<TrendyolAdPerformanceDto>();
+            if (doc.RootElement.TryGetProperty("content", out var contentArr))
+            {
+                foreach (var item in contentArr.EnumerateArray())
+                {
+                    metrics.Add(new TrendyolAdPerformanceDto(
+                        CampaignId: campaignId,
+                        Impressions: item.TryGetProperty("impressions", out var imp) ? imp.GetInt64() : 0,
+                        Clicks: item.TryGetProperty("clicks", out var clicks) ? clicks.GetInt64() : 0,
+                        Ctr: item.TryGetProperty("ctr", out var ctr) ? ctr.GetDecimal() : 0,
+                        Spend: item.TryGetProperty("spend", out var spend) ? spend.GetDecimal() : 0,
+                        Revenue: item.TryGetProperty("revenue", out var rev) ? rev.GetDecimal() : 0,
+                        Acos: item.TryGetProperty("acos", out var acos) ? acos.GetDecimal() : 0,
+                        Date: item.TryGetProperty("date", out var d) && d.TryGetInt64(out var dMs)
+                            ? DateTimeOffset.FromUnixTimeMilliseconds(dMs).UtcDateTime
+                            : DateTime.MinValue));
+                }
+            }
+
+            _logger.LogInformation("Trendyol GetAdPerformance: {Count} metrics for CampaignId={CampaignId}", metrics.Count, campaignId);
+            return metrics;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol GetAdPerformance exception: CampaignId={CampaignId}", campaignId);
+            return Array.Empty<TrendyolAdPerformanceDto>();
+        }
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
