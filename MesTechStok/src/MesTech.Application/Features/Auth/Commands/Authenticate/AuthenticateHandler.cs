@@ -13,15 +13,18 @@ public sealed class AuthenticateHandler : IRequestHandler<AuthenticateCommand, A
 {
     private readonly IAuthService _authService;
     private readonly IUserRepository _userRepo;
+    private readonly IJwtTokenService? _jwtService;
     private readonly ILogger<AuthenticateHandler> _logger;
 
     public AuthenticateHandler(
         IAuthService authService,
         IUserRepository userRepo,
-        ILogger<AuthenticateHandler> logger)
+        ILogger<AuthenticateHandler> logger,
+        IJwtTokenService? jwtService = null)
     {
         _authService = authService;
         _userRepo = userRepo;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -43,9 +46,12 @@ public sealed class AuthenticateHandler : IRequestHandler<AuthenticateCommand, A
             var user = await _userRepo.GetByUsernameAsync(request.Username, cancellationToken).ConfigureAwait(false);
             var role = user?.GetType().GetProperty("Role")?.GetValue(user)?.ToString();
 
-            // Token generation placeholder — will be wired to IJwtService in WebApi layer
-            var token = Guid.NewGuid().ToString("N");
-            var refreshToken = Guid.NewGuid().ToString("N");
+            var tenantId = user?.TenantId ?? Guid.Empty;
+            var roles = role != null ? new[] { role } : Array.Empty<string>();
+            var token = _jwtService?.GenerateToken(authResult.UserId!.Value, tenantId, request.Username, roles)
+                        ?? Guid.NewGuid().ToString("N"); // fallback if IJwtTokenService not registered (Desktop DI)
+            var refreshToken = _jwtService?.GenerateRefreshToken()
+                               ?? Guid.NewGuid().ToString("N");
 
             _logger.LogInformation(
                 "Basarili giris: Username={Username}, UserId={UserId}",
