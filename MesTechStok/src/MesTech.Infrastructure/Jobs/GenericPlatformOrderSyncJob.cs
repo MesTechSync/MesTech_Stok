@@ -62,14 +62,22 @@ public sealed class GenericPlatformOrderSyncJob
 
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var platformType = Enum.TryParse<PlatformType>(platformCode, true, out var pt) ? pt : (PlatformType?)null;
-            int created = 0, skipped = 0;
+            int created = 0, updated = 0, skipped = 0;
 
             foreach (var dto in orders)
             {
                 var existing = await _orderRepo.GetByOrderNumberAsync(dto.OrderNumber, ct).ConfigureAwait(false);
                 if (existing is not null)
                 {
-                    skipped++;
+                    var newStatus = MapStatus(dto.Status);
+                    if (existing.Status != newStatus)
+                    {
+                        existing.Status = newStatus;
+                        existing.Notes = $"{platformCode} sync — {dto.Status}";
+                        await _orderRepo.UpdateAsync(existing, ct).ConfigureAwait(false);
+                        updated++;
+                    }
+                    else { skipped++; }
                     continue;
                 }
 
@@ -87,15 +95,7 @@ public sealed class GenericPlatformOrderSyncJob
                     ShippingAddress = dto.CustomerAddress,
                     OrderDate = dto.OrderDate,
                     Notes = $"{platformCode} sync — {dto.Status}",
-                    Status = dto.Status?.ToUpperInvariant() switch
-                    {
-                        "CREATED" or "AWAITING" or "NEW" => OrderStatus.Pending,
-                        "PICKING" or "INVOICED" or "APPROVED" or "PROCESSING" => OrderStatus.Confirmed,
-                        "SHIPPED" => OrderStatus.Shipped,
-                        "DELIVERED" or "COMPLETED" => OrderStatus.Delivered,
-                        "CANCELLED" or "RETURNED" or "REFUNDED" => OrderStatus.Cancelled,
-                        _ => OrderStatus.Pending
-                    }
+                    Status = MapStatus(dto.Status)
                 };
 
                 order.SetFinancials(dto.TotalAmount, 0, dto.TotalAmount);
@@ -103,12 +103,12 @@ public sealed class GenericPlatformOrderSyncJob
                 created++;
             }
 
-            if (created > 0)
+            if (created > 0 || updated > 0)
                 await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
-                "[OrderSync] {Platform} TAMAMLANDI — {Total} çekildi, {Created} oluşturuldu, {Skipped} mevcut",
-                platformCode, orders.Count, created, skipped);
+                "[OrderSync] {Platform} TAMAMLANDI — {Total} çekildi, {Created} yeni, {Updated} güncellendi, {Skipped} değişmemiş",
+                platformCode, orders.Count, created, updated, skipped);
         }
         catch (Exception ex)
         {
@@ -116,4 +116,14 @@ public sealed class GenericPlatformOrderSyncJob
             throw;
         }
     }
+
+    private static OrderStatus MapStatus(string? status) => status?.ToUpperInvariant() switch
+    {
+        "CREATED" or "AWAITING" or "NEW" => OrderStatus.Pending,
+        "PICKING" or "INVOICED" or "APPROVED" or "PROCESSING" => OrderStatus.Confirmed,
+        "SHIPPED" => OrderStatus.Shipped,
+        "DELIVERED" or "COMPLETED" => OrderStatus.Delivered,
+        "CANCELLED" or "RETURNED" or "REFUNDED" => OrderStatus.Cancelled,
+        _ => OrderStatus.Pending
+    };
 }
