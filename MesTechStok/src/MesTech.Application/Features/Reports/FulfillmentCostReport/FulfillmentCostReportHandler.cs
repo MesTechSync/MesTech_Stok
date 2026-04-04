@@ -1,6 +1,7 @@
 using MediatR;
 using MesTech.Application.DTOs.Fulfillment;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Application.Features.Reports.FulfillmentCostReport;
@@ -9,13 +10,16 @@ public sealed class FulfillmentCostReportHandler
     : IRequestHandler<FulfillmentCostReportQuery, FulfillmentCostReportDto>
 {
     private readonly IFulfillmentProviderFactory _factory;
+    private readonly IShipmentCostRepository _shipmentCostRepo;
     private readonly ILogger<FulfillmentCostReportHandler> _logger;
 
     public FulfillmentCostReportHandler(
         IFulfillmentProviderFactory factory,
+        IShipmentCostRepository shipmentCostRepo,
         ILogger<FulfillmentCostReportHandler> logger)
     {
         _factory = factory;
+        _shipmentCostRepo = shipmentCostRepo;
         _logger = logger;
     }
 
@@ -66,9 +70,11 @@ public sealed class FulfillmentCostReportHandler
                 var totalItems = periodOrders.Sum(o => o.Items.Sum(i => i.QuantityShipped));
                 var totalOrderCount = periodOrders.Count;
 
-                // FulfillmentOrderResult does not carry cost data — estimate from order count
-                // Actual cost integration requires adapter extension (DEV 3)
-                var estimatedFee = totalItems * 15m; // placeholder estimate per item
+                // Use real shipment cost data from DB when available, fallback to estimate
+                var shipmentCosts = await _shipmentCostRepo.GetByDateRangeAsync(
+                    request.TenantId, request.StartDate, request.EndDate, cancellationToken).ConfigureAwait(false);
+                var realCost = shipmentCosts.Sum(sc => sc.Cost);
+                var estimatedFee = realCost > 0 ? realCost : totalItems * 15m; // fallback estimate if no cost records
                 var inventoryValue = 0m;
 
                 centerCosts.Add(new CenterCostDto(
