@@ -619,6 +619,25 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         if (item.TryGetProperty("cargoTrackingNumber", out var ctn))
                             order.CargoTrackingNumber = ctn.GetString();
 
+                        // Müşteri email + adres
+                        if (item.TryGetProperty("customerEmail", out var email))
+                            order.CustomerEmail = email.GetString();
+                        if (item.TryGetProperty("shipmentAddress", out var addr))
+                        {
+                            order.CustomerAddress = addr.TryGetProperty("fullAddress", out var fa) ? fa.GetString() : null;
+                            order.CustomerCity = addr.TryGetProperty("city", out var city) ? city.GetString() : null;
+                            if (string.IsNullOrEmpty(order.CustomerPhone))
+                                order.CustomerPhone = addr.TryGetProperty("phone", out var ph) ? ph.GetString() : null;
+                        }
+
+                        // Son güncelleme tarihi
+                        if (item.TryGetProperty("lastModifiedDate", out var lmd) && lmd.TryGetInt64(out var lmdMs))
+                            order.LastModifiedDate = DateTimeOffset.FromUnixTimeMilliseconds(lmdMs).UtcDateTime;
+
+                        // Para birimi
+                        if (item.TryGetProperty("currencyCode", out var cc))
+                            order.Currency = cc.GetString() ?? "TRY";
+
                         orders.Add(order);
                     }
                 }
