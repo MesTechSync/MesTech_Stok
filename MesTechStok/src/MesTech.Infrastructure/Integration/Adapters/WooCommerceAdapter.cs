@@ -228,7 +228,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             // System status endpoint — lightweight connectivity check
             var url = $"{ApiBase}/system_status";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -312,7 +312,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/products?per_page={PageSize}&page={page}&status=publish";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -528,7 +528,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         while (true)
         {
-            var response = await ThrottledExecuteAsync(async (token) =>
+            using var response = await ThrottledExecuteAsync(async (token) =>
             {
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get,
                     $"{ApiBase}/products/categories?per_page={perPage}&page={page}");
@@ -587,7 +587,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/orders?status=processing&per_page={PageSize}&page={page}{after}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -695,7 +695,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var payload = JsonSerializer.Serialize(new { status }, _jsonOptions);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(packageId)}";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, content);
@@ -779,7 +779,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(platformOrderId)}";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, requestContent);
@@ -862,7 +862,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
                 var url = $"{ApiBase}/products/batch";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -924,7 +924,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/products/{Uri.EscapeDataString(productId)}/variations?per_page={PageSize}&page={page}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1006,7 +1006,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var url = $"{ApiBase}/reports/sales" +
                 $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1115,7 +1115,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     $"&after={sinceDate:yyyy-MM-ddTHH:mm:ss}" +
                     $"&per_page={PageSize}&page={page}";
 
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);

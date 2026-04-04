@@ -232,7 +232,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             // Verify by hitting shop.json — returns store info
             var url = $"{BaseUrl}/shop.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -312,7 +312,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -622,7 +622,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/custom_collections.json?fields=id,title&limit=250";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -696,7 +696,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -954,7 +954,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             }
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -1018,7 +1018,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
                 var url = $"{BaseUrl}/webhooks.json";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -1252,7 +1252,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/orders/{Uri.EscapeDataString(platformOrderId)}/fulfillments.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -1296,7 +1296,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/locations.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1382,7 +1382,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1649,7 +1649,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var url = $"{BaseUrl}/orders.json?financial_status=refunded" +
                 $"&updated_at_min={sinceDate:yyyy-MM-ddTHH:mm:ssZ}&status=any&limit=250";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);

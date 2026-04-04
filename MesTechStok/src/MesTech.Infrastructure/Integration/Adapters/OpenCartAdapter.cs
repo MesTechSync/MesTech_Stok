@@ -134,7 +134,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             ConfigureAuth(credentials);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/products?limit=1");
@@ -205,7 +205,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -249,7 +249,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             while (hasMore)
             {
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"/api/rest/products?limit={limit}&page={page}");
@@ -312,7 +312,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { quantity = newStock };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -384,7 +384,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { price = newPrice };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -428,7 +428,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             {
                 var url = $"/api/rest/orders?limit={limit}&page={page}&sort=o.date_added&order=DESC";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -521,7 +521,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { order_status_id = statusId };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -568,7 +568,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 if (since.HasValue)
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -645,7 +645,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var isUpdate = !string.IsNullOrWhiteSpace(customer.Id);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -682,7 +682,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
@@ -772,7 +772,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var isUpdate = !string.IsNullOrWhiteSpace(category.Id);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -885,7 +885,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
@@ -967,7 +967,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var url = $"/api/rest/orders?limit={limit}&page={page}" +
                           $"&date_added_from={startDate:yyyy-MM-dd}&date_added_to={endDate:yyyy-MM-dd}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1095,7 +1095,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1168,7 +1168,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 if (since.HasValue)
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1290,7 +1290,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { return_status_id = 2 }; // Approved
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1338,7 +1338,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");

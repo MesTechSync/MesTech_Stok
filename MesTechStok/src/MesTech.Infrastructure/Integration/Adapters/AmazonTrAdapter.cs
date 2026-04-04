@@ -253,7 +253,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=summaries&pageSize=1",
                 ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     // We need to clone the request on retry since HttpRequestMessage can only be sent once
@@ -334,7 +334,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=summaries",
                 ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -436,7 +436,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var sku = Uri.EscapeDataString(product.SKU);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -480,7 +480,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 $"/catalog/2022-04-01/items?marketplaceIds={TurkeyMarketplaceId}&includedData=classifications&pageSize=20",
                 ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -550,7 +550,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var url = $"/orders/v0/orders?MarketplaceIds={TurkeyMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -624,7 +624,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     {
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -722,7 +722,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             // Uses OrderFulfillment feed (POST_ORDER_FULFILLMENT_DATA)
             var feedXml = BuildShipmentConfirmFeed(platformOrderId, trackingNumber, carrierCode);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var content = new StringContent(feedXml, Encoding.UTF8, "text/xml");
@@ -960,7 +960,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 }
             }, _jsonOptions);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -1000,7 +1000,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 destinationId = "default"
             }, _jsonOptions);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -1063,7 +1063,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(async token =>
+            using var response = await ThrottledExecuteAsync(async token =>
             {
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
@@ -1238,7 +1238,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             else
                 url += "&CreatedAfter=" + DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -1320,7 +1320,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_baseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Amazon TR ping: {StatusCode}", response.StatusCode);
             return true;

@@ -199,7 +199,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             // Trendyol API'ye test istegi — urun sayisini cek
             using var testRequest = CreateAuthenticatedRequest(HttpMethod.Get,
                 new Uri($"/integration/product/sellers/{_supplierId}/products?page=0&size=1", UriKind.Relative));
-            var response = await _httpClient.SendAsync(testRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(testRequest, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
             sw.Stop();
@@ -283,7 +283,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -337,7 +337,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             {
                 await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -416,7 +416,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -464,7 +464,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -516,7 +516,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                     url += $"&startDate={epoch}";
                 }
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -612,7 +612,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { status, lines = Array.Empty<object>() };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -680,7 +680,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -728,7 +728,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { shipmentPackageId = packageIdLong, invoiceLink = invoiceUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -766,7 +766,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
             formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -817,7 +817,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                     url += $"&claimDate={epoch}";
                 }
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -893,7 +893,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -930,7 +930,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { claimIssueReasonId = reason };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -971,7 +971,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
             var endEpoch = new DateTimeOffset(endDate).ToUnixTimeMilliseconds();
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1023,7 +1023,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1064,7 +1064,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1113,7 +1113,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1184,7 +1184,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1255,7 +1255,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1303,7 +1303,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             using var statusRequest = CreateAuthenticatedRequest(HttpMethod.Get,
                 new Uri("/integration/product/api-status", UriKind.Relative));
-            var response = await _httpClient.SendAsync(statusRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(statusRequest, ct).ConfigureAwait(false);
 
             sw.Stop();
             result.LatencyMs = (int)sw.ElapsedMilliseconds;
@@ -1342,7 +1342,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { url = callbackUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1411,7 +1411,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { items = barcodes.Select(b => new { barcode = b }).ToArray() };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1454,7 +1454,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { items = barcodes.Select(b => new { barcode = b }).ToArray() };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1497,7 +1497,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1558,7 +1558,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { text = answerText };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1613,7 +1613,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 url += $"&endDate={epoch}";
             }
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1669,7 +1669,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -1711,7 +1711,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { rejectReason };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -1762,7 +1762,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1808,7 +1808,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
             var endEpoch = new DateTimeOffset(endDate).ToUnixTimeMilliseconds();
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -1874,7 +1874,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { orderLineIds };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post,
@@ -1916,7 +1916,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { desi, boxCount };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -1959,7 +1959,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2104,7 +2104,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -2143,7 +2143,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var payload = new { items = new[] { new { barcode } } };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Delete,
@@ -2178,7 +2178,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put,
@@ -2214,7 +2214,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2245,7 +2245,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2276,7 +2276,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2311,7 +2311,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2342,7 +2342,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
@@ -2373,7 +2373,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
