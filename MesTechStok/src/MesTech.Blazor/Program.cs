@@ -112,6 +112,13 @@ builder.Services.AddHttpClient<MesTechApiClient>(client =>
 .AddPolicyHandler(retryPolicy)
 .AddPolicyHandler(circuitBreakerPolicy);
 
+// Named HttpClient for Login.razor and other direct API calls (replaces new HttpClient())
+builder.Services.AddHttpClient("MesTechApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 // ── Authentication & Authorization (JWT token-based, scoped per circuit) ──
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
