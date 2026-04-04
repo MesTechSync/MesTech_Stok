@@ -52,7 +52,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Optimistic concurrency — concurrent sipariş güncellemelerinde veri bozulmasını önler
-        builder.Property(o => o.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(o => o.RowVersion);
     }
 }

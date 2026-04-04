@@ -43,7 +43,8 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.TaxRate).HasPrecision(5, 2);
         builder.Property(p => p.Weight).HasPrecision(18, 4);
 
-        // Optimistic concurrency — concurrent stok güncellemelerinde veri bozulmasını önler
-        builder.Property(p => p.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(p => p.RowVersion);
     }
 }

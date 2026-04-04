@@ -57,7 +57,8 @@ public sealed class ReturnRequestConfiguration : IEntityTypeConfiguration<Return
             .HasForeignKey(l => l.ReturnRequestId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Optimistic concurrency
-        builder.Property(rr => rr.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(rr => rr.RowVersion);
     }
 }

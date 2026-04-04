@@ -1210,10 +1210,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -5680,10 +5680,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -8180,10 +8180,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int>("Provider")
                         .HasColumnType("integer");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<int>("Scenario")
                         .HasColumnType("integer");
@@ -9276,10 +9276,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("RequiredDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<DateTime?>("ShippedAt")
                         .HasColumnType("timestamp with time zone");
@@ -10286,10 +10286,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("ReturnAddress")
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<string>("SKU")
                         .IsRequired()
@@ -11213,10 +11213,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -12079,10 +12079,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ReversalMovementId")
                         .HasColumnType("uuid");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<string>("ScannedBarcode")
                         .HasColumnType("text");
