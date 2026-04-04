@@ -6,6 +6,7 @@ public sealed class InMemoryProcessedMessageStore : IProcessedMessageStore
 {
     private readonly ConcurrentDictionary<Guid, DateTimeOffset> _processed = new();
     private readonly TimeSpan _ttl = TimeSpan.FromDays(7);
+    private static readonly long CleanupIntervalTicks = TimeSpan.FromHours(1).Ticks;
     private long _lastCleanupTicks = DateTimeOffset.UtcNow.UtcTicks;
     private int _cleanupRunning;
 
@@ -25,7 +26,7 @@ public sealed class InMemoryProcessedMessageStore : IProcessedMessageStore
     private void CleanupIfNeeded()
     {
         var lastTicks = Interlocked.Read(ref _lastCleanupTicks);
-        if (DateTimeOffset.UtcNow.UtcTicks - lastTicks < TimeSpan.FromHours(1).Ticks)
+        if (DateTimeOffset.UtcNow.UtcTicks - lastTicks < CleanupIntervalTicks)
             return;
 
         // Ensure only one thread runs cleanup at a time
