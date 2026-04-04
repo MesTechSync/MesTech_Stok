@@ -96,7 +96,6 @@
                                IsVisible="{Binding !Contacts.Count}" />
                 </Grid>
         </Grid>
-${skeleton}
 <!-- Loading Skeleton -->        <Border Grid.Row="0" Grid.RowSpan="3"                Background="{DynamicResource MesBgPage}"                IsVisible="{Binding IsLoading}"                ZIndex="100">            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />        </Border>
     </Grid>
 </UserControl>
