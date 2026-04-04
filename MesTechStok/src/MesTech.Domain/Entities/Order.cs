@@ -179,6 +179,7 @@ public sealed class Order : BaseEntity, ITenantEntity
     public void MarkAsPaid()
     {
         PaymentStatus = "Paid";
+        RaiseDomainEvent(new OrderPaidEvent(Id, TenantId, OrderNumber, TotalAmount, DateTime.UtcNow));
     }
 
     public void SetCommission(decimal? rate, decimal? amount)
