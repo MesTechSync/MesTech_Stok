@@ -255,9 +255,10 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "[MESA Consumer] Expense/JournalEntry olusturma hatasi: DocId={DocumentId}",
+                "[MESA Consumer] Expense/JournalEntry olusturma hatasi: DocId={DocumentId}. " +
+                "Re-throwing to prevent silent ACK — MassTransit will retry or DLQ.",
                 document.Id);
-            return null;
+            throw; // P0 fix: silent null return caused ACKed messages with no JournalEntry
         }
     }
 
