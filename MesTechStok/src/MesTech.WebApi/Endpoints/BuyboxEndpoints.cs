@@ -59,7 +59,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("GetBuyboxPositions")
         .WithSummary("Platform bazlı tüm ürünlerin buybox pozisyonları")
-        .Produces(200);
+        .Produces<IReadOnlyList<BuyboxPosition>>(200);
 
         app.MapGet("/api/v1/buybox/analyze", async (
             string sku,
@@ -81,7 +81,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("AnalyzeCompetitors")
         .WithSummary("Rakip analizi — opsiyonel minSellerRating ile düşük puanlı satıcıları filtrele")
-        .Produces(200);
+        .Produces<BuyboxAnalysis>(200);
 
         app.MapGet("/api/v1/buybox/lost", async (
             Guid tenantId,
@@ -96,7 +96,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("GetLostBuyboxes")
         .WithSummary("Son kaybedilen buybox'lar — fiyat düşürme fırsatları")
-        .Produces(200);
+        .Produces<IReadOnlyList<BuyboxLostItem>>(200);
 
         // ── Price Optimization ──
 
@@ -117,7 +117,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("OptimizePrice")
         .WithSummary("AI fiyat optimizasyonu — marj analizi, strateji önerisi")
-        .Produces(200);
+        .Produces<PriceOptimization>(200);
 
         app.MapGet("/api/v1/pricing/optimize/bulk", async (
             Guid tenantId,
@@ -135,7 +135,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("OptimizePriceBulk")
         .WithSummary("Toplu fiyat optimizasyonu — tüm ürünler veya kategori/platform bazlı")
-        .Produces(200);
+        .Produces<IReadOnlyList<PriceOptimization>>(200);
 
         app.MapGet("/api/v1/pricing/history/{productId:guid}", async (
             Guid productId,
@@ -152,7 +152,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("GetPriceHistory")
         .WithSummary("Fiyat geçmişi — platform fiyat + AI önerisi zaman serisi")
-        .Produces(200);
+        .Produces<PriceHistory>(200);
 
         // ── Pricing Intelligence Dashboard (DEV6-F) ──
 
@@ -200,7 +200,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("GetPricingDashboard")
         .WithSummary("Pricing intelligence dashboard — lost buybox + suggestions + auto-price status")
-        .Produces(200)
+        .Produces<PricingDashboardResponse>(200)
         .CacheOutput("Report120s");
 
         // ── Auto-Price Configuration (DEV6-F) ──
