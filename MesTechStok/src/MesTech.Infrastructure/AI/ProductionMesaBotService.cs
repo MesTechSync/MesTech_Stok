@@ -45,13 +45,13 @@ public sealed class ProductionMesaBotService : IMesaBotService
             .CircuitBreakerAsync(
                 exceptionsAllowedBeforeBreaking: 3,
                 durationOfBreak: TimeSpan.FromSeconds(45),
-                onBreak: (ex, ts) => _logger.LogWarning(
+                onBreak: (ex, ts) => { MesaMetrics.RecordCircuitState("mesa_bot", 2); _logger.LogWarning(
                     "[MESA Bot] Circuit OPEN — {Duration}s. Error: {Error}",
-                    ts.TotalSeconds, ex.Message),
-                onReset: () => _logger.LogInformation(
-                    "[MESA Bot] Circuit CLOSED — MESA Bot baglantisi yeniden aktif"),
-                onHalfOpen: () => _logger.LogInformation(
-                    "[MESA Bot] Circuit HALF-OPEN — test cagrisi yapiliyor"));
+                    ts.TotalSeconds, ex.Message); },
+                onReset: () => { MesaMetrics.RecordCircuitState("mesa_bot", 0); _logger.LogInformation(
+                    "[MESA Bot] Circuit CLOSED — MESA Bot baglantisi yeniden aktif"); },
+                onHalfOpen: () => { MesaMetrics.RecordCircuitState("mesa_bot", 1); _logger.LogInformation(
+                    "[MESA Bot] Circuit HALF-OPEN — test cagrisi yapiliyor"); });
     }
 
     public async Task<bool> SendWhatsAppNotificationAsync(

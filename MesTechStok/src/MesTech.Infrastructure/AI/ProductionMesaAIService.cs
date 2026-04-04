@@ -48,13 +48,13 @@ public sealed class ProductionMesaAIService : IMesaAIService
             .CircuitBreakerAsync(
                 exceptionsAllowedBeforeBreaking: 3,
                 durationOfBreak: TimeSpan.FromSeconds(30),
-                onBreak: (ex, ts) => _logger.LogWarning(
+                onBreak: (ex, ts) => { MesaMetrics.RecordCircuitState("mesa_ai", 2); _logger.LogWarning(
                     "[MESA AI] Circuit OPEN — {Duration}s. Error: {Error}",
-                    ts.TotalSeconds, ex.Message),
-                onReset: () => _logger.LogInformation(
-                    "[MESA AI] Circuit CLOSED — MESA OS baglantisi yeniden aktif"),
-                onHalfOpen: () => _logger.LogInformation(
-                    "[MESA AI] Circuit HALF-OPEN — test cagrisi yapiliyor"));
+                    ts.TotalSeconds, ex.Message); },
+                onReset: () => { MesaMetrics.RecordCircuitState("mesa_ai", 0); _logger.LogInformation(
+                    "[MESA AI] Circuit CLOSED — MESA OS baglantisi yeniden aktif"); },
+                onHalfOpen: () => { MesaMetrics.RecordCircuitState("mesa_ai", 1); _logger.LogInformation(
+                    "[MESA AI] Circuit HALF-OPEN — test cagrisi yapiliyor"); });
     }
 
     public async Task<AiContentResult> GenerateProductDescriptionAsync(

@@ -74,13 +74,13 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
             .CircuitBreakerAsync(
                 exceptionsAllowedBeforeBreaking: 3,
                 durationOfBreak: TimeSpan.FromSeconds(60),
-                onBreak: (ex, ts) => _logger.LogWarning(
+                onBreak: (ex, ts) => { MesaMetrics.RecordCircuitState("advisory_v2", 2); _logger.LogWarning(
                     "[Advisory V2] Circuit OPEN — {Duration}s. Error: {Error}",
-                    ts.TotalSeconds, ex.Message),
-                onReset: () => _logger.LogInformation(
-                    "[Advisory V2] Circuit CLOSED — MESA baglanti yeniden aktif"),
-                onHalfOpen: () => _logger.LogInformation(
-                    "[Advisory V2] Circuit HALF-OPEN — test cagrisi yapiliyor"));
+                    ts.TotalSeconds, ex.Message); },
+                onReset: () => { MesaMetrics.RecordCircuitState("advisory_v2", 0); _logger.LogInformation(
+                    "[Advisory V2] Circuit CLOSED — MESA baglanti yeniden aktif"); },
+                onHalfOpen: () => { MesaMetrics.RecordCircuitState("advisory_v2", 1); _logger.LogInformation(
+                    "[Advisory V2] Circuit HALF-OPEN — test cagrisi yapiliyor"); });
     }
 
     public async Task<DailySalesAdvice> GenerateSalesAdviceAsync(
