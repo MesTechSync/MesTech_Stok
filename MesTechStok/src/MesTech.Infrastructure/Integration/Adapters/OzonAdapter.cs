@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -23,7 +24,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
 public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
@@ -1059,6 +1061,72 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogWarning(ex, "[Ozon] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Ozon API.
+    /// Uses GET /v1/product/reviews with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var request = BuildRequest(HttpMethod.Get, $"/v1/product/reviews?page={page}&page_size={size}");
+            var response = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(request, token).ConfigureAwait(false),
+                ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ozon GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("result", out var resArr) ? resArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? (pid.ValueKind == JsonValueKind.Number ? (int)pid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("comment", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble()
+                            : item.TryGetProperty("stars", out var stars) ? (int)stars.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("author_name", out var author) ? author.GetString() ?? ""
+                            : item.TryGetProperty("author", out var auth2) ? auth2.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_at", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("is_replied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Ozon GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ═══════════════════════════════════════════
