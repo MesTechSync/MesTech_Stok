@@ -4,8 +4,6 @@ using MediatR;
 using MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
-using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
-using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
 using MesTech.Application.Features.System.LaunchReadiness;
 using MesTech.Application.Features.System.Users;
 using MesTech.Infrastructure.Integration.Health;
