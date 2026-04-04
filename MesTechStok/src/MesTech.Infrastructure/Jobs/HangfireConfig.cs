@@ -109,6 +109,9 @@ public static class HangfireConfig
         services.AddScoped<TrendyolReviewSyncJob>();
         services.AddScoped<TrendyolAdsSyncJob>();
 
+        // Generic platform review sync (DEV 3 TUR7)
+        services.AddScoped<GenericPlatformReviewSyncJob>();
+
         // Pricing — Buybox recovery auto-price update (G506 FIX)
         services.AddScoped<AutoPriceUpdateWorker>();
 
@@ -491,6 +494,23 @@ public static class HangfireConfig
             "trendyol-ads-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "0 7 * * *");
+
+        // === Generic Platform Review Sync (DEV3 TUR7) ===
+        // Trendyol review → kendi TrendyolReviewSyncJob kullanir (saatlik, daha detayli)
+        // Diger platformlar → GenericPlatformReviewSyncJob (2 saatte bir)
+        var reviewSyncPlatforms = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "0 */2 * * *"),
+            ("Ciceksepeti",  "0 */2 * * *"),
+        };
+
+        foreach (var (code, cron) in reviewSyncPlatforms)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformReviewSyncJob>(
+                $"review-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
 
         // === Pricing — Buybox Recovery (G506 FIX) ===
 
