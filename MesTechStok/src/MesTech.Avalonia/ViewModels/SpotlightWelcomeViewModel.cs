@@ -96,7 +96,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
         InitializeThumbnails();
         UpdateClock();
         LoadRememberedUser();
-        LoadCurrentImage();
+        _ = LoadCurrentImageAsync();
     }
 
     // ═══════════════════════════════════════════════
@@ -115,7 +115,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     // IMAGE ROTATION
     // ═══════════════════════════════════════════════
 
-    private async void LoadCurrentImage()
+    private async Task LoadCurrentImageAsync()
     {
         try
         {

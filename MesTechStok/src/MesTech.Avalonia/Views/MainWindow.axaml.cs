@@ -106,7 +106,7 @@ public partial class MainWindow : Window
             switch (e.Key)
             {
                 case Key.K: // Command Palette
-                    OpenCommandPalette();
+                    _ = OpenCommandPaletteAsync();
                     e.Handled = true;
                     break;
 
@@ -155,7 +155,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void OpenCommandPalette()
+    private async Task OpenCommandPaletteAsync()
     {
         try
         {
