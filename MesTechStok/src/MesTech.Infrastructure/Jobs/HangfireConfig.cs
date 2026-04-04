@@ -502,6 +502,8 @@ public static class HangfireConfig
         {
             ("Hepsiburada",  "0 */2 * * *"),
             ("Ciceksepeti",  "0 */2 * * *"),
+            ("Amazon",       "0 */4 * * *"),
+            ("eBay",         "0 */4 * * *"),
         };
 
         foreach (var (code, cron) in reviewSyncPlatforms)
