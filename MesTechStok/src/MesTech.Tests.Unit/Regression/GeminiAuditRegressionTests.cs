@@ -34,6 +34,10 @@ public class GeminiAuditRegressionTests
             Path.Combine(cwd, "src"),
             Path.Combine(cwd, "MesTechStok", "src"),
             Path.Combine(cwd, "MesTech_Stok", "MesTechStok", "src"),
+            // When running with -o bin/dev5unit/, BaseDirectory is the output dir
+            // Try navigating from BaseDirectory to known project structure
+            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "src")),
+            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "src")),
         };
         foreach (var c in candidates)
         {
