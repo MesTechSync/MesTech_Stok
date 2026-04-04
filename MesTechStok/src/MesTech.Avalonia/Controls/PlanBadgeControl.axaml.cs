@@ -33,7 +33,7 @@ public partial class PlanBadgeControl : UserControl
     private void OnTierChanged(object? sender, SubscriptionTier tier) => UpdateBadge(tier);
 
     private static Color GetTokenColor(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     private void UpdateBadge(SubscriptionTier tier)
     {

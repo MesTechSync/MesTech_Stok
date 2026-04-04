@@ -12,7 +12,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class PlatformStatusViewModel : ViewModelBase
 {
     private static Color Tk(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     [ObservableProperty] private string platformName = "";
     [ObservableProperty] private string tooltipText = "";

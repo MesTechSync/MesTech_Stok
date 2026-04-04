@@ -55,7 +55,7 @@ public partial class KpiCardViewModel : ViewModelBase
     /// Trend color: green (#2E7D32) for positive, red (#D32F2F) for negative.
     /// </summary>
     private static Color T(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     public IBrush TrendColor => IsPositiveTrend
         ? new SolidColorBrush(T("MesGreenDark"))

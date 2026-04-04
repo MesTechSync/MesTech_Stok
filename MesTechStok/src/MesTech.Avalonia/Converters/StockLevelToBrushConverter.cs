@@ -15,7 +15,7 @@ namespace MesTech.Avalonia.Converters;
 public class StockLevelToBrushConverter : IValueConverter
 {
     private static Color Token(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     private static IBrush OutOfStockBrush => new SolidColorBrush(Token("MesStockOutBg"));
     private static IBrush LowStockBrush   => new SolidColorBrush(Token("MesStockLowBg"));

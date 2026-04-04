@@ -19,7 +19,7 @@ namespace MesTech.Avalonia.ViewModels.Erp;
 public partial class ErpDashboardViewModel : ViewModelBase
 {
     private static Color Tk(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
@@ -182,6 +182,9 @@ public partial class ErpDashboardViewModel : ViewModelBase
 /// </summary>
 public partial class ErpProviderCardItem : ObservableObject
 {
+    private static Color Tk(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     [ObservableProperty] private string name = string.Empty;
     [ObservableProperty] private bool isConnected;
     [ObservableProperty] private string statusText = "Bagli Degil";

@@ -15,7 +15,7 @@ public enum InfoDialogType
 public partial class InfoDialog : Window
 {
     private static Color TokenColor(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     public InfoDialog() : this(string.Empty, string.Empty) { }
 

@@ -8,7 +8,7 @@ namespace MesTech.Avalonia.Controls;
 public partial class CargoProviderCardViewModel : ObservableObject
 {
     private static Color Token(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     [ObservableProperty] private CargoProvider provider;
     [ObservableProperty] private bool isConnected;

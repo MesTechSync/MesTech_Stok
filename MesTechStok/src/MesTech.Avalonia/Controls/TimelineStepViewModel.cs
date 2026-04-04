@@ -6,7 +6,7 @@ namespace MesTech.Avalonia.Controls;
 public class TimelineStepViewModel
 {
     private static Color T(string key) =>
-        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
 
     public string StepTitle { get; set; } = "";
     public DateTime? CompletedAt { get; set; }
