@@ -304,6 +304,17 @@
             <TextBlock Text="{Binding QuickActionStatus}" FontSize="{StaticResource FontSizeCaption}"
                        Foreground="{DynamicResource MesPrimaryBlue}" HorizontalAlignment="Center"
                        Margin="0,8,0,0" IsVisible="{Binding QuickActionStatus.Length}" />
+            <!-- Dashboard redirect -->
+            <Button HorizontalAlignment="Center" Margin="0,6,0,0"
+                    Background="Transparent" Foreground="{DynamicResource MesPrimaryBlue}"
+                    FontSize="{StaticResource FontSizeSmall}" Cursor="Hand"
+                    Padding="8,4" CornerRadius="{StaticResource MesRadiusMd}"
+                    ToolTip.Tip="Detayli KPI, grafik ve tablolar icin Kontrol Paneline git"
+                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).NavigateToCommand}"
+                    CommandParameter="Dashboard">
+                <TextBlock Text="Detayli analitik icin Kontrol Paneline git →"
+                           TextDecorations="Underline" />
+            </Button>
           </StackPanel>
         </Border>
 

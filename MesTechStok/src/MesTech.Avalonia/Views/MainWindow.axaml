@@ -218,21 +218,21 @@
                             <!-- 0. ANA SAYFA -->
                             <TextBlock Classes="sidebar-section" Text="ANA SAYFA"/>
                             <Button Classes="sidebar-btn"
-                                    ToolTip.Tip="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
-                                    AutomationProperties.Name="Ana Sayfa Hub — gunluk ozet + hizli aksiyonlar"
+                                    ToolTip.Tip="Hos geldiniz — gunluk ozet, hizli aksiyonlar"
+                                    AutomationProperties.Name="Hos Geldiniz — Gunluk Ozet"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="AppHub">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <ic:SymbolIcon Symbol="Home" FontSize="16"/>
-                                    <TextBlock Text="Ana Sayfa" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Hos Geldiniz" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
 
                             <!-- 1. DASHBOARD -->
                             <TextBlock Classes="sidebar-section" Text="DASHBOARD"/>
                             <Button Classes="sidebar-btn"
-                                    ToolTip.Tip="Kontrol Paneli"
-                                    AutomationProperties.Name="Kontrol Paneli"
+                                    ToolTip.Tip="Kontrol Paneli — KPI, grafik, tablo, platform sagligi"
+                                    AutomationProperties.Name="Kontrol Paneli — Analitik Dashboard"
                                     Command="{Binding NavigateToCommand}"
                                     CommandParameter="Dashboard">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
