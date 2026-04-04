@@ -62,7 +62,7 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
             }
 
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            int created = 0, skipped = 0;
+            int created = 0, updated = 0, skipped = 0;
 
             foreach (var dto in orders)
             {
@@ -70,7 +70,19 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
                 var existing = await _orderRepo.GetByOrderNumberAsync(dto.OrderNumber, ct).ConfigureAwait(false);
                 if (existing is not null)
                 {
-                    skipped++;
+                    // Status değişmişse güncelle
+                    var newStatus = MapStatus(dto.Status);
+                    if (existing.Status != newStatus)
+                    {
+                        existing.Status = newStatus;
+                        existing.Notes = $"Trendyol sync — {dto.Status} — Kargo: {dto.CargoProviderName}";
+                        await _orderRepo.UpdateAsync(existing, ct).ConfigureAwait(false);
+                        updated++;
+                    }
+                    else
+                    {
+                        skipped++;
+                    }
                     continue;
                 }
 
@@ -79,12 +91,12 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
                 created++;
             }
 
-            if (created > 0)
+            if (created > 0 || updated > 0)
                 await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
-                "[{JobId}] Trendyol siparis sync tamamlandi: {Total} cekildi, {Created} olusturuldu, {Skipped} mevcut (skip)",
-                JobId, orders.Count, created, skipped);
+                "[{JobId}] Trendyol siparis sync tamamlandi: {Total} cekildi, {Created} yeni, {Updated} guncellendi, {Skipped} degismemis",
+                JobId, orders.Count, created, updated, skipped);
         }
         catch (Exception ex)
         {
@@ -114,17 +126,18 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
         // Set financials via domain method (private set properties)
         order.SetFinancials(dto.TotalAmount, 0, dto.TotalAmount);
 
-        // Status mapping (OrderStatus enum: Pending/Confirmed/Shipped/Delivered/Cancelled)
-        order.Status = dto.Status?.ToUpperInvariant() switch
-        {
-            "CREATED" or "AWAITING" => OrderStatus.Pending,
-            "PICKING" or "INVOICED" or "APPROVED" => OrderStatus.Confirmed,
-            "SHIPPED" => OrderStatus.Shipped,
-            "DELIVERED" => OrderStatus.Delivered,
-            "CANCELLED" or "RETURNED" => OrderStatus.Cancelled,
-            _ => OrderStatus.Pending
-        };
+        order.Status = MapStatus(dto.Status);
 
         return order;
     }
+
+    private static OrderStatus MapStatus(string? status) => status?.ToUpperInvariant() switch
+    {
+        "CREATED" or "AWAITING" => OrderStatus.Pending,
+        "PICKING" or "INVOICED" or "APPROVED" => OrderStatus.Confirmed,
+        "SHIPPED" => OrderStatus.Shipped,
+        "DELIVERED" => OrderStatus.Delivered,
+        "CANCELLED" or "RETURNED" => OrderStatus.Cancelled,
+        _ => OrderStatus.Pending
+    };
 }
