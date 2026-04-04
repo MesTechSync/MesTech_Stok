@@ -19,4 +19,27 @@ public sealed class CariHareket : BaseEntity, ITenantEntity
 
     // Navigation
     public CariHesap CariHesap { get; set; } = null!;
+
+    public static CariHareket Create(
+        Guid tenantId, Guid cariHesapId, decimal amount,
+        CariDirection direction, string description,
+        DateTime? date = null, Guid? invoiceId = null, Guid? orderId = null)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount, nameof(amount));
+        ArgumentException.ThrowIfNullOrWhiteSpace(description, nameof(description));
+
+        return new CariHareket
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            CariHesapId = cariHesapId,
+            Amount = amount,
+            Direction = direction,
+            Description = description,
+            Date = date ?? DateTime.UtcNow,
+            InvoiceId = invoiceId,
+            OrderId = orderId,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 }
