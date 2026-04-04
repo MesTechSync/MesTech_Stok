@@ -10,11 +10,11 @@ public sealed class InvoiceRepository : IInvoiceRepository
 
     public InvoiceRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Invoice?> GetByIdAsync(Guid id)
-        => await _context.Invoices.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
+    public async Task<Invoice?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _context.Invoices.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<Invoice?> GetByOrderIdAsync(Guid orderId)
-        => await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.OrderId == orderId).ConfigureAwait(false);
+    public async Task<Invoice?> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
+        => await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.OrderId == orderId, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Invoice>> GetFailedAsync(int maxCount, CancellationToken ct = default)
         => await _context.Invoices
@@ -31,10 +31,10 @@ public sealed class InvoiceRepository : IInvoiceRepository
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Invoice invoice)
-        => await _context.Invoices.AddAsync(invoice).ConfigureAwait(false);
+    public async Task AddAsync(Invoice invoice, CancellationToken ct = default)
+        => await _context.Invoices.AddAsync(invoice, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Invoice invoice)
+    public Task UpdateAsync(Invoice invoice, CancellationToken ct = default)
     {
         _context.Invoices.Update(invoice);
         return Task.CompletedTask;

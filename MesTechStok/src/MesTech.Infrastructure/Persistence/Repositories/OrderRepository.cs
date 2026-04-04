@@ -10,12 +10,7 @@ public sealed class OrderRepository : IOrderRepository
 
     public OrderRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<Order?> GetByIdAsync(Guid id)
-        => await _context.Orders
-            .Include(o => o.OrderItems)
-            .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id).ConfigureAwait(false);
-
-    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Orders
             .Include(o => o.OrderItems)
             .AsNoTracking().FirstOrDefaultAsync(o => o.Id == id, ct).ConfigureAwait(false);
@@ -31,24 +26,24 @@ public sealed class OrderRepository : IOrderRepository
             .ToListAsync(ct).ConfigureAwait(false);
     }
 
-    public async Task<Order?> GetByOrderNumberAsync(string orderNumber)
+    public async Task<Order?> GetByOrderNumberAsync(string orderNumber, CancellationToken ct = default)
         => await _context.Orders
             .Include(o => o.OrderItems)
-            .AsNoTracking().FirstOrDefaultAsync(o => o.OrderNumber == orderNumber).ConfigureAwait(false);
+            .AsNoTracking().FirstOrDefaultAsync(o => o.OrderNumber == orderNumber, ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
         => await _context.Orders
             .Where(o => o.CustomerId == customerId)
             .OrderByDescending(o => o.OrderDate)
             .Take(1000) // G485: pagination guard — unbounded query protection
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(DateTime from, DateTime to)
+    public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.Orders
             .Where(o => o.OrderDate >= from && o.OrderDate <= to)
             .OrderByDescending(o => o.OrderDate)
             .Take(5000) // G485: pagination guard
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Order>> GetByDateRangeAsync(
         Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -71,10 +66,10 @@ public sealed class OrderRepository : IOrderRepository
             .Take(5000) // G485: pagination guard — includes OrderItems
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Order order)
-        => await _context.Orders.AddAsync(order).ConfigureAwait(false);
+    public async Task AddAsync(Order order, CancellationToken ct = default)
+        => await _context.Orders.AddAsync(order, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Order order)
+    public Task UpdateAsync(Order order, CancellationToken ct = default)
     {
         _context.Orders.Update(order);
         return Task.CompletedTask;

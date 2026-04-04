@@ -29,10 +29,10 @@ public sealed class DealRepository : IDealRepository
             .Take(5000) // G560: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Deal deal)
-        => await _context.Deals.AddAsync(deal).ConfigureAwait(false);
+    public async Task AddAsync(Deal deal, CancellationToken ct = default)
+        => await _context.Deals.AddAsync(deal, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Deal deal)
+    public Task UpdateAsync(Deal deal, CancellationToken ct = default)
     {
         _context.Deals.Update(deal);
         return Task.CompletedTask;

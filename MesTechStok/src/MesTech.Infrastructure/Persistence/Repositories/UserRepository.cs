@@ -9,24 +9,24 @@ namespace MesTech.Infrastructure.Persistence.Repositories;
 // G028: DEV 1'e atanacak — User entity'ye ITenantEntity eklenmeli.
 public sealed class UserRepository(AppDbContext db) : IUserRepository
 {
-    public async Task<User?> GetByIdAsync(Guid id) =>
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await db.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Id == id).ConfigureAwait(false);
+            .FirstOrDefaultAsync(u => u.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<User?> GetByUsernameAsync(string username) =>
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default) =>
         await db.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
+            .FirstOrDefaultAsync(u => u.Username == username, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default) =>
         await db.Users.OrderBy(u => u.Username).Take(1000) // G485: pagination guard
             .ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(User user) =>
-        await db.Users.AddAsync(user).ConfigureAwait(false);
+    public async Task AddAsync(User user, CancellationToken ct = default) =>
+        await db.Users.AddAsync(user, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(User user)
+    public Task UpdateAsync(User user, CancellationToken ct = default)
     {
         db.Users.Update(user);
         return Task.CompletedTask;

@@ -13,23 +13,23 @@ public sealed class ProductRepository : IProductRepository
 
     // DEV6-TUR11: FindAsync bypasses global query filter — use FirstOrDefaultAsync instead
     // G349: Include children so FK dependency checks in DeleteProductHandler work
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Products
             .Include(p => p.OrderItems)
             .Include(p => p.PlatformMappings)
-            .FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
+            .FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
         => await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<Product?> GetBySKUAsync(string sku)
-        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.SKU == sku).ConfigureAwait(false);
+    public async Task<Product?> GetBySKUAsync(string sku, CancellationToken ct = default)
+        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.SKU == sku, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetBySKUsAsync(IEnumerable<string> skus, CancellationToken ct = default)
         => await _context.Products.Where(p => skus.Contains(p.SKU)).ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<Product?> GetByBarcodeAsync(string barcode)
-        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Barcode == barcode).ConfigureAwait(false);
+    public async Task<Product?> GetByBarcodeAsync(string barcode, CancellationToken ct = default)
+        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Barcode == barcode, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default)
         => await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).Take(10000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485: pagination guard
@@ -37,30 +37,30 @@ public sealed class ProductRepository : IProductRepository
     public async Task<IReadOnlyList<Product>> GetLowStockAsync(CancellationToken ct = default)
         => await _context.Products.Where(p => p.IsActive && p.Stock <= p.MinimumStock).Take(5000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485: pagination guard
 
-    public async Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId)
-        => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).Take(5000).AsNoTracking().ToListAsync().ConfigureAwait(false); // G485: pagination guard
+    public async Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+        => await _context.Products.Where(p => p.CategoryId == categoryId && p.IsActive).Take(5000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485: pagination guard
 
-    public async Task<IReadOnlyList<Product>> SearchAsync(string searchTerm)
+    public async Task<IReadOnlyList<Product>> SearchAsync(string searchTerm, CancellationToken ct = default)
         => await _context.Products
             .Where(p => p.IsActive && (
                 EF.Functions.ILike(p.Name, $"%{searchTerm}%") ||
                 EF.Functions.ILike(p.SKU, $"%{searchTerm}%") ||
                 (p.Barcode != null && EF.Functions.ILike(p.Barcode, $"%{searchTerm}%"))))
             .Take(1000) // G485: pagination guard — search results
-            .AsNoTracking().ToListAsync().ConfigureAwait(false);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Product product)
-        => await _context.Products.AddAsync(product).ConfigureAwait(false);
+    public async Task AddAsync(Product product, CancellationToken ct = default)
+        => await _context.Products.AddAsync(product, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Product product)
+    public Task UpdateAsync(Product product, CancellationToken ct = default)
     {
         _context.Products.Update(product);
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
         if (product != null) _context.Products.Remove(product);
     }
 
@@ -72,26 +72,17 @@ public sealed class ProductRepository : IProductRepository
 
     // ── Dalga 4: Batch + Pagination ──
 
-    public async Task<PagedResult<Product>> GetPagedAsync(int page = 1, int pageSize = 50, bool activeOnly = true)
+    public async Task<PagedResult<Product>> GetPagedAsync(int page = 1, int pageSize = 50, bool activeOnly = true, CancellationToken ct = default)
     {
         var query = activeOnly ? _context.Products.Where(p => p.IsActive) : _context.Products.AsQueryable();
-        var totalCount = await query.CountAsync().ConfigureAwait(false);
+        var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync()
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
         return PagedResult<Product>.Create(items, totalCount, page, pageSize);
-    }
-
-    public async Task<IReadOnlyList<Product>> GetBySKUsAsync(IEnumerable<string> skus)
-    {
-        var skuList = skus.ToList();
-        return await _context.Products
-            .Where(p => skuList.Contains(p.SKU))
-            .AsNoTracking().ToListAsync()
-            .ConfigureAwait(false);
     }
 
     public async Task AddRangeAsync(IEnumerable<Product> products)
