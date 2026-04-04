@@ -445,7 +445,7 @@
         </Border>
 
         <!-- ═══ EMPTY STATE ═════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
+        <Border Grid.Row="1" Grid.RowSpan="1"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="40">

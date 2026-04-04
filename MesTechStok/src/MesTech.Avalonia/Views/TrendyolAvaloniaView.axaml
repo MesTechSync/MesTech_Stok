@@ -400,7 +400,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
+        <Border Grid.Row="1" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">

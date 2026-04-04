@@ -146,7 +146,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="6"
+        <Border Grid.Row="1" Grid.RowSpan="5"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
