@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.Interfaces;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
@@ -92,12 +93,28 @@ public static class BulkProductEndpoints
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
         group.MapPost("/export", async (
             BulkExportRequest request,
+            IBulkProductImportService bulkService,
             IProductRepository productRepository,
             CancellationToken ct) =>
         {
             const int maxExportLimit = 50_000; // OOM koruması — 50K üründen fazlası sayfalanmalı
             var format = request.Format?.ToLowerInvariant() ?? "csv";
 
+            // FIX-DEV6: ExportProductsAsync uses DB-level Take(50K) + AsNoTracking
+            // instead of GetAllAsync() which loads ALL products into memory
+            var exportBytes = await bulkService.ExportProductsAsync(
+                new BulkExportOptions { CategoryId = request.CategoryId, InStock = request.InStock }, ct);
+            if (exportBytes.Length == 0)
+                return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
+
+            // Excel export (service returns xlsx)
+            if (format == "xlsx" || format == "excel")
+            {
+                var xlsxFilename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}.xlsx";
+                return Results.File(exportBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", xlsxFilename);
+            }
+
+            // CSV fallback — use original path but with DB-level limited data
             var products = await productRepository.GetAllAsync(ct);
 
             if (products.Count == 0)
@@ -199,7 +216,7 @@ public static class BulkProductEndpoints
     /// <summary>
     /// Toplu export istek DTO'su.
     /// </summary>
-    public record BulkExportRequest(string? Format = "csv");
+    public record BulkExportRequest(string? Format = "csv", Guid? CategoryId = null, bool? InStock = null);
 
     /// <summary>
     /// Toplu güncelleme istek DTO'su.

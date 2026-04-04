@@ -300,8 +300,11 @@ public sealed class BulkProductImportService : IBulkProductImportService
             query = query.Where(p => p.Stock <= 0);
         }
 
+        // G485: DB-level pagination guard — OOM koruması (büyük kataloglar için)
+        const int maxExportRows = 50_000;
         var products = await query
             .OrderBy(p => p.SKU)
+            .Take(maxExportRows)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
 
         using var workbook = new XLWorkbook();
