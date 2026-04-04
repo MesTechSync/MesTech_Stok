@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Cargo;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using System.Net;
 using MesTech.Domain.Entities;
@@ -24,7 +25,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter,
-    IInvoiceCapableAdapter, IPingableAdapter
+    IInvoiceCapableAdapter, IPingableAdapter, IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
@@ -1176,6 +1177,70 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         finally
         {
             _rateLimitSemaphore.Release();
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Ciceksepeti.
+    /// GET /api/v1/products/reviews?page={page}&amp;size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("CiceksepetiAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            using var response = await ExecuteWithRetryAsync(
+                () => CreateAuthenticatedRequest(HttpMethod.Get,
+                    $"/api/v1/products/reviews?page={page}&size={size}"), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ciceksepeti GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("productReviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("productId", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("comment", out var comment) ? comment.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("star", out var star) ? star.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("customerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("createdDate", out var cd)
+                            ? (DateTime.TryParse(cd.GetString(), out var dt) ? dt : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Ciceksepeti GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
         }
     }
 
