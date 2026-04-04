@@ -114,34 +114,34 @@ public static class BulkProductEndpoints
                 return Results.File(exportBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", xlsxFilename);
             }
 
-            // CSV fallback — PERF NOTE: GetAllAsync loads all products into memory.
-            // TODO-PERF: Replace with paginated repository method when IProductRepository
-            // gets GetPagedAsync (DEV6-G009). Excel path above uses DB-level Take(50K).
-            var products = await productRepository.GetAllAsync(ct);
+            // FIX-DEV6-G009: Paginated CSV export — GetPagedAsync döngüsü ile OOM önleme
+            const int pageSize = 5000;
+            var csvLines = new List<string> { "SKU,Name,PurchasePrice,SalePrice,Stock,MinimumStock,CategoryId,IsActive" };
+            int totalExported = 0;
+            int page = 1;
 
-            if (products.Count == 0)
-                return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
-
-            // Güvenlik limiti — büyük kataloglar için uyarı
-            var exportProducts = products.Count > maxExportLimit
-                ? products.Take(maxExportLimit).ToList()
-                : (IList<MesTech.Domain.Entities.Product>)products;
-
-            // CSV formatında dışa aktar
-            var csvLines = new List<string>(exportProducts.Count + 1)
+            while (totalExported < maxExportLimit)
             {
-                "SKU,Name,PurchasePrice,SalePrice,Stock,MinimumStock,CategoryId,IsActive"
-            };
+                var pagedResult = await productRepository.GetPagedAsync(page, pageSize, activeOnly: true);
+                if (pagedResult.Items.Count == 0) break;
 
-            foreach (var p in exportProducts)
-            {
-                // CSV escape: double-quote → doubled, formula injection guard (=,+,-,@,\t,\r)
-                csvLines.Add($"{CsvEscape(p.SKU)},{CsvEscape(p.Name)},{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
+                foreach (var p in pagedResult.Items)
+                {
+                    csvLines.Add($"{CsvEscape(p.SKU)},{CsvEscape(p.Name)},{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
+                    totalExported++;
+                    if (totalExported >= maxExportLimit) break;
+                }
+
+                if (page * pageSize >= pagedResult.TotalCount) break;
+                page++;
             }
+
+            if (totalExported == 0)
+                return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
 
             var csvContent = string.Join(Environment.NewLine, csvLines);
             var bytes = System.Text.Encoding.UTF8.GetBytes(csvContent);
-            var suffix = products.Count > maxExportLimit ? $"-partial-{maxExportLimit}" : "";
+            var suffix = totalExported >= maxExportLimit ? $"-partial-{maxExportLimit}" : "";
             var filename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}{suffix}.{format}";
 
             return Results.File(bytes, "text/csv", filename);
