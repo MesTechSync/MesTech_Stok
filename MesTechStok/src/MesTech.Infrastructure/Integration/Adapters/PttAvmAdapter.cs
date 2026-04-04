@@ -172,7 +172,8 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
             cancellationToken: ct).ConfigureAwait(false);
 
-        _accessToken = json.RootElement.GetProperty("token").GetString() ?? string.Empty;
+        _accessToken = json.RootElement.TryGetProperty("token", out var tokenProp)
+            ? tokenProp.GetString() ?? string.Empty : string.Empty;
 
         // PTT AVM tokens expire in 1 hour; parse if available, else default
         if (json.RootElement.TryGetProperty("expiresIn", out var expiresInEl))

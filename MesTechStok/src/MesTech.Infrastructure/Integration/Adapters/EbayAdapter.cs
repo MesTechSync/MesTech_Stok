@@ -178,8 +178,10 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
             cancellationToken: ct).ConfigureAwait(false);
 
-        _accessToken = json.RootElement.GetProperty("access_token").GetString() ?? string.Empty;
-        var expiresIn = json.RootElement.GetProperty("expires_in").GetInt32();
+        _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
+            ? atProp.GetString() ?? string.Empty : string.Empty;
+        var expiresIn = json.RootElement.TryGetProperty("expires_in", out var eiProp)
+            ? eiProp.GetInt32() : 3600;
         _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
 
         _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);

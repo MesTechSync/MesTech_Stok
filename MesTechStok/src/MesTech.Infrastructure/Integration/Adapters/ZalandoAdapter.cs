@@ -194,7 +194,8 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
             cancellationToken: ct).ConfigureAwait(false);
 
-        _accessToken = json.RootElement.GetProperty("access_token").GetString() ?? string.Empty;
+        _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
+            ? atProp.GetString() ?? string.Empty : string.Empty;
         var expiresIn = json.RootElement.TryGetProperty("expires_in", out var expEl)
             ? expEl.GetInt32()
             : DefaultTokenExpirySeconds;
