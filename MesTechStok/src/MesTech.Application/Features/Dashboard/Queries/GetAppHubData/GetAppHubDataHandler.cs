@@ -22,19 +22,12 @@ public sealed class GetAppHubDataHandler
     public async Task<AppHubDataDto> Handle(
         GetAppHubDataQuery request, CancellationToken cancellationToken)
     {
-        var productTask = _mediator.Send(new GetProductDbStatusQuery(), cancellationToken);
-        var inventoryTask = _mediator.Send(new GetInventoryStatisticsQuery(), cancellationToken);
-        var invoiceTask = _mediator.Send(new GetPendingInvoicesQuery(request.TenantId), cancellationToken);
-        var healthTask = _mediator.Send(new GetServiceHealthQuery(), cancellationToken);
-        var orderCountTask = _orderRepo.GetCountAsync(cancellationToken);
-
-        await Task.WhenAll(productTask, inventoryTask, invoiceTask, healthTask, orderCountTask).ConfigureAwait(false);
-
-        var products = await productTask.ConfigureAwait(false);
-        var inventory = await inventoryTask.ConfigureAwait(false);
-        var invoices = await invoiceTask.ConfigureAwait(false);
-        var health = await healthTask.ConfigureAwait(false);
-        var totalOrders = await orderCountTask.ConfigureAwait(false);
+        // Sequential execution — Task.WhenAll causes concurrent DbContext access (G67/KÖK-1)
+        var products = await _mediator.Send(new GetProductDbStatusQuery(), cancellationToken).ConfigureAwait(false);
+        var inventory = await _mediator.Send(new GetInventoryStatisticsQuery(), cancellationToken).ConfigureAwait(false);
+        var invoices = await _mediator.Send(new GetPendingInvoicesQuery(request.TenantId), cancellationToken).ConfigureAwait(false);
+        var health = await _mediator.Send(new GetServiceHealthQuery(), cancellationToken).ConfigureAwait(false);
+        var totalOrders = await _orderRepo.GetCountAsync(cancellationToken).ConfigureAwait(false);
 
         return new AppHubDataDto
         {
