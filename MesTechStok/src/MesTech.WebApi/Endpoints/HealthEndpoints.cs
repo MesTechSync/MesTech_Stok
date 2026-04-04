@@ -85,6 +85,7 @@ public static class HealthEndpoints
                 catch (Exception ex)
                 {
                     adapterSw.Stop();
+                    logger.LogWarning(ex, "Adapter {Platform} health ping failed", adapter.PlatformCode);
                     return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, "Connection failed");
                 }
             });
@@ -128,6 +129,7 @@ public static class HealthEndpoints
             }
             catch (Exception ex)
             {
+                logger.LogWarning(ex, "MESA OS health check failed at {MesaUrl}", mesaUrl);
                 mesaCheck = new HealthCheckItem("mesa-os", false, 0, "Connection failed");
             }
 
