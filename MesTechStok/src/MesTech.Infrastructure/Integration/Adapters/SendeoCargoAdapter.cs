@@ -255,8 +255,8 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
                 {
                     trackingResult.Events.Add(new TrackingEvent
                     {
-                        Timestamp = DateTime.TryParse(
-                            evt.GetProperty("timestamp").GetString(), out var ts)
+                        Timestamp = evt.TryGetProperty("timestamp", out var tsProp)
+                            && DateTime.TryParse(tsProp.GetString(), out var ts)
                             ? ts : DateTime.UtcNow,
                         Location = evt.TryGetProperty("location", out var loc)
                             ? loc.GetString() ?? "" : "",
@@ -301,7 +301,10 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
 
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(content);
-        var base64 = doc.RootElement.GetProperty("labelData").GetString();
+        var base64 = doc.RootElement.TryGetProperty("labelData", out var ld)
+            ? ld.GetString()
+            : doc.RootElement.TryGetProperty("pdfData", out var pd)
+                ? pd.GetString() : null;
 
         if (string.IsNullOrEmpty(base64))
             throw new InvalidOperationException("Sendeo etiket verisi bos");

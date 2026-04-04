@@ -262,8 +262,8 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
                 {
                     trackingResult.Events.Add(new TrackingEvent
                     {
-                        Timestamp = DateTime.TryParse(
-                            evt.GetProperty("timestamp").GetString(), out var ts)
+                        Timestamp = evt.TryGetProperty("timestamp", out var tsProp)
+                            && DateTime.TryParse(tsProp.GetString(), out var ts)
                             ? ts : DateTime.UtcNow,
                         Location = evt.TryGetProperty("location", out var loc)
                             ? loc.GetString() ?? "" : "",

@@ -884,8 +884,17 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var createDocContent = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var createDocJson = JsonDocument.Parse(createDocContent);
-        var feedDocumentId = createDocJson.RootElement.GetProperty("feedDocumentId").GetString()!;
-        var uploadUrl = createDocJson.RootElement.GetProperty("url").GetString()!;
+        var feedDocumentId = createDocJson.RootElement.TryGetProperty("feedDocumentId", out var fdId)
+            ? fdId.GetString() : null;
+        var uploadUrl = createDocJson.RootElement.TryGetProperty("url", out var urlProp)
+            ? urlProp.GetString() : null;
+
+        if (string.IsNullOrEmpty(feedDocumentId) || string.IsNullOrEmpty(uploadUrl))
+        {
+            _logger.LogError("Amazon CreateFeedDocument returned incomplete response: feedDocumentId={FdId}, url={Url}",
+                feedDocumentId, uploadUrl);
+            return false;
+        }
 
         // Step 2: Upload XML to the pre-signed URL
         var xmlString = feedXml.Declaration != null
