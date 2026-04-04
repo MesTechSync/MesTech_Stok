@@ -196,8 +196,10 @@ public sealed class Bitrix24AuthProvider : IAuthenticationProvider
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        var accessToken = root.GetProperty("access_token").GetString()
-            ?? throw new InvalidOperationException("access_token missing from Bitrix24 token response");
+        var accessToken = root.TryGetProperty("access_token", out var atProp)
+            ? atProp.GetString() : null;
+        if (string.IsNullOrEmpty(accessToken))
+            throw new InvalidOperationException("access_token missing from Bitrix24 token response");
 
         var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : 1800;
         var refreshTokenValue = root.TryGetProperty("refresh_token", out var rt) ? rt.GetString() : null;
