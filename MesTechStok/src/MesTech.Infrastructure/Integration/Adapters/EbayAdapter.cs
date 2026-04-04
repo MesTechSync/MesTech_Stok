@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -23,7 +24,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
 public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
@@ -1380,5 +1382,78 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         }
 
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Seller Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets seller/product reviews from eBay Reputation API.
+    /// GET /sell/reputation/v1/seller_feedback?limit={size}&amp;offset={page*size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var token = await GetOrRefreshTokenAsync(ct).ConfigureAwait(false);
+            var offset = page * size;
+
+            var response = await ThrottledExecuteAsync(async innerToken =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/sell/reputation/v1/seller_feedback?limit={size}&offset={offset}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-eBay-Client/3.0");
+                return await _httpClient.SendAsync(request, innerToken).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("feedbackEntries", out var feedArr) ? feedArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    var ratingStr = item.TryGetProperty("feedbackType", out var ft) ? ft.GetString() : "";
+                    var rating = ratingStr switch { "POSITIVE" => 5, "NEUTRAL" => 3, "NEGATIVE" => 1, _ => 0 };
+
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("feedbackId", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : id.GetString()?.GetHashCode() ?? 0) : 0,
+                        ProductId: item.TryGetProperty("itemId", out var iid) ? (iid.ValueKind == JsonValueKind.Number ? iid.GetInt64() : iid.GetString()?.GetHashCode() ?? 0) : 0,
+                        Comment: item.TryGetProperty("commentText", out var comment) ? comment.GetString() ?? "" : "",
+                        Rate: rating,
+                        UserFullName: item.TryGetProperty("buyer", out var buyer) ? buyer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("feedbackDate", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("sellerResponse", out var resp) && resp.ValueKind != JsonValueKind.Null));
+                }
+            }
+
+            _logger.LogInformation("eBay GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "eBay GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 }
