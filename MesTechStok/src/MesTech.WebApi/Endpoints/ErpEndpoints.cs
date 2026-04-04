@@ -8,6 +8,7 @@ using MesTech.Application.Features.Erp.Queries.GetErpDashboard;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncHistory;
 using MesTech.Application.Features.Erp.Queries.GetErpSyncLogs;
 using MesTech.Application.Interfaces.Erp;
+using MesTech.Domain.Entities.Erp;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -34,7 +35,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpProviders")
         .WithSummary("Kayıtlı ERP sağlayıcı listesi")
-        .Produces(200)
+        .Produces<ApiResponse<ErpProviderListResponse>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/erp/status — ping all registered ERP adapters
@@ -69,7 +70,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpStatus")
         .WithSummary("Tüm ERP adapter'larını ping — bağlantı durumu")
-        .Produces(200)
+        .Produces<ApiResponse<ErpStatusListResponse>>(200)
         .CacheOutput("Dashboard30s");
 
         // POST /api/v1/erp/test-connection — test connection to a specific ERP provider
@@ -211,7 +212,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpSyncHistory")
         .WithSummary("ERP senkronizasyon geçmişi")
-        .Produces(200)
+        .Produces<IReadOnlyList<ErpSyncLog>>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/erp/dashboard — ERP dashboard özeti
@@ -224,7 +225,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpDashboard")
         .WithSummary("ERP dashboard — bağlantı durumu, son sync, özet")
-        .Produces(200)
+        .Produces<ErpDashboardDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/erp/sync/logs — ERP sync log listesi
@@ -238,7 +239,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpSyncLogs")
         .WithSummary("ERP senkronizasyon log listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<ErpSyncLog>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/erp/sync-order — siparişi ERP'ye senkronize et
@@ -265,7 +266,7 @@ public static class ErpEndpoints
         })
         .WithName("GetErpAccountMappings")
         .WithSummary("ERP hesap eşleştirme listesi — MesTech ↔ ERP hesap kodu mapping")
-        .Produces(200)
+        .Produces<IReadOnlyList<ErpAccountMappingDto>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/erp/account-mappings — yeni ERP hesap eşleştirmesi oluştur
