@@ -13,6 +13,7 @@ namespace MesTech.Infrastructure.Realtime;
 public sealed class WebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<string, WebSocket> _connections = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _sendLocks = new();
     private readonly ILogger<WebSocketConnectionManager> _logger;
 
     public WebSocketConnectionManager(ILogger<WebSocketConnectionManager> logger)
@@ -32,6 +33,7 @@ public sealed class WebSocketConnectionManager
             id = Guid.NewGuid().ToString("N");
         } while (!_connections.TryAdd(id, socket));
 
+        _sendLocks.TryAdd(id, new SemaphoreSlim(1, 1));
         _logger.LogInformation("WebSocket baglanti eklendi: {Id} (toplam: {Count})", id, _connections.Count);
         return id;
     }
@@ -39,6 +41,8 @@ public sealed class WebSocketConnectionManager
     public void RemoveConnection(string id)
     {
         _connections.TryRemove(id, out _);
+        if (_sendLocks.TryRemove(id, out var semaphore))
+            semaphore.Dispose();
         _logger.LogInformation("WebSocket baglanti silindi: {Id} (toplam: {Count})", id, _connections.Count);
     }
 
@@ -56,13 +60,31 @@ public sealed class WebSocketConnectionManager
         {
             try
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
-                }
-                else
+                if (socket.State != WebSocketState.Open)
                 {
                     deadConnections.Add(id);
+                    continue;
+                }
+
+                // FIX-DEV6-TUR2: WebSocket.SendAsync is NOT thread-safe per socket.
+                // Concurrent BroadcastAsync calls must serialize sends per connection.
+                if (!_sendLocks.TryGetValue(id, out var semaphore))
+                {
+                    deadConnections.Add(id);
+                    continue;
+                }
+
+                await semaphore.WaitAsync(ct).ConfigureAwait(false);
+                try
+                {
+                    if (socket.State == WebSocketState.Open)
+                        await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
+                    else
+                        deadConnections.Add(id);
+                }
+                finally
+                {
+                    semaphore.Release();
                 }
             }
             catch (Exception ex)
