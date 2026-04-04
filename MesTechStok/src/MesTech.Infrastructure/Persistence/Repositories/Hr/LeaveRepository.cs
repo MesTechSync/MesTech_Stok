@@ -19,7 +19,8 @@ public sealed class LeaveRepository : ILeaveRepository
     {
         var q = _context.Leaves.Include(l => l.Employee).Where(l => l.TenantId == tenantId);
         if (status.HasValue) q = q.Where(l => l.Status == status.Value);
-        return await q.OrderByDescending(l => l.CreatedAt).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        return await q.OrderByDescending(l => l.CreatedAt).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Leave>> GetCurrentMonthAsync(Guid tenantId, CancellationToken ct = default)
@@ -30,6 +31,7 @@ public sealed class LeaveRepository : ILeaveRepository
             .Where(l => l.TenantId == tenantId
                      && l.Status == LeaveStatus.Approved
                      && l.StartDate <= end && l.EndDate >= start)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 

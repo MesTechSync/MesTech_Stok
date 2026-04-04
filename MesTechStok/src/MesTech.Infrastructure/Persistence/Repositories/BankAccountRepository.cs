@@ -18,6 +18,7 @@ public sealed class BankAccountRepository : IBankAccountRepository
         => await _context.BankAccounts
             .Where(a => a.TenantId == tenantId)
             .OrderBy(a => a.BankName)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<BankAccount?> GetByIdAsync(Guid id, CancellationToken ct = default)

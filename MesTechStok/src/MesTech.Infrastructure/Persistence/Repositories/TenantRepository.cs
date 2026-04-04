@@ -17,7 +17,8 @@ public sealed class TenantRepository : ITenantRepository
         => await _context.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Tenant>> GetAllAsync(CancellationToken ct = default)
-        => await _context.Tenants.Where(t => t.IsActive).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        => await _context.Tenants.Where(t => t.IsActive).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<Tenant?> GetByTaxNumberAsync(string taxNumber, CancellationToken ct = default)
         => await _context.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.TaxNumber == taxNumber, ct).ConfigureAwait(false);

@@ -19,6 +19,7 @@ public sealed class DropshipOrderRepository : IDropshipOrderRepository
         CancellationToken ct = default)
         => await _context.DropshipOrders
             .Where(o => o.TenantId == tenantId)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<DropshipOrder?> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)

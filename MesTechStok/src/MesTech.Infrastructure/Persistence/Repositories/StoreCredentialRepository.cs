@@ -27,6 +27,7 @@ public sealed class StoreCredentialRepository : IStoreCredentialRepository
     {
         return await _context.Set<StoreCredential>()
             .Where(c => c.StoreId == storeId && !c.IsDeleted)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 

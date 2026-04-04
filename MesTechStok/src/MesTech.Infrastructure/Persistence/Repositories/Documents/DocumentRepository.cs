@@ -15,10 +15,12 @@ public sealed class DocumentRepository : IDocumentRepository
 
     public async Task<IReadOnlyList<Document>> GetByFolderAsync(Guid folderId, CancellationToken ct = default)
         => await _context.Documents.Where(d => d.FolderId == folderId)
-                         .OrderByDescending(d => d.CreatedAt).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                         .OrderByDescending(d => d.CreatedAt).Take(1000) // G485: pagination guard
+                         .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Document>> GetByOrderAsync(Guid orderId, CancellationToken ct = default)
-        => await _context.Documents.Where(d => d.OrderId == orderId).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        => await _context.Documents.Where(d => d.OrderId == orderId).Take(1000) // G485: pagination guard
+                         .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<long> GetTotalSizeBytesAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Documents.Where(d => d.TenantId == tenantId).SumAsync(d => d.FileSizeBytes, ct).ConfigureAwait(false);

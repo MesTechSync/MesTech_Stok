@@ -22,11 +22,13 @@ public sealed class BillingInvoiceRepository : IBillingInvoiceRepository
         => await _context.BillingInvoices
             .Where(i => i.TenantId == tenantId)
             .OrderByDescending(i => i.IssueDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<BillingInvoice>> GetOverdueAsync(CancellationToken ct = default)
         => await _context.BillingInvoices
             .Where(i => i.Status == BillingInvoiceStatus.Sent && i.DueDate < DateTime.UtcNow)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<int> GetNextSequenceAsync(CancellationToken ct = default)

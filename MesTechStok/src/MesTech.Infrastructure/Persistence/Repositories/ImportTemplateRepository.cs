@@ -15,6 +15,7 @@ public sealed class ImportTemplateRepository : IImportTemplateRepository
             .Where(x => x.TenantId == tenantId && !x.IsDeleted)
             .Include(x => x.Mappings)
             .OrderByDescending(x => x.LastUsedAt)
+            .Take(1000) // G485: pagination guard
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<ImportTemplate?> GetByIdAsync(Guid id, CancellationToken ct = default)

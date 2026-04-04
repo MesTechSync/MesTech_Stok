@@ -20,7 +20,8 @@ public sealed class UserRepository(AppDbContext db) : IUserRepository
             .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default) =>
-        await db.Users.OrderBy(u => u.Username).ToListAsync(ct).ConfigureAwait(false);
+        await db.Users.OrderBy(u => u.Username).Take(1000) // G485: pagination guard
+            .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(User user) =>
         await db.Users.AddAsync(user).ConfigureAwait(false);

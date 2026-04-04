@@ -21,6 +21,7 @@ public sealed class LeadRepository : ILeadRepository
         => await _context.Leads
             .Where(l => l.TenantId == tenantId)
             .OrderByDescending(l => l.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<bool> AnyByTenantAndNameAsync(Guid tenantId, string name, CancellationToken ct = default)

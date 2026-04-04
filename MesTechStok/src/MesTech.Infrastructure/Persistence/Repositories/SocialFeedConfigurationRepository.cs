@@ -20,6 +20,7 @@ public sealed class SocialFeedConfigurationRepository : ISocialFeedConfiguration
         => await _context.SocialFeedConfigurations
             .Where(c => c.IsActive)
             .OrderBy(c => c.Platform)
+            .Take(1000) // G485: pagination guard
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<SocialFeedConfiguration?> GetByTenantAndPlatformAsync(

@@ -14,7 +14,8 @@ public sealed class WarehouseRepository : IWarehouseRepository
         => await _context.Warehouses.FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Warehouse>> GetAllAsync(CancellationToken ct = default)
-        => await _context.Warehouses.AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        => await _context.Warehouses.Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<Warehouse?> GetDefaultAsync()
         => await _context.Warehouses.AsNoTracking().FirstOrDefaultAsync(w => w.IsDefault).ConfigureAwait(false);

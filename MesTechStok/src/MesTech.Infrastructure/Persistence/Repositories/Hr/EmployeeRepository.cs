@@ -19,7 +19,8 @@ public sealed class EmployeeRepository : IEmployeeRepository
     {
         var q = _context.Employees.Where(e => e.TenantId == tenantId);
         if (status.HasValue) q = q.Where(e => e.Status == status.Value);
-        return await q.OrderBy(e => e.EmployeeCode).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        return await q.OrderBy(e => e.EmployeeCode).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(Employee employee, CancellationToken ct = default)

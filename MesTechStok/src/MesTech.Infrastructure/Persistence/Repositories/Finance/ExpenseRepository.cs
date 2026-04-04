@@ -18,7 +18,8 @@ public sealed class ExpenseRepository : IFinanceExpenseRepository
     {
         var q = _context.FinanceExpenses.Where(e => e.TenantId == tenantId);
         if (status.HasValue) q = q.Where(e => e.Status == status.Value);
-        return await q.OrderByDescending(e => e.ExpenseDate).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        return await q.OrderByDescending(e => e.ExpenseDate).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<decimal> GetTotalByDateRangeAsync(

@@ -43,6 +43,7 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
         => await _db.UserNotifications
             .Where(n => n.TenantId == tenantId && n.UserId == userId && !n.IsRead)
             .OrderByDescending(n => n.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(cancellationToken).ConfigureAwait(false);
 
     public async Task<int> MarkAllAsReadAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)

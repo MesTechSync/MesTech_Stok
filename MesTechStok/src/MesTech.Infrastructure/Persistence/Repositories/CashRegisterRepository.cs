@@ -23,6 +23,7 @@ public sealed class CashRegisterRepository : ICashRegisterRepository
             .Where(c => c.TenantId == tenantId && c.IsActive)
             .OrderByDescending(c => c.IsDefault)
             .ThenBy(c => c.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<CashRegister?> GetDefaultAsync(Guid tenantId, CancellationToken ct = default)

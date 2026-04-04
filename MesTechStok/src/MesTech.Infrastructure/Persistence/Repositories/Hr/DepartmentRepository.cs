@@ -15,7 +15,8 @@ public sealed class DepartmentRepository : IDepartmentRepository
 
     public async Task<IReadOnlyList<Department>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Departments.Where(d => d.TenantId == tenantId)
-                         .OrderBy(d => d.Name).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                         .OrderBy(d => d.Name).Take(1000) // G485: pagination guard
+                         .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Department department, CancellationToken ct = default)
         => await _context.Departments.AddAsync(department, ct).ConfigureAwait(false);

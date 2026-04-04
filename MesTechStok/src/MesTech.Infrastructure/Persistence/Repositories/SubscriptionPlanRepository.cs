@@ -20,6 +20,7 @@ public sealed class SubscriptionPlanRepository : ISubscriptionPlanRepository
         => await _context.SubscriptionPlans
             .Where(p => p.IsActive)
             .OrderBy(p => p.SortOrder)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(SubscriptionPlan plan, CancellationToken ct = default)

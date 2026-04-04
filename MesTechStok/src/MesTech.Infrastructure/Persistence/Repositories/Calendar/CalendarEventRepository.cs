@@ -22,6 +22,7 @@ public sealed class CalendarEventRepository : ICalendarEventRepository
                      && e.StartAt >= from
                      && e.StartAt <= to)
             .OrderBy(e => e.StartAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

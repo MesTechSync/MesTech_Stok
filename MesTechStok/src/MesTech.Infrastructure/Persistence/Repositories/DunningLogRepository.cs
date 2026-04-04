@@ -17,6 +17,7 @@ public sealed class DunningLogRepository : IDunningLogRepository
         => await _context.DunningLogs
             .Where(d => d.TenantSubscriptionId == subscriptionId)
             .OrderByDescending(d => d.AttemptDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
 

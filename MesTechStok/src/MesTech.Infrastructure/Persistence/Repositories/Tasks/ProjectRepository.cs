@@ -19,6 +19,7 @@ public sealed class ProjectRepository : IProjectRepository
         => await _context.Projects
             .Where(p => p.TenantId == tenantId)
             .OrderByDescending(p => p.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

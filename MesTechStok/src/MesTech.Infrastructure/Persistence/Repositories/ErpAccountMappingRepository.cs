@@ -16,6 +16,7 @@ public sealed class ErpAccountMappingRepository : IErpAccountMappingRepository
         return await _db.Set<ErpAccountMapping>()
             .Where(m => m.TenantId == tenantId)
             .OrderBy(m => m.MesTechAccountCode)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
     }

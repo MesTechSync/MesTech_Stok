@@ -16,12 +16,14 @@ public sealed class ShipmentCostRepository : IShipmentCostRepository
         => await _context.ShipmentCosts
             .Where(s => s.TenantId == tenantId && s.ShippedAt >= from && s.ShippedAt <= to)
             .OrderByDescending(s => s.ShippedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ShipmentCost>> GetByOrderIdAsync(
         Guid orderId, CancellationToken ct = default)
         => await _context.ShipmentCosts
             .Where(s => s.OrderId == orderId)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(ShipmentCost cost, CancellationToken ct = default)

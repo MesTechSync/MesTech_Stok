@@ -22,12 +22,14 @@ public sealed class CampaignRepository : ICampaignRepository
         => await _context.Campaigns
             .Where(c => c.TenantId == tenantId && c.IsActive)
             .OrderByDescending(c => c.StartDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Campaign>> GetActiveByProductIdAsync(Guid productId, CancellationToken ct = default)
         => await _context.Campaigns
             .Include(c => c.Products)
             .Where(c => c.IsActive && c.Products.Any(p => p.ProductId == productId))
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Campaign campaign, CancellationToken ct = default)

@@ -25,9 +25,10 @@ public sealed class InvoiceRepository : IInvoiceRepository
 
     public async Task<IReadOnlyList<Invoice>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Invoices
-            .AsNoTracking()
             .Where(i => i.TenantId == tenantId)
             .OrderByDescending(i => i.InvoiceDate)
+            .Take(5000) // G485: pagination guard
+            .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Invoice invoice)

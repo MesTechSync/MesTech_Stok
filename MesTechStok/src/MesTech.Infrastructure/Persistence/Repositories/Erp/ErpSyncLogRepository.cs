@@ -45,6 +45,7 @@ public sealed class ErpSyncLogRepository : IErpSyncLogRepository
             .Where(e => e.TenantId == tenantId
                 && e.NextRetryAt != null
                 && e.NextRetryAt <= asOf)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ErpSyncLog>> GetFailedByProviderAsync(

@@ -34,6 +34,7 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.Status == SubscriptionStatus.Active &&
                         s.NextBillingDate.HasValue &&
                         s.NextBillingDate.Value <= cutoff)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
@@ -43,12 +44,14 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
             .Where(s => s.Status == SubscriptionStatus.Active &&
                         s.NextBillingDate.HasValue &&
                         s.NextBillingDate.Value <= asOfDate)
+            .Take(1000) // G485: pagination guard
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<TenantSubscription>> GetByStatusAsync(SubscriptionStatus status, CancellationToken ct = default)
         => await _context.TenantSubscriptions
             .Include(s => s.Plan)
             .Where(s => s.Status == status)
+            .Take(1000) // G485: pagination guard
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(TenantSubscription subscription, CancellationToken ct = default)

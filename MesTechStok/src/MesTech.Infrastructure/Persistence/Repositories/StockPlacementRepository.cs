@@ -26,6 +26,7 @@ public sealed class StockPlacementRepository : IStockPlacementRepository
         return await query
             .OrderBy(p => p.WarehouseName)
             .ThenBy(p => p.ShelfCode)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
     }

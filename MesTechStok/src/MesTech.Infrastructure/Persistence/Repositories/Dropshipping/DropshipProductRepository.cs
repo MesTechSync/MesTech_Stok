@@ -25,7 +25,8 @@ public sealed class DropshipProductRepository : IDropshipProductRepository
         if (isLinked.HasValue)
             query = query.Where(p => p.IsLinked == isLinked.Value);
 
-        return await query.AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        return await query.Take(5000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<DropshipProduct>> GetBySupplierAsync(
@@ -33,6 +34,7 @@ public sealed class DropshipProductRepository : IDropshipProductRepository
         CancellationToken ct = default)
         => await _context.DropshipProducts
             .Where(p => p.DropshipSupplierId == supplierId)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(DropshipProduct product, CancellationToken ct = default)

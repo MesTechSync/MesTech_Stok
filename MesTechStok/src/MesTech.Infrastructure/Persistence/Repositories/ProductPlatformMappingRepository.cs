@@ -13,12 +13,14 @@ public sealed class ProductPlatformMappingRepository : IProductPlatformMappingRe
     public async Task<IReadOnlyList<ProductPlatformMapping>> GetByStoreIdAsync(Guid storeId, CancellationToken ct = default)
         => await _db.Set<ProductPlatformMapping>()
             .Where(m => m.StoreId == storeId && !m.IsDeleted)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ProductPlatformMapping>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
         => await _db.Set<ProductPlatformMapping>()
             .Where(m => m.ProductId == productId && !m.IsDeleted)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
 

@@ -28,6 +28,7 @@ public sealed class StockLotRepository : IStockLotRepository
         return await _db.Set<StockLot>()
             .Where(l => l.TenantId == tenantId && l.ProductId == productId && l.RemainingQuantity > 0)
             .OrderBy(l => l.ReceivedAt) // FIFO
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct).ConfigureAwait(false);
     }

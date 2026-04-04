@@ -27,6 +27,7 @@ public sealed class CategoryRepository : ICategoryRepository
         return await _context.Categories
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
@@ -36,6 +37,7 @@ public sealed class CategoryRepository : ICategoryRepository
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 

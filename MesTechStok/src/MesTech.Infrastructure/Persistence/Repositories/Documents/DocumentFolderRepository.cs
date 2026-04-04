@@ -15,11 +15,13 @@ public sealed class DocumentFolderRepository : IDocumentFolderRepository
 
     public async Task<IReadOnlyList<DocumentFolder>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.DocumentFolders.Where(f => f.TenantId == tenantId)
-                         .OrderBy(f => f.Position).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                         .OrderBy(f => f.Position).Take(1000) // G485: pagination guard
+                         .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<DocumentFolder>> GetChildrenAsync(Guid parentId, CancellationToken ct = default)
         => await _context.DocumentFolders.Where(f => f.ParentFolderId == parentId)
-                         .OrderBy(f => f.Position).AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                         .OrderBy(f => f.Position).Take(1000) // G485: pagination guard
+                         .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(DocumentFolder folder, CancellationToken ct = default)
         => await _context.DocumentFolders.AddAsync(folder, ct).ConfigureAwait(false);

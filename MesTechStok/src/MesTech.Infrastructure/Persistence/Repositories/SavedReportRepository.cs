@@ -18,6 +18,7 @@ public sealed class SavedReportRepository : ISavedReportRepository
         => await _context.SavedReports
             .Where(r => r.TenantId == tenantId)
             .OrderByDescending(r => r.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(SavedReport report, CancellationToken ct = default)

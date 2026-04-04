@@ -22,6 +22,7 @@ public sealed class SupplierRepository : ISupplierRepository
     {
         return await _context.Suppliers
             .OrderBy(s => s.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
@@ -30,6 +31,7 @@ public sealed class SupplierRepository : ISupplierRepository
         return await _context.Suppliers
             .Where(s => s.IsActive)
             .OrderBy(s => s.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
