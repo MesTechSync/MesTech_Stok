@@ -16,6 +16,7 @@ public static class SystemEndpoints
     {
         var group = app.MapGroup("/api/v1/system")
             .WithTags("System")
+            .RequireAuthorization("AdminOnly")
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/system/audit-logs — erişim/denetim logları
@@ -114,7 +115,7 @@ public static class SystemEndpoints
             return Results.Ok(ApiResponse<AutomationStatusResponse>.Ok(
                 new AutomationStatusResponse(
                     !string.IsNullOrWhiteSpace(n8nUrl),
-                    n8nUrl ?? "not configured",
+                    !string.IsNullOrWhiteSpace(n8nUrl) ? "configured" : "not configured",
                     !string.IsNullOrWhiteSpace(webhookSecret),
                     new[]
                     {

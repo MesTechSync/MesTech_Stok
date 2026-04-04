@@ -12,6 +12,7 @@ public static class SandboxEndpoints
     {
         var group = app.MapGroup("/api/v1/admin/sandbox-test")
             .WithTags("Sandbox (Admin)")
+            .RequireAuthorization("AdminOnly")
             .RequireRateLimiting("PerApiKey");
 
         // GET /api/v1/admin/sandbox-test/all — test all registered adapters
