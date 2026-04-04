@@ -162,6 +162,7 @@ public sealed class ProductRepository : IProductRepository
     public async Task<IReadOnlyList<Product>> GetByWarehouseAsync(Guid warehouseId, CancellationToken ct = default)
         => await _context.Products
             .Where(p => p.WarehouseId == warehouseId && p.IsActive)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);
