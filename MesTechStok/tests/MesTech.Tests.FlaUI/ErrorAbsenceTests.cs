@@ -35,7 +35,9 @@ public class ErrorAbsenceTests : FlaUITestBase
         if (!clicked) { Screenshot("TEST-12", "Trendyol", false, "ButtonNotFound"); return; }
         Thread.Sleep(2000);
 
-        var error = FindError("Hata", "Error", "Exception", "Bağlantı");
+        // "Veri bulunamadi" = empty state, hata DEĞİL — false positive önleme
+        var error = FindError("Hata Olustu", "Hata olustu", "Error occurred",
+            "Unhandled", "Exception", "Bağlantı", "column does not exist");
         var pass = error is null;
         Screenshot("TEST-12", "Trendyol", pass, error is not null ? "HasError" : null);
         Output.WriteLine($"TEST-12: {(pass ? "PASS — Hata yok" : $"FAIL — {error}")}");
