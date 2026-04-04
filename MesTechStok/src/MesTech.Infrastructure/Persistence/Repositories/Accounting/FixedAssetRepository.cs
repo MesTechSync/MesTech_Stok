@@ -20,6 +20,7 @@ public sealed class FixedAssetRepository : IFixedAssetRepository
             .Where(a => a.TenantId == tenantId)
             .Where(a => isActive == null || a.IsActive == isActive.Value)
             .OrderBy(a => a.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(FixedAsset asset, CancellationToken ct = default)

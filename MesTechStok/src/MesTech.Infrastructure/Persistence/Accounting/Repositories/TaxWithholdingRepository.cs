@@ -36,6 +36,7 @@ public sealed class TaxWithholdingRepository : ITaxWithholdingRepository
 
         return await query
             .OrderByDescending(w => w.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 }
