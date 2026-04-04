@@ -37,7 +37,8 @@ public class BarcodeHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.LogId.Should().NotBe(Guid.Empty);
         _repo.Verify(r => r.AddAsync(It.Is<MesTech.Domain.Entities.BarcodeScanLog>(
-            l => l.Barcode == "8680000111222" && l.Format == "EAN13")), Times.Once);
+            l => l.Barcode == "8680000111222" && l.Format == "EAN13"),
+            It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -55,9 +56,14 @@ public class BarcodeHandlerTests
     [Fact]
     public async Task GetBarcodeScanLogs_EmptyRepo_ReturnsEmptyResult()
     {
-        _repo.Setup(r => r.GetPagedAsync(1, 50, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.BarcodeScanLog>());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
         var sut = new GetBarcodeScanLogsHandler(_repo.Object);
@@ -71,14 +77,25 @@ public class BarcodeHandlerTests
     [Fact]
     public async Task GetBarcodeScanLogs_WithFilter_PassesFilterToRepo()
     {
-        _repo.Setup(r => r.GetPagedAsync(1, 50, "8680", null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.Is<string?>(b => b == "8680"), It.IsAny<string?>(),
+                It.IsAny<bool?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.BarcodeScanLog>());
-        _repo.Setup(r => r.GetCountAsync("8680", null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.Is<string?>(b => b == "8680"), It.IsAny<string?>(),
+                It.IsAny<bool?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
         var sut = new GetBarcodeScanLogsHandler(_repo.Object);
         await sut.Handle(new GetBarcodeScanLogsQuery(BarcodeFilter: "8680"), CancellationToken.None);
 
-        _repo.Verify(r => r.GetPagedAsync(1, 50, "8680", null, null, null, null), Times.Once);
+        _repo.Verify(r => r.GetPagedAsync(
+            It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+            It.Is<string?>(b => b == "8680"), It.IsAny<string?>(),
+            It.IsAny<bool?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
