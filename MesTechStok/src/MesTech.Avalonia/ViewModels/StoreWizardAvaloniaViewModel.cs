@@ -145,6 +145,24 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
             case "OpenCart":
                 Field1Label = "Store URL"; Field2Label = "API Token"; Field3Label = ""; Field3Visible = false;
                 break;
+            case "Pazarama":
+                Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
+                break;
+            case "Ozon":
+                Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
+                break;
+            case "Etsy":
+                Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
+                break;
+            case "Zalando":
+                Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
+                break;
+            case "PttAvm":
+                Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
+                break;
+            case "Bitrix24":
+                Field1Label = "Store URL"; Field2Label = "Access Token"; Field3Label = ""; Field3Visible = false;
+                break;
             default:
                 Field1Label = "API Key"; Field2Label = "API Secret"; Field3Label = ""; Field3Visible = false;
                 break;
@@ -253,11 +271,41 @@ public partial class StoreWizardAvaloniaViewModel : ViewModelBase
         }
     }
 
-    private Dictionary<string, string> BuildCredentials() => new(StringComparer.Ordinal)
+    private Dictionary<string, string> BuildCredentials()
     {
-        [Field1Label] = Field1Value,
-        [Field2Label] = Field2Value,
-        [Field3Label] = Field3Value
+        // Map UI labels → adapter credential keys
+        // Adapter'lar "ApiKey", "ApiSecret", "SupplierId", "MerchantId" gibi standart key'ler bekler.
+        var creds = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        var key1 = MapLabelToKey(Field1Label);
+        var key2 = MapLabelToKey(Field2Label);
+        var key3 = MapLabelToKey(Field3Label);
+
+        if (!string.IsNullOrEmpty(key1)) creds[key1] = Field1Value;
+        if (!string.IsNullOrEmpty(key2)) creds[key2] = Field2Value;
+        if (!string.IsNullOrEmpty(key3) && Field3Visible) creds[key3] = Field3Value;
+
+        return creds;
+    }
+
+    private static string MapLabelToKey(string label) => label switch
+    {
+        "API Key" => "ApiKey",
+        "API Secret" => "ApiSecret",
+        "Seller ID" => "SupplierId",
+        "Merchant ID" => "MerchantId",
+        "Access Key" => "AccessKey",
+        "Secret Key" => "SecretKey",
+        "Marketplace ID" => "MarketplaceId",
+        "App ID" => "AppId",
+        "Cert ID" => "CertId",
+        "Dev ID" => "DevId",
+        "Store URL" => "StoreUrl",
+        "Access Token" => "AccessToken",
+        "Consumer Key" => "ConsumerKey",
+        "Consumer Secret" => "ConsumerSecret",
+        "API Token" => "ApiToken",
+        _ => label.Replace(" ", "")
     };
 
     private static PlatformType ParsePlatformType(string name) => name switch
