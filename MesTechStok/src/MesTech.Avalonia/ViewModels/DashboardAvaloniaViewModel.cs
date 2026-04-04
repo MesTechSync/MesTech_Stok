@@ -23,6 +23,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class DashboardAvaloniaViewModel : ViewModelBase
 {
+    private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromSeconds(30);
+
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
 
@@ -96,8 +98,8 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
         _tenantProvider = tenantProvider;
 
-        // Initialize auto-refresh timer (30 second interval)
-        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        // Initialize auto-refresh timer
+        _refreshTimer = new DispatcherTimer { Interval = AutoRefreshInterval };
         _refreshTimer.Tick += OnRefreshTimerTick;
         _refreshTimer.Start();
     }

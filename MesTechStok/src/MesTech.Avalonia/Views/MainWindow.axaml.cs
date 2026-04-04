@@ -17,6 +17,9 @@ namespace MesTech.Avalonia.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private static readonly TimeSpan ToolbarClockInterval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan IdleCheckInterval = TimeSpan.FromSeconds(10);
+
     private DispatcherTimer _clockTimer;
     private DispatcherTimer _idleTimer;
     private readonly DesktopSessionManager _session;
@@ -31,13 +34,13 @@ public partial class MainWindow : Window
                    ?? new DesktopSessionManager();
 
         // Saat (toolbar, her 30 saniye)
-        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _clockTimer = new DispatcherTimer { Interval = ToolbarClockInterval };
         _clockTimer.Tick += (_, _) => UpdateToolbarClock();
         _clockTimer.Start();
         UpdateToolbarClock();
 
         // Idle timer — 10sn aralıkla kontrol
-        _idleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+        _idleTimer = new DispatcherTimer { Interval = IdleCheckInterval };
         _idleTimer.Tick += (_, _) => CheckIdle();
         _idleTimer.Start();
 

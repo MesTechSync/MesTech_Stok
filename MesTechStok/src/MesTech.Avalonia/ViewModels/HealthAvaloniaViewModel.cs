@@ -18,6 +18,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class HealthAvaloniaViewModel : ViewModelBase
 {
+    private static readonly TimeSpan HealthRefreshInterval = TimeSpan.FromSeconds(30);
+
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private DispatcherTimer? _autoRefreshTimer;
@@ -203,7 +205,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
         _autoRefreshTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(30)
+            Interval = HealthRefreshInterval
         };
         _autoRefreshTimer.Tick += OnAutoRefreshTick;
         _autoRefreshTimer.Start();
