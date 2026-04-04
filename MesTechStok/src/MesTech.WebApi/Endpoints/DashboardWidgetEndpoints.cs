@@ -28,7 +28,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetSalesToday")
         .WithSummary("Bugunku satis ozeti (bugun vs dun karsilastirmali)")
-        .Produces(200)
+        .Produces<SalesTodayDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/orders-pending — bekleyen siparis sayisi
@@ -42,7 +42,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetOrdersPending")
         .WithSummary("Bekleyen siparis sayisi (Pending + Confirmed)")
-        .Produces(200)
+        .Produces<OrdersPendingDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/stock-alerts — dusuk stok uyarilari
@@ -56,7 +56,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetStockAlerts")
         .WithSummary("Dusuk stok uyarilari (stok <= minThreshold)")
-        .Produces(200)
+        .Produces<IReadOnlyList<StockAlertDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/platform-health — platform saglik durumu
@@ -70,7 +70,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetPlatformHealth")
         .WithSummary("Platform saglik durumu (son sync + 24h hata sayisi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<PlatformHealthDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/revenue-chart — gelir grafigi
@@ -86,7 +86,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetRevenueChart")
         .WithSummary("Gelir grafigi (gun bazinda siparis tutari + sayisi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<RevenueChartPointDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/top-products — en cok satan urunler
@@ -102,7 +102,7 @@ public static class DashboardWidgetEndpoints
         })
         .WithName("GetTopProducts")
         .WithSummary("En cok satan urunler (gelire gore siralanmis)")
-        .Produces(200)
+        .Produces<IReadOnlyList<TopProductDto>>(200)
         .CacheOutput("Dashboard30s");
     }
 }

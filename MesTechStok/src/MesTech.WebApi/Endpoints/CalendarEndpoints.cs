@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Features.Calendar.Commands.CreateCalendarEvent;
 using MesTech.Application.Features.Calendar.Commands.DeleteCalendarEvent;
@@ -29,7 +30,7 @@ public static class CalendarEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCalendarEvents")
-        .WithSummary("Takvim etkinlik listesi (tarih filtresi)").Produces(200).Produces(400);
+        .WithSummary("Takvim etkinlik listesi (tarih filtresi)").Produces<IReadOnlyList<CalendarEventDto>>(200).Produces(400);
 
         // GET /api/v1/calendar/events/{id} — tek etkinlik
         group.MapGet("/events/{id:guid}", async (
@@ -40,7 +41,7 @@ public static class CalendarEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCalendarEventById")
-        .WithSummary("Tek takvim etkinligi detayi").Produces(200).Produces(400);
+        .WithSummary("Tek takvim etkinligi detayi").Produces<CalendarEventDto>(200).Produces(400);
 
         // POST /api/v1/calendar/events — yeni etkinlik oluştur
         group.MapPost("/events", async (

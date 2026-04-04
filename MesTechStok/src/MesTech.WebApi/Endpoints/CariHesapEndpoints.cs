@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Commands.CreateCariHareket;
 using MesTech.Application.Commands.CreateCariHesap;
@@ -29,7 +30,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesaplar")
-        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces(200).Produces(400)
+        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces<IReadOnlyList<CariHesapDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cari-hesaplar/{id} — tek cari hesap
@@ -44,7 +45,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesapById")
-        .WithSummary("Tek cari hesap detayi").Produces(200).Produces(400)
+        .WithSummary("Tek cari hesap detayi").Produces<CariHesapDto>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar — yeni cari hesap olustur
@@ -83,7 +84,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHareketler")
-        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces(200).Produces(400)
+        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces<IReadOnlyList<CariHareketDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hareket oluştur
