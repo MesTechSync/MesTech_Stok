@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:dto="using:MesTech.Application.DTOs.Crm"
              xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.CampaignAvaloniaView"
              x:Name="RootCampaignAvaloniaView"
              x:DataType="vm:CampaignAvaloniaViewModel"
@@ -116,6 +117,7 @@
             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
         </Border>
 
+${skeleton}
     </Grid>
     </ScrollViewer>
     </Panel>

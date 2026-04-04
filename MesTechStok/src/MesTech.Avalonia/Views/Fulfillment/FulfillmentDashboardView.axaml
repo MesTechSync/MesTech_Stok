@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentDashboardView"
              x:Name="RootFulfillmentDashboardView"
              x:DataType="vm:FulfillmentDashboardViewModel"
@@ -135,5 +136,6 @@
             </Border>
         </Grid>
 
+${skeleton}
     </Grid>
 </UserControl>

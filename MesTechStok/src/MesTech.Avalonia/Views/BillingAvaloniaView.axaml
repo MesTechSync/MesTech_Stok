@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.BillingAvaloniaView"
              x:Name="RootBillingAvaloniaView"
              x:DataType="vm:BillingAvaloniaViewModel">
@@ -117,5 +118,6 @@
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene" Command="{Binding RefreshCommand}" Padding="16,6" />
             </StackPanel>
         </Border>
+${skeleton}
     </Grid>
 </base:BaseView>

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.BudgetAvaloniaView"
              x:Name="RootBudgetAvaloniaView"
              x:DataType="vm:BudgetAvaloniaViewModel"
@@ -98,5 +99,6 @@
       </Panel>
     </Border>
 
+${skeleton}
   </Grid>
 </UserControl>

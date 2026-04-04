@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.ActivityAvaloniaView"
              x:Name="RootActivityAvaloniaView"
              x:DataType="vm:ActivityAvaloniaViewModel">
@@ -99,5 +100,6 @@
 
             </StackPanel>
         </ScrollViewer>
+${skeleton}
     </Grid>
 </UserControl>

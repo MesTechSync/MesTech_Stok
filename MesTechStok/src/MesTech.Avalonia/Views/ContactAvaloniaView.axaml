@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.ContactAvaloniaView"
              x:Name="RootContactAvaloniaView"
              x:DataType="vm:ContactAvaloniaViewModel">
@@ -87,5 +88,6 @@
                                IsVisible="{Binding !Contacts.Count}" />
                 </Grid>
         </Grid>
+${skeleton}
     </Grid>
 </UserControl>

@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Monitoring"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.Monitoring.StaleOrdersAvaloniaView"
              x:Name="RootStaleOrdersAvaloniaView"
              x:DataType="vm:StaleOrdersAvaloniaViewModel"
@@ -114,5 +115,6 @@
             </StackPanel>
         </Border>
 
+${skeleton}
 </Grid>
 </UserControl>
