@@ -50,7 +50,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetDashboardKpi")
         .WithSummary("Dashboard KPI özeti (ürün, sipariş, envanter, stok uyarıları)")
-        .Produces(200)
+        .Produces<DashboardKpiResponse>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/sales-trend?days=7 — daily order counts per platform (Chart.js format)
@@ -97,7 +97,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetSalesTrend")
         .WithSummary("Günlük satış trendi (platform bazlı, Chart.js formatı)")
-        .Produces(200)
+        .Produces<ChartResponse>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/inventory-stats — full inventory statistics
@@ -108,7 +108,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetInventoryStats")
         .WithSummary("Envanter istatistikleri")
-        .Produces(200)
+        .Produces<InventoryStatisticsDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/recent-orders — orders from last 7 days
@@ -120,7 +120,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetRecentOrders")
         .WithSummary("Son 7 gün siparişleri")
-        .Produces(200)
+        .Produces<IReadOnlyList<OrderListDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/accounting-kpi — muhasebe KPI (gelir, gider, kar, siparis metrikleri)
@@ -146,7 +146,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetAccountingKpi")
         .WithSummary("Muhasebe KPI — aylik gelir, gider, kar, siparis metrikleri")
-        .Produces(200)
+        .Produces<DashboardAccountingKpiResponse>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/low-stock-alerts — products below reorder point
@@ -161,7 +161,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetLowStockAlerts")
         .WithSummary("Düşük stok uyarıları — yeniden sipariş noktası altı ürünler")
-        .Produces(200)
+        .Produces<IReadOnlyList<LowStockAlertDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/pending-invoices — invoices awaiting approval/send
@@ -176,7 +176,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetPendingInvoices")
         .WithSummary("Bekleyen faturalar — onay/gönderim bekleyenler")
-        .Produces(200)
+        .Produces<IReadOnlyList<PendingInvoiceDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/sales-chart — sales chart data (configurable days + platform)
@@ -192,7 +192,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetSalesChartData")
         .WithSummary("Satış grafiği verisi — gün + platform filtreli")
-        .Produces(200)
+        .Produces<SalesChartDataDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/service-health — altyapı servisleri sağlık durumu (G308-DEV6)
@@ -204,7 +204,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetServiceHealth")
         .WithSummary("Altyapı servisleri sağlık durumu — PostgreSQL, Redis, RabbitMQ (G308)")
-        .Produces(200)
+        .Produces<IReadOnlyList<ServiceHealthDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/dashboard/app-hub — unified aggregator (G207-DEV6)
@@ -217,7 +217,7 @@ public static class DashboardEndpoints
         })
         .WithName("GetAppHubData")
         .WithSummary("AppHub dashboard aggregator — KPI + health + alerts tek response (G207)")
-        .Produces(200)
+        .Produces<AppHubDataDto>(200)
         .CacheOutput("Dashboard30s");
     }
 
