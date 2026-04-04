@@ -61,7 +61,8 @@ public static class IntegrationServiceRegistration
             new TrendyolAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.Trendyol),
                 sp.GetRequiredService<ILogger<TrendyolAdapter>>(),
-                sp.GetService<IOptions<TrendyolOptions>>()));
+                sp.GetService<IOptions<TrendyolOptions>>(),
+                sp.GetService<IConfiguration>()));
         if (configuration is not null)
             services.Configure<OpenCartOptions>(configuration.GetSection(OpenCartOptions.Section));
         services.AddSingleton<OpenCartAdapter>(sp =>
