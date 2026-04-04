@@ -17,8 +17,9 @@ public sealed class PostgresProcessedMessageStore : IProcessedMessageStore
     private readonly string _connectionString;
     private readonly ILogger<PostgresProcessedMessageStore> _logger;
     private bool _tableEnsured;
-    private DateTimeOffset _lastTableCheckAttempt = DateTimeOffset.MinValue;
-    private static readonly TimeSpan TableCheckCooldown = TimeSpan.FromMinutes(5);
+    private long _lastTableCheckTicks = DateTimeOffset.MinValue.UtcTicks;
+    private int _tableCheckRunning;
+    private static readonly long TableCheckCooldownTicks = TimeSpan.FromMinutes(5).Ticks;
 
     public PostgresProcessedMessageStore(
         IConfiguration config,
@@ -83,10 +84,13 @@ public sealed class PostgresProcessedMessageStore : IProcessedMessageStore
         if (_tableEnsured) return;
 
         // Cooldown: don't retry table creation more than once per 5 minutes
-        if (DateTimeOffset.UtcNow - _lastTableCheckAttempt < TableCheckCooldown)
+        var lastTicks = Interlocked.Read(ref _lastTableCheckTicks);
+        if (DateTimeOffset.UtcNow.UtcTicks - lastTicks < TableCheckCooldownTicks)
             return;
 
-        _lastTableCheckAttempt = DateTimeOffset.UtcNow;
+        // Single-writer guard
+        if (Interlocked.CompareExchange(ref _tableCheckRunning, 1, 0) != 0)
+            return;
 
         try
         {
@@ -109,6 +113,11 @@ public sealed class PostgresProcessedMessageStore : IProcessedMessageStore
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "processed_messages tablosu oluşturulamadı — 5dk sonra tekrar denenecek");
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _lastTableCheckTicks, DateTimeOffset.UtcNow.UtcTicks);
+            Interlocked.Exchange(ref _tableCheckRunning, 0);
         }
     }
 }
