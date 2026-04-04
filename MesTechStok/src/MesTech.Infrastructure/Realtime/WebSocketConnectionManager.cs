@@ -56,7 +56,9 @@ public sealed class WebSocketConnectionManager
 
         var deadConnections = new List<string>();
 
-        foreach (var (id, socket) in _connections)
+        // FIX-DEV6-TUR2B: Snapshot prevents InvalidOperationException when
+        // RemoveConnection modifies _connections during iteration.
+        foreach (var (id, socket) in _connections.ToArray())
         {
             try
             {
