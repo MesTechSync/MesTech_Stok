@@ -1088,7 +1088,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 var webhookId = idEl.GetInt64();
                 var deleteUrl = $"{BaseUrl}/webhooks/{webhookId}.json";
                 using var deleteRequest = CreateAuthenticatedRequest(HttpMethod.Delete, deleteUrl);
-                var deleteResponse = await _httpClient.SendAsync(deleteRequest, ct).ConfigureAwait(false);
+                using var deleteResponse = await _httpClient.SendAsync(deleteRequest, ct).ConfigureAwait(false);
 
                 if (!deleteResponse.IsSuccessStatusCode)
                 {

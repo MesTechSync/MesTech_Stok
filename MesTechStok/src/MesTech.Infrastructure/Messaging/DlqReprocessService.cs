@@ -114,7 +114,7 @@ public sealed class DlqReprocessService
                 });
 
                 var publishContent = new StringContent(publishBody, System.Text.Encoding.UTF8, "application/json");
-                var publishResponse = await client.PostAsync(
+                using var publishResponse = await client.PostAsync(
                     $"{baseUrl}/api/exchanges/%2f/amq.default/publish", publishContent, ct).ConfigureAwait(false);
 
                 if (publishResponse.IsSuccessStatusCode)
