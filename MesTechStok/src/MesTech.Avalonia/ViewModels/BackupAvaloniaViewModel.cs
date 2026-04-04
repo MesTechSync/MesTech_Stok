@@ -70,28 +70,28 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task ManualBackupAsync()
+    private async Task ManualBackupAsync()
     {
         IsBackingUp = true;
         BackupProgress = 0;
         BackupMessage = "Yedekleme baslatiliyor...";
         try
         {
-            for (int i = 1; i <= 10; i++)
+            // TODO: Wire to CreateManualBackupCommand when DEV1 implements handler
+            // For now, simulate progress with async delay (not blocking UI)
+            string[] stages = ["Veritabani tablolari taraniyor...", "Veriler sikistiriliyor...", "Dosya yaziliyor...", "Dogrulama yapiliyor..."];
+            for (int i = 0; i < stages.Length; i++)
             {
-                BackupProgress = i * 10;
-                BackupMessage = i switch
-                {
-                    <= 3 => "Veritabani tabloları taranıyor...",
-                    <= 6 => "Veriler sikistiriliyor...",
-                    <= 8 => "Dosya yaziliyor...",
-                    _ => "Dogrulama yapiliyor..."
-                };
+                BackupMessage = stages[i];
+                BackupProgress = (i + 1) * 25;
+                await Task.Delay(500, CancellationToken);
             }
             BackupMessage = "Yedekleme basariyla tamamlandi!";
             LastBackupDate = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
             LastBackupStatus = "Basarili";
+            BackupProgress = 100;
         }
+        catch (OperationCanceledException) { BackupMessage = "Yedekleme iptal edildi."; }
         catch (Exception ex)
         {
             BackupMessage = $"Yedekleme hatasi: {ex.Message}";
@@ -100,7 +100,6 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         {
             IsBackingUp = false;
         }
-        return Task.CompletedTask;
     }
 
     [RelayCommand]

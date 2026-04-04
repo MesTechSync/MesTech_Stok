@@ -52,6 +52,9 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
+        // G98 FIX: Wire to CreateContactCommand when DEV1 implements handler.
+        // Current: local-only insert (not persisted to DB).
+        // Target: await _mediator.Send(new CreateContactCommand(...), CancellationToken);
         var newContact = new ContactListDto
         {
             ContactId = Guid.NewGuid(),

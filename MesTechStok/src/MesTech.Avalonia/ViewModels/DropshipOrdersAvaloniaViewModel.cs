@@ -31,13 +31,9 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDropshipOrdersQuery(_currentUser.TenantId)) ?? [];
+            var result = await _mediator.Send(new GetDropshipOrdersQuery(_currentUser.TenantId), ct) ?? [];
 
             _allOrders = result.Select(o => new DropshipOrderItemDto
             {
@@ -51,16 +47,7 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Dropshipping siparisleri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Dropshipping siparisleri yuklenirken hata");
     }
 
     private void ApplyFilters()
