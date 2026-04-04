@@ -43,7 +43,8 @@
                                 CornerRadius="{StaticResource CornerRadiusLarge}"
                                 Padding="20" Margin="8"
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                Width="340" MinHeight="200">
+                                Width="340" MinHeight="200"
+                                AutomationProperties.AutomationId="{Binding AutomationId}">
                             <StackPanel Spacing="10">
                                 <!-- Provider name + status -->
                                 <Grid ColumnDefinitions="*,Auto">

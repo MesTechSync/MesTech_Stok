@@ -31,12 +31,14 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
             var providerStatuses = await _mediator.Send(new GetInvoiceProvidersQuery());
 
             Providers.Clear();
+            var idx = 0;
             foreach (var p in providerStatuses)
             {
                 var statusColor = p.IsActive ? "#388E3C" : p.IsConfigured ? "#D32F2F" : "#F57C00";
                 var statusText = p.IsActive ? "Aktif" : p.IsConfigured ? "Hata" : "Yapilandirilmadi";
                 Providers.Add(new()
                 {
+                    Index = idx++,
                     Name = p.Name,
                     Status = statusText,
                     StatusColor = statusColor,
@@ -74,6 +76,8 @@ public partial class InvoiceProviderSettingsAvaloniaViewModel : ViewModelBase
 
 public class ProviderCardItem : ObservableObject
 {
+    public int Index { get; set; }
+    public string AutomationId => $"ProviderCard_{Index}";
     public string Name { get; set; } = string.Empty;
 
     private string status = string.Empty;
