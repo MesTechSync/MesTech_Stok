@@ -25,7 +25,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IInvoiceCapableAdapter, IClaimCapableAdapter, ISettlementCapableAdapter,
-    IShipmentCapableAdapter, IPingableAdapter
+    IShipmentCapableAdapter, IPingableAdapter, IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolAdapter> _logger;
@@ -2411,6 +2411,11 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     /// <param name="minRating">Minimum yildiz filtresi (1-5, null = filtre yok).</param>
     /// <param name="unrepliedOnly">Sadece cevapsiz review'lari getir.</param>
     /// <param name="ct">Cancellation token.</param>
+    // Explicit interface implementation — 2-param signature required by IReviewCapableAdapter
+    async Task<IReadOnlyList<TrendyolProductReviewDto>> IReviewCapableAdapter.GetProductReviewsAsync(
+        int page, int size, CancellationToken ct)
+        => await GetProductReviewsAsync(page, size, ct: ct).ConfigureAwait(false);
+
     public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
         int page = 0, int size = 20, long? productId = null,
         int? minRating = null, bool unrepliedOnly = false, CancellationToken ct = default)
