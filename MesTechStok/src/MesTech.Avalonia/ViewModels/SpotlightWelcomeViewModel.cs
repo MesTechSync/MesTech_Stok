@@ -306,7 +306,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
             if (demoService is not null)
             {
                 var session = await demoService.CreateDemoSessionAsync();
-                _auditLogger.Log("DEMO_LOGIN", session.DemoUsername, true, $"TenantId={session.TenantId}, TTL={session.ExpiresAt:HH:mm}");
+                _auditLogger.Log(session.DemoUsername, true, $"DEMO_LOGIN TenantId={session.TenantId}, TTL={session.ExpiresAt:HH:mm}");
             }
         }
         catch (Exception ex)
