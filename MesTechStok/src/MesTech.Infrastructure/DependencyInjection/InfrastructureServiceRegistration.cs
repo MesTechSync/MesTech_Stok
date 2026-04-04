@@ -373,6 +373,9 @@ public static class InfrastructureServiceRegistration
                     sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
 
+        // ── Event Publishing ──
+        services.AddSingleton<IEventPublisher, Messaging.InMemoryEventPublisher>();
+
         // ── Realtime Dashboard (port 3102) ──
         services.AddSingleton<WebSocketConnectionManager>();
         services.AddSingleton<IDashboardNotifier, WebSocketDashboardNotifier>();
