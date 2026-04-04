@@ -47,7 +47,7 @@ public sealed class OrderCancelledStockRestorationHandler : IOrderCancelledStock
         var order = await _orderRepo.GetByIdAsync(orderId, ct).ConfigureAwait(false);
         if (order is null)
         {
-            _logger.LogError("Order {OrderId} bulunamadı — stok geri y��kleme atlandı", orderId);
+            _logger.LogError("Order {OrderId} bulunamadı — stok geri yükleme atlandı", orderId);
             return;
         }
 
