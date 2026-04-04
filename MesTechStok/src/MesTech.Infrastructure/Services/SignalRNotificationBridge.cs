@@ -39,8 +39,8 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: OrderReceived → broadcast: platform={Platform}, orderId={OrderId}",
             e.PlatformCode, e.PlatformOrderId);
 
-        await _notifier.NotifyNewOrderAsync(
-            e.PlatformCode, e.PlatformOrderId, e.TotalAmount, 0, cancellationToken).ConfigureAwait(false);
+        await SafeBroadcastAsync(() => _notifier.NotifyNewOrderAsync(
+            e.PlatformCode, e.PlatformOrderId, e.TotalAmount, 0, cancellationToken), "OrderReceived").ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -52,8 +52,8 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: StockAlert → broadcast: sku={SKU}, current={Current}, min={Min}",
             e.SKU, e.CurrentStock, e.MinimumStock);
 
-        await _notifier.NotifyLowStockAsync(
-            e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, cancellationToken).ConfigureAwait(false);
+        await SafeBroadcastAsync(() => _notifier.NotifyLowStockAsync(
+            e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, cancellationToken), "LowStock").ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -65,8 +65,8 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: InvoiceReady → broadcast: invoiceId={InvoiceId}, total={Total}",
             e.InvoiceId, e.GrandTotal);
 
-        await _notifier.NotifyInvoiceGeneratedAsync(
-            e.InvoiceId.ToString(), "Webhook", e.GrandTotal, cancellationToken).ConfigureAwait(false);
+        await SafeBroadcastAsync(() => _notifier.NotifyInvoiceGeneratedAsync(
+            e.InvoiceId.ToString(), "Webhook", e.GrandTotal, cancellationToken), "InvoiceCreated").ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -78,13 +78,12 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: OrderCancelled → broadcast: platform={Platform}, orderId={OrderId}",
             e.PlatformCode, e.PlatformOrderId);
 
-        // Use return notification channel for cancelled orders
-        await _notifier.NotifyReturnCreatedAsync(
+        await SafeBroadcastAsync(() => _notifier.NotifyReturnCreatedAsync(
             e.PlatformCode,
             e.OrderId.ToString(),
             e.PlatformOrderId,
             e.Reason ?? "Order cancelled via webhook",
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken), "OrderCancelled").ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -96,8 +95,8 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: BuyboxLost → broadcast: sku={SKU}, current={Current}, competitor={Competitor}",
             e.SKU, e.CurrentPrice, e.CompetitorPrice);
 
-        await _notifier.NotifyBuyboxLostAsync(
-            e.TenantId, e.SKU, e.CurrentPrice, e.CompetitorPrice, e.CompetitorName, cancellationToken).ConfigureAwait(false);
+        await SafeBroadcastAsync(() => _notifier.NotifyBuyboxLostAsync(
+            e.TenantId, e.SKU, e.CurrentPrice, e.CompetitorPrice, e.CompetitorName, cancellationToken), "BuyboxLost").ConfigureAwait(false);
     }
 
     public async Task Handle(
@@ -109,7 +108,24 @@ public sealed class SignalRNotificationBridge :
             "SignalR bridge: SyncError → broadcast: platform={Platform}, error={ErrorType}, message={Message}",
             e.Platform, e.ErrorType, e.Message);
 
-        await _notifier.NotifySyncStatusAsync(
-            e.Platform, $"error:{e.ErrorType}", 0, 0, cancellationToken).ConfigureAwait(false);
+        await SafeBroadcastAsync(() => _notifier.NotifySyncStatusAsync(
+            e.Platform, $"error:{e.ErrorType}", 0, 0, cancellationToken), "SyncError").ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Notification failure must NEVER propagate to domain event chain.
+    /// Dashboard broadcast is non-critical — order/stock/invoice processing must continue.
+    /// </summary>
+    private async Task SafeBroadcastAsync(Func<Task> action, string eventType)
+    {
+        try
+        {
+            await action().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "SignalR broadcast failed for {EventType} — domain event processing continues", eventType);
+        }
     }
 }
