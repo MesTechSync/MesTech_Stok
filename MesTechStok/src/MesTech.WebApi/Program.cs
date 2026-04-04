@@ -109,6 +109,7 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddMeter("MesTech.Adapters") // G10802: AdapterMetrics OTel-native (DEV3 TUR7)
+        .AddMeter("MesTech.Mesa")    // DEV6-TUR3: MesaMetrics (AI, Bot, Consumer, CB, DLQ)
         .AddOtlpExporter(opt =>
         {
             opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
