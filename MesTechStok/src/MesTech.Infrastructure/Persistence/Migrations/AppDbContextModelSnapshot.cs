@@ -5552,10 +5552,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("integer");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid");
 
                     b.Property<string>("Segment")
                         .HasColumnType("text");
