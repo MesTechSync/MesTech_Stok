@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Cargo;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using System.Net;
 using MesTech.Domain.Entities;
@@ -1216,6 +1217,76 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogWarning(ex, "[Hepsiburada] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // Product Reviews (Ürün Değerlendirme)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Hepsiburada.
+    /// GET /reviews/merchantid/{merchantId}?limit={size}&amp;offset={page*size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("HepsiburadaAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var offset = page * size;
+            var request = new HttpRequestMessage(HttpMethod.Get,
+                new Uri($"/reviews/merchantid/{_merchantId}?limit={size}&offset={offset}", UriKind.Relative));
+            await ApplyAuthHeaderAsync(request, ct).ConfigureAwait(false);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct)
+                .ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Hepsiburada GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("productId", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("comment", out var comment) ? comment.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("rate", out var rate2) ? rate2.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("customerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("createdDate", out var cd)
+                            ? (cd.ValueKind == JsonValueKind.Number && cd.TryGetInt64(out var ts)
+                                ? DateTimeOffset.FromUnixTimeMilliseconds(ts).UtcDateTime
+                                : DateTime.TryParse(cd.GetString(), out var dt) ? dt : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Hepsiburada GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Hepsiburada GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ── IPingableAdapter ──
