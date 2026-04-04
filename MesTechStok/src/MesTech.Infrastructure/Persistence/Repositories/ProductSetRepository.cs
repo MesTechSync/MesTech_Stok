@@ -21,6 +21,7 @@ public sealed class ProductSetRepository : IProductSetRepository
             .Include(ps => ps.Items)
             .Where(ps => tenantId == null || ps.TenantId == tenantId.Value)
             .OrderBy(ps => ps.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync().ConfigureAwait(false);
 
     public async Task AddAsync(ProductSet productSet)

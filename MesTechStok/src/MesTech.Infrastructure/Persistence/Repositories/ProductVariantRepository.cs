@@ -20,6 +20,7 @@ public sealed class ProductVariantRepository : IProductVariantRepository
         => await _context.ProductVariants
             .Where(v => v.ProductId == productId)
             .OrderBy(v => v.SKU)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync()
             .ConfigureAwait(false);
 
