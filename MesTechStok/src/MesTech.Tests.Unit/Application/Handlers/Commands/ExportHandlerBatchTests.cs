@@ -1,7 +1,9 @@
+using System.IO;
 using FluentAssertions;
+using MesTech.Application.DTOs;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Product.Commands.ExportProducts;
-using MesTech.Application.Features.Stock.Commands.ExportStock;
+// ExportStock tests in separate file
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -93,7 +95,7 @@ public class ExportOrdersHandlerTests
             .ReturnsAsync(orders);
 
         using var exportStream = new MemoryStream(new byte[] { 1, 2, 3 });
-        _excelService.Setup(s => s.ExportOrdersAsync(It.IsAny<IReadOnlyList<OrderExportDto>>(), It.IsAny<CancellationToken>()))
+        _excelService.Setup(s => s.ExportOrdersAsync(It.IsAny<IEnumerable<OrderExportDto>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(exportStream);
 
         var cmd = new ExportOrdersCommand(tenantId, DateTime.UtcNow.AddDays(-30), DateTime.UtcNow);
@@ -107,41 +109,4 @@ public class ExportOrdersHandlerTests
 
 #endregion
 
-#region ExportStock
-
-[Trait("Category", "Unit")]
-[Trait("Layer", "Application")]
-public class ExportStockHandlerTests
-{
-    [Fact]
-    public async Task Handle_CsvFormat_ShouldReturnCsvFilename()
-    {
-        var handler = new ExportStockHandler();
-        var cmd = new ExportStockCommand(Guid.NewGuid(), "csv");
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        result.FileName.Should().EndWith(".csv");
-    }
-
-    [Fact]
-    public async Task Handle_PdfFormat_ShouldReturnPdfFilename()
-    {
-        var handler = new ExportStockHandler();
-        var cmd = new ExportStockCommand(Guid.NewGuid(), "pdf");
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        result.FileName.Should().EndWith(".pdf");
-    }
-
-    [Fact]
-    public async Task Handle_DefaultFormat_ShouldReturnXlsx()
-    {
-        var handler = new ExportStockHandler();
-        var cmd = new ExportStockCommand(Guid.NewGuid());
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        result.FileName.Should().EndWith(".xlsx");
-    }
-}
-
-#endregion
+// ExportStock tests already in ExportStockHandlerTests.cs — removed to avoid duplicate
