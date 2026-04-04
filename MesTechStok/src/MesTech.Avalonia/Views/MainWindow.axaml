@@ -1463,6 +1463,18 @@
                         <DataTemplate DataType="acctvm:CommissionRatesViewModel">
                             <acctviews:CommissionRatesView />
                         </DataTemplate>
+                        <DataTemplate DataType="acctvm:FixedAssetAvaloniaViewModel">
+                            <acctviews:FixedAssetAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:FixedExpenseAvaloniaViewModel">
+                            <acctviews:FixedExpenseAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:PenaltyAvaloniaViewModel">
+                            <acctviews:PenaltyAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:TaxRecordAvaloniaViewModel">
+                            <acctviews:TaxRecordAvaloniaView />
+                        </DataTemplate>
                         <DataTemplate DataType="monvm:StaleOrdersAvaloniaViewModel">
                             <monviews:StaleOrdersAvaloniaView />
                         </DataTemplate>
