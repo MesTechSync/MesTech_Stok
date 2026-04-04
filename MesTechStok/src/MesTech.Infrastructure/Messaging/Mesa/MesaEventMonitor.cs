@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.AI;
 
 namespace MesTech.Infrastructure.Messaging.Mesa;
 
@@ -25,6 +26,7 @@ public sealed class MesaEventMonitor : IMesaEventMonitor
         var counter = _counters.GetOrAdd(eventType, _ => new MutableEventCounter());
         Interlocked.Increment(ref counter.Consumed);
         Interlocked.Exchange(ref counter.LastConsumeTicks, DateTime.UtcNow.Ticks);
+        MesaMetrics.ConsumerProcessedTotal.Add(1, new KeyValuePair<string, object?>("event_type", eventType));
     }
 
     public void RecordError(string eventType, string errorMessage)
