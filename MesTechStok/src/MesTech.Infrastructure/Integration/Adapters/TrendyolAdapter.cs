@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -46,7 +47,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     private bool _isConfigured;
 
     public TrendyolAdapter(HttpClient httpClient, ILogger<TrendyolAdapter> logger,
-        IOptions<TrendyolOptions>? options = null)
+        IOptions<TrendyolOptions>? options = null, IConfiguration? configuration = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,6 +56,26 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
         // Initialise BaseAddress from options so sandbox toggle works without credential override
         _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);
+
+        // Auto-configure from IConfiguration (user-secrets / appsettings) if credentials present
+        if (configuration is not null && _options.Enabled)
+        {
+            var section = configuration.GetSection(TrendyolOptions.Section);
+            var apiKey = section["ApiKey"];
+            var apiSecret = section["ApiSecret"];
+            var supplierId = section["SupplierId"];
+
+            if (!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiSecret) && !string.IsNullOrEmpty(supplierId))
+            {
+                ConfigureAuth(new Dictionary<string, string>
+                {
+                    ["ApiKey"] = apiKey,
+                    ["ApiSecret"] = apiSecret,
+                    ["SupplierId"] = supplierId
+                });
+                _logger.LogInformation("TrendyolAdapter auto-configured from IConfiguration: SupplierId={SupplierId}", supplierId);
+            }
+        }
 
         _jsonOptions = new JsonSerializerOptions
         {
