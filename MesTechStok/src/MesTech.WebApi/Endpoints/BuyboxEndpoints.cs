@@ -163,13 +163,9 @@ public static class BuyboxEndpoints
             ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
-            var lostTask = buyboxService.GetLostBuyboxesAsync(tenantId, ct);
-            var optimizeTask = priceService.OptimizeBulkAsync(tenantId, ct: ct);
-
-            await Task.WhenAll(lostTask, optimizeTask);
-
-            var lost = await lostTask;
-            var optimizations = await optimizeTask;
+            // Sequential — Task.WhenAll causes concurrent DbContext access (G67/KÖK-1)
+            var lost = await buyboxService.GetLostBuyboxesAsync(tenantId, ct);
+            var optimizations = await priceService.OptimizeBulkAsync(tenantId, ct: ct);
 
             RecurringJobDto? jobInfo = null;
             try
