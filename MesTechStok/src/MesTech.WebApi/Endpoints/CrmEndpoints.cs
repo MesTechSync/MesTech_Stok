@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Crm;
 using MesTech.Application.Commands.SyncBitrix24Contacts;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
@@ -47,7 +48,7 @@ public static class CrmEndpoints
         })
         .WithName("GetLeads")
         .WithSummary("Potansiyel müşteri listesi")
-        .Produces(200)
+        .Produces<GetLeadsResult>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/leads
@@ -144,7 +145,7 @@ public static class CrmEndpoints
         })
         .WithName("GetDeals")
         .WithSummary("Fırsat listesi (pipeline + durum + atanan filtresi)")
-        .Produces(200)
+        .Produces<GetDealsResult>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/pipelines/{pipelineId}/kanban — kanban görünümü
@@ -158,7 +159,7 @@ public static class CrmEndpoints
         })
         .WithName("GetPipelineKanban")
         .WithSummary("Pipeline kanban board görünümü")
-        .Produces(200)
+        .Produces<KanbanBoardDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/crm/suppliers — tedarikçi listesi
@@ -174,7 +175,7 @@ public static class CrmEndpoints
         })
         .WithName("GetSuppliersCrm")
         .WithSummary("Tedarikçi listesi (aktif + tercihli + arama filtresi)")
-        .Produces(200)
+        .Produces<GetSuppliersCrmResult>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/crm/bitrix24/sync-contacts — Bitrix24 contact senkronizasyonu
@@ -202,7 +203,7 @@ public static class CrmEndpoints
         })
         .WithName("GetBitrix24Deals")
         .WithSummary("Bitrix24 deal listesi (stage filtreli)")
-        .Produces(200)
+        .Produces<Bitrix24DealsResult>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/bitrix24/deal-status/{orderId} — sipariş → Bitrix24 deal durumu
@@ -215,7 +216,7 @@ public static class CrmEndpoints
         })
         .WithName("GetBitrix24DealStatus")
         .WithSummary("Sipariş → Bitrix24 deal durum eşleşmesi")
-        .Produces(200).Produces(404)
+        .Produces<Bitrix24DealStatusDto>(200).Produces(404)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/bitrix24/pipeline — Bitrix24 pipeline durumu
@@ -229,7 +230,7 @@ public static class CrmEndpoints
         })
         .WithName("GetBitrix24Pipeline")
         .WithSummary("Bitrix24 pipeline durumu ve stage dağılımı")
-        .Produces(200)
+        .Produces<Bitrix24PipelineResult>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/contacts — paginated contact list
@@ -244,7 +245,7 @@ public static class CrmEndpoints
         })
         .WithName("GetContactsPaged")
         .WithSummary("Kişi listesi — sayfalanmış, arama destekli")
-        .Produces(200)
+        .Produces<ContactsPagedResult>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/leads/{leadId}/score — lead scoring
@@ -257,7 +258,7 @@ public static class CrmEndpoints
         })
         .WithName("GetLeadScore")
         .WithSummary("Potansiyel müşteri puanlama — RFM + davranış skoru")
-        .Produces(200)
+        .Produces<LeadScoreResult>(200)
         .CacheOutput("Report120s");
 
         // PUT /api/v1/crm/deals/{dealId}/stage — deal stage güncelleme
@@ -288,7 +289,7 @@ public static class CrmEndpoints
         })
         .WithName("GetCrmSuppliersPaged")
         .WithSummary("Sayfalanmış tedarikçi listesi (arama destekli)")
-        .Produces(200)
+        .Produces<PagedSupplierResult>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/crm/settings — CRM ayarları (G564)
