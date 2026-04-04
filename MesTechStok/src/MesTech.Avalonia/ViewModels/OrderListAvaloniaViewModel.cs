@@ -62,7 +62,6 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
 
             ApplyFilters();
         }, "Siparisler yuklenirken hata");
-        }
     }
 
     partial void OnSearchTextChanged(string value) { if (value.Length == 0 || value.Length >= 2) ApplyFilters(); }
