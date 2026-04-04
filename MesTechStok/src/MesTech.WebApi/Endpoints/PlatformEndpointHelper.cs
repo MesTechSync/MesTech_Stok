@@ -50,7 +50,7 @@ public static class PlatformEndpointHelper
         .WithName($"Get{displayName.Replace(" ", "")}Categories")
         .WithSummary($"{displayName} kategori listesi")
         .Produces(200).ProducesProblem(503)
-        .CacheOutput("Lookup60s");
+        .CacheOutput("Catalog300s");
 
         group.MapGet("/connection", async (IAdapterFactory f, CancellationToken ct) =>
         {

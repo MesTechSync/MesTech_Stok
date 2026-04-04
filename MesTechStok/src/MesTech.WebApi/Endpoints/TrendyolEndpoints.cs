@@ -64,7 +64,7 @@ public static class TrendyolEndpoints
         .WithSummary("Trendyol kategori listesi — platform kategori eslemesi icin")
         .Produces(200)
         .ProducesProblem(503)
-        .CacheOutput("Lookup60s");
+        .CacheOutput("Catalog300s");
 
         // GET /api/v1/trendyol/connection — baglanti testi
         group.MapGet("/connection", async (
