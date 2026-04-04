@@ -21,7 +21,7 @@ public class ZeroStockDetectedEventHandlerCommandTests
     [Fact]
     public async Task HandleAsync_ProductNotFound_ShouldNotSave()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = CreateSut();
         await sut.HandleAsync(Guid.NewGuid(), "SKU-MISS", Guid.NewGuid(), CancellationToken.None);
@@ -32,7 +32,7 @@ public class ZeroStockDetectedEventHandlerCommandTests
     [Fact]
     public async Task HandleAsync_ProductNotFound_ShouldNotThrow()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = CreateSut();
         var act = async () => await sut.HandleAsync(
@@ -56,7 +56,7 @@ public class ZeroStockDetectedEventHandlerCommandTests
         };
         product.IsActive.Should().BeTrue(); // default
 
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var sut = CreateSut();
         await sut.HandleAsync(productId, "SKU-ZERO", Guid.NewGuid(), CancellationToken.None);
@@ -78,7 +78,7 @@ public class ZeroStockDetectedEventHandlerCommandTests
         };
         product.Deactivate(); // make it inactive first
 
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var sut = CreateSut();
         await sut.HandleAsync(productId, "SKU-INACT", Guid.NewGuid(), CancellationToken.None);

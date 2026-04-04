@@ -22,7 +22,7 @@ public class UpdateCustomerHandlerTests
     [Fact]
     public async Task Handle_CustomerNotFound_ShouldReturnFailure()
     {
-        _customerRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Customer?)null);
+        _customerRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Customer?)null);
         var cmd = new UpdateCustomerCommand(Guid.NewGuid(), "Test", "TST");
 
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -35,7 +35,7 @@ public class UpdateCustomerHandlerTests
     public async Task Handle_HappyPath_ShouldUpdateAllFieldsAndSave()
     {
         var customer = new Customer { Name = "Old", Code = "OLD", TenantId = Guid.NewGuid() };
-        _customerRepo.Setup(r => r.GetByIdAsync(customer.Id)).ReturnsAsync(customer);
+        _customerRepo.Setup(r => r.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(customer);
 
         var cmd = new UpdateCustomerCommand(
             customer.Id, "Yeni Müşteri", "YM-01",
@@ -62,7 +62,7 @@ public class UpdateCustomerHandlerTests
     public async Task Handle_Deactivation_ShouldSetIsActiveFalse()
     {
         var customer = new Customer { Name = "Active", Code = "ACT", IsActive = true, TenantId = Guid.NewGuid() };
-        _customerRepo.Setup(r => r.GetByIdAsync(customer.Id)).ReturnsAsync(customer);
+        _customerRepo.Setup(r => r.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(customer);
 
         var cmd = new UpdateCustomerCommand(customer.Id, "Active", "ACT", IsActive: false);
         await CreateSut().Handle(cmd, CancellationToken.None);

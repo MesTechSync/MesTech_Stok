@@ -117,8 +117,8 @@ public class PlaceOrderHandlerTests
             .ReturnsAsync(new List<Product> { product });
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(

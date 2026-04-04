@@ -43,7 +43,7 @@ public class DeleteSupplierHandlerTests
     {
         var supplierId = Guid.NewGuid();
         var supplier = new Supplier { Id = supplierId };
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId)).ReturnsAsync(supplier);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>())).ReturnsAsync(supplier);
 
         var handler = CreateHandler();
         var command = new DeleteSupplierCommand(supplierId);
@@ -51,7 +51,7 @@ public class DeleteSupplierHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.Should().BeTrue();
-        _supplierRepo.Verify(r => r.DeleteAsync(supplierId), Times.Once);
+        _supplierRepo.Verify(r => r.DeleteAsync(supplierId, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -59,7 +59,7 @@ public class DeleteSupplierHandlerTests
     public async Task Handle_SupplierNotFound_ShouldReturnFalse()
     {
         var supplierId = Guid.NewGuid();
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId)).ReturnsAsync((Supplier?)null);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>())).ReturnsAsync((Supplier?)null);
 
         var handler = CreateHandler();
         var command = new DeleteSupplierCommand(supplierId);
@@ -67,7 +67,7 @@ public class DeleteSupplierHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.Should().BeFalse();
-        _supplierRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        _supplierRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -22,7 +22,7 @@ public class UpdateWarehouseHandlerTests
     [Fact]
     public async Task Handle_WarehouseNotFound_ShouldReturnFalse()
     {
-        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var cmd = new UpdateWarehouseCommand(Guid.NewGuid(), Guid.NewGuid(), "WH", "WH-1", null, "Main", true);
 
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -34,7 +34,7 @@ public class UpdateWarehouseHandlerTests
     public async Task Handle_TenantMismatch_ShouldReturnFalse()
     {
         var wh = new Warehouse { Name = "Old", TenantId = Guid.NewGuid() };
-        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id)).ReturnsAsync(wh);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
 
         var differentTenant = Guid.NewGuid();
         var cmd = new UpdateWarehouseCommand(differentTenant, wh.Id, "New", "NEW", null, "Main", true);
@@ -49,7 +49,7 @@ public class UpdateWarehouseHandlerTests
     {
         var tenantId = Guid.NewGuid();
         var wh = new Warehouse { Name = "Old WH", Code = "OLD", TenantId = tenantId };
-        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id)).ReturnsAsync(wh);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
 
         var cmd = new UpdateWarehouseCommand(tenantId, wh.Id, "Ana Depo", "AD-01", "Merkez depo", "Main", true);
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -66,7 +66,7 @@ public class UpdateWarehouseHandlerTests
     {
         var tenantId = Guid.NewGuid();
         var wh = new Warehouse { Name = "WH", Code = "WH", IsActive = true, TenantId = tenantId };
-        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id)).ReturnsAsync(wh);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
 
         var cmd = new UpdateWarehouseCommand(tenantId, wh.Id, "WH", "WH", null, "Main", false);
         await CreateSut().Handle(cmd, CancellationToken.None);

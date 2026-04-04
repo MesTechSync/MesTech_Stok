@@ -70,7 +70,7 @@ public class SendInvoiceHandlerTests
     public async Task Handle_InvoiceNotFound_ShouldReturnError()
     {
         var invoiceRepo = new Mock<IInvoiceRepository>();
-        invoiceRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        invoiceRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((MesTech.Domain.Entities.Invoice?)null);
         var uow = new Mock<IUnitOfWork>();
         var logger = new Mock<ILogger<SendInvoiceHandler>>();

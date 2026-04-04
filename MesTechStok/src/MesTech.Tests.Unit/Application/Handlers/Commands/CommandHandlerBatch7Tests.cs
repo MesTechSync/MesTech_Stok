@@ -120,7 +120,7 @@ public class VerifyTotpHandlerTests
     [Fact]
     public async Task Handle_UserNotFound_ShouldReturnError()
     {
-        _userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((User?)null);
+        _userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
 
         var result = await CreateSut().Handle(
             new VerifyTotpCommand(Guid.NewGuid(), "123456"), CancellationToken.None);
@@ -133,7 +133,7 @@ public class VerifyTotpHandlerTests
     public async Task Handle_NoTotpSecret_ShouldReturnError()
     {
         var user = new User { Username = "test", TotpSecret = null };
-        _userRepo.Setup(r => r.GetByIdAsync(user.Id)).ReturnsAsync(user);
+        _userRepo.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var result = await CreateSut().Handle(
             new VerifyTotpCommand(user.Id, "123456"), CancellationToken.None);

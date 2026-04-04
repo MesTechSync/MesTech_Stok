@@ -38,8 +38,8 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
 
         Income? capturedIncome = null;
         _incomeRepoMock
-            .Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => capturedIncome = i);
+            .Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => capturedIncome = i);
 
         var sut = CreateSut();
 
@@ -64,7 +64,7 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-ZERO", 0m, null, CancellationToken.None);
 
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Never);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Never);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -75,7 +75,7 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-NEG", -50m, null, CancellationToken.None);
 
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Never);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Never);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -95,7 +95,7 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
         await sut.HandleAsync(orderId, tenantId, "ORD-DUP", 2000m, Guid.NewGuid(), CancellationToken.None);
 
         // Assert — no duplicate income created
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Never);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Never);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -110,8 +110,8 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
 
         Income? capturedIncome = null;
         _incomeRepoMock
-            .Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => capturedIncome = i);
+            .Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => capturedIncome = i);
 
         var sut = CreateSut();
         await sut.HandleAsync(orderId, tenantId, "ORD-NOSTORE", 500m, null, CancellationToken.None);
@@ -132,7 +132,7 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
         var sut = CreateSut();
         await sut.HandleAsync(orderId, tenantId, "ORD-SMALL", 0.01m, null, CancellationToken.None);
 
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Once);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -147,8 +147,8 @@ public class OrderConfirmedRevenueHandlerEdgeCaseTests
 
         Income? capturedIncome = null;
         _incomeRepoMock
-            .Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => capturedIncome = i);
+            .Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => capturedIncome = i);
 
         var sut = CreateSut();
         await sut.HandleAsync(orderId, tenantId, "ORD-SRC", 999m, null, CancellationToken.None);

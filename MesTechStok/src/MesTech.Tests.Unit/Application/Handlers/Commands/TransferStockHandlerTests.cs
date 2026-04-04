@@ -37,9 +37,9 @@ public class TransferStockHandlerTests
         var source = CreateWarehouse("Source");
         var target = CreateWarehouse("Target");
 
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
-        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => id == source.Id ? source : target);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => id == source.Id ? source : target);
 
         var cmd = new TransferStockCommand(product.Id, source.Id, target.Id, 30);
         var sut = CreateSut();
@@ -77,7 +77,7 @@ public class TransferStockHandlerTests
     [Fact]
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new TransferStockCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 10);
         var sut = CreateSut();
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -93,9 +93,9 @@ public class TransferStockHandlerTests
         var source = CreateWarehouse();
         var target = CreateWarehouse();
 
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
-        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => id == source.Id ? source : target);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => id == source.Id ? source : target);
 
         var cmd = new TransferStockCommand(product.Id, source.Id, target.Id, 50);
         var sut = CreateSut();
@@ -112,14 +112,14 @@ public class TransferStockHandlerTests
         var source = CreateWarehouse("Source");
         var target = CreateWarehouse("Target");
 
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
-        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => id == source.Id ? source : target);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => id == source.Id ? source : target);
 
         var cmd = new TransferStockCommand(product.Id, source.Id, target.Id, 20);
         var sut = CreateSut();
         await sut.Handle(cmd, CancellationToken.None);
 
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Exactly(2));
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 }

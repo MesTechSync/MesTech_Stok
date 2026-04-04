@@ -58,7 +58,7 @@ public class PlaceOrderEdgeCaseTests
 
         result.IsSuccess.Should().BeTrue();
         result.OrderNumber.Should().StartWith("ORD-");
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class PlaceOrderEdgeCaseTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain(product2Id.ToString());
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Never);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -116,8 +116,8 @@ public class PlaceOrderEdgeCaseTests
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var command = new PlaceOrderCommand(
             customerId, "Ahmet Kaya", "ahmet@test.com", "Acil siparis",
@@ -161,8 +161,8 @@ public class PlaceOrderEdgeCaseTests
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var command = new PlaceOrderCommand(
             Guid.NewGuid(), "Test", null, null,
@@ -210,7 +210,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_ValidRemoval_RaisesDomainEvent()
     {
         var product = FakeData.CreateProduct(sku: "EVT-RM", stock: 20, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = CreateHandler();
@@ -225,12 +225,12 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_MovementCreated_HasCorrectFields()
     {
         var product = FakeData.CreateProduct(sku: "MVT-CHK", stock: 30, salePrice: 50m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         StockMovement? captured = null;
-        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 10, "Defective batch", "DOC-001");
@@ -249,7 +249,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_ExactStockRemoval_ResultsInZeroStock()
     {
         var product = FakeData.CreateProduct(sku: "EXACT-RM", stock: 15, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = CreateHandler();
@@ -265,7 +265,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_InsufficientStock_ReturnsError_DoesNotSave()
     {
         var product = FakeData.CreateProduct(sku: "INS-RM", stock: 5, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var result = await handler.Handle(
@@ -274,7 +274,7 @@ public class RemoveStockEdgeCaseTests
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Never);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

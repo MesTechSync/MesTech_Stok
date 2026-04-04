@@ -36,7 +36,7 @@ public class RejectReturnHandlerTests
         var returnRequest = CreatePendingReturn(returnId);
         var command = new RejectReturnCommand(returnId, "Urun kullanilmis");
 
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         var sut = CreateSut();
 
@@ -56,7 +56,7 @@ public class RejectReturnHandlerTests
         var returnId = Guid.NewGuid();
         var command = new RejectReturnCommand(returnId, "Test reason");
 
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync((ReturnRequest?)null);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync((ReturnRequest?)null);
 
         var sut = CreateSut();
 
@@ -90,7 +90,7 @@ public class RejectReturnHandlerTests
         returnRequest.Reject("Already rejected"); // Now status is Rejected
 
         var command = new RejectReturnCommand(returnId, "Another rejection");
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         var sut = CreateSut();
 

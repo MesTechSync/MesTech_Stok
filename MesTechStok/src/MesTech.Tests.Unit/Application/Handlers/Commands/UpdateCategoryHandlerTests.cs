@@ -22,7 +22,7 @@ public class UpdateCategoryHandlerTests
     [Fact]
     public async Task Handle_CategoryNotFound_ShouldReturnFailure()
     {
-        _categoryRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Category?)null);
+        _categoryRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Category?)null);
         var cmd = new UpdateCategoryCommand(Guid.NewGuid(), "Test", "TST", true);
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
 
@@ -34,7 +34,7 @@ public class UpdateCategoryHandlerTests
     public async Task Handle_HappyPath_ShouldUpdateAndSave()
     {
         var category = new Category { Name = "Old", Code = "OLD", IsActive = false, TenantId = Guid.NewGuid() };
-        _categoryRepo.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _categoryRepo.Setup(r => r.GetByIdAsync(category.Id, It.IsAny<CancellationToken>())).ReturnsAsync(category);
 
         var cmd = new UpdateCategoryCommand(category.Id, "Elektronik", "ELK", true);
         var result = await CreateSut().Handle(cmd, CancellationToken.None);

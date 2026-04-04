@@ -137,7 +137,7 @@ public class GetWarehouseByIdHandlerTests
     {
         var wh = new Warehouse { Name = "Ana Depo", Code = "AD", TenantId = Guid.NewGuid() };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(wh.Id)).ReturnsAsync(wh);
+        repo.Setup(r => r.GetByIdAsync(wh.Id, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
         var handler = new GetWarehouseByIdHandler(repo.Object);
         var result = await handler.Handle(new GetWarehouseByIdQuery(wh.Id), CancellationToken.None);
         result.Should().NotBeNull();
@@ -148,7 +148,7 @@ public class GetWarehouseByIdHandlerTests
     public async Task Handle_NotFound_ShouldReturnNull()
     {
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var handler = new GetWarehouseByIdHandler(repo.Object);
         var result = await handler.Handle(new GetWarehouseByIdQuery(Guid.NewGuid()), CancellationToken.None);
         result.Should().BeNull();

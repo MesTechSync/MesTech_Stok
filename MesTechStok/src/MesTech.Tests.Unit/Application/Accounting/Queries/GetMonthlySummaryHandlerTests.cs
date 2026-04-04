@@ -91,7 +91,7 @@ public class GetMonthlySummaryHandlerTests
             .ReturnsAsync(orders);
 
         _expenseRepoMock
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expenses);
 
         var query = new GetMonthlySummaryQuery(2026, 3, _tenantId);
@@ -120,7 +120,7 @@ public class GetMonthlySummaryHandlerTests
             .ReturnsAsync(new List<Order>());
 
         _expenseRepoMock
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetMonthlySummaryQuery(2026, 1, _tenantId);
@@ -154,7 +154,7 @@ public class GetMonthlySummaryHandlerTests
             .ReturnsAsync(orders);
 
         _expenseRepoMock
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetMonthlySummaryQuery(2026, 3, _tenantId);
@@ -185,7 +185,7 @@ public class GetMonthlySummaryHandlerTests
             .ReturnsAsync(orders);
 
         _expenseRepoMock
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetMonthlySummaryQuery(2026, 3, _tenantId);

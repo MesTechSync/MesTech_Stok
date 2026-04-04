@@ -135,14 +135,14 @@ public class GapFillQueryHandlerTests
             new() { ProductId = productId, Quantity = 10, MovementType = StockMovementType.StockIn.ToString() },
             new() { ProductId = productId, Quantity = -3, MovementType = StockMovementType.StockOut.ToString() }
         };
-        _movementRepo.Setup(r => r.GetByProductIdAsync(productId))
+        _movementRepo.Setup(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(movements);
 
         var result = await MovementsHandler().Handle(
             new GetStockMovementsQuery(ProductId: productId), CancellationToken.None);
 
         result.Should().HaveCount(2);
-        _movementRepo.Verify(r => r.GetByProductIdAsync(productId), Times.Once);
+        _movementRepo.Verify(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
         _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -176,7 +176,7 @@ public class GapFillQueryHandlerTests
             new GetStockMovementsQuery(), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _movementRepo.Verify(r => r.GetByProductIdAsync(It.IsAny<Guid>()), Times.Never);
+        _movementRepo.Verify(r => r.GetByProductIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _movementRepo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

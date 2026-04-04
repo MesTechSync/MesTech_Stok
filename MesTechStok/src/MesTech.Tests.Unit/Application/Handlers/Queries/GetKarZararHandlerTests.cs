@@ -23,9 +23,9 @@ public class GetKarZararHandlerTests
     [Fact]
     public async Task Handle_NoData_ShouldReturnZeros()
     {
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetKarZararQuery(DateTime.UtcNow.AddMonths(-1), DateTime.UtcNow);
@@ -47,9 +47,9 @@ public class GetKarZararHandlerTests
         var expense1 = new Expense { TenantId = Guid.NewGuid() };
         expense1.SetAmount(2000m);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { income1, income2 });
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense> { expense1 });
 
         var query = new GetKarZararQuery(DateTime.UtcNow.AddMonths(-1), DateTime.UtcNow);
@@ -69,9 +69,9 @@ public class GetKarZararHandlerTests
         var expense = new Expense { TenantId = Guid.NewGuid() };
         expense.SetAmount(5000m);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { income });
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense> { expense });
 
         var query = new GetKarZararQuery(DateTime.UtcNow.AddMonths(-1), DateTime.UtcNow);
@@ -87,16 +87,16 @@ public class GetKarZararHandlerTests
         var to = new DateTime(2026, 3, 31, 0, 0, 0, DateTimeKind.Utc);
         var tenantId = Guid.NewGuid();
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetKarZararQuery(from, to, tenantId);
         await CreateSut().Handle(query, CancellationToken.None);
 
-        _incomeRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId), Times.Once);
-        _expenseRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId), Times.Once);
+        _incomeRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _expenseRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -105,9 +105,9 @@ public class GetKarZararHandlerTests
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var query = new GetKarZararQuery(from, to);

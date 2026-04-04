@@ -32,7 +32,7 @@ public class GetCashFlowHandlerTests
     public async Task Handle_NoData_ShouldReturnZeros()
     {
         var tenantId = Guid.NewGuid();
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>());
         _expenseRepo.Setup(r => r.GetByTenantAsync(tenantId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<FinanceExpense>());
@@ -57,7 +57,7 @@ public class GetCashFlowHandlerTests
             CreateOrderWithAmount(tenantId, 500m, OrderStatus.Cancelled),
         };
 
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
         _expenseRepo.Setup(r => r.GetByTenantAsync(tenantId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<FinanceExpense>());
@@ -79,7 +79,7 @@ public class GetCashFlowHandlerTests
             CreateOrderWithAmount(otherTenant, 9999m),
         };
 
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
         _expenseRepo.Setup(r => r.GetByTenantAsync(tenantId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<FinanceExpense>());

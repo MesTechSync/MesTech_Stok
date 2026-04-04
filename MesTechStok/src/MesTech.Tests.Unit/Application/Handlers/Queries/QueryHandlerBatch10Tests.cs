@@ -60,9 +60,9 @@ public class GetIncomeExpenseListHandlerTests
     {
         var incomeRepo = new Mock<IIncomeRepository>();
         var expenseRepo = new Mock<IExpenseRepository>();
-        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
         var logger = new Mock<ILogger<GetIncomeExpenseListHandler>>();
         var handler = new GetIncomeExpenseListHandler(incomeRepo.Object, expenseRepo.Object, logger.Object);
@@ -82,9 +82,9 @@ public class GetIncomeExpenseSummaryHandlerTests
     {
         var incomeRepo = new Mock<IIncomeRepository>();
         var expenseRepo = new Mock<IExpenseRepository>();
-        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+        expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
         var logger = new Mock<ILogger<GetIncomeExpenseSummaryHandler>>();
         var handler = new GetIncomeExpenseSummaryHandler(incomeRepo.Object, expenseRepo.Object, logger.Object);

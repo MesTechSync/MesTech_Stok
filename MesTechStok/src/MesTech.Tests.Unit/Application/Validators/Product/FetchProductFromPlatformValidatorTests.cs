@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Features.Product.Queries.FetchProductFromPlatform;
 using Xunit;
 
@@ -9,7 +9,7 @@ public class FetchProductFromPlatformValidatorTests
     private readonly FetchProductFromPlatformValidator _sut = new();
 
     private static FetchProductFromPlatformQuery CreateValidQuery() => new(
-        ProductUrl: "https://www.trendyol.com/product/12345");
+        ProductUrl: "https://www.example.com/product/12345");
 
     [Fact]
     [Trait("Category", "Unit")]

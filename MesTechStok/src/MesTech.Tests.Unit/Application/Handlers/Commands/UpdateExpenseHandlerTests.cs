@@ -23,7 +23,7 @@ public class UpdateExpenseHandlerTests
     [Fact]
     public async Task Handle_ExpenseNotFound_ShouldThrowKeyNotFound()
     {
-        _expenseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Expense?)null);
+        _expenseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
         var cmd = new UpdateExpenseCommand(Guid.NewGuid(), Description: "test");
 
         var act = () => CreateSut().Handle(cmd, CancellationToken.None);
@@ -36,7 +36,7 @@ public class UpdateExpenseHandlerTests
     {
         var expense = new Expense { Description = "Old", TenantId = Guid.NewGuid() };
         expense.SetAmount(500m);
-        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var cmd = new UpdateExpenseCommand(expense.Id, Description: "New Description");
         await CreateSut().Handle(cmd, CancellationToken.None);
@@ -51,7 +51,7 @@ public class UpdateExpenseHandlerTests
     {
         var expense = new Expense { Description = "Kira", TenantId = Guid.NewGuid() };
         expense.SetAmount(1000m);
-        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var cmd = new UpdateExpenseCommand(expense.Id, Amount: 1500m);
         await CreateSut().Handle(cmd, CancellationToken.None);
@@ -64,7 +64,7 @@ public class UpdateExpenseHandlerTests
     {
         var expense = new Expense { Description = "Original", TenantId = Guid.NewGuid(), ExpenseType = ExpenseType.Kira };
         expense.SetAmount(200m);
-        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var cmd = new UpdateExpenseCommand(expense.Id); // all nulls
         await CreateSut().Handle(cmd, CancellationToken.None);

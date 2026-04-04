@@ -23,7 +23,7 @@ public class UpdateIncomeHandlerTests
     [Fact]
     public async Task Handle_IncomeNotFound_ShouldThrowKeyNotFound()
     {
-        _incomeRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Income?)null);
+        _incomeRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Income?)null);
         var cmd = new UpdateIncomeCommand(Guid.NewGuid(), Description: "test");
 
         var act = () => CreateSut().Handle(cmd, CancellationToken.None);
@@ -36,7 +36,7 @@ public class UpdateIncomeHandlerTests
     {
         var income = new Income { Description = "Old", TenantId = Guid.NewGuid() };
         income.SetAmount(1000m);
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var cmd = new UpdateIncomeCommand(income.Id, Description: "Updated Income");
         await CreateSut().Handle(cmd, CancellationToken.None);
@@ -51,7 +51,7 @@ public class UpdateIncomeHandlerTests
     {
         var income = new Income { Description = "Satış", TenantId = Guid.NewGuid() };
         income.SetAmount(500m);
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var cmd = new UpdateIncomeCommand(income.Id, Amount: 750m);
         await CreateSut().Handle(cmd, CancellationToken.None);
@@ -64,7 +64,7 @@ public class UpdateIncomeHandlerTests
     {
         var income = new Income { Description = "Gelir", TenantId = Guid.NewGuid(), IncomeType = IncomeType.Satis };
         income.SetAmount(100m);
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var cmd = new UpdateIncomeCommand(income.Id, IncomeType: IncomeType.Hizmet);
         await CreateSut().Handle(cmd, CancellationToken.None);
@@ -77,7 +77,7 @@ public class UpdateIncomeHandlerTests
     {
         var income = new Income { Description = "Original", TenantId = Guid.NewGuid(), IncomeType = IncomeType.Satis };
         income.SetAmount(200m);
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var cmd = new UpdateIncomeCommand(income.Id);
         await CreateSut().Handle(cmd, CancellationToken.None);

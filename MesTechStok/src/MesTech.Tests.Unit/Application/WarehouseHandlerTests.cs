@@ -47,7 +47,7 @@ public class WarehouseHandlerTests
     {
         var tenantId = Guid.NewGuid();
         var warehouse = new Warehouse { TenantId = tenantId, Name = "Old" };
-        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(warehouse);
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
 
         var cmd = new UpdateWarehouseCommand(tenantId, warehouse.Id, "New Name", "WH-002", "Desc", "Main", true);
         var handler = new UpdateWarehouseHandler(_repo.Object, _uow.Object);
@@ -61,7 +61,7 @@ public class WarehouseHandlerTests
     [Fact]
     public async Task UpdateWarehouse_NotFound_ReturnsFalse()
     {
-        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var cmd = new UpdateWarehouseCommand(Guid.NewGuid(), Guid.NewGuid(), "X", "X", null, "Main", true);
         var handler = new UpdateWarehouseHandler(_repo.Object, _uow.Object);
 
@@ -76,20 +76,20 @@ public class WarehouseHandlerTests
     {
         var tenantId = Guid.NewGuid();
         var warehouse = new Warehouse { TenantId = tenantId };
-        _repo.Setup(r => r.GetByIdAsync(warehouse.Id)).ReturnsAsync(warehouse);
+        _repo.Setup(r => r.GetByIdAsync(warehouse.Id, It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
 
         var cmd = new DeleteWarehouseCommand(tenantId, warehouse.Id);
         var handler = new DeleteWarehouseHandler(_repo.Object, _uow.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         result.Should().BeTrue();
-        _repo.Verify(r => r.DeleteAsync(warehouse.Id), Times.Once);
+        _repo.Verify(r => r.DeleteAsync(warehouse.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task DeleteWarehouse_NotFound_ReturnsFalse()
     {
-        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var cmd = new DeleteWarehouseCommand(Guid.NewGuid(), Guid.NewGuid());
         var handler = new DeleteWarehouseHandler(_repo.Object, _uow.Object);
 

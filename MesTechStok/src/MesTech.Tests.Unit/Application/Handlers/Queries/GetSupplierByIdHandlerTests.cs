@@ -43,7 +43,7 @@ public class GetSupplierByIdHandlerTests
         // Set Id via reflection or property — BaseEntity has public Id
         typeof(MesTech.Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(supplier, supplierId);
 
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId)).ReturnsAsync(supplier);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>())).ReturnsAsync(supplier);
 
         var sut = CreateSut();
         var result = await sut.Handle(new GetSupplierByIdQuery(supplierId), CancellationToken.None);
@@ -57,7 +57,7 @@ public class GetSupplierByIdHandlerTests
     public async Task Handle_SupplierNotFound_ShouldReturnNull()
     {
         var supplierId = Guid.NewGuid();
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId)).ReturnsAsync((Supplier?)null);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>())).ReturnsAsync((Supplier?)null);
 
         var sut = CreateSut();
         var result = await sut.Handle(new GetSupplierByIdQuery(supplierId), CancellationToken.None);
@@ -69,11 +69,11 @@ public class GetSupplierByIdHandlerTests
     public async Task Handle_ShouldCallRepositoryWithCorrectId()
     {
         var supplierId = Guid.NewGuid();
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId)).ReturnsAsync((Supplier?)null);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>())).ReturnsAsync((Supplier?)null);
 
         var sut = CreateSut();
         await sut.Handle(new GetSupplierByIdQuery(supplierId), CancellationToken.None);
 
-        _supplierRepo.Verify(r => r.GetByIdAsync(supplierId), Times.Once);
+        _supplierRepo.Verify(r => r.GetByIdAsync(supplierId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

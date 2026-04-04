@@ -91,7 +91,7 @@ public class InventoryValuationReportHandlerTests
         {
             FakeData.CreateProduct(sku: "CAT-001", stock: 20, purchasePrice: 30m, salePrice: 60m)
         };
-        _productRepo.Setup(r => r.GetByCategoryAsync(categoryId))
+        _productRepo.Setup(r => r.GetByCategoryAsync(categoryId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(products.AsReadOnly());
 
         var query = new InventoryValuationReportQuery(Guid.NewGuid(), CategoryFilter: categoryId);
@@ -103,7 +103,7 @@ public class InventoryValuationReportHandlerTests
         // Assert
         result.Should().HaveCount(1);
         result[0].CurrentStock.Should().Be(20);
-        _productRepo.Verify(r => r.GetByCategoryAsync(categoryId), Times.Once);
+        _productRepo.Verify(r => r.GetByCategoryAsync(categoryId, It.IsAny<CancellationToken>()), Times.Once);
         _productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

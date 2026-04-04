@@ -27,7 +27,7 @@ public class AutoCompetePriceHandlerTests
     [Fact]
     public async Task Handle_ProductNotFound_ShouldReturnFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var result = await CreateHandler().Handle(CreateCommand(), CancellationToken.None);
@@ -40,7 +40,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_AlreadyHasBuybox_ShouldReturnNoChange()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
                 It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BuyboxAnalysis(true, 100m, 0m, "", Array.Empty<CompetitorPriceInfo>(), 100m, ""));
@@ -56,7 +56,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_NoCompetitors_ShouldReturnNoChange()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
                 It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BuyboxAnalysis(false, 100m, 0m, "", Array.Empty<CompetitorPriceInfo>(), 100m, ""));
@@ -72,7 +72,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_TargetBelowFloorPrice_ShouldClampToFloor()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var competitors = new[] { new CompetitorPriceInfo("Rival", 40m, 0m, 5, false, DateTime.UtcNow) };
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
@@ -96,7 +96,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_AdapterNotFound_ShouldReturnFailure()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var competitors = new[] { new CompetitorPriceInfo("Rival", 90m, 0m, 5, false, DateTime.UtcNow) };
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
@@ -115,7 +115,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_PushFails_ShouldReturnFailure()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var competitors = new[] { new CompetitorPriceInfo("Rival", 90m, 0m, 5, false, DateTime.UtcNow) };
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
@@ -137,7 +137,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_HappyPath_ShouldReturnChangedResult()
     {
         var product = new Product { SalePrice = 100m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var competitors = new[] { new CompetitorPriceInfo("Rival", 90m, 0m, 5, false, DateTime.UtcNow) };
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(
@@ -162,7 +162,7 @@ public class AutoCompetePriceHandlerTests
     public async Task Handle_TargetAboveCurrentPrice_ShouldReturnNoChange()
     {
         var product = new Product { SalePrice = 80m, SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var competitors = new[] { new CompetitorPriceInfo("Rival", 100m, 0m, 5, false, DateTime.UtcNow) };
         _buyboxMock.Setup(b => b.AnalyzeCompetitorsAsync(

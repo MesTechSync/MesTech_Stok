@@ -119,8 +119,8 @@ public class OrderConfirmedRevenueHandlerTests
         var tenantId = Guid.NewGuid();
         Income? captured = null;
 
-        _incomeRepoMock.Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => captured = i)
+        _incomeRepoMock.Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => captured = i)
             .Returns(Task.CompletedTask);
 
         await _sut.HandleAsync(orderId, tenantId, "ORD-100", 5000m, null, CancellationToken.None);
@@ -353,7 +353,7 @@ public class ZeroStockDetectedEventHandlerTests
             Name = "Tükenmiş Ürün", SKU = "ZERO-001", Stock = 0,
             SalePrice = 50m, IsActive = true
         };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         await _sut.HandleAsync(productId, "ZERO-001", Guid.NewGuid(), CancellationToken.None);
 
@@ -370,7 +370,7 @@ public class ZeroStockDetectedEventHandlerTests
             Name = "Zaten Pasif", SKU = "ZERO-002", Stock = 0,
             SalePrice = 50m, IsActive = false
         };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         await _sut.HandleAsync(productId, "ZERO-002", Guid.NewGuid(), CancellationToken.None);
 
@@ -380,7 +380,7 @@ public class ZeroStockDetectedEventHandlerTests
     [Fact]
     public async Task HandleAsync_ProductNotFound_DoesNotThrow()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var act = () => _sut.HandleAsync(Guid.NewGuid(), "GONE", Guid.NewGuid(), CancellationToken.None);
 

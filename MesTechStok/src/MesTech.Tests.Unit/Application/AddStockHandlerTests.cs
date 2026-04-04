@@ -23,7 +23,7 @@ public class AddStockHandlerTests
     public async Task Handle_ValidCommand_ShouldIncreaseStock()
     {
         var product = FakeData.CreateProduct(sku: "TEST-001", stock: 100);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 50, 25.00m, Reason: "Test ekleme");
@@ -38,7 +38,7 @@ public class AddStockHandlerTests
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
         var nonExistentId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(nonExistentId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(nonExistentId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(nonExistentId, 50, 10.00m, Reason: "Test");
@@ -53,14 +53,14 @@ public class AddStockHandlerTests
     public async Task Handle_ShouldCreateStockMovement()
     {
         var product = FakeData.CreateProduct(sku: "MOV-001", stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 30, 15.00m, Reason: "Stok giris");
 
         await handler.Handle(command, CancellationToken.None);
 
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Once);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -70,7 +70,7 @@ public class AddStockHandlerTests
     public async Task Handle_NegativeQuantity_ShouldDecreaseStock()
     {
         var product = FakeData.CreateProduct(sku: "NEG-H01", stock: 100);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, -30, 10.00m, Reason: "Stok cikis");
@@ -85,7 +85,7 @@ public class AddStockHandlerTests
     public async Task Handle_ZeroQuantity_ShouldNotChangeStock()
     {
         var product = FakeData.CreateProduct(sku: "ZERO-001", stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 0, 0m, Reason: "Sifir hareket");
@@ -100,13 +100,13 @@ public class AddStockHandlerTests
     public async Task Handle_WithBatchAndExpiry_ShouldPassToMovement()
     {
         var product = FakeData.CreateProduct(sku: "BATCH-001", stock: 20);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var expiry = new DateTime(2027, 6, 15, 0, 0, 0, DateTimeKind.Utc);
         StockMovement? captured = null;
         _movementRepo
-            .Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+            .Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 100, 5.00m,
@@ -124,12 +124,12 @@ public class AddStockHandlerTests
     public async Task Handle_ShouldSetCorrectUnitAndTotalCost()
     {
         var product = FakeData.CreateProduct(sku: "COST-001", stock: 0);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         StockMovement? captured = null;
         _movementRepo
-            .Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+            .Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 25, 12.50m);
@@ -145,7 +145,7 @@ public class AddStockHandlerTests
     public async Task Handle_LargeQuantity_ShouldHandleCorrectly()
     {
         var product = FakeData.CreateProduct(sku: "BIG-001", stock: 0);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 100_000, 0.50m, Reason: "Toplu giris");
@@ -160,7 +160,7 @@ public class AddStockHandlerTests
     public async Task Handle_ShouldRaiseDomainEvent()
     {
         var product = FakeData.CreateProduct(sku: "EVT-001", stock: 40);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new AddStockCommand(product.Id, 10, 5.00m);

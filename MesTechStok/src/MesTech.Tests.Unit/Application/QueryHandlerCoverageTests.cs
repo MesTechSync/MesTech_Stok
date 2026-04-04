@@ -34,7 +34,7 @@ public class GetWarehouseStockHandlerTests
     [Fact]
     public async Task Handle_NonExistentWarehouse_ReturnsEmpty()
     {
-        _warehouseRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        _warehouseRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
 
         var result = await _sut.Handle(
             new GetWarehouseStockQuery(Guid.NewGuid(), Guid.NewGuid()), CancellationToken.None);
@@ -61,7 +61,7 @@ public class GetWarehouseStockHandlerTests
         };
         var products = new List<Product> { product1, product2 };
 
-        _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync(warehouse);
+        _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
         _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var result = await _sut.Handle(
@@ -140,7 +140,7 @@ public class GetExpensesHandlerTests
             new() { TenantId = tenantId, Description = "Kira", ExpenseType = ExpenseType.Kira, Date = DateTime.UtcNow }
         };
         expenses[0].SetAmount(5000m);
-        _repoMock.Setup(r => r.GetByTypeAsync(ExpenseType.Kira, tenantId)).ReturnsAsync(expenses.AsReadOnly());
+        _repoMock.Setup(r => r.GetByTypeAsync(ExpenseType.Kira, tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(expenses.AsReadOnly());
 
         var result = await _sut.Handle(
             new GetExpensesQuery(Type: ExpenseType.Kira, TenantId: tenantId), CancellationToken.None);
@@ -153,7 +153,7 @@ public class GetExpensesHandlerTests
     {
         var from = DateTime.UtcNow.AddDays(-30);
         var to = DateTime.UtcNow;
-        _repoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _repoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var result = await _sut.Handle(new GetExpensesQuery(From: from, To: to), CancellationToken.None);
@@ -165,12 +165,12 @@ public class GetExpensesHandlerTests
     public async Task Handle_NoFilters_ReturnsAll()
     {
         var tenantId = Guid.NewGuid();
-        _repoMock.Setup(r => r.GetAllAsync(tenantId)).ReturnsAsync(new List<Expense>().AsReadOnly());
+        _repoMock.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var result = await _sut.Handle(new GetExpensesQuery(TenantId: tenantId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _repoMock.Verify(r => r.GetAllAsync(tenantId), Times.Once);
+        _repoMock.Verify(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -199,7 +199,7 @@ public class GetIncomesHandlerTests
             new() { TenantId = tenantId, Description = "Satış", IncomeType = IncomeType.Satis, Date = DateTime.UtcNow }
         };
         incomes[0].SetAmount(10000m);
-        _repoMock.Setup(r => r.GetByTypeAsync(IncomeType.Satis, tenantId)).ReturnsAsync(incomes.AsReadOnly());
+        _repoMock.Setup(r => r.GetByTypeAsync(IncomeType.Satis, tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(incomes.AsReadOnly());
 
         var result = await _sut.Handle(
             new GetIncomesQuery(Type: IncomeType.Satis, TenantId: tenantId), CancellationToken.None);
@@ -212,7 +212,7 @@ public class GetIncomesHandlerTests
     {
         var from = DateTime.UtcNow.AddDays(-30);
         var to = DateTime.UtcNow;
-        _repoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _repoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>().AsReadOnly());
 
         var result = await _sut.Handle(new GetIncomesQuery(From: from, To: to), CancellationToken.None);
@@ -224,12 +224,12 @@ public class GetIncomesHandlerTests
     public async Task Handle_NoFilters_ReturnsAll()
     {
         var tenantId = Guid.NewGuid();
-        _repoMock.Setup(r => r.GetAllAsync(tenantId)).ReturnsAsync(new List<Income>().AsReadOnly());
+        _repoMock.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Income>().AsReadOnly());
 
         var result = await _sut.Handle(new GetIncomesQuery(TenantId: tenantId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _repoMock.Verify(r => r.GetAllAsync(tenantId), Times.Once);
+        _repoMock.Verify(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 

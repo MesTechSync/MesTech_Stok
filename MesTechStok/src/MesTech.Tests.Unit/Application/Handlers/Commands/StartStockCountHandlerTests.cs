@@ -58,7 +58,7 @@ public class StartStockCountHandlerTests
     public async Task Handle_WithWarehouse_ShouldSetWarehouseName()
     {
         var wh = new Warehouse { Name = "Ana Depo", TenantId = Guid.NewGuid() };
-        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id)).ReturnsAsync(wh);
+        _warehouseRepo.Setup(r => r.GetByIdAsync(wh.Id, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
         _productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
 

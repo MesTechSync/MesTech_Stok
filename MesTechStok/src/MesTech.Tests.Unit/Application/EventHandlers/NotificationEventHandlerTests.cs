@@ -301,7 +301,7 @@ public class OrderCancelledStockRestorationHandlerTests
     public async Task HandleAsync_OrderNotFound_ShouldReturnEarlyWithoutSaving()
     {
         var sut = CreateSut();
-        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "test reason", CancellationToken.None);
 

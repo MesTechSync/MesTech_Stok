@@ -31,7 +31,7 @@ public class ListOrdersHandlerTests
     public async Task Handle_NoFilters_UsesLast30DaysRange()
     {
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>().AsReadOnly());
 
         var handler = new ListOrdersHandler(_orderRepo.Object);
@@ -40,7 +40,8 @@ public class ListOrdersHandlerTests
         result.Should().NotBeNull();
         _orderRepo.Verify(r => r.GetByDateRangeAsync(
             It.Is<DateTime>(d => d < DateTime.UtcNow.AddDays(-29)),
-            It.Is<DateTime>(d => d >= DateTime.UtcNow.AddMinutes(-1))),
+            It.Is<DateTime>(d => d >= DateTime.UtcNow.AddMinutes(-1)),
+            It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -50,7 +51,7 @@ public class ListOrdersHandlerTests
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to   = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(from, to))
+            .Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order> { CreateOrder("ORD-0001", OrderStatus.Confirmed, from) }.AsReadOnly());
 
         var handler = new ListOrdersHandler(_orderRepo.Object);
@@ -58,7 +59,7 @@ public class ListOrdersHandlerTests
 
         result.Should().HaveCount(1);
         result[0].OrderNumber.Should().Be("ORD-0001");
-        _orderRepo.Verify(r => r.GetByDateRangeAsync(from, to), Times.Once);
+        _orderRepo.Verify(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -72,7 +73,7 @@ public class ListOrdersHandlerTests
         }.AsReadOnly();
 
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
 
         var handler = new ListOrdersHandler(_orderRepo.Object);
@@ -92,7 +93,7 @@ public class ListOrdersHandlerTests
         }.AsReadOnly();
 
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
 
         var handler = new ListOrdersHandler(_orderRepo.Object);
@@ -111,7 +112,7 @@ public class ListOrdersHandlerTests
         }.AsReadOnly();
 
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
 
         var handler = new ListOrdersHandler(_orderRepo.Object);
@@ -125,7 +126,7 @@ public class ListOrdersHandlerTests
     public async Task Handle_EmptyRepository_ReturnsEmpty()
     {
         _orderRepo
-            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>().AsReadOnly());
 
         var handler = new ListOrdersHandler(_orderRepo.Object);

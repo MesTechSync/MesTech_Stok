@@ -26,7 +26,7 @@ public class UpdateCariHesapHandlerTests
     [Fact]
     public async Task Handle_NotFound_ShouldReturnFalse()
     {
-        _cariRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((CariHesap?)null);
+        _cariRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((CariHesap?)null);
         var cmd = new UpdateCariHesapCommand(Guid.NewGuid(), "Test", null, CariHesapType.Musteri, null, null, null);
 
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -38,7 +38,7 @@ public class UpdateCariHesapHandlerTests
     public async Task Handle_HappyPath_ShouldUpdateAndReturnTrue()
     {
         var cari = new CariHesap { Name = "Old", TenantId = Guid.NewGuid(), Type = CariHesapType.Musteri };
-        _cariRepo.Setup(r => r.GetByIdAsync(cari.Id)).ReturnsAsync(cari);
+        _cariRepo.Setup(r => r.GetByIdAsync(cari.Id, It.IsAny<CancellationToken>())).ReturnsAsync(cari);
 
         var cmd = new UpdateCariHesapCommand(
             cari.Id, "Yeni Müşteri", "1234567890", CariHesapType.Tedarikci,

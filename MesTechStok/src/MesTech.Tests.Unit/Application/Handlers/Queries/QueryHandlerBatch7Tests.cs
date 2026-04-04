@@ -55,7 +55,7 @@ public class GetProductsHandlerTests
     [Fact]
     public async Task Handle_SearchTerm_ShouldUseSearchAsync()
     {
-        _productRepo.Setup(r => r.SearchAsync("laptop"))
+        _productRepo.Setup(r => r.SearchAsync("laptop", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { FakeData.CreateProduct(sku: "LAPTOP-1") });
 
         var handler = new GetProductsHandler(_productRepo.Object);
@@ -63,7 +63,7 @@ public class GetProductsHandlerTests
             new GetProductsQuery(Guid.NewGuid(), SearchTerm: "laptop"), CancellationToken.None);
 
         result.Items.Should().HaveCount(1);
-        _productRepo.Verify(r => r.SearchAsync("laptop"), Times.Once);
+        _productRepo.Verify(r => r.SearchAsync("laptop", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

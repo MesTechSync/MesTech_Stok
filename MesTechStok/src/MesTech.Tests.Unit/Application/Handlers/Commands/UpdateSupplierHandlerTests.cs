@@ -22,7 +22,7 @@ public class UpdateSupplierHandlerTests
     [Fact]
     public async Task Handle_SupplierNotFound_ShouldReturnFailure()
     {
-        _supplierRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Supplier?)null);
+        _supplierRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Supplier?)null);
         var cmd = new UpdateSupplierCommand(Guid.NewGuid(), "Test", "TST");
 
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -35,7 +35,7 @@ public class UpdateSupplierHandlerTests
     public async Task Handle_HappyPath_ShouldUpdateAndReturnSuccess()
     {
         var supplier = new Supplier { Name = "Old", Code = "OLD", TenantId = Guid.NewGuid() };
-        _supplierRepo.Setup(r => r.GetByIdAsync(supplier.Id)).ReturnsAsync(supplier);
+        _supplierRepo.Setup(r => r.GetByIdAsync(supplier.Id, It.IsAny<CancellationToken>())).ReturnsAsync(supplier);
 
         var cmd = new UpdateSupplierCommand(
             supplier.Id, "Yeni Tedarikçi", "YT-01",

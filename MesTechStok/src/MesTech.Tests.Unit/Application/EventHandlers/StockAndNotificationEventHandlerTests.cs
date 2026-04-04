@@ -36,7 +36,7 @@ public class OrderPlacedStockDeductionHandlerTests
     public async Task HandleAsync_OrderNotFound_ShouldReturnEarlyWithoutSaving()
     {
         var sut = CreateSut();
-        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), "ORD-001", CancellationToken.None);
 
@@ -47,7 +47,7 @@ public class OrderPlacedStockDeductionHandlerTests
     public async Task HandleAsync_ShouldAcquireDistributedLock()
     {
         var sut = CreateSut();
-        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), "ORD-LOCK", CancellationToken.None);
 
@@ -179,7 +179,7 @@ public class ZeroStockDetectedEventHandlerTests
         var sut = CreateSut();
         var productId = Guid.NewGuid();
         var product = new Product { Name = "Zero Stock Product", SKU = "SKU-ZERO", TenantId = Guid.NewGuid() };
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         await sut.HandleAsync(productId, "SKU-ZERO", Guid.NewGuid(), CancellationToken.None);
 
@@ -190,7 +190,7 @@ public class ZeroStockDetectedEventHandlerTests
     public async Task HandleAsync_ProductNotFound_ShouldLogWarningAndReturn()
     {
         var sut = CreateSut();
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var act = async () => await sut.HandleAsync(
             Guid.NewGuid(), "SKU-MISSING", Guid.NewGuid(), CancellationToken.None);

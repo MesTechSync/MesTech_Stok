@@ -38,7 +38,7 @@ public class GetProfitLossHandlerTests
     public async Task Handle_NoOrdersNoExpenses_ShouldReturnZeros()
     {
         var tenantId = Guid.NewGuid();
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>());
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0m);
@@ -66,7 +66,7 @@ public class GetProfitLossHandlerTests
             CreateOrderWithAmount(tenantId, 2000m, OrderStatus.Delivered),
         };
 
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0m);
@@ -91,7 +91,7 @@ public class GetProfitLossHandlerTests
             CreateOrderWithAmount(otherTenant, 9999m),
         };
 
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0m);
@@ -116,7 +116,7 @@ public class GetProfitLossHandlerTests
             CreateOrderWithAmount(tenantId, 1000m, platform: PlatformType.Hepsiburada),
         };
 
-        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        _orderRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0m);

@@ -23,7 +23,7 @@ public class UpdateProductImageHandlerTests
     [Fact]
     public async Task Handle_ProductNotFound_ShouldReturnFailure()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new UpdateProductImageCommand(Guid.NewGuid(), "https://cdn.test.com/img.jpg");
 
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
@@ -36,7 +36,7 @@ public class UpdateProductImageHandlerTests
     public async Task Handle_HappyPath_ShouldUpdateImageUrl()
     {
         var product = FakeData.CreateProduct();
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var newUrl = "https://cdn.mestech.com/products/new-image.webp";
         var cmd = new UpdateProductImageCommand(product.Id, newUrl);

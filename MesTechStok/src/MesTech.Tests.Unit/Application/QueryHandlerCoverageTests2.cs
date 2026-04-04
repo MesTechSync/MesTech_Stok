@@ -42,7 +42,7 @@ public class GetExpenseByIdHandlerTests
             Date = DateTime.UtcNow
         };
         expense.SetAmount(5000m);
-        _repoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(expense);
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var result = await _sut.Handle(new GetExpenseByIdQuery(id), CancellationToken.None);
 
@@ -52,7 +52,7 @@ public class GetExpenseByIdHandlerTests
     [Fact]
     public async Task Handle_NonExistent_ReturnsNull()
     {
-        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Expense?)null);
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
 
         var result = await _sut.Handle(new GetExpenseByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
@@ -88,7 +88,7 @@ public class GetIncomeByIdHandlerTests
             Date = DateTime.UtcNow
         };
         income.SetAmount(8000m);
-        _repoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(income);
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var result = await _sut.Handle(new GetIncomeByIdQuery(id), CancellationToken.None);
 
@@ -98,7 +98,7 @@ public class GetIncomeByIdHandlerTests
     [Fact]
     public async Task Handle_NonExistent_ReturnsNull()
     {
-        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Income?)null);
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Income?)null);
 
         var result = await _sut.Handle(new GetIncomeByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
@@ -142,9 +142,9 @@ public class GetKarZararHandlerTests
         expense2.SetAmount(5_000m);
         var expenses = new List<Expense> { expense1, expense2 };
 
-        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(incomes.AsReadOnly());
-        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expenses.AsReadOnly());
 
         var result = await _sut.Handle(
@@ -163,9 +163,9 @@ public class GetKarZararHandlerTests
         var from = DateTime.UtcNow.AddMonths(-1);
         var to = DateTime.UtcNow;
 
-        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>().AsReadOnly());
-        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var result = await _sut.Handle(new GetKarZararQuery(from, to), CancellationToken.None);
@@ -187,9 +187,9 @@ public class GetKarZararHandlerTests
         var expense = new Expense { ExpenseType = ExpenseType.Kira, Date = DateTime.UtcNow };
         expense.SetAmount(25_000m);
 
-        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { income }.AsReadOnly());
-        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null))
+        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(from, to, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense> { expense }.AsReadOnly());
 
         var result = await _sut.Handle(new GetKarZararQuery(from, to), CancellationToken.None);
@@ -218,13 +218,13 @@ public class GetCariHesaplarHandlerTests
     public async Task Handle_NoFilter_ReturnsAll()
     {
         var tenantId = Guid.NewGuid();
-        _repoMock.Setup(r => r.GetAllAsync(tenantId))
+        _repoMock.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.CariHesap>().AsReadOnly());
 
         var result = await _sut.Handle(new GetCariHesaplarQuery(TenantId: tenantId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _repoMock.Verify(r => r.GetAllAsync(tenantId), Times.Once);
+        _repoMock.Verify(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -248,14 +248,14 @@ public class GetCariHareketlerHandlerTests
     public async Task Handle_NoDateRange_ReturnsByCariHesapId()
     {
         var cariHesapId = Guid.NewGuid();
-        _repoMock.Setup(r => r.GetByCariHesapIdAsync(cariHesapId))
+        _repoMock.Setup(r => r.GetByCariHesapIdAsync(cariHesapId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.CariHareket>().AsReadOnly());
 
         var result = await _sut.Handle(
             new GetCariHareketlerQuery(cariHesapId), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _repoMock.Verify(r => r.GetByCariHesapIdAsync(cariHesapId), Times.Once);
+        _repoMock.Verify(r => r.GetByCariHesapIdAsync(cariHesapId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -265,14 +265,14 @@ public class GetCariHareketlerHandlerTests
         var from = DateTime.UtcNow.AddMonths(-1);
         var to = DateTime.UtcNow;
 
-        _repoMock.Setup(r => r.GetByDateRangeAsync(cariHesapId, from, to))
+        _repoMock.Setup(r => r.GetByDateRangeAsync(cariHesapId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<MesTech.Domain.Entities.CariHareket>().AsReadOnly());
 
         var result = await _sut.Handle(
             new GetCariHareketlerQuery(cariHesapId, from, to), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _repoMock.Verify(r => r.GetByDateRangeAsync(cariHesapId, from, to), Times.Once);
+        _repoMock.Verify(r => r.GetByDateRangeAsync(cariHesapId, from, to, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 

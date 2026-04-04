@@ -58,7 +58,7 @@ public class GetInventoryPagedHandlerTests
         {
             FakeData.CreateProduct(sku: "SEARCH-001", stock: 20, minimumStock: 3)
         };
-        _productRepo.Setup(r => r.SearchAsync("SEARCH"))
+        _productRepo.Setup(r => r.SearchAsync("SEARCH", It.IsAny<CancellationToken>()))
             .ReturnsAsync(products.AsReadOnly());
         SetupEmptyCategories();
 
@@ -69,7 +69,7 @@ public class GetInventoryPagedHandlerTests
 
         // Assert
         result.Items.Should().HaveCount(1);
-        _productRepo.Verify(r => r.SearchAsync("SEARCH"), Times.Once);
+        _productRepo.Verify(r => r.SearchAsync("SEARCH", It.IsAny<CancellationToken>()), Times.Once);
         _productRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

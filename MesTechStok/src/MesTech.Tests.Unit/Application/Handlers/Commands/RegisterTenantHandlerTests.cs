@@ -41,7 +41,7 @@ public class RegisterTenantHandlerTests
     [Fact]
     public async Task Handle_DuplicateUsername_ShouldThrow()
     {
-        _userRepo.Setup(r => r.GetByUsernameAsync("existing"))
+        _userRepo.Setup(r => r.GetByUsernameAsync("existing", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new User { Username = "existing" });
 
         var cmd = new RegisterTenantCommand("Test Co", null, "existing", "test@test.com", "Pass123!");
@@ -55,7 +55,7 @@ public class RegisterTenantHandlerTests
     [Fact]
     public async Task Handle_HappyPath_ShouldReturnAllIds()
     {
-        _userRepo.Setup(r => r.GetByUsernameAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+        _userRepo.Setup(r => r.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
         SetupDefaultPlans();
 
         var cmd = new RegisterTenantCommand(
@@ -75,7 +75,7 @@ public class RegisterTenantHandlerTests
     [Fact]
     public async Task Handle_NoActivePlan_ShouldThrow()
     {
-        _userRepo.Setup(r => r.GetByUsernameAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+        _userRepo.Setup(r => r.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
         _planRepo.Setup(r => r.GetActiveAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SubscriptionPlan>());
 

@@ -30,7 +30,7 @@ public class MapProductToPlatformHandlerTests
     [Fact]
     public async Task Handle_ProductNotFound_ShouldThrowKeyNotFound()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new MapProductToPlatformCommand(Guid.NewGuid(), PlatformType.Trendyol, "CAT-001");
 
         var act = () => CreateSut().Handle(cmd, CancellationToken.None);
@@ -42,7 +42,7 @@ public class MapProductToPlatformHandlerTests
     public async Task Handle_HappyPath_ShouldCreateMappingAndSave()
     {
         var product = FakeData.CreateProduct();
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         ProductPlatformMapping? captured = null;
         _productRepo.Setup(r => r.AddPlatformMappingAsync(It.IsAny<ProductPlatformMapping>(), It.IsAny<CancellationToken>()))
