@@ -1,14 +1,15 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:dto="using:MesTech.Application.DTOs.Crm"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.CampaignAvaloniaView"
              x:Name="RootCampaignAvaloniaView"
              x:DataType="vm:CampaignAvaloniaViewModel"
              AutomationProperties.Name="Kampanya Yonetim Ekrani">
-<UserControl.KeyBindings>
+<base:BaseView.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-</UserControl.KeyBindings>
+</base:BaseView.KeyBindings>
 
     <!-- G105: Kampanya Yönetim Ekranı -->
     <Panel>
@@ -30,7 +31,7 @@
         </StackPanel>
     </Border>
 
-    <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="24,16">
 
         <!-- Header -->
@@ -118,4 +119,4 @@
     </Grid>
     </ScrollViewer>
     </Panel>
-</UserControl>
+</base:BaseView>

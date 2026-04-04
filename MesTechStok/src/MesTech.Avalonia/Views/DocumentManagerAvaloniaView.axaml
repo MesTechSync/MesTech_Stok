@@ -70,7 +70,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Belge Adi" Binding="{Binding Name}" Width="220" />
                     <DataGridTextColumn Header="Klasor" Binding="{Binding Folder}" Width="130" />

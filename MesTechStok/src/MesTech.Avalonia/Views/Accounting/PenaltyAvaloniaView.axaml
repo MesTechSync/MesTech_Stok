@@ -1,11 +1,12 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels.Accounting"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.Accounting.PenaltyAvaloniaView"
              x:Name="RootPenaltyAvaloniaView"
              x:DataType="vm:PenaltyAvaloniaViewModel">
-<UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </UserControl.KeyBindings>
+<base:BaseView.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />    </base:BaseView.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -135,4 +136,4 @@
             </StackPanel>
         </Border>
     </Grid>
-</UserControl>
+</base:BaseView>

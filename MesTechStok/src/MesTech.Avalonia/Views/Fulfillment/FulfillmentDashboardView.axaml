@@ -26,7 +26,7 @@
         </Border>
 
         <!-- Row 1: KPI Cards -->
-        <Border Grid.Row="1" Padding="20,16" IsVisible="{Binding !IsLoading}">
+        <Border Grid.Row="1" Padding="20,16">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- FBA Stok -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
@@ -89,7 +89,7 @@
                       IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True" GridLinesVisibility="Horizontal"
                       Background="{DynamicResource MesBgPrimary}"
                       BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="180" />
                     <DataGridTextColumn Header="Mevcut" Binding="{Binding AvailableQuantity}" Width="100" />

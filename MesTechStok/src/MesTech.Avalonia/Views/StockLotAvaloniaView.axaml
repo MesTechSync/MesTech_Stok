@@ -142,7 +142,7 @@
                     <!-- Empty State -->
                     <TextBlock Text="Stok verisi bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
                                Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                               IsVisible="{Binding !IsLoading}" />
+                               />
                 </Grid>
                 </Grid>
             </Border>

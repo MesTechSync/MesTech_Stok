@@ -58,7 +58,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fatura No" Binding="{Binding FaturaNo}" Width="170" />
                 <DataGridTextColumn Header="Tarih" Binding="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120" />

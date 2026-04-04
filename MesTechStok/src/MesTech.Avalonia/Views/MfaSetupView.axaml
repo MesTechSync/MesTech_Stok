@@ -1,14 +1,15 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.MfaSetupView"
              x:Name="RootMfaSetupView"
              x:DataType="vm:MfaSetupViewModel"
              AutomationProperties.Name="MFA Iki Faktorlu Kimlik Dogrulama Ayarlari">
 
-    <UserControl.KeyBindings>
+    <base:BaseView.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-    </UserControl.KeyBindings>
+    </base:BaseView.KeyBindings>
 
     <!-- STD006: MFA Setup — QR kod + TOTP doğrulama -->
 
@@ -23,7 +24,7 @@
     </Border>
 
     <!-- Main Content -->
-    <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel MaxWidth="540" Margin="40,24" Spacing="20" HorizontalAlignment="Center">
 
         <!-- Header -->
@@ -139,4 +140,4 @@
     </StackPanel>
     </ScrollViewer>
     </Panel>
-</UserControl>
+</base:BaseView>

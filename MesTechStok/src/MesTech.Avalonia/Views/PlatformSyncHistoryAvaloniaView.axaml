@@ -1,14 +1,15 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.PlatformSyncHistoryAvaloniaView"
              x:Name="RootPlatformSyncHistoryAvaloniaView"
              x:DataType="vm:PlatformSyncHistoryAvaloniaViewModel"
              AutomationProperties.Name="Platform Senkronizasyon Gecmisi">
-<UserControl.KeyBindings>
+<base:BaseView.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-</UserControl.KeyBindings>
+</base:BaseView.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -115,4 +116,4 @@
         </DataGrid>
 
     </Grid>
-</UserControl>
+</base:BaseView>

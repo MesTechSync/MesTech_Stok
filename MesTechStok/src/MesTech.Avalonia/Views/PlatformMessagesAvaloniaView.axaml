@@ -57,7 +57,7 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{StaticResource FontSizeBody}" />
 
             <!-- Master-Detail Layout -->
-            <Grid ColumnDefinitions="360,*" IsVisible="{Binding !IsLoading}">
+            <Grid ColumnDefinitions="360,*">
 
                 <!-- Left: Message List -->
                 <Border Grid.Column="0" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,1,0">

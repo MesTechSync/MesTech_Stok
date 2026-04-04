@@ -41,7 +41,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Platform" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
@@ -86,7 +86,7 @@
         <!-- Empty State -->
         <TextBlock Grid.Row="1" Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                   IsVisible="{Binding !IsLoading}" />
+                   />
 
         <!-- Loading Skeleton -->
         <Border Grid.Row="0" Grid.RowSpan="2"

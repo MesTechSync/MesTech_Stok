@@ -49,7 +49,7 @@
                 </Border>
 
                 <!-- KPI Cards -->
-                <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
+                <UniformGrid Columns="4">
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
@@ -81,7 +81,7 @@
                 </UniformGrid>
 
                 <!-- AI Tools + Recent Predictions -->
-                <Grid ColumnDefinitions="*,*" IsVisible="{Binding !IsLoading}">
+                <Grid ColumnDefinitions="*,*">
                     <!-- AI Tools -->
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
@@ -164,7 +164,7 @@
                 <!-- Last Updated -->
                 <TextBlock Text="{Binding LastUpdated, StringFormat='Son guncelleme: {0}'}"
                            FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
-                           IsVisible="{Binding !IsLoading}" />
+                           />
 
             </StackPanel>
         </ScrollViewer>

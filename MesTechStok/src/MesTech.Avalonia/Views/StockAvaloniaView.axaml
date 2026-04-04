@@ -38,7 +38,7 @@
         <Grid Grid.Row="2">
             <!-- Stock Summary -->
             <StackPanel VerticalAlignment="Top" Margin="20" Spacing="12"
-                        IsVisible="{Binding !IsLoading}">
+                       >
                 <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap" Opacity="0.7" />
                 <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} stok kalemi'}" FontSize="{StaticResource FontSizeCallout}" Opacity="0.5" />
             </StackPanel>

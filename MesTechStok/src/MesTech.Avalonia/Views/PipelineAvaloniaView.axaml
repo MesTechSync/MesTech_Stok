@@ -50,7 +50,7 @@
                            HorizontalAlignment="Center" Margin="0,40" FontSize="{StaticResource FontSizeBody}" />
 
                 <!-- Pipeline Stages as horizontal bars -->
-                <ItemsControl ItemsSource="{Binding Stages}" IsVisible="{Binding !IsLoading}">
+                <ItemsControl ItemsSource="{Binding Stages}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:PipelineStageVm">
                             <Border Margin="0,0,0,12" Padding="20" Background="{DynamicResource MesBgPrimary}"

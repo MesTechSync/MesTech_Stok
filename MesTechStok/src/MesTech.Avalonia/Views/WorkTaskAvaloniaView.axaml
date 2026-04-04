@@ -64,7 +64,7 @@
         <!-- Empty State -->
         <TextBlock Grid.Row="2" Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                   IsVisible="{Binding !IsLoading}" />
+                   />
 
         <!-- Empty State -->
         <Border Grid.Row="2"

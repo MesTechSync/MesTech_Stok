@@ -49,7 +49,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Sipariş No" Binding="{Binding OrderId}" Width="140" />
                 <DataGridTextColumn Header="Müşteri" Binding="{Binding Customer}" Width="160" />

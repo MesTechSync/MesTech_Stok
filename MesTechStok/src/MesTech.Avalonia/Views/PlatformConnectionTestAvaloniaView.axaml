@@ -1,14 +1,15 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.PlatformConnectionTestAvaloniaView"
              x:Name="RootPlatformConnectionTestAvaloniaView"
              x:DataType="vm:PlatformConnectionTestAvaloniaViewModel"
              AutomationProperties.Name="Platform Baglanti Testi">
-<UserControl.KeyBindings>
+<base:BaseView.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-</UserControl.KeyBindings>
+</base:BaseView.KeyBindings>
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -156,4 +157,4 @@
             </ItemsControl>
         </ScrollViewer>
     </Grid>
-</UserControl>
+</base:BaseView>

@@ -53,7 +53,7 @@
             <!-- Kanban Columns -->
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Disabled"
-                          IsVisible="{Binding !IsLoading}">
+                         >
                 <ItemsControl ItemsSource="{Binding Columns}" Margin="16">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

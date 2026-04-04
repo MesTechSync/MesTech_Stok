@@ -50,7 +50,7 @@
             </Border>
 
             <!-- Main Content -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding !IsLoading}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="16">
 
                     <!-- Summary Card -->

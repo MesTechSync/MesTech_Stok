@@ -59,7 +59,7 @@
                            HorizontalAlignment="Center" Margin="0,40" FontSize="{StaticResource FontSizeBody}" />
 
                 <!-- Timeline -->
-                <ItemsControl ItemsSource="{Binding Activities}" IsVisible="{Binding !IsLoading}">
+                <ItemsControl ItemsSource="{Binding Activities}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ActivityItemVm">
                             <Border Margin="0,0,0,12" Padding="16" Background="{DynamicResource MesBgPrimary}"

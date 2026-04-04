@@ -54,7 +54,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="140" />
                 <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />

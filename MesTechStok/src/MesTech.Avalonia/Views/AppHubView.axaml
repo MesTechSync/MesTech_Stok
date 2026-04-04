@@ -1,14 +1,15 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
              x:Class="MesTech.Avalonia.Views.AppHubView"
              x:Name="RootAppHubView"
              x:DataType="vm:AppHubViewModel"
              AutomationProperties.Name="Ana Sayfa Hub Karsilama Ekrani">
-<UserControl.KeyBindings>
+<base:BaseView.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-</UserControl.KeyBindings>
+</base:BaseView.KeyBindings>
 
     <!-- G098: App Hub — Login sonrası ana karşılama ekranı -->
 
@@ -49,7 +50,7 @@
     </Border>
 
     <!-- Main Content -->
-    <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="24,16" Background="Transparent">
 
         <!-- Row 0: Greeting Header -->
@@ -307,4 +308,4 @@
     </Grid>
     </ScrollViewer>
     </Panel>
-</UserControl>
+</base:BaseView>

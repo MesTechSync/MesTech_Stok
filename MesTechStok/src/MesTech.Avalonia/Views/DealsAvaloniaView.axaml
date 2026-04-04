@@ -81,7 +81,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Firsat Adi" Binding="{Binding Title}" Width="200" />
                     <DataGridTextColumn Header="Kisi" Binding="{Binding ContactName}" Width="150" />

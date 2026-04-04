@@ -69,7 +69,7 @@
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="140" />
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" />

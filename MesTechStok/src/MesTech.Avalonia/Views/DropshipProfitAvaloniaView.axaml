@@ -44,7 +44,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Ürün" Binding="{Binding ProductName}" Width="*" />
                 <DataGridTextColumn Header="Adet" Binding="{Binding QuantitySold}" Width="80" />

@@ -70,7 +70,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Proje Adi" Binding="{Binding Name}" Width="220" />
                     <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
@@ -83,7 +83,7 @@
                     <!-- Empty State -->
                     <TextBlock Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
                                Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                               IsVisible="{Binding !IsLoading}" />
+                               />
                 </Grid>
         </Grid>
     </Grid>

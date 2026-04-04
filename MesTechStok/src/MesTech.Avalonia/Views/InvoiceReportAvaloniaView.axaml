@@ -128,7 +128,7 @@
                   Background="{DynamicResource SurfaceBrush}"
                   Margin="16,0,16,16"
                   CornerRadius="{StaticResource CornerRadiusLarge}"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="200"/>
                 <DataGridTextColumn Header="Fatura Sayisi" Binding="{Binding InvoiceCount}" Width="140"/>

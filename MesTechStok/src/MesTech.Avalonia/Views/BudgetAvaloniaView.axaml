@@ -62,7 +62,7 @@
       <Panel>
         <DataGrid ItemsSource="{Binding Items}" IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True" AutoGenerateColumns="False"
                   GridLinesVisibility="Horizontal" BorderThickness="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
           <DataGrid.Columns>
             <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="*"/>
             <DataGridTextColumn Header="Butce" Binding="{Binding BudgetFormatted}" Width="120"/>

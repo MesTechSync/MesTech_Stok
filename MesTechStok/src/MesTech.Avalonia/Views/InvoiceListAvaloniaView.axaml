@@ -72,7 +72,7 @@
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
                   Background="{DynamicResource SurfaceBrush}"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="170"/>
                 <DataGridTextColumn Header="Alici" Binding="{Binding RecipientName}" Width="240"/>
