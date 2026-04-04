@@ -62,15 +62,30 @@ public sealed class TrendyolClaimSyncJob : ISyncJob
             }
 
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            int created = 0, skipped = 0;
+            int created = 0, updated = 0, skipped = 0;
+
+            // Mevcut iadeleri tek sorguda çek (N+1 query önleme)
+            var existingReturns = await _returnRepo.GetByTenantAsync(tenantId, 5000, ct).ConfigureAwait(false);
+            var existingMap = existingReturns
+                .Where(r => r.PlatformReturnId is not null)
+                .ToDictionary(r => r.PlatformReturnId!, r => r);
 
             foreach (var dto in claims)
             {
-                // Duplicate check — PlatformReturnId ile
-                var existingList = await _returnRepo.GetByTenantAsync(tenantId, 1000, ct).ConfigureAwait(false);
-                if (existingList.Any(r => r.PlatformReturnId == dto.PlatformClaimId))
+                if (existingMap.TryGetValue(dto.PlatformClaimId, out var existing))
                 {
-                    skipped++;
+                    // Status/notes değişmişse güncelle
+                    var newNotes = $"Trendyol claim sync — {dto.Status}";
+                    if (existing.Notes != newNotes)
+                    {
+                        existing.Notes = newNotes;
+                        await _returnRepo.UpdateAsync(existing, ct).ConfigureAwait(false);
+                        updated++;
+                    }
+                    else
+                    {
+                        skipped++;
+                    }
                     continue;
                 }
 
@@ -87,14 +102,15 @@ public sealed class TrendyolClaimSyncJob : ISyncJob
                 };
 
                 await _returnRepo.AddAsync(returnReq, ct).ConfigureAwait(false);
+                existingMap[dto.PlatformClaimId] = returnReq;
                 created++;
             }
 
-            if (created > 0)
+            if (created > 0 || updated > 0)
                 await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
             _logger.LogInformation(
-                "[{JobId}] Trendyol iade sync tamamlandi: {Total} cekildi, {Created} olusturuldu, {Skipped} mevcut",
+                "[{JobId}] Trendyol iade sync tamamlandi: {Total} cekildi, {Created} yeni, {Updated} guncellendi, {Skipped} degismemis",
                 JobId, claims.Count, created, skipped);
         }
         catch (Exception ex)
