@@ -149,19 +149,28 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     }
 
     /// <summary>API çağrısını try-catch + DbContext concurrency guard ile sarmala.</summary>
+    /// <remarks>
+    /// G10810 FIX: action() UI thread dışında çalışır (DB deadlock önleme).
+    /// Sadece IsLoading/ClearError/SetError UI thread'de çalışır.
+    /// action() içindeki ObservableCollection mutations ConfigureAwait(false) sayesinde
+    /// SynchronizationContext yoksa direkt çalışır, varsa post eder.
+    /// </remarks>
     protected async Task SafeExecuteAsync(Func<Task> action, string context = "")
     {
         await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            // KÖK-4 FIX: ObservableCollection mutations + IsLoading must run on UI thread.
-            // action() may contain .Clear()/.Add() on ObservableCollections.
-            await RunOnUIAsync(async () =>
+            await RunOnUIAsync(() =>
             {
                 IsLoading = true;
                 ClearError();
-                await action().ConfigureAwait(false);
             });
+
+            // KÖK-4 + G10810: action runs on caller thread (not forced to UI).
+            // DB queries won't deadlock with UI dispatcher.
+            // ObservableCollection mutations inside action should use
+            // Dispatcher.UIThread.Post() if needed.
+            await action().ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -184,12 +193,13 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
         try
         {
-            await RunOnUIAsync(async () =>
+            await RunOnUIAsync(() =>
             {
                 IsLoading = true;
                 ClearError();
-                await action(CancellationToken).ConfigureAwait(false);
             });
+
+            await action(CancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
