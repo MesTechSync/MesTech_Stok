@@ -9,6 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://MesTech.Avalonia/Styles/MesTechTheme.axaml"/>
                 <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechDesignTokens.axaml"/>
+                <ResourceInclude Source="avares://MesTech.Avalonia/Themes/MesTechSpotlightTokens.axaml"/>
                 <!-- MesTechComponentStyles is a Styles resource, included via Application.Styles -->
             </ResourceDictionary.MergedDictionaries>
             <ResourceDictionary.ThemeDictionaries>
