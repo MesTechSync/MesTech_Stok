@@ -201,7 +201,12 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (options.UpdateExisting)
                         {
                             var product = await _dbContext.Set<Product>()
-                                .FirstAsync(p => p.Id == existingId, cancellationToken).ConfigureAwait(false);
+                                .FindAsync(new object[] { existingId }, cancellationToken).ConfigureAwait(false);
+                            if (product is null)
+                            {
+                                skippedCount++;
+                                continue;
+                            }
                             MapRowToProduct(ws, row, headerMap, product, options);
                             product.UpdatedAt = DateTime.UtcNow;
                             updatedCount++;
