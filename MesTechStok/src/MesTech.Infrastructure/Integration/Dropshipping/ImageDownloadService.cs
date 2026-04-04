@@ -19,7 +19,7 @@ public sealed class ImageDownloadService(
     ILogger<ImageDownloadService> logger
 ) : IImageDownloadService
 {
-    private readonly Dictionary<string, DownloadedImage> _hashCache = new();
+    private readonly ConcurrentDictionary<string, DownloadedImage> _hashCache = new();
 
     public async Task<ImageDownloadResult> DownloadBatchAsync(
         IEnumerable<string> imageUrls,
@@ -40,16 +40,13 @@ public sealed class ImageDownloadService(
                 var image = await DownloadWithPolicyAsync(url, options, ct).ConfigureAwait(false);
                 if (image is null) return;
 
-                // Hash-based dedup
-                if (options.DeduplicateByHash && _hashCache.ContainsKey(image.Sha256Hash))
+                // Hash-based dedup (ConcurrentDictionary — thread-safe)
+                if (options.DeduplicateByHash && !_hashCache.TryAdd(image.Sha256Hash, image))
                 {
                     Interlocked.Increment(ref duplicates);
                     logger.LogDebug("Duplicate image atlandı: {Hash}", image.Sha256Hash[..8]);
                     return;
                 }
-
-                if (options.DeduplicateByHash)
-                    _hashCache[image.Sha256Hash] = image;
 
                 // Diske kaydet (opsiyonel)
                 if (!string.IsNullOrEmpty(options.StoragePath))
