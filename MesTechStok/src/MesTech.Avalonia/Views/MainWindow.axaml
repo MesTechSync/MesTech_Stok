@@ -1792,8 +1792,8 @@
                         <DataTemplate DataType="vm:ProductDescriptionAIViewModel">
                             <views:ProductDescriptionAIView />
                         </DataTemplate>
-                        <DataTemplate DataType="vm:StaleOrdersAvaloniaViewModel">
-                            <views:StaleOrdersAvaloniaView />
+                        <DataTemplate DataType="monvm:StaleOrdersAvaloniaViewModel">
+                            <monviews:StaleOrdersAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
