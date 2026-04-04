@@ -297,8 +297,27 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void DemoLogin()
+    private async Task DemoLogin()
     {
+        try
+        {
+            IsLoginLoading = true;
+            var demoService = App.ServiceProvider?.GetService<IDemoModeService>();
+            if (demoService is not null)
+            {
+                var session = await demoService.CreateDemoSessionAsync();
+                _auditLogger.Log("DEMO_LOGIN", session.DemoUsername, true, $"TenantId={session.TenantId}, TTL={session.ExpiresAt:HH:mm}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WARNING] Demo session creation failed: {ex.Message}");
+        }
+        finally
+        {
+            IsLoginLoading = false;
+        }
+
         DemoLoginRequested?.Invoke();
     }
 
