@@ -494,6 +494,10 @@ namespace MesTechStok.Desktop.Views
                 GlobalLogger.Instance.LogError($"OrdersView başlatma hatası: {ex.Message}", "OrdersView");
                 ShowError($"Sipariş sistemi yüklenirken hata oluştu: {ex.Message}");
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private Task SetupAuthorizationsAsync()
@@ -570,6 +574,10 @@ namespace MesTechStok.Desktop.Views
             {
                 GlobalLogger.Instance.LogError($"Sipariş sayfası yükleme hatası: {ex.Message}", "OrdersView");
                 ShowError($"Sipariş verileri yüklenirken hata oluştu: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
