@@ -98,6 +98,12 @@
     <Color x:Key="MesTealMaterial">#00897B</Color>
     <Color x:Key="MesTealDark">#00695C</Color>
 
+    <!-- ═══ PLAN BADGE COLORS ═══ -->
+    <Color x:Key="MesBadgeLightBg">#E5E7EB</Color>
+    <Color x:Key="MesBadgeProStart">#3B82F6</Color>
+    <Color x:Key="MesBadgeProEnd">#2563EB</Color>
+    <Color x:Key="MesBadgeUltraEnd">#D97706</Color>
+
     <!-- ═══ STATUS COLORS ═══ -->
     <Color x:Key="MesSuccess">#34C759</Color>
     <Color x:Key="MesWarning">#FF9500</Color>

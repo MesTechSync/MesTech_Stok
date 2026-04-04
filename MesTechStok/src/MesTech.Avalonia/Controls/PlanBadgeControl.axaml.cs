@@ -32,6 +32,9 @@ public partial class PlanBadgeControl : UserControl
 
     private void OnTierChanged(object? sender, SubscriptionTier tier) => UpdateBadge(tier);
 
+    private static Color GetTokenColor(string key) =>
+        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+
     private void UpdateBadge(SubscriptionTier tier)
     {
         var border = this.FindControl<Border>("BadgeBorder");
@@ -42,11 +45,11 @@ public partial class PlanBadgeControl : UserControl
         switch (tier)
         {
             case SubscriptionTier.Light:
-                border.Background = new SolidColorBrush(Color.Parse("#E5E7EB"));
+                border.Background = new SolidColorBrush(GetTokenColor("MesBadgeLightBg"));
                 icon.Text = "○";
-                icon.Foreground = new SolidColorBrush(Color.Parse("#6B7280"));
+                icon.Foreground = new SolidColorBrush(GetTokenColor("MesCoolGray"));
                 text.Text = "Light";
-                text.Foreground = new SolidColorBrush(Color.Parse("#6B7280"));
+                text.Foreground = new SolidColorBrush(GetTokenColor("MesCoolGray"));
                 break;
 
             case SubscriptionTier.Pro:
@@ -56,8 +59,8 @@ public partial class PlanBadgeControl : UserControl
                     EndPoint = new global::Avalonia.RelativePoint(1, 1, global::Avalonia.RelativeUnit.Relative),
                     GradientStops =
                     {
-                        new GradientStop(Color.Parse("#3B82F6"), 0),
-                        new GradientStop(Color.Parse("#2563EB"), 1)
+                        new GradientStop(GetTokenColor("MesBadgeProStart"), 0),
+                        new GradientStop(GetTokenColor("MesBadgeProEnd"), 1)
                     }
                 };
                 icon.Text = "◆";
@@ -73,8 +76,8 @@ public partial class PlanBadgeControl : UserControl
                     EndPoint = new global::Avalonia.RelativePoint(1, 1, global::Avalonia.RelativeUnit.Relative),
                     GradientStops =
                     {
-                        new GradientStop(Color.Parse("#F59E0B"), 0),
-                        new GradientStop(Color.Parse("#D97706"), 1)
+                        new GradientStop(GetTokenColor("MesAmber"), 0),
+                        new GradientStop(GetTokenColor("MesBadgeUltraEnd"), 1)
                     }
                 };
                 icon.Text = "★";
