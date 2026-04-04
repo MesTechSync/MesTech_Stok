@@ -127,24 +127,15 @@
 
   private void HandleLogout()
   {
-    // Clear JWT auth state
     AuthStateProvider.MarkUserAsLoggedOut();
-    // Clear legacy AuthTokenStore for backward compatibility
-    MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Token = null;
-    MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Username = null;
     Navigation.NavigateTo("/login", forceLoad: false);
   }
 
   private string GetUsername()
   {
-    // Prefer JwtAuthenticationStateProvider, fall back to legacy AuthTokenStore
     if (AuthStateProvider.IsAuthenticated)
     {
       return AuthStateProvider.Username ?? "Kullanici";
-    }
-    if (MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.IsAuthenticated)
-    {
-      return MesTech.Blazor.Components.Pages.Auth.Login.AuthTokenStore.Username ?? "Kullanici";
     }
     return "Demo Kullanici";
   }

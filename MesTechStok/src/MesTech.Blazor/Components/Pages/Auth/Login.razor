@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject IHttpClientFactory HttpClientFactory
 @inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
 
 <PageTitle>MesTech - Giris</PageTitle>
@@ -105,8 +106,7 @@
     try
     {
       // Call WebApi /api/v1/auth/login for JWT token
-      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
-      using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
+      var httpClient = HttpClientFactory.CreateClient("MesTechApi");
 
       var response = await httpClient.PostAsJsonAsync("/api/v1/auth/login", new
       {
@@ -121,9 +121,6 @@
         {
           var username = loginModel.Username ?? result.Username ?? "Kullanici";
           AuthStateProvider.MarkUserAsAuthenticated(result.Token, username);
-          // Keep AuthTokenStore in sync for backward compatibility (MainLayout, etc.)
-          AuthTokenStore.Token = result.Token;
-          AuthTokenStore.Username = username;
           Navigation.NavigateTo("/dashboard", forceLoad: false);
         }
         else
@@ -166,15 +163,4 @@
   }
 
   private record LoginResponse(string? Token, string? Username, DateTime? ExpiresAt);
-
-  /// <summary>
-  /// In-memory token store for Blazor Server PoC.
-  /// Will be replaced with ProtectedLocalStorage + AuthenticationStateProvider in Dalga 11.
-  /// </summary>
-  public static class AuthTokenStore
-  {
-    public static string? Token { get; set; }
-    public static string? Username { get; set; }
-    public static bool IsAuthenticated => !string.IsNullOrEmpty(Token);
-  }
 }
