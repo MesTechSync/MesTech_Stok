@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -24,7 +25,7 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
     IPingableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter,
-    IWebhookCapableAdapter
+    IWebhookCapableAdapter, IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonTrAdapter> _logger;
@@ -1499,5 +1500,73 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogWarning(ex, "[AmazonTr] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
         return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Amazon SP-API.
+    /// Uses ProductReviews feed or Catalog Items API for review data.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("AmazonTrAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/products/reviews?sellerId={_sellerId}&pageSize={size}&pageToken={page}");
+                request.Headers.TryAddWithoutValidation("x-amz-access-token", _accessToken);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Amazon-Client/3.0");
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Amazon GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("payload", out var payArr) ? payArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("reviewId", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("asin", out var asin) ? asin.GetString()?.GetHashCode() ?? 0 : 0,
+                        Comment: item.TryGetProperty("body", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("reviewerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("date", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Amazon GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Amazon GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 }
