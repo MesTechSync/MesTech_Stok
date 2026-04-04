@@ -76,7 +76,7 @@ public static class InfrastructureServiceRegistration
         var rawConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
 
-        // G176: Pool exhaustion korumas� � Hangfire+Web+SignalR concurrent connections
+        // G176: Pool exhaustion koruması — Hangfire+Web+SignalR concurrent connections
         var connectionString = rawConnectionString?.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) == true
             ? rawConnectionString
             : rawConnectionString + ";MaxPoolSize=50;MinPoolSize=10;Connection Idle Lifetime=300";
