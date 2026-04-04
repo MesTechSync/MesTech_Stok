@@ -507,6 +507,8 @@ public static class HangfireConfig
             ("eBay",         "0 */4 * * *"),   // Uluslararası
             ("Ozon",         "0 */6 * * *"),   // Rusya — düşük hacim
             ("Etsy",         "0 */6 * * *"),   // Uluslararası — düşük hacim
+            ("WooCommerce",  "0 */6 * * *"),   // Self-hosted — düşük hacim
+            ("Zalando",      "0 */6 * * *"),   // Avrupa — düşük hacim
             // Shopify → kendi review schedule'ı var (Shopify API rate limit farklı)
         };
 
