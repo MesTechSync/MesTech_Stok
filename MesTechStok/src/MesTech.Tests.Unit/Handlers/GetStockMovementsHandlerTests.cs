@@ -26,7 +26,7 @@ public class GetStockMovementsHandlerTests
             new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = 10, CreatedAt = DateTime.UtcNow },
             new() { Id = Guid.NewGuid(), ProductId = productId, Quantity = -5, CreatedAt = DateTime.UtcNow }
         };
-        _movementRepoMock.Setup(r => r.GetByProductIdAsync(productId)).ReturnsAsync(movements.AsReadOnly());
+        _movementRepoMock.Setup(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(movements.AsReadOnly());
 
         var query = new GetStockMovementsQuery(ProductId: productId);
         var result = await _sut.Handle(query, CancellationToken.None);

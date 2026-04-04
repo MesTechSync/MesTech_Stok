@@ -41,7 +41,7 @@ public class InventoryQueryHandlerTests
     public async Task GetProductById_Found_ReturnsDto()
     {
         var product = new Product { Name = "Test", SKU = "SKU-1" };
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var sut = new GetProductByIdHandler(_productRepo.Object);
         var result = await sut.Handle(new GetProductByIdQuery(product.Id), CancellationToken.None);
@@ -53,7 +53,7 @@ public class InventoryQueryHandlerTests
     public async Task GetProductById_NotFound_ReturnsNull()
     {
         var id = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = new GetProductByIdHandler(_productRepo.Object);
         var result = await sut.Handle(new GetProductByIdQuery(id), CancellationToken.None);
@@ -67,7 +67,7 @@ public class InventoryQueryHandlerTests
     public async Task GetProductByBarcode_Found_ReturnsDto()
     {
         var product = new Product { Name = "Test", SKU = "SKU-BC" };
-        _productRepo.Setup(r => r.GetByBarcodeAsync("8680001")).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByBarcodeAsync("8680001", It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var sut = new GetProductByBarcodeHandler(_productRepo.Object);
         var result = await sut.Handle(new GetProductByBarcodeQuery("8680001"), CancellationToken.None);
@@ -78,7 +78,7 @@ public class InventoryQueryHandlerTests
     [Fact]
     public async Task GetProductByBarcode_NotFound_ReturnsNull()
     {
-        _productRepo.Setup(r => r.GetByBarcodeAsync("MISSING")).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByBarcodeAsync("MISSING", It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = new GetProductByBarcodeHandler(_productRepo.Object);
         var result = await sut.Handle(new GetProductByBarcodeQuery("MISSING"), CancellationToken.None);

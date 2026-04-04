@@ -24,14 +24,14 @@ public class ConvertQuotationToInvoiceHandlerTests
     public async Task Handle_NonExistentQuotation_ReturnsFail()
     {
         var quotationId = Guid.NewGuid();
-        _quotationRepoMock.Setup(r => r.GetByIdWithLinesAsync(quotationId)).ReturnsAsync((Quotation?)null);
+        _quotationRepoMock.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>())).ReturnsAsync((Quotation?)null);
 
         var cmd = new ConvertQuotationToInvoiceCommand(quotationId, "INV-001");
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
-        _invoiceRepoMock.Verify(r => r.AddAsync(It.IsAny<Invoice>()), Times.Never);
+        _invoiceRepoMock.Verify(r => r.AddAsync(It.IsAny<Invoice>(), It.IsAny<CancellationToken>()), Times.Never);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

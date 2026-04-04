@@ -45,7 +45,7 @@ public class RejectReturnHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _returnRepo.Verify(r => r.UpdateAsync(It.IsAny<ReturnRequest>()), Times.Once);
+        _returnRepo.Verify(r => r.UpdateAsync(It.IsAny<ReturnRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

@@ -22,7 +22,7 @@ public class StockHandlerTests
     public async Task AddStockLot_ValidCommand_CreatesLotAndMovement()
     {
         var product = new Product { Name = "Test", SKU = "TST-001", Stock = 10 };
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(
             product.Id, "LOT-001", 50, 25.50m, Guid.NewGuid(),
@@ -37,7 +37,7 @@ public class StockHandlerTests
     [Fact]
     public async Task AddStockLot_ProductNotFound_ReturnsError()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new AddStockLotCommand(Guid.NewGuid(), "LOT", 10, 10m);
         var handler = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
 
@@ -60,7 +60,7 @@ public class StockHandlerTests
     public async Task AdjustStock_ValidCommand_AdjustsAndRecords()
     {
         var product = new Product { Name = "Test", SKU = "ADJ-001", Stock = 100 };
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AdjustStockCommand(product.Id, -10, "Damaged", "admin");
         var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, Mock.Of<ILogger<AdjustStockHandler>>(), Mock.Of<ITenantProvider>());
@@ -73,7 +73,7 @@ public class StockHandlerTests
     [Fact]
     public async Task AdjustStock_ProductNotFound_Throws()
     {
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new AdjustStockCommand(Guid.NewGuid(), 5, "Test", "admin");
         var handler = new AdjustStockHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, Mock.Of<ILogger<AdjustStockHandler>>(), Mock.Of<ITenantProvider>());
 

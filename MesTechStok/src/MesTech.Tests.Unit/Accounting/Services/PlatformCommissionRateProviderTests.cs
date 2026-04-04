@@ -1,9 +1,10 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
 using MesTech.Domain.Accounting.Enums;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Accounting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -19,6 +20,7 @@ namespace MesTech.Tests.Unit.Accounting.Services;
 public class PlatformCommissionRateProviderTests
 {
     private readonly Mock<ISettlementBatchRepository> _repoMock;
+    private readonly IMemoryCache _cache;
     private readonly Mock<ILogger<PlatformCommissionRateProvider>> _loggerMock;
     private readonly PlatformCommissionRateProvider _sut;
 
@@ -27,8 +29,9 @@ public class PlatformCommissionRateProviderTests
     public PlatformCommissionRateProviderTests()
     {
         _repoMock = new Mock<ISettlementBatchRepository>();
+        _cache = new MemoryCache(new MemoryCacheOptions());
         _loggerMock = new Mock<ILogger<PlatformCommissionRateProvider>>();
-        _sut = new PlatformCommissionRateProvider(_repoMock.Object, _loggerMock.Object);
+        _sut = new PlatformCommissionRateProvider(_repoMock.Object, _cache, _loggerMock.Object);
     }
 
     private static SettlementBatch CreateBatch(
@@ -298,9 +301,19 @@ public class PlatformCommissionRateProviderTests
     [Fact]
     public void Constructor_NullRepository_ThrowsArgumentNullException()
     {
-        var act = () => new PlatformCommissionRateProvider(null!, _loggerMock.Object);
+        var act = () => new PlatformCommissionRateProvider(null!, _cache, _loggerMock.Object);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("settlementRepo");
+    }
+
+    // Test 19: Constructor null cache — ArgumentNullException
+    [Fact]
+    public void Constructor_NullCache_ThrowsArgumentNullException()
+    {
+        var act = () => new PlatformCommissionRateProvider(_repoMock.Object, null!, _loggerMock.Object);
+
+        act.Should().Throw<ArgumentNullException>()
+            .WithParameterName("cache");
     }
 }

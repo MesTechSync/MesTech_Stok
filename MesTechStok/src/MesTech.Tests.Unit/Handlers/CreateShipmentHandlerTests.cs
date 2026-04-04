@@ -157,7 +157,7 @@ public class CreateShipmentHandlerTests
         result.TrackingNumber.Should().Be("TRK-456");
         result.CargoBarcode.Should().Be("SHP-789");
 
-        _orderRepoMock.Verify(r => r.UpdateAsync(order), Times.Once);
+        _orderRepoMock.Verify(r => r.UpdateAsync(order, It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

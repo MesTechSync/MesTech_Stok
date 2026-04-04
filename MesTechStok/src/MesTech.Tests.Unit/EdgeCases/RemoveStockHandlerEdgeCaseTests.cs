@@ -85,7 +85,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_RemoveZeroQuantity_ShouldSucceedWithNoChange()
     {
         var product = FakeData.CreateProduct(stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 0);
@@ -100,7 +100,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_ShouldNotCallSaveChanges_WhenProductNotFound()
     {
         var id = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(id, 10);
@@ -108,14 +108,14 @@ public class RemoveStockHandlerEdgeCaseTests
         await handler.Handle(command, CancellationToken.None);
 
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Never);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_InsufficientStock_ShouldNotModifyProduct()
     {
         var product = FakeData.CreateProduct(sku: "GUARD-01", stock: 5);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 100);
@@ -124,18 +124,18 @@ public class RemoveStockHandlerEdgeCaseTests
 
         result.IsSuccess.Should().BeFalse();
         product.Stock.Should().Be(5); // Unchanged
-        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>()), Times.Never);
+        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_WithDocumentNumber_ShouldCaptureInMovement()
     {
         var product = FakeData.CreateProduct(stock: 100);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         StockMovement? captured = null;
-        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 10,
@@ -153,7 +153,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_CancellationToken_ShouldBePassedToSaveChanges()
     {
         var product = FakeData.CreateProduct(stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cts = new CancellationTokenSource();
         var handler = CreateHandler();

@@ -23,7 +23,7 @@ public class GetExpensesHandlerTests
     [Fact]
     public async Task Handle_WithType_CallsGetByType()
     {
-        _repo.Setup(r => r.GetByTypeAsync(ExpenseType.Kargo, _tenantId))
+        _repo.Setup(r => r.GetByTypeAsync(ExpenseType.Kargo, _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var query = new GetExpensesQuery(Type: ExpenseType.Kargo, TenantId: _tenantId);
@@ -31,7 +31,7 @@ public class GetExpensesHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         result.Should().NotBeNull();
-        _repo.Verify(r => r.GetByTypeAsync(ExpenseType.Kargo, _tenantId), Times.Once());
+        _repo.Verify(r => r.GetByTypeAsync(ExpenseType.Kargo, _tenantId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
@@ -39,27 +39,27 @@ public class GetExpensesHandlerTests
     {
         var from = DateTime.UtcNow.AddMonths(-1);
         var to = DateTime.UtcNow;
-        _repo.Setup(r => r.GetByDateRangeAsync(from, to, _tenantId))
+        _repo.Setup(r => r.GetByDateRangeAsync(from, to, _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var query = new GetExpensesQuery(from, to, TenantId: _tenantId);
 
         await _sut.Handle(query, CancellationToken.None);
 
-        _repo.Verify(r => r.GetByDateRangeAsync(from, to, _tenantId), Times.Once());
+        _repo.Verify(r => r.GetByDateRangeAsync(from, to, _tenantId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
     public async Task Handle_NoFilter_CallsGetAll()
     {
-        _repo.Setup(r => r.GetAllAsync(_tenantId))
+        _repo.Setup(r => r.GetAllAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var query = new GetExpensesQuery(TenantId: _tenantId);
 
         await _sut.Handle(query, CancellationToken.None);
 
-        _repo.Verify(r => r.GetAllAsync(_tenantId), Times.Once());
+        _repo.Verify(r => r.GetAllAsync(_tenantId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

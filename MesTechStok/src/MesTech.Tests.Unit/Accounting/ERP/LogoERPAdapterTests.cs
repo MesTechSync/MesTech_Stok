@@ -538,7 +538,7 @@ public class LogoERPAdapterTests
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
-        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId))
+        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
 
         SetupHttpResponse(HttpStatusCode.OK, "{\"id\":\"LOGO-INV-67890\",\"success\":true}");
@@ -557,7 +557,7 @@ public class LogoERPAdapterTests
     {
         // Arrange
         var invoiceId = Guid.NewGuid();
-        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId))
+        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((InvoiceEntity?)null);
 
         // Act
@@ -593,7 +593,7 @@ public class LogoERPAdapterTests
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
-        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId))
+        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
 
         SetupHttpResponse(HttpStatusCode.InternalServerError, "{\"error\":\"server error\"}");
@@ -620,7 +620,7 @@ public class LogoERPAdapterTests
         typeof(InvoiceEntity).GetProperty("Id")!.DeclaringType!
             .GetProperty("Id")!.SetValue(invoice, invoiceId);
 
-        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId))
+        _invoiceRepoMock.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(invoice);
 
         SetupHttpResponse(HttpStatusCode.Unauthorized, "{\"error\":\"unauthorized\"}");

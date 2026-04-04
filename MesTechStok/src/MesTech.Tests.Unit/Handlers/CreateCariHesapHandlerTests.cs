@@ -34,7 +34,7 @@ public class CreateCariHesapHandlerTests
         result.Should().NotBe(Guid.Empty);
         _repo.Verify(r => r.AddAsync(It.Is<CariHesap>(c =>
             c.Name == "ABC Ltd." && c.TaxNumber == "1234567890" &&
-            c.Type == CariHesapType.Musteri)), Times.Once());
+            c.Type == CariHesapType.Musteri), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -48,7 +48,7 @@ public class CreateCariHesapHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.Is<CariHesap>(c =>
-            c.Type == CariHesapType.Tedarikci)), Times.Once());
+            c.Type == CariHesapType.Tedarikci), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

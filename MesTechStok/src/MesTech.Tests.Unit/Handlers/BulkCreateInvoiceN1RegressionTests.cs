@@ -62,7 +62,7 @@ public class BulkCreateInvoiceN1RegressionTests
 
         // GetByIdAsync hiç çağrılmamış olmalı
         orderRepoMock.Verify(
-            r => r.GetByIdAsync(It.IsAny<Guid>()),
+            r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never,
             "G080 FIX: GetByIdAsync should not be called — batch method used instead");
     }

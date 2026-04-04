@@ -49,7 +49,7 @@ public class UpdateCommandTests
     {
         var repo = new Mock<ICariHesapRepository>();
         var uow = new Mock<IUnitOfWork>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((CariHesap?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((CariHesap?)null);
 
         var sut = new UpdateCariHesapHandler(repo.Object, uow.Object);
         var cmd = new UpdateCariHesapCommand(_id, "Test", null, CariHesapType.Musteri, null, null, null);
@@ -66,7 +66,7 @@ public class UpdateCommandTests
         var repo = new Mock<ICariHesapRepository>();
         var uow = new Mock<IUnitOfWork>();
         var entity = new CariHesap { Name = "Old" };
-        repo.Setup(r => r.GetByIdAsync(_id)).ReturnsAsync(entity);
+        repo.Setup(r => r.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
 
         var sut = new UpdateCariHesapHandler(repo.Object, uow.Object);
         var cmd = new UpdateCariHesapCommand(_id, "New", "123", CariHesapType.Musteri, "555", "a@b.com", "Addr");
@@ -75,7 +75,7 @@ public class UpdateCommandTests
 
         result.Should().BeTrue();
         entity.Name.Should().Be("New");
-        repo.Verify(r => r.UpdateAsync(entity), Times.Once);
+        repo.Verify(r => r.UpdateAsync(entity, It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -115,7 +115,7 @@ public class UpdateCommandTests
     {
         var repo = new Mock<IExpenseRepository>();
         var uow = new Mock<IUnitOfWork>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Expense?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
 
         var sut = new UpdateExpenseHandler(repo.Object, uow.Object);
         var cmd = new UpdateExpenseCommand(_id);
@@ -131,7 +131,7 @@ public class UpdateCommandTests
         var uow = new Mock<IUnitOfWork>();
         var expense = new Expense { Description = "Test", ExpenseType = ExpenseType.Kargo };
         expense.SetAmount(100m);
-        repo.Setup(r => r.GetByIdAsync(_id)).ReturnsAsync(expense);
+        repo.Setup(r => r.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var sut = new UpdateExpenseHandler(repo.Object, uow.Object);
         var cmd = new UpdateExpenseCommand(_id, Description: "Updated");
@@ -139,7 +139,7 @@ public class UpdateCommandTests
         await sut.Handle(cmd, CancellationToken.None);
 
         expense.Description.Should().Be("Updated");
-        repo.Verify(r => r.UpdateAsync(expense), Times.Once);
+        repo.Verify(r => r.UpdateAsync(expense, It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -150,7 +150,7 @@ public class UpdateCommandTests
     {
         var repo = new Mock<IIncomeRepository>();
         var uow = new Mock<IUnitOfWork>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Income?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Income?)null);
 
         var sut = new UpdateIncomeHandler(repo.Object, uow.Object);
         var cmd = new UpdateIncomeCommand(_id);
@@ -166,7 +166,7 @@ public class UpdateCommandTests
         var uow = new Mock<IUnitOfWork>();
         var income = new Income { Description = "Test", IncomeType = IncomeType.Satis };
         income.SetAmount(500m);
-        repo.Setup(r => r.GetByIdAsync(_id)).ReturnsAsync(income);
+        repo.Setup(r => r.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var sut = new UpdateIncomeHandler(repo.Object, uow.Object);
         var cmd = new UpdateIncomeCommand(_id, Description: "Updated");
@@ -174,7 +174,7 @@ public class UpdateCommandTests
         await sut.Handle(cmd, CancellationToken.None);
 
         income.Description.Should().Be("Updated");
-        repo.Verify(r => r.UpdateAsync(income), Times.Once);
+        repo.Verify(r => r.UpdateAsync(income, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // ═══════ UpdateFixedAssetHandler ═══════
@@ -355,7 +355,7 @@ public class UpdateCommandTests
     {
         var repo = new Mock<IProductRepository>();
         var uow = new Mock<IUnitOfWork>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = new UpdateProductImageHandler(repo.Object, uow.Object);
         var cmd = new UpdateProductImageCommand(_id, "http://img.com/test.png");
@@ -372,7 +372,7 @@ public class UpdateCommandTests
         var repo = new Mock<IProductRepository>();
         var uow = new Mock<IUnitOfWork>();
         var product = new Product { ImageUrl = "old.png" };
-        repo.Setup(r => r.GetByIdAsync(_id)).ReturnsAsync(product);
+        repo.Setup(r => r.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var sut = new UpdateProductImageHandler(repo.Object, uow.Object);
         var cmd = new UpdateProductImageCommand(_id, "http://img.com/new.png");

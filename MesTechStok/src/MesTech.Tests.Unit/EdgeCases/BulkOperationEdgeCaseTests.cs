@@ -81,7 +81,7 @@ public class BulkOperationEdgeCaseTests
         // Assert
         result.SuccessCount.Should().Be(1000);
         result.FailedCount.Should().Be(0);
-        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>()), Times.Exactly(1000));
+        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Exactly(1000));
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

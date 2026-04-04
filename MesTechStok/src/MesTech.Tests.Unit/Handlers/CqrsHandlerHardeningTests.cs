@@ -87,7 +87,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task CreateProductHandler_NullSKU_HandlesGracefully()
     {
-        _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
         var command = new CreateProductCommand(
@@ -105,7 +105,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task CreateProductHandler_ZeroPrices_ReturnsSuccess()
     {
-        _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetBySKUAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new CreateProductHandler(_productRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
         var command = new CreateProductCommand(
@@ -166,7 +166,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task AddStockHandler_NonExistentProduct_ReturnsFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new AddStockHandler(
             _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
@@ -186,7 +186,7 @@ public class CqrsHandlerHardeningTests
     public async Task AddStockHandler_ZeroQuantity_ExecutesWithoutError()
     {
         var product = new Product { Name = "Test", SKU = "T1", Stock = 10 };
-        _productRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = new AddStockHandler(
             _productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object, Mock.Of<ITenantProvider>());
@@ -243,7 +243,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task AutoShipOrderHandler_NonExistentOrder_ReturnsFailure()
     {
-        _orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Order?)null);
+        _orderRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var handler = new AutoShipOrderHandler(
             _orderRepoMock.Object, _autoShipmentServiceMock.Object,
@@ -480,7 +480,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task UpdateProductHandler_NonExistentProduct_ReturnsFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new UpdateProductHandler(_productRepoMock.Object, _uowMock.Object);
 
@@ -499,7 +499,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task DeleteProductHandler_NonExistentProduct_ReturnsFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new DeleteProductHandler(_productRepoMock.Object, _uowMock.Object);
 
@@ -514,7 +514,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task DeleteProductHandler_EmptyGuid_ReturnsFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(Guid.Empty)).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(Guid.Empty, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = new DeleteProductHandler(_productRepoMock.Object, _uowMock.Object);
 
@@ -544,7 +544,7 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task RemoveStockHandler_NonExistentProduct_ReturnsFailure()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var stockCalc = new StockCalculationService();
         var handler = new RemoveStockHandler(
@@ -800,7 +800,7 @@ public class CqrsHandlerHardeningTests
         var act = () => handler.Handle(command, CancellationToken.None);
         await act.Should().NotThrowAsync();
 
-        _cariHesapRepoMock.Verify(r => r.AddAsync(It.IsAny<CariHesap>()), Times.Once());
+        _cariHesapRepoMock.Verify(r => r.AddAsync(It.IsAny<CariHesap>(), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

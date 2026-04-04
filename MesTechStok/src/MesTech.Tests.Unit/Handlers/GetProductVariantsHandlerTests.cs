@@ -23,7 +23,7 @@ public class GetProductVariantsHandlerTests
     [Fact]
     public async Task Handle_ProductNotFound_ReturnsEmptyMatrix()
     {
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var result = await _sut.Handle(
@@ -37,7 +37,7 @@ public class GetProductVariantsHandlerTests
     public async Task Handle_TenantMismatch_ReturnsEmptyMatrix()
     {
         var product = new Product { Id = Guid.NewGuid(), TenantId = Guid.NewGuid(), Name = "Test" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var result = await _sut.Handle(
             new GetProductVariantsQuery(_tenantId, product.Id), CancellationToken.None);
@@ -60,7 +60,7 @@ public class GetProductVariantsHandlerTests
                 CreateVariant(productId, "TSH-M-BLUE", 5, 54.90m)
             }
         };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var result = await _sut.Handle(
             new GetProductVariantsQuery(_tenantId, productId), CancellationToken.None);

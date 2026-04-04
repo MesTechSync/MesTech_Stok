@@ -45,13 +45,13 @@ public class OrderToAccountingChainTests
         _stockCalc = new StockCalculationService();
 
         // Capture order on AddAsync
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => _capturedOrder = o)
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => _capturedOrder = o)
             .Returns(Task.CompletedTask);
 
         // Capture income on AddAsync
-        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => _capturedIncome = i)
+        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => _capturedIncome = i)
             .Returns(Task.CompletedTask);
 
         _placeOrderHandler = new PlaceOrderHandler(
@@ -129,7 +129,7 @@ public class OrderToAccountingChainTests
         _capturedIncome!.OrderId.Should().Be(orderId, "Income should reference the order");
         _capturedIncome.Amount.Should().Be(totalAmount, "Income amount should match order total");
         _capturedIncome.IncomeType.Should().Be(IncomeType.Satis, "Income type should be Satis");
-        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Once());
+        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
 
         // === STEP 3: CommissionChargedGL — commission expense GL entry ===

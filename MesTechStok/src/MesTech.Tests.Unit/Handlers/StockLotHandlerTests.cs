@@ -58,7 +58,7 @@ public class StockLotHandlerTests
     public async Task AddStockLot_ProductNotFound_ReturnsFailure()
     {
         var productId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10m);
@@ -128,7 +128,7 @@ public class StockLotHandlerTests
     public async Task ConvertQuotation_QuotationNotFound_ReturnsFailure()
     {
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId)).ReturnsAsync((Quotation?)null);
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>())).ReturnsAsync((Quotation?)null);
 
         var sut = new ConvertQuotationToInvoiceHandler(_quotationRepo.Object, _invoiceRepo.Object, _unitOfWork.Object);
         var cmd = new ConvertQuotationToInvoiceCommand(quotationId, "INV-001");

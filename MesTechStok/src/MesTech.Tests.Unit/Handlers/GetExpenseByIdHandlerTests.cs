@@ -22,19 +22,19 @@ public class GetExpenseByIdHandlerTests
     public async Task Handle_ExistingExpense_CallsRepository()
     {
         var expense = new Expense { Description = "Test" };
-        _repo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _repo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var result = await _sut.Handle(new GetExpenseByIdQuery(expense.Id), CancellationToken.None);
 
         result.Should().NotBeNull();
-        _repo.Verify(r => r.GetByIdAsync(expense.Id), Times.Once());
+        _repo.Verify(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
     public async Task Handle_NotFound_ReturnsNull()
     {
         var id = Guid.NewGuid();
-        _repo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Expense?)null);
+        _repo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
 
         var result = await _sut.Handle(new GetExpenseByIdQuery(id), CancellationToken.None);
 

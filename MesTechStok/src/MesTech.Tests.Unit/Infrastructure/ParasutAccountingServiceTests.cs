@@ -112,7 +112,7 @@ public class ParasutAccountingServiceTests
     public async Task PushIncomeAsync_IncomeNotFound_ReturnsFalseResult()
     {
         var incomeId = Guid.NewGuid();
-        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId)).ReturnsAsync((Income?)null);
+        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId, It.IsAny<CancellationToken>())).ReturnsAsync((Income?)null);
 
         var service = BuildService(new HttpClient());
         var result = await service.PushIncomeAsync(incomeId);
@@ -126,7 +126,7 @@ public class ParasutAccountingServiceTests
     {
         var incomeId = Guid.NewGuid();
         var income = MakeIncome(incomeId);
-        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId)).ReturnsAsync(income);
+        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var responseJson = """
             {
@@ -156,7 +156,7 @@ public class ParasutAccountingServiceTests
     {
         var incomeId = Guid.NewGuid();
         var income = MakeIncome(incomeId);
-        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId)).ReturnsAsync(income);
+        _incomeRepoMock.Setup(r => r.GetByIdAsync(incomeId, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
         {
@@ -176,7 +176,7 @@ public class ParasutAccountingServiceTests
     public async Task PushExpenseAsync_ExpenseNotFound_ReturnsFalseResult()
     {
         var expenseId = Guid.NewGuid();
-        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId)).ReturnsAsync((Expense?)null);
+        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId, It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
 
         var service = BuildService(new HttpClient());
         var result = await service.PushExpenseAsync(expenseId);
@@ -190,7 +190,7 @@ public class ParasutAccountingServiceTests
     {
         var expenseId = Guid.NewGuid();
         var expense = MakeExpense(expenseId);
-        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId)).ReturnsAsync(expense);
+        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var responseJson = """
             {
@@ -219,7 +219,7 @@ public class ParasutAccountingServiceTests
     {
         var expenseId = Guid.NewGuid();
         var expense = MakeExpense(expenseId);
-        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId)).ReturnsAsync(expense);
+        _expenseRepoMock.Setup(r => r.GetByIdAsync(expenseId, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.BadRequest)
         {

@@ -37,7 +37,7 @@ public class AdjustStockHandlerTests
         // Arrange
         var product = new Product { Name = "Test", SKU = "SKU-001", Stock = 50 };
         var productId = product.Id;
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var command = new AdjustStockCommand(productId, 10, "Recount", "admin");
 
@@ -46,8 +46,8 @@ public class AdjustStockHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Once());
-        _productRepo.Verify(r => r.UpdateAsync(product), Times.Once());
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Once());
+        _productRepo.Verify(r => r.UpdateAsync(product, It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -56,7 +56,7 @@ public class AdjustStockHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var command = new AdjustStockCommand(productId, 5);
 

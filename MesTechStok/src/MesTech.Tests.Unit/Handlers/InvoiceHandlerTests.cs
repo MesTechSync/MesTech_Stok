@@ -38,7 +38,7 @@ public class InvoiceHandlerTests
     {
         var repo = new Mock<IInvoiceRepository>();
         var logger = new Mock<ILogger<ApproveInvoiceHandler>>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((global::MesTech.Domain.Entities.Invoice?)null);
 
         var sut = new ApproveInvoiceHandler(repo.Object, new Mock<IUnitOfWork>().Object, logger.Object);

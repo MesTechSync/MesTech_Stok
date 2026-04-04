@@ -23,14 +23,14 @@ public class DeleteCategoryHandlerTests
     {
         var categoryId = Guid.NewGuid();
         var category = new Category { Id = categoryId, Name = "Test", Code = "TST" };
-        _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId)).ReturnsAsync(category);
+        _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId, It.IsAny<CancellationToken>())).ReturnsAsync(category);
 
         var cmd = new DeleteCategoryCommand(categoryId);
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.CategoryId.Should().Be(categoryId);
-        _categoryRepoMock.Verify(r => r.DeleteAsync(categoryId), Times.Once);
+        _categoryRepoMock.Verify(r => r.DeleteAsync(categoryId, It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -38,14 +38,14 @@ public class DeleteCategoryHandlerTests
     public async Task Handle_NonExistentCategory_ReturnsFail()
     {
         var categoryId = Guid.NewGuid();
-        _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId)).ReturnsAsync((Category?)null);
+        _categoryRepoMock.Setup(r => r.GetByIdAsync(categoryId, It.IsAny<CancellationToken>())).ReturnsAsync((Category?)null);
 
         var cmd = new DeleteCategoryCommand(categoryId);
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
-        _categoryRepoMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        _categoryRepoMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

@@ -32,7 +32,7 @@ public class CreateIncomeHandlerTests
 
         result.Should().NotBe(Guid.Empty);
         _repo.Verify(r => r.AddAsync(It.Is<Income>(i =>
-            i.TenantId == _tenantId && i.Description == "Satis geliri")), Times.Once());
+            i.TenantId == _tenantId && i.Description == "Satis geliri"), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -47,7 +47,7 @@ public class CreateIncomeHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.Is<Income>(i =>
-            i.InvoiceId == invoiceId)), Times.Once());
+            i.InvoiceId == invoiceId), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
@@ -59,6 +59,6 @@ public class CreateIncomeHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.Is<Income>(i =>
-            i.Date.Date == DateTime.UtcNow.Date)), Times.Once());
+            i.Date.Date == DateTime.UtcNow.Date), It.IsAny<CancellationToken>()), Times.Once());
     }
 }

@@ -24,9 +24,9 @@ public class FinanceQueryHandlerTests
     [Fact]
     public async Task GetKarZarar_CallsBothRepositories()
     {
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>().AsReadOnly());
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var sut = new GetKarZararHandler(_incomeRepo.Object, _expenseRepo.Object);

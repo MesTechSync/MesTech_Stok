@@ -72,7 +72,7 @@ public class StockExtraHandlerTests
     public async Task TransferStock_ProductNotFound_ReturnsFailure()
     {
         var productRepo = new Mock<IProductRepository>();
-        productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
         var movementRepo = new Mock<IStockMovementRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
@@ -144,7 +144,7 @@ public class StockExtraHandlerTests
     {
         var productId = Guid.NewGuid();
         var repo = new Mock<IStockMovementRepository>();
-        repo.Setup(r => r.GetByProductIdAsync(productId))
+        repo.Setup(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
 
         var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
@@ -152,7 +152,7 @@ public class StockExtraHandlerTests
         var result = await sut.Handle(query, CancellationToken.None);
 
         result.Should().BeEmpty();
-        repo.Verify(r => r.GetByProductIdAsync(productId), Times.Once());
+        repo.Verify(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     // ── GetStockAlertsHandler ──────────────────────────────────

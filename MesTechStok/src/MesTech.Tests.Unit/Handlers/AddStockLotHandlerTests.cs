@@ -24,7 +24,7 @@ public class AddStockLotHandlerTests
     {
         var productId = Guid.NewGuid();
         var product = new Product { Id = productId, Name = "Test", Description = "DESC", Stock = 10, TenantId = Guid.NewGuid(), SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10.5m);
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -66,7 +66,7 @@ public class AddStockLotHandlerTests
     public async Task Handle_ProductNotFound_ReturnsFail()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10m);
         var result = await _sut.Handle(cmd, CancellationToken.None);
