@@ -36,6 +36,30 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     [ObservableProperty]
     private string _title = string.Empty;
 
+    /// <summary>True when content should be visible (not loading, no error, not empty).</summary>
+    public bool HasContent => !IsLoading && !HasError && !IsEmpty;
+
+    // ── KN-6 FIX: Triple-state mutual exclusion ─────────────────────
+    // IsLoading/HasError/IsEmpty are mutually exclusive.
+    // When one goes true, the others become false.
+    partial void OnIsLoadingChanged(bool value)
+    {
+        if (value) { _hasError = false; _isEmpty = false; OnPropertyChanged(nameof(HasError)); OnPropertyChanged(nameof(IsEmpty)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
+    partial void OnHasErrorChanged(bool value)
+    {
+        if (value) { _isLoading = false; _isEmpty = false; OnPropertyChanged(nameof(IsLoading)); OnPropertyChanged(nameof(IsEmpty)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
+    partial void OnIsEmptyChanged(bool value)
+    {
+        if (value) { _isLoading = false; _hasError = false; OnPropertyChanged(nameof(IsLoading)); OnPropertyChanged(nameof(HasError)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
     /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.
     /// DB bağlantısı yokken crash önlemek için try-catch sarmalı.</summary>
     public virtual async Task InitializeAsync()
@@ -75,11 +99,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         ErrorMessage = string.Empty;
     }
 
-    /// <summary>Hata durumunu ayarla.</summary>
+    /// <summary>Hata durumunu ayarla. IsLoading ve IsEmpty otomatik false olur (KN-6).</summary>
     protected void SetError(string message)
     {
-        HasError = true;
         ErrorMessage = message;
+        HasError = true; // triggers mutual exclusion via OnHasErrorChanged
     }
 
     /// <summary>
