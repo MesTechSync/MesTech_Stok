@@ -32,7 +32,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private string _username = string.Empty;
-    private string _password = Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
+    private string _password = string.Empty;
     private string _customerCode = string.Empty;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
@@ -121,7 +121,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         ArgumentNullException.ThrowIfNull(credentials);
 
         _username = credentials.GetValueOrDefault("UserName", "");
-        _password = credentials.GetValueOrDefault("Password") ?? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
+        _password = credentials.GetValueOrDefault("Password", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
         var rawBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
@@ -160,7 +160,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             var tokenPayload = new
             {
                 username = _username,
-                password = string.IsNullOrEmpty(_password) ? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty : _password
+                password = _password
             };
 
             var json = JsonSerializer.Serialize(tokenPayload, _jsonOptions);
