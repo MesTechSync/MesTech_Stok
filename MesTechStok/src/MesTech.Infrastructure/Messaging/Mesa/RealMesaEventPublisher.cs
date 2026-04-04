@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.AI;
 using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Configuration;
@@ -18,13 +19,16 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
     private readonly HttpClient _httpClient;
     private readonly string _mesaEndpoint;
     private readonly string _apiKey;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<RealMesaEventPublisher> _logger;
     private readonly AsyncCircuitBreakerPolicy _circuitBreaker;
 
     public RealMesaEventPublisher(HttpClient httpClient,
-        IConfiguration config, ILogger<RealMesaEventPublisher> logger)
+        IConfiguration config, IMesaEventMonitor monitor,
+        ILogger<RealMesaEventPublisher> logger)
     {
         _httpClient = httpClient;
+        _monitor = monitor;
         _logger = logger;
         _mesaEndpoint = config["Mesa:BaseUrl"] ?? "http://localhost:3000";
         _apiKey = config["Mesa:ApiKey"] ?? string.Empty;
@@ -62,6 +66,7 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
                 }
                 else
                 {
+                    _monitor.RecordPublish(eventType);
                     _logger.LogInformation("MESA event gonderildi: {Type}", eventType);
                 }
             }).ConfigureAwait(false);
