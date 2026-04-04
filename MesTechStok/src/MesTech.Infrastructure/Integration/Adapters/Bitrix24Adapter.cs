@@ -192,7 +192,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
             // Lightweight test: get current user info
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -246,7 +246,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             var content = new FormUrlEncodedContent(
                 fields.Select(kvp => new KeyValuePair<string, string>($"fields[{kvp.Key}]", kvp.Value.ToString()!)));
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.product.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -289,7 +289,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     ["select[4]"] = "DESCRIPTION"
                 });
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "crm.product.list") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -351,7 +351,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 ["fields[PRICE]"] = newPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
             });
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.product.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -380,7 +380,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "catalog.section.list"),
                 ct).ConfigureAwait(false);
 
@@ -442,7 +442,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -486,7 +486,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
         // Bitrix24 contacts to enable incremental sync.
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.list"),
                 ct).ConfigureAwait(false);
 
@@ -531,7 +531,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 ["fields[STAGE_ID]"] = stageId
             });
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -580,7 +580,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
                 var content = new FormUrlEncodedContent(formFields);
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "batch") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -654,7 +654,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     ["handler"] = callbackUrl
                 });
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "event.bind") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -769,7 +769,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -822,7 +822,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -862,7 +862,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
         var content = new FormUrlEncodedContent(formFields);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.productrows.set") { Content = content },
             ct).ConfigureAwait(false);
 

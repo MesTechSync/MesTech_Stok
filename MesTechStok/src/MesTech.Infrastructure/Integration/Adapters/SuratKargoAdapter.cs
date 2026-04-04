@@ -147,7 +147,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!_isConfigured) return false;
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
@@ -187,7 +187,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v2/cargo/create");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -231,7 +231,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/api/v2/cargo/{trackingNumber}/status"), ct).ConfigureAwait(false);
 
@@ -285,7 +285,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete,
                 $"/api/v2/cargo/{shipmentId}"), ct).ConfigureAwait(false);
 
@@ -304,7 +304,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
                 $"/api/v2/cargo/{shipmentId}/label"), ct).ConfigureAwait(false);
 

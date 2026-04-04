@@ -211,7 +211,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!_isConfigured) return false;
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
@@ -251,7 +251,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -295,7 +295,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/api/v1/shipments/{trackingNumber}/tracking"), ct).ConfigureAwait(false);
 
@@ -356,7 +356,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label"), ct).ConfigureAwait(false);
 

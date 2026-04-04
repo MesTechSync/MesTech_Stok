@@ -166,7 +166,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             ConfigureAuth(credentials);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Products?PageSize=1&Page=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -222,7 +222,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         };
 
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products");
@@ -250,7 +250,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Products?PageSize={pageSize}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -297,7 +297,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items = new[] { new { stockCode = productId.ToString(), quantity = newStock } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock");
@@ -323,7 +323,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items = new[] { new { stockCode = productId.ToString(), salesPrice = newPrice } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price");
@@ -356,7 +356,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -423,7 +423,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { subOrderId = long.Parse(packageId), status };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status");
@@ -492,7 +492,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping");
@@ -529,7 +529,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -567,7 +567,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { returnId, status = "Approved" };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve");
@@ -596,7 +596,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { subOrderId, cancelReason = reason };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel");
@@ -628,7 +628,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         var json = JsonSerializer.Serialize(product, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products");
@@ -654,7 +654,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Products/{productId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -677,7 +677,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Categories"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -702,7 +702,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Categories/{categoryId}/attributes"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -734,7 +734,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch");
@@ -764,7 +764,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch");
@@ -792,7 +792,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Order/Tracking?orderId={orderId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -850,7 +850,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         {
             var url = $"/api/v1/settlement?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -929,7 +929,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             if (since.HasValue)
                 url += "?startDate=" + since.Value.ToString("yyyy-MM-dd'T'HH:mm:ss");
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -983,7 +983,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         EnsureConfigured();
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/approve"), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1011,7 +1011,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         try
         {
             var body = JsonSerializer.Serialize(new { reason }, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/reject")
@@ -1075,7 +1075,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             var payload = new { invoiceUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,
@@ -1115,7 +1115,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
             formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,

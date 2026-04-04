@@ -149,7 +149,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!_isConfigured) return false;
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => CreateAuthenticatedRequest(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
@@ -189,7 +189,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = CreateAuthenticatedRequest(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -235,7 +235,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => CreateAuthenticatedRequest(HttpMethod.Get,
                     $"/api/v1/tracking/{trackingNumber}"), ct).ConfigureAwait(false);
 
@@ -289,7 +289,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => CreateAuthenticatedRequest(HttpMethod.Delete,
                 $"/api/v1/shipments/{shipmentId}"), ct).ConfigureAwait(false);
 
@@ -318,7 +318,7 @@ public sealed class MngKargoAdapter : ICargoAdapter, ICargoRateProvider
             _ => ""
         };
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => CreateAuthenticatedRequest(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label{formatQuery}"), ct).ConfigureAwait(false);
 
