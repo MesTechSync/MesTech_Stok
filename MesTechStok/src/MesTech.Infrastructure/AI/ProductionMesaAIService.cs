@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -60,10 +61,12 @@ public sealed class ProductionMesaAIService : IMesaAIService
         string sku, string productName, string? category,
         List<string>? imageUrls, CancellationToken ct = default)
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.AiRequestTotal.Add(1, new KeyValuePair<string, object?>("operation", "description"));
                 var payload = new
                 {
                     sku,
@@ -109,6 +112,11 @@ public sealed class ProductionMesaAIService : IMesaAIService
                 "[MESA AI] MESA OS unreachable, falling back to mock (GenerateDescription, sku={SKU})", sku);
             return await _mockFallback.GenerateProductDescriptionAsync(
                 sku, productName, category, imageUrls, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            MesaMetrics.AiRequestDuration.Record(sw.Elapsed.TotalSeconds,
+                new KeyValuePair<string, object?>("operation", "description"));
         }
     }
 
