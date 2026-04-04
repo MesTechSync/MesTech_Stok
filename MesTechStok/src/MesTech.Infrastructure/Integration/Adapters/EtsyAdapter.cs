@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -28,7 +29,9 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// UpdatePrice  → PUT /v3/application/listings/{listingId} (price field)
 /// Categories   → GET /v3/application/seller-taxonomy/nodes
 /// </summary>
-public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EtsyAdapter> _logger;
@@ -1009,6 +1012,73 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         }
 
         return JsonSerializer.Serialize(payload, _jsonOptions);
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Etsy Open API v3.
+    /// Uses GET /v3/application/shops/{shopId}/reviews with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var offset = page * size;
+            var url = $"{BaseUrl}/application/shops/{_shopId}/reviews?limit={size}&offset={offset}";
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Etsy GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("results", out var resArr) ? resArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("listing_id", out var lid) ? (lid.ValueKind == JsonValueKind.Number ? (int)lid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("review", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("message", out var msg) ? msg.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("buyer_user_id", out var buyer) ? buyer.ToString() ?? ""
+                            : item.TryGetProperty("reviewer", out var reviewer) ? reviewer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_timestamp", out var ts) && ts.ValueKind == JsonValueKind.Number
+                            ? DateTimeOffset.FromUnixTimeSeconds(ts.GetInt64()).UtcDateTime
+                            : item.TryGetProperty("create_timestamp", out var ts2) && ts2.ValueKind == JsonValueKind.Number
+                                ? DateTimeOffset.FromUnixTimeSeconds(ts2.GetInt64()).UtcDateTime
+                                : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("is_replied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Etsy GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Etsy GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ── IPingableAdapter ──
