@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
 using MesTech.Avalonia.ViewModels;
@@ -17,7 +17,7 @@ public class ProductsAvaloniaViewModelTests
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetTopProductsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<TopProductDto>().AsReadOnly());
-        return new ProductsAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        return new ProductsAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>(), Mock.Of<MesTech.Avalonia.Services.IToastService>());
     }
 
     [Fact]
