@@ -214,7 +214,7 @@ public sealed class AhmetBeyDemoSeeder
         {
             TenantId = AhmetBeyTenantId,
             StoreId = TrendyolStoreId,
-            Key = "SellerId",
+            Key = "SupplierId",
             EncryptedValue = "DEMO-TY-SELLERID-456789",
             CreatedBy = "AhmetBeyDemoSeeder"
         };
