@@ -41,13 +41,9 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId)) ?? [];
+            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId), ct) ?? [];
 
             _allAlerts = alerts.Select(a => new StockAlertItemDto
             {
@@ -65,13 +61,7 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
 
             ApplyFilter();
             OnPropertyChanged(nameof(AlertSummary));
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok uyarilari yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Stok uyarilari yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

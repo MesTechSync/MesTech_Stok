@@ -38,13 +38,12 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var status = SelectedStatus == "Tumu" ? null : SelectedStatus;
             var result = await _mediator.Send(new GetLeadsQuery(
                 _currentUser.TenantId,
-                Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null));
+                Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null), ct);
 
             Leads.Clear();
             foreach (var lead in result.Items)
@@ -62,12 +61,8 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
                 });
             }
             TotalCount = result.TotalCount;
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = Leads.Count == 0;
-        }
+        }, "Lead verileri yuklenirken hata");
     }
 
     [RelayCommand]

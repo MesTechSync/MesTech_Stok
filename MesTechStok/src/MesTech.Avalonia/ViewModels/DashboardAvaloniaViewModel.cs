@@ -132,15 +132,11 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var summary = await _mediator.Send(
-                new GetDashboardSummaryQuery(tenantId), CancellationToken.None);
+                new GetDashboardSummaryQuery(tenantId), ct);
 
             // ── Satır 1 ──
             TotalProducts = summary.ActiveProductCount.ToString("N0");
@@ -239,16 +235,7 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
             _lastRefresh = DateTime.Now;
             LastUpdated = _lastRefresh.ToString("HH:mm:ss");
             LastRefreshText = $"Son güncelleme: {_lastRefresh:HH:mm:ss}";
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Dashboard yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Dashboard verileri yuklenirken hata");
     }
 
     [RelayCommand]

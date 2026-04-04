@@ -43,17 +43,12 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var typeFilter = SelectedTypeFilter == "Tumu" ? null : SelectedTypeFilter;
             var result = await _mediator.Send(
-                new GetIncomeExpenseListQuery(tenantId, Type: typeFilter, PageSize: 100), CancellationToken);
+                new GetIncomeExpenseListQuery(tenantId, Type: typeFilter, PageSize: 100), ct);
 
             _allItems = result.Items.Select(i => new GelirGiderItemDto
             {
@@ -72,18 +67,10 @@ public partial class GelirGiderAvaloniaViewModel : ViewModelBase
             TotalIncome = $"{income:N2} TL";
             TotalExpense = $"{expense:N2} TL";
             NetBalance = $"{income - expense:N2} TL";
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Gelir/Gider verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        // G540: cash registers
-        try { _ = await _mediator.Send(new GetCashRegistersQuery(_tenantProvider.GetCurrentTenantId())); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetCashRegisters failed: {ex.Message}"); }
+
+            // G540: cash registers
+            try { _ = await _mediator.Send(new GetCashRegistersQuery(tenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetCashRegisters failed: {ex.Message}"); }
+        }, "Gelir gider verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

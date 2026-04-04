@@ -50,14 +50,10 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var platformResults = (await _mediator.Send(
-                new GetPlatformHealthQuery(_currentUser.TenantId)))?.ToList();
+                new GetPlatformHealthQuery(_currentUser.TenantId), ct))?.ToList();
 
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
@@ -106,16 +102,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
             // Start auto-refresh timer if not already running
             StartAutoRefreshTimer();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Sistem durumu yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Saglik durumu yuklenirken hata");
     }
 
     private async Task BuildServiceCardsAsync(List<PlatformHealthDto>? platformResults)

@@ -37,11 +37,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             InvoiceType? typeFilter = SelectedType switch
             {
@@ -58,7 +54,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
                     From: null,
                     To: null,
                     Search: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText),
-                CancellationToken);
+                ct);
 
             _allInvoices = result.Items.Select(i => new InvoiceMgmtItemDto
             {
@@ -71,13 +67,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Faturalar yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Fatura yonetimi yuklenirken hata");
     }
 
     private void ApplyFilters()

@@ -34,17 +34,13 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        UpdateStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
+            UpdateStatus = string.Empty;
             UnsubscribeItemEvents();
             Items.Clear();
 
-            var movements = await _mediator.Send(new GetStockMovementsQuery()) ?? [];
+            var movements = await _mediator.Send(new GetStockMovementsQuery(), ct) ?? [];
             _allItems.Clear();
             foreach (var m in movements)
             {
@@ -67,16 +63,7 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
             TotalCount = Items.Count;
             IsEmpty = Items.Count == 0;
             RecalculateChangedCount();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Stok hareketleri yuklenirken hata");
     }
 
     private void RecalculateChangedCount()

@@ -38,15 +38,11 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var now = DateTime.Now;
             var summary = await _mediator.Send(
-                new GetMonthlySummaryQuery(now.Year, now.Month, _currentUser.TenantId));
+                new GetMonthlySummaryQuery(now.Year, now.Month, _currentUser.TenantId), ct);
 
             var revenue = summary.TotalSales;
             var expense = summary.TotalExpenses + summary.TotalCommissions + summary.TotalShippingCost;
@@ -61,20 +57,20 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
             // Balance sheet KPIs (G540 orphan wire)
             try
             {
-                var bs = await _mediator.Send(new GetBalanceSheetQuery(_currentUser.TenantId, now));
+                var bs = await _mediator.Send(new GetBalanceSheetQuery(_currentUser.TenantId, now), ct);
                 TotalAssets = bs.Assets.Total.ToString("N2", TrCulture) + " TL";
                 TotalLiabilities = bs.Liabilities.Total.ToString("N2", TrCulture) + " TL";
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] Balance sheet query failed: {ex.Message}"); }
 
             // G540 orphan: additional accounting queries (optional — failures logged, not blocking)
-            try { _ = await _mediator.Send(new GetAccountingExpensesQuery(_currentUser.TenantId, now.AddMonths(-1), now)); }
+            try { _ = await _mediator.Send(new GetAccountingExpensesQuery(_currentUser.TenantId, now.AddMonths(-1), now), ct); }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] AccountingExpenses query failed: {ex.Message}"); }
-            try { _ = await _mediator.Send(new GetAccountingPeriodsQuery(_currentUser.TenantId, now.Year)); }
+            try { _ = await _mediator.Send(new GetAccountingPeriodsQuery(_currentUser.TenantId, now.Year), ct); }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] AccountingPeriods query failed: {ex.Message}"); }
-            try { _ = await _mediator.Send(new GetPendingReviewsQuery(_currentUser.TenantId)); }
+            try { _ = await _mediator.Send(new GetPendingReviewsQuery(_currentUser.TenantId), ct); }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] PendingReviews query failed: {ex.Message}"); }
-            try { _ = await _mediator.Send(new GetFifoCOGSQuery(_currentUser.TenantId)); }
+            try { _ = await _mediator.Send(new GetFifoCOGSQuery(_currentUser.TenantId), ct); }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] FifoCOGS query failed: {ex.Message}"); }
 
             RecentTransactions.Clear();
@@ -115,16 +111,7 @@ public partial class AccountingDashboardAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = RecentTransactions.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Muhasebe verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Muhasebe verileri yuklenirken hata");
     }
 
     [RelayCommand]

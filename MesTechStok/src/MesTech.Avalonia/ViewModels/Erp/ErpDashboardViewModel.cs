@@ -42,14 +42,10 @@ public partial class ErpDashboardViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             // Load ERP dashboard stats via GetErpDashboardQuery
-            var dashboard = await _mediator.Send(new GetErpDashboardQuery(_currentUser.TenantId));
+            var dashboard = await _mediator.Send(new GetErpDashboardQuery(_currentUser.TenantId), ct);
 
             ConnectedCount = dashboard.ConnectedProviders;
             TotalSyncToday = dashboard.TotalSyncToday;
@@ -103,7 +99,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
             });
 
             // Load sync logs via GetErpSyncLogsQuery
-            var logs = await _mediator.Send(new GetErpSyncLogsQuery(_currentUser.TenantId, Page: 1, PageSize: 20));
+            var logs = await _mediator.Send(new GetErpSyncLogsQuery(_currentUser.TenantId, Page: 1, PageSize: 20), ct);
             SyncLogs.Clear();
             foreach (var log in logs)
             {
@@ -118,16 +114,7 @@ public partial class ErpDashboardViewModel : ViewModelBase
             }
 
             IsEmpty = Providers.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"ERP verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "ERP verileri yuklenirken hata");
     }
 
     [RelayCommand]

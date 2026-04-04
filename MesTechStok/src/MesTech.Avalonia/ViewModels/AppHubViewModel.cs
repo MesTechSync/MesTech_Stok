@@ -58,10 +58,7 @@ public partial class AppHubViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var now = DateTime.Now;
             Greeting = now.Hour switch
@@ -77,17 +74,7 @@ public partial class AppHubViewModel : ViewModelBase
             await LoadLowStockAsync();
             await LoadPendingInvoicesAsync();
             await LoadServiceStatusAsync();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Hub yuklenemedi: {ex.Message}";
-            _logger.LogError(ex, "AppHub load failed");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Hub verileri yuklenirken hata");
     }
 
     private async Task LoadDashboardSummaryAsync()

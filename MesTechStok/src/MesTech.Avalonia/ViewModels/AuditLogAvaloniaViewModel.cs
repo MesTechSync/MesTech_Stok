@@ -52,11 +52,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var userFilter = SelectedUser == "Tumu" ? null : SelectedUser;
             var actionFilter = SelectedAction == "Tumu" ? null : SelectedAction;
@@ -65,7 +61,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                 StartDate.DateTime,
                 EndDate.DateTime,
                 userFilter,
-                actionFilter));
+                actionFilter), ct);
 
             _allItems.Clear();
             foreach (var log in logs)
@@ -82,16 +78,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Denetim kayitlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Audit log yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

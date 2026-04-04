@@ -47,13 +47,9 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetUsersQuery());
+            var result = await _mediator.Send(new GetUsersQuery(), ct);
 
             _allUsers.Clear();
             foreach (var user in result)
@@ -70,16 +66,7 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kullanicilar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kullanici verileri yuklenirken hata");
     }
 
     [RelayCommand]
