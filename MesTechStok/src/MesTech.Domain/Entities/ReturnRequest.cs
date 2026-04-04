@@ -78,6 +78,7 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
         Status = ReturnStatus.Rejected;
         if (reason != null)
             Notes = reason;
+        RaiseDomainEvent(new ReturnRejectedEvent(Id, OrderId, TenantId, reason, DateTime.UtcNow));
     }
 
     public void MarkAsReceived()
@@ -86,6 +87,7 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
             throw new InvalidOperationException("İade ürünü teslim alınamaz — onay veya kargoda olmalı.");
         Status = ReturnStatus.Received;
         ReceivedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ReturnReceivedEvent(Id, OrderId, TenantId, DateTime.UtcNow));
     }
 
     public void MarkAsRefunded()
