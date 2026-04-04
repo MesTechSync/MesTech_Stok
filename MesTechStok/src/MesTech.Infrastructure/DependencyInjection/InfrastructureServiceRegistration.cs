@@ -96,13 +96,21 @@ public static class InfrastructureServiceRegistration
 
         // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
         // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        // KN-1 FIX: Factory context MUST include interceptors — without them:
+        //   - TenantContextInterceptor missing → TenantId not set → global filter returns empty
+        //   - AuditInterceptor missing → audit trail gaps
+        //   - SlowQueryInterceptor missing → no performance monitoring
         services.AddDbContextFactory<AppDbContext>((sp, options) =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.EnableRetryOnFailure(3);
             });
-        }, ServiceLifetime.Singleton);
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<TenantContextInterceptor>(),
+                sp.GetRequiredService<SlowQueryInterceptor>());
+        }, ServiceLifetime.Scoped);
 
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
