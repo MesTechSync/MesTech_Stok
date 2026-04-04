@@ -44,7 +44,7 @@ public sealed class ProductCreatedBridgeHandler : INotificationHandler<DomainEve
             e.OccurredAt);
 
         await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("product.created");
+        // RecordPublish now called inside MesaEventPublisher — no double-count
     }
 }
 
@@ -87,7 +87,6 @@ public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNoti
             e.OccurredAt);
 
         await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("stock.low");
         // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
     }
 }
@@ -129,8 +128,6 @@ public sealed class OrderPlacedBridgeHandler : INotificationHandler<DomainEventN
             e.OccurredAt);
 
         await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("order.placed");
-
         // WPF realtime WebSocket push
         await _notifier.NotifyNewOrderAsync("MesTech", e.OrderNumber, e.TotalAmount, 0, ct).ConfigureAwait(false);
     }
@@ -169,7 +166,7 @@ public sealed class PriceChangedBridgeHandler : INotificationHandler<DomainEvent
             e.OccurredAt);
 
         await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("price.changed");
+        // RecordPublish inside MesaEventPublisher
     }
 }
 
@@ -210,8 +207,6 @@ public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainE
             e.OccurredAt);
 
         await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("invoice.generated");
-
         // WPF realtime WebSocket push
         await _notifier.NotifyInvoiceGeneratedAsync(
             e.GibInvoiceId ?? e.InvoiceId.ToString(), string.Empty, 0m, ct).ConfigureAwait(false);
@@ -250,7 +245,7 @@ public sealed class InvoiceCancelledBridgeHandler : INotificationHandler<DomainE
             e.OccurredAt);
 
         await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("invoice.cancelled");
+        // RecordPublish inside MesaEventPublisher
     }
 }
 
@@ -292,8 +287,6 @@ public sealed class ReturnCreatedBridgeHandler : INotificationHandler<DomainEven
             e.OccurredAt);
 
         await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("return.created");
-
         // WPF realtime WebSocket push
         await _notifier.NotifyReturnCreatedAsync(
             e.Platform.ToString(), e.ReturnRequestId.ToString(),
@@ -334,7 +327,7 @@ public sealed class ReturnResolvedBridgeHandler : INotificationHandler<DomainEve
             e.OccurredAt);
 
         await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("return.resolved");
+        // RecordPublish inside MesaEventPublisher
     }
 }
 
@@ -373,7 +366,7 @@ public sealed class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNo
             e.OccurredAt);
 
         await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("buybox.lost");
+        // RecordPublish inside MesaEventPublisher
     }
 }
 
@@ -414,8 +407,6 @@ public sealed class SupplierFeedSyncedBridgeHandler : INotificationHandler<Domai
             e.OccurredAt);
 
         await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("supplier.feed.synced");
-
         // WPF realtime sync status push
         await _notifier.NotifySyncStatusAsync(
             "SupplierFeed", "completed", e.TotalProducts, e.TotalProducts, ct).ConfigureAwait(false);
@@ -454,7 +445,7 @@ public sealed class DailySummaryBridgeHandler : INotificationHandler<DomainEvent
             e.OccurredAt);
 
         await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("daily.summary");
+        // RecordPublish inside MesaEventPublisher
     }
 }
 
@@ -494,7 +485,6 @@ public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNot
             e.OccurredAt);
 
         await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("sync.error");
         // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
     }
 }
