@@ -1,5 +1,7 @@
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
+using MesTech.Infrastructure.Messaging;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -7,7 +9,7 @@ namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// Her saat Trendyol urun degerlendirmelerini ceker.
-/// Cevrimi: Pull reviews → logla (ileride: DB persist + cevap oneri motoru).
+/// Cevrimi: Pull reviews → cevapsiz review'lar icin event publish → logla.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 [DisableConcurrentExecution(timeoutInSeconds: 300)]
@@ -17,11 +19,16 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
     public string CronExpression => "0 * * * *"; // Her saat basi
 
     private readonly IAdapterFactory _factory;
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<TrendyolReviewSyncJob> _logger;
 
-    public TrendyolReviewSyncJob(IAdapterFactory factory, ILogger<TrendyolReviewSyncJob> logger)
+    public TrendyolReviewSyncJob(
+        IAdapterFactory factory,
+        IPublishEndpoint publishEndpoint,
+        ILogger<TrendyolReviewSyncJob> logger)
     {
         _factory = factory;
+        _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
@@ -40,6 +47,7 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
 
             int page = 0;
             int totalFetched = 0;
+            int totalUnreplied = 0;
             const int pageSize = 50;
 
             while (!ct.IsCancellationRequested)
@@ -48,19 +56,31 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
                 if (reviews.Count == 0) break;
 
                 totalFetched += reviews.Count;
-                var unreplied = reviews.Count(r => !r.IsReplied);
+
+                foreach (var review in reviews.Where(r => !r.IsReplied))
+                {
+                    totalUnreplied++;
+                    await _publishEndpoint.Publish(new ProductReviewReceivedIntegrationEvent(
+                        ReviewId: review.Id,
+                        ProductId: review.ProductId,
+                        Rating: review.Rate,
+                        Comment: review.Comment,
+                        IsReplied: false,
+                        PlatformCode: "Trendyol",
+                        OccurredAt: DateTime.UtcNow), ct).ConfigureAwait(false);
+                }
 
                 _logger.LogInformation(
                     "[{JobId}] Sayfa {Page}: {Count} review ({Unreplied} cevapsiz)",
-                    JobId, page, reviews.Count, unreplied);
+                    JobId, page, reviews.Count, reviews.Count(r => !r.IsReplied));
 
                 if (reviews.Count < pageSize) break;
                 page++;
             }
 
             _logger.LogInformation(
-                "[{JobId}] Trendyol review sync tamamlandi: {Total} review cekildi",
-                JobId, totalFetched);
+                "[{JobId}] Trendyol review sync tamamlandi: {Total} review, {Unreplied} cevapsiz event publish edildi",
+                JobId, totalFetched, totalUnreplied);
         }
         catch (Exception ex)
         {
