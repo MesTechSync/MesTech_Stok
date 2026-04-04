@@ -29,7 +29,8 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.City).HasMaxLength(100);
         builder.Property(c => c.Country).HasMaxLength(100);
 
-        // Optimistic concurrency
-        builder.Property(c => c.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin (SQL Server RowVersion uyumsuz)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(c => c.RowVersion);
     }
 }

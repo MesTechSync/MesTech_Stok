@@ -399,7 +399,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Customer>(e =>
         {
             e.HasIndex(c => c.TenantId).HasDatabaseName("IX_Customers_TenantId");
-            e.Property(c => c.RowVersion).IsRowVersion();
+            e.Ignore(c => c.RowVersion); // PostgreSQL uses xmin, not SQL Server RowVersion
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
