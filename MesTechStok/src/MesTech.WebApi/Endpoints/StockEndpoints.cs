@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.DTOs;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.AddStock;
 using MesTech.Application.Commands.AddStockLot;
@@ -39,7 +40,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockMovements")
         .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockMovementDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value — total inventory value
@@ -50,7 +51,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryValue")
         .WithSummary("Toplam envanter değeri")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<InventoryValueResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/add — add stock to a product
@@ -101,7 +102,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryPaged")
         .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<GetInventoryPagedResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
@@ -112,7 +113,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryStatistics")
         .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<InventoryStatisticsDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
@@ -170,7 +171,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockSummary")
         .WithSummary("Stok özeti — toplam adet, değer, uyarılar")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<StockSummaryResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/stock/transfers — recent stock transfers
@@ -185,7 +186,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockTransfers")
         .WithSummary("Depolar arası transfer geçmişi")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockTransferItemDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value-report — stock value report (FIFO/COGS)
@@ -200,7 +201,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockValueReport")
         .WithSummary("Stok değerleme raporu — depo bazlı, FIFO/COGS")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<StockValueReportResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/count — start a stock count session
@@ -226,7 +227,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockLots")
         .WithSummary("Stok lot listesi — lot numarası, miktar, maliyet, son kullanma")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockLotDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/lots — yeni stok lot kaydı oluştur
@@ -254,7 +255,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockPlacements")
         .WithSummary("Stok yerleşim listesi — depo, raf, bölge bazlı stok dağılımı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockPlacementDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
     }
 }
