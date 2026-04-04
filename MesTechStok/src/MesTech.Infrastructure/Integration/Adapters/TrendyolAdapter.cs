@@ -381,15 +381,31 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 {
                     foreach (var item in contentArr.EnumerateArray())
                     {
+                        // ImageUrl: ilk resim URL'si
+                        string? imageUrl = null;
+                        if (item.TryGetProperty("images", out var images) && images.ValueKind == JsonValueKind.Array)
+                        {
+                            var firstImg = images.EnumerateArray().FirstOrDefault();
+                            if (firstImg.ValueKind == JsonValueKind.Object && firstImg.TryGetProperty("url", out var imgUrl))
+                                imageUrl = imgUrl.GetString();
+                        }
+
                         products.Add(new Product
                         {
+                            Id = Guid.NewGuid(),
                             Name = item.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "",
                             SKU = item.TryGetProperty("stockCode", out var sc) ? sc.GetString() ?? "" : "",
                             Barcode = item.TryGetProperty("barcode", out var b) ? b.GetString() : null,
                             SalePrice = item.TryGetProperty("salePrice", out var sp) ? sp.GetDecimal() : 0,
                             ListPrice = item.TryGetProperty("listPrice", out var lp) ? lp.GetDecimal() : null,
                             Stock = item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0,
-                            Description = item.TryGetProperty("description", out var d) ? d.GetString() : null
+                            Description = item.TryGetProperty("description", out var d) ? d.GetString() : null,
+                            TaxRate = item.TryGetProperty("vatRate", out var vr) ? vr.GetDecimal() / 100m : 0.18m,
+                            ImageUrl = imageUrl,
+                            Code = item.TryGetProperty("productMainId", out var pmi) ? pmi.GetString() : null,
+                            Notes = item.TryGetProperty("brandId", out var bi)
+                                ? $"Trendyol brandId:{bi.GetInt64()} categoryId:{(item.TryGetProperty("pimCategoryId", out var ci) ? ci.GetInt32().ToString() : "?")}"
+                                : null
                         });
                     }
                 }
