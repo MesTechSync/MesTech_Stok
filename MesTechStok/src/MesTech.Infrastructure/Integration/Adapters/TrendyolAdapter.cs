@@ -877,28 +877,42 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 {
                     foreach (var item in contentArr.EnumerateArray())
                     {
+                        // claimId is UUID string (not int64)
+                        var claimIdStr = item.TryGetProperty("claimId", out var cidProp)
+                            ? cidProp.GetString() ?? ""
+                            : item.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+
+                        var firstName = item.TryGetProperty("customerFirstName", out var fn) ? fn.GetString() ?? "" : "";
+                        var lastName = item.TryGetProperty("customerLastName", out var ln) ? ln.GetString() ?? "" : "";
+
                         var claim = new ExternalClaimDto
                         {
                             PlatformCode = PlatformCode,
-                            PlatformClaimId = item.TryGetProperty("id", out var cid) ? cid.GetInt64().ToString() : "",
+                            PlatformClaimId = claimIdStr,
                             OrderNumber = item.TryGetProperty("orderNumber", out var on) ? on.GetString() ?? "" : "",
-                            Status = item.TryGetProperty("status", out var st) ? st.GetString() ?? "" : "",
-                            Reason = item.TryGetProperty("reason", out var r) ? r.GetString() ?? "" : "",
-                            ReasonDetail = item.TryGetProperty("reasonDetail", out var rd) ? rd.GetString() : null,
-                            CustomerName = item.TryGetProperty("customerFirstName", out var fn) ? fn.GetString() ?? "" : "",
-                            ClaimDate = item.TryGetProperty("claimDate", out var cd) ? DateTimeOffset.FromUnixTimeMilliseconds(cd.GetInt64()).UtcDateTime : DateTime.UtcNow
+                            Status = item.TryGetProperty("claimStatus", out var st) ? st.GetString() ?? ""
+                                : item.TryGetProperty("status", out var st2) ? st2.GetString() ?? "" : "",
+                            Reason = item.TryGetProperty("claimIssueReasonText", out var r) ? r.GetString() ?? ""
+                                : item.TryGetProperty("reason", out var r2) ? r2.GetString() ?? "" : "",
+                            ReasonDetail = item.TryGetProperty("claimIssueReasonText", out var rd) ? rd.GetString() : null,
+                            CustomerName = $"{firstName} {lastName}".Trim(),
+                            ClaimDate = item.TryGetProperty("claimDate", out var cd) && cd.TryGetInt64(out var cdMs)
+                                ? DateTimeOffset.FromUnixTimeMilliseconds(cdMs).UtcDateTime
+                                : DateTime.UtcNow
                         };
 
+                        // Trendyol claim items: items[].orderLine.productName
                         if (item.TryGetProperty("items", out var claimItems))
                         {
                             foreach (var ci in claimItems.EnumerateArray())
                             {
+                                var orderLine = ci.TryGetProperty("orderLine", out var ol) ? ol : ci;
                                 claim.Lines.Add(new ExternalClaimLineDto
                                 {
-                                    Barcode = ci.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
-                                    ProductName = ci.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
-                                    Quantity = ci.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
-                                    UnitPrice = ci.TryGetProperty("price", out var up) ? up.GetDecimal() : 0
+                                    Barcode = orderLine.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
+                                    ProductName = orderLine.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
+                                    Quantity = orderLine.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
+                                    UnitPrice = orderLine.TryGetProperty("price", out var up) ? up.GetDecimal() : 0
                                 });
                             }
                         }
