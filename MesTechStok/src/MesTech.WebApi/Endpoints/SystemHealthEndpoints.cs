@@ -4,8 +4,11 @@ using MediatR;
 using MesTech.Application.Features.System.Kvkk.Commands.DeletePersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
 using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
+using MesTech.Application.Features.System.Kvkk.Queries.ExportPersonalData;
+using MesTech.Application.Features.System.Kvkk.Queries.GetKvkkAuditLogs;
 using MesTech.Application.Features.System.LaunchReadiness;
 using MesTech.Application.Features.System.Users;
+using MesTech.Infrastructure.Integration.Health;
 using MesTech.Infrastructure.Jobs;
 
 namespace MesTech.WebApi.Endpoints;
@@ -48,13 +51,13 @@ public static class SystemHealthEndpoints
                 DateTime.UtcNow));
         })
         .WithName("GetSystemStatus")
-        .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)").Produces(200).Produces(400);
+        .WithSummary("Sistem durumu (uptime, versiyon, bellek bilgisi)").Produces<SystemStatusResponse>(200).Produces(400);
 
         // GET /api/v1/admin/system/jobs — recurring job dashboard
         group.MapGet("/jobs", (HangfireJobMonitorService monitor) =>
             Results.Ok(monitor.GetDashboard()))
         .WithName("GetBackgroundJobs")
-        .WithSummary("Hangfire recurring job dashboard — status, lastExec, nextExec, cron").Produces(200).Produces(400);
+        .WithSummary("Hangfire recurring job dashboard — status, lastExec, nextExec, cron").Produces<HangfireJobDashboard>(200).Produces(400);
 
         // GET /api/v1/admin/system/launch-readiness — canliya cikis hazirlik raporu
         group.MapGet("/launch-readiness", async (
@@ -67,7 +70,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetLaunchReadiness")
-        .WithSummary("Production launch hazirlik raporu — 26 kriter").Produces(200).Produces(400);
+        .WithSummary("Production launch hazirlik raporu — 26 kriter").Produces<LaunchReadinessDto>(200).Produces(400);
 
         // ─── DEFTER KAPATMA: KVKK + Users endpoint [ENT-DEV6] ───
 
@@ -93,7 +96,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("ExportPersonalData")
-        .WithSummary("KVKK — kişisel veri dışa aktarma").Produces(200).Produces(400);
+        .WithSummary("KVKK — kişisel veri dışa aktarma").Produces<PersonalDataExportDto>(200).Produces(400);
 
         // GET /api/v1/admin/system/kvkk/audit-logs — KVKK denetim kayıtları
         group.MapGet("/kvkk/audit-logs", async (
@@ -105,7 +108,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetKvkkAuditLogs")
-        .WithSummary("KVKK — denetim kayıtları (yasal saklama 10 yıl)").Produces(200).Produces(400);
+        .WithSummary("KVKK — denetim kayıtları (yasal saklama 10 yıl)").Produces<KvkkAuditLogsResult>(200).Produces(400);
 
         // GET /api/v1/admin/system/users — kullanıcı listesi
         group.MapGet("/users", async (
@@ -117,7 +120,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(result);
         })
         .WithName("GetUsers")
-        .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)").Produces(200).Produces(400);
+        .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)").Produces<IReadOnlyList<UserListItemDto>>(200).Produces(400);
 
         // GET /api/v1/admin/system/adapter-health — platform adapter ping durumu
         group.MapGet("/adapter-health", async (
@@ -128,7 +131,7 @@ public static class SystemHealthEndpoints
             return Results.Ok(report);
         })
         .WithName("GetAdapterHealth")
-        .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)").Produces(200).Produces(400);
+        .WithSummary("Tüm platform adapter'larının bağlantı durumu (parallel PingAsync)").Produces<AdapterHealthReport>(200).Produces(400);
     }
 
     public sealed record SystemStatusResponse(
