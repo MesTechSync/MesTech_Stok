@@ -1,4 +1,5 @@
 using MassTransit;
+using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
@@ -44,13 +45,16 @@ public interface IMesaEventPublisher
 public sealed class MesaEventPublisher : IMesaEventPublisher
 {
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaEventPublisher> _logger;
 
     public MesaEventPublisher(
         IPublishEndpoint publishEndpoint,
+        IMesaEventMonitor monitor,
         ILogger<MesaEventPublisher> logger)
     {
         _publishEndpoint = publishEndpoint;
+        _monitor = monitor;
         _logger = logger;
     }
 
@@ -58,6 +62,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaProductCreatedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("product.created");
         _logger.LogInformation(
             "[MESA] ProductCreated yayinlandi: {SKU} - {Name} (Tenant: {TenantId})",
             evt.SKU, evt.Name, evt.TenantId);
@@ -67,6 +72,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaStockLowEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("stock.low");
         _logger.LogWarning(
             "[MESA] StockLow yayinlandi: {SKU} stok={Current}, min={Min} (Tenant: {TenantId})",
             evt.SKU, evt.CurrentStock, evt.MinimumStock, evt.TenantId);
@@ -76,6 +82,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaOrderReceivedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("order.received");
         _logger.LogInformation(
             "[MESA] OrderReceived yayinlandi: {Platform} #{OrderId}, tutar={Amount} (Tenant: {TenantId})",
             evt.PlatformCode, evt.PlatformOrderId, evt.TotalAmount, evt.TenantId);
@@ -85,6 +92,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaPriceChangedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("price.changed");
         _logger.LogInformation(
             "[MESA] PriceChanged yayinlandi: {SKU} {Old} -> {New} (Tenant: {TenantId})",
             evt.SKU, evt.OldPrice, evt.NewPrice, evt.TenantId);
@@ -94,6 +102,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaInvoiceGeneratedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("invoice.generated");
         _logger.LogInformation(
             "[MESA] InvoiceGenerated yayinlandi: {InvoiceNumber}, tutar={Total} (Tenant: {TenantId})",
             evt.InvoiceNumber, evt.GrandTotal, evt.TenantId);
@@ -103,6 +112,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaInvoiceCancelledEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("invoice.cancelled");
         _logger.LogWarning(
             "[MESA] InvoiceCancelled yayinlandi: {InvoiceNumber}, sebep={Reason} (Tenant: {TenantId})",
             evt.InvoiceNumber, evt.CancelReason, evt.TenantId);
@@ -112,6 +122,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaReturnCreatedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("return.created");
         _logger.LogInformation(
             "[MESA] ReturnCreated yayinlandi: siparis={OrderId}, platform={Platform} (Tenant: {TenantId})",
             evt.OrderId, evt.PlatformCode, evt.TenantId);
@@ -121,6 +132,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaReturnResolvedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("return.resolved");
         _logger.LogInformation(
             "[MESA] ReturnResolved yayinlandi: iade={ReturnId}, sonuc={Resolution} (Tenant: {TenantId})",
             evt.ReturnRequestId, evt.Resolution, evt.TenantId);
@@ -130,6 +142,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaBuyboxLostEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("buybox.lost");
         _logger.LogWarning(
             "[MESA] BuyboxLost yayinlandi: {SKU}, rakip={Competitor} fiyat={CompPrice} (Tenant: {TenantId})",
             evt.SKU, evt.CompetitorName, evt.CompetitorPrice, evt.TenantId);
@@ -139,6 +152,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaSupplierFeedSyncedEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("supplier.feed.synced");
         _logger.LogInformation(
             "[MESA] SupplierFeedSynced yayinlandi: {Supplier}, toplam={Total}, yeni={New} (Tenant: {TenantId})",
             evt.SupplierName, evt.ProductsTotal, evt.ProductsNew, evt.TenantId);
@@ -148,6 +162,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaDailySummaryEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("daily.summary");
         _logger.LogInformation(
             "[MESA] DailySummary yayinlandi: {Date} — {OrderCount} siparis, {Revenue:C} gelir (Tenant: {TenantId})",
             evt.Date, evt.OrderCount, evt.Revenue, evt.TenantId);
@@ -157,6 +172,7 @@ public sealed class MesaEventPublisher : IMesaEventPublisher
         MesaSyncErrorEvent evt, CancellationToken ct = default)
     {
         await _publishEndpoint.Publish(evt, ct).ConfigureAwait(false);
+        _monitor.RecordPublish("sync.error");
         _logger.LogWarning(
             "[MESA] SyncError yayinlandi: {Platform} — {ErrorType}: {Message} (Tenant: {TenantId})",
             evt.Platform, evt.ErrorType, evt.Message, evt.TenantId);
