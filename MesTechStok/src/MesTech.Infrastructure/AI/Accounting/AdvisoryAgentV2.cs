@@ -177,24 +177,16 @@ public sealed class AdvisoryAgentV2 : IAdvisoryAgentV2
         var today = DateTime.UtcNow.Date;
         var thirtyDaysAgo = today.AddDays(-30);
 
-        // Son 30 gunluk ProfitReport'lari al
-        var reports = new List<Domain.Accounting.Entities.ProfitReport>();
-        for (var day = thirtyDaysAgo; day <= today; day = day.AddDays(1))
-        {
-            var period = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var dayReports = await _profitReportRepository.GetByPeriodAsync(tenantId, period, ct: ct).ConfigureAwait(false);
-            reports.AddRange(dayReports);
-        }
+        // FIX-DEV6-G010: 31 sequential GetByPeriodAsync → 1 GetByDateRangeAsync
+        var reports = await _profitReportRepository
+            .GetByDateRangeAsync(tenantId, thirtyDaysAgo, today, ct: ct).ConfigureAwait(false);
 
-        // Son 30 gunluk CommissionRecord'lari platform bazinda al
+        // FIX-DEV6-G010: 5 sequential platform queries → parallel Task.WhenAll
         var platforms = new[] { "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon" };
-        var commissions = new List<Domain.Accounting.Entities.CommissionRecord>();
-        foreach (var platform in platforms)
-        {
-            var platformCommissions = await _commissionRepository
-                .GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct).ConfigureAwait(false);
-            commissions.AddRange(platformCommissions);
-        }
+        var commissionTasks = platforms.Select(platform =>
+            _commissionRepository.GetByPlatformAsync(tenantId, platform, thirtyDaysAgo, today, ct));
+        var commissionResults = await Task.WhenAll(commissionTasks).ConfigureAwait(false);
+        var commissions = commissionResults.SelectMany(c => c).ToList();
 
         // Urun sayisi
         var productCount = await _productRepository.GetCountAsync(ct).ConfigureAwait(false);
