@@ -106,9 +106,9 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
             CustomerName = dto.CustomerName,
             CustomerEmail = dto.CustomerEmail,
             RecipientPhone = dto.CustomerPhone,
-            ShippingAddress = dto.CustomerAddress,
+            ShippingAddress = string.IsNullOrEmpty(dto.CustomerAddress) ? dto.CustomerCity : dto.CustomerAddress,
             OrderDate = dto.OrderDate,
-            Notes = $"Trendyol sync — {dto.Status} — Total: {dto.TotalAmount:F2} {dto.Currency}"
+            Notes = $"Trendyol sync — {dto.Status} — Kargo: {dto.CargoProviderName} — Takip: {dto.CargoTrackingNumber}"
         };
 
         // Set financials via domain method (private set properties)
