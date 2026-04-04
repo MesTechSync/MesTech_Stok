@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Commands.CreateIncome;
 using MesTech.Application.Commands.DeleteIncome;
@@ -30,7 +31,7 @@ public static class IncomeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetIncomes")
-        .WithSummary("Gelir kayitlari listesi (tarih + tip filtresi)").Produces(200).Produces(400);
+        .WithSummary("Gelir kayitlari listesi (tarih + tip filtresi)").Produces<IReadOnlyList<IncomeDto>>(200).Produces(400);
 
         // GET /api/v1/accounting/incomes/{id} — tek gelir kaydi
         group.MapGet("/{id:guid}", async (
@@ -41,7 +42,7 @@ public static class IncomeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetIncomeById")
-        .WithSummary("Tek gelir kaydi detayi").Produces(200).Produces(400);
+        .WithSummary("Tek gelir kaydi detayi").Produces<IncomeDto>(200).Produces(400);
 
         // POST /api/v1/accounting/incomes — yeni gelir kaydi olustur
         group.MapPost("/", async (

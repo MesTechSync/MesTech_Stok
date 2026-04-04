@@ -1,7 +1,10 @@
 using MediatR;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.EInvoice;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.EInvoice.Queries;
+using MesTech.Application.Interfaces;
+using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -28,7 +31,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("GetEInvoices")
         .WithSummary("E-fatura listesi (tarih, durum, sağlayıcı filtresi)")
-        .Produces(200)
+        .Produces<PagedResult<EInvoiceDto>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/e-invoices — yeni e-fatura oluştur
@@ -57,7 +60,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("GetEInvoiceById")
         .WithSummary("E-fatura detayı")
-        .Produces(200)
+        .Produces<EInvoiceDto>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/e-invoices/{id}/send — e-fatura gönder
@@ -102,7 +105,7 @@ public static class EInvoiceEndpoints
         })
         .WithName("CheckVknMukellef")
         .WithSummary("VKN ile e-fatura mükellefi sorgula")
-        .Produces(200)
+        .Produces<VknMukellefResult>(200)
         .CacheOutput("Lookup60s");
     }
 
