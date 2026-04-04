@@ -162,7 +162,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             ["client_secret"] = _clientSecret
         });
 
-        var response = await _httpClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
+        using var response = await _httpClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(

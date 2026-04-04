@@ -169,7 +169,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 
-            var response = await _httpClient.SendAsync(tokenRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(tokenRequest, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
