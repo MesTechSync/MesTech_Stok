@@ -500,10 +500,14 @@ public static class HangfireConfig
         // Diger platformlar → GenericPlatformReviewSyncJob (2 saatte bir)
         var reviewSyncPlatforms = new (string code, string cron)[]
         {
-            ("Hepsiburada",  "0 */2 * * *"),
-            ("Ciceksepeti",  "0 */2 * * *"),
-            ("Amazon",       "0 */4 * * *"),
-            ("eBay",         "0 */4 * * *"),
+            ("Hepsiburada",  "0 */2 * * *"),   // TR — yüksek hacim
+            ("Ciceksepeti",  "0 */2 * * *"),   // TR — yüksek hacim
+            ("Amazon",       "0 */4 * * *"),   // Uluslararası
+            ("AmazonEu",     "0 */4 * * *"),   // Uluslararası
+            ("eBay",         "0 */4 * * *"),   // Uluslararası
+            ("Ozon",         "0 */6 * * *"),   // Rusya — düşük hacim
+            ("Etsy",         "0 */6 * * *"),   // Uluslararası — düşük hacim
+            // Shopify → kendi review schedule'ı var (Shopify API rate limit farklı)
         };
 
         foreach (var (code, cron) in reviewSyncPlatforms)
