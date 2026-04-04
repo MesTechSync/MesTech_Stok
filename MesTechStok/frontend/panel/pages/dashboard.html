@@ -405,16 +405,16 @@
   (function() {
     'use strict';
 
-    var API_BASE = '/api/v1/dashboard';
-    var autoRefreshInterval = null;
-    var isAutoRefreshEnabled = true;
-    var salesTrendChart = null;
+    const API_BASE = '/api/v1/dashboard';
+    let autoRefreshInterval = null;
+    let isAutoRefreshEnabled = true;
+    let salesTrendChart = null;
 
     // ========================================
     // DOM Helper Utilities (XSS-safe)
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') {
@@ -459,7 +459,7 @@
     // ========================================
     // KPI Card Definitions
     // ========================================
-    var kpiDefs = [
+    const kpiDefs = [
       {
         id: 'today-sales',
         title: 'Bugun Satis',
@@ -526,41 +526,41 @@
     // Render KPI Cards (DOM-SAFE)
     // ========================================
     function renderKpiCards(data) {
-      var container = document.getElementById('kpi-cards-row');
+      const container = document.getElementById('kpi-cards-row');
       clearChildren(container);
 
       kpiDefs.forEach(function(kpi) {
-        var value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
-        var trend = data && data[kpi.trendKey] != null ? data[kpi.trendKey] : 0;
-        var trendPositive = trend >= 0;
+        const value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
+        const trend = data && data[kpi.trendKey] != null ? data[kpi.trendKey] : 0;
+        const trendPositive = trend >= 0;
 
         // Column wrapper
-        var col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
+        const col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
 
         // Card
-        var card = el('div', { className: 'kpi-card' });
+        const card = el('div', { className: 'kpi-card' });
 
         // Top row: title + icon
-        var topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-2' });
+        const topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-2' });
 
-        var titleSpan = el('span', {
+        const titleSpan = el('span', {
           className: 'text-muted small text-uppercase',
           textContent: kpi.title
         });
 
-        var iconBadge = el('span', {
+        const iconBadge = el('span', {
           className: 'kpi-icon-badge'
         });
         iconBadge.style.background = kpi.iconBg;
         iconBadge.style.color = kpi.iconColor;
-        var iconEl = el('i', { className: kpi.icon });
+        const iconEl = el('i', { className: kpi.icon });
         iconBadge.appendChild(iconEl);
 
         topRow.appendChild(titleSpan);
         topRow.appendChild(iconBadge);
 
         // Main value
-        var valueEl = el('h3', {
+        const valueEl = el('h3', {
           className: 'mb-1 fw-bold',
           id: 'kpi-' + kpi.id,
           textContent: kpi.format(value)
@@ -568,15 +568,15 @@
         valueEl.style.fontSize = '1.4rem';
 
         // Trend row
-        var trendRow = el('div', { className: 'd-flex align-items-center gap-1' });
+        const trendRow = el('div', { className: 'd-flex align-items-center gap-1' });
 
-        var trendBadge = el('span', {
+        const trendBadge = el('span', {
           className: 'badge small ' + (trendPositive
             ? 'bg-success bg-opacity-10 text-success'
             : 'bg-danger bg-opacity-10 text-danger'),
           id: 'kpi-' + kpi.id + '-trend'
         });
-        var trendIcon = el('i', {
+        const trendIcon = el('i', {
           className: trendPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
         });
         trendBadge.appendChild(trendIcon);
@@ -584,7 +584,7 @@
           ' ' + (trendPositive ? '+' : '') + trend.toFixed(1) + '%'
         ));
 
-        var vsText = el('span', {
+        const vsText = el('span', {
           className: 'text-muted',
           textContent: 'vs dun'
         });
@@ -605,24 +605,24 @@
     // Render KPI Loading Skeletons
     // ========================================
     function renderKpiSkeletons() {
-      var container = document.getElementById('kpi-cards-row');
+      const container = document.getElementById('kpi-cards-row');
       clearChildren(container);
 
-      for (var i = 0; i < 6; i++) {
-        var col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
-        var card = el('div', { className: 'kpi-card' });
+      for (let i = 0; i < 6; i++) {
+        const col = el('div', { className: 'kpi-col col-xl-2 col-md-4 col-sm-6 mb-3' });
+        const card = el('div', { className: 'kpi-card' });
 
-        var skel1 = el('div', { className: 'skeleton' });
+        const skel1 = el('div', { className: 'skeleton' });
         skel1.style.height = '16px';
         skel1.style.width = '60%';
         skel1.style.marginBottom = '12px';
 
-        var skel2 = el('div', { className: 'skeleton' });
+        const skel2 = el('div', { className: 'skeleton' });
         skel2.style.height = '28px';
         skel2.style.width = '80%';
         skel2.style.marginBottom = '8px';
 
-        var skel3 = el('div', { className: 'skeleton' });
+        const skel3 = el('div', { className: 'skeleton' });
         skel3.style.height = '14px';
         skel3.style.width = '50%';
 
@@ -638,12 +638,12 @@
     // Render Recent Orders (DOM-SAFE)
     // ========================================
     function renderRecentOrders(orders) {
-      var container = document.getElementById('recent-orders-body');
-      var badge = document.getElementById('orders-count-badge');
+      const container = document.getElementById('recent-orders-body');
+      const badge = document.getElementById('orders-count-badge');
       clearChildren(container);
 
       if (!orders || orders.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-inbox text-muted' }),
           el('p', { textContent: 'Siparis bulunamadi' })
         ]);
@@ -655,11 +655,11 @@
       badge.textContent = orders.length.toString();
 
       // Table
-      var table = el('table', { className: 'table table-hover mb-0' });
+      const table = el('table', { className: 'table table-hover mb-0' });
 
       // Head
-      var thead = el('thead');
-      var headRow = el('tr');
+      const thead = el('thead');
+      const headRow = el('tr');
       ['Siparis', 'Platform', 'Musteri', 'Tutar', 'Durum'].forEach(function(h) {
         headRow.appendChild(el('th', {
           className: 'small text-muted text-uppercase',
@@ -670,9 +670,9 @@
       table.appendChild(thead);
 
       // Body
-      var tbody = el('tbody');
+      const tbody = el('tbody');
 
-      var statusStyles = {
+      const statusStyles = {
         'Hazirlaniyor': { bg: 'bg-warning-subtle', text: 'text-warning' },
         'Kargoda': { bg: 'bg-info-subtle', text: 'text-info' },
         'Teslim Edildi': { bg: 'bg-success-subtle', text: 'text-success' },
@@ -680,13 +680,13 @@
       };
 
       orders.forEach(function(order) {
-        var row = el('tr');
+        const row = el('tr');
 
         // Order ID cell
-        var idCell = el('td');
+        const idCell = el('td');
         idCell.appendChild(el('strong', { textContent: order.id || '--' }));
         idCell.appendChild(el('br'));
-        var timeSpan = el('span', {
+        const timeSpan = el('span', {
           className: 'text-muted',
           textContent: order.time || ''
         });
@@ -695,8 +695,8 @@
         row.appendChild(idCell);
 
         // Platform cell
-        var platCell = el('td');
-        var platDot = el('span', { className: 'platform-dot-indicator online' });
+        const platCell = el('td');
+        const platDot = el('span', { className: 'platform-dot-indicator online' });
         platDot.style.marginRight = '6px';
         platCell.appendChild(platDot);
         platCell.appendChild(document.createTextNode(order.platform || '--'));
@@ -706,16 +706,16 @@
         row.appendChild(el('td', { textContent: order.customer || '--' }));
 
         // Amount cell
-        var amountCell = el('td');
+        const amountCell = el('td');
         amountCell.appendChild(el('strong', {
           textContent: '\u20BA' + formatCurrency(order.amount || 0)
         }));
         row.appendChild(amountCell);
 
         // Status cell
-        var statusCell = el('td');
-        var sStyle = statusStyles[order.status] || { bg: 'bg-secondary-subtle', text: 'text-secondary' };
-        var statusBadge = el('span', {
+        const statusCell = el('td');
+        const sStyle = statusStyles[order.status] || { bg: 'bg-secondary-subtle', text: 'text-secondary' };
+        const statusBadge = el('span', {
           className: 'badge ' + sStyle.bg + ' ' + sStyle.text,
           textContent: order.status || 'Bilinmiyor'
         });
@@ -734,7 +734,7 @@
     // Render Platform Health (DOM-SAFE)
     // ========================================
     function renderPlatformHealth(platforms) {
-      var container = document.getElementById('platform-health');
+      const container = document.getElementById('platform-health');
       clearChildren(container);
 
       if (!platforms || platforms.length === 0) {
@@ -746,13 +746,13 @@
       }
 
       platforms.forEach(function(p) {
-        var dot = el('div', { className: 'platform-dot' });
+        const dot = el('div', { className: 'platform-dot' });
 
-        var statusClass = 'offline';
+        let statusClass = 'offline';
         if (p.status === 'online') statusClass = 'online';
         else if (p.status === 'degraded') statusClass = 'degraded';
 
-        var indicator = el('span', {
+        const indicator = el('span', {
           className: 'platform-dot-indicator ' + statusClass
         });
         dot.appendChild(indicator);
@@ -765,12 +765,12 @@
     // Render Stock Alerts (DOM-SAFE)
     // ========================================
     function renderStockAlerts(items) {
-      var container = document.getElementById('stock-alerts-body');
-      var badge = document.getElementById('stock-alerts-count');
+      const container = document.getElementById('stock-alerts-body');
+      const badge = document.getElementById('stock-alerts-count');
       clearChildren(container);
 
       if (!items || items.length === 0) {
-        var okState = el('div', { className: 'fallback-state' }, [
+        const okState = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-check-circle text-success' }),
           el('p', { textContent: 'Kritik stok uyarisi yok' })
         ]);
@@ -783,21 +783,21 @@
 
       items.forEach(function(item) {
         // Determine alert level
-        var levelClass = 'level-ok';
+        let levelClass = 'level-ok';
         if (item.currentStock === 0) levelClass = 'level-out';
         else if (item.currentStock <= item.minStock * 0.3) levelClass = 'level-critical';
         else if (item.currentStock <= item.minStock) levelClass = 'level-low';
 
-        var alertRow = el('div', { className: 'stock-alert-item ' + levelClass });
+        const alertRow = el('div', { className: 'stock-alert-item ' + levelClass });
 
         // Left: product info
-        var infoDiv = el('div');
+        const infoDiv = el('div');
         infoDiv.appendChild(el('strong', {
           className: 'small',
           textContent: item.sku || '--'
         }));
         infoDiv.appendChild(el('br'));
-        var nameSpan = el('span', {
+        const nameSpan = el('span', {
           className: 'text-muted',
           textContent: item.name || ''
         });
@@ -805,19 +805,19 @@
         infoDiv.appendChild(nameSpan);
         infoDiv.appendChild(el('br'));
 
-        var stockInfo = el('span', { className: 'small' });
+        const stockInfo = el('span', { className: 'small' });
         stockInfo.appendChild(document.createTextNode(
           'Stok: ' + (item.currentStock || 0) + ' / Min: ' + (item.minStock || 0)
         ));
         infoDiv.appendChild(stockInfo);
 
         // Right: action button
-        var actionBtn = el('a', {
+        const actionBtn = el('a', {
           href: '#',
           className: 'btn btn-sm btn-outline-primary',
           textContent: 'Siparis'
         });
-        var arrowSpan = el('span');
+        const arrowSpan = el('span');
         arrowSpan.appendChild(document.createTextNode(' \u2192'));
         actionBtn.appendChild(arrowSpan);
 
@@ -831,7 +831,7 @@
     // Render AI Insight (DOM-SAFE)
     // ========================================
     function renderAiInsight(insight) {
-      var textEl = document.getElementById('ai-insight-text');
+      const textEl = document.getElementById('ai-insight-text');
       if (insight && insight.text) {
         textEl.textContent = insight.text;
       } else {
@@ -843,7 +843,7 @@
     // Sales Trend Chart (Chart.js)
     // ========================================
     function renderSalesTrendChart(trendData) {
-      var canvas = document.getElementById('salesTrendChart');
+      const canvas = document.getElementById('salesTrendChart');
       if (!canvas) return;
 
       if (salesTrendChart) {
@@ -852,9 +852,9 @@
       }
 
       if (!trendData || !trendData.labels) {
-        var wrapper = canvas.parentElement;
+        const wrapper = canvas.parentElement;
         clearChildren(wrapper);
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-chart-line text-muted' }),
           el('p', { textContent: 'Grafik verisi yuklenemedi' })
         ]);
@@ -862,7 +862,7 @@
         return;
       }
 
-      var datasets = [];
+      let datasets = [];
       if (trendData.datasets && trendData.datasets.length > 0) {
         datasets = trendData.datasets.map(function(ds) {
           return {
@@ -913,17 +913,17 @@
     // Trend Period Switcher
     // ========================================
     function initTrendButtons() {
-      var btnGroup = document.getElementById('trend-period-buttons');
+      const btnGroup = document.getElementById('trend-period-buttons');
       if (!btnGroup) return;
 
       btnGroup.addEventListener('click', function(e) {
-        var btn = e.target.closest('button[data-days]');
+        const btn = e.target.closest('button[data-days]');
         if (!btn) return;
 
-        var days = parseInt(btn.getAttribute('data-days'), 10);
+        const days = parseInt(btn.getAttribute('data-days'), 10);
 
         // Update active state
-        var buttons = btnGroup.querySelectorAll('button');
+        const buttons = btnGroup.querySelectorAll('button');
         buttons.forEach(function(b) {
           b.classList.remove('active');
         });
@@ -949,16 +949,16 @@
       });
 
       // Orders fallback
-      var ordersBody = document.getElementById('recent-orders-body');
+      const ordersBody = document.getElementById('recent-orders-body');
       clearChildren(ordersBody);
-      var fallback = el('div', { className: 'fallback-state' }, [
+      const fallback = el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-cloud-slash text-muted' }),
         el('p', { textContent: 'Veri yuklenemedi. API baglantisi kontrol edin.' })
       ]);
       ordersBody.appendChild(fallback);
 
       // Platform fallback
-      var platformContainer = document.getElementById('platform-health');
+      const platformContainer = document.getElementById('platform-health');
       clearChildren(platformContainer);
       platformContainer.appendChild(el('span', {
         className: 'text-muted small',
@@ -966,9 +966,9 @@
       }));
 
       // Stock alerts fallback
-      var stockBody = document.getElementById('stock-alerts-body');
+      const stockBody = document.getElementById('stock-alerts-body');
       clearChildren(stockBody);
-      var stockFallback = el('div', { className: 'fallback-state' }, [
+      const stockFallback = el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-cloud-slash text-muted' }),
         el('p', { textContent: 'Stok uyarilari yuklenemedi' })
       ]);
@@ -983,7 +983,7 @@
     // ========================================
     async function loadDashboardData() {
       try {
-        var data = await mestechApi.get('/summary');
+        const data = await mestechApi.get('/summary');
 
         updateKpiCards(data);
         renderRecentOrders(data.recentOrders || []);
@@ -1014,7 +1014,7 @@
 
     async function loadSalesTrend(days) {
       try {
-        var data = await mestechApi.get('/sales-trend?days=' + days);
+        const data = await mestechApi.get('/sales-trend?days=' + days);
         renderSalesTrendChart(data);
       } catch (error) {
         console.error('Satis trendi yukleme hatasi:', error);
@@ -1042,7 +1042,7 @@
 
     function toggleAutoRefresh() {
       isAutoRefreshEnabled = !isAutoRefreshEnabled;
-      var dot = document.getElementById('refresh-dot');
+      const dot = document.getElementById('refresh-dot');
 
       if (isAutoRefreshEnabled) {
         startAutoRefresh();
@@ -1064,7 +1064,7 @@
       initTrendButtons();
 
       // Set up auto-refresh toggle
-      var toggleEl = document.getElementById('auto-refresh-toggle');
+      const toggleEl = document.getElementById('auto-refresh-toggle');
       if (toggleEl) {
         toggleEl.addEventListener('click', toggleAutoRefresh);
       }
