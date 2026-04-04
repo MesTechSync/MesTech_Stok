@@ -891,7 +891,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             ? feedXml.Declaration + Environment.NewLine + feedXml.ToString()
             : feedXml.ToString();
 
-        var uploadResponse = await _httpClient.PutAsync(
+        using var uploadResponse = await _httpClient.PutAsync(
             uploadUrl,
             new StringContent(xmlString, Encoding.UTF8, "text/xml"),
             ct).ConfigureAwait(false);
@@ -1402,7 +1402,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             uploadRequest.Content = new ByteArrayContent(pdfBytes);
             uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 
-            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
             if (!uploadResponse.IsSuccessStatusCode)
             {
                 var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

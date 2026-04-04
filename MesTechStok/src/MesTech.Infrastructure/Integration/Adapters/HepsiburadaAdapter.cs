@@ -1228,7 +1228,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var pingRequest = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress);
             pingRequest.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Hepsiburada-Client/3.0");
-            var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex)

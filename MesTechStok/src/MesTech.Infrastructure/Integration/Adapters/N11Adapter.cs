@@ -1200,7 +1200,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var http = _httpClientFactory.CreateClient("N11Ping");
-            var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
+            using var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex)

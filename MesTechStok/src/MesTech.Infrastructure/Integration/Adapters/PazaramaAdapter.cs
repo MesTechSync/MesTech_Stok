@@ -1229,7 +1229,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
         catch (Exception ex)

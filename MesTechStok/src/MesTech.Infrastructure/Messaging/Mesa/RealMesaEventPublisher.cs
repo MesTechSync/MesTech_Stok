@@ -33,7 +33,7 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
             using var request = new HttpRequestMessage(HttpMethod.Post, $"{mesaEndpoint}/api/v1/events");
             request.Headers.TryAddWithoutValidation("X-Api-Key", apiKey);
             request.Content = JsonContent.Create(payload);
-            var resp = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var resp = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
             {
                 _logger.LogWarning("MESA {Type} HTTP {Status} — event delivery failed", eventType, (int)resp.StatusCode);

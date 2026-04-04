@@ -895,7 +895,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var uploadRequest = CreateRequest(HttpMethod.Put, uploadUrl);
         uploadRequest.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
-        var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+        using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
 
         if (!uploadResponse.IsSuccessStatusCode)
         {
@@ -1379,7 +1379,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             uploadRequest.Content = new ByteArrayContent(pdfBytes);
             uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 
-            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
             if (!uploadResponse.IsSuccessStatusCode)
             {
                 var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
