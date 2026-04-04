@@ -159,7 +159,7 @@
         </Border>
 
         <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="5" IsVisible="{Binding HasError}"
+        <Border Grid.Row="1" Grid.RowSpan="4" IsVisible="{Binding HasError}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
             <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
                 <TextBlock Text="Hata oluştu" FontSize="{StaticResource FontSizeTitle}"
