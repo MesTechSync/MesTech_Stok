@@ -63,6 +63,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", "whatsapp"));
                 var payload = new
                 {
                     phone = phoneNumber,
@@ -108,6 +109,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", "telegram"));
                 var payload = new
                 {
                     chatId = channelId,
@@ -153,6 +155,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
         {
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", channel.ToString().ToLowerInvariant()));
                 var payload = new
                 {
                     channel = channel.ToString().ToLowerInvariant(),
