@@ -24,7 +24,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
 public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
