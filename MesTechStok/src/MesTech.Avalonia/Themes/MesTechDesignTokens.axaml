@@ -98,6 +98,30 @@
     <Color x:Key="MesTealMaterial">#00897B</Color>
     <Color x:Key="MesTealDark">#00695C</Color>
 
+    <!-- ═══ CARGO BRAND COLORS ═══ -->
+    <Color x:Key="MesBrandYurtici">#E31E24</Color>
+    <Color x:Key="MesBrandAras">#00A651</Color>
+    <Color x:Key="MesBrandSurat">#ED1C24</Color>
+    <Color x:Key="MesBrandMng">#E30613</Color>
+    <Color x:Key="MesBrandPttKargo">#FFC107</Color>
+    <Color x:Key="MesBrandHepsijet">#FF6000</Color>
+    <Color x:Key="MesBrandSendeo">#00BCD4</Color>
+    <Color x:Key="MesNeutralGray">#9E9E9E</Color>
+
+    <!-- ═══ CONNECTION STATUS ═══ -->
+    <Color x:Key="MesConnectedGreen">#4CAF50</Color>
+    <Color x:Key="MesDisconnectedRed">#F44336</Color>
+
+    <!-- ═══ TIMELINE STEP ═══ -->
+    <Color x:Key="MesTimelineActive">#2196F3</Color>
+    <Color x:Key="MesTimelineInactive">#BDBDBD</Color>
+    <Color x:Key="MesTimelineTrack">#E0E0E0</Color>
+    <Color x:Key="MesTimelineText">#212121</Color>
+
+    <!-- ═══ STOCK LEVEL BACKGROUNDS ═══ -->
+    <Color x:Key="MesStockOutBg">#FFEBEE</Color>
+    <Color x:Key="MesStockLowBg">#FFF8E1</Color>
+
     <!-- ═══ PLAN BADGE COLORS ═══ -->
     <Color x:Key="MesBadgeLightBg">#E5E7EB</Color>
     <Color x:Key="MesBadgeProStart">#3B82F6</Color>

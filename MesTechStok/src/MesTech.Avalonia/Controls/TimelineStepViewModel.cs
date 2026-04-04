@@ -5,6 +5,9 @@ namespace MesTech.Avalonia.Controls;
 
 public class TimelineStepViewModel
 {
+    private static Color T(string key) =>
+        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+
     public string StepTitle { get; set; } = "";
     public DateTime? CompletedAt { get; set; }
     public bool IsCompleted => CompletedAt.HasValue;
@@ -15,16 +18,16 @@ public class TimelineStepViewModel
     public FontWeight TitleWeight => IsCurrent ? FontWeight.Bold : FontWeight.Normal;
 
     public ISolidColorBrush StepColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50"))
-        : IsCurrent ? new SolidColorBrush(Color.Parse("#2196F3")) : new SolidColorBrush(Colors.Transparent);
+        ? new SolidColorBrush(T("MesConnectedGreen"))
+        : IsCurrent ? new SolidColorBrush(T("MesTimelineActive")) : new SolidColorBrush(Colors.Transparent);
 
     public ISolidColorBrush StepBorderColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50"))
-        : IsCurrent ? new SolidColorBrush(Color.Parse("#2196F3")) : new SolidColorBrush(Color.Parse("#BDBDBD"));
+        ? new SolidColorBrush(T("MesConnectedGreen"))
+        : IsCurrent ? new SolidColorBrush(T("MesTimelineActive")) : new SolidColorBrush(T("MesTimelineInactive"));
 
     public ISolidColorBrush LineColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50")) : new SolidColorBrush(Color.Parse("#E0E0E0"));
+        ? new SolidColorBrush(T("MesConnectedGreen")) : new SolidColorBrush(T("MesTimelineTrack"));
 
     public ISolidColorBrush TitleColor => IsCompleted || IsCurrent
-        ? new SolidColorBrush(Color.Parse("#212121")) : new SolidColorBrush(Color.Parse("#9E9E9E"));
+        ? new SolidColorBrush(T("MesTimelineText")) : new SolidColorBrush(T("MesNeutralGray"));
 }

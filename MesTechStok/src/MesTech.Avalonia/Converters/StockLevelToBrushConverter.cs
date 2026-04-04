@@ -14,20 +14,23 @@ namespace MesTech.Avalonia.Converters;
 /// </summary>
 public class StockLevelToBrushConverter : IValueConverter
 {
-    private static readonly IBrush OutOfStockBrush = new SolidColorBrush(Color.Parse("#FFEBEE"));
-    private static readonly IBrush LowStockBrush   = new SolidColorBrush(Color.Parse("#FFF8E1"));
-    private static readonly IBrush NormalBrush     = Brushes.Transparent;
+    private static Color Token(string key) =>
+        global::Avalonia.Application.Current?.FindResource(key) is Color c ? c : Colors.Gray;
+
+    private static IBrush OutOfStockBrush => new SolidColorBrush(Token("MesStockOutBg"));
+    private static IBrush LowStockBrush   => new SolidColorBrush(Token("MesStockLowBg"));
+    private static IBrush NormalBrush     => Brushes.Transparent;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         // Pre-computed color string path (from RowBackground property)
         if (value is string colorStr)
         {
-            return colorStr switch
+            return colorStr.ToUpperInvariant() switch
             {
-                "#FFEBEE" => OutOfStockBrush,
-                "#FFF8E1" => LowStockBrush,
-                _         => NormalBrush
+                "#FFEBEE" or "OUTOFSTOCK" => OutOfStockBrush,
+                "#FFF8E1" or "LOWSTOCK"   => LowStockBrush,
+                _                         => NormalBrush
             };
         }
 
