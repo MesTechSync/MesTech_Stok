@@ -2402,23 +2402,37 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     // ═══════════════════════════════════════════
 
     /// <summary>
-    /// Gets product reviews for the seller.
-    /// GET /sapigw/sellers/{supplierId}/products/reviews?page={page}&amp;size={size}
+    /// Gets product reviews for the seller with optional filters.
+    /// GET /sapigw/sellers/{supplierId}/products/reviews?page={page}&amp;size={size}&amp;...
     /// </summary>
-    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(int page = 0, int size = 20, CancellationToken ct = default)
+    /// <param name="page">Sayfa numarasi (0-based).</param>
+    /// <param name="size">Sayfa boyutu.</param>
+    /// <param name="productId">Belirli bir urun icin filtrele (null = tum urunler).</param>
+    /// <param name="minRating">Minimum yildiz filtresi (1-5, null = filtre yok).</param>
+    /// <param name="unrepliedOnly">Sadece cevapsiz review'lari getir.</param>
+    /// <param name="ct">Cancellation token.</param>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, long? productId = null,
+        int? minRating = null, bool unrepliedOnly = false, CancellationToken ct = default)
     {
         EnsureConfigured();
-        _logger.LogInformation("TrendyolAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+        _logger.LogInformation("TrendyolAdapter.GetProductReviewsAsync page={Page} size={Size} productId={ProductId} minRating={MinRating} unrepliedOnly={UnrepliedOnly}",
+            page, size, productId, minRating, unrepliedOnly);
 
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
+            var queryParams = $"page={page}&size={size}";
+            if (productId.HasValue) queryParams += $"&productId={productId.Value}";
+            if (minRating.HasValue) queryParams += $"&minRate={minRating.Value}";
+            if (unrepliedOnly) queryParams += "&isReplied=false";
+
             using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get,
-                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews?page={page}&size={size}", UriKind.Relative));
+                        new Uri($"/sapigw/sellers/{_supplierId}/products/reviews?{queryParams}", UriKind.Relative));
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
