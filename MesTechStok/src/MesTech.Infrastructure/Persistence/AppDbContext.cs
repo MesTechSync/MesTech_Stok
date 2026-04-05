@@ -62,6 +62,7 @@ public class AppDbContext : DbContext
     {
         var tenantId = CurrentTenantId;
         var now = DateTime.UtcNow;
+        var userName = _tenantProvider.GetCurrentUserName();
 
         foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {
@@ -69,10 +70,14 @@ public class AppDbContext : DbContext
             {
                 entry.Entity.CreatedAt = now;
                 entry.Entity.UpdatedAt = now;
+                if (string.IsNullOrEmpty(entry.Entity.CreatedBy) || entry.Entity.CreatedBy == "system")
+                    entry.Entity.CreatedBy = userName;
+                entry.Entity.UpdatedBy = userName;
             }
             else if (entry.State == EntityState.Modified)
             {
                 entry.Entity.UpdatedAt = now;
+                entry.Entity.UpdatedBy = userName;
             }
         }
 
