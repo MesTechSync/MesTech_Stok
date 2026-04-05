@@ -65,9 +65,9 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     }
 
     /// <summary>
-    /// Extracts claims from a JWT token. For demo tokens (non-JWT format),
-    /// returns a minimal set of claims so the app still works in demo mode.
-    /// Validates token expiration to prevent use of expired tokens.
+    /// Extracts claims from a JWT token. Validates format and expiration.
+    /// SECURITY: Non-JWT or malformed tokens are REJECTED (empty claims = anonymous).
+    /// Demo mode requires explicit ASPNETCORE_ENVIRONMENT=Development check.
     /// </summary>
     private static List<Claim> ParseClaimsFromToken(string token)
     {
@@ -83,8 +83,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
                 // Validate token expiration — expired tokens must not grant access
                 if (jwt.ValidTo != DateTime.MinValue && jwt.ValidTo < DateTime.UtcNow)
                 {
-                    claims.Add(new Claim(ClaimTypes.Name, "Expired"));
-                    claims.Add(new Claim("token_type", "expired"));
+                    // Expired token → return empty claims (unauthenticated)
                     return claims;
                 }
 
@@ -99,18 +98,14 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
                         claims.Add(new Claim(ClaimTypes.Name, nameClaim.Value));
                 }
             }
-            else
-            {
-                // Demo/fallback token — not a real JWT (e.g., "demo-token")
-                claims.Add(new Claim(ClaimTypes.Name, "Demo"));
-                claims.Add(new Claim("token_type", "demo"));
-            }
+            // else: Non-JWT token → return empty claims (unauthenticated)
+            // SECURITY FIX (HH-DEV4-027): Previously returned Demo claims for ANY
+            // non-JWT string, allowing authentication bypass with garbage tokens.
         }
         catch
         {
-            // Malformed token — treat as demo
-            claims.Add(new Claim(ClaimTypes.Name, "Demo"));
-            claims.Add(new Claim("token_type", "demo"));
+            // Malformed token → return empty claims (unauthenticated)
+            // SECURITY FIX (HH-DEV4-027): Previously granted Demo access on parse errors.
         }
 
         return claims;
