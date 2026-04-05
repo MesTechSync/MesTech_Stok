@@ -170,7 +170,8 @@ public sealed class DlqReprocessService
 
             foreach (var queue in doc.RootElement.EnumerateArray())
             {
-                var name = queue.GetProperty("name").GetString() ?? "";
+                var name = queue.TryGetProperty("name", out var nameProp)
+                    ? nameProp.GetString() ?? "" : "";
                 if (!name.EndsWith("_error")) continue;
 
                 var messageCount = queue.TryGetProperty("messages", out var msgProp)

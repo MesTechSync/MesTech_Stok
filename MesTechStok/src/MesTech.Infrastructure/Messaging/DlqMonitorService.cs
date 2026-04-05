@@ -68,7 +68,8 @@ public sealed class DlqMonitorService
 
             foreach (var queue in queues.EnumerateArray())
             {
-                var name = queue.GetProperty("name").GetString() ?? "";
+                var name = queue.TryGetProperty("name", out var nameProp)
+                    ? nameProp.GetString() ?? "" : "";
                 if (!name.EndsWith("_error"))
                     continue;
 
