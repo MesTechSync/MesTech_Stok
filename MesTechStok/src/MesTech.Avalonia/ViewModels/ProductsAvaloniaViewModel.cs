@@ -22,6 +22,13 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedPlatform = "Tumu";
     [ObservableProperty] private int totalCount;
 
+    // HH-DEV2-001: Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+    public int[] PageSizeOptions { get; } = [25, 50, 100];
+
     // GOREV 5: Grid/List toggle
     [ObservableProperty] private bool isGridView;
     [ObservableProperty] private bool isListView = true;
@@ -135,12 +142,24 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(p => p.Platform == SelectedPlatform);
         }
 
+        // HH-DEV2-001: Apply pagination
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        var paged = filteredList
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize);
+
         Products.Clear();
-        foreach (var item in filtered)
+        foreach (var item in paged)
             Products.Add(item);
 
-        TotalCount = Products.Count;
-        IsEmpty = Products.Count == 0;
+        IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} urun)"
+            : string.Empty;
 
         // Update match info
         if (!string.IsNullOrWhiteSpace(SearchText) && SearchText.Length >= 2 && TotalCount > 0)
@@ -165,6 +184,21 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         while (RecentSearches.Count > 5)
             RecentSearches.RemoveAt(RecentSearches.Count - 1);
     }
+
+    // HH-DEV2-001: Page navigation commands
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void FirstPage() { CurrentPage = 1; ApplyFilters(); }
+
+    [RelayCommand]
+    private void LastPage() { CurrentPage = TotalPages; ApplyFilters(); }
+
+    partial void OnPageSizeChanged(int value) { CurrentPage = 1; if (_allProducts.Count > 0) ApplyFilters(); }
 
     [RelayCommand]
     private async Task RefreshAsync()
@@ -219,6 +253,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     {
         if (_allProducts.Count > 0)
         {
+            CurrentPage = 1;
             ApplyFilters();
 
             // Add to recent searches when user pauses typing (3+ chars)
@@ -229,8 +264,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
 
     partial void OnSelectedPlatformChanged(string value)
     {
-        if (_allProducts.Count > 0)
-            ApplyFilters();
+        if (_allProducts.Count > 0) { CurrentPage = 1; ApplyFilters(); }
     }
 
     partial void OnFilterOutOfStockChanged(bool value)
