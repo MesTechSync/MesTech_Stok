@@ -21,6 +21,13 @@ public sealed class OrderDetailDto
     public string? CargoProvider { get; init; }
     public string? Notes { get; init; }
     public PlatformType? SourcePlatform { get; init; }
+    public string? PaymentStatus { get; init; }
+
+    // Timeline — OrderTimelineControl için gerekli
+    public DateTime? ConfirmedAt { get; init; }
+    public DateTime? ShippedAt { get; init; }
+    public DateTime? DeliveredAt { get; init; }
+
     public IReadOnlyList<OrderLineItemDto> LineItems { get; init; } = [];
 }
 
