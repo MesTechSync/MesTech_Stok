@@ -28,9 +28,10 @@ public class ReturnToStockReverseChainTests
 
         var product = new Product
         {
-            SKU = "RET-001", Name = "Iade Urun", Stock = 47,
+            SKU = "RET-001", Name = "Iade Urun",
             MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId
         };
+        product.SyncStock(47, "test-seed");
 
         // Use product.Id so productMap.TryGetValue matches
         var lines = new List<ReturnLineInfoEvent> { new(product.Id, "RET-001", 3, 100m) };
@@ -53,9 +54,10 @@ public class ReturnToStockReverseChainTests
     {
         var existingProduct = new Product
         {
-            SKU = "EXISTS-001", Name = "Mevcut Urun", Stock = 10,
+            SKU = "EXISTS-001", Name = "Mevcut Urun",
             MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = Guid.NewGuid()
         };
+        existingProduct.SyncStock(10, "test-seed");
 
         // Use existingProduct.Id for the matching line, random Guid for missing
         var lines = new List<ReturnLineInfoEvent>
