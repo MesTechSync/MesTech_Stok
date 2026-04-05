@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,10 +16,12 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private readonly INavigationService _nav;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedStatus = "Tümü";
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private OrderItemDto? selectedOrder;
 
     public ObservableCollection<OrderItemDto> Orders { get; } = [];
 
@@ -29,10 +32,11 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
     private List<OrderItemDto> _allOrders = [];
 
-    public OrdersAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    public OrdersAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider, INavigationService nav)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+        _nav = nav;
     }
 
     public override async Task LoadAsync()
@@ -84,6 +88,14 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-010: Navigate to OrderDetail on double-click or button
+    [RelayCommand]
+    private async Task ShowOrderDetail()
+    {
+        if (SelectedOrder is null) return;
+        await _nav.NavigateToAsync("OrderDetail");
+    }
 
     partial void OnSearchTextChanged(string value)
     {
