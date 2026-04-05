@@ -70,7 +70,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
         }
         finally
         {
-            try { _listener?.Stop(); } catch (ObjectDisposedException) { }
+            try { _listener?.Stop(); } catch (ObjectDisposedException ex) { _logger.LogDebug(ex, "MESA status listener already disposed during shutdown"); }
         }
     }
 

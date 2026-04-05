@@ -30,8 +30,10 @@ public sealed class RealMesaEventPublisher : IMesaEventPublisher
         _httpClient = httpClient;
         _monitor = monitor;
         _logger = logger;
-        _mesaEndpoint = config["Mesa:BaseUrl"] ?? "http://localhost:3000";
-        _apiKey = config["Mesa:ApiKey"] ?? string.Empty;
+        _mesaEndpoint = config["Mesa:BaseUrl"]
+            ?? throw new InvalidOperationException("Mesa:BaseUrl is not configured. Add it to appsettings or environment variables.");
+        _apiKey = config["Mesa:ApiKey"]
+            ?? throw new InvalidOperationException("Mesa:ApiKey is not configured. Add it to appsettings or environment variables.");
 
         _circuitBreaker = Policy
             .Handle<HttpRequestException>()

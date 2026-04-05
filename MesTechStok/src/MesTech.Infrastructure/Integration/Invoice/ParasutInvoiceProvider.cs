@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Security;
@@ -15,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Content-Type: application/vnd.api+json
 /// Request/response wrapped in { data: { type, attributes } }
 /// </summary>
-public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
+public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ParasutInvoiceProvider> _logger;
@@ -428,5 +429,96 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             _logger.LogError(ex, "Parasut POST {Url} exception", url);
             return new InvoiceResult(false, null, null, ex.Message);
         }
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "Parasut";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[Parasut] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            // Parasut JSON:API format: POST /{companyId}/e_invoices
+            var payload = new
+            {
+                data = new
+                {
+                    type = "e_invoices",
+                    attributes = new
+                    {
+                        scenario = document.Scenario.ToString().ToLowerInvariant(),
+                        to = document.BuyerVkn ?? "",
+                        note = $"ETTN: {document.EttnNo}",
+                        issue_date = document.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    }
+                }
+            };
+            var json = JsonSerializer.Serialize(payload, s_snakeCaseJson);
+            var url = $"{_baseUrl}/{_companyId}/e_invoices";
+            var content = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
+            }
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            string? providerRef = null;
+            if (doc.RootElement.TryGetProperty("data", out var data))
+                providerRef = data.TryGetProperty("id", out var id) ? id.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Parasut] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            var url = $"{_baseUrl}/{_companyId}/e_invoices/{providerRef}";
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            if (doc.RootElement.TryGetProperty("data", out var data) &&
+                data.TryGetProperty("attributes", out var attrs) &&
+                attrs.TryGetProperty("pdf_url", out var pdfUrl))
+                return pdfUrl.GetString();
+            return null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Parasut] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        var result = await CancelInvoiceAsync(providerRef, ct).ConfigureAwait(false);
+        return result.Success;
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        var isRegistered = await IsEInvoiceTaxpayerAsync(vkn, ct).ConfigureAwait(false);
+        return new VknMukellefResult(vkn, isRegistered, false, null, DateTime.UtcNow);
+    }
+
+    Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        // Parasut: kontor tabanlı değil, abonelik bazlı — sınırsız
+        return Task.FromResult(int.MaxValue);
     }
 }

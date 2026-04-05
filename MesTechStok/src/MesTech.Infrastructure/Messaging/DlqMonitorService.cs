@@ -38,9 +38,12 @@ public sealed class DlqMonitorService
 
     public async Task CheckDlqDepthAsync(CancellationToken ct = default)
     {
-        var rabbitHost = _configuration["RabbitMQ:Host"] ?? "localhost";
-        var rabbitUser = _configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitPass = _configuration["RabbitMQ:Password"] ?? "guest";
+        var rabbitHost = _configuration["RabbitMQ:Host"]
+            ?? throw new InvalidOperationException("RabbitMQ:Host is not configured. Add it to appsettings or environment variables.");
+        var rabbitUser = _configuration["RabbitMQ:Username"]
+            ?? throw new InvalidOperationException("RabbitMQ:Username is not configured. Add it to appsettings or environment variables.");
+        var rabbitPass = _configuration["RabbitMQ:Password"]
+            ?? throw new InvalidOperationException("RabbitMQ:Password is not configured. Add it to appsettings or environment variables.");
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
