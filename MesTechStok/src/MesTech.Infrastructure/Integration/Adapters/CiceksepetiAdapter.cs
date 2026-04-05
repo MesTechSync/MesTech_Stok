@@ -445,16 +445,77 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     }
 
     // ── Webhook methods ─────────────────────────────────
-    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+
+    /// <summary>
+    /// Ciceksepeti API v2: POST /api/v2/webhooks — webhook URL kaydeder.
+    /// Events: OrderCreated, OrderStatusChanged, OrderCancelled, ReturnCreated.
+    /// </summary>
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
     {
-        _logger.LogInformation("Ciceksepeti webhook registration not supported via API — manual panel config");
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("Ciceksepeti RegisterWebhook: {Url}", callbackUrl);
+
+        try
+        {
+            var payload = JsonSerializer.Serialize(new
+            {
+                url = callbackUrl,
+                events = new[] { "OrderCreated", "OrderStatusChanged", "OrderCancelled", "ReturnCreated" }
+            }, _jsonOptions);
+
+            using var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post, "api/v2/webhooks");
+                    req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti webhook registered: {Url}", callbackUrl);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti RegisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti RegisterWebhook exception");
+            return false;
+        }
     }
 
-    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Ciceksepeti API v2: DELETE /api/v2/webhooks — tüm webhook kayıtlarını siler.
+    /// </summary>
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("Ciceksepeti webhook unregistration not supported via API — manual panel config");
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("Ciceksepeti UnregisterWebhook");
+
+        try
+        {
+            using var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Delete, "api/v2/webhooks"), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti webhooks unregistered");
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti UnregisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti UnregisterWebhook exception");
+            return false;
+        }
     }
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
