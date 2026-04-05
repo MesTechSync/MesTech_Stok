@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Web;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
+using MesTech.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Webhooks;
@@ -15,13 +16,16 @@ namespace MesTech.Infrastructure.Integration.Webhooks;
 public sealed class WebhookReceiverService : IWebhookReceiverService
 {
     private readonly IEnumerable<IIntegratorAdapter> _adapters;
+    private readonly IIntegrationEventPublisher _eventPublisher;
     private readonly ILogger<WebhookReceiverService> _logger;
 
     public WebhookReceiverService(
         IEnumerable<IIntegratorAdapter> adapters,
+        IIntegrationEventPublisher eventPublisher,
         ILogger<WebhookReceiverService> logger)
     {
         _adapters = adapters ?? throw new ArgumentNullException(nameof(adapters));
+        _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -46,6 +50,27 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
 
             using var doc = JsonDocument.Parse(payload);
             var orderId = ExtractFieldFromPayload(doc, "orderNumber", "order_id", "platformOrderId");
+            var totalAmount = ExtractDecimalFromPayload(doc, "totalPrice", "grandTotal", "amount");
+
+            // Webhook → Integration Event dispatch — sipariş sync tetikle
+            if (!string.IsNullOrEmpty(orderId))
+            {
+                try
+                {
+                    await _eventPublisher.PublishOrderReceivedAsync(
+                        Guid.NewGuid(), platformCode, orderId, totalAmount, ct).ConfigureAwait(false);
+
+                    _logger.LogInformation(
+                        "Webhook → OrderReceivedEvent published: Platform={Platform} OrderId={OrderId}",
+                        platformCode, orderId);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    _logger.LogWarning(ex,
+                        "Webhook event publish failed (non-fatal): Platform={Platform} OrderId={OrderId}",
+                        platformCode, orderId);
+                }
+            }
 
             _logger.LogInformation("Order webhook processed: Platform={Platform} OrderId={OrderId}",
                 platformCode, orderId);
@@ -225,5 +250,21 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
                 return val.ToString();
         }
         return null;
+    }
+
+    private static decimal ExtractDecimalFromPayload(JsonDocument doc, params string[] fieldNames)
+    {
+        foreach (var field in fieldNames)
+        {
+            if (doc.RootElement.TryGetProperty(field, out var val))
+            {
+                if (val.ValueKind == JsonValueKind.Number && val.TryGetDecimal(out var d))
+                    return d;
+                if (val.ValueKind == JsonValueKind.String && decimal.TryParse(val.GetString(),
+                    System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+                    return parsed;
+            }
+        }
+        return 0m;
     }
 }
