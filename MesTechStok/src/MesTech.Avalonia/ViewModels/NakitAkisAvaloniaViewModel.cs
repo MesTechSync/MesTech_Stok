@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowReport;
 using MesTech.Application.Features.Accounting.Queries.GetCashFlowTrend;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -28,6 +29,10 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<CashFlowItemDto> Items { get; } = [];
     private List<CashFlowItemDto> _allItems = [];
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false; // newest first
 
     public ObservableCollection<string> PeriodTypes { get; } =
         ["Gunluk", "Haftalik", "Aylik", "Yillik"];
@@ -98,12 +103,45 @@ public partial class NakitAkisAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(x => x.Description.Contains(s, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "Date"        => SortAscending ? filtered.OrderBy(x => x.Date).ToList()        : filtered.OrderByDescending(x => x.Date).ToList(),
+            "Description" => SortAscending ? filtered.OrderBy(x => x.Description).ToList() : filtered.OrderByDescending(x => x.Description).ToList(),
+            "Inflow"      => SortAscending ? filtered.OrderBy(x => x.Inflow).ToList()      : filtered.OrderByDescending(x => x.Inflow).ToList(),
+            "Outflow"     => SortAscending ? filtered.OrderBy(x => x.Outflow).ToList()     : filtered.OrderByDescending(x => x.Outflow).ToList(),
+            _             => SortAscending ? filtered.OrderBy(x => x.Date).ToList()        : filtered.OrderByDescending(x => x.Date).ToList(),
+        };
+
         Items.Clear();
-        foreach (var item in filtered)
+        foreach (var item in sortedList)
             Items.Add(item);
 
         TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "cashflow", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Nakit akis verileri disa aktarilirken hata");
     }
 
     [RelayCommand]
