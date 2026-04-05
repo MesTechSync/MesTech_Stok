@@ -8,7 +8,7 @@ public sealed class CreateExpenseValidator : AbstractValidator<CreateExpenseComm
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Amount).GreaterThan(0).WithMessage("Gider tutarı sıfırdan büyük olmalıdır.");
         RuleFor(x => x.Notes).MaximumLength(500).When(x => x.Notes != null);
     }
 }

@@ -6,6 +6,6 @@ public sealed class CreateBulkProductsValidator : AbstractValidator<CreateBulkPr
 {
     public CreateBulkProductsValidator()
     {
-        RuleFor(x => x.Count).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Count).GreaterThan(0).WithMessage("Ürün sayısı sıfırdan büyük olmalıdır.");
     }
 }

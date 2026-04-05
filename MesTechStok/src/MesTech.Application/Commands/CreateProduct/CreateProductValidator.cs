@@ -10,7 +10,7 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
         RuleFor(x => x.SKU).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Barcode).MaximumLength(500).When(x => x.Barcode != null);
         RuleFor(x => x.PurchasePrice).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.SalePrice).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.SalePrice).GreaterThan(0).WithMessage("Satış fiyatı sıfırdan büyük olmalıdır.");
         RuleFor(x => x.CategoryId).NotEmpty();
         RuleFor(x => x.Description).MaximumLength(500).When(x => x.Description != null);
         RuleFor(x => x.MinimumStock).GreaterThanOrEqualTo(0);

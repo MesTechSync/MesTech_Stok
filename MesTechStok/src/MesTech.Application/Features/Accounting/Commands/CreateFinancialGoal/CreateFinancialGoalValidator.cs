@@ -8,6 +8,6 @@ public sealed class CreateFinancialGoalValidator : AbstractValidator<CreateFinan
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.TargetAmount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.TargetAmount).GreaterThan(0).WithMessage("Hedef tutar sıfırdan büyük olmalıdır.");
     }
 }
