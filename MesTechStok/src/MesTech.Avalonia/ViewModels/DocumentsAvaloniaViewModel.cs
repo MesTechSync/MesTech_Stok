@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Documents.Queries.GetDocuments;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -22,6 +23,10 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<DocumentListDto> documents = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string summary = string.Empty;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false; // newest first
 
     private List<DocumentListDto> _allDocuments = [];
 
@@ -58,10 +63,42 @@ public partial class DocumentsAvaloniaViewModel : ViewModelBase
                 (d.FolderName ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
-        Documents = new ObservableCollection<DocumentListDto>(filtered);
+        // Sort
+        var sorted = SortColumn switch
+        {
+            "FileName"   => SortAscending ? filtered.OrderBy(x => x.FileName).ToList()   : filtered.OrderByDescending(x => x.FileName).ToList(),
+            "MimeType"   => SortAscending ? filtered.OrderBy(x => x.MimeType).ToList()   : filtered.OrderByDescending(x => x.MimeType).ToList(),
+            "FolderName" => SortAscending ? filtered.OrderBy(x => x.FolderName).ToList() : filtered.OrderByDescending(x => x.FolderName).ToList(),
+            _            => SortAscending ? filtered.OrderBy(x => x.FileName).ToList()   : filtered.OrderByDescending(x => x.FileName).ToList(),
+        };
+
+        Documents = new ObservableCollection<DocumentListDto>(sorted);
         TotalCount = Documents.Count;
         IsEmpty = TotalCount == 0;
         Summary = $"Toplam {TotalCount} belge";
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "documents", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Belgeler disa aktarilirken hata");
     }
 
     [RelayCommand]
