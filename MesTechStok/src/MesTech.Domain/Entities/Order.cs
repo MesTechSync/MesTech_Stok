@@ -178,6 +178,12 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void MarkAsPaid()
     {
+        if (PaymentStatus == "Paid") return; // idempotent — çift event önleme
+
+        if (Status == OrderStatus.Cancelled)
+            throw new BusinessRuleException("OrderPayment",
+                "Cannot mark a cancelled order as paid.");
+
         PaymentStatus = "Paid";
         RaiseDomainEvent(new OrderPaidEvent(Id, TenantId, OrderNumber, TotalAmount, DateTime.UtcNow));
     }
