@@ -14,15 +14,15 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var checkResult = await CheckLimitAsync(context, "products").ConfigureAwait(false);
-        if (checkResult is not null) return checkResult;
 
         try
         {
+            if (checkResult is not null) return checkResult;
             return await next(context).ConfigureAwait(false);
         }
         finally
         {
-            // G134: Release distributed lock after handler completes
+            // G134: Release distributed lock — covers both limit-exceeded and handler-complete paths
             if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var lockObj)
                 && lockObj is IAsyncDisposable lockHandle)
             {
@@ -134,9 +134,11 @@ public sealed class StorePlanLimitFilter : IEndpointFilter
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var checkResult = await ProductPlanLimitFilter.CheckLimitAsync(context, "stores").ConfigureAwait(false);
-        if (checkResult is not null) return checkResult;
-
-        try { return await next(context).ConfigureAwait(false); }
+        try
+        {
+            if (checkResult is not null) return checkResult;
+            return await next(context).ConfigureAwait(false);
+        }
         finally
         {
             if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var l) && l is IAsyncDisposable lh)
@@ -151,9 +153,11 @@ public sealed class UserPlanLimitFilter : IEndpointFilter
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var checkResult = await ProductPlanLimitFilter.CheckLimitAsync(context, "users").ConfigureAwait(false);
-        if (checkResult is not null) return checkResult;
-
-        try { return await next(context).ConfigureAwait(false); }
+        try
+        {
+            if (checkResult is not null) return checkResult;
+            return await next(context).ConfigureAwait(false);
+        }
         finally
         {
             if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var l) && l is IAsyncDisposable lh)
