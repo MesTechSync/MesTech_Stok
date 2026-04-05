@@ -47,9 +47,19 @@ public sealed class AnomalyCheckHandler
             "[Anomaly] LedgerPosted yakalandi: JournalEntryId={JournalEntryId}, Tutar={Amount:N2}",
             e.JournalEntryId, e.TotalAmount);
 
-        // Anomali kontrolleri
-        await CheckDuplicateAsync(e, ct).ConfigureAwait(false);
-        await CheckAbnormalAmountAsync(e, ct).ConfigureAwait(false);
+        // Anomali kontrolleri — exception domain event zincirini KIRMAMALI
+        try
+        {
+            await CheckDuplicateAsync(e, ct).ConfigureAwait(false);
+            await CheckAbnormalAmountAsync(e, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "[Anomaly] Anomaly check failed for JournalEntryId={JournalEntryId} — " +
+                "ledger posting continues, anomaly detection skipped",
+                e.JournalEntryId);
+        }
     }
 
     /// <summary>
