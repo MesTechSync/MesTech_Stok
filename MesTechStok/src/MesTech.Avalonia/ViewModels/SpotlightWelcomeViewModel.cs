@@ -250,9 +250,11 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                 }
             }
 
-            // Offline fallback: admin / Admin123!
+#if DEBUG
+            // Offline fallback: ONLY in DEBUG builds — never in production
             if (!isValid && username == "admin" && password == "Admin123!")
                 isValid = true;
+#endif
 
             // Minimum 300ms delay
             var elapsed = DateTime.Now - loginStart;
