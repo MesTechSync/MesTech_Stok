@@ -46,6 +46,10 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string lastUpdated = "--:--";
 
+    // HH-DEV2-020: Date filter
+    [ObservableProperty] private string selectedPeriod = "Bugun";
+    public string[] PeriodOptions { get; } = ["Bugun", "Bu Hafta", "Bu Ay", "Son 3 Ay"];
+
     // Zarar uyarı (Chain 10 — PriceLossDetectedEvent)
     [ObservableProperty] private int priceLossCount;
     [ObservableProperty] private string priceLossAlertText = string.Empty;
@@ -57,6 +61,12 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
             ? $"{value} urunde satis fiyati alis fiyatinin altinda"
             : string.Empty;
         OnPropertyChanged(nameof(HasPriceLossAlerts));
+    }
+
+    // HH-DEV2-020: Period change triggers data reload
+    partial void OnSelectedPeriodChanged(string value)
+    {
+        _ = LoadAsync();
     }
 
     // ── Auto-refresh toggle ───────────────────────────────────────────────
