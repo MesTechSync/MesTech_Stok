@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using MesTech.Domain.Common;
 using MesTech.Domain.Dropshipping.Entities;
 using MesTech.Domain.Entities;
@@ -370,7 +370,6 @@ public class AppDbContext : DbContext
             e.HasIndex(p => p.IsActive);
             e.Ignore(p => p.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<StockMovement>(e =>
@@ -380,7 +379,6 @@ public class AppDbContext : DbContext
             e.HasIndex(s => s.Date);
             e.Ignore(s => s.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<Order>(e =>
@@ -389,7 +387,6 @@ public class AppDbContext : DbContext
             e.HasIndex(o => o.OrderNumber).IsUnique();
             e.HasIndex(o => o.CustomerId);
             e.Ignore(o => o.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -461,7 +458,6 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             e.Ignore(i => i.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -554,7 +550,6 @@ public class AppDbContext : DbContext
             e.Property(r => r.CustomerName).HasMaxLength(300);
             e.Ignore(r => r.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         // AccountTransaction
@@ -574,7 +569,6 @@ public class AppDbContext : DbContext
         {
             e.HasIndex(a => a.TenantId).HasDatabaseName("IX_CustomerAccounts_TenantId");
             e.Ignore(a => a.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -987,7 +981,6 @@ public class AppDbContext : DbContext
             e.HasOne(l => l.Account).WithMany().HasForeignKey(l => l.AccountId).OnDelete(DeleteBehavior.Restrict);
             e.Ignore(l => l.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<SettlementBatch>(e =>
@@ -1002,7 +995,6 @@ public class AppDbContext : DbContext
             e.HasMany(s => s.Lines).WithOne(l => l.SettlementBatch).HasForeignKey(l => l.SettlementBatchId).OnDelete(DeleteBehavior.Cascade);
             e.Ignore(s => s.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<SettlementLine>(e =>
@@ -1016,7 +1008,6 @@ public class AppDbContext : DbContext
             e.Property(l => l.RefundDeduction).HasPrecision(18, 2);
             e.Property(l => l.NetAmount).HasPrecision(18, 2);
             e.Ignore(l => l.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -1033,7 +1024,6 @@ public class AppDbContext : DbContext
             e.HasIndex(c => c.TenantId).HasDatabaseName("IX_CommissionRecords_TenantId");
             e.HasIndex(c => new { c.TenantId, c.Platform }).HasDatabaseName("IX_CommissionRecords_Tenant_Platform");
             e.Ignore(c => c.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -1061,7 +1051,6 @@ public class AppDbContext : DbContext
                 .HasDatabaseName("IX_AccountingBankTransactions_Tenant_IdempotencyKey");
             e.Ignore(t => t.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<ReconciliationMatch>(e =>
@@ -1072,7 +1061,6 @@ public class AppDbContext : DbContext
             e.HasIndex(m => m.TenantId).HasDatabaseName("IX_ReconciliationMatches_TenantId");
             e.HasIndex(m => new { m.TenantId, m.Status }).HasDatabaseName("IX_ReconciliationMatches_Tenant_Status");
             e.Ignore(m => m.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -1087,7 +1075,6 @@ public class AppDbContext : DbContext
             e.HasIndex(d => new { d.TenantId, d.DocumentType }).HasDatabaseName("IX_AccountingDocuments_Tenant_Type");
             e.HasOne(d => d.Counterparty).WithMany().HasForeignKey(d => d.CounterpartyId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
             e.Ignore(d => d.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
@@ -1123,7 +1110,6 @@ public class AppDbContext : DbContext
             e.HasIndex(t => new { t.TenantId, t.Period }).HasDatabaseName("IX_TaxRecords_Tenant_Period");
             e.Ignore(t => t.RowVersion);
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
         modelBuilder.Entity<TaxWithholding>(e =>
@@ -1136,7 +1122,6 @@ public class AppDbContext : DbContext
             e.HasIndex(w => w.TenantId).HasDatabaseName("IX_TaxWithholdings_TenantId");
             e.HasIndex(w => w.InvoiceId).HasDatabaseName("IX_TaxWithholdings_InvoiceId");
             e.Ignore(w => w.RowVersion);
-            e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
             e.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
         });
 
