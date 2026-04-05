@@ -227,7 +227,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogError(jex, "OpenCart PushProduct: platform gecersiz yanit dondurdu — SKU={SKU}", product.SKU);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -295,7 +295,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             _logger.LogError(jex, "OpenCart PullProducts: platform gecersiz yanit dondurdu");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullProducts failed");
         }
@@ -335,7 +335,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogError(jex, "OpenCart StockUpdate: platform gecersiz yanit dondurdu — ProductId={ProductId}", productId);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart StockUpdate exception: {ProductId}", productId);
             return false;
@@ -402,7 +402,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -503,7 +503,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullOrders failed");
         }
@@ -540,7 +540,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart UpdateOrderStatus success: OrderId={OrderId} Status={Status}", packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -615,7 +615,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullCustomers: {Count} customers retrieved", customers.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullCustomers failed");
         }
@@ -665,7 +665,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushCustomer exception: {Email}", PiiLogMaskHelper.MaskEmail(customer.Email));
             return false;
@@ -736,7 +736,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart PullCategoryTree: {Count} root categories, {Total} total",
                 tree.Count, flatList.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullCategoryTree failed");
         }
@@ -792,7 +792,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushCategory exception: {Name}", category.Name);
             return false;
@@ -932,7 +932,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart GetCategories: {Count} top-level categories", roots.Count);
             return roots.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -1042,7 +1042,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1117,7 +1117,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart SendShipment hatasi — OrderId={OrderId}", platformOrderId);
             return false;
@@ -1264,7 +1264,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullClaims: {Count} claims retrieved", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullClaims failed");
         }
@@ -1309,7 +1309,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogWarning("OpenCart ApproveClaim basarisiz {Status}: {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
@@ -1358,7 +1358,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogWarning("OpenCart RejectClaim basarisiz {Status}: {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart RejectClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
@@ -1448,7 +1448,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             using var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "OpenCart ping failed");
             return false;

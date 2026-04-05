@@ -105,7 +105,7 @@ public sealed class FeedHealthCheckService
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Feed parse test failed for {FeedName}", feed.Name);
             return new FeedHealthResult(FeedHealthStatus.Degraded,

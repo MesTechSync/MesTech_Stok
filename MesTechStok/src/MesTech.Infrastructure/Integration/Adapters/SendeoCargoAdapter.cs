@@ -148,7 +148,7 @@ public sealed class SendeoCargoAdapter : ICargoAdapter, ICargoRateProvider
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[SendeoCargoAdapter] IsAvailableAsync health check failed — adapter=sendeo operation=health_check");
             return false;

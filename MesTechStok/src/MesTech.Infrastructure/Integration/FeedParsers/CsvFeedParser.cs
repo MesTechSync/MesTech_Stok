@@ -55,7 +55,7 @@ public sealed class CsvFeedParser : IFeedParserService
 
                 products.Add(product);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 skipped++;
                 errors.Add($"Line {lineNumber}: Parse error — {ex.Message}");

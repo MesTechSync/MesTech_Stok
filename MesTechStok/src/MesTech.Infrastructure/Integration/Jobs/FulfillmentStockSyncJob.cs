@@ -189,7 +189,7 @@ public sealed class FulfillmentStockSyncJob
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Log per-provider failure but continue with remaining providers
             _logger.LogError(ex, "[FulfillmentStockSync] Provider {Center} sync failed", provider.Center);

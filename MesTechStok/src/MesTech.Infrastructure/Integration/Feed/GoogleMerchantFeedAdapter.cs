@@ -100,7 +100,7 @@ public sealed class GoogleMerchantFeedAdapter : ISocialFeedAdapter
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[GoogleMerchantFeed] Feed generation failed for store {StoreId}", request.StoreId);
             return new FeedGenerationResult(

@@ -1032,7 +1032,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             _logger.LogInformation("Ciceksepeti PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti PullClaims exception");
         }
@@ -1060,7 +1060,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti ApproveClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1095,7 +1095,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti RejectClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1158,7 +1158,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             _logger.LogInformation("Ciceksepeti SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1198,7 +1198,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             _logger.LogInformation("Ciceksepeti SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1318,7 +1318,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             using var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Ciceksepeti ping failed");
             return false;

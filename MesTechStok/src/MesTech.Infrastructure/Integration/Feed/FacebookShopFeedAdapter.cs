@@ -98,7 +98,7 @@ public class FacebookShopFeedAdapter : ISocialFeedAdapter
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{Platform}Feed] Feed generation failed for store {StoreId}", Platform, request.StoreId);
             return new FeedGenerationResult(

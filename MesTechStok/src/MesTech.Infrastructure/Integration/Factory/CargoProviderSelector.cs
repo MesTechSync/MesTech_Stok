@@ -79,7 +79,7 @@ public sealed class CargoProviderSelector : ICargoProviderSelector
                     return provider;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Cargo provider {Provider} availability check failed", provider);
             }
@@ -121,7 +121,7 @@ public sealed class CargoProviderSelector : ICargoProviderSelector
                     rateResults.Add(rate);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Cargo provider {Provider} rate query failed", adapter.Provider);
             }

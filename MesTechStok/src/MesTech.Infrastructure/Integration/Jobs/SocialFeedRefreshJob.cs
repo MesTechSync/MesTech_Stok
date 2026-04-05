@@ -145,7 +145,7 @@ public sealed class SocialFeedRefreshJob
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[SocialFeedRefresh] Unexpected error for config {ConfigId}", config.Id);
             config.RecordError(ex.Message);

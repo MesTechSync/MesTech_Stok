@@ -1119,7 +1119,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1169,7 +1169,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama RegisterWebhook exception");
             return false;
@@ -1196,7 +1196,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama UnregisterWebhook exception");
             return false;
@@ -1233,7 +1233,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pazarama ping failed");
             return false;

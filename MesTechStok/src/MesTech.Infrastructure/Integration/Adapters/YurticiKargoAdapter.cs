@@ -176,7 +176,7 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
             await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[YurticiKargoAdapter] IsAvailableAsync health check failed");
             return false;

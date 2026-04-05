@@ -173,7 +173,7 @@ public sealed class PttKargoAdapter : ICargoAdapter, ICargoRateProvider
                 body, ct).ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[PttKargoAdapter] IsAvailableAsync health check failed");
             return false;

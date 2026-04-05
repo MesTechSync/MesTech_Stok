@@ -1010,7 +1010,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ozon RegisterWebhook exception");
             return false;
@@ -1039,7 +1039,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ozon UnregisterWebhook exception");
             return false;

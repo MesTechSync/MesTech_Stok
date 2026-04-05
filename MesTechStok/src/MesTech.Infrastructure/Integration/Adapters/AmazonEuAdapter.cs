@@ -463,7 +463,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullProducts failed");
         }
@@ -517,7 +517,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("Amazon EU PushProduct success: {SKU}", product.SKU);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -577,7 +577,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 categories.Count, _activeMarketplaceId);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonEu GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -672,7 +672,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullOrders failed");
         }
@@ -735,7 +735,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon EU PullOrderItems failed for order {OrderId}", orderId);
         }
@@ -766,7 +766,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var feed = BuildInventoryFeed(productId.ToString(), newStock);
             return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU StockUpdate exception: {ProductId}", productId);
             return false;
@@ -785,7 +785,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var feed = BuildPricingFeed(productId.ToString(), newPrice);
             return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -1005,7 +1005,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("AmazonEu SendShipment OK: OrderId={OrderId}", platformOrderId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonEu SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -1363,7 +1363,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullClaims exception");
         }
@@ -1495,7 +1495,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 shipmentPackageId, feedDocumentId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;

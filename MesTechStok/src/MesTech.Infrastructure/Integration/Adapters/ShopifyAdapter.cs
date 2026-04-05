@@ -277,7 +277,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             result.IsSuccess = true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -361,7 +361,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Shopify PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PullProducts failed");
         }
@@ -507,7 +507,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify StockUpdate success: SKU={SKU} qty={Qty}", sku, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify StockUpdate exception: {ProductId}", productId);
             return false;
@@ -605,7 +605,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify PriceUpdate success: SKU={SKU} price={Price}", sku, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -664,7 +664,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify GetCategories: {Count} collections retrieved", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetCategories failed");
             return Array.Empty<CategoryDto>();
@@ -729,7 +729,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Shopify PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PullOrders failed");
         }
@@ -975,7 +975,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -1042,7 +1042,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return allSuccess;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify RegisterWebhook exception");
             return false;
@@ -1104,7 +1104,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify UnregisterWebhook complete");
             return allDeleted;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify UnregisterWebhook exception");
             return false;
@@ -1191,7 +1191,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return isValid;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify VerifyWebhookSignature exception");
             return false;
@@ -1274,7 +1274,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 platformOrderId, shipment.TrackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -1358,7 +1358,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 locations.Count);
             return locations.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetInventoryLocations failed");
             return Array.Empty<InventoryLocationDto>();
@@ -1435,7 +1435,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 variants.Count, productId);
             return variants.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetProductVariants failed: ProductId={ProductId}", productId);
             return Array.Empty<ProductVariantDto>();
@@ -1946,7 +1946,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Shopify ping failed");
             return false;

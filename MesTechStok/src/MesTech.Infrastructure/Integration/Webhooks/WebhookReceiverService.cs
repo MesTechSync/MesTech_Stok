@@ -84,7 +84,7 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
                 Message = "Siparis webhook basariyla islendi."
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Order webhook processing failed: Platform={Platform}", platformCode);
             return new WebhookProcessResult
@@ -129,7 +129,7 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
                 Message = "Iade webhook basariyla islendi."
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Claim webhook processing failed: Platform={Platform}", platformCode);
             return new WebhookProcessResult
@@ -203,7 +203,7 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
                 Message = $"Bitrix24 {mappedEventType} webhook islendi (ID: {entityId})."
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 webhook processing failed");
             return new WebhookProcessResult

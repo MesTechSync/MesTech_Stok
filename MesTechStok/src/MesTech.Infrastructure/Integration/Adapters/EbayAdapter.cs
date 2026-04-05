@@ -278,7 +278,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             result.IsSuccess = !string.IsNullOrEmpty(token);
             result.StoreName = "eBay Store (OAuth2 OK)";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay TestConnectionAsync başarısız");
             result.ErrorMessage = ex.Message;
@@ -375,7 +375,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullProducts failed");
         }
@@ -596,7 +596,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             _logger.LogInformation("eBay StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay StockUpdate exception: {ProductId}", productId);
             return false;
@@ -692,7 +692,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 productId, newPrice, currency);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -753,7 +753,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             _logger.LogInformation("eBay GetCategories: {Count} top-level categories retrieved", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay GetCategories failed");
             return Array.Empty<CategoryDto>();
@@ -999,7 +999,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullOrders failed");
         }
@@ -1086,7 +1086,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 platformOrderId, trackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -1224,7 +1224,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1301,7 +1301,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullClaims exception");
         }
@@ -1337,7 +1337,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay ApproveClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1375,7 +1375,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay RejectClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1471,7 +1471,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay RegisterWebhook exception");
             return false;
@@ -1503,7 +1503,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay UnregisterWebhook exception");
             return false;

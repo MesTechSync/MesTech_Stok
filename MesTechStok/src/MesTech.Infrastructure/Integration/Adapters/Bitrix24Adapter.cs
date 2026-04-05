@@ -217,7 +217,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 result.ErrorMessage = $"Bitrix24 API returned {response.StatusCode}: {errorBody}";
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             result.IsSuccess = false;
             result.ErrorMessage = $"Bitrix24 connection failed: {ex.Message}";
@@ -260,7 +260,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogWarning("Bitrix24 PushProduct failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushProductAsync failed for {Name}", product.Name);
             return false;
@@ -320,7 +320,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 start = next.GetInt32();
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PullProductsAsync failed");
         }
@@ -364,7 +364,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushPriceUpdateAsync failed for {ProductId}", productId);
             return false;
@@ -407,7 +407,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 GetCategoriesAsync failed");
         }
@@ -469,7 +469,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return externalDealId;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushDealAsync failed for order {OrderId}", order.Id);
             return null;
@@ -505,7 +505,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 SyncContacts: {Count} contacts found", count);
             return count;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 SyncContactsAsync failed");
             return 0;
@@ -546,7 +546,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogWarning("Bitrix24 UpdateDealStage failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UpdateDealStageAsync failed for deal {DealId}", externalDealId);
             return false;
@@ -619,7 +619,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Bitrix24 batch chunk failed ({Count} commands)", chunk.Count);
                 allResults.AddRange(chunk.Select(_ => ""));
@@ -669,7 +669,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 webhooks registered for {Url}", callbackUrl);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 RegisterWebhookAsync failed");
             return false;
@@ -705,7 +705,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 webhooks unregistered for {Url}", callbackUrl);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UnregisterWebhookAsync failed");
             return false;
@@ -727,7 +727,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 webhook payload received ({Length} bytes)", payload?.Length ?? 0);
             return Task.FromResult(true);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 ProcessWebhookPayloadAsync failed");
             return Task.FromResult(false);
@@ -791,7 +791,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushContactAsync failed for customer {CustomerId}", customer.Id);
             return null;
@@ -835,7 +835,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UpdateContactAsync failed for {ContactId}", externalContactId);
             return false;

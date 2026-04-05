@@ -151,7 +151,7 @@ public sealed class SuratKargoAdapter : ICargoAdapter, ICargoRateProvider
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v2/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[SuratKargoAdapter] IsAvailableAsync health check failed");
             return false;

@@ -260,7 +260,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             result.IsSuccess = !string.IsNullOrEmpty(token);
             result.StoreName = "PTT AVM Satici";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -1344,7 +1344,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM RegisterWebhook exception");
             return false;
@@ -1374,7 +1374,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM UnregisterWebhook exception");
             return false;

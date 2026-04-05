@@ -71,7 +71,7 @@ public sealed class JsonFeedParser : IFeedParserService
 
                     products.Add(product);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     skipped++;
                     errors.Add($"Item {index}: Parse error — {ex.Message}");

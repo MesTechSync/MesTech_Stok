@@ -275,7 +275,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             result.IsSuccess = true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -358,7 +358,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("WooCommerce PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PullProducts failed");
         }
@@ -441,7 +441,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("WooCommerce PushStockUpdate: SKU={SKU} → {Qty} OK", sku, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PushStockUpdate failed");
             return false;
@@ -515,7 +515,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("WooCommerce PushPriceUpdate: SKU={SKU} → {Price} OK", sku, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PushPriceUpdate failed");
             return false;
@@ -677,7 +677,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("WooCommerce PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PullOrders failed");
         }
@@ -714,7 +714,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce UpdateOrderStatus failed");
             return false;
@@ -801,7 +801,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 platformOrderId, shipment.TrackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -892,7 +892,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 "WooCommerce BatchUpdate complete: {Updated} updated, {Errors} errors",
                 result.Updated, result.Errors.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce BatchUpdateProducts failed");
             result.Errors.Add($"Exception: {ex.Message}");
@@ -981,7 +981,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 variations.Count, productId);
             return variations.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
             return Array.Empty<ProductVariantDto>();
@@ -1525,7 +1525,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "WooCommerce ping failed");
             return false;

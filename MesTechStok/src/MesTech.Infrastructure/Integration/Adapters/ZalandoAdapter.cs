@@ -285,7 +285,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 result.ErrorMessage = $"HTTP {(int)response.StatusCode}: {error}";
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -383,7 +383,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Zalando PullProducts: {Count} articles retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PullProducts failed");
         }
@@ -443,7 +443,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Zalando StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando StockUpdate exception: {ProductId}", productId);
             return false;
@@ -497,7 +497,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 productId, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -708,7 +708,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Zalando PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PullOrders failed");
         }
@@ -764,7 +764,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -817,7 +817,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ZalandoAdapter] SendShipment error");
             return false;
@@ -867,7 +867,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return claims;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ZalandoAdapter] PullClaims error");
             return Array.Empty<ExternalClaimDto>();
@@ -917,7 +917,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando RegisterWebhook exception");
             return false;
@@ -950,7 +950,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando UnregisterWebhook exception");
             return false;

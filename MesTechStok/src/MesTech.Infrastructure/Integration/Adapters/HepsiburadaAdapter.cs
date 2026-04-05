@@ -817,7 +817,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada GetCategories: {Count} top-level categories", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -974,7 +974,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("Hepsiburada PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada PullClaims exception");
         }
@@ -1038,7 +1038,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1078,7 +1078,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1170,7 +1170,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada RegisterWebhook exception");
             return false;
@@ -1196,7 +1196,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada UnregisterWebhook exception");
             return false;
@@ -1304,7 +1304,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             using var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Hepsiburada ping failed");
             return false;

@@ -269,7 +269,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogInformation("Etsy TestConnection succeeded: Shop={Shop}, Listings={Count}",
                 result.StoreName, result.ProductCount);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -343,7 +343,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PullProducts failed");
         }
@@ -397,7 +397,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogError("Etsy PushProduct failed: {Status} - {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushProduct failed: SKU={SKU}", product.SKU);
             return false;
@@ -461,7 +461,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 putResponse.StatusCode, putError);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushStockUpdate failed: ProductId={ProductId}", productId);
             return false;
@@ -507,7 +507,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogError("Etsy PushPriceUpdate failed: {Status} - {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushPriceUpdate failed: ProductId={ProductId}", productId);
             return false;
@@ -581,7 +581,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy GetCategories: {Count} top-level categories retrieved", categories.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy GetCategories failed");
         }
@@ -656,7 +656,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PullOrders failed");
         }
@@ -703,7 +703,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy UpdateOrderStatus failed: ReceiptId={ReceiptId}", packageId);
             return false;
@@ -1092,7 +1092,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Etsy ping failed");
             return false;
@@ -1117,7 +1117,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[EtsyAdapter] SendShipment error");
             return false;
@@ -1162,7 +1162,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return claims;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[EtsyAdapter] PullClaims error");
             return Array.Empty<ExternalClaimDto>();
@@ -1204,7 +1204,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy RegisterWebhook exception");
             return false;
@@ -1230,7 +1230,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy UnregisterWebhook exception");
             return false;

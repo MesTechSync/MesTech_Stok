@@ -237,7 +237,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogError(xex, "N11 SaveProduct: platform gecersiz SOAP yaniti — SKU={SKU}", product.SKU);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 SaveProduct hatasi — SKU={SKU}", product.SKU);
             return false;
@@ -274,7 +274,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogError(xex, "N11 PullProducts: platform gecersiz SOAP yaniti");
             return Array.Empty<Product>();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 PullProducts hatasi");
             return Array.Empty<Product>();
@@ -311,7 +311,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogError(xex, "N11 StockUpdate: platform gecersiz SOAP yaniti — ProductId={ProductId}", productId);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 StockUpdate hatasi — ProductId={ProductId}", productId);
             return false;
@@ -342,7 +342,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 productId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 PriceUpdate hatasi — ProductId={ProductId}", productId);
             return false;
@@ -391,7 +391,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 ResponseTime = sw.Elapsed
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             _logger.LogError(ex, "N11 TestConnection hatasi");
@@ -426,7 +426,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogInformation("N11 GetCategories tamamlandi — {Count} kategori cekildi", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 GetCategories hatasi");
             return Array.Empty<CategoryDto>();
@@ -468,7 +468,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogInformation("N11 PullOrders tamamlandi — {Count} siparis cekildi", orders.Count);
             return orders.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 PullOrders hatasi");
             return Array.Empty<ExternalOrderDto>();
@@ -504,7 +504,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 packageId, resultStatus);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 UpdateOrderStatus hatasi — OrderItemId={Id}", packageId);
             return false;
@@ -559,7 +559,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 platformOrderId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 SendShipment hatasi — OrderItemId={OrderItemId}", platformOrderId);
             return false;
@@ -609,7 +609,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 productId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 ActivateProductSelling hatasi — ProductId={ProductId}", productId);
             return false;
@@ -641,7 +641,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 productId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 DeactivateProductSelling hatasi — ProductId={ProductId}", productId);
             return false;
@@ -698,7 +698,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 orderId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 SendInvoice hatasi — OrderId={OrderId}", orderId);
             return false;
@@ -741,7 +741,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogInformation("N11 PullClaims tamamlandi — {Count} iade talebi cekildi", claims.Count);
             return claims.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 PullClaims hatasi");
             return Array.Empty<ExternalClaimDto>();
@@ -779,7 +779,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 claimId, status);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
@@ -818,7 +818,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 startDate, endDate, settlement.NetAmount);
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 GetSettlement hatasi — {Start:d} ~ {End:d}", startDate, endDate);
             return null;
@@ -876,7 +876,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 categoryId, attributes.Count);
             return attributes.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 GetCategoryAttributes hatasi — CategoryId={CategoryId}", categoryId);
             return Array.Empty<CategoryAttributeDto>();
@@ -911,7 +911,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             _logger.LogInformation("N11 GetBrands tamamlandi — {Count} marka cekildi", brands.Count);
             return brands.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "N11 GetBrands hatasi");
             return Array.Empty<BrandDto>();
@@ -1203,7 +1203,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
             using var resp = await http.GetAsync(_soapBaseUrl, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "N11 ping failed");
             return false;

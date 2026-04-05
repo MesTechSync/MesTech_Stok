@@ -404,7 +404,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon PullProducts failed");
         }
@@ -458,7 +458,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("Amazon PushProduct success: {SKU}", product.SKU);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -526,7 +526,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("AmazonTr GetCategories: {Count} unique classification nodes extracted", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonTr GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -613,7 +613,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon PullOrders failed");
         }
@@ -676,7 +676,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon PullOrderItems failed for order {OrderId}", orderId);
         }
@@ -741,7 +741,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("AmazonTr SendShipment OK: OrderId={OrderId}", platformOrderId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonTr SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -783,7 +783,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var feed = BuildInventoryFeed(productId.ToString(), newStock);
             return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon StockUpdate exception: {ProductId}", productId);
             return false;
@@ -800,7 +800,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var feed = BuildPricingFeed(productId.ToString(), newPrice);
             return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -989,7 +989,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             using var doc = JsonDocument.Parse(content);
             return doc.RootElement.TryGetProperty("restrictedDataToken", out var rdt) ? rdt.GetString() : null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon RDT request failed for path {Path}", path);
             return null;
@@ -1036,7 +1036,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon subscription creation failed for {Type}", notificationType);
             return null;
@@ -1291,7 +1291,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("AmazonTR PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonTR PullClaims exception");
         }
@@ -1449,7 +1449,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 shipmentPackageId, feedDocumentId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonTR SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;

@@ -78,7 +78,7 @@ public sealed class InstrumentedAdapterDecorator : IIntegratorAdapter, IPingable
             AdapterMetrics.ApiCallDuration.WithLabels(platform, method).Observe(sw.Elapsed.TotalSeconds);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             AdapterMetrics.ApiCallsTotal.WithLabels(platform, method, "error").Inc();

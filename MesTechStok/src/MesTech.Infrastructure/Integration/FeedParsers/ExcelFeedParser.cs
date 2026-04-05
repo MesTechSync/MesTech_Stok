@@ -24,7 +24,7 @@ public sealed class ExcelFeedParser : IFeedParserService
         {
             workbook = new XLWorkbook(feedStream);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errors.Add($"Invalid Excel file: {ex.Message}");
             return Task.FromResult(new FeedParseResult(products, 0, 0, errors));
@@ -74,7 +74,7 @@ public sealed class ExcelFeedParser : IFeedParserService
 
                     products.Add(product);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     skipped++;
                     errors.Add($"Row {row}: Parse error — {ex.Message}");
@@ -94,7 +94,7 @@ public sealed class ExcelFeedParser : IFeedParserService
         {
             workbook = new XLWorkbook(feedStream);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errors.Add($"Invalid Excel file: {ex.Message}");
             return Task.FromResult(new FeedValidationResult(false, "Excel", 0, errors));

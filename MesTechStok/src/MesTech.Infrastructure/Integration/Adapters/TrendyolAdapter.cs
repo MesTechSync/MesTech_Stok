@@ -328,7 +328,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogError(jex, "Trendyol PushProduct: platform gecersiz yanit dondurdu — SKU={SKU}", product.SKU);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -440,7 +440,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             _logger.LogError(jex, "Trendyol PullProducts: platform gecersiz yanit dondurdu — page={Page}", page);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol PullProducts failed at page {Page}", page);
         }
@@ -489,7 +489,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogError(jex, "Trendyol StockUpdate: platform gecersiz yanit dondurdu — ProductId={ProductId}", productId);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol StockUpdate exception: {ProductId}", productId);
             return false;
@@ -532,7 +532,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -661,7 +661,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             _logger.LogInformation("Trendyol PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol PullOrders failed at page {Page}", page);
         }
@@ -699,7 +699,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol UpdateOrderStatus exception: {PackageId}", packageId);
             return false;
@@ -768,7 +768,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol SendShipment OK: Package={PackageId}", platformOrderId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol SendShipment exception: Package={PackageId}", platformOrderId);
             return false;
@@ -863,7 +863,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol SendInvoiceLink exception: {PackageId}", shipmentPackageId);
             return false;
@@ -900,7 +900,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol SendInvoiceFile exception: {PackageId}", shipmentPackageId);
             return false;
@@ -1007,7 +1007,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             _logger.LogInformation("Trendyol PullClaims: {Count} claims retrieved", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol PullClaims failed at page {Page}", page);
         }
@@ -1042,7 +1042,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol ApproveClaim exception: {ClaimId}", claimId);
             return false;
@@ -1079,7 +1079,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol RejectClaim exception: {ClaimId}", claimId);
             return false;
@@ -1136,7 +1136,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetSettlement: Net={NetAmount} TRY", settlement.NetAmount);
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetSettlement exception");
             return null;
@@ -1239,7 +1239,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetCargoInvoices: {Count} invoices", invoices.Count);
             return invoices.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetCargoInvoices exception");
             return Array.Empty<CargoInvoiceDto>();
@@ -1288,7 +1288,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetCategories: {Count} top-level categories", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -1359,7 +1359,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetCategoryAttributes: {Count} attributes for category {CategoryId}", attributes.Count, categoryId);
             return attributes.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetCategoryAttributes exception for category {CategoryId}", categoryId);
             return Array.Empty<CategoryAttributeDto>();
@@ -1434,7 +1434,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 batchRequestId, result.Status, result.FailedItemCount, result.ItemCount);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetBatchRequestResult exception for batchId {BatchId}", batchRequestId);
             return null;
@@ -1482,7 +1482,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             return brands.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetBrands exception");
             return Array.Empty<BrandDto>();
@@ -1510,7 +1510,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 result.ErrorMessage = $"HTTP {(int)response.StatusCode}: {body[..Math.Min(body.Length, 200)]}";
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             result.LatencyMs = (int)sw.ElapsedMilliseconds;
@@ -1550,7 +1550,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol RegisterWebhook exception");
             return false;
@@ -1676,7 +1676,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol ArchiveProducts success: {Count} products archived", barcodes.Count);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol ArchiveProducts exception");
             return false;
@@ -1719,7 +1719,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol UnlockProducts success: {Count} products unlocked", barcodes.Count);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol UnlockProducts exception");
             return false;
@@ -1781,7 +1781,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetQuestions: {Count} questions retrieved", questions.Count);
             return questions.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetQuestions exception");
             return Array.Empty<TrendyolCustomerQuestion>();
@@ -1823,7 +1823,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol AnswerQuestion success: QuestionId={QuestionId}", questionId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol AnswerQuestion exception: {QuestionId}", questionId);
             return false;
@@ -1895,7 +1895,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetClaims: {Count} claims retrieved", claims.Count);
             return claims.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetClaims exception");
             return Array.Empty<TrendyolClaimDto>();
@@ -1934,7 +1934,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol ApproveClaimById success: ClaimId={ClaimId}", claimId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol ApproveClaimById exception: {ClaimId}", claimId);
             return false;
@@ -1976,7 +1976,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol RejectClaimById success: ClaimId={ClaimId}", claimId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol RejectClaimById exception: {ClaimId}", claimId);
             return false;
@@ -2027,7 +2027,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol SendInvoice success: OrderId={OrderId}", orderId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol SendInvoice exception: {OrderId}", orderId);
             return false;
@@ -2092,7 +2092,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetSettlements: {Count} settlement items retrieved", settlements.Count);
             return settlements.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetSettlements exception");
             return Array.Empty<TrendyolSettlementItemDto>();
@@ -2139,7 +2139,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol SplitPackage success: PackageId={PackageId}", packageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol SplitPackage exception: {PackageId}", packageId);
             return false;
@@ -2181,7 +2181,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol UpdateBoxInfo success: PackageId={PackageId}", packageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol UpdateBoxInfo exception: {PackageId}", packageId);
             return false;
@@ -2240,7 +2240,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogInformation("Trendyol GetCompensations: {Count} compensations retrieved", compensations.Count);
             return compensations.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Trendyol GetCompensations exception");
             return Array.Empty<TrendyolCompensationDto>();
