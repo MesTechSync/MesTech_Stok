@@ -96,9 +96,10 @@ public class InvoiceGeneratedExpenseHandlerTests
     }
 
     [Fact]
-    public async Task Handle_MediatorThrows_PropagatesException()
+    public async Task Handle_MediatorThrows_SwallowsExceptionAndLogs()
     {
-        // Arrange — no try/catch, should propagate
+        // Arrange — handler has try-catch: exception is logged, not propagated.
+        // This prevents one failed expense from breaking the entire event chain.
         var evt = new InvoiceCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), InvoiceType.EFatura, 500m, DateTime.UtcNow);
         var notification = new DomainEventNotification<InvoiceCreatedEvent>(evt);
 
@@ -106,11 +107,11 @@ public class InvoiceGeneratedExpenseHandlerTests
             .Setup(m => m.Send(It.IsAny<CreateExpenseCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Handler failed"));
 
-        // Act
+        // Act — should NOT throw (handler catches non-cancellation exceptions)
         var act = () => _sut.Handle(notification, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().NotThrowAsync();
     }
 
     [Fact]
