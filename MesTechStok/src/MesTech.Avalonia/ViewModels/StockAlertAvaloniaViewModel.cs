@@ -19,6 +19,10 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string currentFilter = "All";
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     private List<StockAlertItemDto> _allAlerts = [];
     public ObservableCollection<StockAlertItemDto> FilteredAlerts { get; } = [];
 
@@ -85,10 +89,29 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
                 a.LevelText.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        filtered = SortColumn switch
+        {
+            "Sku"          => SortAscending ? filtered.OrderBy(x => x.Sku)           : filtered.OrderByDescending(x => x.Sku),
+            "ProductName"  => SortAscending ? filtered.OrderBy(x => x.ProductName)   : filtered.OrderByDescending(x => x.ProductName),
+            "Level"        => SortAscending ? filtered.OrderBy(x => x.Level)         : filtered.OrderByDescending(x => x.Level),
+            "CurrentStock" => SortAscending ? filtered.OrderBy(x => x.CurrentStock)  : filtered.OrderByDescending(x => x.CurrentStock),
+            "MinimumStock" => SortAscending ? filtered.OrderBy(x => x.MinimumStock)  : filtered.OrderByDescending(x => x.MinimumStock),
+            _              => SortAscending ? filtered.OrderBy(x => x.ProductName)   : filtered.OrderByDescending(x => x.ProductName),
+        };
+
         foreach (var alert in filtered)
             FilteredAlerts.Add(alert);
 
         IsEmpty = FilteredAlerts.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand] private async Task Refresh() => await LoadAsync();

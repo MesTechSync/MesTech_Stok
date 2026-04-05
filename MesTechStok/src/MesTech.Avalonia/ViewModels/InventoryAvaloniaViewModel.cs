@@ -36,6 +36,10 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string paginationInfo = string.Empty;
     private const int PageSize = 25;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<InventoryItemDto> Items { get; } = [];
     private List<InventoryItemDto> _allItems = [];
 
@@ -102,6 +106,17 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
         TotalCount = filteredList.Count;
         AlarmCount = filteredList.Count(i => i.Miktar < i.MinStok);
 
+        // Sort
+        filteredList = SortColumn switch
+        {
+            "Sku"     => SortAscending ? filteredList.OrderBy(x => x.Sku).ToList()     : filteredList.OrderByDescending(x => x.Sku).ToList(),
+            "Ad"      => SortAscending ? filteredList.OrderBy(x => x.Ad).ToList()      : filteredList.OrderByDescending(x => x.Ad).ToList(),
+            "Miktar"  => SortAscending ? filteredList.OrderBy(x => x.Miktar).ToList()  : filteredList.OrderByDescending(x => x.Miktar).ToList(),
+            "Depo"    => SortAscending ? filteredList.OrderBy(x => x.Depo).ToList()    : filteredList.OrderByDescending(x => x.Depo).ToList(),
+            "MinStok" => SortAscending ? filteredList.OrderBy(x => x.MinStok).ToList() : filteredList.OrderByDescending(x => x.MinStok).ToList(),
+            _         => SortAscending ? filteredList.OrderBy(x => x.Ad).ToList()      : filteredList.OrderByDescending(x => x.Ad).ToList(),
+        };
+
         // Pagination
         int totalPages = Math.Max(1, (int)Math.Ceiling((double)filteredList.Count / PageSize));
         if (CurrentPage > totalPages) CurrentPage = totalPages;
@@ -119,6 +134,15 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
         CanGoPrevious = CurrentPage > 1;
         CanGoNext = CurrentPage < totalPages;
         PaginationInfo = $"{filteredList.Count} urunden {(CurrentPage - 1) * PageSize + 1}-{Math.Min(CurrentPage * PageSize, filteredList.Count)} gosteriliyor";
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        CurrentPage = 1;
+        ApplyFilters();
     }
 
     [RelayCommand]

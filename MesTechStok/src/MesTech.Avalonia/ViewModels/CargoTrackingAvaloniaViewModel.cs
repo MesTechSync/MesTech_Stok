@@ -19,6 +19,10 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedFirm = "Tümü";
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     private readonly List<CargoTrackingItemDto> _allItems = [];
 
     public ObservableCollection<CargoTrackingItemDto> Shipments { get; } = [];
@@ -68,15 +72,34 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
     private void ApplyFilter()
     {
         Shipments.Clear();
-        var filtered = SelectedFirm == "Tümü"
+        var filtered = (SelectedFirm == "Tümü"
             ? _allItems
-            : _allItems.Where(s => s.Firma == SelectedFirm).ToList();
+            : _allItems.Where(s => s.Firma == SelectedFirm).ToList()).AsEnumerable();
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "TakipNo" => SortAscending ? filtered.OrderBy(x => x.TakipNo)    : filtered.OrderByDescending(x => x.TakipNo),
+            "Firma"   => SortAscending ? filtered.OrderBy(x => x.Firma)      : filtered.OrderByDescending(x => x.Firma),
+            "Tarih"   => SortAscending ? filtered.OrderBy(x => x.Tarih)      : filtered.OrderByDescending(x => x.Tarih),
+            "Durum"   => SortAscending ? filtered.OrderBy(x => x.Durum)      : filtered.OrderByDescending(x => x.Durum),
+            "Alici"   => SortAscending ? filtered.OrderBy(x => x.Alici)      : filtered.OrderByDescending(x => x.Alici),
+            _         => SortAscending ? filtered.OrderByDescending(x => x.Tarih) : filtered.OrderBy(x => x.Tarih),
+        };
 
         foreach (var item in filtered)
             Shipments.Add(item);
 
         TotalCount = Shipments.Count;
         IsEmpty = Shipments.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]
