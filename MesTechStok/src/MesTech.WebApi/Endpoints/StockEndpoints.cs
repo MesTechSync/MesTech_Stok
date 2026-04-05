@@ -278,13 +278,13 @@ public static class StockEndpoints
             var result = await mediator.Send(
                 new SyncPlatformCommand(platformType, SyncDirection.Push), ct);
 
-            return result.Success
+            return result.IsSuccess
                 ? Results.Ok(new
                 {
                     Platform = platformType,
-                    result.SyncedCount,
-                    result.FailedCount,
-                    result.Message,
+                    SyncedCount = result.ItemsProcessed,
+                    FailedCount = result.ItemsFailed,
+                    result.ErrorMessage,
                     SyncedAt = DateTime.UtcNow
                 })
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 422);
