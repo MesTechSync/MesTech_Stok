@@ -54,7 +54,7 @@ public sealed class MockPriceOptimizationService : IPriceOptimizationService
             recommendedPrice,
             MinPrice: Math.Round(costPrice * 1.05m, 2),
             MaxPrice: Math.Round(costPrice * 1.60m, 2),
-            ExpectedMargin: Math.Round((recommendedPrice - costPrice) / recommendedPrice * 100, 1),
+            ExpectedMargin: recommendedPrice > 0 ? Math.Round((recommendedPrice - costPrice) / recommendedPrice * 100, 1) : 0,
             Confidence: 0.78,
             strategy, reasoning);
 
