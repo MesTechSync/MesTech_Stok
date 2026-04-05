@@ -354,15 +354,15 @@
   (function() {
     'use strict';
 
-    var API_BASE = '/api/v1/dropshipping';
-    var supplierPieChart = null;
-    var profitTrendChart = null;
+    const API_BASE = '/api/v1/dropshipping';
+    let supplierPieChart = null;
+    let profitTrendChart = null;
 
     // ========================================
     // DOM Helper Utilities (XSS-safe)
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') {
@@ -407,7 +407,7 @@
     // ========================================
     // KPI Cards (DOM-SAFE)
     // ========================================
-    var kpiDefs = [
+    const kpiDefs = [
       {
         id: 'supplier-count',
         title: 'Tedarikci',
@@ -447,22 +447,22 @@
     ];
 
     function renderKpiCards(data) {
-      var container = document.getElementById('kpi-row');
+      const container = document.getElementById('kpi-row');
       clearChildren(container);
 
       kpiDefs.forEach(function(kpi) {
-        var value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
+        const value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
 
-        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
-        var card = el('div', { className: 'kpi-card' });
+        const col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        const card = el('div', { className: 'kpi-card' });
 
-        var topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-3' });
-        var titleSpan = el('span', {
+        const topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-3' });
+        const titleSpan = el('span', {
           className: 'text-muted small text-uppercase',
           textContent: kpi.title
         });
 
-        var iconBadge = el('span', { className: 'kpi-icon-badge' });
+        const iconBadge = el('span', { className: 'kpi-icon-badge' });
         iconBadge.style.background = kpi.iconBg;
         iconBadge.style.color = kpi.iconColor;
         iconBadge.appendChild(el('i', { className: kpi.icon }));
@@ -470,7 +470,7 @@
         topRow.appendChild(titleSpan);
         topRow.appendChild(iconBadge);
 
-        var valueEl = el('h3', {
+        const valueEl = el('h3', {
           className: 'mb-0 fw-bold',
           textContent: kpi.format(value)
         });
@@ -484,14 +484,14 @@
     }
 
     function renderKpiSkeletons() {
-      var container = document.getElementById('kpi-row');
+      const container = document.getElementById('kpi-row');
       clearChildren(container);
-      for (var i = 0; i < 4; i++) {
-        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
-        var card = el('div', { className: 'kpi-card' });
-        var s1 = el('div', { className: 'skeleton' });
+      for (let i = 0; i < 4; i++) {
+        const col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        const card = el('div', { className: 'kpi-card' });
+        const s1 = el('div', { className: 'skeleton' });
         s1.style.height = '16px'; s1.style.width = '50%'; s1.style.marginBottom = '16px';
-        var s2 = el('div', { className: 'skeleton' });
+        const s2 = el('div', { className: 'skeleton' });
         s2.style.height = '32px'; s2.style.width = '70%';
         card.appendChild(s1);
         card.appendChild(s2);
@@ -504,12 +504,12 @@
     // Supplier Performance Table (DOM-SAFE)
     // ========================================
     function renderSupplierTable(suppliers) {
-      var container = document.getElementById('supplier-table-body');
-      var badge = document.getElementById('supplier-count-badge');
+      const container = document.getElementById('supplier-table-body');
+      const badge = document.getElementById('supplier-count-badge');
       clearChildren(container);
 
       if (!suppliers || suppliers.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-truck text-muted' }),
           el('p', { textContent: 'Tedarikci verisi bulunamadi' })
         ]);
@@ -520,11 +520,11 @@
 
       badge.textContent = String(suppliers.length);
 
-      var table = el('table', { className: 'table table-hover mb-0' });
+      const table = el('table', { className: 'table table-hover mb-0' });
 
       // Head
-      var thead = el('thead');
-      var headRow = el('tr');
+      const thead = el('thead');
+      const headRow = el('tr');
       ['Tedarikci', 'Siparis', 'Tamamlanan', 'Hata', 'Sure (gun)', 'Rating'].forEach(function(h) {
         headRow.appendChild(el('th', {
           className: 'small text-muted text-uppercase',
@@ -535,17 +535,17 @@
       table.appendChild(thead);
 
       // Body
-      var tbody = el('tbody');
+      const tbody = el('tbody');
 
       suppliers.forEach(function(supplier) {
-        var tr = el('tr');
+        const tr = el('tr');
 
         // Supplier name
-        var nameCell = el('td');
+        const nameCell = el('td');
         nameCell.appendChild(el('strong', { className: 'small', textContent: supplier.name || '--' }));
         if (supplier.code) {
           nameCell.appendChild(el('br'));
-          var codeSpan = el('span', {
+          const codeSpan = el('span', {
             className: 'text-muted',
             textContent: supplier.code
           });
@@ -558,7 +558,7 @@
         tr.appendChild(el('td', { className: 'small', textContent: String(supplier.totalOrders || 0) }));
 
         // Completed
-        var completedCell = el('td');
+        const completedCell = el('td');
         completedCell.appendChild(el('span', {
           className: 'badge bg-success-subtle text-success',
           textContent: String(supplier.completedOrders || 0)
@@ -566,8 +566,8 @@
         tr.appendChild(completedCell);
 
         // Errors
-        var errorCell = el('td');
-        var errorCount = supplier.errorOrders || 0;
+        const errorCell = el('td');
+        const errorCount = supplier.errorOrders || 0;
         errorCell.appendChild(el('span', {
           className: 'badge ' + (errorCount > 0 ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'),
           textContent: String(errorCount)
@@ -581,16 +581,16 @@
         }));
 
         // Rating (stars)
-        var ratingCell = el('td');
-        var starsDiv = el('div', { className: 'rating-stars' });
-        var rating = supplier.rating || 0;
-        for (var s = 1; s <= 5; s++) {
-          var star = el('i', {
+        const ratingCell = el('td');
+        const starsDiv = el('div', { className: 'rating-stars' });
+        const rating = supplier.rating || 0;
+        for (let s = 1; s <= 5; s++) {
+          const star = el('i', {
             className: s <= Math.round(rating) ? 'fas fa-star' : 'fas fa-star empty'
           });
           starsDiv.appendChild(star);
         }
-        var ratingText = el('span', {
+        const ratingText = el('span', {
           className: 'ms-1 small text-muted',
           textContent: rating.toFixed(1)
         });
@@ -609,11 +609,11 @@
     // Top 10 Profitable Products (DOM-SAFE)
     // ========================================
     function renderTopProducts(products) {
-      var container = document.getElementById('top-products-body');
+      const container = document.getElementById('top-products-body');
       clearChildren(container);
 
       if (!products || products.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-trophy text-muted' }),
           el('p', { textContent: 'Urun verisi bulunamadi' })
         ]);
@@ -621,10 +621,10 @@
         return;
       }
 
-      var table = el('table', { className: 'table table-hover mb-0' });
+      const table = el('table', { className: 'table table-hover mb-0' });
 
-      var thead = el('thead');
-      var headRow = el('tr');
+      const thead = el('thead');
+      const headRow = el('tr');
       ['#', 'Urun', 'Maliyet', 'Satis Fiyati', 'Kar', 'Kar %'].forEach(function(h) {
         headRow.appendChild(el('th', {
           className: 'small text-muted text-uppercase',
@@ -634,14 +634,14 @@
       thead.appendChild(headRow);
       table.appendChild(thead);
 
-      var tbody = el('tbody');
+      const tbody = el('tbody');
 
       products.forEach(function(product, index) {
-        var tr = el('tr');
+        const tr = el('tr');
 
         // Rank
-        var rankCell = el('td');
-        var rankBadge = el('span', {
+        const rankCell = el('td');
+        const rankBadge = el('span', {
           className: 'badge ' + (index < 3 ? 'bg-warning text-dark' : 'bg-light text-dark'),
           textContent: String(index + 1)
         });
@@ -649,14 +649,14 @@
         tr.appendChild(rankCell);
 
         // Product name
-        var nameCell = el('td');
+        const nameCell = el('td');
         nameCell.appendChild(el('span', {
           className: 'small fw-medium',
           textContent: product.name || '--'
         }));
         if (product.sku) {
           nameCell.appendChild(el('br'));
-          var skuSpan = el('span', {
+          const skuSpan = el('span', {
             className: 'text-muted',
             textContent: product.sku
           });
@@ -678,8 +678,8 @@
         }));
 
         // Profit
-        var profitVal = (product.salePrice || 0) - (product.cost || 0);
-        var profitCell = el('td');
+        const profitVal = (product.salePrice || 0) - (product.cost || 0);
+        const profitCell = el('td');
         profitCell.appendChild(el('strong', {
           className: 'small ' + (profitVal >= 0 ? 'text-success' : 'text-danger'),
           textContent: '\u20BA' + formatCurrency(profitVal)
@@ -687,8 +687,8 @@
         tr.appendChild(profitCell);
 
         // Profit %
-        var profitPct = product.cost > 0 ? ((profitVal / product.cost) * 100) : 0;
-        var pctCell = el('td');
+        const profitPct = product.cost > 0 ? ((profitVal / product.cost) * 100) : 0;
+        const pctCell = el('td');
         pctCell.appendChild(el('span', {
           className: 'badge ' + (profitPct >= 20 ? 'bg-success-subtle text-success' :
                      profitPct >= 0 ? 'bg-warning-subtle text-warning' :
@@ -708,10 +708,10 @@
     // Auto-Order Settings (DOM-SAFE)
     // ========================================
     function renderAutoOrderSettings(settings) {
-      var container = document.getElementById('auto-order-settings');
+      const container = document.getElementById('auto-order-settings');
       clearChildren(container);
 
-      var settingDefs = [
+      const settingDefs = [
         {
           key: 'autoOrderEnabled',
           label: 'Otomatik Siparis',
@@ -748,10 +748,10 @@
       ];
 
       settingDefs.forEach(function(def) {
-        var row = el('div', { className: 'setting-row' });
+        const row = el('div', { className: 'setting-row' });
 
         // Left: label + description
-        var leftDiv = el('div');
+        const leftDiv = el('div');
         leftDiv.appendChild(el('div', {
           className: 'fw-medium small',
           textContent: def.label
@@ -764,13 +764,13 @@
         row.appendChild(leftDiv);
 
         // Right: control
-        var rightDiv = el('div', { className: 'd-flex align-items-center gap-2' });
+        const rightDiv = el('div', { className: 'd-flex align-items-center gap-2' });
 
-        var currentValue = settings && settings[def.key] != null ? settings[def.key] : null;
+        const currentValue = settings && settings[def.key] != null ? settings[def.key] : null;
 
         if (def.type === 'toggle') {
-          var toggleDiv = el('div', { className: 'form-check form-switch' });
-          var toggleInput = el('input', {
+          const toggleDiv = el('div', { className: 'form-check form-switch' });
+          const toggleInput = el('input', {
             className: 'form-check-input',
             type: 'checkbox',
             id: 'setting-' + def.key,
@@ -783,7 +783,7 @@
           toggleDiv.appendChild(toggleInput);
           rightDiv.appendChild(toggleDiv);
         } else if (def.type === 'number') {
-          var numInput = el('input', {
+          const numInput = el('input', {
             className: 'form-control form-control-sm',
             type: 'number',
             id: 'setting-' + def.key,
@@ -802,7 +802,7 @@
             }));
           }
         } else {
-          var textInput = el('input', {
+          const textInput = el('input', {
             className: 'form-control form-control-sm',
             type: 'text',
             id: 'setting-' + def.key,
@@ -821,7 +821,7 @@
       });
 
       // Save all button
-      var saveBtn = el('button', {
+      const saveBtn = el('button', {
         className: 'btn btn-primary btn-sm mt-3 w-100',
         id: 'btn-save-settings'
       }, [
@@ -846,16 +846,16 @@
     }
 
     async function saveAllSettings() {
-      var btn = document.getElementById('btn-save-settings');
+      const btn = document.getElementById('btn-save-settings');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
       btn.appendChild(document.createTextNode('Kaydediliyor...'));
 
-      var settings = {};
-      var inputs = document.querySelectorAll('[data-key]');
+      const settings = {};
+      const inputs = document.querySelectorAll('[data-key]');
       inputs.forEach(function(input) {
-        var key = input.getAttribute('data-key');
+        const key = input.getAttribute('data-key');
         if (input.type === 'checkbox') {
           settings[key] = input.checked;
         } else if (input.type === 'number') {
@@ -885,7 +885,7 @@
     // Charts (Chart.js)
     // ========================================
     function renderSupplierPieChart(data) {
-      var canvas = document.getElementById('supplierPieChart');
+      const canvas = document.getElementById('supplierPieChart');
       if (!canvas) return;
 
       if (supplierPieChart) {
@@ -894,7 +894,7 @@
       }
 
       if (!data || !data.labels || data.labels.length === 0) {
-        var wrapper = canvas.parentElement;
+        const wrapper = canvas.parentElement;
         clearChildren(wrapper);
         wrapper.appendChild(el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-chart-pie text-muted' }),
@@ -903,7 +903,7 @@
         return;
       }
 
-      var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
                     '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'];
 
       supplierPieChart = new Chart(canvas, {
@@ -931,7 +931,7 @@
     }
 
     function renderProfitTrendChart(data) {
-      var canvas = document.getElementById('profitTrendChart');
+      const canvas = document.getElementById('profitTrendChart');
       if (!canvas) return;
 
       if (profitTrendChart) {
@@ -940,7 +940,7 @@
       }
 
       if (!data || !data.labels || data.labels.length === 0) {
-        var wrapper = canvas.parentElement;
+        const wrapper = canvas.parentElement;
         clearChildren(wrapper);
         wrapper.appendChild(el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-chart-line text-muted' }),
@@ -1006,25 +1006,25 @@
     // Alert Helper
     // ========================================
     function showAlert(message, type) {
-      var existing = document.getElementById('page-alert');
+      const existing = document.getElementById('page-alert');
       if (existing) existing.remove();
 
-      var alertDiv = el('div', {
+      const alertDiv = el('div', {
         className: 'alert alert-' + type + ' alert-dismissible fade show',
         id: 'page-alert',
         role: 'alert'
       });
       alertDiv.appendChild(document.createTextNode(message));
 
-      var closeBtn = el('button', {
+      const closeBtn = el('button', {
         className: 'btn-close',
         'data-bs-dismiss': 'alert',
         'aria-label': 'Kapat'
       });
       alertDiv.appendChild(closeBtn);
 
-      var main = document.querySelector('.dashboard-main');
-      var header = main.querySelector('.page-header-bar');
+      const main = document.querySelector('.dashboard-main');
+      const header = main.querySelector('.page-header-bar');
       if (header && header.nextSibling) {
         main.insertBefore(alertDiv, header.nextSibling);
       } else {
@@ -1032,7 +1032,7 @@
       }
 
       setTimeout(function() {
-        var a = document.getElementById('page-alert');
+        const a = document.getElementById('page-alert');
         if (a) a.remove();
       }, 5000);
     }
@@ -1043,14 +1043,14 @@
     function showFallbackState() {
       renderKpiCards({});
 
-      var supplierBody = document.getElementById('supplier-table-body');
+      const supplierBody = document.getElementById('supplier-table-body');
       clearChildren(supplierBody);
       supplierBody.appendChild(el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
         el('p', { textContent: 'Veri yuklenemedi. API baglantisi kontrol edin.' })
       ]));
 
-      var productsBody = document.getElementById('top-products-body');
+      const productsBody = document.getElementById('top-products-body');
       clearChildren(productsBody);
       productsBody.appendChild(el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
@@ -1066,10 +1066,10 @@
 
       try {
         // Load supplier performance
-        var perfData = await mestechApi.get(API_BASE + '/supplier-performance');
+        const perfData = await mestechApi.get(API_BASE + '/supplier-performance');
 
         // Render KPI from aggregated data
-        var kpiData = {
+        const kpiData = {
           supplierCount: perfData.suppliers ? perfData.suppliers.length : 0,
           activeProductCount: perfData.activeProductCount || 0,
           profitabilityRate: perfData.profitabilityRate || 0,

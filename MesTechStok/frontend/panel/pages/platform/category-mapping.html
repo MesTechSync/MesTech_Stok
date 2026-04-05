@@ -425,17 +425,17 @@
   (function() {
     'use strict';
 
-    var API_BASE = '/api/v1/platform/category-mappings';
-    var selectedMestechId = null;
-    var selectedPlatformId = null;
-    var mestechCategories = [];
-    var platformCategories = [];
+    const API_BASE = '/api/v1/platform/category-mappings';
+    let selectedMestechId = null;
+    let selectedPlatformId = null;
+    let mestechCategories = [];
+    let platformCategories = [];
 
     // ========================================
     // DOM Helper Utilities (XSS-safe)
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') {
@@ -479,7 +479,7 @@
       clearChildren(container);
 
       if (!categories || categories.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-folder-open text-muted' }),
           el('p', { textContent: 'Kategori bulunamadi' })
         ]);
@@ -487,16 +487,16 @@
         return;
       }
 
-      var filtered = filterCategories(categories, searchTerm);
+      const filtered = filterCategories(categories, searchTerm);
       renderTreeLevel(container, filtered, side, 0);
     }
 
     function filterCategories(categories, searchTerm) {
       if (!searchTerm) return categories;
-      var term = searchTerm.toLowerCase();
+      const term = searchTerm.toLowerCase();
       return categories.filter(function(cat) {
-        var nameMatch = (cat.name || '').toLowerCase().indexOf(term) >= 0;
-        var childMatch = cat.children && cat.children.length > 0 &&
+        const nameMatch = (cat.name || '').toLowerCase().indexOf(term) >= 0;
+        const childMatch = cat.children && cat.children.length > 0 &&
           filterCategories(cat.children, searchTerm).length > 0;
         return nameMatch || childMatch;
       });
@@ -504,17 +504,17 @@
 
     function renderTreeLevel(container, categories, side, depth) {
       categories.forEach(function(cat) {
-        var hasChildren = cat.children && cat.children.length > 0;
+        const hasChildren = cat.children && cat.children.length > 0;
 
         // Tree item row
-        var item = el('div', {
+        const item = el('div', {
           className: 'tree-item',
           'data-id': String(cat.id || ''),
           'data-side': side
         });
 
         // Toggle icon
-        var toggle = el('span', { className: 'toggle-icon' });
+        const toggle = el('span', { className: 'toggle-icon' });
         if (hasChildren) {
           toggle.appendChild(el('i', { className: 'fas fa-chevron-right' }));
         }
@@ -524,11 +524,11 @@
         item.appendChild(el('span', { className: 'cat-name', textContent: cat.name || '--' }));
 
         // Status dot
-        var statusClass = 'unmapped';
+        let statusClass = 'unmapped';
         if (cat.mappingStatus === 'mapped') statusClass = 'mapped';
         else if (cat.mappingStatus === 'ai-suggested') statusClass = 'ai-suggested';
 
-        var dot = el('span', { className: 'status-dot ' + statusClass });
+        const dot = el('span', { className: 'status-dot ' + statusClass });
         item.appendChild(dot);
 
         // Click handler: select
@@ -537,10 +537,10 @@
 
           // Toggle children
           if (hasChildren && e.target.closest('.toggle-icon')) {
-            var childrenDiv = item.nextElementSibling;
+            const childrenDiv = item.nextElementSibling;
             if (childrenDiv && childrenDiv.classList.contains('tree-children')) {
               childrenDiv.classList.toggle('collapsed');
-              var icon = toggle.querySelector('i');
+              const icon = toggle.querySelector('i');
               if (icon) {
                 icon.className = childrenDiv.classList.contains('collapsed')
                   ? 'fas fa-chevron-right'
@@ -558,7 +558,7 @@
 
         // Children container
         if (hasChildren) {
-          var childrenDiv = el('div', { className: 'tree-children collapsed' });
+          const childrenDiv = el('div', { className: 'tree-children collapsed' });
           renderTreeLevel(childrenDiv, cat.children, side, depth + 1);
           container.appendChild(childrenDiv);
         }
@@ -567,9 +567,9 @@
 
     function selectCategory(side, catId, itemEl) {
       // Deselect previous
-      var treeId = side === 'mestech' ? 'mestech-tree' : 'platform-tree';
-      var tree = document.getElementById(treeId);
-      var prev = tree.querySelector('.tree-item.selected');
+      const treeId = side === 'mestech' ? 'mestech-tree' : 'platform-tree';
+      const tree = document.getElementById(treeId);
+      const prev = tree.querySelector('.tree-item.selected');
       if (prev) prev.classList.remove('selected');
 
       // Select new
@@ -585,7 +585,7 @@
     }
 
     function updateMapButton() {
-      var btn = document.getElementById('btn-map');
+      const btn = document.getElementById('btn-map');
       btn.disabled = !(selectedMestechId && selectedPlatformId);
     }
 
@@ -593,15 +593,15 @@
     // Update Stats Bar (DOM-SAFE)
     // ========================================
     function updateStats(data) {
-      var mappedPct = data.mappedPercentage || 0;
-      var unmapped = data.unmappedCount || 0;
-      var aiCount = data.aiSuggestionCount || 0;
+      const mappedPct = data.mappedPercentage || 0;
+      const unmapped = data.unmappedCount || 0;
+      const aiCount = data.aiSuggestionCount || 0;
 
       document.getElementById('stats-mapped-pct').textContent = mappedPct + '%';
       document.getElementById('stats-unmapped-count').textContent = String(unmapped);
       document.getElementById('stats-ai-count').textContent = String(aiCount);
 
-      var fill = document.getElementById('mapping-progress-fill');
+      const fill = document.getElementById('mapping-progress-fill');
       fill.style.width = mappedPct + '%';
     }
 
@@ -609,7 +609,7 @@
     // API: Load Mappings
     // ========================================
     async function loadMappings() {
-      var platform = document.getElementById('platform-selector').value;
+      const platform = document.getElementById('platform-selector').value;
       if (!platform) {
         showEmptyPlatformState();
         return;
@@ -619,7 +619,7 @@
       showLoadingState('platform-tree');
 
       try {
-        var data = await mestechApi.get(API_BASE + '?platform=' + encodeURIComponent(platform));
+        const data = await mestechApi.get(API_BASE + '?platform=' + encodeURIComponent(platform));
 
         mestechCategories = data.mestechCategories || [];
         platformCategories = data.platformCategories || [];
@@ -653,7 +653,7 @@
     }
 
     function countCategories(cats) {
-      var count = 0;
+      let count = 0;
       if (!cats) return 0;
       cats.forEach(function(cat) {
         count++;
@@ -668,8 +668,8 @@
     async function createMapping() {
       if (!selectedMestechId || !selectedPlatformId) return;
 
-      var platform = document.getElementById('platform-selector').value;
-      var btn = document.getElementById('btn-map');
+      const platform = document.getElementById('platform-selector').value;
+      const btn = document.getElementById('btn-map');
       btn.disabled = true;
       btn.textContent = 'Eslestiriliyor...';
 
@@ -691,7 +691,7 @@
         mestechToast.error('Kategori eslestirme basarisiz oldu');
         showAlert('Eslestirme basarisiz oldu. Lutfen tekrar deneyin.', 'danger');
       } finally {
-        var mapBtn = document.getElementById('btn-map');
+        const mapBtn = document.getElementById('btn-map');
         clearChildren(mapBtn);
         mapBtn.appendChild(el('i', { className: 'fas fa-link me-2' }));
         mapBtn.appendChild(document.createTextNode('Eslestir'));
@@ -703,22 +703,22 @@
     // API: AI Auto-Map
     // ========================================
     async function autoMap() {
-      var platform = document.getElementById('platform-selector').value;
+      const platform = document.getElementById('platform-selector').value;
       if (!platform) {
         showAlert('Lutfen once bir platform secin.', 'warning');
         return;
       }
 
-      var btn = document.getElementById('btn-auto-map');
+      const btn = document.getElementById('btn-auto-map');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
       btn.appendChild(document.createTextNode('AI calisiyor...'));
 
       try {
-        var result = await mestechApi.post(API_BASE + '/auto-map', { platform: platform });
+        const result = await mestechApi.post(API_BASE + '/auto-map', { platform: platform });
 
-        var msg = (result.mappedCount || 0) + ' kategori otomatik eslestirildi.';
+        const msg = (result.mappedCount || 0) + ' kategori otomatik eslestirildi.';
         showAlert(msg, 'success');
 
         await loadMappings();
@@ -739,13 +739,13 @@
     // API: Sync Categories
     // ========================================
     async function syncCategories() {
-      var platform = document.getElementById('platform-selector').value;
+      const platform = document.getElementById('platform-selector').value;
       if (!platform) {
         showAlert('Lutfen once bir platform secin.', 'warning');
         return;
       }
 
-      var btn = document.getElementById('btn-sync');
+      const btn = document.getElementById('btn-sync');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
@@ -773,9 +773,9 @@
     // UI State Helpers
     // ========================================
     function showLoadingState(containerId) {
-      var container = document.getElementById(containerId);
+      const container = document.getElementById(containerId);
       clearChildren(container);
-      var spinner = el('div', { className: 'loading-spinner' }, [
+      const spinner = el('div', { className: 'loading-spinner' }, [
         el('div', { className: 'spinner-border text-primary', role: 'status' }, [
           el('span', { className: 'visually-hidden', textContent: 'Yukleniyor...' })
         ])
@@ -784,9 +784,9 @@
     }
 
     function showErrorState(containerId) {
-      var container = document.getElementById(containerId);
+      const container = document.getElementById(containerId);
       clearChildren(container);
-      var fallback = el('div', { className: 'fallback-state' }, [
+      const fallback = el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
         el('p', { textContent: 'Veri yuklenemedi. Lutfen tekrar deneyin.' })
       ]);
@@ -794,9 +794,9 @@
     }
 
     function showEmptyPlatformState() {
-      var platformTree = document.getElementById('platform-tree');
+      const platformTree = document.getElementById('platform-tree');
       clearChildren(platformTree);
-      var fallback = el('div', { className: 'fallback-state' }, [
+      const fallback = el('div', { className: 'fallback-state' }, [
         el('i', { className: 'fas fa-hand-pointer text-muted' }),
         el('p', { textContent: 'Lutfen bir platform secin' })
       ]);
@@ -804,29 +804,29 @@
     }
 
     function showAlert(message, type) {
-      var existing = document.getElementById('page-alert');
+      const existing = document.getElementById('page-alert');
       if (existing) existing.remove();
 
-      var alertDiv = el('div', {
+      const alertDiv = el('div', {
         className: 'alert alert-' + type + ' alert-dismissible fade show',
         id: 'page-alert',
         role: 'alert'
       });
       alertDiv.appendChild(document.createTextNode(message));
 
-      var closeBtn = el('button', {
+      const closeBtn = el('button', {
         className: 'btn-close',
         'data-bs-dismiss': 'alert',
         'aria-label': 'Kapat'
       });
       alertDiv.appendChild(closeBtn);
 
-      var main = document.querySelector('.dashboard-main');
-      var statsBar = document.getElementById('stats-bar');
+      const main = document.querySelector('.dashboard-main');
+      const statsBar = document.getElementById('stats-bar');
       main.insertBefore(alertDiv, statsBar);
 
       setTimeout(function() {
-        var alert = document.getElementById('page-alert');
+        const alert = document.getElementById('page-alert');
         if (alert) alert.remove();
       }, 5000);
     }
@@ -835,9 +835,9 @@
     // Search Filtering
     // ========================================
     function initSearch() {
-      var mestechSearch = document.getElementById('mestech-search');
-      var platformSearch = document.getElementById('platform-search');
-      var debounceTimer = null;
+      const mestechSearch = document.getElementById('mestech-search');
+      const platformSearch = document.getElementById('platform-search');
+      let debounceTimer = null;
 
       mestechSearch.addEventListener('input', function() {
         clearTimeout(debounceTimer);
