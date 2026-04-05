@@ -68,16 +68,19 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol), ct);
-            IsConnected = result.IsConnected;
-            ProductCount = result.ProductCount;
-            OrderCount = result.OrderCount;
-            DailyRevenue = result.DailyRevenue;
-            SyncStatus = result.SyncStatus;
-            LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
-            _allOrders.Clear();
-            foreach (var o in result.RecentOrders)
-                _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
-            ApplyFilter();
+            await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                IsConnected = result.IsConnected;
+                ProductCount = result.ProductCount;
+                OrderCount = result.OrderCount;
+                DailyRevenue = result.DailyRevenue;
+                SyncStatus = result.SyncStatus;
+                LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
+                _allOrders.Clear();
+                foreach (var o in result.RecentOrders)
+                    _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+                ApplyFilter();
+            });
         }, "Trendyol verileri yuklenirken hata");
     }
 
