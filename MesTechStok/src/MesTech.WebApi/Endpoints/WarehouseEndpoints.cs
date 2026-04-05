@@ -108,7 +108,7 @@ public static class WarehouseEndpoints
             ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new GetWarehouseStockQuery(id, tenantId), ct);
-            return Results.Ok(result);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetWarehouseStock")
         .WithSummary("Depo bazlı stok listesi")

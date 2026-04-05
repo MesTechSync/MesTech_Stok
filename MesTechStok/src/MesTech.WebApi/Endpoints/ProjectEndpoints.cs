@@ -51,7 +51,7 @@ public static class ProjectEndpoints
         {
             var result = await mediator.Send(
                 new GetProjectTasksQuery(id, status, assignedTo), ct);
-            return Results.Ok(result);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetProjectTasks")
         .WithSummary("Projeye ait görev listesi (durum + atanan filtresi)")

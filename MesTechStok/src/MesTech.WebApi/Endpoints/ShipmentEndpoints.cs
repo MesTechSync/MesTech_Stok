@@ -37,6 +37,8 @@ public static class ShipmentEndpoints
         {
             var result = await mediator.Send(
                 new DownloadShipmentLabelQuery(tenantId, id, Format: format ?? "PDF"), ct);
+            if (result is null)
+                return Results.NotFound();
             if (result.LabelData.Length == 0)
                 return Results.Problem(detail: "Label data empty", statusCode: 400);
             return Results.File(result.LabelData.ToArray(), result.ContentType, result.FileName);

@@ -37,7 +37,7 @@ public static class FixedAssetEndpoints
         {
             var result = await mediator.Send(
                 new CalculateDepreciationQuery(id), ct);
-            return Results.Ok(result);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .CacheOutput("Lookup60s")
         .WithName("CalculateDepreciation")
