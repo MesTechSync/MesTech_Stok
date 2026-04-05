@@ -145,6 +145,8 @@ public static class AccountingEndpoints
             Guid tenantId, DateTime from, DateTime to,
             ISender mediator, CancellationToken ct) =>
         {
+            if ((to - from).TotalDays > 366)
+                return Results.Problem(detail: "Tarih aralığı en fazla 12 ay olabilir.", statusCode: 400);
             var result = await mediator.Send(
                 new GetJournalEntriesQuery(tenantId, from, to), ct);
             return Results.Ok(result);
@@ -214,6 +216,8 @@ public static class AccountingEndpoints
             Guid tenantId, DateTime from, DateTime to, ExpenseSource? source,
             ISender mediator, CancellationToken ct) =>
         {
+            if ((to - from).TotalDays > 366)
+                return Results.Problem(detail: "Tarih aralığı en fazla 12 ay olabilir.", statusCode: 400);
             var result = await mediator.Send(
                 new GetAccountingExpensesQuery(tenantId, from, to, source), ct);
             return Results.Ok(result);
