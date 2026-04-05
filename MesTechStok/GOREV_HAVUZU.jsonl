@@ -545,3 +545,4 @@
 {"id":"E06-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Stok push ZATEN VAR — SignalRNotificationBridge LowStockDetected handler 4 referans.","tarih":"2026-04-05"}
 {"id":"E13-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Ba/Bs endpoint ZATEN VAR — BaBsEndpoints.cs GenerateBaBsReportQuery + CreateBaBsRecordCommand.","tarih":"2026-04-05"}
 {"id":"E29-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Kampanya endpoint ZATEN VAR — CampaignEndpoints.cs 18 referans.","tarih":"2026-04-05"}
+{"id":"HH-DEV5-SFAIL-001","bulan":"DEV5","alan":"DEV3","oncelik":"P2","durum":"ACIK","is":"SocialFeedRefreshJobTests 5/5 FAIL — Job implementasyonu değişmiş ama testler güncellenmemiş. DEV3 alanı (Infrastructure/Jobs). Testler: ExecuteAsync_ActiveConfig, _FeedGenerationFails, _AdapterThrows, _InactiveConfig, _NoMatchingAdapter.","tarih":"2026-04-05"}
