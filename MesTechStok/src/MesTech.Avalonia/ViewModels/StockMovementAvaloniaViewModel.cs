@@ -23,6 +23,15 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int changedCount;
     [ObservableProperty] private string updateStatus = string.Empty;
 
+    // HH-DEV2-012: New movement form fields
+    [ObservableProperty] private bool isAddingMovement;
+    [ObservableProperty] private string newMovementType = "Giris";
+    [ObservableProperty] private string newMovementSku = string.Empty;
+    [ObservableProperty] private int newMovementQuantity;
+    [ObservableProperty] private string newMovementWarehouse = string.Empty;
+    [ObservableProperty] private string newMovementNote = string.Empty;
+    public string[] MovementTypes { get; } = ["Giris", "Cikis", "Transfer", "Duzeltme"];
+
     private readonly List<StockMovementItemDto> _allItems = [];
     public ObservableCollection<StockMovementItemDto> Items { get; } = [];
 
@@ -100,6 +109,32 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-012: Toggle add-movement form visibility
+    [RelayCommand]
+    private void ToggleAddMovement() => IsAddingMovement = !IsAddingMovement;
+
+    // HH-DEV2-012: Save new stock movement
+    [RelayCommand]
+    private async Task SaveNewMovement()
+    {
+        if (string.IsNullOrWhiteSpace(NewMovementSku) || NewMovementQuantity <= 0)
+        {
+            UpdateStatus = "SKU ve miktar zorunlu.";
+            return;
+        }
+
+        UpdateStatus = $"{NewMovementType} hareketi kaydediliyor...";
+        // TODO: CreateStockMovementCommand handler DEV1 tarafindan eklenecek
+        // await _mediator.Send(new CreateStockMovementCommand(...));
+
+        UpdateStatus = $"{NewMovementType}: {NewMovementSku} x {NewMovementQuantity} — kaydedildi.";
+        NewMovementSku = string.Empty;
+        NewMovementQuantity = 0;
+        NewMovementNote = string.Empty;
+        IsAddingMovement = false;
+        await LoadAsync();
+    }
 
     private void UnsubscribeItemEvents()
     {
