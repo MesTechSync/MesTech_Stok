@@ -53,4 +53,12 @@ public sealed class StoreRepository : IStoreRepository
 
     public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores.CountAsync(s => s.TenantId == tenantId, ct).ConfigureAwait(false);
+
+    public async Task<bool> ExistsByTenantAndPlatformAsync(
+        Guid tenantId, PlatformType platformType, string storeName, CancellationToken ct = default)
+        => await _context.Stores.AnyAsync(
+            s => s.TenantId == tenantId
+              && s.PlatformType == platformType
+              && s.StoreName == storeName
+              && s.IsActive, ct).ConfigureAwait(false);
 }

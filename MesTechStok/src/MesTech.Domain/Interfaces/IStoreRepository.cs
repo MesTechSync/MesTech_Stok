@@ -12,4 +12,5 @@ public interface IStoreRepository
     Task UpdateAsync(Store store, CancellationToken ct = default);
     Task DeleteAsync(Store store, CancellationToken ct = default);
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default);
+    Task<bool> ExistsByTenantAndPlatformAsync(Guid tenantId, PlatformType platformType, string storeName, CancellationToken ct = default);
 }
