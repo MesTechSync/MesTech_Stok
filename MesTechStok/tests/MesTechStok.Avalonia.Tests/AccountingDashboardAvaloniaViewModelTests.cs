@@ -105,7 +105,7 @@ public class AccountingDashboardAvaloniaViewModelTests
 
         // Assert
         _sut.HasError.Should().BeTrue();
-        _sut.ErrorMessage.Should().Contain("Muhasebe verileri yuklenemedi");
+        _sut.ErrorMessage.Should().Contain("yuklenirken hata");
         _sut.ErrorMessage.Should().Contain("DB connection failed");
         _sut.IsLoading.Should().BeFalse();
     }

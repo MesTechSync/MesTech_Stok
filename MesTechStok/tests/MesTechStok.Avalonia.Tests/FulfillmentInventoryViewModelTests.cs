@@ -207,7 +207,7 @@ public class FulfillmentInventoryViewModelTests
 
         // Assert
         sut.HasError.Should().BeTrue();
-        sut.ErrorMessage.Should().Contain("Envanter verileri yuklenemedi");
+        sut.ErrorMessage.Should().Contain("yuklenirken hata");
         sut.ErrorMessage.Should().Contain("Database timeout");
         sut.IsLoading.Should().BeFalse();
     }

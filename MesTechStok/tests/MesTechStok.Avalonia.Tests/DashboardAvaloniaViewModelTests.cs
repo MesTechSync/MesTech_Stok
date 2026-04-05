@@ -147,7 +147,7 @@ public class DashboardAvaloniaViewModelTests
 
         // Assert
         sut.HasError.Should().BeTrue();
-        sut.ErrorMessage.Should().Contain("Dashboard yüklenemedi");
+        sut.ErrorMessage.Should().Contain("yuklenirken hata");
         sut.ErrorMessage.Should().Contain("DB connection failed");
         sut.IsLoading.Should().BeFalse();
     }
