@@ -574,5 +574,86 @@ public static class ReportEndpoints
         .Produces<IReadOnlyList<PlatformSalesReportDto>>(200).Produces(400)
         .CacheOutput("Report120s")
         .WithRequestTimeout("LongRunning");
+
+        // ═══ E08: GÜNLÜK PERFORMANS ÖZETİ (DAILY DIGEST) ═══
+
+        // GET /api/v1/reports/daily-digest — dünün sipariş/ciro/iade/komisyon özeti
+        // PROF-50 E08: Sabah digest — Telegram/e-posta ile otomatik gönderilebilir.
+        // Dün saat 00:00–23:59:59 UTC aralığı, platform bazlı breakdown.
+        group.MapGet("/daily-digest", async (
+            Guid tenantId,
+            DateTime? date,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            // Hedef gün: parametre verilmezse dün (UTC)
+            var targetDay = (date ?? DateTime.UtcNow.AddDays(-1)).Date;
+            var dayStart = new DateTime(targetDay.Year, targetDay.Month, targetDay.Day, 0, 0, 0, DateTimeKind.Utc);
+            var dayEnd = dayStart.AddDays(1).AddTicks(-1);
+
+            // Platform bazlı satış özeti
+            var platformData = await mediator.Send(
+                new PlatformSalesReportQuery(tenantId, dayStart, dayEnd), ct);
+
+            // Toplam aggregate
+            var totalOrders = platformData.Sum(p => p.TotalOrders);
+            var totalRevenue = platformData.Sum(p => p.TotalRevenue);
+            var totalReturns = platformData.Sum(p => p.Returns);
+            var totalCommissions = platformData.Sum(p => p.Commissions);
+            var totalNetRevenue = platformData.Sum(p => p.NetRevenue);
+
+            // En iyi platform
+            var topPlatform = platformData
+                .OrderByDescending(p => p.TotalRevenue)
+                .FirstOrDefault();
+
+            var digest = new DailyDigestResponse(
+                Date: targetDay.ToString("yyyy-MM-dd"),
+                TenantId: tenantId,
+                TotalOrders: totalOrders,
+                TotalRevenue: totalRevenue,
+                TotalReturns: totalReturns,
+                TotalCommissions: totalCommissions,
+                TotalNetRevenue: totalNetRevenue,
+                ReturnRate: totalOrders > 0
+                    ? Math.Round((decimal)totalReturns / totalOrders * 100, 1)
+                    : 0m,
+                TopPlatform: topPlatform?.Platform ?? "–",
+                TopPlatformRevenue: topPlatform?.TotalRevenue ?? 0m,
+                PlatformCount: platformData.Count,
+                PlatformBreakdown: platformData.ToDictionary(
+                    p => p.Platform,
+                    p => new DailyPlatformKpi(p.TotalOrders, p.TotalRevenue, p.Returns, p.NetRevenue)),
+                GeneratedAt: DateTime.UtcNow);
+
+            return Results.Ok(digest);
+        })
+        .WithName("GetDailyDigest")
+        .WithSummary("Günlük performans özeti — sipariş, ciro, iade, komisyon (E08)")
+        .Produces<DailyDigestResponse>(200).Produces(400)
+        .CacheOutput("Report120s");
     }
+
+    // ── E08 DTOs ──
+
+    public sealed record DailyDigestResponse(
+        string Date,
+        Guid TenantId,
+        int TotalOrders,
+        decimal TotalRevenue,
+        int TotalReturns,
+        decimal TotalCommissions,
+        decimal TotalNetRevenue,
+        decimal ReturnRate,
+        string TopPlatform,
+        decimal TopPlatformRevenue,
+        int PlatformCount,
+        Dictionary<string, DailyPlatformKpi> PlatformBreakdown,
+        DateTime GeneratedAt);
+
+    public sealed record DailyPlatformKpi(
+        int Orders,
+        decimal Revenue,
+        int Returns,
+        decimal NetRevenue);
 }
