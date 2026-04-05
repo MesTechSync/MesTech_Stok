@@ -52,6 +52,29 @@ public class AppDbContext : DbContext
     /// </summary>
     internal Guid CurrentTenantId => _tenantProvider.GetCurrentTenantId();
 
+    /// <summary>
+    /// Yeni eklenen ITenantEntity'lere otomatik TenantId atama.
+    /// BulkProductImportService gibi doğrudan DbContext kullanan servislerde
+    /// TenantId atanmadan SaveChanges çağrılırsa, entity Guid.Empty ile kaydedilir.
+    /// Bu interceptor bunu önler — Added state'teki tüm ITenantEntity'lere CurrentTenantId atar.
+    /// </summary>
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var tenantId = CurrentTenantId;
+        if (tenantId != Guid.Empty)
+        {
+            foreach (var entry in ChangeTracker.Entries<ITenantEntity>())
+            {
+                if (entry.State == EntityState.Added && entry.Entity.TenantId == Guid.Empty)
+                {
+                    entry.Entity.TenantId = tenantId;
+                }
+            }
+        }
+
+        return await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     // ── Domain Entities ──
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
