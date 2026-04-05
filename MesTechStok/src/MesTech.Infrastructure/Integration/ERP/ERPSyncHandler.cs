@@ -230,8 +230,6 @@ public sealed class ERPSyncHandler : IERPSyncHandler
     /// </summary>
     private string? ResolveERPName(string? platformCode)
     {
-        // Multi-tenant: tenant config provides ERP name.
-        // For now, return first available ERP from factory.
         var supported = _erpAdapterFactory.SupportedERPs;
         if (supported.Count == 0)
         {
@@ -239,7 +237,25 @@ public sealed class ERPSyncHandler : IERPSyncHandler
             return null;
         }
 
-        // Default: first registered ERP (Parasut in production)
+        // Multi-tenant routing: tenant'ın tercih ettiği ERP provider'ı seç.
+        // Şu an tenant config'den ERP tercihi çekilmiyor — platformCode hint olarak kullanılır.
+        // Birden fazla ERP kayıtlıysa, platformCode ile eşleşen ilk ERP seçilir.
+        // Örnek: Trendyol → Parasut, OpenCart → Logo (yapılandırmaya bağlı)
+        if (!string.IsNullOrWhiteSpace(platformCode) && supported.Count > 1)
+        {
+            // Hint-based matching: ERP adı platformCode içinde geçiyorsa tercih et
+            foreach (var erp in supported)
+            {
+                if (erp.Contains(platformCode, StringComparison.OrdinalIgnoreCase))
+                    return erp;
+            }
+
+            _logger.LogDebug(
+                "[ERPSync] No ERP matches platformCode '{PlatformCode}' — using default '{Default}'",
+                platformCode, supported[0]);
+        }
+
+        // Fallback: first registered ERP (production default)
         return supported[0];
     }
 }
