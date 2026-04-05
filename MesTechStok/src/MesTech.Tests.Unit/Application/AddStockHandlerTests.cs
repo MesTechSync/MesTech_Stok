@@ -1,9 +1,12 @@
 using FluentAssertions;
 using MesTech.Application.Commands.AddStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Events;
 using MesTech.Domain.Interfaces;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -15,9 +18,17 @@ public class AddStockHandlerTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public AddStockHandlerTests()
+    {
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private AddStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _tenantProvider.Object);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _tenantProvider.Object, NullLogger<AddStockHandler>.Instance);
 
     [Fact]
     public async Task Handle_ValidCommand_ShouldIncreaseStock()

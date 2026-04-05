@@ -5,6 +5,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -27,7 +28,7 @@ public class StockHandlerTests
         var cmd = new AddStockLotCommand(
             product.Id, "LOT-001", 50, 25.50m, Guid.NewGuid(),
             DateTime.UtcNow.AddYears(1), Guid.NewGuid());
-        var handler = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
+        var handler = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, NullLogger<AddStockLotHandler>.Instance);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
@@ -39,7 +40,7 @@ public class StockHandlerTests
     {
         _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
         var cmd = new AddStockLotCommand(Guid.NewGuid(), "LOT", 10, 10m);
-        var handler = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _uow.Object);
+        var handler = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _uow.Object, CreateLockService().Object, NullLogger<AddStockLotHandler>.Instance);
 
         var result = await handler.Handle(cmd, CancellationToken.None);
         result.IsSuccess.Should().BeFalse();

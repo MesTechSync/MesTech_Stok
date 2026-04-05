@@ -1,9 +1,12 @@
 using FluentAssertions;
 using MesTech.Application.Commands.RemoveStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.EdgeCases;
@@ -21,9 +24,17 @@ public class RemoveStockHandlerEdgeCaseTests
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
     private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public RemoveStockHandlerEdgeCaseTests()
+    {
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
     // ── Constructor Null Guards ──
 
@@ -31,7 +42,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullProductRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
+            null!, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("productRepository");
@@ -41,7 +52,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullMovementRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, null!, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
+            _productRepo.Object, null!, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("movementRepository");
@@ -51,7 +62,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullUnitOfWork_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, null!, _stockCalc, _tenantProvider.Object);
+            _productRepo.Object, _movementRepo.Object, null!, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("unitOfWork");
@@ -61,7 +72,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullStockCalc_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!, _tenantProvider.Object);
+            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, null!, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("stockCalc");
