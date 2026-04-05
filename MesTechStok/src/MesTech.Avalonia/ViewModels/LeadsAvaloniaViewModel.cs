@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Avalonia.Services;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using global::MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -123,6 +124,22 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     {
         // IDialogService replaces System.Windows.MessageBox — the ONLY change from WPF ViewModel
         await _dialog.ShowInfoAsync("Yeni Lead formu yakinda hazir.", "MesTech CRM");
+    }
+
+    // HH-FIX-014b: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "leads", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Lead verileri disa aktarilirken hata");
     }
 
     [RelayCommand]

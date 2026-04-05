@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetContactsPaged;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -121,5 +122,21 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     {
         if (CurrentPage > 1) CurrentPage--;
         await LoadAsync();
+    }
+
+    // HH-FIX-014c: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "contacts", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Kisiler disa aktarilirken hata");
     }
 }
