@@ -10,6 +10,9 @@ public sealed class CariHareketRepository : ICariHareketRepository
 
     public CariHareketRepository(AppDbContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
+    public async Task<CariHareket?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _context.CariHareketler.FirstOrDefaultAsync(h => h.Id == id, ct).ConfigureAwait(false);
+
     public async Task<IReadOnlyList<CariHareket>> GetByCariHesapIdAsync(Guid cariHesapId, CancellationToken ct = default)
         => await _context.CariHareketler
             .Where(h => h.CariHesapId == cariHesapId)
