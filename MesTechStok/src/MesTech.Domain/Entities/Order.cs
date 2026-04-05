@@ -234,6 +234,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         string? notes = null,
         DateTime? requiredDate = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
 
         var order = new Order
@@ -273,6 +275,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         string? customerEmail,
         IReadOnlyList<OrderItem> items)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(platformOrderId);
         ArgumentNullException.ThrowIfNull(items);
 
