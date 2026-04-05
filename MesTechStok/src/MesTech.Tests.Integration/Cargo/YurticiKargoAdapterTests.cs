@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Application.DTOs.Cargo;
 using MesTech.Domain.Enums;
@@ -100,14 +100,14 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     // ══════════════════════════════════════
 
     [Fact]
-    public async Task IsAvailable_WhenSoapResponds_ReturnsTrue()
+    public async Task IsAvailable_SoapResponds_ReturnsTrue()
     {
         // Arrange — adapter pings via queryShipment with "PING-TEST"
         _mockServer
             .Given(Request.Create()
                 .WithPath(SoapPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "https://yurticikargo.com/queryShipment"))
+                .WithHeader("SOAPAction", "http://yurticikargo.com/queryShipment"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -128,7 +128,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     }
 
     [Fact]
-    public async Task IsAvailable_WhenSoapFails_ReturnsFalse()
+    public async Task IsAvailable_SoapFails_ReturnsFalse()
     {
         // Arrange — return HTTP 500 to cause exception → IsAvailable catches and returns false
         _mockServer
@@ -153,7 +153,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     // ══════════════════════════════════════
 
     [Fact]
-    public async Task CreateShipment_ValidSOAPRequest_ReturnsTrackingNumber()
+    public async Task CreateShipment_ValidSoapRequest_ReturnsTrackingNumber()
     {
         // Arrange
         _mockServer
@@ -188,7 +188,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     }
 
     [Fact]
-    public async Task CreateShipment_SoapFault_ReturnsFailedResult()
+    public async Task CreateShipment_SoapFaultResponse_ReturnsFailedResult()
     {
         // Arrange — SOAP Fault response
         _mockServer
@@ -218,7 +218,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     // ══════════════════════════════════════
 
     [Fact]
-    public async Task TrackShipment_ValidTracking_ReturnsStatusAndEvents()
+    public async Task TrackShipment_ValidTrackingNumber_ReturnsStatusAndEvents()
     {
         // Arrange
         const string trackingNo = "YK123456789";
@@ -330,7 +330,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
     // ══════════════════════════════════════
 
     [Fact]
-    public void SupportsCancellation_ShouldBeFalse()
+    public void SupportsCancellation_ReturnsFalse()
     {
         // Arrange
         var adapter = CreateConfiguredAdapter();
