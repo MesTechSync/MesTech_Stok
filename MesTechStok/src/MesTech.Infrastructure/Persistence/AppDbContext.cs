@@ -347,6 +347,7 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<StockAlertRule> StockAlertRules => Set<StockAlertRule>();
     public DbSet<WebhookDeadLetter> WebhookDeadLetters => Set<WebhookDeadLetter>();
+    public DbSet<PricingRule> PricingRules => Set<PricingRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
