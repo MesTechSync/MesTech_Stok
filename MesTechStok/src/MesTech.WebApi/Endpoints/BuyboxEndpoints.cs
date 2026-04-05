@@ -108,6 +108,8 @@ public static class BuyboxEndpoints
             IPriceOptimizationService priceService,
             CancellationToken ct) =>
         {
+            if (currentPrice <= 0 || costPrice < 0)
+                return Results.Problem(detail: "currentPrice must be > 0 and costPrice must be >= 0.", statusCode: 400);
             var result = await priceService.OptimizePriceAsync(
                 productId, currentPrice, costPrice, platformCode, ct);
             return Results.Ok(result);
