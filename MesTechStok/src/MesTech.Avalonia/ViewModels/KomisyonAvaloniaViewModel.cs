@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCommissionSummary;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -27,6 +28,10 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<CommissionItemDto> Items { get; } = [];
     private List<CommissionItemDto> _allItems = [];
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     public ObservableCollection<string> Platforms { get; } =
         ["Tumu", "Trendyol", "Hepsiburada", "Ciceksepeti", "N11", "Amazon", "Pazarama"];
@@ -88,11 +93,43 @@ public partial class KomisyonAvaloniaViewModel : ViewModelBase
         if (SelectedCategory != "Tumu")
             filtered = filtered.Where(x => x.Category == SelectedCategory);
 
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "Platform"  => SortAscending ? filtered.OrderBy(x => x.Platform).ToList()         : filtered.OrderByDescending(x => x.Platform).ToList(),
+            "Category"  => SortAscending ? filtered.OrderBy(x => x.Category).ToList()         : filtered.OrderByDescending(x => x.Category).ToList(),
+            "ValidFrom" => SortAscending ? filtered.OrderBy(x => x.ValidFrom).ToList()        : filtered.OrderByDescending(x => x.ValidFrom).ToList(),
+            _           => SortAscending ? filtered.OrderBy(x => x.Platform).ToList()         : filtered.OrderByDescending(x => x.Platform).ToList(),
+        };
+
         Items.Clear();
-        foreach (var item in filtered)
+        foreach (var item in sortedList)
             Items.Add(item);
 
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "commissions", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Komisyon verileri disa aktarilirken hata");
     }
 
     [RelayCommand]
