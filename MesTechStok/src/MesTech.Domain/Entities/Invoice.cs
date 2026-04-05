@@ -150,8 +150,11 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void Cancel(string? reason = null)
     {
+        if (Status == InvoiceStatus.Cancelled) return; // idempotent — çift event önleme
+
         if (Status == InvoiceStatus.Accepted)
-            throw new BusinessRuleException("InvoiceRule","Kabul edilmis fatura iptal edilemez.");
+            throw new BusinessRuleException("InvoiceRule", "Kabul edilmis fatura iptal edilemez.");
+
         Status = InvoiceStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
@@ -161,6 +164,11 @@ public sealed class Invoice : BaseEntity, ITenantEntity
     public void MarkAsPlatformSent(string platformInvoiceUrl)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(platformInvoiceUrl);
+
+        if (Status is InvoiceStatus.Cancelled or InvoiceStatus.Rejected)
+            throw new BusinessRuleException("InvoiceRule",
+                $"Cannot send to platform in {Status} status.");
+
         PlatformInvoiceUrl = platformInvoiceUrl;
         Status = InvoiceStatus.PlatformSent;
         RaiseDomainEvent(new InvoicePlatformSentEvent(Id, TenantId, OrderId, platformInvoiceUrl, DateTime.UtcNow));
