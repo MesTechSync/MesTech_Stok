@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -16,7 +17,7 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
-
+    private readonly INavigationService _nav;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string selectedPlatform = "Tumu";
@@ -35,16 +36,25 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalPages = 1;
     [ObservableProperty] private string paginationInfo = string.Empty;
 
+    // HH-FIX-001: Sort
+    [ObservableProperty] private string sortColumn = "OrderDate";
+    [ObservableProperty] private bool sortAscending;
+
+    // HH-FIX-021: Bulk select
+    [ObservableProperty] private int selectedCount;
+    [ObservableProperty] private bool hasSelection;
+
     public ObservableCollection<OrderListItemDto> Orders { get; } = [];
     private List<OrderListItemDto> _allOrders = [];
 
     public string[] PlatformOptions { get; } = ["Tumu", "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama"];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Hazirlaniyor", "Kargoda", "Teslim Edildi", "Iptal", "Iade"];
 
-    public OrderListAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public OrderListAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, INavigationService nav)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _nav = nav;
     }
 
     public override async Task LoadAsync()
@@ -92,6 +102,16 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
         if (EndDate.HasValue)
             filtered = filtered.Where(x => DateTime.TryParse(x.OrderDate, out var d) && d <= EndDate.Value.DateTime);
 
+        // HH-FIX-001: Sort
+        filtered = SortColumn switch
+        {
+            "TotalAmount" => SortAscending ? filtered.OrderBy(x => x.TotalAmount) : filtered.OrderByDescending(x => x.TotalAmount),
+            "Platform" => SortAscending ? filtered.OrderBy(x => x.Platform) : filtered.OrderByDescending(x => x.Platform),
+            "Status" => SortAscending ? filtered.OrderBy(x => x.Status) : filtered.OrderByDescending(x => x.Status),
+            "CustomerName" => SortAscending ? filtered.OrderBy(x => x.CustomerName) : filtered.OrderByDescending(x => x.CustomerName),
+            _ => SortAscending ? filtered.OrderBy(x => x.OrderDate) : filtered.OrderByDescending(x => x.OrderDate),
+        };
+
         // HH-DEV2-008: Pagination
         var filteredList = filtered.ToList();
         TotalCount = filteredList.Count;
@@ -135,6 +155,37 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
+    // HH-FIX-001: Sort command
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    // HH-FIX-021: Bulk select commands
+    [RelayCommand]
+    private void SelectAll() { foreach (var o in Orders) o.IsSelected = true; UpdateSelectionCount(); }
+
+    [RelayCommand]
+    private void DeselectAll() { foreach (var o in Orders) o.IsSelected = false; UpdateSelectionCount(); }
+
+    private void UpdateSelectionCount()
+    {
+        SelectedCount = Orders.Count(o => o.IsSelected);
+        HasSelection = SelectedCount > 0;
+    }
+
+    // HH-FIX-021: Navigate to BulkShipment with selected orders
+    [RelayCommand]
+    private async Task BulkShipSelected()
+    {
+        if (!HasSelection) return;
+        await _nav.NavigateToAsync("BulkShipment");
+    }
+
     // HH-DEV2-009: Orders export to Excel
     [RelayCommand]
     private async Task ExportExcel()
@@ -164,4 +215,5 @@ public class OrderListItemDto
     public string OrderDate { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
     public string Status { get; set; } = string.Empty;
+    public bool IsSelected { get; set; }
 }
