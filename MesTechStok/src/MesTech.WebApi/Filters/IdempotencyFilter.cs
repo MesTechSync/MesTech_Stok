@@ -52,7 +52,7 @@ public sealed class IdempotencyFilter : IEndpointFilter
                 if (cachedResponse is not null)
                 {
                     httpContext.Response.StatusCode = cachedResponse.StatusCode;
-                    httpContext.Response.ContentType = "application/json";
+                    httpContext.Response.ContentType = cachedResponse.ContentType;
                     httpContext.Response.Headers["X-Idempotency-Replayed"] = "true";
                     await httpContext.Response.WriteAsync(cachedResponse.Body, httpContext.RequestAborted).ConfigureAwait(false);
                     return null;
@@ -114,5 +114,5 @@ public sealed class IdempotencyFilter : IEndpointFilter
         return result;
     }
 
-    private sealed record IdempotencyCacheEntry(int StatusCode, string Body);
+    private sealed record IdempotencyCacheEntry(int StatusCode, string Body, string ContentType = "application/json");
 }
