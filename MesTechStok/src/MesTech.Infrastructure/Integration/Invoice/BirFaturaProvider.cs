@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// toplu fatura, sablon ayari.
 /// URL pattern: {baseUrl}/api/v1/invoices/...
 /// </summary>
-public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoiceTemplateCapable
+public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IInvoiceTemplateCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<BirFaturaProvider> _logger;
@@ -435,5 +436,125 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
         }
 
         return new InvoiceResult(false, null, null, "Max retries exhausted");
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "BirFatura";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[BirFatura] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                receiverVkn = document.BuyerVkn,
+                receiverTitle = document.BuyerTitle,
+                issueDate = document.IssueDate.ToString("yyyy-MM-dd")
+            };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/api/v1/einvoice", content, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
+            }
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var providerRef = root.TryGetProperty("uuid", out var uid) ? uid.GetString()
+                            : root.TryGetProperty("providerRef", out var pr) ? pr.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[BirFatura] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/invoices/{providerRef}/pdf", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var urlEl) ? urlEl.GetString()
+                 : doc.RootElement.TryGetProperty("url", out var u) ? u.GetString() : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[BirFatura] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var payload = new { reason };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/api/v1/invoices/{providerRef}/cancel", content, ct).ConfigureAwait(false);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[BirFatura] CancelAsync exception ref={Ref}", providerRef);
+            return false;
+        }
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/mukellef/check/{vkn}", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var isEInvoice = root.TryGetProperty("isEInvoice", out var eiv) && eiv.GetBoolean();
+            var isEArchive = root.TryGetProperty("isEArchive", out var eav) && eav.GetBoolean();
+            var title = root.TryGetProperty("title", out var tv) ? tv.GetString() : null;
+            return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[BirFatura] CheckVknMukellefAsync exception vkn={Vkn}", vkn);
+            return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+        }
+    }
+
+    async Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/account/credits", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return -1;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("balance", out var bal) ? bal.GetInt32()
+                 : doc.RootElement.TryGetProperty("credits", out var cr) ? cr.GetInt32() : -1;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[BirFatura] GetCreditBalanceAsync exception");
+            return -1;
+        }
     }
 }

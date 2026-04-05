@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, iptal.
 /// URL pattern: {baseUrl}/api/invoices/...
 /// </summary>
-public sealed class DijitalPlanetProvider : IInvoiceProvider
+public sealed class DijitalPlanetProvider : IInvoiceProvider, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<DijitalPlanetProvider> _logger;
@@ -300,5 +301,124 @@ public sealed class DijitalPlanetProvider : IInvoiceProvider
             }
         }
         return new InvoiceResult(false, null, null, "Max retries exhausted");
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "DijitalPlanet";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[DijitalPlanet] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                buyerVkn = document.BuyerVkn,
+                buyerTitle = document.BuyerTitle,
+                issueDate = document.IssueDate.ToString("yyyy-MM-dd")
+            };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/api/einvoice/send", content, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
+            }
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var providerRef = root.TryGetProperty("invoiceId", out var iid) ? iid.GetString()
+                            : root.TryGetProperty("uuid", out var uid) ? uid.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[DijitalPlanet] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/invoices/{providerRef}/pdf", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var urlEl) ? urlEl.GetString() : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[DijitalPlanet] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var payload = new { reason };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/api/invoices/{providerRef}/cancel", content, ct).ConfigureAwait(false);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[DijitalPlanet] CancelAsync exception ref={Ref}", providerRef);
+            return false;
+        }
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/taxpayer/{vkn}", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var isEInvoice = root.TryGetProperty("isEInvoice", out var ei) && ei.GetBoolean();
+            var isEArchive = root.TryGetProperty("isEArchive", out var ea) && ea.GetBoolean();
+            var title = root.TryGetProperty("title", out var tv) ? tv.GetString() : null;
+            return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[DijitalPlanet] CheckVknMukellefAsync exception vkn={Vkn}", vkn);
+            return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+        }
+    }
+
+    async Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/account/balance", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return -1;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("balance", out var b) ? b.GetInt32()
+                 : doc.RootElement.TryGetProperty("credits", out var c) ? c.GetInt32() : -1;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[DijitalPlanet] GetCreditBalanceAsync exception");
+            return -1;
+        }
     }
 }
