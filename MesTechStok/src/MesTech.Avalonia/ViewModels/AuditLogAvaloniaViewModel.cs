@@ -25,6 +25,10 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string exportMessage = string.Empty;
     [ObservableProperty] private bool isExported;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false; // newest first by default
+
     private readonly List<AuditLogEntry> _allItems = [];
 
     // Filters
@@ -92,9 +96,28 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                 r.Action.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 r.User.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 r.EntityType.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "User"       => SortAscending ? filtered.OrderBy(x => x.User)       : filtered.OrderByDescending(x => x.User),
+            "Action"     => SortAscending ? filtered.OrderBy(x => x.Action)     : filtered.OrderByDescending(x => x.Action),
+            "EntityType" => SortAscending ? filtered.OrderBy(x => x.EntityType) : filtered.OrderByDescending(x => x.EntityType),
+            "Timestamp"  => SortAscending ? filtered.OrderBy(x => x.Timestamp)  : filtered.OrderByDescending(x => x.Timestamp),
+            _            => SortAscending ? filtered.OrderBy(x => x.Timestamp)  : filtered.OrderByDescending(x => x.Timestamp),
+        };
+
         foreach (var item in filtered)
             LogEntries.Add(item);
         IsEmpty = LogEntries.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]
