@@ -3,6 +3,7 @@ using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Commands.CreateCariHareket;
 using MesTech.Application.Commands.CreateCariHesap;
+using MesTech.Application.Commands.DeleteCariHesap;
 using MesTech.Application.Commands.UpdateCariHesap;
 using MesTech.Application.Queries.GetCariHareketler;
 using MesTech.Application.Queries.GetCariHesaplar;
@@ -71,6 +72,20 @@ public static class CariHesapEndpoints
         })
         .WithName("UpdateCariHesap")
         .WithSummary("Cari hesap bilgilerini guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // DELETE /api/v1/accounting/cari-hesaplar/{id} — cari hesap sil (soft-delete)
+        group.MapDelete("/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteCariHesapCommand(id), ct);
+            return result.Success
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteCariHesap")
+        .WithSummary("Cari hesap sil — bakiye sıfır olmalı, hareket yoksa soft-delete")
+        .Produces(204).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hesap hareketleri
