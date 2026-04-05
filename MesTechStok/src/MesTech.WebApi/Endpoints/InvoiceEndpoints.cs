@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Application.Commands.GenerateEFatura;
 using MesTech.Application.Commands.SendInvoice;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Accounting;
@@ -187,5 +188,21 @@ public static class InvoiceEndpoints
         .WithName("ExportInvoiceReport")
         .WithSummary("Fatura raporu dışa aktar — Excel veya PDF")
         .Produces(200).Produces(400);
+
+        // ═══ G85: E-FATURA OLUŞTURMA ═══
+
+        // POST /api/v1/invoices/e-fatura — sipariş bazlı e-fatura/e-arşiv oluştur
+        // VKN varsa e-Fatura, yoksa e-Arşiv tipi seçilir.
+        group.MapPost("/e-fatura", async (
+            GenerateEFaturaCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(command, ct);
+            return Results.Ok(new { Message = "E-Fatura başarıyla oluşturuldu.", OrderId = command.OrderId });
+        })
+        .WithName("GenerateEFatura")
+        .WithSummary("E-Fatura/E-Arşiv oluştur — sipariş bazlı otomatik fatura (G85)")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
