@@ -80,7 +80,7 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
                 "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting to prevent cross-tenant data leak. MessageId={MessageId}",
                 context.MessageId);
             _monitor.RecordError("bot.accounting.approved", "TenantId is Guid.Empty — aborted");
-            return;
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(

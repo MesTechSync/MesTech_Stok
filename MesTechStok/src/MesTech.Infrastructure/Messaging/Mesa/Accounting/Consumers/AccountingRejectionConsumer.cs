@@ -53,7 +53,7 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
                 "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
                 context.MessageId);
             _monitor.RecordError("bot.accounting.rejected", "TenantId is Guid.Empty — aborted");
-            return;
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(

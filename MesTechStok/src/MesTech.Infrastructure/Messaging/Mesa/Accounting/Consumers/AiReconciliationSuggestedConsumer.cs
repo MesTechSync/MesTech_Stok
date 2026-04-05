@@ -57,7 +57,7 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
                 "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
                 context.MessageId);
             _monitor.RecordError("ai.reconciliation.suggested", "TenantId is Guid.Empty — aborted");
-            return;
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
