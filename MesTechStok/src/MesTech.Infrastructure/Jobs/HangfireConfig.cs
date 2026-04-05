@@ -7,6 +7,7 @@ using MesTech.Infrastructure.Jobs.Crm;
 using MesTech.Infrastructure.Jobs.Pricing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -41,6 +42,9 @@ public static class HangfireConfig
                       .UseSimpleAssemblyNameTypeSerializer()
                       .UseRecommendedSerializerSettings());
         }
+
+        // Global Hangfire filters — execution metrics + failure notification (tüm job'lara uygulanır)
+        GlobalJobFilters.Filters.Add(new JobExecutionMetricsFilter());
 
         // Job'lari register et
         services.AddScoped<TrendyolOrderSyncJob>();
