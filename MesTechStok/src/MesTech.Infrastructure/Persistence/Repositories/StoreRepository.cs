@@ -22,6 +22,7 @@ public sealed class StoreRepository : IStoreRepository
 
     public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores
+            .Include(s => s.Credentials)
             .Include(s => s.ProductMappings)
             .Where(s => s.TenantId == tenantId && s.IsActive)
             .Take(1000) // G485: pagination guard
@@ -29,6 +30,8 @@ public sealed class StoreRepository : IStoreRepository
 
     public async Task<IReadOnlyList<Store>> GetByPlatformTypeAsync(PlatformType platformType, CancellationToken ct = default)
         => await _context.Stores
+            .Include(s => s.Credentials)
+            .Include(s => s.ProductMappings)
             .Where(s => s.PlatformType == platformType && s.IsActive)
             .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
