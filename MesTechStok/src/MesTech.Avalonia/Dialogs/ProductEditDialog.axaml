@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ProductEditDialog"
+             x:CompileBindings="False"
              AutomationProperties.Name="Product Edit Dialog"
         Title="Urun Duzenle"
         Width="600" Height="500"

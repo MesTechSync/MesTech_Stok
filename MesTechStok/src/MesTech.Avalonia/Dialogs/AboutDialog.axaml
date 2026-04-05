@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.AboutDialog"
+             x:CompileBindings="False"
              AutomationProperties.Name="About Dialog"
         Title="Hakkinda"
         Width="450" Height="350"

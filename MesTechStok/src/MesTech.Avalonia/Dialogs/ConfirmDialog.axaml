@@ -1,6 +1,7 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ConfirmDialog"
+             x:CompileBindings="False"
              AutomationProperties.Name="Confirm Dialog"
         xmlns:vm="using:MesTech.Avalonia.Dialogs"
         Title="Onay"

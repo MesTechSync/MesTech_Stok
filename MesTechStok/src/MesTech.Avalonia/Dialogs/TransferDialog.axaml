@@ -1,6 +1,7 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.TransferDialog"
+             x:CompileBindings="False"
              AutomationProperties.Name="Transfer Dialog"
         Title="Stok Transfer"
         Width="500" Height="400"
