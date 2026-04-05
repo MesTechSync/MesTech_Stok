@@ -34,6 +34,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
+    private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
 
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
@@ -157,35 +158,48 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     /// </summary>
     private async Task<string> GetAccessTokenAsync(CancellationToken ct)
     {
+        // Fast path — no lock needed
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        var credentials = Convert.ToBase64String(
-            System.Text.Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        await _tokenRefreshLock.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            ["grant_type"] = "client_credentials",
-            ["scope"] = _options.OAuthScope
-        });
+            // Double-check after acquiring lock — another thread may have refreshed
+            if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
+                return _accessToken;
 
-        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+            var credentials = Convert.ToBase64String(
+                System.Text.Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
 
-        using var json = await JsonDocument.ParseAsync(
-            await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
-            cancellationToken: ct).ConfigureAwait(false);
+            using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["scope"] = _options.OAuthScope
+            });
 
-        _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
-            ? atProp.GetString() ?? string.Empty : string.Empty;
-        var expiresIn = json.RootElement.TryGetProperty("expires_in", out var eiProp)
-            ? eiProp.GetInt32() : 3600;
-        _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
-        return _accessToken;
+            using var json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
+                cancellationToken: ct).ConfigureAwait(false);
+
+            _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
+                ? atProp.GetString() ?? string.Empty : string.Empty;
+            var expiresIn = json.RootElement.TryGetProperty("expires_in", out var eiProp)
+                ? eiProp.GetInt32() : 3600;
+            _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+
+            _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
+            return _accessToken;
+        }
+        finally
+        {
+            _tokenRefreshLock.Release();
+        }
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)

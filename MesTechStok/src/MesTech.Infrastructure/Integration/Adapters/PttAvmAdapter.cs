@@ -33,6 +33,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+    private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
 
     // Username/Password -> Bearer token exchange
     private string _username = Environment.GetEnvironmentVariable("PTTAVM_USERNAME") ?? string.Empty;
@@ -155,34 +156,45 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        var loginPayload = JsonSerializer.Serialize(new
+        await _tokenRefreshLock.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            username = _username,
-            password = _password
-        }, _jsonOptions);
+            // Double-check after acquiring lock
+            if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
+                return _accessToken;
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
-        request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
+            var loginPayload = JsonSerializer.Serialize(new
+            {
+                username = _username,
+                password = _password
+            }, _jsonOptions);
 
-        using var response = await ThrottledExecuteAsync(async cancellationToken => 
-            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false), ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+            using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
+            request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
 
-        using var json = await JsonDocument.ParseAsync(
-            await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
-            cancellationToken: ct).ConfigureAwait(false);
+            using var response = await ThrottledExecuteAsync(async cancellationToken =>
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false), ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        _accessToken = json.RootElement.TryGetProperty("token", out var tokenProp)
-            ? tokenProp.GetString() ?? string.Empty : string.Empty;
+            using var json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
+                cancellationToken: ct).ConfigureAwait(false);
 
-        // PTT AVM tokens expire in 1 hour; parse if available, else default
-        if (json.RootElement.TryGetProperty("expiresIn", out var expiresInEl))
-            _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresInEl.GetInt32());
-        else
-            _tokenExpiry = DateTime.UtcNow.AddHours(1);
+            _accessToken = json.RootElement.TryGetProperty("token", out var tokenProp)
+                ? tokenProp.GetString() ?? string.Empty : string.Empty;
 
-        _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
-        return _accessToken;
+            if (json.RootElement.TryGetProperty("expiresIn", out var expiresInEl))
+                _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresInEl.GetInt32());
+            else
+                _tokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
+            return _accessToken;
+        }
+        finally
+        {
+            _tokenRefreshLock.Release();
+        }
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)
