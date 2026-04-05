@@ -526,7 +526,7 @@ public static class ReportEndpoints
                 tenantId, startDate ?? DateTime.UtcNow.AddMonths(-1), endDate ?? DateTime.UtcNow), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCommissionReport")
+        .WithName("GetCommissionReportDetailed")
         .WithSummary("Komisyon raporu — platform bazli komisyon ozeti")
         .Produces<CommissionReportDto>(200).Produces(400)
         .CacheOutput("Report120s")
@@ -541,7 +541,7 @@ public static class ReportEndpoints
                 tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow, 100), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCustomerLifetimeValueReport")
+        .WithName("GetCustomerLifetimeValueReportV2")
         .WithSummary("Musteri yasam boyu degeri raporu — LTV analizi")
         .Produces<IReadOnlyList<CustomerLifetimeValueReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
@@ -555,7 +555,7 @@ public static class ReportEndpoints
                 tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCustomerSegmentReport")
+        .WithName("GetCustomerSegmentReportV2")
         .WithSummary("Musteri segmentasyon raporu — RFM analizi")
         .Produces<IReadOnlyList<CustomerSegmentReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
