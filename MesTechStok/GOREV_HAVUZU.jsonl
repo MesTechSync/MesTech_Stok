@@ -541,3 +541,7 @@
 {"id":"E43","emirname":"PROF-50","bulan":"DEV6","alan":"DEV3","oncelik":"P2","durum":"ACIK","konu":"Kor gonderi (blind shipping) — Kendi markanla gonder, tedarikci markasi gizle. Packing slip template.","tarih":"2026-04-05"}
 {"id":"E44","emirname":"PROF-50","bulan":"DEV6","alan":"DEV2","oncelik":"P2","durum":"ACIK","konu":"Mobil siparis yonetimi — React Native veya .NET MAUI. Temel siparis listesi + durum guncelleme.","tarih":"2026-04-05"}
 {"id":"E48","emirname":"PROF-50","bulan":"DEV6","alan":"DEV3","oncelik":"P2","durum":"ACIK","konu":"Google Merchant Center feed — Urun feed XML uretimi + performans takibi. Shopping Ads entegrasyonu.","tarih":"2026-04-05"}
+{"id":"E04-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Repricing endpoint ZATEN VAR — BuyboxEndpoints.cs 26 referans, AutoPriceUpdateWorker mevcut.","tarih":"2026-04-05"}
+{"id":"E06-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Stok push ZATEN VAR — SignalRNotificationBridge LowStockDetected handler 4 referans.","tarih":"2026-04-05"}
+{"id":"E13-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Ba/Bs endpoint ZATEN VAR — BaBsEndpoints.cs GenerateBaBsReportQuery + CreateBaBsRecordCommand.","tarih":"2026-04-05"}
+{"id":"E29-F","bulan":"DEV6","alan":"DEV6","durum":"IPTAL","konu":"YANLIS BULGU: Kampanya endpoint ZATEN VAR — CampaignEndpoints.cs 18 referans.","tarih":"2026-04-05"}
