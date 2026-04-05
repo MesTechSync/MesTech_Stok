@@ -79,8 +79,8 @@ public sealed class CommissionCalculationService : ICommissionCalculationService
         {
             // 2. Cache kontrolu — ayni platform/kategori ve suresi dolmamissa tekrar cagirma
             if (_cachedRate is not null
-                && _cachedPlatform == platform
-                && _cachedCategory == category
+                && string.Equals(_cachedPlatform, platform, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(_cachedCategory, category, StringComparison.OrdinalIgnoreCase)
                 && _cachedRate.CachedUntil > DateTime.UtcNow)
             {
                 var cachedAmount = Math.Round(grossAmount * _cachedRate.Rate, 2);
