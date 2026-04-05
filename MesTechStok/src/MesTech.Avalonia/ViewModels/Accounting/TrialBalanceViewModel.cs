@@ -16,12 +16,17 @@ public partial class TrialBalanceViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
 
+    private List<TrialBalanceLineItem> _allLines = [];
+
     [ObservableProperty] private DateTimeOffset? asOfDate = DateTimeOffset.Now;
     [ObservableProperty] private string balanceStatusText = string.Empty;
     [ObservableProperty] private bool isBalanced;
     [ObservableProperty] private string totalDebitSumText = "0.00";
     [ObservableProperty] private string totalCreditSumText = "0.00";
     [ObservableProperty] private string differenceText = "0.00";
+
+    // Search (account name or code)
+    [ObservableProperty] private string searchText = string.Empty;
 
     public ObservableCollection<TrialBalanceLineItem> TrialBalanceLines { get; } = [];
 
@@ -35,22 +40,17 @@ public partial class TrialBalanceViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async () =>
         {
-            TrialBalanceLines.Clear();
-
             var endDate = AsOfDate?.DateTime ?? DateTime.Now;
             var startDate = new DateTime(endDate.Year, 1, 1);
 
             var result = await _mediator.Send(
                 new GetTrialBalanceQuery(_tenantProvider.GetCurrentTenantId(), startDate, endDate));
 
-            foreach (var line in result.Lines)
-            {
-                TrialBalanceLines.Add(new(
-                    line.AccountCode,
-                    line.AccountName,
-                    line.ClosingDebit,
-                    line.ClosingCredit));
-            }
+            _allLines = result.Lines.Select(line => new TrialBalanceLineItem(
+                line.AccountCode,
+                line.AccountName,
+                line.ClosingDebit,
+                line.ClosingCredit)).ToList();
 
             var totalDebit = result.GrandTotalClosingDebit;
             var totalCredit = result.GrandTotalClosingCredit;
@@ -60,12 +60,35 @@ public partial class TrialBalanceViewModel : ViewModelBase
             TotalCreditSumText = totalCredit.ToString("N2");
             DifferenceText = diff.ToString("N2");
             IsBalanced = Math.Abs(diff) < 0.01m;
-            IsEmpty = TrialBalanceLines.Count == 0;
             BalanceStatusText = IsBalanced
                 ? $"Mizan dengeli — Borc = Alacak = {totalDebit:N2} TL"
                 : $"UYARI: Mizan dengesiz! Fark: {diff:N2} TL";
+
+            ApplyFilters();
         }, "Mizan raporu yuklenemedi");
     }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allLines.AsEnumerable();
+
+        // Search filter (account name or code)
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var term = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(l =>
+                l.AccountName.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                l.AccountCode.Contains(term, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        TrialBalanceLines.Clear();
+        foreach (var item in filtered)
+            TrialBalanceLines.Add(item);
+
+        IsEmpty = TrialBalanceLines.Count == 0;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilters();
 
     [RelayCommand]
     private async Task CalculateAsync() => await LoadAsync();

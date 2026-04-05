@@ -21,9 +21,15 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    private List<LeadItemVm> _allLeads = [];
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string? selectedStatus;
     [ObservableProperty] private int totalCount;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "date";
+    [ObservableProperty] private bool sortAscending = false;
 
     public ObservableCollection<LeadItemVm> Leads { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Iletisime Gecildi", "Nitelikli", "Donusturuldu", "Kaybedildi"];
@@ -45,24 +51,64 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
                 _currentUser.TenantId,
                 Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null), ct);
 
-            Leads.Clear();
-            foreach (var lead in result.Items)
+            _allLeads = result.Items.Select(lead => new LeadItemVm
             {
-                Leads.Add(new LeadItemVm
-                {
-                    Id = lead.Id,
-                    FullName = lead.FullName,
-                    Company = lead.Company,
-                    Email = lead.Email,
-                    Phone = lead.Phone,
-                    Status = lead.Status,
-                    Source = lead.Source,
-                    CreatedAt = lead.CreatedAt
-                });
-            }
+                Id = lead.Id,
+                FullName = lead.FullName,
+                Company = lead.Company,
+                Email = lead.Email,
+                Phone = lead.Phone,
+                Status = lead.Status,
+                Source = lead.Source,
+                CreatedAt = lead.CreatedAt
+            }).ToList();
+
             TotalCount = result.TotalCount;
-            IsEmpty = Leads.Count == 0;
+            ApplyFilters();
         }, "Lead verileri yuklenirken hata");
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allLeads.AsEnumerable();
+
+        // Search filter (already existing behaviour — re-applied client-side for instant UX)
+        if (!string.IsNullOrWhiteSpace(SearchText) && SearchText.Length >= 2)
+        {
+            var term = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(l =>
+                l.FullName.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                (l.Company?.Contains(term, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                (l.Email?.Contains(term, StringComparison.InvariantCultureIgnoreCase) ?? false));
+        }
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "date"   => SortAscending ? filtered.OrderBy(l => l.CreatedAt)  : filtered.OrderByDescending(l => l.CreatedAt),
+            "source" => SortAscending ? filtered.OrderBy(l => l.Source)     : filtered.OrderByDescending(l => l.Source),
+            "status" => SortAscending ? filtered.OrderBy(l => l.Status)     : filtered.OrderByDescending(l => l.Status),
+            _        => filtered.OrderByDescending(l => l.CreatedAt)
+        };
+
+        Leads.Clear();
+        foreach (var item in filtered)
+            Leads.Add(item);
+
+        IsEmpty = Leads.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
     }
 
     [RelayCommand]

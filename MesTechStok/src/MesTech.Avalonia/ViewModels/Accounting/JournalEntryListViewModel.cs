@@ -16,9 +16,22 @@ public partial class JournalEntryListViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
 
+    private List<JournalEntryItem> _allEntries = [];
+
     [ObservableProperty] private DateTimeOffset? fromDate = DateTimeOffset.Now.AddMonths(-1);
     [ObservableProperty] private DateTimeOffset? toDate = DateTimeOffset.Now;
     [ObservableProperty] private string selectedSourceType = "Tümü";
+
+    // Search
+    [ObservableProperty] private string searchText = string.Empty;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "date";
+    [ObservableProperty] private bool sortAscending = false;
+
+    // Date range quick filter
+    [ObservableProperty] private string selectedDateRange = "Bu Ay";
+    public string[] DateRangeOptions { get; } = ["Tumu", "Bugun", "Bu Hafta", "Bu Ay", "Son 3 Ay"];
 
     public ObservableCollection<string> SourceTypes { get; } =
         ["Tümü", "Satış", "Alış", "İade", "Komisyon", "Kargo", "Manuel"];
@@ -35,26 +48,86 @@ public partial class JournalEntryListViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async () =>
         {
-            JournalEntries.Clear();
-
             var from = FromDate?.DateTime ?? DateTime.Now.AddMonths(-1);
             var to = ToDate?.DateTime ?? DateTime.Now;
             var results = await _mediator.Send(
                 new GetJournalEntriesQuery(_tenantProvider.GetCurrentTenantId(), from, to), CancellationToken);
 
-            foreach (var dto in results)
-            {
-                JournalEntries.Add(new(
-                    dto.ReferenceNumber ?? $"YEV-{dto.Id:N}".Substring(0, 14),
-                    dto.EntryDate,
-                    dto.Description,
-                    dto.Lines.FirstOrDefault()?.AccountName ?? "Manuel",
-                    dto.TotalDebit,
-                    dto.TotalCredit));
-            }
+            _allEntries = results.Select(dto => new JournalEntryItem(
+                dto.ReferenceNumber ?? $"YEV-{dto.Id:N}".Substring(0, 14),
+                dto.EntryDate,
+                dto.Description,
+                dto.Lines.FirstOrDefault()?.AccountName ?? "Manuel",
+                dto.TotalDebit,
+                dto.TotalCredit)).ToList();
 
-            IsEmpty = JournalEntries.Count == 0;
+            ApplyFilters();
         }, "Yevmiye defteri");
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allEntries.AsEnumerable();
+
+        // Source type filter
+        if (SelectedSourceType != "Tümü")
+            filtered = filtered.Where(e => e.SourceType == SelectedSourceType);
+
+        // Search filter (description or account name)
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var term = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(e =>
+                e.Description.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                e.SourceType.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                e.EntryNumber.Contains(term, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "date"   => SortAscending ? filtered.OrderBy(e => e.EntryDate)  : filtered.OrderByDescending(e => e.EntryDate),
+            "amount" => SortAscending ? filtered.OrderBy(e => e.TotalDebit) : filtered.OrderByDescending(e => e.TotalDebit),
+            "source" => SortAscending ? filtered.OrderBy(e => e.SourceType) : filtered.OrderByDescending(e => e.SourceType),
+            _        => filtered.OrderByDescending(e => e.EntryDate)
+        };
+
+        JournalEntries.Clear();
+        foreach (var item in filtered)
+            JournalEntries.Add(item);
+
+        IsEmpty = JournalEntries.Count == 0;
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilters();
+
+    partial void OnSelectedSourceTypeChanged(string value) => ApplyFilters();
+
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        var now = DateTimeOffset.Now;
+        (FromDate, ToDate) = value switch
+        {
+            "Bugun"    => (now.Date, now),
+            "Bu Hafta" => (now.AddDays(-(int)now.DayOfWeek), now),
+            "Bu Ay"    => (new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, now.Offset), now),
+            "Son 3 Ay" => (now.AddMonths(-3), now),
+            _          => ((DateTimeOffset?)null, (DateTimeOffset?)null)
+        };
+        _ = LoadAsync();
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
     }
 
     [RelayCommand]

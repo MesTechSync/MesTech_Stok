@@ -17,11 +17,17 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    private List<ContactListDto> _allContacts = [];
+
     [ObservableProperty] private ObservableCollection<ContactListDto> contacts = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int currentPage = 1;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "date";
+    [ObservableProperty] private bool sortAscending = false;
 
     public ContactsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
@@ -42,11 +48,41 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
                     Search: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText),
                 ct);
 
-            Contacts = new ObservableCollection<ContactListDto>(result.Contacts);
+            _allContacts = result.Contacts.ToList();
             TotalCount = result.TotalCount;
-            Summary = $"Toplam {TotalCount} kisi";
-            IsEmpty = TotalCount == 0;
+            ApplyFilters();
         }, "Kisiler yuklenirken hata");
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allContacts.AsEnumerable();
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "name"  => SortAscending ? filtered.OrderBy(c => c.FullName)   : filtered.OrderByDescending(c => c.FullName),
+            "email" => SortAscending ? filtered.OrderBy(c => c.Email)      : filtered.OrderByDescending(c => c.Email),
+            "date"  => SortAscending ? filtered.OrderBy(c => c.CreatedAt)  : filtered.OrderByDescending(c => c.CreatedAt),
+            _       => filtered.OrderByDescending(c => c.CreatedAt)
+        };
+
+        Contacts = new ObservableCollection<ContactListDto>(filtered);
+        Summary = $"Toplam {TotalCount} kisi";
+        IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
     }
 
     [RelayCommand]
