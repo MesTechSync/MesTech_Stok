@@ -165,8 +165,9 @@ public partial class ImportProductsAvaloniaViewModel : ViewModelBase
                     ? $"({info.Length / 1024} KB)"
                     : $"({info.Length / (1024 * 1024.0):F1} MB)";
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[ImportProducts] File size read failed: {ex.Message}");
                 FileSizeText = string.Empty;
             }
 

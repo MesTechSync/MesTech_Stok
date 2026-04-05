@@ -125,8 +125,9 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
                 order.TrackingNumber = result.TrackingNumber;
                 if (result.IsSuccess) SuccessCount++; else FailCount++;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[BulkShipment] Shipment failed for {order.OrderNumber}: {ex.Message}");
                 order.Status = "Hata";
                 FailCount++;
             }

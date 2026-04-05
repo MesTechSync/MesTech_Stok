@@ -126,9 +126,9 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
                     svc.IsHealthy ? "#22C55E" : "#EF4444"));
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Fallback: if health query fails, show unknown status
+            System.Diagnostics.Debug.WriteLine($"[Health] Service health query failed: {ex.Message}");
             ServiceCards.Add(MakeCard("PostgreSQL", false, "—", "Veritabani", "#F59E0B"));
             ServiceCards.Add(MakeCard("Redis",      false, "—", "Önbellek",   "#F59E0B"));
             ServiceCards.Add(MakeCard("RabbitMQ",   false, "—", "Mesajlama",  "#F59E0B"));

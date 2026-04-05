@@ -104,9 +104,9 @@ public partial class StockLotAvaloniaViewModel : ViewModelBase
                 });
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Search failed silently — user can retry by typing more
+            System.Diagnostics.Debug.WriteLine($"[StockLot] Product search failed: {ex.Message}");
         }
     }
 

@@ -110,8 +110,9 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
                 platform.Durum = "Hatali";
             }
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[SyncStatus] Sync failed for {platform.PlatformAdi}: {ex.Message}");
             platform.Durum = prevDurum;
         }
         finally

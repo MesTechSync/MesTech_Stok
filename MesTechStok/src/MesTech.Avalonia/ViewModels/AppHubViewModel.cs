@@ -174,8 +174,9 @@ public partial class AppHubViewModel : ViewModelBase
             var platformCount = summary?.ActivePlatformCount ?? 0;
             ServiceStatuses.Add(new("Platform API", platformCount > 0, $"{platformCount} aktif"));
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[AppHub] Platform API health check failed: {ex.Message}");
             ServiceStatuses.Add(new("Platform API", false, "bağlantı yok"));
         }
 
