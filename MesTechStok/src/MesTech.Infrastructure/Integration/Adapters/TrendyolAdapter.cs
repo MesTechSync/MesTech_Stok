@@ -337,12 +337,19 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
     /// <summary>Pulls products with optional limit (for connection test panel).</summary>
     public Task<IReadOnlyList<Product>> PullProductsAsync(int limit, CancellationToken ct = default)
-        => PullProductsInternalAsync(limit, ct);
+        => PullProductsInternalAsync(limit, null, null, ct);
 
     public Task<IReadOnlyList<Product>> PullProductsAsync(CancellationToken ct = default)
-        => PullProductsInternalAsync(null, ct);
+        => PullProductsInternalAsync(null, null, null, ct);
 
-    private async Task<IReadOnlyList<Product>> PullProductsInternalAsync(int? limit, CancellationToken ct)
+    /// <summary>
+    /// Barcode veya stockCode ile filtrelenmiş ürün çekme.
+    /// Trendyol API: ?barcode={barcode}&amp;stockCode={stockCode}
+    /// </summary>
+    public Task<IReadOnlyList<Product>> PullProductsAsync(string? barcode, string? stockCode, CancellationToken ct = default)
+        => PullProductsInternalAsync(null, barcode, stockCode, ct);
+
+    private async Task<IReadOnlyList<Product>> PullProductsInternalAsync(int? limit, string? barcodeFilter, string? stockCodeFilter, CancellationToken ct)
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.PullProductsAsync called (limit={Limit})", limit?.ToString() ?? "all");
@@ -361,8 +368,13 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
+                        var queryUrl = $"/integration/product/sellers/{_supplierId}/products?page={page}&size={pageSize}";
+                        if (!string.IsNullOrWhiteSpace(barcodeFilter))
+                            queryUrl += $"&barcode={Uri.EscapeDataString(barcodeFilter)}";
+                        if (!string.IsNullOrWhiteSpace(stockCodeFilter))
+                            queryUrl += $"&stockCode={Uri.EscapeDataString(stockCodeFilter)}";
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get,
-                            new Uri($"/integration/product/sellers/{_supplierId}/products?page={page}&size={pageSize}", UriKind.Relative));
+                            new Uri(queryUrl, UriKind.Relative));
                         return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
                     }, ct).ConfigureAwait(false);
 
@@ -1127,6 +1139,70 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             _logger.LogError(ex, "Trendyol GetSettlement exception");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Trendyol komisyon kesinti faturalari.
+    /// GET /integration/finance/sellers/{supplierId}/deduction-invoices?startDate={epoch}
+    /// </summary>
+    public async Task<IReadOnlyList<CargoInvoiceDto>> GetDeductionInvoicesAsync(DateTime startDate, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[Trendyol] GetDeductionInvoicesAsync since={StartDate}", startDate);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var startEpoch = new DateTimeOffset(startDate).ToUnixTimeMilliseconds();
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/finance/sellers/{_supplierId}/deduction-invoices?startDate={startEpoch}", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("[Trendyol] GetDeductionInvoices failed: {Status} — {Error}", response.StatusCode, error);
+                return Array.Empty<CargoInvoiceDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var invoices = new List<CargoInvoiceDto>();
+            var items = doc.RootElement.TryGetProperty("content", out var arr) ? arr : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    invoices.Add(new CargoInvoiceDto
+                    {
+                        InvoiceNumber = item.TryGetProperty("invoiceNumber", out var inv) ? inv.GetString() ?? "" : "",
+                        InvoiceDate = item.TryGetProperty("invoiceDate", out var dt) && dt.ValueKind == JsonValueKind.Number
+                            ? DateTimeOffset.FromUnixTimeMilliseconds(dt.GetInt64()).DateTime
+                            : DateTime.UtcNow,
+                        Amount = item.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0m,
+                        TotalAmount = item.TryGetProperty("totalAmount", out var tot) ? tot.GetDecimal() : 0m,
+                        TaxAmount = item.TryGetProperty("taxAmount", out var tax) ? tax.GetDecimal() : 0m,
+                        CargoCompany = "Trendyol Deduction"
+                    });
+                }
+            }
+
+            _logger.LogInformation("[Trendyol] GetDeductionInvoices: {Count} fatura", invoices.Count);
+            return invoices;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Trendyol] GetDeductionInvoices exception");
+            return Array.Empty<CargoInvoiceDto>();
         }
     }
 
