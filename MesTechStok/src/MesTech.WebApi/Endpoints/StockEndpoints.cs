@@ -181,7 +181,7 @@ public static class StockEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetStockTransfersQuery(tenantId, count ?? 100), ct);
+                new GetStockTransfersQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetStockTransfers")

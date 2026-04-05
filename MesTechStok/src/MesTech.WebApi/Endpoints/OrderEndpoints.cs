@@ -89,7 +89,7 @@ public static class OrderEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetOrderListQuery(tenantId, count ?? 100), ct);
+                new GetOrderListQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetOrderList")

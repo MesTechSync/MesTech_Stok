@@ -41,7 +41,7 @@ public static class CargoEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetCargoTrackingListQuery(tenantId, count ?? 100), ct);
+                new GetCargoTrackingListQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCargoTrackingList")
