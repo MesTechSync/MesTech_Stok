@@ -87,11 +87,11 @@ public class ReturnRefundChainTests
         {
             SKU = sku,
             Name = $"Product {sku}",
-            Stock = stock,
             SalePrice = salePrice,
             PurchasePrice = salePrice * 0.6m,
             CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(stock, "test-seed");
         _registeredProducts.Add(product);
         // Handler uses batch GetByIdsAsync — return all registered products
         _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
