@@ -128,13 +128,14 @@ public partial class UserManagementAvaloniaViewModel : ViewModelBase
 
     // HH-DEV2-038: Delete user
     [RelayCommand]
-    private async Task DeleteUser()
+    private Task DeleteUser()
     {
-        if (SelectedUser is null) return;
+        if (SelectedUser is null) return Task.CompletedTask;
         // TODO: DeleteUserCommand — DEV1 handler gerekli
         _allUsers.RemoveAll(u => u.Username == SelectedUser.Username);
         SelectedUser = null;
         ApplyFilter();
+        return Task.CompletedTask;
     }
 }
 
