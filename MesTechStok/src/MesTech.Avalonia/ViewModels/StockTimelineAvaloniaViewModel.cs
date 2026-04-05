@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.GetStockMovements;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -21,6 +22,10 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<StockTimelineItemDto> Movements { get; } = [];
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false; // newest first
+
     public StockTimelineAvaloniaViewModel(IMediator mediator)
     {
         _mediator = mediator;
@@ -38,8 +43,18 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
                 m.TypeText.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 m.DateText.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "Date"         => SortAscending ? filtered.OrderBy(x => x.Date).ToList()         : filtered.OrderByDescending(x => x.Date).ToList(),
+            "MovementType" => SortAscending ? filtered.OrderBy(x => x.MovementType).ToList() : filtered.OrderByDescending(x => x.MovementType).ToList(),
+            "Quantity"     => SortAscending ? filtered.OrderBy(x => x.Quantity).ToList()     : filtered.OrderByDescending(x => x.Quantity).ToList(),
+            "ResultStock"  => SortAscending ? filtered.OrderBy(x => x.ResultStock).ToList()  : filtered.OrderByDescending(x => x.ResultStock).ToList(),
+            _              => SortAscending ? filtered.OrderBy(x => x.Date).ToList()         : filtered.OrderByDescending(x => x.Date).ToList(),
+        };
+
         Movements.Clear();
-        foreach (var m in filtered)
+        foreach (var m in sortedList)
             Movements.Add(m);
 
         TotalCount = Movements.Count;
@@ -67,6 +82,29 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 
             ApplyFilter();
         }, "Stok hareketleri yuklenirken hata");
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "stock-timeline", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok hareket gecmisi disa aktarilirken hata");
     }
 
     [RelayCommand] private async Task Refresh() => await LoadAsync();
