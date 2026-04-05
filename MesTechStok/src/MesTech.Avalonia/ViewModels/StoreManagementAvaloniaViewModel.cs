@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
+using MesTech.Application.Features.Stores.Commands.DeleteStoreCredential;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,16 +17,23 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private readonly INavigationService _nav;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private StoreItemDto? selectedStore;
 
     public ObservableCollection<StoreItemDto> Stores { get; } = [];
 
-    public StoreManagementAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    public StoreManagementAvaloniaViewModel(
+        IMediator mediator, ITenantProvider tenantProvider,
+        INavigationService nav, IDialogService dialog)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+        _nav = nav;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
@@ -52,6 +61,43 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-028: Navigate to StoreWizard for adding new store
+    [RelayCommand]
+    private async Task AddStore() => await _nav.NavigateToAsync("StoreWizard");
+
+    // HH-DEV2-028: Navigate to StoreSettings for editing selected store
+    [RelayCommand]
+    private async Task EditStore()
+    {
+        if (SelectedStore is null) return;
+        await _nav.NavigateToAsync("StoreSettings");
+    }
+
+    // HH-DEV2-028: Delete selected store with confirmation
+    [RelayCommand]
+    private async Task DeleteStore()
+    {
+        if (SelectedStore is null) return;
+
+        var confirmed = await _dialog.ConfirmAsync(
+            "Magaza Sil",
+            $"{SelectedStore.StoreName} magazasini silmek istediginize emin misiniz?");
+
+        if (!confirmed) return;
+
+        await SafeExecuteAsync(async ct =>
+        {
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            await _mediator.Send(new DeleteStoreCredentialCommand(
+                tenantId, SelectedStore.Platform, SelectedStore.StoreName), ct);
+
+            Stores.Remove(SelectedStore);
+            SelectedStore = null;
+            TotalCount = Stores.Count;
+            IsEmpty = TotalCount == 0;
+        }, "Magaza silinirken hata");
+    }
 }
 
 public class StoreItemDto
