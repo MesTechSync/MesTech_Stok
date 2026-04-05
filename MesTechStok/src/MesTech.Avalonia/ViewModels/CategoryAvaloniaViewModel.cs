@@ -16,6 +16,12 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private CategoryItemDto? selectedCategory;
+
+    // HH-FIX-026: CRUD form
+    [ObservableProperty] private bool isEditing;
+    [ObservableProperty] private string editCategoryName = string.Empty;
+    [ObservableProperty] private string editParentCategory = string.Empty;
 
     public ObservableCollection<CategoryItemDto> Categories { get; } = [];
 
@@ -71,6 +77,50 @@ public partial class CategoryAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    // HH-FIX-026: Add category
+    [RelayCommand]
+    private void AddCategory()
+    {
+        EditCategoryName = string.Empty;
+        EditParentCategory = string.Empty;
+        SelectedCategory = null;
+        IsEditing = true;
+    }
+
+    // HH-FIX-026: Edit category
+    [RelayCommand]
+    private void EditCategory()
+    {
+        if (SelectedCategory is null) return;
+        EditCategoryName = SelectedCategory.Name.TrimStart();
+        EditParentCategory = SelectedCategory.ParentCategory;
+        IsEditing = true;
+    }
+
+    // HH-FIX-026: Save
+    [RelayCommand]
+    private async Task SaveCategory()
+    {
+        if (string.IsNullOrWhiteSpace(EditCategoryName)) return;
+        // TODO: CreateCategoryCommand / UpdateCategoryCommand — DEV1 handler gerekli
+        IsEditing = false;
+        await LoadAsync();
+    }
+
+    [RelayCommand]
+    private void CancelEdit() => IsEditing = false;
+
+    // HH-FIX-026: Delete
+    [RelayCommand]
+    private void DeleteCategory()
+    {
+        if (SelectedCategory is null) return;
+        _allCategories.Remove(SelectedCategory);
+        SelectedCategory = null;
+        ApplyFilters();
+        // TODO: DeleteCategoryCommand — DEV1 handler gerekli
+    }
 
     partial void OnSearchTextChanged(string value)
     {
