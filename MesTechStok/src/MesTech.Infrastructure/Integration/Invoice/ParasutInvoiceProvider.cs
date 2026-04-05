@@ -106,9 +106,12 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API format: { data: { attributes: { status, ... } } }
-            var attributes = doc.RootElement
-                .GetProperty("data")
-                .GetProperty("attributes");
+            if (!doc.RootElement.TryGetProperty("data", out var dataEl)
+                || !dataEl.TryGetProperty("attributes", out var attributes))
+            {
+                _logger.LogWarning("[ParasutInvoice] Unexpected JSON:API response — missing data.attributes");
+                return new InvoiceStatusResult(gibInvoiceId, "Unknown", null, "Unexpected API response");
+            }
 
             var status = attributes.TryGetProperty("status", out var s)
                 ? s.GetString() ?? "Unknown" : "Unknown";
@@ -163,7 +166,8 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API: { data: [...] } — non-empty data means taxpayer is registered
-            var data = doc.RootElement.GetProperty("data");
+            if (!doc.RootElement.TryGetProperty("data", out var data))
+                return false;
             return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0;
         }
         catch (Exception ex)
@@ -264,13 +268,20 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
 
-            var dataElement = doc.RootElement.GetProperty("data");
+            if (!doc.RootElement.TryGetProperty("data", out var dataElement))
+            {
+                _logger.LogWarning("[ParasutInvoice] BulkCreate: unexpected response — missing data element");
+                var failAll = requestList.Select(r =>
+                    new BulkInvoiceItemResult(r.OrderId, false, null, "Unexpected API response")).ToList();
+                return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failAll);
+            }
             var results = new List<BulkInvoiceItemResult>();
             var i = 0;
 
             foreach (var item in dataElement.EnumerateArray())
             {
-                var attrs = item.GetProperty("attributes");
+                if (!item.TryGetProperty("attributes", out var attrs))
+                    continue;
                 var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib)
                     && gib.ValueKind != JsonValueKind.Null
                     ? gib.GetString() : null;
@@ -400,8 +411,12 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(responseJson);
 
             // JSON:API: { data: { id, attributes: { gib_invoice_id, pdf_url } } }
-            var data = doc.RootElement.GetProperty("data");
-            var attrs = data.GetProperty("attributes");
+            if (!doc.RootElement.TryGetProperty("data", out var data)
+                || !data.TryGetProperty("attributes", out var attrs))
+            {
+                _logger.LogWarning("[ParasutInvoice] POST {Url}: unexpected response — missing data.attributes", url);
+                return new InvoiceResult(false, null, null, "Unexpected API response format");
+            }
 
             var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib) ? gib.GetString() : null;
             var pdfUrl = attrs.TryGetProperty("pdf_url", out var pdf) ? pdf.GetString() : null;

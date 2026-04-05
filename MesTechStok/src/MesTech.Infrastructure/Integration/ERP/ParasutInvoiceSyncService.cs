@@ -61,7 +61,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        var id = result.GetProperty("data").GetProperty("id").GetString();
+        var id = ExtractJsonApiId(result);
         _logger.LogInformation("Paraşüt sales invoice created: {Id}", id);
         return id;
     }
@@ -85,7 +85,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        return result.GetProperty("data").GetProperty("id").GetString();
+        return ExtractJsonApiId(result);
     }
 
     public async Task<string?> CreateEArchiveAsync(string salesInvoiceId, CancellationToken ct = default)
@@ -107,7 +107,7 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        return result.GetProperty("data").GetProperty("id").GetString();
+        return ExtractJsonApiId(result);
     }
 
     public async Task<byte[]?> GetInvoicePdfAsync(string eInvoiceId, CancellationToken ct = default)
@@ -116,6 +116,14 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             $"/v4/{_options.CompanyId}/e_invoices/{eInvoiceId}/pdf", ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Safely extract "data.id" from JSON:API response.</summary>
+    private static string? ExtractJsonApiId(JsonElement root)
+    {
+        if (root.TryGetProperty("data", out var data) && data.TryGetProperty("id", out var id))
+            return id.GetString();
+        return null;
     }
 }
 
