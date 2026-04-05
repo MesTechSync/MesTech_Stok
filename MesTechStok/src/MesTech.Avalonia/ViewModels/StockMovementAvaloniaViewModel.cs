@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdateStock;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.GetStockMovements;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -22,6 +23,10 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int changedCount;
     [ObservableProperty] private string updateStatus = string.Empty;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     // HH-DEV2-012: New movement form fields
     [ObservableProperty] private bool isAddingMovement;
@@ -96,6 +101,17 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
                 i.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        filtered = SortColumn switch
+        {
+            "Sku"       => SortAscending ? filtered.OrderBy(x => x.Sku)        : filtered.OrderByDescending(x => x.Sku),
+            "UrunAdi"   => SortAscending ? filtered.OrderBy(x => x.UrunAdi)    : filtered.OrderByDescending(x => x.UrunAdi),
+            "Platform"  => SortAscending ? filtered.OrderBy(x => x.Platform)   : filtered.OrderByDescending(x => x.Platform),
+            "MevcutStok"=> SortAscending ? filtered.OrderBy(x => x.MevcutStok) : filtered.OrderByDescending(x => x.MevcutStok),
+            "YeniStok"  => SortAscending ? filtered.OrderBy(x => x.YeniStok)   : filtered.OrderByDescending(x => x.YeniStok),
+            _           => SortAscending ? filtered.OrderBy(x => x.UrunAdi)    : filtered.OrderByDescending(x => x.UrunAdi),
+        };
+
         foreach (var item in filtered)
             Items.Add(item);
 
@@ -105,6 +121,32 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
         TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
         RecalculateChangedCount();
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
+    }
+
+    // HH-FIX-019: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "stock-movements", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok hareketleri disa aktarilirken hata");
     }
 
     [RelayCommand]
