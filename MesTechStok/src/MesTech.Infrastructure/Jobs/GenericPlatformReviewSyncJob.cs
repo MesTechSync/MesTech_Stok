@@ -75,7 +75,7 @@ public sealed class GenericPlatformReviewSyncJob
                 "[ReviewSync] {Platform} tamamlandi: {Total} review, {Unreplied} cevapsiz event",
                 platformCode, totalFetched, totalUnreplied);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ReviewSync] {Platform} review sync HATA", platformCode);
             throw;

@@ -72,7 +72,7 @@ public sealed class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEven
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiContentGeneratedEvent));
             throw; // Let MassTransit retry policy handle
@@ -146,7 +146,7 @@ public sealed class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceRecommendedEvent));
             throw; // Let MassTransit retry policy handle
@@ -217,7 +217,7 @@ public sealed class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEve
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotNotificationSentEvent));
             throw; // Let MassTransit retry policy handle
@@ -296,7 +296,7 @@ public sealed class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimize
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceOptimizedEvent));
             throw; // Let MassTransit retry policy handle
@@ -366,7 +366,7 @@ public sealed class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredicte
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiStockPredictedEvent));
             throw; // Let MassTransit retry policy handle
@@ -437,7 +437,7 @@ public sealed class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequ
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotInvoiceRequestedEvent));
             throw; // Let MassTransit retry policy handle
@@ -502,7 +502,7 @@ public sealed class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnReques
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotReturnRequestedEvent));
             throw; // Let MassTransit retry policy handle

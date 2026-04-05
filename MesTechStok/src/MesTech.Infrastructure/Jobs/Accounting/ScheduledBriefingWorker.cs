@@ -150,7 +150,7 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
                 JobId, yesterday, orderCount, totalRevenue, totalCommission,
                 totalCargo, netProfit, stockAlerts.Count, recommendations.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Gunluk brifing hazirlama HATA", JobId);
             throw;
@@ -204,7 +204,7 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
                 JobId, salesAdvice.TopRecommendations.Count,
                 salesAdvice.Warnings.Count, salesAdvice.PlatformHealth.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex,
                 "[{JobId}] Advisory V2 verileri alinamadi — brifing Advisory V2'siz devam ediyor",
@@ -247,7 +247,7 @@ public sealed class ScheduledBriefingWorker : IAccountingJob
                 "[{JobId}] KDV tahmini brifingeeklendi — Odenecek: {PayableVAT:F2}",
                 JobId, taxReport.PayableVAT);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex,
                 "[{JobId}] KDV tahmini alinamadi — brifing KDV'siz devam ediyor", JobId);

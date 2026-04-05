@@ -133,7 +133,7 @@ public sealed class DlqReprocessService
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[DLQ Reprocess] Error processing {Queue}", errorQueue);
             result.ErrorMessage = ex.Message;
@@ -184,7 +184,7 @@ public sealed class DlqReprocessService
                 });
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[DLQ Status] Failed to fetch DLQ status");
         }

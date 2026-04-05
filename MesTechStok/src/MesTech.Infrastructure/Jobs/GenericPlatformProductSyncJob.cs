@@ -103,7 +103,7 @@ public sealed class GenericPlatformProductSyncJob
                 "[ProductSync] {Platform} TAMAMLANDI — {Total} çekildi, {Created} oluşturuldu, {Updated} güncellendi, {Skipped} değişmemiş",
                 platformCode, products.Count, created, updated, skipped);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ProductSync] {Platform} ürün import BAŞARISIZ", platformCode);
             throw;

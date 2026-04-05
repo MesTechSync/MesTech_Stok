@@ -122,7 +122,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -170,7 +170,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
                 return false;
             return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -201,7 +201,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -296,7 +296,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CreateBulkInvoice exception");
 
@@ -423,7 +423,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             return new InvoiceResult(true, gibId, pdfUrl, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut POST {Url} exception", url);
             return new InvoiceResult(false, null, null, ex.Message);

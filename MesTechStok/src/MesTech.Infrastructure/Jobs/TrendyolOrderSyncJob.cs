@@ -98,7 +98,7 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
                 "[{JobId}] Trendyol siparis sync tamamlandi: {Total} cekildi, {Created} yeni, {Updated} guncellendi, {Skipped} degismemis",
                 JobId, orders.Count, created, updated, skipped);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol siparis sync HATA", JobId);
             throw;

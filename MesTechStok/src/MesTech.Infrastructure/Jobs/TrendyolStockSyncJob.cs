@@ -56,7 +56,7 @@ public sealed class TrendyolStockSyncJob : ISyncJob
             _logger.LogWarning("[{JobId}] Trendyol stok sync iptal edildi", JobId);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol stok sync HATA", JobId);
             throw;

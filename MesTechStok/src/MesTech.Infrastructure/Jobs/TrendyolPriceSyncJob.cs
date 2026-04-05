@@ -55,7 +55,7 @@ public sealed class TrendyolPriceSyncJob : ISyncJob
             _logger.LogWarning("[{JobId}] Trendyol fiyat sync iptal edildi", JobId);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol fiyat sync HATA", JobId);
             throw;

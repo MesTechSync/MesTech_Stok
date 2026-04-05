@@ -113,7 +113,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "BirFatura CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -154,7 +154,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "BirFatura taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -182,7 +182,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "BirFatura CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -266,7 +266,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "BirFatura CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -307,7 +307,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "BirFatura SetInvoiceTemplate exception");
             return false;
@@ -427,7 +427,7 @@ public sealed class BirFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, I
                 _logger.LogWarning(ex, "BirFatura POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
                 await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "BirFatura POST {Url} exception", url);
                 return new InvoiceResult(false, null, null, ex.Message);

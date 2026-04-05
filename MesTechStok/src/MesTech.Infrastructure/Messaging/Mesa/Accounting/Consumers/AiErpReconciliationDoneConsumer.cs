@@ -74,7 +74,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiErpReconciliationDoneIntegrationEvent));
             throw; // Let MassTransit retry policy handle
@@ -114,7 +114,7 @@ public sealed class AiErpReconciliationDoneConsumer : IConsumer<AiErpReconciliat
                 "ErpProvider={ErpProvider}, OlusturulanMismatch={MismatchCount}, Reconciled={ReconciledCount}",
                 msg.ErpProvider, msg.MismatchCount, msg.ReconciledCount);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[MESA Consumer] AI ERP uzlastirma islenirken hata: ErpProvider={ErpProvider}",

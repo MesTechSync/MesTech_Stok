@@ -261,7 +261,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[AmazonFBA] Circuit breaker open — CreateInboundShipment skipped");
             return new InboundResult(false, string.Empty, "Service temporarily unavailable (circuit breaker open)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] CreateInboundShipment exception");
             return new InboundResult(false, string.Empty, ex.Message);
@@ -353,7 +353,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetInventoryLevels exception");
         }
@@ -415,7 +415,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[AmazonFBA] Circuit breaker open — GetInboundStatus unavailable");
             return new InboundStatus(shipmentId, "UNAVAILABLE", 0, 0);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetInboundStatus exception: {ShipmentId}", shipmentId);
             return new InboundStatus(shipmentId, "ERROR", 0, 0);
@@ -515,7 +515,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetFulfillmentOrders exception");
         }
@@ -547,7 +547,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogInformation("[AmazonFBA] IsAvailable: {Available} ({Status})", available, response.StatusCode);
             return available;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[AmazonFBA] IsAvailable check failed");
             return false;

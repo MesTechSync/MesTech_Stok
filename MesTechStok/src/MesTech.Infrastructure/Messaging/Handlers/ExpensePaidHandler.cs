@@ -70,7 +70,7 @@ public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotific
                 "ExpensePaid GL kaydı oluşturuldu: ExpenseId={ExpenseId} Amount={Amount} TenantId={TenantId}",
                 e.ExpenseId, expense.Amount, tenantId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "ExpensePaid GL kaydı BAŞARISIZ: ExpenseId={ExpenseId}. " +

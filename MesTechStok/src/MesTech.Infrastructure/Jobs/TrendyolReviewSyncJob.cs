@@ -82,7 +82,7 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
                 "[{JobId}] Trendyol review sync tamamlandi: {Total} review, {Unreplied} cevapsiz event publish edildi",
                 JobId, totalFetched, totalUnreplied);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol review sync HATA", JobId);
             throw;

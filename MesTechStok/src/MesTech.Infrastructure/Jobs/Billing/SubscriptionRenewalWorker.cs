@@ -116,7 +116,7 @@ public sealed class SubscriptionRenewalWorker
                     failedCount++;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex,
                     "[{JobId}] Abonelik yenileme hatasi: SubscriptionId={SubscriptionId}",

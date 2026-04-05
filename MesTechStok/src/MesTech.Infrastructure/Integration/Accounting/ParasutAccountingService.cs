@@ -161,7 +161,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
@@ -248,7 +248,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut GetRecentTransactions HTTP exception");
             return Array.Empty<ParasutTransactionDto>();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut GetRecentTransactions unexpected exception");
             return Array.Empty<ParasutTransactionDto>();
@@ -294,7 +294,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut POST {Endpoint} HTTP exception", endpoint);
             return new ParasutSyncResult { Success = false, ErrorMessage = ex.Message };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut POST {Endpoint} unexpected exception", endpoint);
             return new ParasutSyncResult { Success = false, ErrorMessage = ex.Message };

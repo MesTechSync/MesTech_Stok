@@ -111,7 +111,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
                 document.EttnNo, providerRef);
             return new EInvoiceSendResult(true, providerRef, null, 0);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice SendAsync exception for ETTN {EttnNo}", document.EttnNo);
             return new EInvoiceSendResult(false, null, ex.Message, 0);
@@ -141,7 +141,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             // The URL itself serves the PDF; return the download URL
             return $"{BaseUrl}/earsiv-services/download?token={Uri.EscapeDataString(_token!)}&ettn={Uri.EscapeDataString(providerRef)}&onizleme=Y";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice GetPdfUrlAsync exception for {ProviderRef}", providerRef);
             return null;
@@ -186,7 +186,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             _logger.LogInformation("GibPortalEInvoice CancelAsync OK for {ProviderRef}", providerRef);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice CancelAsync exception for {ProviderRef}", providerRef);
             return false;
@@ -244,7 +244,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
 
             return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice CheckVknMukellef exception for VKN {Vkn}", vkn);
             return new VknMukellefResult(vkn, false, false, null, null);

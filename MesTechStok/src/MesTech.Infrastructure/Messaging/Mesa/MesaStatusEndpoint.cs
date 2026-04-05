@@ -80,7 +80,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
         {
             await HandleRequestAsync(context).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[MESA Status] Unhandled request error");
         }
@@ -108,7 +108,7 @@ public sealed class MesaStatusEndpoint : BackgroundService
                 response.StatusCode = 404;
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "MESA status request hatasi");
             response.StatusCode = 500;

@@ -138,7 +138,7 @@ public sealed class ErpStockSyncJob : ISyncJob
                 _logger.LogWarning("[{JobId}] ERP stok sync iptal edildi ({Provider})", JobId, provider);
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 totalFailed++;
                 sw.Stop();

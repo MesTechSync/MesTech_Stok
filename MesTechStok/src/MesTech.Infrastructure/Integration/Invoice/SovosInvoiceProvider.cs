@@ -121,7 +121,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -164,7 +164,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             // Sovos returns isRegistered flag
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -192,7 +192,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -271,7 +271,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -333,7 +333,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return list;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetIncomingInvoices exception");
             return Array.Empty<IncomingInvoiceDto>();
@@ -360,7 +360,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos AcceptInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return false;
@@ -389,7 +389,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos RejectInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return false;
@@ -429,7 +429,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new KontorBalanceDto(remaining, total, lastChecked, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
@@ -470,7 +470,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos SetInvoiceTemplate exception");
             return false;
@@ -533,7 +533,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new EInvoiceSendResult(true, providerRef, null, creditUsed);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos SendAsync exception for ETTN {EttnNo}", document.EttnNo);
             return new EInvoiceSendResult(false, null, ex.Message, 0);
@@ -562,7 +562,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("pdfUrl", out var url) ? url.GetString() : null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetPdfUrlAsync exception for {ProviderRef}", providerRef);
             return null;
@@ -591,7 +591,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CancelAsync exception for {ProviderRef}", providerRef);
             return false;
@@ -628,7 +628,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CheckVknMukellefAsync exception for VKN {Vkn}", vkn);
             return new VknMukellefResult(vkn, false, false, null, null);
@@ -656,7 +656,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("balance", out var b) ? b.GetInt32() : 0;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetCreditBalanceAsync exception");
             return 0;
@@ -776,7 +776,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
                 _logger.LogWarning(ex, "Sovos POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
                 await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Sovos POST {Url} exception", url);
                 return new InvoiceResult(false, null, null, ex.Message);

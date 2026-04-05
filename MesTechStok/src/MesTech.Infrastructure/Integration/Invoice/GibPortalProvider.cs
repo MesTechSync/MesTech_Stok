@@ -86,7 +86,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
                          ?? "Unknown error from GIB Portal";
             return new InvoiceResult(false, null, null, errMsg);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal CreateEFatura exception for {InvoiceNumber}", invoice.InvoiceNumber);
             return new InvoiceResult(false, null, null, ex.Message);
@@ -127,7 +127,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
                          ?? "Unknown error from GIB Portal";
             return new InvoiceResult(false, null, null, errMsg);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal CreateEArsiv exception for {InvoiceNumber}", invoice.InvoiceNumber);
             return new InvoiceResult(false, null, null, ex.Message);
@@ -165,7 +165,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
                          ?? "Unknown error from GIB Portal";
             return new InvoiceResult(false, null, null, errMsg);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal CreateEIrsaliye exception for {InvoiceNumber}", invoice.InvoiceNumber);
             return new InvoiceResult(false, null, null, ex.Message);
@@ -203,7 +203,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, errorMessage);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -249,7 +249,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
 
             return isRegistered?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal IsEInvoiceTaxpayer exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -279,7 +279,7 @@ public sealed class GibPortalProvider : IInvoiceProvider
                          ?? "Cancel failed";
             return new InvoiceResult(false, gibInvoiceId, null, errMsg);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortal CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);

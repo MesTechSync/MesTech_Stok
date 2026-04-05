@@ -48,7 +48,7 @@ public sealed class OrderCompletedEventHandler
                 "Sipariş tamamlama bildirimi gönderildi — Order={OrderNumber}",
                 evt.OrderNumber);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "Sipariş tamamlama handler hatası — Order={OrderNumber}",

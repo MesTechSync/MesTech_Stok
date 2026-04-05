@@ -73,7 +73,7 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(BotEFaturaRequestedIntegrationEvent));
             throw; // Let MassTransit retry policy handle
@@ -107,7 +107,7 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 "NotificationId={NotificationId}, BotUserId={BotUserId}",
                 notification.Id, msg.BotUserId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[MESA Consumer] Bot e-fatura talebi islenirken hata: BotUserId={BotUserId}",

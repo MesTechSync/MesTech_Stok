@@ -82,7 +82,7 @@ public sealed class ProductScraperService : IProductScraperService
         {
             return await FetchProductAsync(platform, uri, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to scrape product from {Platform} URL: {Url}", platform, url);
             return null;
@@ -250,7 +250,7 @@ public sealed class ProductScraperService : IProductScraperService
 
             return new ScrapedProductDto(title, price, imageUrl, barcode, platform, categoryPath, brand, description);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Failed to parse {Platform} product JSON response", platform);
             return null;

@@ -42,7 +42,7 @@ public class N11AdapterHardeningTests : IClassFixture<WireMockFixture>, IDisposa
     private static Mock<IHttpClientFactory> CreateMockFactory()
     {
         var mock = new Mock<IHttpClientFactory>();
-        mock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+        mock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new Mock<HttpMessageHandler>().Object));
         return mock;
     }
 

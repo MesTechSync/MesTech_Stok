@@ -69,7 +69,7 @@ public sealed class GenericPlatformStockSyncJob
                     if (pushed) synced++;
                     else skipped++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     errors++;
                     _logger.LogWarning(ex,
@@ -82,7 +82,7 @@ public sealed class GenericPlatformStockSyncJob
                 "[GenericSync] {Platform} TAMAMLANDI — synced={Synced}, skipped={Skip}, errors={Err}, total={Total}",
                 platformCode, synced, skipped, errors, products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[GenericSync] {Platform} stok sync BAŞARISIZ", platformCode);

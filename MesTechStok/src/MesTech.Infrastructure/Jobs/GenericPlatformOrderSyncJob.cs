@@ -110,7 +110,7 @@ public sealed class GenericPlatformOrderSyncJob
                 "[OrderSync] {Platform} TAMAMLANDI — {Total} çekildi, {Created} yeni, {Updated} güncellendi, {Skipped} değişmemiş",
                 platformCode, orders.Count, created, updated, skipped);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[OrderSync] {Platform} sipariş sync BAŞARISIZ", platformCode);
             throw;

@@ -136,7 +136,7 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRDirect] ProcessPayment failed for order {OrderId}", request.OrderId);
             return new PaymentResult(false, null, null, ex.Message);
@@ -190,7 +190,7 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRDirect] GetTransactionStatus failed for {Oid}", transactionId);
             return new PaymentStatusResult(transactionId, PaymentTransactionStatus.Failed, 0m, null);
@@ -242,7 +242,7 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRDirect] GetInstallmentOptions failed");
             return new InstallmentOptions(Array.Empty<InstallmentOption>());
@@ -294,7 +294,7 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRDirect] Refund failed for {Oid}", transactionId);
             return new RefundResult(false, null, ex.Message);

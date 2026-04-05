@@ -141,7 +141,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             return ErpSyncResult.Fail(
                 $"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] SyncOrderAsync exception — OrderId:{OrderId}", orderId);
@@ -198,7 +198,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 invoiceId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpSyncResult.Fail($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] SyncInvoiceAsync exception — InvoiceId:{InvoiceId}", invoiceId);
@@ -255,7 +255,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return accounts.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalancesAsync exception");
             return Array.Empty<ErpAccountDto>();
@@ -286,7 +286,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] Ping exception");
             return false;
@@ -342,7 +342,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 "[NebimERPAdapter] Retrieved {Count} stock items from Nebim", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetStockLevelsAsync exception");
             return new List<ErpStockItem>();
@@ -391,7 +391,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return new ErpStockItem(productCode, productCode, qty, "AD", wh, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] GetStockByCodeAsync exception — ProductCode:{ProductCode}", productCode);
@@ -447,7 +447,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 productCode, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] UpdateStockAsync exception — ProductCode:{ProductCode}", productCode);
@@ -521,7 +521,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateInvoiceAsync exception");
             return ErpInvoiceResult.Failed(ex.Message);
@@ -559,7 +559,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpInvoiceResult.Ok(invoiceNumber, erpRef, date, amount, pdfUrl);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetInvoiceAsync exception — {Number}", invoiceNumber);
             return null;
@@ -601,7 +601,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetInvoicesAsync exception");
             return new List<ErpInvoiceResult>();
@@ -634,7 +634,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             }
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CancelInvoiceAsync exception — {Number}", invoiceNumber);
             return false;
@@ -682,7 +682,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -719,7 +719,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpAccountResult.Ok(accountCode, name, balance, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountAsync exception — {Code}", accountCode);
             return null;
@@ -760,7 +760,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] UpdateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -802,7 +802,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] SearchAccountsAsync exception");
             return new List<ErpAccountResult>();
@@ -832,7 +832,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             return json.RootElement.TryGetProperty("balance", out var b) ? b.GetDecimal() : 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalanceAsync exception — {Code}", accountCode);
             return 0m;
@@ -897,7 +897,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateWaybillAsync exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -936,7 +936,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpWaybillResult.Ok(number, date);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
             return null;
@@ -1018,7 +1018,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 "[NebimERPAdapter] Retrieved {Count} price items from Nebim", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetProductPricesAsync exception");
             return new List<ErpPriceItem>();
@@ -1061,7 +1061,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return new ErpPriceItem(productCode, name, purchasePrice, salePrice, listPrice, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;
@@ -1117,7 +1117,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             _logger.LogInformation("[NebimERPAdapter] Retrieved {Count} bank transactions", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetTransactionsAsync exception");
             return new List<ErpBankTransaction>();
@@ -1170,7 +1170,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err);
             return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] RecordPayment exception");
             return ErpPaymentResult.Failed(ex.Message);

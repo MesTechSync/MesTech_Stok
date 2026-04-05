@@ -149,7 +149,7 @@ public sealed class DailyProfitWorker : IAccountingJob
                 JobId, period, totalRevenue, totalCost, totalCommission,
                 totalCargo, totalTax, netProfit, profitMargin);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Gunluk kar/zarar hesaplama HATA", JobId);
             throw;

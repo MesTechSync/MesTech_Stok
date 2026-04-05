@@ -60,7 +60,7 @@ public sealed class ShipmentCostRecordedBridgeHandler
                          $"Kargo: {e.CargoProvider} — {e.ShippingCost:C}\n" +
                          $"Takip: {e.TrackingNumber}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ShipmentCostRecorded bildirim gönderilemedi — OrderId={OrderId}", e.OrderId);
         }
@@ -102,7 +102,7 @@ public sealed class PaymentFailedBridgeHandler
                          $"Hata: {e.ErrorMessage}\n" +
                          $"Deneme: {e.FailureCount}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "PaymentFailed bildirim gönderilemedi — Sub={SubId}", e.SubscriptionId);
         }
@@ -161,7 +161,7 @@ public sealed class ExpenseApprovedBridgeHandler
                 TemplateName: "expense-approved",
                 Content: $"Gider onaylandı: {e.ExpenseId}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ExpenseApproved bildirim gönderilemedi — {ExpenseId}", e.ExpenseId);
         }
@@ -205,7 +205,7 @@ public sealed class EInvoiceCreatedBridgeHandler
                          $"ETTN: {e.EttnNo}\n" +
                          $"Tip: {e.Type}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "EInvoiceCreated bildirim gönderilemedi — {EInvoiceId}", e.EInvoiceId);
         }
@@ -254,7 +254,7 @@ public sealed class EInvoiceCancelledBridgeHandler
                          $"ETTN: {e.EttnNo}\n" +
                          $"Sebep: {e.Reason}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "EInvoiceCancelled bildirim gönderilemedi — {EInvoiceId}", e.EInvoiceId);
         }
@@ -337,7 +337,7 @@ public sealed class ProductUpdatedBridgeHandler
                 TemplateName: "product-updated",
                 Content: $"Ürün güncellendi: {e.SKU}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ProductUpdated bildirim gönderilemedi — {ProductId}", e.ProductId);
         }
@@ -376,7 +376,7 @@ public sealed class ProductActivatedBridgeHandler
                 TemplateName: "product-activated",
                 Content: $"Ürün aktifleştirildi: {e.SKU}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ProductActivated bildirim gönderilemedi — {ProductId}", e.ProductId);
         }
@@ -415,7 +415,7 @@ public sealed class ProductDeactivatedBridgeHandler
                 TemplateName: "product-deactivated",
                 Content: $"Ürün pasife alındı: {e.SKU}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ProductDeactivated bildirim gönderilemedi — {ProductId}", e.ProductId);
         }
@@ -459,7 +459,7 @@ public sealed class SubscriptionCreatedBridgeHandler
                          $"Plan: {e.PlanId}\n" +
                          $"Durum: {e.Status}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "SubscriptionCreated bildirim gönderilemedi — {SubId}", e.SubscriptionId);
         }
@@ -499,7 +499,7 @@ public sealed class SubscriptionCancelledBridgeHandler
                          $"Abonelik: {e.SubscriptionId}\n" +
                          $"Sebep: {e.Reason}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "SubscriptionCancelled bildirim gönderilemedi — {SubId}", e.SubscriptionId);
         }
@@ -564,7 +564,7 @@ public sealed class PlatformMessageReceivedBridgeHandler
                          $"Platform: {e.Platform}\n" +
                          $"Gönderen: {e.SenderName}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "PlatformMessageReceived bildirim gönderilemedi — {MsgId}", e.MessageId);
         }
@@ -607,7 +607,7 @@ public sealed class CalendarEventCreatedBridgeHandler
                 TemplateName: "calendar-event-created",
                 Content: $"Yeni takvim etkinliği: {e.StartAt:dd.MM.yyyy HH:mm}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "CalendarEventCreated bildirim gönderilemedi — {EventId}", e.EventId);
         }
@@ -666,7 +666,7 @@ public sealed class LeaveRejectedBridgeHandler
                 TemplateName: "leave-rejected",
                 Content: $"İzin talebiniz reddedildi.\nSebep: {e.Reason}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "LeaveRejected bildirim gönderilemedi — {LeaveId}", e.LeaveId);
         }
@@ -727,7 +727,7 @@ public sealed class TaskOverdueBridgeHandler
                          $"Görev: {e.TaskId}\n" +
                          $"Son tarih: {e.DueDate:d}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "TaskOverdue bildirim gönderilemedi — {TaskId}", e.TaskId);
         }
@@ -770,7 +770,7 @@ public sealed class DocumentUploadedBridgeHandler
                 TemplateName: "document-uploaded",
                 Content: $"Belge yüklendi: {e.FileName} ({e.FileSizeBytes / 1024} KB)"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "DocumentUploaded bildirim gönderilemedi — {DocId}", e.DocumentId);
         }
@@ -830,7 +830,7 @@ public sealed class OnboardingCompletedBridgeHandler
                 Content: $"Kurulum tamamlandı!\n" +
                          $"Süre: {(e.CompletedAt - e.StartedAt).TotalMinutes:F0} dakika"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "OnboardingCompleted bildirim gönderilemedi — {TenantId}", e.TenantId);
         }
@@ -876,7 +876,7 @@ public sealed class ExpenseCreatedBridgeHandler
                          $"Tutar: {e.Amount:C}\n" +
                          $"Kaynak: {e.Source}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ExpenseCreated bildirim gönderilemedi — {ExpenseId}", e.ExpenseId);
         }
@@ -919,7 +919,7 @@ public sealed class TaxWithholdingComputedBridgeHandler
                          $"Oran: %{e.Rate * 100:F1}\n" +
                          $"Stopaj: {e.WithholdingAmount:C}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "TaxWithholdingComputed bildirim gönderilemedi — {Id}", e.TaxWithholdingId);
         }
@@ -961,7 +961,7 @@ public sealed class BankStatementImportedBridgeHandler
                          $"Giriş: {e.TotalInflow:C}\n" +
                          $"Çıkış: {e.TotalOutflow:C}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "BankStatementImported bildirim gönderilemedi — {BankAccountId}", e.BankAccountId);
         }
@@ -1032,7 +1032,7 @@ public sealed class ReconciliationCompletedBridgeHandler
                          $"Durum: {e.FinalStatus}\n" +
                          $"Güven: %{e.Confidence * 100:F0}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "ReconciliationCompleted bildirim gönderilemedi — {MatchId}", e.MatchId);
         }
@@ -1078,7 +1078,7 @@ public sealed class AnomalyDetectedBridgeHandler
                          $"Açıklama: {e.Description}\n" +
                          detail), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "AnomalyDetected bildirim gönderilemedi — {AnomalyType}", e.AnomalyType);
         }
@@ -1142,7 +1142,7 @@ public sealed class FixedAssetCreatedBridgeHandler
                          $"Maliyet: {e.AcquisitionCost:C}\n" +
                          $"Amortisman: {e.Method}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "FixedAssetCreated bildirim gönderilemedi — {AssetId}", e.FixedAssetId);
         }
@@ -1244,7 +1244,7 @@ public sealed class PlatformNotificationFailedBridgeHandler
                          $"Hata: {e.ErrorMessage}\n" +
                          $"Deneme: {e.RetryCount}/{MaxRetryCount}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "PlatformNotificationFailed bildirim gönderilemedi — {OrderId}", e.OrderId);
         }
@@ -1307,7 +1307,7 @@ public sealed class SubscriptionPlanChangedBridgeHandler
                          $"Önceki: {e.PreviousPlanId}\n" +
                          $"Yeni: {e.NewPlanId}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "SubscriptionPlanChanged bildirim gönderilemedi — {SubId}", e.SubscriptionId);
         }
@@ -1350,7 +1350,7 @@ public sealed class CategoryCreatedBridgeHandler
                 TemplateName: "category-created",
                 Content: $"Yeni kategori oluşturuldu: {e.CategoryName} (Kod: {e.Code})"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "CategoryCreated bildirim gönderilemedi — {CategoryId}", e.CategoryId);
         }
@@ -1389,7 +1389,7 @@ public sealed class SupplierCreatedBridgeHandler
                 TemplateName: "supplier-created",
                 Content: $"Yeni tedarikçi eklendi: {e.SupplierName} (Kod: {e.Code})"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "SupplierCreated bildirim gönderilemedi — {SupplierId}", e.SupplierId);
         }

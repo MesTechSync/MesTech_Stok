@@ -75,7 +75,7 @@ public sealed class AiReconciliationSuggestedConsumer : IConsumer<AiReconciliati
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiReconciliationSuggestedEvent));
             throw; // Let MassTransit retry policy handle

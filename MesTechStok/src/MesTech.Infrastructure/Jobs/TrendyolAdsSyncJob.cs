@@ -103,7 +103,7 @@ public sealed class TrendyolAdsSyncJob : ISyncJob
                 "[{JobId}] Trendyol ads sync tamamlandi: {Campaigns} kampanya, {Metrics} metrik, {Alerts} butce uyarisi",
                 JobId, campaigns.Count, totalMetrics, budgetAlerts);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol ads sync HATA", JobId);
             throw;

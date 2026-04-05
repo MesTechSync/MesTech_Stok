@@ -108,7 +108,7 @@ public sealed class IntegratorOrchestratorService : IIntegratorOrchestrator
             _logger.LogWarning("SyncPlatform {Platform}: timeout after {Seconds}s",
                 platformCode, PerAdapterTimeout.TotalSeconds);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             result.ErrorMessage = ex.Message;
             _logger.LogError(ex, "SyncPlatform {Platform} failed", platformCode);
@@ -180,7 +180,7 @@ public sealed class IntegratorOrchestratorService : IIntegratorOrchestrator
                 await adapter.PushStockUpdateAsync(
                     domainEvent.ProductId, domainEvent.NewQuantity, cts.Token).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "StockChanged push failed: {Platform}", adapter.PlatformCode);
             }
@@ -209,7 +209,7 @@ public sealed class IntegratorOrchestratorService : IIntegratorOrchestrator
                 await adapter.PushPriceUpdateAsync(
                     domainEvent.ProductId, domainEvent.NewPrice, cts.Token).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "PriceChanged push failed: {Platform}", adapter.PlatformCode);
             }

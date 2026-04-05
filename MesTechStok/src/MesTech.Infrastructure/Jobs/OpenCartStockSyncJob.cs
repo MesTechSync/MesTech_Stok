@@ -58,7 +58,7 @@ public sealed class OpenCartStockSyncJob : ISyncJob
             _logger.LogWarning("[{JobId}] OpenCart stok sync iptal edildi", JobId);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] OpenCart stok sync HATA", JobId);
             throw;

@@ -113,7 +113,7 @@ public sealed class TrendyolClaimSyncJob : ISyncJob
                 "[{JobId}] Trendyol iade sync tamamlandi: {Total} cekildi, {Created} yeni, {Updated} guncellendi, {Skipped} degismemis",
                 JobId, claims.Count, created, updated, skipped);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol iade sync HATA", JobId);
             throw;

@@ -84,7 +84,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPSync] HandleInvoiceCreated failed for InvoiceId={InvoiceId} — enqueuing Hangfire retry",
                 invoiceId);
@@ -148,7 +148,7 @@ public sealed class ERPSyncHandler : IERPSyncHandler
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPSync] HandleOrderReceived failed for OrderId={OrderId} — enqueuing Hangfire retry",
                 orderId);

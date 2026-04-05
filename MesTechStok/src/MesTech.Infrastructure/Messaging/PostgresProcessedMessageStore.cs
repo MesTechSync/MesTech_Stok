@@ -110,7 +110,7 @@ public sealed class PostgresProcessedMessageStore : IProcessedMessageStore
             _tableEnsured = true;
             _logger.LogDebug("processed_messages tablosu hazır");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "processed_messages tablosu oluşturulamadı — 5dk sonra tekrar denenecek");
         }

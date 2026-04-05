@@ -75,7 +75,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             _logger.LogWarning("[ERPNext] Connection test failed: {Status}", response.StatusCode);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPNext] Connection test error");
             return false;
@@ -119,7 +119,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "invoice", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync invoice {InvoiceId}", invoice.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "invoice", "error").Inc();
@@ -162,7 +162,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
                 _logger.LogInformation("[ERPNext] Purchase Invoice created for expense: {ExpenseId}", expense.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "expense", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync expense {ExpenseId}", expense.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "expense", "error").Inc();
@@ -197,7 +197,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
                 _logger.LogInformation("[ERPNext] {DocType} synced: {Name}", doctype, party.Name);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "counterparty", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync counterparty {Name}", party.Name);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "counterparty", "error").Inc();
@@ -226,7 +226,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             _logger.LogWarning("[ERPNext] GetBalance response missing 'message' field for account {Account}", accountCode);
             return 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPNext] GetBalance failed for account {Account}", accountCode);
             return 0m;

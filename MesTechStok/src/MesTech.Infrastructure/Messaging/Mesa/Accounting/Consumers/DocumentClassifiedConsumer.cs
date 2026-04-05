@@ -74,7 +74,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiDocumentClassifiedEvent));
             throw; // Let MassTransit retry policy handle

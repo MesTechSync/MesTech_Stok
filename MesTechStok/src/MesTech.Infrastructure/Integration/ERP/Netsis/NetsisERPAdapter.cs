@@ -136,7 +136,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             return ErpSyncResult.Fail(
                 $"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NetsisERPAdapter] SyncOrderAsync exception — OrderId:{OrderId}", orderId);
@@ -191,7 +191,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 invoiceId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpSyncResult.Fail($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NetsisERPAdapter] SyncInvoiceAsync exception — InvoiceId:{InvoiceId}", invoiceId);
@@ -246,7 +246,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return accounts.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountBalancesAsync exception");
             return Array.Empty<ErpAccountDto>();
@@ -277,7 +277,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] Ping exception");
             return false;
@@ -355,7 +355,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateInvoiceAsync exception");
             return ErpInvoiceResult.Failed(ex.Message);
@@ -395,7 +395,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpInvoiceResult.Ok(number, erpRef, date, grandTotal, pdfUrl);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetInvoiceAsync exception — Number:{Number}", invoiceNumber);
             return null;
@@ -444,7 +444,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} invoices", results.Count);
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetInvoicesAsync exception");
             return [];
@@ -485,7 +485,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CancelInvoiceAsync exception — Number:{Number}", invoiceNumber);
             return false;
@@ -544,7 +544,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -582,7 +582,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpAccountResult.Ok(code, name, balance, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountAsync exception — Code:{Code}", accountCode);
             return null;
@@ -637,7 +637,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] UpdateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -683,7 +683,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Found {Count} accounts for query '{Query}'", results.Count, query);
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] SearchAccountsAsync exception");
             return [];
@@ -703,7 +703,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             var account = await GetAccountAsync(accountCode, ct).ConfigureAwait(false);
             return account?.Balance ?? 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountBalanceAsync exception — Code:{Code}", accountCode);
             return 0m;
@@ -753,7 +753,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} stock items", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetStockLevelsAsync exception");
             return [];
@@ -793,7 +793,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return new ErpStockItem(code, name, quantity, unitCode, warehouseCode, unitCost);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetStockByCodeAsync exception — Code:{Code}", productCode);
             return null;
@@ -842,7 +842,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] UpdateStockAsync exception — Code:{Code}", productCode);
             return false;
@@ -905,7 +905,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateWaybillAsync exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -943,7 +943,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpWaybillResult.Ok(number, date);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
             return null;
@@ -997,7 +997,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} bank transactions", transactions.Count);
             return transactions;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetTransactionsAsync exception");
             return [];
@@ -1049,7 +1049,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] RecordPaymentAsync exception");
             return ErpPaymentResult.Failed(ex.Message);
@@ -1121,7 +1121,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} price items", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetProductPricesAsync exception");
             return [];
@@ -1155,7 +1155,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return new ErpPriceItem(code, name, purchasePrice, salePrice, listPrice, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;

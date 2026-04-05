@@ -110,7 +110,7 @@ public sealed class DijitalPlanetProvider : IInvoiceProvider
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "DijitalPlanet CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -151,7 +151,7 @@ public sealed class DijitalPlanetProvider : IInvoiceProvider
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "DijitalPlanet taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -179,7 +179,7 @@ public sealed class DijitalPlanetProvider : IInvoiceProvider
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "DijitalPlanet CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -293,7 +293,7 @@ public sealed class DijitalPlanetProvider : IInvoiceProvider
                 _logger.LogWarning(ex, "DijitalPlanet POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
                 await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "DijitalPlanet POST {Url} exception", url);
                 return new InvoiceResult(false, null, null, ex.Message);

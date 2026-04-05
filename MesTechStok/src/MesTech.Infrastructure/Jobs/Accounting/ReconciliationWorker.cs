@@ -181,7 +181,7 @@ public sealed class ReconciliationWorker : IAccountingJob
                 "[{JobId}] Reconciliation complete: {Auto} auto-matched, {Review} needs review, {Unmatched} unmatched",
                 JobId, autoMatched, needsReview, unmatched);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Mutabakat eslestirme HATA", JobId);
             throw;

@@ -43,7 +43,7 @@ public sealed class CiceksepetiOrderSyncJob : ISyncJob
                 "[{JobId}] Ciceksepeti siparis sync tamamlandi: {Count} siparis cekildi (son 1 saat)",
                 JobId, orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Ciceksepeti siparis sync HATA", JobId);
             throw;

@@ -87,7 +87,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
             _logger.LogError("iyzico odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "iyzico odeme hatasi");
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
@@ -123,7 +123,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "iyzico refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");

@@ -73,7 +73,7 @@ public sealed class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraft
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiEInvoiceDraftGeneratedIntegrationEvent));
             throw; // Let MassTransit retry policy handle
@@ -105,7 +105,7 @@ public sealed class AiEInvoiceDraftGeneratedConsumer : IConsumer<AiEInvoiceDraft
                 "NotificationId={NotificationId}, OrderId={OrderId}",
                 notification.Id, msg.OrderId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[MESA Consumer] AI e-fatura taslagi islenirken hata: OrderId={OrderId}",

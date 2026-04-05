@@ -109,7 +109,7 @@ public sealed class ReliabilityScoreRecalcJob
             {
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex,
                     "[ReliabilityScoreRecalc] Feed {FeedId} ({FeedName}) işlenirken hata.",

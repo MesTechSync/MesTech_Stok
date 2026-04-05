@@ -75,7 +75,7 @@ public sealed class InvoiceRetryJob : ISyncJob
                         JobId, invoice.Id, invoice.InvoiceNumber);
                     failed++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex, "[{JobId}] Fatura {InvoiceId} retry exception", JobId, invoice.Id);
                     failed++;
@@ -89,7 +89,7 @@ public sealed class InvoiceRetryJob : ISyncJob
                 "[{JobId}] Fatura retry tamamlandı — success={Success}, failed={Failed}, total={Total}",
                 JobId, success, failed, failedInvoices.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Fatura retry HATA", JobId);
             throw;

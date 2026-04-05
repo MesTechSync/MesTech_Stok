@@ -74,7 +74,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
             _logger.LogError("Stripe odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Stripe odeme hatasi");
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
@@ -107,7 +107,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Stripe refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");

@@ -185,7 +185,7 @@ public sealed class ErpInvoiceCreationHandler
         {
             throw; // Do not swallow cancellation
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[ErpInvoiceCreation] Unhandled error for InvoiceId={InvoiceId}, TargetERP={TargetERP} — " +

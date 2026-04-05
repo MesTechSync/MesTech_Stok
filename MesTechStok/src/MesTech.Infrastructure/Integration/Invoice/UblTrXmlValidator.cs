@@ -25,7 +25,7 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
             using var reader = XmlReader.Create(ms, readerSettings);
             doc = XDocument.Load(reader);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errors.Add($"XML parse hatası: {ex.Message}");
             return Task.FromResult<IReadOnlyList<string>>(errors);

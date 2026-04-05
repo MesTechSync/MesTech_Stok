@@ -100,7 +100,7 @@ public sealed class GenericPlatformClaimSyncJob
                 "[ClaimSync] {Platform} TAMAMLANDI — {Total} çekildi, {Created} oluşturuldu, {Skipped} mevcut",
                 platformCode, claims.Count, created, skipped);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ClaimSync] {Platform} iade talebi sync BAŞARISIZ", platformCode);
             throw;

@@ -53,7 +53,7 @@ public sealed class InvoiceGeneratedExpenseHandler
                 "InvoiceCreated -> Expense: Expense record {ExpenseId} created for invoice {InvoiceId}",
                 expenseId, e.InvoiceId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "InvoiceCreated -> Expense FAILED for invoice {InvoiceId}. " +

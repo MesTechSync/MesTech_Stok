@@ -120,7 +120,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -161,7 +161,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -189,7 +189,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -268,7 +268,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -328,7 +328,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return list;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo GetIncomingInvoices exception");
             return Array.Empty<IncomingInvoiceDto>();
@@ -353,7 +353,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo AcceptInvoice exception for {InvoiceId}", invoiceId);
             return false;
@@ -380,7 +380,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo RejectInvoice exception for {InvoiceId}", invoiceId);
             return false;
@@ -418,7 +418,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new KontorBalanceDto(remaining, total, expiresAt, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);

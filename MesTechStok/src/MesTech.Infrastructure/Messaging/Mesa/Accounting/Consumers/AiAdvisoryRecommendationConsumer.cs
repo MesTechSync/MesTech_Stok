@@ -75,7 +75,7 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiAdvisoryRecommendationEvent));
             throw; // Let MassTransit retry policy handle
@@ -114,7 +114,7 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 "[MESA Consumer] AI onerisi NotificationLog olarak kaydedildi: NotificationId={NotificationId}",
                 notification.Id);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[MESA Consumer] AI danismanlik onerisi islenirken hata");
             throw; // MassTransit retry policy

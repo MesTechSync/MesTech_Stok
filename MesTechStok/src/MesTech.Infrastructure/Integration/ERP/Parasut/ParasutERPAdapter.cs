@@ -79,7 +79,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] Connection test exception");
             return false;
@@ -116,7 +116,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
             var (success, erpId, error) = await PostJsonApiWithRefAsync("sales_invoices", payload, ct).ConfigureAwait(false);
             return success ? ErpSyncResult.Ok(erpId!) : ErpSyncResult.Fail(error ?? "Unknown");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] SyncOrder error");
             return ErpSyncResult.Fail(ex.Message);
@@ -149,7 +149,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
 
             return ErpSyncResult.Fail("HTTP " + (int)response.StatusCode);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] SyncInvoice error");
             return ErpSyncResult.Fail(ex.Message);
@@ -176,7 +176,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 return new ErpAccountDto(attr?.Code ?? item.Id ?? "", attr?.Name ?? "", bal, "TRY");
             }).ToArray();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] GetAccountBalances error");
             return Array.Empty<ErpAccountDto>();
@@ -210,7 +210,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -250,7 +250,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -290,7 +290,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -347,7 +347,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
 
             return 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[ParasutERPAdapter] GetBalance exception for account {AccountCode}", accountCode);
@@ -469,7 +469,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
                 invoice.EttnNo, error);
             return new ErpSyncResult(false, null, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[ParasutERPAdapter] SyncEInvoiceAsync exception — ETTN:{EttnNo}",
@@ -937,7 +937,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
             _logger.LogWarning("[ParasutERPAdapter] CreateWaybill failed: {Status} — {Error}", response.StatusCode, errorBody);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] CreateWaybill exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -964,7 +964,7 @@ public sealed class ParasutERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCap
 
             return ErpWaybillResult.Ok(id, date);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ParasutERPAdapter] GetWaybill exception — Number:{Number}", waybillNumber);
             return null;

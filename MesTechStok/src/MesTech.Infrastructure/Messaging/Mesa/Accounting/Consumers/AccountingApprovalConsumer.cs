@@ -98,7 +98,7 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(BotAccountingApprovedEvent));
             throw; // Let MassTransit retry policy handle
@@ -252,7 +252,7 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
 
             return journalEntry.Id;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[MESA Consumer] Expense/JournalEntry olusturma hatasi: DocId={DocumentId}. " +

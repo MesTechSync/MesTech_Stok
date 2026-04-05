@@ -38,7 +38,7 @@ public sealed class MesaDlqConsumer : IConsumer<Fault>
 
             _monitor.RecordError(messageType, exceptionMessage);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "DLQ Consumer {Consumer} failed for MessageId={MessageId}",
                 nameof(MesaDlqConsumer), context.MessageId);

@@ -77,7 +77,7 @@ public sealed class SettlementSyncWorker : IAccountingJob
                     "[{JobId}] {Platform} — {CargoCount} kargo faturasi cekildi",
                     JobId, platform, cargoInvoices.Count);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[{JobId}] {Platform} settlement sync HATA", JobId, platform);
                 // Devam et — diger platformlari denemeyi birakma

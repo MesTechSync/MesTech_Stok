@@ -96,7 +96,7 @@ public sealed class DlqMonitorService
                                 "[DLQ Monitor] Auto-reprocess: Queue={Queue}, Reprocessed={Reprocessed}, Failed={Failed}",
                                 name, result.Reprocessed, result.Failed);
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) when (ex is not OperationCanceledException)
                         {
                             _logger.LogWarning(ex, "[DLQ Monitor] Auto-reprocess failed: Queue={Queue}", name);
                         }
@@ -117,14 +117,14 @@ public sealed class DlqMonitorService
                             TelegramAlertLevel.Warning,
                             ct).ConfigureAwait(false);
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         _logger.LogWarning(ex, "[DLQ Monitor] Telegram alarm gonderilemedi");
                     }
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[DLQ Monitor] DLQ depth check failed");
         }

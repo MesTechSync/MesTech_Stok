@@ -99,7 +99,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] Connection test exception");
             return false;
@@ -132,7 +132,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -172,7 +172,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -212,7 +212,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 else
                     failCount++;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failCount++;
                 _logger.LogError(ex,
@@ -261,7 +261,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
 
             return 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[LogoERPAdapter] GetBalance exception for account {AccountCode}", accountCode);
@@ -315,7 +315,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpSyncResult.Fail(error ?? "Unknown Logo API error");
         }
 #pragma warning disable CA1031 // Intentional: ERP sync failure must be returned, not propagated
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[LogoERPAdapter] SyncOrderAsync exception — OrderId:{OrderId}", orderId);
@@ -366,7 +366,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpSyncResult.Fail(error ?? "Unknown Logo API error");
         }
 #pragma warning disable CA1031 // Intentional: ERP sync failure must be returned, not propagated
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[LogoERPAdapter] SyncInvoiceAsync exception — InvoiceId:{InvoiceId}", invoiceId);
@@ -436,7 +436,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results.AsReadOnly();
         }
 #pragma warning disable CA1031 // Intentional: graceful degradation — return empty on error
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetAccountBalancesAsync exception");
             return Array.Empty<ErpAccountDto>();
@@ -499,7 +499,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpInvoiceResult.Failed(error ?? "Logo API error");
         }
 #pragma warning disable CA1031 // Intentional: capability failure must be returned, not propagated
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] CreateInvoiceAsync exception");
             return ErpInvoiceResult.Failed(ex.Message);
@@ -549,7 +549,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 detail.PdfUrl);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetInvoiceAsync exception");
             return null;
@@ -606,7 +606,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetInvoicesAsync exception");
             return new List<ErpInvoiceResult>();
@@ -647,7 +647,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return false;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] CancelInvoiceAsync exception");
             return false;
@@ -694,7 +694,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpAccountResult.Failed(error ?? "Logo API error");
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] CreateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -736,7 +736,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpAccountResult.Ok(detail.Code, detail.Title, balance, detail.Currency);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetAccountAsync exception");
             return null;
@@ -787,7 +787,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpAccountResult.Failed(errorBody);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] UpdateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -834,7 +834,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] SearchAccountsAsync exception");
             return new List<ErpAccountResult>();
@@ -903,7 +903,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetStockLevelsAsync exception");
             return new List<ErpStockItem>();
@@ -956,7 +956,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 unitCost);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetStockByCodeAsync exception");
             return null;
@@ -988,7 +988,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return await PostJsonAsync(url, payload, ct).ConfigureAwait(false);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] UpdateStockAsync exception");
             return false;
@@ -1042,7 +1042,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpWaybillResult.Failed(error ?? "Logo API error");
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] CreateWaybillAsync exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -1084,7 +1084,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpWaybillResult.Ok(detail.WaybillNumber, waybillDate);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetWaybillAsync exception");
             return null;
@@ -1147,7 +1147,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetTransactionsAsync exception");
             return new List<ErpBankTransaction>();
@@ -1189,7 +1189,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return ErpPaymentResult.Failed(error ?? "Logo API error");
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] RecordPaymentAsync exception");
             return ErpPaymentResult.Failed(ex.Message);
@@ -1344,7 +1344,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
             return results;
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetProductPricesAsync exception");
             return new List<ErpPriceItem>();
@@ -1382,7 +1382,7 @@ public sealed class LogoERPAdapter : IERPAdapter, IErpAdapter, IErpInvoiceCapabl
                 item.CurrencyCode);
         }
 #pragma warning disable CA1031
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[LogoERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;

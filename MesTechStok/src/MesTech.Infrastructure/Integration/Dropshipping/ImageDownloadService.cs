@@ -54,7 +54,7 @@ public sealed class ImageDownloadService(
 
                 succeeded.Add(image);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 failed.Add(new ImageDownloadError(url, ex.Message, 0));
                 logger.LogWarning("Resim indirilemedi: {Url} — {Error}", url, ex.Message);

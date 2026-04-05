@@ -55,7 +55,7 @@ public sealed class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
 
             _monitor.RecordConsume(nameof(MesaLeadScoredEvent));
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Consumer {Consumer} failed for MessageId={MessageId}",
                 nameof(MesaLeadScoredConsumer), context.MessageId);

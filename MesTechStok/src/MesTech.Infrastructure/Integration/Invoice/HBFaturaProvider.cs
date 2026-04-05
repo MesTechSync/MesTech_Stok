@@ -116,7 +116,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -157,7 +157,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -185,7 +185,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -269,7 +269,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -309,7 +309,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new KontorBalanceDto(remaining, total, expiresAt, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
@@ -423,7 +423,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
                 _logger.LogWarning(ex, "HBFatura POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
                 await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "HBFatura POST {Url} exception", url);
                 return new InvoiceResult(false, null, null, ex.Message);

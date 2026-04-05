@@ -112,7 +112,7 @@ public sealed class ScheduledReportGenerationJob : IAccountingJob
                 "[{JobId}] Rapor bildirimi olusturuldu — Baslik: {Title}, NotificationId: {NotificationId}",
                 JobId, definition.Title, notification.Id);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[{JobId}] Zamanlanmis rapor uretimi HATA — Tur: {ReportType}",

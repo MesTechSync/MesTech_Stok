@@ -56,7 +56,7 @@ public sealed class AdapterConnectivityValidator
                     itemSw.Elapsed,
                     "Cancelled");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 itemSw.Stop();
                 _logger.LogWarning(ex,

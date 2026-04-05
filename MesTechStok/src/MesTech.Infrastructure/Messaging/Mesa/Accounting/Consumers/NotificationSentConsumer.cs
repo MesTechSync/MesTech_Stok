@@ -67,7 +67,7 @@ public sealed class NotificationSentConsumer : IConsumer<BotNotificationSentEven
                 ErrorMessage = msg.ErrorMessage
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(BotNotificationSentEvent));
             throw; // Let MassTransit retry policy handle

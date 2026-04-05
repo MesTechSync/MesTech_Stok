@@ -43,7 +43,7 @@ public sealed class N11OrderSyncJob : ISyncJob
                 "[{JobId}] N11 siparis sync tamamlandi: {Count} siparis cekildi (son 1 saat)",
                 JobId, orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] N11 siparis sync HATA", JobId);
             throw;

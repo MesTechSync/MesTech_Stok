@@ -148,7 +148,7 @@ public sealed class SupplierFeedSyncJob
                     if (wasDeactivated)
                         deactivatedProducts++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex,
                         "[SupplierFeedSync] Failed to process product SKU={SKU} Barcode={Barcode} in feed {FeedName}",
@@ -173,7 +173,7 @@ public sealed class SupplierFeedSyncJob
                 feedId, feed.Name);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[SupplierFeedSync] Sync FAILED for feed {FeedId} ({FeedName})",
                 feedId, feed.Name);
@@ -324,7 +324,7 @@ public sealed class SupplierFeedSyncJob
                     var ok = await adapter.PushProductAsync(product, ct).ConfigureAwait(false);
                     if (ok) pushed++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex,
                         "[SupplierFeedSync] Failed to push product {SKU} to {Platform}",
