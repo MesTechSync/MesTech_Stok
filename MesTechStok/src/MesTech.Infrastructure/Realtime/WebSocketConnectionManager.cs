@@ -15,6 +15,7 @@ public sealed class WebSocketConnectionManager
     private readonly ConcurrentDictionary<string, WebSocket> _connections = new();
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _sendLocks = new();
     private readonly ILogger<WebSocketConnectionManager> _logger;
+    private const int MaxConnections = 500; // DoS koruması — sınırsız bağlantı önleme
 
     public WebSocketConnectionManager(ILogger<WebSocketConnectionManager> logger)
     {
@@ -25,6 +26,12 @@ public sealed class WebSocketConnectionManager
 
     public string AddConnection(WebSocket socket)
     {
+        if (_connections.Count >= MaxConnections)
+        {
+            _logger.LogWarning("WebSocket MaxConnections ({Max}) reached — rejecting new connection", MaxConnections);
+            throw new InvalidOperationException($"Maximum WebSocket connections ({MaxConnections}) exceeded");
+        }
+
         // FIX-DEV6-TUR3: 8-char hex = 32-bit collision space, birthday paradox risk.
         // Full GUID eliminates collision. TryAdd loop handles the theoretical edge case.
         string id;
