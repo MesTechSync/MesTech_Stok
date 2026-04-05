@@ -17,6 +17,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DocumentClassifiedConsumer> _logger;
@@ -24,12 +25,14 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
     public DocumentClassifiedConsumer(
         IMediator mediator,
         IAccountingDocumentRepository documentRepository,
+        IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<DocumentClassifiedConsumer> logger)
     {
         _mediator = mediator;
         _documentRepository = documentRepository;
+        _unitOfWork = unitOfWork;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
@@ -103,6 +106,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
 
             document.UpdateExtractedData(extractedJson);
             await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AccountingDocument guncellendi: DocId={DocumentId}", msg.DocumentId);
