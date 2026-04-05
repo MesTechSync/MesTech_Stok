@@ -152,7 +152,10 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
     private HttpClient CreateHttpClient()
     {
         var client = _httpClientFactory.CreateClient("Iyzico");
-        client.BaseAddress = new Uri(_options.BaseUrl);
+        var baseUri = new Uri(_options.BaseUrl);
+        if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+            _logger.LogWarning("[IyzicoPaymentGateway] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+        client.BaseAddress = baseUri;
         client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization = null;
         client.DefaultRequestHeaders.Add("Authorization", $"IYZWS {_options.ApiKey}");

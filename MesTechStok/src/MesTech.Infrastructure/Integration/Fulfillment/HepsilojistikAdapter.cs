@@ -42,7 +42,12 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
         var opts = options?.Value ?? new HepsilojistikOptions();
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(opts.BaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(opts.BaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[HepsilojistikAdapter] BaseUrl points to private network: {BaseUrl}", opts.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         // Basic Auth: MerchantId:ApiKey (same pattern as HepsiburadaAdapter)
         var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{merchantId}:{apiKey}"));

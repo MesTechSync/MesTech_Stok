@@ -44,6 +44,9 @@ public sealed class LogoTokenService
         _password = configuration["ERP:Logo:Password"] ?? string.Empty;
         _firmId = configuration["ERP:Logo:FirmId"] ?? string.Empty;
         _baseUrl = configuration["ERP:Logo:BaseUrl"] ?? string.Empty;
+        if (!string.IsNullOrEmpty(_baseUrl) && Uri.TryCreate(_baseUrl, UriKind.Absolute, out var parsedUri)
+            && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[LogoTokenService] BaseUrl points to private network: {BaseUrl}", _baseUrl);
     }
 
     /// <summary>

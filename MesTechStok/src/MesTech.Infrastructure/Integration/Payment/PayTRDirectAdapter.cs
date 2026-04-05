@@ -55,7 +55,12 @@ public sealed class PayTRDirectAdapter : IPaymentProvider
         };
 
         if (!string.IsNullOrEmpty(_options.BaseUrl))
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(_options.BaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[PayTRDirectAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         _retryPipeline = BuildRetryPipeline();
     }

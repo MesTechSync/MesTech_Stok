@@ -71,7 +71,12 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         _lwaEndpoint = opts.LwaEndpoint;
 
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(_spApiBaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(_spApiBaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[AmazonFBAAdapter] SP-API BaseUrl points to private network: {BaseUrl}", _spApiBaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-AmazonFBA-Client/1.0");
 

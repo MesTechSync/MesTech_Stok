@@ -47,7 +47,10 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
         if (_options.IsConfigured)
         {
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl.TrimEnd('/') + "/");
+            var baseUri = new Uri(_options.BaseUrl.TrimEnd('/') + "/");
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[ERPNextRestAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("token", $"{_options.ApiKey}:{_options.ApiSecret}");
         }

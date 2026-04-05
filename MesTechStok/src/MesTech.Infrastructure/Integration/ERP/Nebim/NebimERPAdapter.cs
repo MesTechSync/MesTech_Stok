@@ -53,6 +53,11 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        if (!string.IsNullOrWhiteSpace(_options.BaseUrl)
+            && Uri.TryCreate(_options.BaseUrl, UriKind.Absolute, out var parsedUri)
+            && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[NebimERPAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
     }
 
     private string BaseUrl => !string.IsNullOrWhiteSpace(_options.BaseUrl)

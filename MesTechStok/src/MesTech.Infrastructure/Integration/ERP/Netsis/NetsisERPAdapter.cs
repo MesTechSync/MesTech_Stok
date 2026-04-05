@@ -51,6 +51,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        var netsisUrl = _config["ERP:Netsis:BaseUrl"];
+        if (!string.IsNullOrEmpty(netsisUrl) && Uri.TryCreate(netsisUrl, UriKind.Absolute, out var parsedUri)
+            && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[NetsisERPAdapter] BaseUrl points to private network: {BaseUrl}", netsisUrl);
     }
 
     private string BaseUrl => _config["ERP:Netsis:BaseUrl"]
