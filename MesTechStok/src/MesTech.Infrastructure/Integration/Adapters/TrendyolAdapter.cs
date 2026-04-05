@@ -762,6 +762,54 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
     }
 
+    /// <summary>
+    /// Trendyol tedarik edilemeyen siparis bildirimi.
+    /// PUT /sapigw/suppliers/{supplierId}/shipment-packages/{packageId} body: {"status":"UnSupplied"}
+    /// </summary>
+    public async Task<bool> MarkPackageUnsuppliedAsync(string packageId, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+
+        if (!long.TryParse(packageId, out var packageIdLong))
+        {
+            _logger.LogError("[Trendyol] MarkUnsupplied: Invalid packageId '{Id}'", packageId);
+            return false;
+        }
+
+        _logger.LogInformation("[Trendyol] MarkPackageUnsupplied: PackageId={PackageId}", packageId);
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            var payload = JsonSerializer.Serialize(new { status = "UnSupplied" }, _jsonOptions);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Put,
+                        new Uri($"/integration/order/sellers/{_supplierId}/shipment-packages/{packageIdLong}", UriKind.Relative),
+                        new StringContent(payload, Encoding.UTF8, "application/json"));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("[Trendyol] MarkUnsupplied failed: {Status} — {Error}", response.StatusCode, error);
+                return false;
+            }
+
+            _logger.LogInformation("[Trendyol] MarkUnsupplied OK: PackageId={PackageId}", packageId);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Trendyol] MarkUnsupplied exception: PackageId={PackageId}", packageId);
+            return false;
+        }
+    }
+
     // ═══════════════════════════════════════════
     // IInvoiceCapableAdapter — Fatura Gonderme
     // ═══════════════════════════════════════════
@@ -1436,8 +1484,59 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     {
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.UnregisterWebhookAsync");
-        await Task.CompletedTask.ConfigureAwait(false);
-        return true;
+
+        try
+        {
+            await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+            // Trendyol webhook silme: GET ile mevcut webhook'ları listele, sonra DELETE
+            using var listResponse = await _retryPipeline.ExecuteAsync(
+                async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                        new Uri($"/integration/order/sellers/{_supplierId}/webhooks", UriKind.Relative));
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!listResponse.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Trendyol ListWebhooks failed: {Status}", listResponse.StatusCode);
+                return false;
+            }
+
+            var content = await listResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            // Trendyol webhook list response: array of { id, url, ... }
+            var webhooks = doc.RootElement.ValueKind == JsonValueKind.Array
+                ? doc.RootElement.EnumerateArray()
+                : (doc.RootElement.TryGetProperty("content", out var arr) ? arr.EnumerateArray() : default);
+
+            foreach (var wh in webhooks)
+            {
+                var whId = wh.TryGetProperty("id", out var idProp) ? idProp.GetInt64() : 0;
+                if (whId <= 0) continue;
+
+                await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+                using var delResponse = await _retryPipeline.ExecuteAsync(
+                    async token =>
+                    {
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Delete,
+                            new Uri($"/integration/order/sellers/{_supplierId}/webhooks/{whId}", UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
+
+                _logger.LogInformation("Trendyol webhook {Id} deleted: {Status}", whId, delResponse.StatusCode);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Trendyol UnregisterWebhook exception");
+            return false;
+        }
     }
 
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
