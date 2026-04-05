@@ -59,15 +59,16 @@ public partial class EmployeesAvaloniaViewModel : ViewModelBase
                 e.WorkEmail.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
               .ToList();
 
-        var sortedList = SortColumn switch
+        var sorted = SortColumn switch
         {
-            "EmployeeCode" => SortAscending ? [.. filtered.OrderBy(e => e.EmployeeCode)] : [.. filtered.OrderByDescending(e => e.EmployeeCode)],
-            "JobTitle"     => SortAscending ? [.. filtered.OrderBy(e => e.JobTitle)]     : [.. filtered.OrderByDescending(e => e.JobTitle)],
-            "WorkEmail"    => SortAscending ? [.. filtered.OrderBy(e => e.WorkEmail)]    : [.. filtered.OrderByDescending(e => e.WorkEmail)],
-            "Status"       => SortAscending ? [.. filtered.OrderBy(e => e.Status)]       : [.. filtered.OrderByDescending(e => e.Status)],
-            "HireDate"     => SortAscending ? [.. filtered.OrderBy(e => e.HireDate)]     : [.. filtered.OrderByDescending(e => e.HireDate)],
-            _              => [.. filtered.OrderBy(e => e.EmployeeCode)]
+            "EmployeeCode" => SortAscending ? filtered.OrderBy(e => e.EmployeeCode) : filtered.OrderByDescending(e => e.EmployeeCode),
+            "JobTitle"     => SortAscending ? filtered.OrderBy(e => e.JobTitle)     : filtered.OrderByDescending(e => e.JobTitle),
+            "WorkEmail"    => SortAscending ? filtered.OrderBy(e => e.WorkEmail)    : filtered.OrderByDescending(e => e.WorkEmail),
+            "Status"       => SortAscending ? filtered.OrderBy(e => e.Status)       : filtered.OrderByDescending(e => e.Status),
+            "HireDate"     => SortAscending ? filtered.OrderBy(e => e.HireDate)     : filtered.OrderByDescending(e => e.HireDate),
+            _              => filtered.OrderBy(e => e.EmployeeCode)
         };
+        var sortedList = sorted.ToList();
 
         Employees = new ObservableCollection<EmployeeDto>(sortedList);
         TotalCount = sortedList.Count;
