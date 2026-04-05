@@ -82,7 +82,7 @@
                                 <DataTemplate DataType="vm:BuyboxItemViewModel">
                                     <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="8,4"
                                             HorizontalAlignment="Left"
-                                            Background="{Binding StatusColor}">
+                                            Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}">
                                         <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MesBgPrimary}"
                                                    FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" />
                                     </Border>

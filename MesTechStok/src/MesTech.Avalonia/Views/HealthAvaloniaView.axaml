@@ -197,7 +197,7 @@
                                                            FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource MesDarkSlate}"
                                                            TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
-                                                <Border Grid.Column="1" Background="{Binding StatusColor}"
+                                                <Border Grid.Column="1" Background="{Binding StatusLabel, Converter={StaticResource StatusToColorConverter}}"
                                                         CornerRadius="12" Padding="6,2" Margin="4,0,0,0">
                                                     <TextBlock Text="{Binding StatusLabel}"
                                                                Foreground="White" FontSize="{StaticResource FontSizeCaption1}" FontWeight="SemiBold" />

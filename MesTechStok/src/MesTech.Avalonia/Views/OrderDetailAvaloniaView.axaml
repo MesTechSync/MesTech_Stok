@@ -24,7 +24,7 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                     <Border CornerRadius="{StaticResource MesRadiusSm}" Padding="8,2"
-                            Background="{Binding StatusColor}">
+                            Background="{Binding OrderStatus, Converter={StaticResource StatusToColorConverter}}">
                         <TextBlock Text="{Binding OrderStatus}" FontSize="{StaticResource FontSizeCaption}"
                                    Foreground="{DynamicResource MesBgPrimary}" FontWeight="Bold" />
                     </Border>
