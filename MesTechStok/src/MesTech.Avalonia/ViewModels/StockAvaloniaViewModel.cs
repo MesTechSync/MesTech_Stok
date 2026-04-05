@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Platform.Commands.TriggerSync;
 using MesTech.Application.Features.Stock.Queries.GetStockSummary;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
@@ -24,6 +25,8 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private decimal totalStockValue;
     [ObservableProperty] private int totalUnits;
     [ObservableProperty] private string summary = string.Empty;
+    [ObservableProperty] private bool isSyncing;
+    [ObservableProperty] private string syncStatus = string.Empty;
 
     public StockAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
@@ -60,4 +63,35 @@ public partial class StockAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-017: Platform stock sync
+    [RelayCommand]
+    private async Task SyncPlatformStock()
+    {
+        var confirmed = await _dialog.ConfirmAsync(
+            "Stok Senkronizasyonu",
+            "Tum platformlara stok gonderilecek. Devam etmek istiyor musunuz?");
+        if (!confirmed) return;
+
+        IsSyncing = true;
+        SyncStatus = "Platformlara stok gonderiyor...";
+
+        try
+        {
+            var result = await _mediator.Send(new TriggerSyncCommand(
+                _currentUser.TenantId, "stock"), CancellationToken);
+
+            SyncStatus = result.IsSuccess
+                ? "Stok senkronizasyonu tamamlandi."
+                : $"Hata: {result.ErrorMessage}";
+        }
+        catch (Exception ex)
+        {
+            SyncStatus = $"Senkronizasyon hatasi: {ex.Message}";
+        }
+        finally
+        {
+            IsSyncing = false;
+        }
+    }
 }
