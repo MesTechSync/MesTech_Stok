@@ -17,7 +17,7 @@ public sealed class CargoProviderSelector : ICargoProviderSelector
     private readonly ILogger<CargoProviderSelector> _logger;
 
     // Oncelik sirasi — tenant bazli config Dalga 4'te
-    // K1d-04: Tum 7 kargo saglayici destekleniyor (UPS haric — yurtici odak)
+    // K1d-04: 7 yurtici + 2 uluslararasi kargo saglayici
     private static readonly CargoProvider[] Priority =
     {
         CargoProvider.YurticiKargo,
@@ -26,7 +26,9 @@ public sealed class CargoProviderSelector : ICargoProviderSelector
         CargoProvider.MngKargo,
         CargoProvider.PttKargo,
         CargoProvider.Hepsijet,
-        CargoProvider.Sendeo
+        CargoProvider.Sendeo,
+        CargoProvider.DHL,
+        CargoProvider.UPS
     };
 
     public CargoProviderSelector(
