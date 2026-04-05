@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -130,6 +131,21 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     private void ExecuteSecondaryAction(StockAlertItemDto? alert)
     {
         // NAV: Execute secondary action (transfer/adjust) based on alert level
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "stock-alerts", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok alarm listesi disa aktarilirken hata");
     }
 }
 
