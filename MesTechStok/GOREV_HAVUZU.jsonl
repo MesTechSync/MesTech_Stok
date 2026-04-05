@@ -579,3 +579,7 @@
 {"id":"HH-D1-078","emirname":"EMR-CAPRAZ-FIX-001","bulan":"DEV1","alan":"DEV5","oncelik":"P2","durum":"ACIK","is":"OrderSlaService unit test — her platform, warning threshold, expired, non-platform order.","tarih":"2026-04-05"}
 {"id":"HH-D1-079","emirname":"EMR-CAPRAZ-FIX-001","bulan":"DEV1","alan":"DEV3","oncelik":"P1","durum":"ACIK","is":"SLA ihlal Hangfire job — CheckOrderSlaViolationsJob. Confirmed siparişleri tara, SLA aşanları bildir.","tarih":"2026-04-05"}
 {"id":"HH-D1-080","emirname":"EMR-CAPRAZ-FIX-001","bulan":"DEV1","alan":"DEV4","oncelik":"P2","durum":"ACIK","is":"PricingRule EF Configuration + migration — HasPrecision, index, FK.","tarih":"2026-04-05"}
+{"id": "HH-FIX-025", "bulan": "DEV2", "alan": "DEV2", "oncelik": "P1", "durum": "KAPANDI", "tarih": "2026-04-05", "commit": "8b9caf2f", "not": "FIX: Warehouse Edit/Delete/SaveEdit + selection"}
+{"id": "HH-FIX-026", "bulan": "DEV2", "alan": "DEV2", "oncelik": "P1", "durum": "KAPANDI", "tarih": "2026-04-05", "commit": "7f7c8b6b", "not": "FIX: Category Add/Edit/Save/Delete + selection"}
+{"id": "HH-FIX-011", "bulan": "DEV2", "alan": "DEV2", "oncelik": "P1", "durum": "KAPANDI", "tarih": "2026-04-05", "commit": "6aa7fb4e", "not": "FIX: Inventory Excel export via ExportStockCommand"}
+{"id": "HH-FIX-017", "bulan": "DEV2", "alan": "DEV2", "oncelik": "P1", "durum": "KAPANDI", "tarih": "2026-04-05", "commit": "edcbcfa8", "not": "FIX: Expenses date filter (Bugun/Hafta/Ay/3Ay)"}
