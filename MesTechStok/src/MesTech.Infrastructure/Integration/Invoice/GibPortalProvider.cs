@@ -2,6 +2,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Endpoint: {baseUrl}/earsiv-services/dispatch
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum sorgulama, PDF, VKN sorgu, iptal.
 /// </summary>
-public sealed class GibPortalProvider : IInvoiceProvider
+public sealed class GibPortalProvider : IInvoiceProvider, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<GibPortalProvider> _logger;
@@ -376,6 +377,66 @@ public sealed class GibPortalProvider : IInvoiceProvider
                 new XElement(EarNs + "unitPrice", line.UnitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))));
         }
         return linesEl;
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "GibPortal";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[GibPortal] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            var soapBody = new XElement(EarNs + "SendInvoiceRequest",
+                new XElement(EarNs + "ettnNo", document.EttnNo),
+                new XElement(EarNs + "gibUuid", document.GibUuid),
+                new XElement(EarNs + "scenario", document.Scenario.ToString()),
+                new XElement(EarNs + "buyerVkn", document.BuyerVkn ?? ""),
+                new XElement(EarNs + "buyerTitle", document.BuyerTitle));
+            var response = await SendSoapAsync("SendInvoice", soapBody, ct).ConfigureAwait(false);
+            var providerRef = response.Descendants().FirstOrDefault(e => e.Name.LocalName == "invoiceId")?.Value;
+            return new EInvoiceSendResult(true, providerRef, null, 0); // GIB Portal: ücretsiz
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[GibPortal] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        // GIB Portal PDF binary döner (URL yok) — base64 encoding ile data URI
+        try
+        {
+            var pdfBytes = await GetPdfAsync(providerRef, ct).ConfigureAwait(false);
+            return $"data:application/pdf;base64,{Convert.ToBase64String(pdfBytes)}";
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[GibPortal] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        var result = await CancelInvoiceAsync(providerRef, ct).ConfigureAwait(false);
+        return result.Success;
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        var isRegistered = await IsEInvoiceTaxpayerAsync(vkn, ct).ConfigureAwait(false);
+        return new VknMukellefResult(vkn, isRegistered, false, null, DateTime.UtcNow);
+    }
+
+    Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        // GIB Portal: ücretsiz, sınırsız — kontor kavramı yok
+        return Task.FromResult(int.MaxValue);
     }
 
     private void EnsureConfigured()
