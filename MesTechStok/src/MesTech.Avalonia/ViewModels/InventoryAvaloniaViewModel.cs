@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Commands.ExportStock;
 using MesTech.Application.Queries.GetInventoryPaged;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -147,6 +148,25 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    // HH-FIX-011: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var tenantId = Guid.Empty; // TODO: inject ICurrentUserService
+            var result = await _mediator.Send(new ExportStockCommand(tenantId, "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok disa aktarilirken hata");
+    }
 
     [RelayCommand]
     private void NextPage()
