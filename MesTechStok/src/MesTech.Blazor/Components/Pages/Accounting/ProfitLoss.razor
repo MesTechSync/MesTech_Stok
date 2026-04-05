@@ -96,11 +96,13 @@
     {
       isLoading = true;
       errorMessage = null;
-      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/profit-loss");
+      var result = await ApiClient.SafeGetAsync<List<ProfitLossRow>>("accounting/profit-loss");
       if (result.IsSuccess && result.Data is { Count: > 0 })
       {
+        // SECURITY FIX (HH-DEV4-031): Gerçek API verilerini kullan — önceden
+        // başarılı sonuçta bile GetDemoData() çağrılıyordu (veriler kaybediliyordu)
         _isDemoMode = false;
-        _rows = GetDemoData();
+        _rows = result.Data;
       }
       else
       {
