@@ -39,7 +39,7 @@ public class YurticiKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposa
 
     private YurticiKargoAdapter CreateConfiguredAdapter()
     {
-        var httpClient = new HttpClient();
+        var httpClient = _fixture.CreateClient();
         var adapter = new YurticiKargoAdapter(httpClient, _logger);
         adapter.Configure(new Dictionary<string, string>
         {
