@@ -69,25 +69,17 @@ public class BehaviorTests
     // ───────────────────────── TransactionBehavior ─────────────────────────
 
     [Fact]
-    public async Task TransactionBehavior_Handle_Command_BeginsAndCommitsTransaction()
+    public async Task TransactionBehavior_Handle_Command_DelegatesToNext()
     {
-        // Arrange
-        var mockUoW = new Mock<IUnitOfWork>();
-        var behavior = new TransactionBehavior<CreateProductCommand, CreateProductResult>(mockUoW.Object);
+        // Arrange — TransactionBehavior is now a pass-through (no explicit transaction)
+        var behavior = new TransactionBehavior<CreateProductCommand, CreateProductResult>();
         var command = new CreateProductCommand("Test", "SKU-003", null, 10m, 20m, Guid.NewGuid());
         var expectedResponse = new CreateProductResult { IsSuccess = true };
-
-        var callOrder = new List<string>();
-        mockUoW.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Callback(() => callOrder.Add("Begin"))
-            .Returns(Task.CompletedTask);
-        mockUoW.Setup(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()))
-            .Callback(() => callOrder.Add("Commit"))
-            .Returns(Task.CompletedTask);
+        var nextCalled = false;
 
         RequestHandlerDelegate<CreateProductResult> next = () =>
         {
-            callOrder.Add("Next");
+            nextCalled = true;
             return Task.FromResult(expectedResponse);
         };
 
@@ -96,21 +88,15 @@ public class BehaviorTests
 
         // Assert
         result.Should().BeSameAs(expectedResponse);
-        callOrder.Should().ContainInOrder("Begin", "Next", "Commit");
-        mockUoW.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        mockUoW.Verify(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        nextCalled.Should().BeTrue();
     }
 
     [Fact]
-    public async Task TransactionBehavior_Handle_Command_WhenExceptionThrown_RollsBack()
+    public async Task TransactionBehavior_Handle_Command_WhenExceptionThrown_Propagates()
     {
         // Arrange
-        var mockUoW = new Mock<IUnitOfWork>();
-        var behavior = new TransactionBehavior<CreateProductCommand, CreateProductResult>(mockUoW.Object);
+        var behavior = new TransactionBehavior<CreateProductCommand, CreateProductResult>();
         var command = new CreateProductCommand("Test", "SKU-004", null, 10m, 20m, Guid.NewGuid());
-
-        mockUoW.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        mockUoW.Setup(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         RequestHandlerDelegate<CreateProductResult> next = () => throw new InvalidOperationException("DB failure");
 
@@ -119,16 +105,13 @@ public class BehaviorTests
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("DB failure");
-        mockUoW.Verify(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        mockUoW.Verify(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task TransactionBehavior_Handle_Query_SkipsTransaction()
+    public async Task TransactionBehavior_Handle_Query_DelegatesToNext()
     {
         // Arrange
-        var mockUoW = new Mock<IUnitOfWork>();
-        var behavior = new TransactionBehavior<GetProductByIdQuery, ProductDto?>(mockUoW.Object);
+        var behavior = new TransactionBehavior<GetProductByIdQuery, ProductDto?>();
         var query = new GetProductByIdQuery(Guid.NewGuid());
         var expectedDto = new ProductDto { Id = Guid.NewGuid(), Name = "Test Product", SKU = "SKU-005" };
 
@@ -139,40 +122,19 @@ public class BehaviorTests
 
         // Assert
         result.Should().BeSameAs(expectedDto);
-        mockUoW.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
-        mockUoW.Verify(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
-        mockUoW.Verify(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task TransactionBehavior_Handle_Command_CommitCalledOnce()
+    public async Task TransactionBehavior_Handle_NullRequest_ThrowsArgumentNullException()
     {
         // Arrange
-        var mockUoW = new Mock<IUnitOfWork>();
-        var behavior = new TransactionBehavior<CreateProductCommand, CreateProductResult>(mockUoW.Object);
-        var command = new CreateProductCommand("Test", "SKU-006", null, 10m, 20m, Guid.NewGuid());
-        var expectedResponse = new CreateProductResult { IsSuccess = true };
-
-        mockUoW.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        mockUoW.Setup(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-
-        RequestHandlerDelegate<CreateProductResult> next = () => Task.FromResult(expectedResponse);
+        var sut = new TransactionBehavior<CreateProductCommand, CreateProductResult>();
 
         // Act
-        await behavior.Handle(command, next, CancellationToken.None);
+        var act = () => sut.Handle(null!, () => Task.FromResult(new CreateProductResult()), CancellationToken.None);
 
         // Assert
-        mockUoW.Verify(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public void TransactionBehavior_Handle_NullUnitOfWork_ThrowsArgumentNullException()
-    {
-        // Act
-        Action act = () => new TransactionBehavior<CreateProductCommand, CreateProductResult>(null!);
-
-        // Assert
-        act.Should().Throw<ArgumentNullException>().WithParameterName("unitOfWork");
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("request");
     }
 
     // ───────────────────────── ValidationBehavior ─────────────────────────
