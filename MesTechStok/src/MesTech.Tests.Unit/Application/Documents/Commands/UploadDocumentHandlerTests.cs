@@ -1,3 +1,4 @@
+using System.IO;
 using FluentAssertions;
 using MesTech.Application.Features.Documents.Commands.UploadDocument;
 using MesTech.Application.Interfaces;
@@ -82,7 +83,7 @@ public class UploadDocumentHandlerTests
     {
         _storage.Setup(s => s.UploadAsync(
                 It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("/documents/test.pdf");
 
         var cmd = new UploadDocumentCommand(_tenantId, _userId,
@@ -102,7 +103,7 @@ public class UploadDocumentHandlerTests
     {
         _storage.Setup(s => s.UploadAsync(
                 It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("MinIO connection refused"));
 
         var cmd = new UploadDocumentCommand(_tenantId, _userId,
@@ -122,7 +123,7 @@ public class UploadDocumentHandlerTests
 
         _storage.Setup(s => s.UploadAsync(
                 It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("/docs/linked.pdf");
 
         var cmd = new UploadDocumentCommand(_tenantId, _userId,
