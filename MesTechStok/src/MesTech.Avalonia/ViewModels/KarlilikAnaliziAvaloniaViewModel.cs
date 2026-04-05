@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetProfitReport;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -25,6 +27,10 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private DateTimeOffset? startDate;
     [ObservableProperty] private DateTimeOffset? endDate;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     public ObservableCollection<ProfitabilityItemDto> Items { get; } = [];
     private List<ProfitabilityItemDto> _allItems = [];
@@ -91,11 +97,58 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(x => x.ProductName.Contains(s, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        filtered = SortColumn switch
+        {
+            "ProductName"        => SortAscending ? filtered.OrderBy(x => x.ProductName)        : filtered.OrderByDescending(x => x.ProductName),
+            "SalesFormatted"     => SortAscending ? filtered.OrderBy(x => x.SalesFormatted)     : filtered.OrderByDescending(x => x.SalesFormatted),
+            "CostFormatted"      => SortAscending ? filtered.OrderBy(x => x.CostFormatted)      : filtered.OrderByDescending(x => x.CostFormatted),
+            "CommissionFormatted"=> SortAscending ? filtered.OrderBy(x => x.CommissionFormatted): filtered.OrderByDescending(x => x.CommissionFormatted),
+            "ShippingFormatted"  => SortAscending ? filtered.OrderBy(x => x.ShippingFormatted)  : filtered.OrderByDescending(x => x.ShippingFormatted),
+            "NetProfit"          => SortAscending ? filtered.OrderBy(x => x.NetProfit)          : filtered.OrderByDescending(x => x.NetProfit),
+            "MarginFormatted"    => SortAscending ? filtered.OrderBy(x => x.MarginFormatted)    : filtered.OrderByDescending(x => x.MarginFormatted),
+            _                    => filtered
+        };
+
         Items.Clear();
         foreach (var item in filtered)
             Items.Add(item);
 
+        TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(
+                new ExportReportCommand(Guid.Empty, "profitability", "xlsx"), ct);
+
+            if (result?.FileData.Length > 0)
+            {
+                var dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    "MesTech_Exports");
+                Directory.CreateDirectory(dir);
+                var path = Path.Combine(dir, result.FileName);
+                await File.WriteAllBytesAsync(path, result.FileData.ToArray(), ct);
+            }
+        }, "Excel export sirasinda hata");
     }
 
     [RelayCommand]
