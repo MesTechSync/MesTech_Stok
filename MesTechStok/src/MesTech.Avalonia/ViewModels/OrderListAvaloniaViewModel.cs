@@ -22,6 +22,18 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private int totalCount;
 
+    // HH-DEV2-007: Date filter
+    [ObservableProperty] private DateTimeOffset? startDate;
+    [ObservableProperty] private DateTimeOffset? endDate;
+    [ObservableProperty] private string selectedDateRange = "Tumu";
+    public string[] DateRangeOptions { get; } = ["Tumu", "Bugun", "Bu Hafta", "Bu Ay", "Ozel"];
+
+    // HH-DEV2-008: Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+
     public ObservableCollection<OrderListItemDto> Orders { get; } = [];
     private List<OrderListItemDto> _allOrders = [];
 
@@ -73,13 +85,51 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
         if (SelectedStatus != "Tumu")
             filtered = filtered.Where(x => x.Status == SelectedStatus);
 
+        // HH-DEV2-007: Date filter
+        if (StartDate.HasValue)
+            filtered = filtered.Where(x => DateTime.TryParse(x.OrderDate, out var d) && d >= StartDate.Value.DateTime);
+        if (EndDate.HasValue)
+            filtered = filtered.Where(x => DateTime.TryParse(x.OrderDate, out var d) && d <= EndDate.Value.DateTime);
+
+        // HH-DEV2-008: Pagination
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        var paged = filteredList.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+
         Orders.Clear();
-        foreach (var item in filtered)
+        foreach (var item in paged)
             Orders.Add(item);
 
-        TotalCount = Orders.Count;
         IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} siparis)"
+            : string.Empty;
     }
+
+    // HH-DEV2-007: Quick date range setter
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        var now = DateTime.Now;
+        (StartDate, EndDate) = value switch
+        {
+            "Bugun" => (new DateTimeOffset(now.Date), new DateTimeOffset(now.Date.AddDays(1).AddTicks(-1))),
+            "Bu Hafta" => (new DateTimeOffset(now.Date.AddDays(-(int)now.DayOfWeek + 1)), new DateTimeOffset(now)),
+            "Bu Ay" => (new DateTimeOffset(new DateTime(now.Year, now.Month, 1)), new DateTimeOffset(now)),
+            _ => ((DateTimeOffset?)null, (DateTimeOffset?)null)
+        };
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    // HH-DEV2-008: Page commands
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
