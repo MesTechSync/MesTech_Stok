@@ -25,13 +25,19 @@ public abstract class IntegrationTestBase : IDisposable
 
         Context = new AppDbContext(options, TenantProvider);
         Context.Database.EnsureCreated();
-        ContextFactory = new TestDbContextFactory(Context);
+        ContextFactory = new TestDbContextFactory(options, TenantProvider, Context);
     }
 
-    /// <summary>Test-only IDbContextFactory wrapper — returns the shared InMemory AppDbContext.</summary>
-    private sealed class TestDbContextFactory(AppDbContext context) : IDbContextFactory<AppDbContext>
+    /// <summary>
+    /// Test-only IDbContextFactory wrapper.
+    /// Returns the shared context for non-disposing callers (repositories),
+    /// but creates a fresh context for callers that dispose via 'await using' (feed adapters).
+    /// Both share the same InMemory database instance.
+    /// </summary>
+    private sealed class TestDbContextFactory(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider, AppDbContext shared)
+        : IDbContextFactory<AppDbContext>
     {
-        public AppDbContext CreateDbContext() => context;
+        public AppDbContext CreateDbContext() => new AppDbContext(options, tenantProvider);
     }
 
     protected void SetCurrentTenant(Guid tenantId)
