@@ -1,4 +1,5 @@
 using MesTech.Domain.Common;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities.Finance;
 
@@ -23,6 +24,8 @@ public sealed class BankAccount : BaseEntity, ITenantEntity
         string? accountNumber = null, bool isDefault = false,
         Guid? storeId = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(accountName);
         return new BankAccount
         {
@@ -43,8 +46,12 @@ public sealed class BankAccount : BaseEntity, ITenantEntity
 
     public void AdjustBalance(decimal delta)
     {
+        var previous = Balance;
         Balance += delta;
         UpdatedAt = DateTime.UtcNow;
+
+        RaiseDomainEvent(new BankBalanceChangedEvent(
+            Id, TenantId, AccountName, previous, Balance, delta, DateTime.UtcNow));
     }
 
     public void SetAsDefault()
