@@ -80,11 +80,11 @@ public class OrderToAccountingChainTests
         {
             SKU = sku,
             Name = $"Test Product {sku}",
-            Stock = stock,
             SalePrice = price,
             PurchasePrice = price * 0.6m,
             CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(stock, "test-seed");
         _registeredProducts.Add(product);
         // Handler uses batch GetByIdsAsync — return all registered products matching requested ids
         _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
