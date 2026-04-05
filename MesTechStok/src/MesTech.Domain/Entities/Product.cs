@@ -27,8 +27,8 @@ public sealed class Product : BaseEntity, ITenantEntity
     public decimal? DiscountRate { get; set; }
     public decimal? DiscountedPrice { get; set; }
 
-    // Stok
-    public int Stock { get; set; }
+    // Stok — yalnızca AdjustStock/SyncStock domain metotları üzerinden değiştirilir
+    public int Stock { get; private set; }
     public int MinimumStock { get; set; } = 5;
     public int MaximumStock { get; set; } = 1000;
     public int ReorderLevel { get; set; } = 10;
@@ -196,6 +196,34 @@ public sealed class Product : BaseEntity, ITenantEntity
         if (Stock < quantity)
             throw new InsufficientStockException(SKU, Stock, quantity);
         AdjustStock(-quantity, StockMovementType.StockOut, reference);
+    }
+
+    /// <summary>
+    /// Platform senkronizasyon işleri tarafından stoku mutlak değerle günceller.
+    /// Delta yerine hedef stok değeri bilindiğinde kullanılır (N11, Trendyol feed vb.).
+    /// Domain event fırlatır; negatif değer kabul edilmez.
+    /// </summary>
+    public void SyncStock(int absoluteValue, string? source = null)
+    {
+        if (absoluteValue < 0)
+            throw new ArgumentOutOfRangeException(nameof(absoluteValue), "Stok değeri negatif olamaz.");
+
+        var previous = Stock;
+        Stock = absoluteValue;
+        LastStockUpdate = DateTime.UtcNow;
+
+        if (previous != absoluteValue)
+        {
+            RaiseDomainEvent(new StockChangedEvent(
+                Id, TenantId, SKU, previous, Stock,
+                StockMovementType.Adjustment, DateTime.UtcNow));
+        }
+
+        if (Stock <= 0 && previous > 0)
+        {
+            RaiseDomainEvent(new ZeroStockDetectedEvent(
+                Id, TenantId, SKU, previous, DateTime.UtcNow));
+        }
     }
 
     public bool IsCriticalStock => Stock <= MinimumStock && Stock > 0;
