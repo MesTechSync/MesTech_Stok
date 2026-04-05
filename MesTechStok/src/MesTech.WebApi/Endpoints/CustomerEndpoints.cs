@@ -13,7 +13,8 @@ public static class CustomerEndpoints
     {
         var group = app.MapGroup("/api/v1/customers")
             .WithTags("Customers")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // GET /api/v1/customers — paginated customer list with search
         group.MapGet("/", async (
