@@ -8,7 +8,7 @@ public sealed class AddStockLotValidator : AbstractValidator<AddStockLotCommand>
     {
         RuleFor(x => x.ProductId).NotEmpty();
         RuleFor(x => x.LotNumber).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Quantity).GreaterThan(0);
         RuleFor(x => x.UnitCost).GreaterThanOrEqualTo(0);
     }
 }
