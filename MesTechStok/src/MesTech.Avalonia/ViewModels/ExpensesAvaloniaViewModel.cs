@@ -29,6 +29,12 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string sortColumn = "default";
     [ObservableProperty] private bool sortAscending = true;
 
+    // HH-FIX-017: Date filter
+    [ObservableProperty] private DateTimeOffset? startDate;
+    [ObservableProperty] private DateTimeOffset? endDate;
+    [ObservableProperty] private string selectedDateRange = "Bu Ay";
+    public string[] DateRangeOptions { get; } = ["Tumu", "Bugun", "Bu Hafta", "Bu Ay", "Son 3 Ay"];
+
     public ExpensesAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
@@ -59,6 +65,12 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
                 e.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
               .ToList()).AsEnumerable();
 
+        // HH-FIX-017: Date filter
+        if (StartDate.HasValue)
+            filtered = filtered.Where(e => e.Date >= StartDate.Value.DateTime);
+        if (EndDate.HasValue)
+            filtered = filtered.Where(e => e.Date <= EndDate.Value.DateTime);
+
         // Sort
         filtered = SortColumn switch
         {
@@ -75,6 +87,21 @@ public partial class ExpensesAvaloniaViewModel : ViewModelBase
         TotalAmount = sortedList.Sum(e => e.Amount);
         Summary = $"Toplam {TotalCount} gider — {TotalAmount:N2} ₺";
         IsEmpty = TotalCount == 0;
+    }
+
+    // HH-FIX-017: Date range setter
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        var now = DateTime.Now;
+        (StartDate, EndDate) = value switch
+        {
+            "Bugun" => (new DateTimeOffset(now.Date), new DateTimeOffset(now)),
+            "Bu Hafta" => (new DateTimeOffset(now.Date.AddDays(-(int)now.DayOfWeek + 1)), new DateTimeOffset(now)),
+            "Bu Ay" => (new DateTimeOffset(new DateTime(now.Year, now.Month, 1)), new DateTimeOffset(now)),
+            "Son 3 Ay" => (new DateTimeOffset(now.AddMonths(-3)), new DateTimeOffset(now)),
+            _ => ((DateTimeOffset?)null, (DateTimeOffset?)null)
+        };
+        ApplyFilter();
     }
 
     [RelayCommand]
