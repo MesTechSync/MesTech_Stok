@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -89,30 +90,31 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
             RemoveHostedService(services, "MesaStatusEndpoint");
             RemoveHostedService(services, "RealtimeDashboardEndpoint");
 
-            // Remove ALL MassTransit + Hangfire services to avoid RabbitMQ/DB connections
-            var infraServices = services.Where(d =>
-                d.ServiceType == typeof(IHostedService) ||
+            // Remove ALL MassTransit registrations and re-add with InMemory transport
+            // This avoids RabbitMQ connection during test startup
+            var massTransitDescriptors = services.Where(d =>
                 d.ServiceType.FullName?.Contains("MassTransit") == true ||
-                d.ServiceType.FullName?.Contains("Hangfire") == true ||
                 d.ImplementationType?.FullName?.Contains("MassTransit") == true ||
-                d.ImplementationType?.FullName?.Contains("Hangfire") == true)
+                d.ImplementationFactory?.Method.ToString()?.Contains("MassTransit") == true ||
+                (d.ServiceType == typeof(IHostedService) &&
+                 (d.ImplementationType?.FullName?.Contains("MassTransit") == true ||
+                  d.ImplementationType?.FullName?.Contains("BusHostedService") == true ||
+                  d.ImplementationFactory?.Method.ToString()?.Contains("MassTransit") == true)))
                 .ToList();
-            // Only remove MassTransit/Hangfire, keep other IHostedService
-            foreach (var descriptor in infraServices)
-            {
-                if (descriptor.ServiceType == typeof(IHostedService))
-                {
-                    var implName = descriptor.ImplementationType?.FullName
-                        ?? descriptor.ImplementationFactory?.Method.ToString() ?? "";
-                    if (implName.Contains("MassTransit") || implName.Contains("Hangfire")
-                        || implName.Contains("BusHostedService"))
-                        services.Remove(descriptor);
-                }
-                else
-                {
-                    services.Remove(descriptor);
-                }
-            }
+            foreach (var descriptor in massTransitDescriptors)
+                services.Remove(descriptor);
+
+            // Re-add MassTransit with InMemory transport (no RabbitMQ needed)
+            services.AddMassTransit(x => x.UsingInMemory());
+
+            // Remove Hangfire hosted services
+            var hangfireDescriptors = services.Where(d =>
+                d.ServiceType == typeof(IHostedService) &&
+                (d.ImplementationType?.FullName?.Contains("Hangfire") == true ||
+                 d.ImplementationFactory?.Method.ToString()?.Contains("Hangfire") == true))
+                .ToList();
+            foreach (var descriptor in hangfireDescriptors)
+                services.Remove(descriptor);
 
             // Replace Redis with in-memory distributed cache
             var redisDescriptor = services.SingleOrDefault(
