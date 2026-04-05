@@ -20,6 +20,8 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedAccount = "Tum Hesaplar";
     [ObservableProperty] private DateTimeOffset? startDate;
     [ObservableProperty] private DateTimeOffset? endDate;
+    [ObservableProperty] private string sortColumn = "Date";
+    [ObservableProperty] private bool sortAscending = true;
 
     public ObservableCollection<GLTransactionItemDto> Transactions { get; } = [];
     private List<GLTransactionItemDto> _allItems = [];
@@ -57,6 +59,7 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
                     Description = l.Description ?? e.Description,
                     DebitFormatted = l.Debit > 0 ? l.Debit.ToString("N2") : string.Empty,
                     CreditFormatted = l.Credit > 0 ? l.Credit.ToString("N2") : string.Empty,
+                    DebitRaw = l.Debit,
                 })
                 : [new GLTransactionItemDto
                 {
@@ -65,6 +68,7 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
                     Description = e.Description,
                     DebitFormatted = e.TotalDebit > 0 ? e.TotalDebit.ToString("N2") : string.Empty,
                     CreditFormatted = e.TotalCredit > 0 ? e.TotalCredit.ToString("N2") : string.Empty,
+                    DebitRaw = e.TotalDebit,
                 }]).ToList();
 
             ApplyFilters();
@@ -73,6 +77,14 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
     partial void OnSelectedAccountChanged(string value) => ApplyFilters();
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
 
     private void ApplyFilters()
     {
@@ -88,6 +100,15 @@ public partial class GLTransactionAvaloniaViewModel : ViewModelBase
 
         if (SelectedAccount != "Tum Hesaplar")
             filtered = filtered.Where(x => x.Account == SelectedAccount);
+
+        filtered = SortColumn switch
+        {
+            "Date"        => SortAscending ? filtered.OrderBy(x => x.Date) : filtered.OrderByDescending(x => x.Date),
+            "Amount"      => SortAscending ? filtered.OrderBy(x => x.DebitRaw) : filtered.OrderByDescending(x => x.DebitRaw),
+            "AccountName" => SortAscending ? filtered.OrderBy(x => x.Account) : filtered.OrderByDescending(x => x.Account),
+            "Type"        => SortAscending ? filtered.OrderBy(x => x.VoucherNo) : filtered.OrderByDescending(x => x.VoucherNo),
+            _             => SortAscending ? filtered.OrderBy(x => x.Date) : filtered.OrderByDescending(x => x.Date),
+        };
 
         Transactions.Clear();
         foreach (var item in filtered)
@@ -116,4 +137,5 @@ public class GLTransactionItemDto
     public string DebitFormatted { get; set; } = string.Empty;
     public string CreditFormatted { get; set; } = string.Empty;
     public string BalanceFormatted { get; set; } = string.Empty;
+    public decimal DebitRaw { get; set; }
 }
