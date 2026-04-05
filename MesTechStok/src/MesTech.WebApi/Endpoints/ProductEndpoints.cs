@@ -28,7 +28,8 @@ public static class ProductEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<NullResultFilter>();
 
         // GET /api/v1/products — paginated product list (Blazor StockLot, ProductUpload, ProductVariants)
         group.MapGet("/", async (
