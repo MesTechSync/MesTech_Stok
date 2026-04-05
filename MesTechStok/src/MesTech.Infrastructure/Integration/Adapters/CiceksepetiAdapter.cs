@@ -269,16 +269,17 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             foreach (var cp in csResponse.Products)
             {
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = cp.ProductName,
                     SKU = cp.StockCode,
                     Barcode = cp.Barcode,
                     Description = cp.Description,
                     SalePrice = cp.SalesPrice,
-                    Stock = cp.StockQuantity,
                     IsActive = true
-                });
+                };
+                product.SyncStock(cp.StockQuantity, "ciceksepeti-sync");
+                products.Add(product);
             }
 
             if (products.Count >= csResponse.TotalCount)

@@ -455,15 +455,16 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                         if (info.TryGetProperty("visible", out var visibleProp))
                             isActive = visibleProp.GetBoolean();
 
-                        products.Add(new Product
+                        var product = new Product
                         {
                             Name = name,
                             SKU = offerId,
                             Barcode = barcode,
                             SalePrice = price,
-                            Stock = stock,
                             IsActive = isActive
-                        });
+                        };
+                        product.SyncStock(stock, "ozon-sync");
+                        products.Add(product);
                     }
                 }
 

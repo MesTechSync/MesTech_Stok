@@ -396,13 +396,14 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
                             NumberStyles.Any, CultureInfo.InvariantCulture, out price);
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = name,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = price
-                    });
+                    };
+                    product.SyncStock(stock, "pttavm-sync");
+                    products.Add(product);
                 }
 
                 page++;

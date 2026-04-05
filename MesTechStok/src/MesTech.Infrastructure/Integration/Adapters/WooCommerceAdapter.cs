@@ -339,16 +339,17 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
                 foreach (var p in wooProducts)
                 {
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = p.Name ?? string.Empty,
                         SKU = p.Sku ?? string.Empty,
-                        Stock = p.StockQuantity ?? 0,
                         SalePrice = decimal.TryParse(p.Price, NumberStyles.Number,
                             CultureInfo.InvariantCulture, out var price)
                             ? price
                             : 0m
-                    });
+                    };
+                    product.SyncStock(p.StockQuantity ?? 0, "woocommerce-sync");
+                    products.Add(product);
                 }
 
                 page++;

@@ -364,13 +364,14 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                             CultureInfo.InvariantCulture, out price);
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = name,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = price
-                    });
+                    };
+                    product.SyncStock(stock, "zalando-sync");
+                    products.Add(product);
                 }
 
                 page++;

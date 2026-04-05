@@ -357,13 +357,14 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                         stock = qtyEl.GetInt32();
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = title,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = 0m
-                    });
+                    };
+                    product.SyncStock(stock, "ebay-sync");
+                    products.Add(product);
                 }
 
                 offset += pageSize;

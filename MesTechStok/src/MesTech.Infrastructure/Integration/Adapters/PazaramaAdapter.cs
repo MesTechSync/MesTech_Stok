@@ -403,16 +403,17 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             foreach (var pzProduct in pzResponse.Data)
             {
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = pzProduct.Name,
                     SKU = pzProduct.Code,
                     Barcode = null,
                     Description = null,
                     SalePrice = pzProduct.SalePrice,
-                    Stock = pzProduct.StockCount,
                     IsActive = pzProduct.State == 3 // State 3 = Active
-                });
+                };
+                product.SyncStock(pzProduct.StockCount, "pazarama-sync");
+                products.Add(product);
             }
 
             page++;

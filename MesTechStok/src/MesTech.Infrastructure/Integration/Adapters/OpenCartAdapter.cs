@@ -268,14 +268,15 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
                     foreach (var item in items)
                     {
-                        products.Add(new Product
+                        var product = new Product
                         {
                             Name = item.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
                             SKU = item.TryGetProperty("sku", out var s) ? s.GetString() ?? "" : "",
                             SalePrice = item.TryGetProperty("price", out var p) && decimal.TryParse(p.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var pv) ? pv : 0,
-                            Stock = item.TryGetProperty("quantity", out var q) && int.TryParse(q.GetString(), out var qv) ? qv : 0,
                             Description = item.TryGetProperty("description", out var d) ? d.GetString() : null
-                        });
+                        };
+                        product.SyncStock(item.TryGetProperty("quantity", out var q) && int.TryParse(q.GetString(), out var qv) ? qv : 0, "opencart-sync");
+                        products.Add(product);
                     }
 
                     hasMore = items.Count == limit;

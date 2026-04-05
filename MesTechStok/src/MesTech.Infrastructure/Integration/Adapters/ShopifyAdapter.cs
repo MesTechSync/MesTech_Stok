@@ -340,16 +340,17 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                         if (shopifyProduct.Variants is { Count: > 0 })
                         {
                             var firstVariant = shopifyProduct.Variants[0];
-                            products.Add(new Product
+                            var product = new Product
                             {
                                 Name = shopifyProduct.Title ?? string.Empty,
                                 SKU = firstVariant.Sku ?? string.Empty,
-                                Stock = firstVariant.InventoryQuantity,
                                 SalePrice = decimal.TryParse(firstVariant.Price,
                                     NumberStyles.Number, CultureInfo.InvariantCulture, out var price)
                                     ? price
                                     : 0m
-                            });
+                            };
+                            product.SyncStock(firstVariant.InventoryQuantity, "shopify-sync");
+                            products.Add(product);
                         }
                     }
                 }

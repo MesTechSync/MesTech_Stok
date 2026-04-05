@@ -724,9 +724,9 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             Description = listing.TryGetProperty("description", out var descEl)
                 ? descEl.GetString()
                 : null,
-            Stock = listing.TryGetProperty("quantity", out var qtyEl) ? qtyEl.GetInt32() : 0,
             IsActive = true
         };
+        product.SyncStock(listing.TryGetProperty("quantity", out var qtyEl) ? qtyEl.GetInt32() : 0, "etsy-sync");
 
         // Price — Etsy returns price as { amount, divisor, currency_code }
         if (listing.TryGetProperty("price", out var priceObj))

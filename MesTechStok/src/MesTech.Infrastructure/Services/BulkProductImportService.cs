@@ -423,7 +423,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             product.ListPrice = lp;
 
         if (TryGetInt(ws, row, headerMap, "Stock", out var stock))
-            product.Stock = stock;
+            product.SyncStock(stock, "bulk-import");
         if (TryGetInt(ws, row, headerMap, "MinimumStock", out var minStock))
             product.MinimumStock = minStock;
         if (TryGetInt(ws, row, headerMap, "MaximumStock", out var maxStock))

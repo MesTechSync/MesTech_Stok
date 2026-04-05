@@ -197,7 +197,6 @@ public sealed class DemoDataSeeder
                 PurchasePrice = purchasePrice,
                 SalePrice = salePrice,
                 ListPrice = salePrice * 1.2m,
-                Stock = stock,
                 MinimumStock = 5,
                 MaximumStock = 500,
                 ReorderLevel = 10,
@@ -210,6 +209,7 @@ public sealed class DemoDataSeeder
                 CreatedBy = "DemoDataSeeder"
             };
 
+            product.SyncStock(stock, "demo-seed");
             _context.Products.Add(product);
             productIds.Add(product.Id);
         }

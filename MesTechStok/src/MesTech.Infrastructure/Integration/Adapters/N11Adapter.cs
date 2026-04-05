@@ -979,7 +979,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
                 if (!string.IsNullOrEmpty(stockQuantity) &&
                     int.TryParse(stockQuantity, NumberStyles.Any, CultureInfo.InvariantCulture, out var qty))
                 {
-                    product.Stock = qty;
+                    product.SyncStock(qty, "n11-import");
                 }
 
                 return product;

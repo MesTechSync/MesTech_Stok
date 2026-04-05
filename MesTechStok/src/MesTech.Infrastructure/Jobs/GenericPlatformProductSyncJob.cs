@@ -75,7 +75,7 @@ public sealed class GenericPlatformProductSyncJob
                 {
                     // Stok ve fiyat güncelle (mevcut ürün)
                     var changed = false;
-                    if (existing.Stock != product.Stock) { existing.Stock = product.Stock; changed = true; }
+                    if (existing.Stock != product.Stock) { existing.SyncStock(product.Stock, "platform-sync"); changed = true; }
                     if (existing.SalePrice != product.SalePrice) { existing.SalePrice = product.SalePrice; changed = true; }
                     if (product.ListPrice.HasValue && existing.ListPrice != product.ListPrice) { existing.ListPrice = product.ListPrice; changed = true; }
 

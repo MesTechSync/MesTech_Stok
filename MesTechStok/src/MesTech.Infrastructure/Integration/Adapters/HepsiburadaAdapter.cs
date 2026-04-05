@@ -292,16 +292,17 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 // Passive → IsActive=false, Active → IsActive=true
                 var isActive = string.Equals(listing.ListingStatus, "Active", StringComparison.OrdinalIgnoreCase);
 
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = listing.ProductName,
                     SKU = listing.MerchantSku,
                     Barcode = listing.Barcode,
                     Description = listing.Description,
                     SalePrice = listing.Price,
-                    Stock = listing.AvailableStock,
                     IsActive = isActive
-                });
+                };
+                product.SyncStock(listing.AvailableStock, "hepsiburada-sync");
+                products.Add(product);
             }
 
             offset += limit;

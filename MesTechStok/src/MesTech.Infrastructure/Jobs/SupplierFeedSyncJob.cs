@@ -261,7 +261,6 @@ public sealed class SupplierFeedSyncJob
                 Description = parsed.Description,
                 SalePrice = feed.ApplyMarkup(parsed.Price ?? 0m),
                 PurchasePrice = parsed.Price ?? 0m,
-                Stock = parsed.Quantity ?? 0,
                 ImageUrl = parsed.ImageUrl,
                 Brand = parsed.Brand,
                 Model = parsed.Model,
@@ -272,6 +271,7 @@ public sealed class SupplierFeedSyncJob
                 UpdatedBy = "supplier-feed-sync"
             };
 
+            newProduct.SyncStock(parsed.Quantity ?? 0, "supplier-feed-sync");
             await _productRepository.AddAsync(newProduct, ct).ConfigureAwait(false);
 
             _logger.LogDebug(

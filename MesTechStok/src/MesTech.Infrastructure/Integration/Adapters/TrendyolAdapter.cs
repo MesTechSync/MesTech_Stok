@@ -402,7 +402,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                                 imageUrl = imgUrl.GetString();
                         }
 
-                        products.Add(new Product
+                        var product = new Product
                         {
                             Id = Guid.NewGuid(),
                             Name = item.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "",
@@ -410,7 +410,6 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             Barcode = item.TryGetProperty("barcode", out var b) ? b.GetString() : null,
                             SalePrice = item.TryGetProperty("salePrice", out var sp) ? sp.GetDecimal() : 0,
                             ListPrice = item.TryGetProperty("listPrice", out var lp) ? lp.GetDecimal() : null,
-                            Stock = item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0,
                             Description = item.TryGetProperty("description", out var d) ? d.GetString() : null,
                             TaxRate = item.TryGetProperty("vatRate", out var vr) ? vr.GetDecimal() / 100m : 0.18m,
                             ImageUrl = imageUrl,
@@ -418,7 +417,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             Notes = item.TryGetProperty("brandId", out var bi)
                                 ? $"Trendyol brandId:{bi.GetInt64()} categoryId:{(item.TryGetProperty("pimCategoryId", out var ci) ? ci.GetInt32().ToString() : "?")}"
                                 : null
-                        });
+                        };
+                        product.SyncStock(item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0, "trendyol-sync");
+                        products.Add(product);
                     }
                 }
 
