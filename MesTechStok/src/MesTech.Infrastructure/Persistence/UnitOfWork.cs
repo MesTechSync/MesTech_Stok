@@ -48,7 +48,7 @@ public sealed class UnitOfWork : IUnitOfWork
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            var entityName = ex.Entries.FirstOrDefault()?.Entity.GetType().Name ?? "Unknown";
+            var entityName = ex.Entries.Count > 0 ? ex.Entries[0].Entity.GetType().Name : "Unknown";
             _logger.LogWarning(ex, "Concurrency conflict on {Entity}", entityName);
             throw new ConcurrencyConflictException(entityName,
                 "Kayıt başka bir kullanıcı tarafından değiştirildi. Lütfen sayfayı yenileyip tekrar deneyin.");
