@@ -1,5 +1,7 @@
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.DTOs;
+using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.AddStock;
 using MesTech.Application.Commands.AddStockLot;
@@ -258,5 +260,38 @@ public static class StockEndpoints
         .WithSummary("Stok yerleşim listesi — depo, raf, bölge bazlı stok dağılımı")
         .Produces<IReadOnlyList<StockPlacementDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
+
+        // ═══ HH-D6-002 / HH-DEV6-S01: PLATFORM STOK SENKRONIZASYONU ═══
+
+        // POST /api/v1/stock/sync/{platformType} — stok seviyelerini platforma gönder (Push)
+        // Trendyol, HB, N11, Amazon vb. platformlara güncel stok push eder.
+        // SyncPlatformCommand(Push) → platform adapter stok güncellemesini tetikler.
+        group.MapPost("/sync/{platformType}", async (
+            string platformType,
+            Guid tenantId,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(platformType))
+                return Results.Problem(detail: "Platform tipi boş olamaz.", statusCode: 400);
+
+            var result = await mediator.Send(
+                new SyncPlatformCommand(platformType, SyncDirection.Push), ct);
+
+            return result.Success
+                ? Results.Ok(new
+                {
+                    Platform = platformType,
+                    result.SyncedCount,
+                    result.FailedCount,
+                    result.Message,
+                    SyncedAt = DateTime.UtcNow
+                })
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 422);
+        })
+        .WithName("SyncStockToPlatform")
+        .WithSummary("Platform stok senkronizasyonu — stok seviyelerini platforma push et (HH-D6-002)")
+        .Produces(200).Produces(400).Produces(422).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }
