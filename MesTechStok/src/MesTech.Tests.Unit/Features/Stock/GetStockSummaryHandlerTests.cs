@@ -50,14 +50,15 @@ public class GetStockSummaryHandlerTests
 
     private static Product CreateProduct(int stock, int minStock, decimal salePrice)
     {
-        return new Product
+        var product = new Product
         {
             TenantId = Guid.NewGuid(),
             SKU = $"SKU-{Guid.NewGuid():N}",
             Name = $"Product-{Guid.NewGuid():N}",
             SalePrice = salePrice,
-            Stock = stock,
             MinimumStock = minStock
         };
+        product.SyncStock(stock, "test-seed");
+        return product;
     }
 }
