@@ -8,12 +8,12 @@
  */
 'use strict';
 
-var mestechToast = (function() {
-  var CONTAINER_ID = 'mestech-toast-container';
-  var AUTO_DISMISS_MS = 5000;
-  var MAX_TOASTS = 5;
+const mestechToast = (function() {
+  const CONTAINER_ID = 'mestech-toast-container';
+  const AUTO_DISMISS_MS = 5000;
+  const MAX_TOASTS = 5;
 
-  var TYPES = {
+  const TYPES = {
     success: { icon: 'fa-check-circle', bg: 'bg-success', label: 'Basarili' },
     error:   { icon: 'fa-exclamation-circle', bg: 'bg-danger', label: 'Hata' },
     warning: { icon: 'fa-exclamation-triangle', bg: 'bg-warning', label: 'Uyari' },
@@ -24,7 +24,7 @@ var mestechToast = (function() {
    * Ensure toast container exists in DOM
    */
   function getContainer() {
-    var container = document.getElementById(CONTAINER_ID);
+    let container = document.getElementById(CONTAINER_ID);
     if (!container) {
       container = document.createElement('div');
       container.id = CONTAINER_ID;
@@ -41,9 +41,9 @@ var mestechToast = (function() {
    * Trim old toasts if over limit
    */
   function trimToasts(container) {
-    var toasts = container.querySelectorAll('.toast');
+    let toasts = container.querySelectorAll('.toast');
     while (toasts.length >= MAX_TOASTS) {
-      var oldest = toasts[0];
+      const oldest = toasts[0];
       oldest.remove();
       toasts = container.querySelectorAll('.toast');
     }
@@ -58,33 +58,33 @@ var mestechToast = (function() {
   function show(message, type, duration) {
     type = type || 'info';
     duration = duration != null ? duration : AUTO_DISMISS_MS;
-    var config = TYPES[type] || TYPES.info;
+    const config = TYPES[type] || TYPES.info;
 
-    var container = getContainer();
+    const container = getContainer();
     trimToasts(container);
 
     // Build toast element (DOM-safe — no innerHTML)
-    var toast = document.createElement('div');
+    const toast = document.createElement('div');
     toast.className = 'toast show border-0 shadow-sm';
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'assertive');
     toast.setAttribute('aria-atomic', 'true');
 
-    var header = document.createElement('div');
+    const header = document.createElement('div');
     header.className = 'toast-header ' + config.bg + ' text-white';
 
-    var icon = document.createElement('i');
+    const icon = document.createElement('i');
     icon.className = 'fas ' + config.icon + ' me-2';
 
-    var title = document.createElement('strong');
+    const title = document.createElement('strong');
     title.className = 'me-auto';
     title.textContent = config.label;
 
-    var time = document.createElement('small');
+    const time = document.createElement('small');
     time.className = 'text-white-50';
     time.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-    var closeBtn = document.createElement('button');
+    const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'btn-close btn-close-white';
     closeBtn.setAttribute('aria-label', 'Kapat');
@@ -98,7 +98,7 @@ var mestechToast = (function() {
     header.appendChild(time);
     header.appendChild(closeBtn);
 
-    var body = document.createElement('div');
+    const body = document.createElement('div');
     body.className = 'toast-body';
     body.textContent = message;
 

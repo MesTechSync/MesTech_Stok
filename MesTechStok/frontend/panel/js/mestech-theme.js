@@ -6,16 +6,16 @@
  */
 'use strict';
 
-var mestechTheme = (function() {
-  var STORAGE_KEY = 'mestech-theme';
-  var DARK = 'dark';
-  var LIGHT = 'light';
+const mestechTheme = (function() {
+  const STORAGE_KEY = 'mestech-theme';
+  const DARK = 'dark';
+  const LIGHT = 'light';
 
   /**
    * Get current theme from: localStorage > system preference > default light
    */
   function getPreferred() {
-    var stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === DARK || stored === LIGHT) return stored;
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -32,15 +32,15 @@ var mestechTheme = (function() {
     document.body.setAttribute('data-theme', theme);
 
     // Update meta theme-color for mobile browsers
-    var meta = document.querySelector('meta[name="theme-color"]');
+    const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
       meta.setAttribute('content', theme === DARK ? '#0f172a' : '#f27a1a');
     }
 
     // Update all toggle button icons
-    var toggleBtns = document.querySelectorAll('[data-theme-toggle]');
-    for (var i = 0; i < toggleBtns.length; i++) {
-      var icon = toggleBtns[i].querySelector('i');
+    const toggleBtns = document.querySelectorAll('[data-theme-toggle]');
+    for (let i = 0; i < toggleBtns.length; i++) {
+      const icon = toggleBtns[i].querySelector('i');
       if (icon) {
         icon.className = theme === DARK ? 'fas fa-sun' : 'fas fa-moon';
       }
@@ -52,8 +52,8 @@ var mestechTheme = (function() {
    * Toggle between dark and light
    */
   function toggle() {
-    var current = document.documentElement.getAttribute('data-theme') || LIGHT;
-    var next = current === DARK ? LIGHT : DARK;
+    const current = document.documentElement.getAttribute('data-theme') || LIGHT;
+    const next = current === DARK ? LIGHT : DARK;
     localStorage.setItem(STORAGE_KEY, next);
     apply(next);
     return next;
@@ -68,12 +68,12 @@ var mestechTheme = (function() {
 
   // Auto-initialize on load
   function init() {
-    var theme = getPreferred();
+    const theme = getPreferred();
     apply(theme);
 
     // Auto-bind click handlers to [data-theme-toggle] buttons
     document.addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-theme-toggle]');
+      const btn = e.target.closest('[data-theme-toggle]');
       if (btn) {
         e.preventDefault();
         toggle();
