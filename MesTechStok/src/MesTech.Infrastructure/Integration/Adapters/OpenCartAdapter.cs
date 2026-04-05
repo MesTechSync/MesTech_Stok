@@ -1015,7 +1015,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                         OrderNumber = orderId,
                         TransactionType = txType,
                         Amount = total,
-                        CommissionAmount = null,
+                        CommissionAmount = 0m, // OpenCart kendi mağaza — platform komisyonu yok
                         TransactionDate = orderDate
                     });
 
