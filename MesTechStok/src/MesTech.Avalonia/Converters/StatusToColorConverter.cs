@@ -35,6 +35,7 @@ public class StatusToColorConverter : IValueConverter
             "basarili" or "tamamlandi" or "kazaniyor" or "aktif"
                 or "healthy" or "connected" or "gonderildi"
                 or "teslim edildi" or "onaylandi" or "success"
+                or "cevrimici" or "yeterli"
                 => Token("MesConnectedGreen"),
 
             // Error (red)
