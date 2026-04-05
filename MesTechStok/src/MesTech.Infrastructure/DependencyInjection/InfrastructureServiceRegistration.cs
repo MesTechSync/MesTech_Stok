@@ -134,6 +134,7 @@ public static class InfrastructureServiceRegistration
         else
             services.AddSingleton<Application.Interfaces.IDistributedLockService, Services.InProcessDistributedLockService>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IIncomeRepository, IncomeRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
