@@ -29,6 +29,15 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string paginationInfo = string.Empty;
     public int[] PageSizeOptions { get; } = [25, 50, 100];
 
+    // HH-DEV2-002: Sorting
+    [ObservableProperty] private string sortColumn = "Name";
+    [ObservableProperty] private bool sortAscending = true;
+    public string[] SortOptions { get; } = ["Name", "Price", "Stock", "SKU", "Platform"];
+
+    // HH-DEV2-003: Bulk selection
+    [ObservableProperty] private int selectedCount;
+    [ObservableProperty] private bool hasSelection;
+
     // GOREV 5: Grid/List toggle
     [ObservableProperty] private bool isGridView;
     [ObservableProperty] private bool isListView = true;
@@ -142,6 +151,16 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(p => p.Platform == SelectedPlatform);
         }
 
+        // HH-DEV2-002: Apply sorting
+        filtered = SortColumn switch
+        {
+            "Price" => SortAscending ? filtered.OrderBy(p => p.Price) : filtered.OrderByDescending(p => p.Price),
+            "Stock" => SortAscending ? filtered.OrderBy(p => p.Stock) : filtered.OrderByDescending(p => p.Stock),
+            "SKU" => SortAscending ? filtered.OrderBy(p => p.SKU) : filtered.OrderByDescending(p => p.SKU),
+            "Platform" => SortAscending ? filtered.OrderBy(p => p.Platform) : filtered.OrderByDescending(p => p.Platform),
+            _ => SortAscending ? filtered.OrderBy(p => p.Name) : filtered.OrderByDescending(p => p.Name),
+        };
+
         // HH-DEV2-001: Apply pagination
         var filteredList = filtered.ToList();
         TotalCount = filteredList.Count;
@@ -183,6 +202,62 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         // Keep last 5
         while (RecentSearches.Count > 5)
             RecentSearches.RemoveAt(RecentSearches.Count - 1);
+    }
+
+    // HH-DEV2-002: Sort command
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    // HH-DEV2-003: Bulk selection commands
+    [RelayCommand]
+    private void SelectAll()
+    {
+        foreach (var p in Products) p.IsSelected = true;
+        UpdateSelectionCount();
+    }
+
+    [RelayCommand]
+    private void DeselectAll()
+    {
+        foreach (var p in Products) p.IsSelected = false;
+        UpdateSelectionCount();
+    }
+
+    private void UpdateSelectionCount()
+    {
+        SelectedCount = Products.Count(p => p.IsSelected);
+        HasSelection = SelectedCount > 0;
+    }
+
+    // HH-DEV2-005: Export command
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(
+                new MesTech.Application.Features.Product.Commands.ExportProducts.ExportProductsCommand(Format: "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+                _toast.ShowSuccess($"Excel raporu kaydedildi ({result.ExportedCount} urun)");
+            }
+        }, "Urunler disa aktarilirken hata");
     }
 
     // HH-DEV2-001: Page navigation commands
@@ -262,6 +337,9 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         }
     }
 
+    partial void OnSortColumnChanged(string value) { if (_allProducts.Count > 0) { CurrentPage = 1; ApplyFilters(); } }
+    partial void OnSortAscendingChanged(bool value) { if (_allProducts.Count > 0) ApplyFilters(); }
+
     partial void OnSelectedPlatformChanged(string value)
     {
         if (_allProducts.Count > 0) { CurrentPage = 1; ApplyFilters(); }
@@ -304,6 +382,9 @@ public class ProductItemDto
     public decimal SalePrice { get; set; }
     public string VariantSKU { get; set; } = string.Empty;
     public string VariantBarcode { get; set; } = string.Empty;
+
+    // HH-DEV2-003: Bulk selection
+    public bool IsSelected { get; set; }
 
     // GOREV 5: Computed properties for card view
     public string StockDisplay => Stock == 0 ? "Tukendi" : $"{Stock} stok";
