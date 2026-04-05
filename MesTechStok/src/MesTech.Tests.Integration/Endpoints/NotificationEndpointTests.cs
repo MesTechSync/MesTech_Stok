@@ -17,6 +17,7 @@ public sealed class NotificationEndpointTests : IClassFixture<EndpointTestWebApp
 {
     private readonly HttpClient _noAuthClient;
     private readonly HttpClient _authClient;
+    private static readonly string TestTenant = EndpointTestWebAppFactory.TestTenantId;
 
     public NotificationEndpointTests(EndpointTestWebAppFactory factory)
     {
@@ -29,24 +30,21 @@ public sealed class NotificationEndpointTests : IClassFixture<EndpointTestWebApp
     [Fact]
     public async Task GetNotifications_NoApiKey_Returns401()
     {
-        var tenantId = Guid.NewGuid();
-        var response = await _noAuthClient.GetAsync($"/api/v1/notifications?tenantId={tenantId}&page=1&pageSize=10");
+        var response = await _noAuthClient.GetAsync($"/api/v1/notifications?tenantId={TestTenant}&page=1&pageSize=10");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetNotifications_ValidRequest_ReturnsExpected()
     {
-        var tenantId = Guid.NewGuid();
-        var response = await _authClient.GetAsync($"/api/v1/notifications?tenantId={tenantId}&page=1&pageSize=10");
+        var response = await _authClient.GetAsync($"/api/v1/notifications?tenantId={TestTenant}&page=1&pageSize=10");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task GetUnreadCount_ValidRequest_ReturnsExpected()
     {
-        var tenantId = Guid.NewGuid();
-        var response = await _authClient.GetAsync($"/api/v1/notifications/unread-count?tenantId={tenantId}");
+        var response = await _authClient.GetAsync($"/api/v1/notifications/unread-count?tenantId={TestTenant}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
@@ -54,9 +52,8 @@ public sealed class NotificationEndpointTests : IClassFixture<EndpointTestWebApp
     public async Task MarkNotificationRead_NonExistentId_ReturnsError()
     {
         var id = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
         var response = await _authClient.PostAsync(
-            $"/api/v1/notifications/{id}/read?tenantId={tenantId}", null);
+            $"/api/v1/notifications/{id}/read?tenantId={TestTenant}", null);
         response.StatusCode.Should().BeOneOf(
             HttpStatusCode.NotFound, HttpStatusCode.InternalServerError);
     }
