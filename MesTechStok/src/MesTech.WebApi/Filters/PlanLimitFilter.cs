@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.WebApi.Filters;
@@ -6,13 +7,29 @@ namespace MesTech.WebApi.Filters;
 /// <summary>
 /// Plan limit kontrol filtresi — product/store oluşturma endpoint'lerine uygulanır.
 /// Limit aşılırsa 403 Forbidden + upgrade mesajı döner.
+/// G134 FIX: Distributed lock ile count+create atomik — TOCTOU race condition önlendi.
 /// </summary>
 public sealed class ProductPlanLimitFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var result = await CheckLimitAsync(context, "products").ConfigureAwait(false);
-        return result ?? await next(context).ConfigureAwait(false);
+        var checkResult = await CheckLimitAsync(context, "products").ConfigureAwait(false);
+        if (checkResult is not null) return checkResult;
+
+        try
+        {
+            return await next(context).ConfigureAwait(false);
+        }
+        finally
+        {
+            // G134: Release distributed lock after handler completes
+            if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var lockObj)
+                && lockObj is IAsyncDisposable lockHandle)
+            {
+                await lockHandle.DisposeAsync().ConfigureAwait(false);
+                context.HttpContext.Items.Remove("__PlanLimitLock");
+            }
+        }
     }
 
     internal static async Task<IResult?> CheckLimitAsync(EndpointFilterInvocationContext context, string resource)
@@ -25,6 +42,30 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
 
         if (!Guid.TryParse(tenantIdStr, out var tenantId))
             return null; // No tenant context — skip
+
+        // G134 FIX: Distributed lock — count+create atomik
+        // Lock olmadan iki eşzamanlı istek aynı count'u görüp limiti aşabilir
+        var lockService = services.GetService<IDistributedLockService>();
+        var lockKey = $"plan-limit:{tenantId}:{resource}";
+        IAsyncDisposable? lockHandle = null;
+
+        if (lockService is not null)
+        {
+            lockHandle = await lockService.AcquireLockAsync(
+                lockKey, expiry: TimeSpan.FromSeconds(10), waitTimeout: TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+
+            if (lockHandle is null)
+            {
+                logger.LogWarning("Plan limit lock timeout: tenant={TenantId} resource={Resource}", tenantId, resource);
+                return Results.Json(
+                    ApiResponse<object>.Fail("Islem sirada, lutfen tekrar deneyin.", "CONCURRENT_LIMIT_CHECK"),
+                    statusCode: 429);
+            }
+        }
+
+        // Lock alındıktan sonra context'e kaydet — handler tamamlandığında release edilecek
+        if (lockHandle is not null)
+            context.HttpContext.Items["__PlanLimitLock"] = lockHandle;
 
         var subscriptionRepo = services.GetRequiredService<ITenantSubscriptionRepository>();
         var planRepo = services.GetRequiredService<ISubscriptionPlanRepository>();
@@ -92,8 +133,15 @@ public sealed class StorePlanLimitFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var result = await ProductPlanLimitFilter.CheckLimitAsync(context, "stores").ConfigureAwait(false);
-        return result ?? await next(context).ConfigureAwait(false);
+        var checkResult = await ProductPlanLimitFilter.CheckLimitAsync(context, "stores").ConfigureAwait(false);
+        if (checkResult is not null) return checkResult;
+
+        try { return await next(context).ConfigureAwait(false); }
+        finally
+        {
+            if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var l) && l is IAsyncDisposable lh)
+            { await lh.DisposeAsync().ConfigureAwait(false); context.HttpContext.Items.Remove("__PlanLimitLock"); }
+        }
     }
 }
 
@@ -102,8 +150,15 @@ public sealed class UserPlanLimitFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var result = await ProductPlanLimitFilter.CheckLimitAsync(context, "users").ConfigureAwait(false);
-        return result ?? await next(context).ConfigureAwait(false);
+        var checkResult = await ProductPlanLimitFilter.CheckLimitAsync(context, "users").ConfigureAwait(false);
+        if (checkResult is not null) return checkResult;
+
+        try { return await next(context).ConfigureAwait(false); }
+        finally
+        {
+            if (context.HttpContext.Items.TryGetValue("__PlanLimitLock", out var l) && l is IAsyncDisposable lh)
+            { await lh.DisposeAsync().ConfigureAwait(false); context.HttpContext.Items.Remove("__PlanLimitLock"); }
+        }
     }
 }
 
