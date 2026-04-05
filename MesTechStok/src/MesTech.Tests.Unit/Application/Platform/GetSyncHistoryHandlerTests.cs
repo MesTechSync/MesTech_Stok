@@ -56,7 +56,8 @@ public class GetSyncHistoryHandlerTests
             new GetSyncHistoryQuery(_tenantId, PlatformFilter: "N11", Count: 10), CancellationToken.None);
 
         result.Should().HaveCount(1);
-        result[0].IsSuccess.Should().BeTrue();
+        // IsSuccess = (failed == 0) → 2 failed means false
+        result[0].IsSuccess.Should().BeFalse();
         result[0].ItemsProcessed.Should().Be(50);
         result[0].ItemsFailed.Should().Be(2);
         result[0].CompletedAt.Should().NotBeNull();
