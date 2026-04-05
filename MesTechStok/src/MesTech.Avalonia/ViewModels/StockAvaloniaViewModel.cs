@@ -68,9 +68,9 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task SyncPlatformStock()
     {
-        var confirmed = await _dialog.ConfirmAsync(
-            "Stok Senkronizasyonu",
-            "Tum platformlara stok gonderilecek. Devam etmek istiyor musunuz?");
+        var confirmed = await _dialog.ShowConfirmAsync(
+            "Tum platformlara stok gonderilecek. Devam etmek istiyor musunuz?",
+            "Stok Senkronizasyonu");
         if (!confirmed) return;
 
         IsSyncing = true;

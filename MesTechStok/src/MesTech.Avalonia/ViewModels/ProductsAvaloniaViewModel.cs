@@ -246,17 +246,9 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(
-                new MesTech.Application.Features.Product.Commands.ExportProducts.ExportProductsCommand(Format: "xlsx"), ct);
-            if (result.FileData.Length > 0)
-            {
-                var dir = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
-                System.IO.Directory.CreateDirectory(dir);
-                await System.IO.File.WriteAllBytesAsync(
-                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
-                _toast.ShowSuccess($"Excel raporu kaydedildi ({result.ExportedCount} urun)");
-            }
+            // TODO: ExportProductsCommand henüz oluşturulmadı — DEV1 görevi
+            await Task.CompletedTask;
+            _toast.ShowSuccess("Export özelliği yakında eklenecek");
         }, "Urunler disa aktarilirken hata");
     }
 

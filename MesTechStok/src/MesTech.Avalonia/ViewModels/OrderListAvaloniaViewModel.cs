@@ -195,13 +195,13 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
             var from = StartDate?.DateTime ?? DateTime.Now.AddDays(-30);
             var to = EndDate?.DateTime ?? DateTime.Now;
             var result = await _mediator.Send(new ExportOrdersCommand(_currentUser.TenantId, from, to), ct);
-            if (result.FileData.Length > 0)
+            if (result.IsSuccess && result.FileContent.HasValue)
             {
                 var dir = System.IO.Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
                 System.IO.Directory.CreateDirectory(dir);
                 await System.IO.File.WriteAllBytesAsync(
-                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+                    System.IO.Path.Combine(dir, result.FileName), result.FileContent.Value.ToArray());
             }
         }, "Siparisler disa aktarilirken hata");
     }

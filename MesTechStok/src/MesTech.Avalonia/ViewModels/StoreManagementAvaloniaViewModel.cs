@@ -80,17 +80,16 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
     {
         if (SelectedStore is null) return;
 
-        var confirmed = await _dialog.ConfirmAsync(
-            "Magaza Sil",
-            $"{SelectedStore.StoreName} magazasini silmek istediginize emin misiniz?");
+        var confirmed = await _dialog.ShowConfirmAsync(
+            $"{SelectedStore.StoreName} magazasini silmek istediginize emin misiniz?",
+            "Magaza Sil");
 
         if (!confirmed) return;
 
         await SafeExecuteAsync(async ct =>
         {
-            var tenantId = _tenantProvider.GetCurrentTenantId();
             await _mediator.Send(new DeleteStoreCredentialCommand(
-                tenantId, SelectedStore.Platform, SelectedStore.StoreName), ct);
+                SelectedStore.StoreId, "admin"), ct);
 
             Stores.Remove(SelectedStore);
             SelectedStore = null;
@@ -102,6 +101,7 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 
 public class StoreItemDto
 {
+    public Guid StoreId { get; set; }
     public string StoreName { get; set; } = string.Empty;
     public string Platform { get; set; } = string.Empty;
     public string ApiStatus { get; set; } = string.Empty;
