@@ -63,7 +63,7 @@ public sealed class InvoiceCancelledReversalHandler : IInvoiceCancelledReversalH
             tenantId,
             DateTime.UtcNow,
             $"IPTAL: Fatura #{invoiceNumber} — {reason ?? "Sebep belirtilmedi"}",
-            $"REV-{invoiceNumber}");
+            refNumber);
 
         // G137 FIX: Gerçek KDV tutarını faturadan çek — hardcoded %20 MALİ HATA (G137)
         var invoice = await _invoiceRepo.GetByIdAsync(invoiceId, ct).ConfigureAwait(false);
