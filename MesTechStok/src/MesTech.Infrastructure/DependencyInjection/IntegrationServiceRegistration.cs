@@ -627,6 +627,20 @@ public static class IntegrationServiceRegistration
         // DALGA 9 — On Muhasebe & Kargo Genisletme (completed)
         // -----------------------------------------------------------------------
         // Phase B DONE: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo) registered above.
+
+        // DHL Express — Basic Auth, MyDHL REST API
+        services.AddSingleton<DhlExpressAdapter>(sp =>
+            new DhlExpressAdapter(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.DhlExpress),
+                sp.GetRequiredService<ILogger<DhlExpressAdapter>>()));
+        services.AddSingleton<ICargoAdapter>(sp => sp.GetRequiredService<DhlExpressAdapter>());
+
+        // UPS — OAuth 2.0 Client Credentials, UPS REST API
+        services.AddSingleton<UpsAdapter>(sp =>
+            new UpsAdapter(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.UPS),
+                sp.GetRequiredService<ILogger<UpsAdapter>>()));
+        services.AddSingleton<ICargoAdapter>(sp => sp.GetRequiredService<UpsAdapter>());
         // -----------------------------------------------------------------------
 
         // -----------------------------------------------------------------------

@@ -24,6 +24,9 @@ public static class DesiBasedCargoRateCalculator
         [CargoProvider.PttKargo]     = new(BasePriceTry: 22.00m, PerDesiTry: 2.50m, EstimatedDays: 3),
         [CargoProvider.Hepsijet]     = new(BasePriceTry: 33.00m, PerDesiTry: 4.50m, EstimatedDays: 1),
         [CargoProvider.Sendeo]       = new(BasePriceTry: 25.00m, PerDesiTry: 3.00m, EstimatedDays: 2),
+        [CargoProvider.DHL]          = new(BasePriceTry: 85.00m, PerDesiTry: 12.00m, EstimatedDays: 1),
+        [CargoProvider.UPS]          = new(BasePriceTry: 75.00m, PerDesiTry: 10.00m, EstimatedDays: 2),
+        [CargoProvider.FedEx]        = new(BasePriceTry: 80.00m, PerDesiTry: 11.00m, EstimatedDays: 2),
     };
 
     /// <summary>
