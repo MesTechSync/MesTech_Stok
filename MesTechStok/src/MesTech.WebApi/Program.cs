@@ -745,6 +745,7 @@ ProductImageEndpoints.Map(app);
 CustomerEndpoints.Map(app);
 DocumentEndpoints.Map(app);
 BuyboxEndpoints.Map(app);
+ComplianceEndpoints.Map(app); // DEV6: E10+E25+E50 ETBİS + Credit Note + Monthly Close
 SupplierEndpoints.Map(app); // DEV6-TUR11: Tedarikçi CRUD
 MesaStatusEndpoint.Map(app); // DEV6-TUR13: MESA health
 CrmActivitiesEndpoint.Map(app); // DEV6-TUR13: CRM aktiviteler
