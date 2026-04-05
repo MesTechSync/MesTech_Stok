@@ -45,8 +45,15 @@ public sealed class N11SettlementParser : ISettlementParser
         _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
-        // Parse SOAP XML response
-        var doc = await XDocument.LoadAsync(rawData, LoadOptions.None, ct).ConfigureAwait(false);
+        // Parse SOAP XML response (secure: DTD prohibited, no external resolver)
+        var xmlSettings = new System.Xml.XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = System.Xml.DtdProcessing.Prohibit,
+            XmlResolver = null
+        };
+        using var xmlReader = System.Xml.XmlReader.Create(rawData, xmlSettings);
+        var doc = await XDocument.LoadAsync(xmlReader, LoadOptions.None, ct).ConfigureAwait(false);
         _cachedItems = ParseXmlItems(doc);
 
         if (_cachedItems.Count == 0)
