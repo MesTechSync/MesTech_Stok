@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.InvoicePreviewDialog"
+             AutomationProperties.Name="Invoice Preview Dialog"
         Title="Fatura Onizleme"
         Width="600" Height="700"
         CanResize="False"

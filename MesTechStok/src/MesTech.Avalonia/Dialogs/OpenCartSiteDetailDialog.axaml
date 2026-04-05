@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.OpenCartSiteDetailDialog"
+             AutomationProperties.Name="Open Cart Site Detail Dialog"
         Title="OpenCart Site Detay"
         Width="640" Height="520"
         CanResize="False"

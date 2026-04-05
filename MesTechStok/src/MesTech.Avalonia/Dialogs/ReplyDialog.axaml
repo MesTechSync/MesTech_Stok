@@ -3,6 +3,7 @@
         x:DataType="vm:ReplyDialogViewModel"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ReplyDialog"
+             AutomationProperties.Name="Reply Dialog"
         Title="Yanit"
         Width="500" Height="350"
         CanResize="False"

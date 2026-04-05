@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ErrorDialog"
+             AutomationProperties.Name="Error Dialog"
         Title="Hata"
         Width="500" Height="400"
         CanResize="False"

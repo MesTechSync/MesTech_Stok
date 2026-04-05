@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.MappingDialog"
+             AutomationProperties.Name="Mapping Dialog"
         Title="Eslestirme"
         Width="600" Height="450"
         CanResize="False"

@@ -1,6 +1,7 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.CommandPaletteDialog"
+             AutomationProperties.Name="Command Palette Dialog"
         xmlns:vm="using:MesTech.Avalonia.Dialogs"
         x:DataType="vm:CommandPaletteDialogViewModel"
         Title="Komut Paleti"
