@@ -67,7 +67,16 @@ public class MesTechHub : Hub
             throw new HubException("Import group access denied: tenant claim missing");
         }
 
-        // Tenant claim doğrulandı — import group'a erişim güvenli
+        // Validate importId format — must be valid GUID to prevent group name injection
+        if (!Guid.TryParse(importId, out _))
+        {
+            _logger.LogWarning(
+                "SignalR import group REJECTED: connectionId={ConnectionId}, importId={ImportId} — invalid GUID format",
+                Context.ConnectionId, importId);
+            throw new HubException("Import group access denied: invalid import ID format");
+        }
+
+        // Tenant claim doğrulandı + importId validated — import group'a erişim güvenli
         await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}").ConfigureAwait(false);
 
         _logger.LogInformation(
