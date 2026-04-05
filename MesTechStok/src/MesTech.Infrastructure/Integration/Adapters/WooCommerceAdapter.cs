@@ -1328,8 +1328,102 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         return Task.FromResult(true);
     }
     // ── IWebhookCapableAdapter ──
-    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
-    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[WooCommerce] RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            // WooCommerce REST API v3 requires separate webhook per topic
+            var topics = new[] { "order.created", "order.updated", "product.updated" };
+            var allOk = true;
+
+            foreach (var topic in topics)
+            {
+                var payload = JsonSerializer.Serialize(new
+                {
+                    name = $"MesTech {topic}",
+                    topic,
+                    delivery_url = callbackUrl,
+                    status = "active",
+                    secret = Guid.NewGuid().ToString("N")
+                }, _jsonOptions);
+
+                using var response = await ThrottledExecuteAsync(async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        $"{_siteUrl}/wp-json/wc/v3/webhooks");
+                    req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("[WooCommerce] Webhook registration failed for {Topic}: {Status} — {Error}",
+                        topic, response.StatusCode, error);
+                    allOk = false;
+                }
+            }
+
+            return allOk;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[WooCommerce] RegisterWebhookAsync exception");
+            return false;
+        }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[WooCommerce] UnregisterWebhookAsync");
+
+        try
+        {
+            // List all webhooks, delete MesTech ones
+            using var listResponse = await ThrottledExecuteAsync(async token =>
+            {
+                using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                    $"{_siteUrl}/wp-json/wc/v3/webhooks?per_page=100");
+                return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!listResponse.IsSuccessStatusCode)
+                return false;
+
+            var content = await listResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            foreach (var wh in doc.RootElement.EnumerateArray())
+            {
+                var name = wh.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                if (!name.StartsWith("MesTech ", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var id = wh.TryGetProperty("id", out var idProp) ? idProp.GetInt64() : 0;
+                if (id <= 0) continue;
+
+                using var delResponse = await ThrottledExecuteAsync(async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Delete,
+                        $"{_siteUrl}/wp-json/wc/v3/webhooks/{id}?force=true");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+                _logger.LogInformation("[WooCommerce] Deleted webhook {Id} ({Name})", id, name);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[WooCommerce] UnregisterWebhookAsync exception");
+            return false;
+        }
+    }
     public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
