@@ -183,8 +183,8 @@
   <script>
   (function() {
     'use strict';
-    var LESSON_ID = 1;
-    var STORAGE_KEY = 'mestech_academy_completed';
+    const LESSON_ID = 1;
+    const STORAGE_KEY = 'mestech_academy_completed';
 
     function getCompleted() {
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -192,7 +192,7 @@
     }
 
     function markComplete(id) {
-      var completed = getCompleted();
+      let completed = getCompleted();
       if (completed.indexOf(id) === -1) {
         completed.push(id);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
@@ -201,9 +201,9 @@
     }
 
     function updateBtn() {
-      var btn = document.getElementById('btn-complete');
+      let btn = document.getElementById('btn-complete');
       if (!btn) return;
-      var completed = getCompleted();
+      let completed = getCompleted();
       if (completed.indexOf(LESSON_ID) !== -1) {
         btn.className = 'btn btn-outline-success';
         while (btn.firstChild) btn.removeChild(btn.firstChild);
@@ -214,7 +214,7 @@
     }
 
     function init() {
-      var btn = document.getElementById('btn-complete');
+      let btn = document.getElementById('btn-complete');
       if (btn) {
         btn.addEventListener('click', function() { markComplete(LESSON_ID); });
       }

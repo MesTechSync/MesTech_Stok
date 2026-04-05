@@ -312,12 +312,12 @@
   (function() {
     'use strict';
 
-    var STORAGE_KEY = 'mestech_academy_completed';
+    const STORAGE_KEY = 'mestech_academy_completed';
 
     // ========================================
     // Lesson Definitions (v2 Curriculum)
     // ========================================
-    var lessons = [
+    const lessons = [
       {
         id: 1,
         slug: 'lesson-01',
@@ -456,7 +456,7 @@
     // DOM Helper
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') {
@@ -492,7 +492,7 @@
     // ========================================
     function getCompleted() {
       try {
-        var data = localStorage.getItem(STORAGE_KEY);
+        const data = localStorage.getItem(STORAGE_KEY);
         return data ? JSON.parse(data) : [];
       } catch (e) {
         return [];
@@ -504,13 +504,13 @@
     }
 
     function updateProgressUI() {
-      var completed = getCompleted();
-      var count = completed.length;
-      var percent = Math.round((count / 12) * 100);
+      const completed = getCompleted();
+      const count = completed.length;
+      const percent = Math.round((count / 12) * 100);
 
-      var countEl = document.getElementById('progress-count');
-      var barEl = document.getElementById('progress-bar');
-      var percentEl = document.getElementById('progress-percent');
+      const countEl = document.getElementById('progress-count');
+      const barEl = document.getElementById('progress-bar');
+      const percentEl = document.getElementById('progress-percent');
 
       if (countEl) countEl.textContent = count.toString();
       if (barEl) {
@@ -521,7 +521,7 @@
 
       // Update card completed states
       lessons.forEach(function(lesson) {
-        var card = document.getElementById('lesson-card-' + lesson.id);
+        let card = document.getElementById('lesson-card-' + lesson.id);
         if (card) {
           if (completed.indexOf(lesson.id) !== -1) {
             card.classList.add('completed');
@@ -536,29 +536,29 @@
     // Render Lesson Cards (DOM-SAFE)
     // ========================================
     function renderLessons() {
-      var grid = document.getElementById('lessons-grid');
+      const grid = document.getElementById('lessons-grid');
       clearChildren(grid);
 
       lessons.forEach(function(lesson) {
-        var col = el('div', {
+        const col = el('div', {
           className: 'col-md-4 col-sm-6 lesson-col',
           'data-search': (lesson.title + ' ' + lesson.description + ' ' + lesson.keywords).toLowerCase()
         });
 
-        var card = el('div', {
+        const card = el('div', {
           className: 'lesson-card',
           id: 'lesson-card-' + lesson.id
         });
 
         // Icon badge
-        var iconBadge = el('div', { className: 'lesson-icon-badge' });
+        const iconBadge = el('div', { className: 'lesson-icon-badge' });
         iconBadge.style.background = lesson.iconBg;
         iconBadge.style.color = lesson.iconColor;
         iconBadge.appendChild(el('i', { className: lesson.icon }));
         card.appendChild(iconBadge);
 
         // Lesson number
-        var numBadge = el('span', {
+        const numBadge = el('span', {
           className: 'lesson-number badge bg-primary mb-2',
           textContent: 'Ders ' + (lesson.id < 10 ? '0' + lesson.id : lesson.id)
         });
@@ -578,22 +578,22 @@
         }));
 
         // Meta row
-        var meta = el('div', { className: 'lesson-meta' });
+        const meta = el('div', { className: 'lesson-meta' });
 
         // Duration
-        var duration = el('span', { className: 'lesson-duration' });
+        const duration = el('span', { className: 'lesson-duration' });
         duration.appendChild(el('i', { className: 'fas fa-clock me-1' }));
         duration.appendChild(document.createTextNode(lesson.duration));
         meta.appendChild(duration);
 
         // Button or completed badge
         if (isCompleted(lesson.id)) {
-          var completedBadge = el('span', { className: 'completed-badge' });
+          const completedBadge = el('span', { className: 'completed-badge' });
           completedBadge.appendChild(el('i', { className: 'fas fa-check-circle me-1' }));
           completedBadge.appendChild(document.createTextNode('Tamamlandi'));
           meta.appendChild(completedBadge);
 
-          var repeatBtn = el('a', {
+          const repeatBtn = el('a', {
             href: lesson.slug + '.html',
             className: 'btn btn-outline-success btn-start ms-2',
             textContent: 'Tekrar',
@@ -601,7 +601,7 @@
           });
           meta.appendChild(repeatBtn);
         } else {
-          var startBtn = el('a', {
+          const startBtn = el('a', {
             href: lesson.slug + '.html',
             className: 'btn btn-primary btn-start',
             'data-i18n': 'academy.start'
@@ -621,15 +621,15 @@
     // Search / Filter
     // ========================================
     function initSearch() {
-      var searchInput = document.getElementById('lesson-search');
+      const searchInput = document.getElementById('lesson-search');
       if (!searchInput) return;
 
       searchInput.addEventListener('input', function() {
-        var query = searchInput.value.toLowerCase().trim();
-        var cols = document.querySelectorAll('.lesson-col');
+        const query = searchInput.value.toLowerCase().trim();
+        const cols = document.querySelectorAll('.lesson-col');
 
         cols.forEach(function(col) {
-          var searchData = col.getAttribute('data-search') || '';
+          const searchData = col.getAttribute('data-search') || '';
           if (!query || searchData.indexOf(query) !== -1) {
             col.classList.remove('hidden');
           } else {
