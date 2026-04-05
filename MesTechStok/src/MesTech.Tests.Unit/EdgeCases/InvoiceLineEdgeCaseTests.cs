@@ -100,7 +100,7 @@ public class InvoiceLineEdgeCaseTests
     }
 
     [Fact]
-    public void CalculateLineTotal_DiscountExceedsSubtotal_ShouldResultInNegative()
+    public void CalculateLineTotal_DiscountExceedsSubtotal_ShouldThrow()
     {
         var line = new InvoiceLine
         {
@@ -110,10 +110,10 @@ public class InvoiceLineEdgeCaseTests
             DiscountAmount = 200m
         };
 
-        line.CalculateLineTotal();
+        var act = () => line.CalculateLineTotal();
 
-        // subtotal = 100 - 200 = -100; tax = -100*0.18 = -18; total = -118
-        line.LineTotal.Should().Be(-118m);
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*İndirim tutarı*brüt tutarı*aşamaz*");
     }
 
     [Fact]
