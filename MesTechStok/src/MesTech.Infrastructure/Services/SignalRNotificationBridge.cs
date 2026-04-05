@@ -122,7 +122,7 @@ public sealed class SignalRNotificationBridge :
         {
             await action().ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex,
                 "SignalR broadcast failed for {EventType} — domain event processing continues", eventType);

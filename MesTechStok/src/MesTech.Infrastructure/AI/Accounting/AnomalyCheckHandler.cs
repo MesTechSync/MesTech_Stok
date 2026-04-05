@@ -53,7 +53,7 @@ public sealed class AnomalyCheckHandler
             await CheckDuplicateAsync(e, ct).ConfigureAwait(false);
             await CheckAbnormalAmountAsync(e, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex,
                 "[Anomaly] Anomaly check failed for JournalEntryId={JournalEntryId} — " +
