@@ -23,6 +23,8 @@
             <converters:EqualConverter x:Key="EqualConverter" />
             <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
             <converters:BetweenConverter x:Key="BetweenConverter" />
+            <!-- G136: Status → theme-aware color converter (replaces hardcoded hex) -->
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
             <!-- WPF014: Stock level row color converter -->
             <converters:StockLevelToBrushConverter x:Key="StockLevelToBrushConverter" />
         </ResourceDictionary>
