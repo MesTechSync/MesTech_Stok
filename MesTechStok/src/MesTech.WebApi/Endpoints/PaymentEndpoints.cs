@@ -39,7 +39,7 @@ public static class PaymentEndpoints
         {
             var paymentProvider = ResolveProvider(providers, provider ?? PaymentProviderType.PayTRDirect);
             var result = await paymentProvider.GetTransactionStatusAsync(transactionId, ct);
-            return Results.Ok(result);
+            return result is null ? Results.NotFound() : Results.Ok(result);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPaymentStatus")
