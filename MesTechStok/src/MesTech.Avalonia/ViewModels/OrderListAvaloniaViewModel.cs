@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Orders.Commands.ExportOrders;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Domain.Interfaces;
 
@@ -133,6 +134,26 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-009: Orders export to Excel
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var from = StartDate?.DateTime ?? DateTime.Now.AddDays(-30);
+            var to = EndDate?.DateTime ?? DateTime.Now;
+            var result = await _mediator.Send(new ExportOrdersCommand(_currentUser.TenantId, from, to), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Siparisler disa aktarilirken hata");
+    }
 }
 
 public class OrderListItemDto
