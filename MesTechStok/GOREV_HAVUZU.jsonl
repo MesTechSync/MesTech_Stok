@@ -557,3 +557,4 @@
 {"id":"HH-D1-065","emirname":"EMR-CAPRAZ-FIX-001","bulan":"DEV1","alan":"DEV5","oncelik":"P2","durum":"ACIK","is":"DeleteCariHesapHandler + GetCariHesapByIdHandler test eksik. DEV5 unit test yazmalı.","tarih":"2026-04-05"}
 {"id":"G11006","bulan":"DEV1","alan":"DEV1","oncelik":"P2","durum":"KAPANDI","is":"GetDocumentFoldersHandler N+1 fix","tarih":"2026-04-05","commit":"17fd9d47","not":"FIX: CountByFolderIdsAsync batch query. N+1 → 1+1 SQL."}
 {"id":"HH-D1-058","emirname":"EMR-CAPRAZ-FIX-001","bulan":"DEV1","alan":"DEV5","oncelik":"P2","durum":"IPTAL","is":"YANLIŞ BULGU: BulkCreateInvoiceHandler TryGetValue ile null check yapıyor. StartStockCountHandler kontrol edilmeli.","tarih":"2026-04-05"}
+{"id":"HH-DEV1-BUILD-001","bulan":"DEV5","alan":"DEV1","oncelik":"P0","durum":"ACIK","is":"BUILD BLOCKER: ProductCompletenessService.cs:27 — Guid.HasValue çağrılıyor ama Guid nullable değil. CS1061. Fix: Guid? yapılmalı veya HasValue kaldırılmalı.","tarih":"2026-04-05"}
