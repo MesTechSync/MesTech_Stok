@@ -65,7 +65,8 @@ public static class AccountingEndpoints
     {
         var group = app.MapGroup("/api/v1/accounting")
             .WithTags("Accounting")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // GET /api/v1/accounting/summary — Blazor AccountingDashboard özet (G362-DEV6)
         group.MapGet("/summary", async (
