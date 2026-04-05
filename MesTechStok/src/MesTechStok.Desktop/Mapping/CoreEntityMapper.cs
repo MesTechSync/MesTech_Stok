@@ -18,7 +18,7 @@ public class CoreEntityMapper : ICoreEntityMapper
     {
         ArgumentNullException.ThrowIfNull(core);
 
-        return new DomainProduct
+        var product = new DomainProduct
         {
             Name = core.Name ?? string.Empty,
             SKU = core.SKU ?? string.Empty,
@@ -29,7 +29,6 @@ public class CoreEntityMapper : ICoreEntityMapper
             ListPrice = core.ListPrice,
             TaxRate = core.TaxRate,
             DiscountRate = core.DiscountRate,
-            Stock = core.Stock,
             MinimumStock = core.MinimumStock,
             MaximumStock = core.MaximumStock,
             ReorderLevel = core.ReorderLevel,
@@ -68,6 +67,8 @@ public class CoreEntityMapper : ICoreEntityMapper
             Tags = core.Tags,
             Code = core.Code
         };
+        product.SyncStock(core.Stock, "core-mapper");
+        return product;
     }
 
     public CoreProduct ToCoreProduct(DomainProduct domain)

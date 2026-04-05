@@ -118,8 +118,8 @@ public static class ComplianceEndpoints
             var result = new MonthlyCloseResponse(
                 Period: $"{request.Year}-{request.Month:D2}",
                 TrialBalanceValid: trialBalance?.IsBalanced ?? false,
-                KdvPayable: kdv?.PayableVAT ?? 0,
-                BaBsRecordCount: babs?.TotalRecords ?? 0,
+                KdvPayable: kdv?.OdenecekKdv ?? 0,
+                BaBsRecordCount: (babs?.BaEntries.Count + babs?.BsEntries.Count) ?? 0,
                 ClosedAt: DateTime.UtcNow,
                 Status: (trialBalance?.IsBalanced ?? false) ? "READY" : "IMBALANCED",
                 Message: (trialBalance?.IsBalanced ?? false)
