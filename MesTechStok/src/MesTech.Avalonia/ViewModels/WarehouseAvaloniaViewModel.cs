@@ -18,6 +18,13 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private WarehouseCardDto? selectedWarehouse;
+
+    // HH-FIX-025: Edit mode
+    [ObservableProperty] private bool isEditing;
+    [ObservableProperty] private string editName = string.Empty;
+    [ObservableProperty] private string editLocation = string.Empty;
+    [ObservableProperty] private int editCapacity;
 
     // New warehouse dialog
     [ObservableProperty] private bool isAddingWarehouse;
@@ -130,6 +137,43 @@ public partial class WarehouseAvaloniaViewModel : ViewModelBase
         }
         finally { IsLoading = false; }
         return Task.CompletedTask;
+    }
+
+    // HH-FIX-025: Edit warehouse
+    [RelayCommand]
+    private void EditWarehouse()
+    {
+        if (SelectedWarehouse is null) return;
+        EditName = SelectedWarehouse.Name;
+        EditLocation = SelectedWarehouse.Location;
+        EditCapacity = SelectedWarehouse.Capacity;
+        IsEditing = true;
+    }
+
+    [RelayCommand]
+    private void SaveEdit()
+    {
+        if (SelectedWarehouse is null || string.IsNullOrWhiteSpace(EditName)) return;
+        SelectedWarehouse.Name = EditName;
+        SelectedWarehouse.Location = EditLocation;
+        SelectedWarehouse.Capacity = EditCapacity;
+        IsEditing = false;
+        ApplyFilters();
+        // TODO: UpdateWarehouseCommand — DEV1 handler gerekli
+    }
+
+    [RelayCommand]
+    private void CancelEdit() => IsEditing = false;
+
+    // HH-FIX-025: Delete warehouse
+    [RelayCommand]
+    private void DeleteWarehouse()
+    {
+        if (SelectedWarehouse is null) return;
+        _allItems.Remove(SelectedWarehouse);
+        SelectedWarehouse = null;
+        ApplyFilters();
+        // TODO: DeleteWarehouseCommand — DEV1 handler gerekli
     }
 }
 
