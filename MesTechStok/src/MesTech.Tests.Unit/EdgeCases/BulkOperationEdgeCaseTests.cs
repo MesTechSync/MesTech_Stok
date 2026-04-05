@@ -261,14 +261,13 @@ public class BulkOperationEdgeCaseTests
 
     private static Product CreateFakeProduct(string sku, int stock = 50)
     {
-        return new Product
+        var product = new Product
         {
             Name = $"Test Product {sku}",
             SKU = sku,
             Barcode = "1234567890123",
             PurchasePrice = 50m,
             SalePrice = 100m,
-            Stock = stock,
             MinimumStock = 5,
             MaximumStock = 1000,
             ReorderLevel = 10,
@@ -276,6 +275,8 @@ public class BulkOperationEdgeCaseTests
             TenantId = Guid.NewGuid(),
             CreatedAt = DateTime.UtcNow
         };
+        product.SyncStock(stock, "test-seed");
+        return product;
     }
 
     private static Order CreateFakeOrder(Guid orderId)
