@@ -95,7 +95,10 @@ public sealed class IdempotencyFilter : IEndpointFilter
                 body = "{}";
             }
 
-            var entry = new IdempotencyCacheEntry(statusCode, body);
+            // G135 FIX: Detect Content-Type from response (set by middleware/result executor)
+            // instead of always defaulting to application/json.
+            var contentType = httpContext.Response.ContentType ?? "application/json";
+            var entry = new IdempotencyCacheEntry(statusCode, body, contentType);
             var entryBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entry, JsonOptions));
 
             await cache.SetAsync(cacheKey, entryBytes, new DistributedCacheEntryOptions
