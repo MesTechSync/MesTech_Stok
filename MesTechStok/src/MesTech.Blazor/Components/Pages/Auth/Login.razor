@@ -95,9 +95,29 @@
   private string? errorMessage;
   private string? successMessage;
 
+  // Rate limiting — brute-force protection (circuit-level)
+  private const int MaxLoginAttempts = 5;
+  private const int LockoutSeconds = 30;
+  private int _failedAttempts;
+  private DateTime? _lockoutUntil;
+
   private async Task HandleLogin()
   {
     if (isSubmitting) return;
+
+    // Rate limit check — block after MaxLoginAttempts failures
+    if (_lockoutUntil.HasValue && DateTime.UtcNow < _lockoutUntil.Value)
+    {
+      var remaining = (int)(_lockoutUntil.Value - DateTime.UtcNow).TotalSeconds;
+      errorMessage = $"Cok fazla basarisiz deneme. {remaining} saniye bekleyin.";
+      return;
+    }
+    if (_lockoutUntil.HasValue && DateTime.UtcNow >= _lockoutUntil.Value)
+    {
+      _lockoutUntil = null;
+      _failedAttempts = 0;
+    }
+
     isSubmitting = true;
     isLoading = true;
     errorMessage = null;
@@ -130,7 +150,17 @@
       }
       else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
       {
-        errorMessage = "Kullanici adi veya sifre hatali.";
+        _failedAttempts++;
+        var attemptsLeft = MaxLoginAttempts - _failedAttempts;
+        if (_failedAttempts >= MaxLoginAttempts)
+        {
+          _lockoutUntil = DateTime.UtcNow.AddSeconds(LockoutSeconds);
+          errorMessage = $"Cok fazla basarisiz deneme. {LockoutSeconds} saniye bekleyin.";
+        }
+        else
+        {
+          errorMessage = $"Kullanici adi veya sifre hatali. ({attemptsLeft} deneme hakki kaldi)";
+        }
       }
       else
       {
