@@ -83,6 +83,22 @@
     <Color x:Key="MesOverlayLight">#99000000</Color>
     <Color x:Key="MesOverlayMedium">#80000000</Color>
 
+    <!-- ═══ MISSING DARK OVERRIDES — G155 DEV2 Tur 11 ═══ -->
+    <!-- Stock status backgrounds (light→dark BG) -->
+    <Color x:Key="MesStockLowBg">#332B00</Color>
+    <Color x:Key="MesStockOutBg">#3B1010</Color>
+
+    <!-- Timeline (dark variants) -->
+    <Color x:Key="MesTimelineTrack">#48484A</Color>
+    <Color x:Key="MesTimelineInactive">#636366</Color>
+    <Color x:Key="MesTimelineActive">#0A84FF</Color>
+    <Color x:Key="MesTimelineText">#EBEBF5</Color>
+
+    <!-- Badge/neutral (dark variants) -->
+    <Color x:Key="MesBadgeLightBg">#3A3A3C</Color>
+    <Color x:Key="MesGrayLight">#636366</Color>
+    <Color x:Key="MesNeutralGray">#8E8E93</Color>
+
     <!-- ═══ ACCENT + GRADIENT (Dark Override) ═══ -->
     <Color x:Key="MesAccentOrange">#FF8C00</Color>
     <Color x:Key="MesAccentOrangeDark">#FF6F00</Color>
