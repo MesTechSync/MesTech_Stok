@@ -168,14 +168,14 @@
     'use strict';
     /* --- DOM-SAFE helpers --- */
     function el(tag, attrs, children) {
-      var e = document.createElement(tag);
+      const e = document.createElement(tag);
       if (attrs) Object.keys(attrs).forEach(function(k) { if (k === 'className') e.className = attrs[k]; else if (k === 'textContent') e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); });
       if (children) children.forEach(function(c) { if (c) e.appendChild(c); });
       return e;
     }
 
     /* --- Mock Data --- */
-    var MOCK = {
+    const MOCK = {
       kpi: { aktifUrun: 312, siparis: 94, ciro: 28750, teslimatOrani: 96.2 },
       products: [
         { ad: 'Kablosuz Mouse', sku: 'PTTAVM-001', fiyat: 149.90, stok: 85, durum: 'Aktif' },
@@ -201,73 +201,73 @@
 
     /* --- KPI Render --- */
     function renderKPIs(data) {
-      var kpis = [
+      const kpis = [
         { label: 'Aktif Urun', value: data.aktifUrun, icon: 'fas fa-box-open', color: '#d4a017', bg: 'rgba(255,209,0,0.15)' },
         { label: 'Siparis', value: data.siparis, icon: 'fas fa-shopping-bag', color: 'var(--mestech-info)', bg: 'rgba(59,130,246,0.12)' },
         { label: 'Ciro', value: data.ciro.toLocaleString('tr-TR') + ' TL', icon: 'fas fa-lira-sign', color: 'var(--mestech-success)', bg: 'rgba(16,185,129,0.12)' },
         { label: 'Teslimat Orani', value: data.teslimatOrani + '%', icon: 'fas fa-truck', color: 'var(--mestech-purple)', bg: 'rgba(124,58,237,0.12)' }
       ];
-      var row = document.getElementById('kpi-row');
+      const row = document.getElementById('kpi-row');
       kpis.forEach(function(k) {
-        var col = el('div', { className: 'col-sm-6 col-xl-3' });
-        var card = el('div', { className: 'kpi-card' });
-        var d1 = el('div', { className: 'd-flex justify-content-between align-items-start' });
-        var left = el('div');
-        var lbl = el('small', { className: 'd-block text-secondary mb-1', textContent: k.label });
-        var val = el('h3', { className: 'mb-0 fw-bold', textContent: String(k.value) });
+        const col = el('div', { className: 'col-sm-6 col-xl-3' });
+        const card = el('div', { className: 'kpi-card' });
+        const d1 = el('div', { className: 'd-flex justify-content-between align-items-start' });
+        const left = el('div');
+        const lbl = el('small', { className: 'd-block text-secondary mb-1', textContent: k.label });
+        const val = el('h3', { className: 'mb-0 fw-bold', textContent: String(k.value) });
         left.appendChild(lbl); left.appendChild(val);
-        var badge = el('div', { className: 'kpi-icon-badge' }); badge.style.background = k.bg; badge.style.color = k.color;
-        var icon = el('i', { className: k.icon }); badge.appendChild(icon);
+        const badge = el('div', { className: 'kpi-icon-badge' }); badge.style.background = k.bg; badge.style.color = k.color;
+        const icon = el('i', { className: k.icon }); badge.appendChild(icon);
         d1.appendChild(left); d1.appendChild(badge); card.appendChild(d1); col.appendChild(card); row.appendChild(col);
       });
     }
 
     /* --- Tables --- */
     function renderProductsTable(products) {
-      var thead = document.getElementById('products-thead');
-      var hrow = el('tr'); ['Urun Adi', 'SKU', 'Fiyat', 'Stok', 'Durum'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
-      var tbody = document.getElementById('products-tbody');
+      const thead = document.getElementById('products-thead');
+      const hrow = el('tr'); ['Urun Adi', 'SKU', 'Fiyat', 'Stok', 'Durum'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
+      const tbody = document.getElementById('products-tbody');
       products.forEach(function(p) {
-        var tr = el('tr');
+        const tr = el('tr');
         tr.appendChild(el('td', { className: 'fw-semibold', textContent: p.ad }));
         tr.appendChild(el('td', { textContent: p.sku }));
         tr.appendChild(el('td', { textContent: p.fiyat.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL' }));
         tr.appendChild(el('td', { textContent: String(p.stok) }));
-        var durumTd = el('td');
-        var badge = el('span', { className: 'badge ' + (p.durum === 'Aktif' ? 'bg-success' : 'bg-danger'), textContent: p.durum });
+        const durumTd = el('td');
+        const badge = el('span', { className: 'badge ' + (p.durum === 'Aktif' ? 'bg-success' : 'bg-danger'), textContent: p.durum });
         durumTd.appendChild(badge); tr.appendChild(durumTd); tbody.appendChild(tr);
       });
     }
 
     function renderOrdersTable(orders) {
-      var thead = document.getElementById('orders-thead');
-      var hrow = el('tr'); ['Siparis No', 'Tarih', 'Tutar', 'Durum'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
-      var tbody = document.getElementById('orders-tbody');
+      const thead = document.getElementById('orders-thead');
+      const hrow = el('tr'); ['Siparis No', 'Tarih', 'Tutar', 'Durum'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
+      const tbody = document.getElementById('orders-tbody');
       orders.forEach(function(o) {
-        var tr = el('tr');
+        const tr = el('tr');
         tr.appendChild(el('td', { className: 'fw-semibold', textContent: o.no }));
         tr.appendChild(el('td', { textContent: o.tarih }));
         tr.appendChild(el('td', { textContent: o.tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL' }));
-        var cls = o.durum === 'Teslim Edildi' ? 'bg-success' : o.durum === 'Kargoda' ? 'bg-info' : o.durum === 'Hazirlaniyor' ? 'bg-warning text-dark' : 'bg-danger';
-        var durumTd = el('td'); durumTd.appendChild(el('span', { className: 'badge ' + cls, textContent: o.durum })); tr.appendChild(durumTd); tbody.appendChild(tr);
+        const cls = o.durum === 'Teslim Edildi' ? 'bg-success' : o.durum === 'Kargoda' ? 'bg-info' : o.durum === 'Hazirlaniyor' ? 'bg-warning text-dark' : 'bg-danger';
+        const durumTd = el('td'); durumTd.appendChild(el('span', { className: 'badge ' + cls, textContent: o.durum })); tr.appendChild(durumTd); tbody.appendChild(tr);
       });
     }
 
     /* --- API Settings --- */
     function renderAPISettings() {
-      var container = document.getElementById('api-settings');
-      var fields = [
+      const container = document.getElementById('api-settings');
+      const fields = [
         { label: 'API Key', id: 'pttavm-api-key', type: 'password', placeholder: 'PTT AVM API anahtarinizi girin' },
         { label: 'Magaza ID', id: 'pttavm-store-id', type: 'text', placeholder: 'Magaza ID numarasi' }
       ];
       fields.forEach(function(f) {
-        var row = el('div', { className: 'setting-row' });
+        const row = el('div', { className: 'setting-row' });
         row.appendChild(el('label', { className: 'form-label fw-semibold mb-0', textContent: f.label, for: f.id }));
-        var input = el('input', { className: 'form-control', type: f.type, id: f.id, placeholder: f.placeholder, style: 'max-width:320px' });
+        const input = el('input', { className: 'form-control', type: f.type, id: f.id, placeholder: f.placeholder, style: 'max-width:320px' });
         row.appendChild(input); container.appendChild(row);
       });
-      var btnRow = el('div', { className: 'mt-3 text-end' });
-      var btn = el('button', { className: 'btn btn-sm', textContent: 'Kaydet' }); btn.style.background = 'var(--mestech-primary)'; btn.style.color = 'var(--mestech-primary-text)';
+      const btnRow = el('div', { className: 'mt-3 text-end' });
+      const btn = el('button', { className: 'btn btn-sm', textContent: 'Kaydet' }); btn.style.background = 'var(--mestech-primary)'; btn.style.color = 'var(--mestech-primary-text)';
       btnRow.appendChild(btn); container.appendChild(btnRow);
     }
 
@@ -289,8 +289,8 @@
     /* --- Theme Toggle --- */
     document.addEventListener('click', function(e) {
       if (e.target.closest('[data-theme-toggle]')) {
-        var html = document.documentElement;
-        var isDark = html.getAttribute('data-theme') === 'dark';
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
         html.setAttribute('data-theme', isDark ? 'light' : 'dark');
       }
     });
@@ -298,13 +298,13 @@
     /* --- Init --- */
     document.addEventListener('DOMContentLoaded', function() {
       fetchData('/api/platform/pttavm/dashboard').then(function(data) {
-        var d = data || MOCK;
+        const d = data || MOCK;
         renderKPIs(d.kpi || MOCK.kpi);
         renderProductsTable(d.products || MOCK.products);
         renderOrdersTable(d.orders || MOCK.orders);
         renderAPISettings();
         initCharts({ orderStatus: d.orderStatus || MOCK.orderStatus, revenueTrend: d.revenueTrend || MOCK.revenueTrend });
-        var ts = document.getElementById('last-update-time');
+        const ts = document.getElementById('last-update-time');
         ts.textContent = new Date().toLocaleTimeString('tr-TR');
       });
     });
