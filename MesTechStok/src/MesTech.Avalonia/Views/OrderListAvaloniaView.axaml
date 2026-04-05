@@ -63,7 +63,16 @@
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120" />
                 <DataGridTextColumn Header="Tarih" Binding="{Binding OrderDate}" Width="120" />
                 <DataGridTextColumn Header="Tutar" Binding="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" Width="120" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                <DataGridTemplateColumn Header="Durum" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Left"
+                                    Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}">
+                                <TextBlock Text="{Binding Status}" FontSize="12" Foreground="White" FontWeight="SemiBold" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <!-- Empty State -->

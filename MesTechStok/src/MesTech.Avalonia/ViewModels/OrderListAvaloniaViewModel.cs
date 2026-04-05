@@ -47,17 +47,7 @@ public partial class OrderListAvaloniaViewModel : ViewModelBase
                 Platform = item.SourcePlatform ?? string.Empty,
                 OrderDate = item.OrderDate.ToString("dd.MM.yyyy"),
                 TotalAmount = item.TotalAmount,
-                Status = item.Status,
-                StatusColor = item.Status switch
-                {
-                    "Yeni" => "#3b82f6",
-                    "Hazirlaniyor" => "#f59e0b",
-                    "Kargoda" => "#8b5cf6",
-                    "Teslim Edildi" => "#10b981",
-                    "Iptal" => "#ef4444",
-                    "Iade" => "#f97316",
-                    _ => "#64748b"
-                }
+                Status = item.Status
             }).ToList();
 
             ApplyFilters();
@@ -103,5 +93,4 @@ public class OrderListItemDto
     public string OrderDate { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
     public string Status { get; set; } = string.Empty;
-    public string StatusColor { get; set; } = "#64748b";
 }
