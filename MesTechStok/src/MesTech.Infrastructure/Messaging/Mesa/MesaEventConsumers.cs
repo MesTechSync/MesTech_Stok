@@ -51,6 +51,12 @@ public sealed class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEven
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaAiContentGeneratedEvent), context.MessageId);
@@ -115,6 +121,12 @@ public sealed class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -184,6 +196,12 @@ public sealed class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEve
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaBotNotificationSentEvent), context.MessageId);
@@ -248,8 +266,15 @@ public sealed class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimize
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
+
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -313,6 +338,12 @@ public sealed class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredicte
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -386,6 +417,12 @@ public sealed class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequ
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaBotInvoiceRequestedEvent), context.MessageId);
@@ -437,11 +474,17 @@ public sealed class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnReques
     {
         var msg = context.Message;
         var ct = context.CancellationToken;
+
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
