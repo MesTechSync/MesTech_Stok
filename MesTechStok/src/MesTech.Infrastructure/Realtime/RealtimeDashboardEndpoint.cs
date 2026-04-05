@@ -118,7 +118,7 @@ public sealed class RealtimeDashboardEndpoint : BackgroundService
             connectionId = _connectionManager.AddConnection(wsContext.WebSocket);
 
             // Baglanti acik kaldigi surece dinle (heartbeat + close frame)
-            var buffer = new byte[1024];
+            var buffer = new byte[16 * 1024]; // 16KB — large dashboard events
             while (wsContext.WebSocket.State == WebSocketState.Open && !ct.IsCancellationRequested)
             {
                 var result = await wsContext.WebSocket.ReceiveAsync(
