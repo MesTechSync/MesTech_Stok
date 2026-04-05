@@ -1,3 +1,4 @@
+using MesTech.Domain.Exceptions;
 using MesTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,7 +41,18 @@ public sealed class UnitOfWork : IUnitOfWork
     {
         var events = _context.GetDomainEvents();
 
-        var result = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        int result;
+        try
+        {
+            result = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var entityName = ex.Entries.FirstOrDefault()?.Entity.GetType().Name ?? "Unknown";
+            _logger.LogWarning(ex, "Concurrency conflict on {Entity}", entityName);
+            throw new ConcurrencyConflictException(entityName,
+                "Kayıt başka bir kullanıcı tarafından değiştirildi. Lütfen sayfayı yenileyip tekrar deneyin.");
+        }
 
         if (events.Count > 0)
             await _dispatcher.DispatchAsync(events, cancellationToken).ConfigureAwait(false);
