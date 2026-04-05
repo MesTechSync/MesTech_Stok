@@ -383,19 +383,150 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         return products.AsReadOnly();
     }
 
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    /// <summary>
+    /// Full eBay listing creation — 3-step flow:
+    /// 1. PUT /sell/inventory/v1/inventory_item/{sku} — create/update inventory item
+    /// 2. POST /sell/inventory/v1/offer — create offer with marketplace ID, price, policies
+    /// 3. POST /sell/inventory/v1/offer/{offerId}/publish — go live
+    /// </summary>
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // Full eBay listing creation requires multi-step flow:
-        //   1. PUT /sell/inventory/v1/inventory_item/{sku} — create/update inventory item
-        //   2. POST /sell/inventory/v1/offer — create offer with marketplace, price, listing policies
-        //   3. POST /sell/inventory/v1/offer/{offerId}/publish — publish the offer as a live listing
-        // Each step requires specific eBay listing policies (payment, return, fulfillment).
-        // Use PushStockUpdateAsync / PushPriceUpdateAsync for existing listing updates.
-        _logger.LogWarning(
-            "EbayAdapter.PushProductAsync — full listing creation requires inventory+offer+publish flow (3-step). " +
-            "SKU={SKU}. Use PushStockUpdateAsync/PushPriceUpdateAsync for existing listings",
-            product.SKU);
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.PushProductAsync 3-step: SKU={SKU}", product.SKU);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            // Step 1: Create/Update Inventory Item
+            var inventoryPayload = new
+            {
+                availability = new
+                {
+                    shipToLocationAvailability = new { quantity = Math.Max(product.Stock, 0) }
+                },
+                condition = "NEW",
+                product = new
+                {
+                    title = product.Name,
+                    description = product.Description ?? product.Name,
+                    aspects = new Dictionary<string, string[]>
+                    {
+                        ["Brand"] = new[] { product.Brand ?? "Unbranded" }
+                    },
+                    imageUrls = !string.IsNullOrEmpty(product.ImageUrl)
+                        ? new[] { product.ImageUrl }
+                        : Array.Empty<string>()
+                }
+            };
+
+            var sku = Uri.EscapeDataString(product.SKU);
+            var step1Json = JsonSerializer.Serialize(inventoryPayload, _jsonOptions);
+            var step1Content = new StringContent(step1Json, Encoding.UTF8, "application/json");
+
+            using var step1Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Put, $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}");
+                    req.Content = new StringContent(step1Json, Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    req.Headers.Add("Content-Language", "en-US");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step1Response.IsSuccessStatusCode && (int)step1Response.StatusCode != 204)
+            {
+                var err = await step1Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay PushProduct Step1 (inventory_item) failed: {Status} {Error}",
+                    step1Response.StatusCode, err);
+                return false;
+            }
+
+            _logger.LogDebug("eBay PushProduct Step1 OK: SKU={SKU}", product.SKU);
+
+            // Step 2: Create Offer
+            var offerPayload = new
+            {
+                sku = product.SKU,
+                marketplaceId = "EBAY_US", // TODO: tenant-based marketplace config
+                format = "FIXED_PRICE",
+                listingDescription = product.Description ?? product.Name,
+                pricingSummary = new
+                {
+                    price = new
+                    {
+                        value = product.SalePrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                        currency = product.CurrencyCode ?? "USD"
+                    }
+                },
+                quantityLimitPerBuyer = 10
+            };
+
+            var step2Json = JsonSerializer.Serialize(offerPayload, _jsonOptions);
+
+            using var step2Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/sell/inventory/v1/offer");
+                    req.Content = new StringContent(step2Json, Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    req.Headers.Add("Content-Language", "en-US");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step2Response.IsSuccessStatusCode)
+            {
+                var err = await step2Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay PushProduct Step2 (offer) failed: {Status} {Error}",
+                    step2Response.StatusCode, err);
+                return false;
+            }
+
+            var step2Body = await step2Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var step2Doc = JsonDocument.Parse(step2Body);
+            var offerId = step2Doc.RootElement.TryGetProperty("offerId", out var oid) ? oid.GetString() : null;
+
+            if (string.IsNullOrEmpty(offerId))
+            {
+                _logger.LogError("eBay PushProduct Step2 — no offerId returned");
+                return false;
+            }
+
+            _logger.LogDebug("eBay PushProduct Step2 OK: offerId={OfferId}", offerId);
+
+            // Step 3: Publish Offer
+            using var step3Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/sell/inventory/v1/offer/{offerId}/publish");
+                    req.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step3Response.IsSuccessStatusCode)
+            {
+                var err = await step3Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("eBay PushProduct Step3 (publish) failed: {Status} {Error} — offer created but not published",
+                    step3Response.StatusCode, err);
+                return false;
+            }
+
+            var step3Body = await step3Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var step3Doc = JsonDocument.Parse(step3Body);
+            var listingId = step3Doc.RootElement.TryGetProperty("listingId", out var lid) ? lid.GetString() : "?";
+
+            _logger.LogInformation(
+                "eBay PushProduct completed 3-step: SKU={SKU} offerId={OfferId} listingId={ListingId}",
+                product.SKU, offerId, listingId);
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "eBay PushProductAsync exception: SKU={SKU}", product.SKU);
+            return false;
+        }
     }
 
     /// <summary>
