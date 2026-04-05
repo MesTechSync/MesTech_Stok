@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Dropshipping Siparisler ViewModel — siparis DataGrid + durum filtre + tedarikci iletme.
+/// HH-FIX-dropship: search + sort + Excel export added.
 /// </summary>
 public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 {
@@ -17,6 +19,9 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string selectedStatus = "Tumu";
+    [ObservableProperty] private string searchText = string.Empty;
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     public ObservableCollection<DropshipOrderItemDto> Orders { get; } = [];
     public ObservableCollection<string> StatusOptions { get; } = ["Tumu", "Yeni", "Tedarikçiye İletildi", "Kargoda", "Teslim Edildi", "İptal"];
@@ -53,15 +58,75 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
     private void ApplyFilters()
     {
         var filtered = _allOrders.AsEnumerable();
+
         if (SelectedStatus != "Tumu")
             filtered = filtered.Where(o => o.Status == SelectedStatus);
 
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            filtered = filtered.Where(o =>
+                o.OrderId.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.Customer.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                o.Supplier.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+        var list = filtered.ToList();
+
+        list = SortColumn switch
+        {
+            "OrderId"       => SortAscending ? [.. list.OrderBy(o => o.OrderId)]        : [.. list.OrderByDescending(o => o.OrderId)],
+            "Customer"      => SortAscending ? [.. list.OrderBy(o => o.Customer)]       : [.. list.OrderByDescending(o => o.Customer)],
+            "Supplier"      => SortAscending ? [.. list.OrderBy(o => o.Supplier)]       : [.. list.OrderByDescending(o => o.Supplier)],
+            "Status"        => SortAscending ? [.. list.OrderBy(o => o.Status)]         : [.. list.OrderByDescending(o => o.Status)],
+            "CustomerPrice" => SortAscending ? [.. list.OrderBy(o => o.CustomerPrice)]  : [.. list.OrderByDescending(o => o.CustomerPrice)],
+            "NetProfit"     => SortAscending ? [.. list.OrderBy(o => o.NetProfit)]      : [.. list.OrderByDescending(o => o.NetProfit)],
+            _               => [.. list.OrderBy(o => o.OrderId)]
+        };
+
         Orders.Clear();
-        foreach (var item in filtered)
+        foreach (var item in list)
             Orders.Add(item);
 
         TotalCount = Orders.Count;
         IsEmpty = Orders.Count == 0;
+    }
+
+    partial void OnSearchTextChanged(string value)
+    {
+        if (_allOrders.Count > 0)
+            ApplyFilters();
+    }
+
+    partial void OnSelectedStatusChanged(string value)
+    {
+        if (_allOrders.Count > 0)
+            ApplyFilters();
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "dropship-orders", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Dropshipping siparisleri disa aktarilirken hata");
     }
 
     [RelayCommand]
@@ -81,12 +146,6 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private Task Refresh() => LoadAsync();
-
-    partial void OnSelectedStatusChanged(string value)
-    {
-        if (_allOrders.Count > 0)
-            ApplyFilters();
-    }
 }
 
 public class DropshipOrderItemDto
