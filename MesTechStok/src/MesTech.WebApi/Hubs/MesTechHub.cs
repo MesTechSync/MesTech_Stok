@@ -76,12 +76,15 @@ public class MesTechHub : Hub
             throw new HubException("Import group access denied: invalid import ID format");
         }
 
-        // Tenant claim doğrulandı + importId validated — import group'a erişim güvenli
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}").ConfigureAwait(false);
+        // G133 FIX: Tenant-scoped group name — import-{tenantId}-{importId}
+        // A client can only receive events for imports belonging to their own tenant.
+        // SignalRImportProgressReporter broadcasts to the same tenant-scoped group.
+        var tenantScopedGroup = $"import-{claimTenantId}-{importId}";
+        await Groups.AddToGroupAsync(Context.ConnectionId, tenantScopedGroup).ConfigureAwait(false);
 
         _logger.LogInformation(
-            "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}, tenant={TenantId}",
-            Context.ConnectionId, importId, claimTenantId);
+            "SignalR client joined import group: connectionId={ConnectionId}, group={Group}, tenant={TenantId}",
+            Context.ConnectionId, tenantScopedGroup, claimTenantId);
     }
 
     /// <summary>
@@ -92,7 +95,13 @@ public class MesTechHub : Hub
         if (string.IsNullOrWhiteSpace(importId))
             return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"import-{importId}").ConfigureAwait(false);
+        var claimTenantId = Context.User?.FindFirst("tenant_id")?.Value
+                         ?? Context.User?.FindFirst("tenantId")?.Value;
+        var groupName = !string.IsNullOrWhiteSpace(claimTenantId)
+            ? $"import-{claimTenantId}-{importId}"
+            : $"import-{importId}"; // legacy fallback
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName).ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client left import group: connectionId={ConnectionId}, importId={ImportId}",

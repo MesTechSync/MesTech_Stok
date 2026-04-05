@@ -124,12 +124,13 @@ public sealed class BulkProductImportService : IBulkProductImportService
         Stream fileStream,
         ImportOptions options,
         CancellationToken cancellationToken = default)
-        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken).ConfigureAwait(false);
+        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), null, cancellationToken).ConfigureAwait(false);
 
     public async Task<ImportResult> ImportProductsAsync(
         Stream fileStream,
         ImportOptions options,
         Guid importId,
+        Guid? tenantId = null,
         CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
@@ -239,7 +240,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (_progressReporter != null)
                         {
                             await _progressReporter.ReportProgressAsync(
-                                importId, processed, totalRows, errors.Count, cancellationToken).ConfigureAwait(false);
+                                importId, processed, totalRows, errors.Count, tenantId, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -270,7 +271,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             if (_progressReporter != null)
             {
                 await _progressReporter.ReportCompletedAsync(
-                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, cancellationToken).ConfigureAwait(false);
+                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, tenantId, cancellationToken).ConfigureAwait(false);
             }
 
             var status = errors.Count > 0 ? ImportStatus.CompletedWithErrors : ImportStatus.Completed;
