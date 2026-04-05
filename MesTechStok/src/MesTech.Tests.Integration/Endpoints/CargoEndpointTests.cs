@@ -52,7 +52,7 @@ public sealed class CargoEndpointTests : IClassFixture<EndpointTestWebAppFactory
     [Fact]
     public async Task GetShipmentLabel_NonExistentId_ReturnsError()
     {
-        var response = await _authClient.GetAsync($"/api/v1/cargo/label/NONEXISTENT123?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/cargo/label/NONEXISTENT123?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(
             HttpStatusCode.NotFound, HttpStatusCode.InternalServerError);
     }
@@ -60,7 +60,7 @@ public sealed class CargoEndpointTests : IClassFixture<EndpointTestWebAppFactory
     [Fact]
     public async Task GetCargoTracking_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/cargo/tracking?tenantId={Guid.NewGuid()}&count=10");
+        var response = await _authClient.GetAsync($"/api/v1/cargo/tracking?tenantId={EndpointTestWebAppFactory.TestTenantId}&count=10");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 }

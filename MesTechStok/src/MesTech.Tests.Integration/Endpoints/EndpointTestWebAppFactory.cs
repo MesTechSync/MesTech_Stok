@@ -24,6 +24,9 @@ public sealed class EndpointTestWebAppFactory : WebApplicationFactory<Program>
     /// <summary>Test API key configured in appsettings override.</summary>
     public const string TestApiKey = "test-api-key-endpoint-hardening";
 
+    /// <summary>Test tenant ID matching JWT claim — use in all tenant-scoped requests.</summary>
+    public const string TestTenantId = "00000000-0000-0000-0000-000000000001";
+
     /// <summary>JWT secret (>= 32 chars) for test token generation.</summary>
     public const string TestJwtSecret = "TestJwtSecret_EndpointHardening_Min32Chars!!";
 
