@@ -14,6 +14,7 @@ public sealed class OfflineQueueService : IOfflineQueue
     private readonly ILogger<OfflineQueueService> _logger;
     private readonly ConcurrentDictionary<Guid, OfflineQueueEntry> _queue = new();
     private const int MaxQueueSize = 10_000; // OOM koruma — unbounded growth önleme
+    private const int MaxRetries = 5; // Sonsuz retry önleme
 
     public OfflineQueueService(ILogger<OfflineQueueService> logger)
     {
@@ -77,6 +78,15 @@ public sealed class OfflineQueueService : IOfflineQueue
     {
         if (_queue.TryGetValue(entryId, out var existing))
         {
+            if (existing.RetryCount >= MaxRetries)
+            {
+                _queue.TryRemove(entryId, out _);
+                _logger.LogError(
+                    "OfflineQueue: MaxRetries ({MaxRetries}) exceeded — item discarded. Id={Id}, Error={Error}",
+                    MaxRetries, entryId, error);
+                return Task.CompletedTask;
+            }
+
             // Replace with incremented retry count
             var updated = existing with { RetryCount = existing.RetryCount + 1 };
             if (!_queue.TryUpdate(entryId, updated, existing))
@@ -85,8 +95,8 @@ public sealed class OfflineQueueService : IOfflineQueue
                     "OfflineQueue: MarkFailed — concurrent update lost retry increment. Id={Id}", entryId);
             }
             _logger.LogWarning(
-                "OfflineQueue: item marked failed (in-memory fallback). Id={Id}, Retry={Retry}, Error={Error}",
-                entryId, updated.RetryCount, error);
+                "OfflineQueue: item marked failed (in-memory fallback). Id={Id}, Retry={Retry}/{MaxRetries}, Error={Error}",
+                entryId, updated.RetryCount, MaxRetries, error);
         }
         else
         {
