@@ -27,4 +27,18 @@ public sealed class DocumentRepository : IDocumentRepository
 
     public async Task AddAsync(Document document, CancellationToken ct = default)
         => await _context.Documents.AddAsync(document, ct).ConfigureAwait(false);
+
+    public async Task<IReadOnlyDictionary<Guid, int>> CountByFolderIdsAsync(
+        IEnumerable<Guid> folderIds, CancellationToken ct = default)
+    {
+        var idList = folderIds.ToList();
+        if (idList.Count == 0) return new Dictionary<Guid, int>();
+
+        return await _context.Documents
+            .Where(d => d.FolderId.HasValue && idList.Contains(d.FolderId.Value))
+            .GroupBy(d => d.FolderId!.Value)
+            .Select(g => new { FolderId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.FolderId, x => x.Count, ct)
+            .ConfigureAwait(false);
+    }
 }
