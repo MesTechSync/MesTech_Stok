@@ -45,10 +45,20 @@ public sealed class InvoiceGeneratedExpenseHandler
             ExpenseDate: e.OccurredAt,
             Notes: $"Otomatik olusturuldu. InvoiceId: {e.InvoiceId}, OrderId: {e.OrderId}");
 
-        var expenseId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var expenseId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
 
-        _logger.LogInformation(
-            "InvoiceCreated -> Expense: Expense record {ExpenseId} created for invoice {InvoiceId}",
-            expenseId, e.InvoiceId);
+            _logger.LogInformation(
+                "InvoiceCreated -> Expense: Expense record {ExpenseId} created for invoice {InvoiceId}",
+                expenseId, e.InvoiceId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "InvoiceCreated -> Expense FAILED for invoice {InvoiceId}. " +
+                "Expense record will need manual creation. Invoice processing continues.",
+                e.InvoiceId);
+        }
     }
 }
