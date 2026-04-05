@@ -142,8 +142,8 @@ public class ReturnRefundChainTests
             .ToList();
 
         // Reset stock to test the SRP handler independently
-        product1.Stock = 10;
-        product2.Stock = 5;
+        product1.SyncStock(10, "test-reset");
+        product2.SyncStock(5, "test-reset");
 
         await _stockRestorationHandler.HandleAsync(
             returnRequest.Id, tenantId, lines, CancellationToken.None);
