@@ -79,7 +79,7 @@ public static class CariHesapEndpoints
             Guid id, ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new DeleteCariHesapCommand(id), ct);
-            return result.Success
+            return result.IsSuccess
                 ? Results.NoContent()
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
