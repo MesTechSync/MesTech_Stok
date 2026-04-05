@@ -43,7 +43,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
 
     private PttKargoAdapter CreateConfiguredAdapter()
     {
-        var httpClient = new HttpClient();
+        var httpClient = _fixture.CreateClient();
         var adapter = new PttKargoAdapter(httpClient, _logger);
         adapter.Configure(new Dictionary<string, string>
         {
@@ -113,7 +113,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -149,7 +149,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
@@ -179,7 +179,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(500)
                 .WithBody("Internal Server Error"));
@@ -209,7 +209,7 @@ public class PttKargoAdapterTests : IClassFixture<WireMockFixture>, IDisposable
             .Given(Request.Create()
                 .WithPath(ShipmentPath)
                 .UsingPost()
-                .WithHeader("SOAPAction", "https://ws.ptt.gov.tr/gonderiKaydet"))
+                .WithHeader("SOAPAction", "http://ws.ptt.gov.tr/gonderiKaydet"))
             .RespondWith(Response.Create()
                 .WithStatusCode(503)
                 .WithBody("Service Unavailable"));
