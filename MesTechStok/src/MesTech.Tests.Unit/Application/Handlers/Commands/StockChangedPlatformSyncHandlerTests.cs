@@ -27,7 +27,7 @@ public class StockChangedPlatformSyncHandlerCommandTests
     }
 
     [Fact]
-    public async Task HandleAsync_ShouldReturnCompletedTask()
+    public void HandleAsync_ShouldReturnCompletedTask()
     {
         var sut = CreateSut();
 
