@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Settlement.Parsers;
 using Microsoft.Extensions.Logging;
@@ -408,5 +409,93 @@ public class TrendyolSettlementParserTests
         lines[0].VatAmount.Should().Be(152.54m,
             "parser should handle decimal format correctly for vatAmount");
         lines[0].GrossAmount.Should().Be(1000m);
+    }
+
+    // ══════════════════════════════════════
+    // CSV Format — KÇ-12 TY-TST-005
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task ParseAsync_CsvFormat_ShouldFailGracefully()
+    {
+        // Parser sadece JSON destekliyor — CSV geçilirse JsonException
+        var csv = "orderNumber;grossSalesAmount;commissionAmount;netAmount\nORD-001;1000;150;810";
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
+
+        // Act — CSV parse edilemez, boş batch döner veya exception
+        var act = async () => await _sut.ParseAsync(TestTenantId, stream, "csv");
+
+        // Parser JSON deserialize yapıyor — CSV JsonException fırlatır
+        await act.Should().ThrowAsync<JsonException>(
+            "CSV format is not supported — parser always uses JSON deserialization. " +
+            "Gap TY-TST-005: CSV export support needed for Trendyol Finance panel downloads.");
+    }
+
+    // ══════════════════════════════════════
+    // String-as-Number — KÇ-12 TY-TST-006
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task ParseAsync_StringAmounts_ShouldParseViaAllowReadingFromString()
+    {
+        // JsonNumberHandling.AllowReadingFromString aktif — "1000.50" string decimal
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-STR",
+                    "grossSalesAmount": "1000.50",
+                    "commissionAmount": "150.75",
+                    "serviceFee": "10.25",
+                    "cargoDeduction": "0",
+                    "refundDeduction": "0",
+                    "netAmount": "839.50",
+                    "transactionDate": "2026-03-20",
+                    "commissionRate": "0.15",
+                    "vatAmount": "152.54"
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+        var lines = await _sut.ParseLinesAsync(batch);
+
+        lines.Should().HaveCount(1);
+        lines[0].GrossAmount.Should().Be(1000.50m,
+            "AllowReadingFromString should parse string decimals");
+        lines[0].CommissionAmount.Should().Be(150.75m);
+        lines[0].VatAmount.Should().Be(152.54m);
+    }
+
+    [Fact]
+    public async Task ParseAsync_TurkishDateFormat_ShouldParse()
+    {
+        // dd.MM.yyyy Türk tarih formatı
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-TRDATE",
+                    "grossSalesAmount": 500,
+                    "commissionAmount": 75,
+                    "serviceFee": 0,
+                    "cargoDeduction": 0,
+                    "refundDeduction": 0,
+                    "netAmount": 425,
+                    "transactionDate": "15.03.2026",
+                    "commissionRate": 0.15
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+
+        batch.PeriodStart.Day.Should().Be(15);
+        batch.PeriodStart.Month.Should().Be(3);
+        batch.PeriodStart.Year.Should().Be(2026);
     }
 }

@@ -419,6 +419,26 @@ public class TrendyolPayloadStructureTests : IDisposable
     }
 
     [Fact]
+    public async Task Payload_VatRate_ShouldBeValidTurkishRate()
+    {
+        // Arrange — KÇ-12 TY-TST-003: Türkiye KDV oranları: 0, 1, 8, 10, 18, 20
+        var product = CreateValidTrendyolProduct();
+        SetupCaptureResponse(HttpStatusCode.OK, "{\"batchRequestId\":\"abc-123\"}");
+
+        // Act
+        await _sut.PushProductAsync(product);
+
+        // Assert
+        var item = GetFirstItem();
+        item.TryGetProperty("vatRate", out var vatRate).Should().BeTrue();
+        var validRates = new[] { 0, 1, 8, 10, 18, 20 };
+        var rate = vatRate.GetInt32();
+        validRates.Should().Contain(rate,
+            $"vatRate {rate} is not a valid Turkish KDV rate. " +
+            "Valid values: 0 (exempt), 1 (reduced), 8 (reduced), 10 (reduced), 18 (standard pre-2024), 20 (standard 2024+)");
+    }
+
+    [Fact]
     public async Task Payload_TopLevel_ShouldHaveItemsArray()
     {
         // Arrange
