@@ -631,6 +631,7 @@ public static class InfrastructureServiceRegistration
 
         // ── MUH-02 Accounting Workers ──
         services.AddScoped<ReconciliationWorker>();
+        services.AddScoped<SettlementOrderReconciliationJob>();
         services.AddScoped<ScheduledBriefingWorker>();
 
         // ── MUH-03 Accounting Workers ──
@@ -702,6 +703,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCompletedInvoiceHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
             Application.EventHandlers.SettlementPaymentGLHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementImportedOrderPaymentHandler,
+            Application.EventHandlers.SettlementImportedOrderPaymentHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
             Application.EventHandlers.InvoiceApprovedCOGSHandler>();
         services.AddScoped<Application.EventHandlers.IWithholdingTaxGLHandler,
