@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ClosedXML.Excel;
+using Microsoft.Extensions.Configuration;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -16,7 +17,8 @@ namespace MesTech.Infrastructure.Services;
 /// </summary>
 public sealed class BulkProductImportService : IBulkProductImportService
 {
-    private const int BatchSize = 100;
+    private const int DefaultBatchSize = 100;
+    private readonly int _batchSize;
 
     private static readonly string[] RequiredHeaders =
         ["SKU", "Name", "PurchasePrice", "SalePrice", "Stock"];
@@ -37,11 +39,13 @@ public sealed class BulkProductImportService : IBulkProductImportService
     public BulkProductImportService(
         AppDbContext dbContext,
         IProductRepository productRepository,
-        IImportProgressReporter? progressReporter = null)
+        IImportProgressReporter? progressReporter = null,
+        IConfiguration? configuration = null)
     {
         _dbContext = dbContext;
         _productRepository = productRepository;
         _progressReporter = progressReporter;
+        _batchSize = configuration?.GetValue<int>("Import:BatchSize", DefaultBatchSize) ?? DefaultBatchSize;
     }
 
     public Task<ImportValidationResult> ValidateExcelAsync(
@@ -230,7 +234,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                     }
 
                     batchCount++;
-                    if (batchCount >= BatchSize)
+                    if (batchCount >= _batchSize)
                     {
                         await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                         batchCount = 0;
