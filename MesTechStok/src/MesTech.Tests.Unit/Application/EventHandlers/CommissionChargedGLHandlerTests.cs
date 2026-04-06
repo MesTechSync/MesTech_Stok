@@ -81,8 +81,9 @@ public class CommissionChargedGLHandlerTests
     public async Task Handle_Idempotent_ShouldSkipDuplicate()
     {
         var orderId = Guid.NewGuid();
+        var refKey = $"COM-{orderId.ToString().Substring(0, 8)}";
         _journalRepo.Setup(r => r.ExistsByReferenceAsync(TenantId,
-                $"COM-{orderId.ToString()[..8]}", It.IsAny<CancellationToken>()))
+                refKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         await CreateSut().HandleAsync(orderId, TenantId, PlatformType.Trendyol,

@@ -75,8 +75,9 @@ public class WithholdingTaxGLHandlerTests
     public async Task Handle_Idempotent_ShouldSkipDuplicate()
     {
         var whtId = Guid.NewGuid();
+        var refKey = $"WHT-{whtId.ToString("N").Substring(0, 12)}";
         _journalRepo.Setup(r => r.ExistsByReferenceAsync(TenantId,
-                $"WHT-{whtId.ToString("N")[..12]}", It.IsAny<CancellationToken>()))
+                refKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         await CreateSut().HandleAsync(whtId, TenantId,
