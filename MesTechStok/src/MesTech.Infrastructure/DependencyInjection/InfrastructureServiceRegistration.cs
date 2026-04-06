@@ -695,6 +695,10 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCancelledStockRestorationHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceCreatedNotificationHandler,
             Application.EventHandlers.InvoiceCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCompletedInvoiceHandler,
+            Application.EventHandlers.OrderCompletedInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
+            Application.EventHandlers.SettlementPaymentGLHandler>();
         services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
             Application.EventHandlers.StockChangedPlatformSyncHandler>();
         services.AddScoped<Application.EventHandlers.IPriceChangedPlatformSyncHandler,
