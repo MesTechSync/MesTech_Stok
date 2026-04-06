@@ -1,5 +1,6 @@
 using MediatR;
 using MesTech.Application.Commands.GenerateEFatura;
+using MesTech.WebApi.Filters;
 using MesTech.Application.Commands.SendInvoice;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Accounting;
@@ -57,7 +58,8 @@ public static class InvoiceEndpoints
         })
         .WithName("CreateInvoiceViaAdapter")
         .WithSummary("Fatura oluştur (adapter üzerinden)")
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageInvoices");
 
         // GET /api/v1/invoices — fatura listesi
         group.MapGet("/", async (

@@ -138,7 +138,8 @@ public static class ProductEndpoints
         .Produces(201)
         .Produces(400)
         .Produces(403)
-        .Produces(429).ProducesProblem(401).ProducesProblem(429);
+        .Produces(429).ProducesProblem(401).ProducesProblem(429)
+        .RequirePermission("ManageProducts");
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -154,7 +155,8 @@ public static class ProductEndpoints
         .WithSummary("Ürün güncelle")
         .Produces(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -167,7 +169,8 @@ public static class ProductEndpoints
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)")
         .Produces(204)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .RequirePermission("ManageProducts");
 
         // PUT /api/v1/products/{id}/content — AI ürün içeriği güncelle (GAP-1 FIX: handler mevcut)
         group.MapPut("/{id:guid}/content", async (

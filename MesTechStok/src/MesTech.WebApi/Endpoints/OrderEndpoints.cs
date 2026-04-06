@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.WebApi.Filters;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.CancelOrder;
@@ -52,7 +53,8 @@ public static class OrderEndpoints
         .WithSummary("Yeni sipariş oluştur")
         .Produces(201).ProducesProblem(401).ProducesProblem(429)
         .Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageOrders");
 
         // POST /api/v1/orders/{id}/push-bitrix24 — siparişi Bitrix24 CRM'e gönder
         group.MapPost("/{id:guid}/push-bitrix24", async (

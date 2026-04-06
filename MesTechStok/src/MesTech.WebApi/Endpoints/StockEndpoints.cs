@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.DTOs;
 using MesTech.Domain.Enums;
+using MesTech.WebApi.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.AddStock;
 using MesTech.Application.Commands.AddStockLot;
@@ -69,7 +70,8 @@ public static class StockEndpoints
         .WithName("AddStock")
         .WithSummary("Ürüne stok girişi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/remove — remove stock from a product
         group.MapPost("/remove", async (RemoveStockCommand command, ISender mediator, CancellationToken ct) =>
@@ -82,7 +84,8 @@ public static class StockEndpoints
         .WithName("RemoveStock")
         .WithSummary("Üründen stok çıkışı")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
         group.MapGet("/inventory", async (
@@ -133,7 +136,8 @@ public static class StockEndpoints
         .WithName("TransferStock")
         .WithSummary("Depolar arası stok transferi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
         group.MapPost("/adjust", async (
@@ -148,7 +152,8 @@ public static class StockEndpoints
         .WithName("AdjustStock")
         .WithSummary("Stok düzeltme / sayım farkı girişi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
         group.MapPost("/lot", async (
