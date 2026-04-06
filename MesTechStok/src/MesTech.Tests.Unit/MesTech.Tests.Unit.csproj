@@ -66,8 +66,7 @@
     <!-- WebApi geçici devre dışı — DEV1 WIP RequirePermission build hatası -->
     <Compile Remove="Filters\IdempotencyFilterTests.cs" />
     <Compile Remove="Handlers\SignalRTenantBypassRegressionTests.cs" />
-    <!-- Pre-existing: WebhookReceiverService constructor signature + IConfiguration dep mismatch -->
-    <Compile Remove="Infrastructure\SecurityComponentTests.cs" />
+    <!-- SecurityComponentTests: re-enabled — IConfiguration mock added by user -->
   </ItemGroup>
 
 </Project>
