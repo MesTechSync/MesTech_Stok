@@ -122,7 +122,7 @@ public partial class SabitGiderlerAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "fixed-expenses", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "fixed-expenses", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");

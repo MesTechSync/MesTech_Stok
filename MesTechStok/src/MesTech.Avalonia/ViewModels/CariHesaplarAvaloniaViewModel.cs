@@ -117,7 +117,7 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new ExportReportCommand(Guid.Empty, "cari-hesaplar", "xlsx"), ct);
+                new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "cari-hesaplar", "xlsx"), ct);
 
             if (result?.FileData.Length > 0)
             {

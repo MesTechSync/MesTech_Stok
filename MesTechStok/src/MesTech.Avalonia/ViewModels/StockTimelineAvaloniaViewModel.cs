@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.GetStockMovements;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,6 +15,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StockTimelineAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string searchText = string.Empty;
@@ -26,9 +28,10 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string sortColumn = "default";
     [ObservableProperty] private bool sortAscending = false; // newest first
 
-    public StockTimelineAvaloniaViewModel(IMediator mediator)
+    public StockTimelineAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -97,7 +100,7 @@ public partial class StockTimelineAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "stock-timeline", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "stock-timeline", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");

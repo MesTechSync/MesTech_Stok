@@ -119,7 +119,7 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "dropship-orders", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "dropship-orders", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");

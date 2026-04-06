@@ -8,6 +8,7 @@ using MediatR;
 using MesTech.Application.Commands.BulkUpdateStock;
 using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.GetStockMovements;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -18,6 +19,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class StockMovementAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
     private readonly PropertyChangedEventHandler _itemChangedHandler;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -40,9 +42,10 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     private readonly List<StockMovementItemDto> _allItems = [];
     public ObservableCollection<StockMovementItemDto> Items { get; } = [];
 
-    public StockMovementAvaloniaViewModel(IMediator mediator)
+    public StockMovementAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
         _itemChangedHandler = (_, _) => RecalculateChangedCount();
     }
 
@@ -137,7 +140,7 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "stock-movements", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "stock-movements", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(

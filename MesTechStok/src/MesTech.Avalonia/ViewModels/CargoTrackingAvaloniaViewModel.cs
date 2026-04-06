@@ -137,7 +137,7 @@ public partial class CargoTrackingAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new ExportReportCommand(Guid.Empty, "cargo", "xlsx"), ct);
+                new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "cargo", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(

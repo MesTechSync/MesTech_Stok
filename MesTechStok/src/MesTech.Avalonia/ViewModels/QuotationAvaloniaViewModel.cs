@@ -4,12 +4,14 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.ListQuotations;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 public partial class QuotationAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private int totalCount;
 
@@ -32,9 +34,10 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> Statuses { get; } =
         ["Tumu", "Taslak", "Gonderildi", "Kabul Edildi", "Reddedildi", "Faturaya Donusturuldu"];
 
-    public QuotationAvaloniaViewModel(IMediator mediator)
+    public QuotationAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
+        _tenantProvider = tenantProvider;
         SelectedStatus = "Tumu";
     }
 
@@ -119,7 +122,7 @@ public partial class QuotationAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "quotations", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "quotations", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");

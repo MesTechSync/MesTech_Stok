@@ -122,7 +122,7 @@ public partial class SettlementAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new ExportReportCommand(Guid.Empty, "settlements", "xlsx"), ct);
+                new ExportReportCommand(_currentUser.TenantId, "settlements", "xlsx"), ct);
 
             if (result?.FileData.Length > 0)
             {

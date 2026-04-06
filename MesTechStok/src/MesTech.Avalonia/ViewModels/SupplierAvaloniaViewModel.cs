@@ -110,7 +110,7 @@ public partial class SupplierAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new ExportReportCommand(Guid.Empty, "suppliers", "xlsx"), ct);
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "suppliers", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");

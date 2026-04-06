@@ -157,7 +157,7 @@ public partial class ProfitLossAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new ExportReportCommand(Guid.Empty, "profit-loss", "xlsx"), ct);
+                new ExportReportCommand(_currentUser.TenantId, "profit-loss", "xlsx"), ct);
 
             if (result?.FileData.Length > 0)
             {

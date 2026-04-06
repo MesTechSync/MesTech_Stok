@@ -137,7 +137,7 @@ public partial class KarlilikAnaliziAvaloniaViewModel : ViewModelBase
         await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new ExportReportCommand(Guid.Empty, "profitability", "xlsx"), ct);
+                new ExportReportCommand(_currentUser.TenantId, "profitability", "xlsx"), ct);
 
             if (result?.FileData.Length > 0)
             {
