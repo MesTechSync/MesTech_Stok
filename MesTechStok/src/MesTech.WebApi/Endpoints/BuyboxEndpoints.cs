@@ -274,8 +274,8 @@ public static class BuyboxEndpoints
 
     // ── Typed Response DTOs — Swagger contract stability (G538) ──
     public sealed record PricingDashboardResponse(
-        int LostBuyboxCount, object LostBuyboxes,
-        int OptimizationCount, object PriceChangeSuggestions,
+        int LostBuyboxCount, IReadOnlyList<BuyboxLostItem> LostBuyboxes,
+        int OptimizationCount, IReadOnlyList<PriceOptimization> PriceChangeSuggestions,
         AutoPriceStatusResponse AutoPrice);
     public sealed record AutoPriceStatusResponse(
         bool IsEnabled, string CronExpression,
