@@ -14,6 +14,11 @@ public sealed class WarehouseShelfConfiguration : IEntityTypeConfiguration<Wareh
         builder.Property(e => e.Code).HasMaxLength(50);
         builder.Property(e => e.Accessibility).HasMaxLength(50);
 
+        // Decimal precision
+        builder.Property(e => e.Height).HasPrecision(18, 4);
+        builder.Property(e => e.MaxWeight).HasPrecision(18, 4);
+        builder.Property(e => e.DistanceFromGround).HasPrecision(18, 4);
+
         builder.HasIndex(e => new { e.TenantId, e.RackId })
             .HasDatabaseName("IX_WarehouseShelves_Tenant_Rack");
 
