@@ -192,6 +192,24 @@ public sealed class Invoice : BaseEntity, ITenantEntity
             GrandTotal = order.TotalAmount,
             IsEInvoiceTaxpayer = type == InvoiceType.EFatura
         };
+
+        // OrderItems → InvoiceLines donusumu (fatura kalem detayi)
+        foreach (var item in order.OrderItems)
+        {
+            var line = new InvoiceLine
+            {
+                Id = Guid.NewGuid(),
+                TenantId = order.TenantId,
+                InvoiceId = invoice.Id,
+                ProductId = item.ProductId == Guid.Empty ? null : item.ProductId,
+                ProductName = item.ProductName,
+                SKU = item.ProductSKU,
+                TaxRate = item.TaxRate
+            };
+            line.SetQuantityAndPrice(item.Quantity, item.UnitPrice);
+            invoice.AddLine(line);
+        }
+
         invoice.RaiseDomainEvent(new InvoiceCreatedEvent(
             invoice.Id, order.Id, order.TenantId, type, order.TotalAmount, DateTime.UtcNow));
         return invoice;
