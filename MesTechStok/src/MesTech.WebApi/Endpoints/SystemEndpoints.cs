@@ -159,6 +159,35 @@ public static class SystemEndpoints
         .WithSummary("Manuel veritabanı yedekleme tetikle (G207)")
         .Produces(201).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // ── MassTransit DLQ Monitoring (DEV6 kopuk zincir fix) ──
+
+        // GET /api/v1/system/dlq/check — DLQ derinlik kontrolü tetikle
+        group.MapGet("/dlq/check", async (
+            MesTech.Infrastructure.Messaging.DlqMonitorService dlqMonitor,
+            CancellationToken ct) =>
+        {
+            await dlqMonitor.CheckDlqDepthAsync(ct);
+            return Results.Ok(new StatusResponse("checked", "DLQ depth check completed"));
+        })
+        .WithName("CheckDlqDepth")
+        .WithSummary("MassTransit DLQ derinlik kontrolü — _error queue'ları tara")
+        .Produces<StatusResponse>(200);
+
+        // POST /api/v1/system/dlq/reprocess — DLQ mesajlarını yeniden işle
+        group.MapPost("/dlq/reprocess", async (
+            DlqReprocessRequest request,
+            MesTech.Infrastructure.Messaging.DlqReprocessService reprocessService,
+            CancellationToken ct) =>
+        {
+            var result = await reprocessService.ReprocessAsync(
+                request.QueueName, request.MaxMessages, ct);
+            return Results.Ok(result);
+        })
+        .WithName("ReprocessDlq")
+        .WithSummary("DLQ mesajlarını yeniden işleme kuyruğuna taşı")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     public sealed record RateLimitStatusResponse(
@@ -167,4 +196,6 @@ public static class SystemEndpoints
     public sealed record AutomationStatusResponse(
         bool N8nConfigured, string N8nBaseUrl, bool WebhookSecretConfigured,
         IReadOnlyList<string> SupportedWorkflows);
+
+    public sealed record DlqReprocessRequest(string QueueName, int MaxMessages = 10);
 }
