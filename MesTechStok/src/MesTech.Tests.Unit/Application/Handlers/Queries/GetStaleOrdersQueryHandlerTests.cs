@@ -34,17 +34,14 @@ public class GetStaleOrdersQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_DefaultThreshold_ShouldUse48Hours()
+    public void Handle_DefaultThreshold_ShouldUse48Hours()
     {
-        _orderRepo.Setup(r => r.GetStaleOrdersAsync(It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Order>());
-
         var query = new GetStaleOrdersQuery(Guid.NewGuid());
         query.EffectiveThreshold.Should().Be(TimeSpan.FromHours(48));
     }
 
     [Fact]
-    public async Task Handle_CustomThreshold_ShouldBeRespected()
+    public void Handle_CustomThreshold_ShouldBeRespected()
     {
         var query = new GetStaleOrdersQuery(Guid.NewGuid(), TimeSpan.FromHours(24));
         query.EffectiveThreshold.Should().Be(TimeSpan.FromHours(24));
