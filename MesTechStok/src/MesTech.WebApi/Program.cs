@@ -767,6 +767,7 @@ PazaramaEndpoints.Map(app); // DEV6: G10821
 PttAvmEndpoints.Map(app); // DEV6: G10821
 EtsyEndpoints.Map(app); // DEV6: G10821
 ZalandoEndpoints.Map(app); // DEV6: G10821
+Bitrix24Endpoints.Map(app); // DEV6: 16th platform — Bitrix24 Swagger endpoint'leri
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
