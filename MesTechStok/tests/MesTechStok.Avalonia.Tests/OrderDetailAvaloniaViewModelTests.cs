@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
@@ -25,7 +26,7 @@ public class OrderDetailAvaloniaViewModelTests
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetOrderDetailQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((OrderDetailDto?)null);
-        _sut = new OrderDetailAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _sut = new OrderDetailAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>(), Mock.Of<INavigationService>());
     }
 
     [Fact]

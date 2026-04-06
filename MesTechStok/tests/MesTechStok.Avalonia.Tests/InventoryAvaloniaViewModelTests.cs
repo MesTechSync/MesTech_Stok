@@ -2,6 +2,7 @@ using FluentAssertions;
 using MediatR;
 using MesTech.Application.Queries.GetInventoryPaged;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using Moq;
 using AppInventoryDto = MesTech.Application.DTOs.InventoryItemDto;
 
@@ -38,7 +39,7 @@ public class InventoryAvaloniaViewModelTests
                 PageSize = 500,
                 TotalPages = 1
             });
-        return new InventoryAvaloniaViewModel(mediatorMock.Object);
+        return new InventoryAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
