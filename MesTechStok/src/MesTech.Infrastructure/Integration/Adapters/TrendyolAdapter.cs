@@ -468,6 +468,86 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     public Task<IReadOnlyList<Product>> PullProductsAsync(string? barcode, string? stockCode, CancellationToken ct = default)
         => PullProductsInternalAsync(null, barcode, stockCode, ct);
 
+    /// <summary>
+    /// Delta sync — Trendyol dateQueryType=LAST_MODIFIED_DATE ile sadece degisen urunleri ceker.
+    /// D12-11: 9000 urun icin 200/sayfa = 45 API call = ~90 saniye.
+    /// </summary>
+    public async Task<ProductSyncResult> SyncProductsDeltaAsync(
+        DateTime lastSyncTime, int pageSize = 200, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var startDate = new DateTimeOffset(lastSyncTime).ToUnixTimeMilliseconds();
+        var allProducts = new List<Product>();
+        var page = 0;
+        var apiCalls = 0;
+        pageSize = Math.Clamp(pageSize, 1, 200); // Trendyol max 200
+
+        _logger.LogInformation(
+            "TrendyolAdapter.SyncProductsDeltaAsync: since={Since}, pageSize={PageSize}",
+            lastSyncTime, pageSize);
+
+        try
+        {
+            bool hasMore = true;
+            while (hasMore)
+            {
+                ct.ThrowIfCancellationRequested();
+                await ApplyRateLimitAsync(ct).ConfigureAwait(false);
+
+                using var response = await _retryPipeline.ExecuteAsync(
+                    async token =>
+                    {
+                        var queryUrl = $"/integration/product/sellers/{_supplierId}/products" +
+                            $"?page={page}&size={pageSize}" +
+                            $"&dateQueryType=LAST_MODIFIED_DATE&startDate={startDate}";
+                        using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                            new Uri(queryUrl, UriKind.Relative));
+                        return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                    }, ct).ConfigureAwait(false);
+                apiCalls++;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogError("DeltaSync page {Page} failed: {Status} — {Error}",
+                        page, response.StatusCode, errorBody);
+                    break;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                var totalPages = doc.RootElement.TryGetProperty("totalPages", out var tp) ? tp.GetInt32() : 0;
+                var totalElements = doc.RootElement.TryGetProperty("totalElements", out var te) ? te.GetInt32() : 0;
+
+                if (doc.RootElement.TryGetProperty("content", out var contentArr))
+                {
+                    foreach (var item in contentArr.EnumerateArray())
+                    {
+                        allProducts.Add(MapJsonToProduct(item));
+                    }
+                }
+
+                page++;
+                hasMore = page < totalPages;
+            }
+
+            sw.Stop();
+            _logger.LogInformation(
+                "DeltaSync tamamlandı: {Count}/{Total} ürün, {Pages} sayfa, {Calls} API call, {Duration}s",
+                allProducts.Count, allProducts.Count, page, apiCalls, sw.Elapsed.TotalSeconds);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            sw.Stop();
+            _logger.LogError(ex, "DeltaSync failed at page {Page}", page);
+        }
+
+        return new ProductSyncResult(
+            allProducts.AsReadOnly(), allProducts.Count, page, apiCalls, sw.Elapsed, DateTime.UtcNow);
+    }
+
     private async Task<IReadOnlyList<Product>> PullProductsInternalAsync(int? limit, string? barcodeFilter, string? stockCodeFilter, CancellationToken ct)
     {
         EnsureConfigured();
@@ -3370,5 +3450,51 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogError(ex, "TrendyolAdapter: barcode resolution failed for ProductId={ProductId}", productId);
             return null;
         }
+    }
+
+    /// <summary>
+    /// Trendyol JSON product item → Product entity mapping.
+    /// D12-11: PullProductsInternalAsync ve SyncProductsDeltaAsync ortak kullanir.
+    /// </summary>
+    private Product MapJsonToProduct(JsonElement item)
+    {
+        // Images
+        string? imageUrl = null;
+        if (item.TryGetProperty("images", out var images) && images.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var img in images.EnumerateArray())
+            {
+                if (img.ValueKind == JsonValueKind.Object && img.TryGetProperty("url", out var imgUrl))
+                {
+                    imageUrl ??= imgUrl.GetString();
+                    if (imageUrl is not null) break;
+                }
+            }
+        }
+
+        // SKU resolution: stockCode → productMainId → barcode
+        var skuValue = item.TryGetProperty("stockCode", out var sc) && sc.ValueKind == JsonValueKind.String ? sc.GetString() : null;
+        if (string.IsNullOrEmpty(skuValue))
+            skuValue = item.TryGetProperty("productMainId", out var pmi2) && pmi2.ValueKind == JsonValueKind.String ? pmi2.GetString() : null;
+        if (string.IsNullOrEmpty(skuValue))
+            skuValue = item.TryGetProperty("barcode", out var bc2) ? bc2.GetString() : null;
+
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = item.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "",
+            SKU = skuValue ?? "",
+            Barcode = item.TryGetProperty("barcode", out var b) ? b.GetString() : null,
+            SalePrice = item.TryGetProperty("salePrice", out var sp) ? sp.GetDecimal() : 0,
+            ListPrice = item.TryGetProperty("listPrice", out var lp) ? lp.GetDecimal() : null,
+            Description = item.TryGetProperty("description", out var d) ? d.GetString() : null,
+            TaxRate = item.TryGetProperty("vatRate", out var vr) ? vr.GetDecimal() / 100m : 0.18m,
+            ImageUrl = imageUrl,
+            Code = item.TryGetProperty("productMainId", out var pmi) ? pmi.GetString() : null,
+            CurrencyCode = item.TryGetProperty("currencyType", out var ccy) ? ccy.GetString() ?? "TRY" : "TRY"
+        };
+        product.SyncStock(item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0, "trendyol-delta-sync");
+
+        return product;
     }
 }
