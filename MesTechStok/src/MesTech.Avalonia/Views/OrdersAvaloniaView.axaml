@@ -10,7 +10,7 @@
 
     <!-- Avalonia Orders — DataGrid with 15 demo orders + status filter -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -34,17 +34,31 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="280" Watermark="Siparis no veya musteri ara..." AutomationProperties.Name="Siparis no veya musteri ara..."
+                <TextBox Width="260" Watermark="Siparis no veya musteri ara..." AutomationProperties.Name="Siparis no veya musteri ara..."
                          Text="{Binding SearchText}" />
-                <ComboBox Width="180"
+                <ComboBox Width="150"
                           ItemsSource="{Binding Statuses}"
-                          SelectedItem="{Binding SelectedStatus}"  AutomationProperties.Name="Status seciniz"/>
+                          SelectedItem="{Binding SelectedStatus}" AutomationProperties.Name="Durum seciniz"/>
+                <!-- HH-DEV2-006: Platform filter -->
+                <ComboBox Width="150"
+                          ItemsSource="{Binding PlatformOptions}"
+                          SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Platform seciniz"/>
+                <!-- HH-DEV2-007: Date range filter -->
+                <ComboBox Width="130"
+                          ItemsSource="{Binding DateRangeOptions}"
+                          SelectedItem="{Binding SelectedDateRange}" AutomationProperties.Name="Tarih araligi"/>
+                <!-- HH-DEV2-010: Order detail button -->
+                <Button Content="Detay" ToolTip.Tip="Secili siparisi goruntule"
+                        Command="{Binding ShowOrderDetailCommand}"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="SemiBold" Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 
         <!-- Row 2: Orders DataGrid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Orders}"
+                  SelectedItem="{Binding SelectedOrder}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
@@ -54,6 +68,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
+                  DoubleTapped="OnOrderDoubleTapped"
                  >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="140" />
@@ -76,8 +91,36 @@
                    FontSize="{StaticResource FontSizeSubtitle}"
                    IsVisible="{Binding !Orders.Count}" />
 
+        <!-- Row 3: HH-DEV2-008 Pagination Controls -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                           VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Content="&#x2039;" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PrevPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6">
+                        <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="&#x203A;" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -85,7 +128,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="1" Grid.RowSpan="2"
+        <Border Grid.Row="1" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">

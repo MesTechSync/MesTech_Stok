@@ -23,6 +23,22 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private OrderItemDto? selectedOrder;
 
+    // HH-DEV2-006: Platform filter
+    [ObservableProperty] private string selectedPlatform = "Tümü";
+    public string[] PlatformOptions { get; } = ["Tümü", "Trendyol", "Hepsiburada", "N11", "Ciceksepeti", "Amazon", "Pazarama"];
+
+    // HH-DEV2-007: Date filter
+    [ObservableProperty] private DateTimeOffset? startDate;
+    [ObservableProperty] private DateTimeOffset? endDate;
+    [ObservableProperty] private string selectedDateRange = "Tümü";
+    public string[] DateRangeOptions { get; } = ["Tümü", "Bugün", "Bu Hafta", "Bu Ay"];
+
+    // HH-DEV2-008: Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+
     public ObservableCollection<OrderItemDto> Orders { get; } = [];
 
     public ObservableCollection<string> Statuses { get; } =
@@ -78,12 +94,36 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(o => o.Status == SelectedStatus);
         }
 
+        // HH-DEV2-006: Platform filter
+        if (SelectedPlatform != "Tümü")
+        {
+            filtered = filtered.Where(o => o.Platform == SelectedPlatform);
+        }
+
+        // HH-DEV2-007: Date filter
+        if (StartDate.HasValue)
+            filtered = filtered.Where(o => DateTime.TryParse(o.Date, System.Globalization.CultureInfo.GetCultureInfo("tr-TR"),
+                System.Globalization.DateTimeStyles.None, out var d) && d >= StartDate.Value.DateTime);
+        if (EndDate.HasValue)
+            filtered = filtered.Where(o => DateTime.TryParse(o.Date, System.Globalization.CultureInfo.GetCultureInfo("tr-TR"),
+                System.Globalization.DateTimeStyles.None, out var d) && d <= EndDate.Value.DateTime);
+
+        // HH-DEV2-008: Pagination
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        var paged = filteredList.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+
         Orders.Clear();
-        foreach (var item in filtered)
+        foreach (var item in paged)
             Orders.Add(item);
 
-        TotalCount = Orders.Count;
-        IsEmpty = Orders.Count == 0;
+        IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} siparis)"
+            : string.Empty;
     }
 
     [RelayCommand]
@@ -105,9 +145,36 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
     partial void OnSelectedStatusChanged(string value)
     {
-        if (_allOrders.Count > 0)
-            ApplyFilters();
+        if (_allOrders.Count > 0) { CurrentPage = 1; ApplyFilters(); }
     }
+
+    // HH-DEV2-006: Platform filter changed
+    partial void OnSelectedPlatformChanged(string value)
+    {
+        if (_allOrders.Count > 0) { CurrentPage = 1; ApplyFilters(); }
+    }
+
+    // HH-DEV2-007: Quick date range setter
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        var now = DateTime.Now;
+        (StartDate, EndDate) = value switch
+        {
+            "Bugün" => (new DateTimeOffset(now.Date), new DateTimeOffset(now.Date.AddDays(1).AddTicks(-1))),
+            "Bu Hafta" => (new DateTimeOffset(now.Date.AddDays(-(int)now.DayOfWeek + 1)), new DateTimeOffset(now)),
+            "Bu Ay" => (new DateTimeOffset(new DateTime(now.Year, now.Month, 1)), new DateTimeOffset(now)),
+            _ => ((DateTimeOffset?)null, (DateTimeOffset?)null)
+        };
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    // HH-DEV2-008: Pagination commands
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
 }
 
 public class OrderItemDto
