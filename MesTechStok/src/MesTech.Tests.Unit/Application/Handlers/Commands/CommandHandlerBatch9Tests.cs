@@ -32,7 +32,7 @@ public class TriggerSyncHandlerTests
             .Returns("JOB-123");
         var logger = new Mock<ILogger<TriggerSyncHandler>>();
 
-        var handler = new TriggerSyncHandler(jobService.Object, logger.Object);
+        var handler = new TriggerSyncHandler(Mock.Of<IIntegratorOrchestrator>(), jobService.Object, logger.Object);
         var result = await handler.Handle(
             new TriggerSyncCommand(Guid.NewGuid(), "TRENDYOL"), CancellationToken.None);
 
@@ -48,7 +48,7 @@ public class TriggerSyncHandlerTests
             .Throws(new InvalidOperationException("Hangfire down"));
         var logger = new Mock<ILogger<TriggerSyncHandler>>();
 
-        var handler = new TriggerSyncHandler(jobService.Object, logger.Object);
+        var handler = new TriggerSyncHandler(Mock.Of<IIntegratorOrchestrator>(), jobService.Object, logger.Object);
         var result = await handler.Handle(
             new TriggerSyncCommand(Guid.NewGuid(), "N11"), CancellationToken.None);
 
