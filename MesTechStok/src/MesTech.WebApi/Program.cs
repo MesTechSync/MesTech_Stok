@@ -677,6 +677,7 @@ ProductEndpoints.Map(app);
 ProductEndpoints.MapBuybox(app);
 StockEndpoints.Map(app);
 CategoryEndpoints.Map(app);
+BrandEndpoints.Map(app); // HH-DEV6-081: Brand GetById kopuk zincir
 OrderEndpoints.Map(app);
 SyncStatusEndpoints.Map(app);
 InvoiceEndpoints.Map(app);
