@@ -100,6 +100,7 @@ public class AppDbContext : DbContext
     public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
     public DbSet<ProductMedia> ProductMedia => Set<ProductMedia>();
     public DbSet<ProductSpecification> ProductSpecifications => Set<ProductSpecification>();
+    public DbSet<PlatformAttributeValueMapping> PlatformAttributeValueMappings => Set<PlatformAttributeValueMapping>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
