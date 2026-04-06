@@ -12,6 +12,10 @@ public static class DemoEndpoints
 {
     public static void Map(WebApplication app)
     {
+        // HH-DEV4-003: Demo endpoints only available in non-production environments
+        if (app.Environment.IsProduction())
+            return;
+
         var group = app.MapGroup("/api/v1/demo")
             .WithTags("Demo")
             .RequireRateLimiting("AuthRateLimit");

@@ -390,27 +390,35 @@ if (app.Environment.IsProduction())
 }
 
 // Demo data seeder — populates DB with demo tenant, products, orders on first run (Sprint 3)
-try
+// HH-DEV4-003: Only seed demo data in Development — production must NOT get demo records
+if (!app.Environment.IsProduction())
 {
-    using var scope = app.Services.CreateScope();
-    var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
-    await seeder.SeedAsync();
-}
-catch (Exception ex)
-{
-    app.Logger.LogWarning(ex, "DemoDataSeeder failed — continuing startup");
-}
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "DemoDataSeeder failed — continuing startup");
+    }
 
-// Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
-try
-{
-    using var scope = app.Services.CreateScope();
-    var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
-    await ahmetSeeder.SeedAsync();
+    // Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
+        await ahmetSeeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
+    }
 }
-catch (Exception ex)
+else
 {
-    app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
+    app.Logger.LogInformation("Production environment detected — skipping demo data seeders");
 }
 
 // HTTPS redirection + HSTS (S01f+S01g security hardening)
@@ -692,8 +700,8 @@ ShipmentEndpoints.Map(app);
 CargoEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
-SeedEndpoints.Map(app);
-DemoEndpoints.Map(app);
+SeedEndpoints.Map(app);       // guard: IsDevelopment() inside
+DemoEndpoints.Map(app);       // guard: IsProduction() → skip (HH-DEV4-003)
 WarehouseEndpoints.Map(app);
 CalendarEndpoints.Map(app);
 ProjectEndpoints.Map(app);
