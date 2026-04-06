@@ -148,6 +148,8 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
         string customerName,
         string? reasonDetail = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
 
         var request = new ReturnRequest

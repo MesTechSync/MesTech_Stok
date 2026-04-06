@@ -31,6 +31,8 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
         DateTime expenseDate, Guid? submittedByUserId = null,
         string? notes = null, Guid? storeId = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 

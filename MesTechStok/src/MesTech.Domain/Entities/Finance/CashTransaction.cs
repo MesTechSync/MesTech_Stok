@@ -29,6 +29,8 @@ public sealed class CashTransaction : BaseEntity, ITenantEntity
         Guid? relatedInvoiceId = null,
         Guid? relatedCurrentAccountId = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
         if (amount <= 0) throw new ArgumentException("Tutar pozitif olmali.", nameof(amount));
 
