@@ -168,7 +168,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
             // D7-020: Action UI thread'de çalışır — property ve collection
             // güncellemeleri güvenli. MediatR Send async olduğu için
             // UI thread await sırasında serbest kalır, donma olmaz.
-            await Dispatcher.UIThread.InvokeAsync(action);
+            await RunOnUIAsync(action);
         }
         catch (OperationCanceledException)
         {
@@ -198,7 +198,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
             });
 
             // D7-020: CancellationToken overload — aynı UI thread fix.
-            await Dispatcher.UIThread.InvokeAsync(async () => await action(CancellationToken));
+            await RunOnUIAsync(async () => await action(CancellationToken));
         }
         catch (OperationCanceledException)
         {
