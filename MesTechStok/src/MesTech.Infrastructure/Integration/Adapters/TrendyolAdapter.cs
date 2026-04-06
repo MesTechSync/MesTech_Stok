@@ -858,7 +858,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         if (item.TryGetProperty("cargoProviderName", out var cpn))
                             order.CargoProviderName = cpn.GetString();
                         if (item.TryGetProperty("cargoTrackingNumber", out var ctn))
-                            order.CargoTrackingNumber = ctn.GetString();
+                            order.CargoTrackingNumber = ctn.ValueKind == JsonValueKind.String
+                                ? ctn.GetString()
+                                : ctn.ValueKind == JsonValueKind.Number ? ctn.GetInt64().ToString() : null;
 
                         // Müşteri email + adres
                         if (item.TryGetProperty("customerEmail", out var email))
