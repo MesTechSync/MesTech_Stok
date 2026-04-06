@@ -231,6 +231,12 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<BarcodeValidationService>();
         services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
         services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
+        services.AddSingleton<BalanceCalculationService>();
+        services.AddSingleton<OmnibusDirectiveService>();
+        services.AddSingleton<OrderSlaService>();
+        services.AddSingleton<ProductCompletenessService>();
+        services.AddSingleton<ProductSyncBatchService>();
+        services.AddSingleton<ReturnPolicyService>();
 
         // Reporting Repositories
         services.AddScoped<MesTech.Application.Interfaces.ISavedReportRepository,
