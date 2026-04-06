@@ -27,6 +27,10 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private bool selectAll;
     [ObservableProperty] private string searchText = string.Empty;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     private readonly List<BulkShipmentItemDto> _allOrders = [];
 
     public ObservableCollection<BulkShipmentItemDto> Orders { get; } = [];
@@ -45,11 +49,22 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
 
     private void ApplyFilter()
     {
-        var filtered = string.IsNullOrWhiteSpace(SearchText)
+        var filtered = (string.IsNullOrWhiteSpace(SearchText)
             ? _allOrders
             : _allOrders.Where(o =>
                 o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+                o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList()).AsEnumerable();
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "OrderNumber"  => SortAscending ? filtered.OrderBy(x => x.OrderNumber)   : filtered.OrderByDescending(x => x.OrderNumber),
+            "CustomerName" => SortAscending ? filtered.OrderBy(x => x.CustomerName)  : filtered.OrderByDescending(x => x.CustomerName),
+            "City"         => SortAscending ? filtered.OrderBy(x => x.City)          : filtered.OrderByDescending(x => x.City),
+            "Weight"       => SortAscending ? filtered.OrderBy(x => x.Weight)        : filtered.OrderByDescending(x => x.Weight),
+            "Status"       => SortAscending ? filtered.OrderBy(x => x.Status)        : filtered.OrderByDescending(x => x.Status),
+            _              => SortAscending ? filtered.OrderBy(x => x.OrderNumber)   : filtered.OrderByDescending(x => x.OrderNumber),
+        };
 
         Orders.Clear();
         foreach (var o in filtered)
@@ -60,14 +75,10 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
         IsEmpty = TotalCount == 0;
     }
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        try
+        await SafeExecuteAsync(_ =>
         {
-
             _allOrders.Clear();
             _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1001", CustomerName = "Ahmet Yilmaz", City = "Istanbul", Weight = 1.2m, Status = "Bekliyor" });
             _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1002", CustomerName = "Mehmet Kaya", City = "Ankara", Weight = 0.8m, Status = "Bekliyor" });
@@ -76,17 +87,8 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
             _allOrders.Add(new() { IsSelected = true, OrderNumber = "SIP-1005", CustomerName = "Ali Ozturk", City = "Antalya", Weight = 2.3m, Status = "Bekliyor" });
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Siparis listesi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        return Task.CompletedTask;
+            return Task.CompletedTask;
+        }, "Siparis listesi yuklenirken hata");
     }
 
     private void UpdateSelectedCount()
@@ -102,6 +104,14 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
                 order.IsSelected = value;
         }
         UpdateSelectedCount();
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -138,8 +148,9 @@ public partial class BulkShipmentAvaloniaViewModel : ViewModelBase
                 order.TrackingNumber = result.TrackingNumber;
                 if (result.IsSuccess) SuccessCount++; else FailCount++;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[BulkShipment] Shipment failed for {order.OrderNumber}: {ex.Message}");
                 order.Status = "Hata";
                 FailCount++;
             }

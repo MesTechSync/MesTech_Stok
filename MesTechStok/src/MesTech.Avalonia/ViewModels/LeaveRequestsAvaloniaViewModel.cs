@@ -34,13 +34,9 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var requests = await _mediator.Send(new GetLeaveRequestsQuery(_currentUser.TenantId));
+            var requests = await _mediator.Send(new GetLeaveRequestsQuery(_currentUser.TenantId), ct);
 
             _allItems.Clear();
             foreach (var r in requests)
@@ -60,16 +56,7 @@ public partial class LeaveRequestsAvaloniaViewModel : ViewModelBase
             var pending = requests.Count(r => r.Status == "Beklemede");
             Summary = $"{_allItems.Count} izin talebi, {pending} onay bekliyor.";
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Izin talepleri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Izin talepleri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

@@ -14,6 +14,12 @@ namespace MesTech.Infrastructure.Messaging.Mesa;
 /// </summary>
 public sealed class MesaStatusEndpoint : BackgroundService
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
+
     private readonly IMesaEventMonitor _monitor;
     private readonly ILogger<MesaStatusEndpoint> _logger;
     private readonly int _port;
@@ -34,6 +40,10 @@ public sealed class MesaStatusEndpoint : BackgroundService
         _listener = new HttpListener();
         _listener.Prefixes.Add($"http://localhost:{_port}/");
 
+        // FIX: HttpListener.GetContextAsync() does NOT support CancellationToken.
+        // Register callback to close listener on shutdown — otherwise ExecuteAsync hangs forever.
+        using var ctr = stoppingToken.Register(() => _listener.Close());
+
         try
         {
             _listener.Start();
@@ -46,13 +56,21 @@ public sealed class MesaStatusEndpoint : BackgroundService
                 _ = SafeHandleRequestAsync(context);
             }
         }
+        catch (HttpListenerException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener closed via CancellationToken callback — graceful shutdown
+        }
+        catch (ObjectDisposedException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener disposed during shutdown
+        }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogError(ex, "MESA status endpoint hatasi");
         }
         finally
         {
-            _listener?.Stop();
+            try { _listener?.Stop(); } catch (ObjectDisposedException ex) { _logger.LogDebug(ex, "MESA status listener already disposed during shutdown"); }
         }
     }
 
@@ -60,15 +78,15 @@ public sealed class MesaStatusEndpoint : BackgroundService
     {
         try
         {
-            await HandleRequestAsync(context);
+            await HandleRequestAsync(context).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[MESA Status] Unhandled request error");
         }
     }
 
-    private Task HandleRequestAsync(HttpListenerContext context)
+    private async Task HandleRequestAsync(HttpListenerContext context)
     {
         var response = context.Response;
 
@@ -77,24 +95,20 @@ public sealed class MesaStatusEndpoint : BackgroundService
             if (context.Request.Url?.AbsolutePath == "/api/mesa/status")
             {
                 var status = _monitor.GetStatus();
-                var json = JsonSerializer.Serialize(status, new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-                });
+                var json = JsonSerializer.Serialize(status, s_jsonOptions);
 
                 response.StatusCode = 200;
                 response.ContentType = "application/json";
                 var buffer = System.Text.Encoding.UTF8.GetBytes(json);
                 response.ContentLength64 = buffer.Length;
-                response.OutputStream.Write(buffer, 0, buffer.Length);
+                await response.OutputStream.WriteAsync(buffer).ConfigureAwait(false);
             }
             else
             {
                 response.StatusCode = 404;
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "MESA status request hatasi");
             response.StatusCode = 500;
@@ -103,8 +117,6 @@ public sealed class MesaStatusEndpoint : BackgroundService
         {
             response.Close();
         }
-
-        return Task.CompletedTask;
     }
 
     public override void Dispose()

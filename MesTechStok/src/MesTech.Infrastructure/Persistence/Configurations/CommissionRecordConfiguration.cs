@@ -20,5 +20,7 @@ public sealed class CommissionRecordConfiguration : IEntityTypeConfiguration<Com
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => x.Platform);
         builder.HasIndex(x => x.OrderId);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

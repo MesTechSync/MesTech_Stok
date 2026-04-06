@@ -62,18 +62,14 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(SearchText)) { IsEmpty = true; HasProduct = false; return; }
 
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
         HasProduct = false;
-        ErrorMessage = string.Empty;
         QuickUpdateStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetBarcodeScanLogsQuery(
                 BarcodeFilter: SearchText.Trim(),
                 Page: 1,
-                PageSize: 50));
+                PageSize: 50), ct);
 
             Items.Clear();
             foreach (var log in result.Items)
@@ -98,16 +94,7 @@ public partial class BarcodeAvaloniaViewModel : ViewModelBase
 
             OnPropertyChanged(nameof(StokDurum));
             OnPropertyChanged(nameof(StokDurumRenk));
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Barkod sorgusu basarisiz: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Barkod sorgusu yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value)

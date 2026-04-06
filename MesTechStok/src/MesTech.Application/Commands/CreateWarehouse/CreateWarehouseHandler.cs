@@ -40,7 +40,7 @@ public sealed class CreateWarehouseHandler : IRequestHandler<CreateWarehouseComm
         if (request.IsDefault)
             warehouse.SetAsDefault();
 
-        await _warehouseRepository.AddAsync(warehouse).ConfigureAwait(false);
+        await _warehouseRepository.AddAsync(warehouse, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateWarehouseResult

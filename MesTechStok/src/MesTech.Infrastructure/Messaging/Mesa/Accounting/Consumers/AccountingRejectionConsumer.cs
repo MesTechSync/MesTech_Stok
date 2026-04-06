@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using MassTransit;
 using MediatR;
 using MesTech.Application.Commands.RejectAccountingEntry;
@@ -46,6 +47,15 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
                 "[MESA Consumer] Rejection event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.accounting.rejected", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(BotAccountingRejectedEvent), context.MessageId);
@@ -61,7 +71,7 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(BotAccountingRejectedEvent));
             throw; // Let MassTransit retry policy handle
@@ -72,7 +82,7 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
             msg.DocumentId, msg.RejectedBy, msg.Reason);
 
         // Belgeyi bul
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
@@ -81,20 +91,33 @@ public sealed class AccountingRejectionConsumer : IConsumer<BotAccountingRejecte
             return;
         }
 
-        // Belgeye red bilgisi ekle (ExtractedData JSON'una)
-        var rejectionJson = System.Text.Json.JsonSerializer.Serialize(new
+        // Belgeye red bilgisi ekle (JsonNode ile güvenli birleştirme)
+        var rejectionNode = new JsonObject
         {
-            Status = "Rejected",
-            msg.RejectedBy,
-            msg.RejectionSource,
-            msg.Reason,
-            RejectedAt = msg.OccurredAt
-        });
+            ["Status"] = "Rejected",
+            ["RejectedBy"] = msg.RejectedBy,
+            ["RejectionSource"] = msg.RejectionSource,
+            ["Reason"] = msg.Reason,
+            ["RejectedAt"] = msg.OccurredAt
+        };
 
-        var existingData = document.ExtractedData ?? "{}";
-        var combinedData = $"{{\"extraction\":{existingData},\"rejection\":{rejectionJson}}}";
-        document.UpdateExtractedData(combinedData);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        JsonNode? existingNode;
+        try
+        {
+            existingNode = JsonNode.Parse(document.ExtractedData ?? "{}");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            existingNode = new JsonObject();
+        }
+
+        var combinedNode = new JsonObject
+        {
+            ["extraction"] = existingNode,
+            ["rejection"] = rejectionNode
+        };
+        document.UpdateExtractedData(combinedNode.ToJsonString());
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] Belge red bilgisi kaydedildi: DocId={DocumentId}, sebep={Reason}",

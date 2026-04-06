@@ -17,5 +17,7 @@ public sealed class DunningLogConfiguration : IEntityTypeConfiguration<DunningLo
 
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => x.TenantSubscriptionId);
+        builder.HasIndex(x => new { x.TenantId, x.TenantSubscriptionId })
+            .HasDatabaseName("IX_DunningLogs_Tenant_Subscription");
     }
 }

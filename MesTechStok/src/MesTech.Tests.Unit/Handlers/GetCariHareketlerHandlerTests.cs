@@ -22,7 +22,7 @@ public class GetCariHareketlerHandlerTests
     public async Task Handle_WithoutDateRange_CallsGetByCariHesapId()
     {
         var hesapId = Guid.NewGuid();
-        _repo.Setup(r => r.GetByCariHesapIdAsync(hesapId))
+        _repo.Setup(r => r.GetByCariHesapIdAsync(hesapId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHareket>().AsReadOnly());
 
         var query = new GetCariHareketlerQuery(hesapId);
@@ -30,8 +30,8 @@ public class GetCariHareketlerHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         result.Should().NotBeNull();
-        _repo.Verify(r => r.GetByCariHesapIdAsync(hesapId), Times.Once());
-        _repo.Verify(r => r.GetByDateRangeAsync(It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never());
+        _repo.Verify(r => r.GetByCariHesapIdAsync(hesapId, It.IsAny<CancellationToken>()), Times.Once());
+        _repo.Verify(r => r.GetByDateRangeAsync(It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Fact]
@@ -40,14 +40,14 @@ public class GetCariHareketlerHandlerTests
         var hesapId = Guid.NewGuid();
         var from = DateTime.UtcNow.AddMonths(-1);
         var to = DateTime.UtcNow;
-        _repo.Setup(r => r.GetByDateRangeAsync(hesapId, from, to))
+        _repo.Setup(r => r.GetByDateRangeAsync(hesapId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHareket>().AsReadOnly());
 
         var query = new GetCariHareketlerQuery(hesapId, from, to);
 
         await _sut.Handle(query, CancellationToken.None);
 
-        _repo.Verify(r => r.GetByDateRangeAsync(hesapId, from, to), Times.Once());
+        _repo.Verify(r => r.GetByDateRangeAsync(hesapId, from, to, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

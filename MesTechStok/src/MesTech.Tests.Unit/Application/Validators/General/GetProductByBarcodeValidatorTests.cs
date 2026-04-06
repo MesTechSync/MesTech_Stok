@@ -18,5 +18,23 @@ public class GetProductByBarcodeValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task EmptyBarcode_ShouldFail()
+    {
+        var input = CreateValidQuery() with { Barcode = "" };
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Barcode");
+    }
+
+    [Fact]
+    public async Task BarcodeTooLong_ShouldFail()
+    {
+        var input = CreateValidQuery() with { Barcode = new string('X', 201) };
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Barcode");
+    }
+
     private static GetProductByBarcodeQuery CreateValidQuery() => new(Barcode: "test");
 }

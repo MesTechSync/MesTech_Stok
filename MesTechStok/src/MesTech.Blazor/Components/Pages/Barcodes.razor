@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-barcode text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Barkod Yonetimi</h3>
+    <h3 class="mb-0" >Barkod Yonetimi</h3>
     <small class="text-muted">Barkod sorgulama, tarama gecmisi ve toplu yazdirma</small>
   </div>
 </div>
@@ -38,12 +37,12 @@ else
   <!-- Search Section -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <h6 class="mb-3"><i class="fas fa-search me-2" style="color: #2855AC;"></i>Barkod Sorgula</h6>
+      <h6 class="mb-3"><i class="fas fa-search me-2" ></i>Barkod Sorgula</h6>
       <div class="row g-2">
         <div class="col">
           <div class="input-group input-group-lg">
             <span class="input-group-text bg-white"><i class="fas fa-barcode text-muted"></i></span>
-            <input type="text" class="form-control" placeholder="Barkod numarasi girin veya okutun..."
+            <input type="text" class="form-control"placeholder="Barkod numarasi girin veya okutun..."
                    @bind="searchBarcode" @bind:event="oninput"
                    @onkeydown="HandleKeyDown" />
           </div>
@@ -73,7 +72,7 @@ else
           <!-- Product Image Placeholder -->
           <div class="col-12 col-sm-3 col-md-2 text-center">
             <div class="d-flex align-items-center justify-content-center mx-auto rounded"
-                 style="width: 100px; height: 100px; background-color: #f8f9fa; border: 2px dashed #dee2e6;">
+                 style="width: 100px; height: 100px; background-color: var(--mestech-surface); border: 2px dashed var(--mestech-border);">
               <i class="fas fa-box fa-2x text-muted"></i>
             </div>
           </div>
@@ -175,7 +174,7 @@ else
   <!-- Scan History -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-history me-2" style="color: #2855AC;"></i>Scan Gecmisi</h6>
+      <h6 class="mb-0"><i class="fas fa-history me-2" ></i>Scan Gecmisi</h6>
       <span class="badge bg-secondary">@scanLogs.Count kayit</span>
     </div>
     <div class="card-body p-0">
@@ -214,7 +213,7 @@ else
   <!-- Bulk Print Section -->
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-print me-2" style="color: #2855AC;"></i>Toplu Barkod Yazdirma</h6>
+      <h6 class="mb-0"><i class="fas fa-print me-2" ></i>Toplu Barkod Yazdirma</h6>
       <span class="badge bg-secondary">@products.Count(p => p.Selected) secili</span>
     </div>
     <div class="card-body">
@@ -249,8 +248,7 @@ else
           <thead class="table-light">
             <tr>
               <th style="width: 40px;">
-                <input type="checkbox" class="form-check-input"
-                       checked="@products.All(p => p.Selected)"
+                <input type="checkbox" class="form-check-input"checked="@products.All(p => p.Selected)"
                        @onchange="ToggleAllProducts" />
               </th>
               <th>Urun Adi</th>
@@ -264,8 +262,7 @@ else
             {
               <tr>
                 <td>
-                  <input type="checkbox" class="form-check-input"
-                         checked="@prod.Selected"
+                  <input type="checkbox" class="form-check-input"checked="@prod.Selected"
                          @onchange="() => prod.Selected = !prod.Selected" />
                 </td>
                 <td class="fw-semibold">@prod.Name</td>
@@ -322,14 +319,14 @@ else
       else
       {
         _isDemoMode = true;
-        LoadDemoData();
+        if (ApiClient.IsDemoAllowed) LoadDemoData();
       }
     }
     catch (Exception ex)
     {
       Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
-      LoadDemoData();
+      if (ApiClient.IsDemoAllowed) LoadDemoData();
     }
     finally
     {

@@ -42,6 +42,10 @@ public sealed class GetOrderDetailHandler : IRequestHandler<GetOrderDetailQuery,
             CargoProvider = order.CargoProvider?.ToString(),
             Notes = order.Notes,
             SourcePlatform = order.SourcePlatform,
+            PaymentStatus = order.PaymentStatus,
+            ConfirmedAt = order.ConfirmedAt,
+            ShippedAt = order.ShippedAt,
+            DeliveredAt = order.DeliveredAt,
             LineItems = order.OrderItems.Select(i => new OrderLineItemDto
             {
                 ProductId = i.ProductId,

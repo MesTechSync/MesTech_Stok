@@ -63,8 +63,14 @@ public class ThemeServiceTests
     [Fact]
     public void LoadSavedTheme_NoFile_ShouldDefaultToLight()
     {
+        // Ensure no saved theme file exists for this test
+        var prefsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "MesTech", "theme.txt");
+        if (File.Exists(prefsPath))
+            File.Delete(prefsPath);
+
         var sut = new ThemeService();
-        // LoadSavedTheme won't find file in test env — should default to Light
         sut.LoadSavedTheme();
         sut.CurrentTheme.Should().Be("Light");
     }

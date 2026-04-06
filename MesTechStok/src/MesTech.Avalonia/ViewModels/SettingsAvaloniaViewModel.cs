@@ -72,12 +72,9 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var creds = await _mediator.Send(new GetCredentialsSettingsQuery(_currentUser.TenantId));
+            var creds = await _mediator.Send(new GetCredentialsSettingsQuery(_currentUser.TenantId), ct);
             var configured = creds.ConfiguredPlatforms.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             PlatformCredentials.Clear();
@@ -93,20 +90,11 @@ public partial class SettingsAvaloniaViewModel : ViewModelBase
                     IsConnected = isConfigured
                 });
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Ayarlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
 
-        // G540 orphan: general + profile settings
-        try { _ = await _mediator.Send(new GetGeneralSettingsQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetGeneralSettings failed: {ex.Message}"); }
-        try { _ = await _mediator.Send(new GetProfileSettingsQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetProfileSettings failed: {ex.Message}"); }
+            // G540 orphan: general + profile settings
+            try { _ = await _mediator.Send(new GetGeneralSettingsQuery(_currentUser.TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetGeneralSettings failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetProfileSettingsQuery(_currentUser.TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetProfileSettings failed: {ex.Message}"); }
+        }, "Ayarlar yuklenirken hata");
     }
 
     [RelayCommand]

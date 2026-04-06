@@ -17,8 +17,8 @@ public sealed class ListQuotationsHandler : IRequestHandler<ListQuotationsQuery,
     public async Task<IReadOnlyList<QuotationDto>> Handle(ListQuotationsQuery request, CancellationToken cancellationToken)
     {
         var quotations = request.Status.HasValue
-            ? await _quotationRepository.GetByStatusAsync(request.Status.Value).ConfigureAwait(false)
-            : await _quotationRepository.GetAllAsync().ConfigureAwait(false);
+            ? await _quotationRepository.GetByStatusAsync(request.Status.Value, cancellationToken).ConfigureAwait(false)
+            : await _quotationRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         return quotations.Select(MapToDto).ToList().AsReadOnly();
     }

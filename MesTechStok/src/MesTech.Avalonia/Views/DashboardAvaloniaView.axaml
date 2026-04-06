@@ -3,6 +3,7 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.DashboardAvaloniaView"
              x:Name="RootDashboardAvaloniaView"
              x:DataType="vm:DashboardAvaloniaViewModel">
@@ -110,23 +111,41 @@
         </Border>
 
         <!-- ════════════════════════════════════════════════════════════ -->
-        <!-- Row 2: LiveCharts2 — Son 7 Gün Platform Satış Grafiği     -->
-        <!-- WPF002: G053 gerçek veri bağlantısı DEV 1'e bırakıldı     -->
+        <!-- Row 2: Charts — Satış Grafiği + Stok Dağılım Grafiği      -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16" Margin="20,4,20,4"
-                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-            <StackPanel Spacing="12">
-                <TextBlock Text="Son 7 Gün — Platform Bazlı Satışlar"
-                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                           Foreground="{DynamicResource MesDarkSlate}" />
-                <lvc:CartesianChart Series="{Binding SalesChartSeries}"
-                                    XAxes="{Binding SalesChartXAxes}"
-                                    YAxes="{Binding SalesChartYAxes}"
-                                    Height="280"
-                                    TooltipPosition="Top"
-                                    ZoomMode="X" />
-            </StackPanel>
-        </Border>
+        <Grid Grid.Row="2" ColumnDefinitions="3*,2*" Margin="20,4,20,4">
+
+            <!-- Left: Son 7 Gün Platform Satış Grafiği (Çizgi) -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                    Margin="0,0,6,0">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Son 7 Gün — Platform Bazlı Satışlar"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <lvc:CartesianChart Series="{Binding SalesChartSeries}"
+                                        XAxes="{Binding SalesChartXAxes}"
+                                        YAxes="{Binding SalesChartYAxes}"
+                                        Height="280"
+                                        TooltipPosition="Top"
+                                        ZoomMode="X" />
+                </StackPanel>
+            </Border>
+
+            <!-- Right: Stok Dağılım Grafiği (Pasta) -->
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="12" Padding="16"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1"
+                    Margin="6,0,0,0">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Stok Durumu Dağılımı"
+                               FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <lvc:PieChart Series="{Binding StockDistributionSeries}"
+                                  Height="280"
+                                  TooltipPosition="Top" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Row 3: Tables — Son Siparisler + Stok Uyarilari            -->
@@ -384,7 +403,7 @@
         <!-- ════════════════════════════════════════════════════════════ -->
         <!-- Empty State                                                 -->
         <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="6"
+        <Border Grid.Row="1" Grid.RowSpan="5"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -404,37 +423,19 @@
             </StackPanel>
         </Border>
 
-        <!-- ════════════════════════════════════════════════════════════ -->
-        <!-- Error State                                                 -->
-        <!-- ════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Grid.RowSpan="6"
-                Background="{DynamicResource MesBgPage}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusLg}" Padding="32"
-                        HorizontalAlignment="Center"
-                        BoxShadow="{DynamicResource MesElevation2}">
-                    <StackPanel Spacing="8" HorizontalAlignment="Center">
-                        <PathIcon Data="{StaticResource IconError}"
-                                  Width="32" Height="32" Foreground="{DynamicResource MesRedClassic}"
-                                  HorizontalAlignment="Center" />
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold"
-                                   Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}"
-                                   HorizontalAlignment="Center" />
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesTextMuted}"
-                                   TextWrapping="Wrap" MaxWidth="400"
-                                   HorizontalAlignment="Center" />
-                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                                Command="{Binding RefreshCommand}"
-                                Padding="20,8" Margin="0,8,0,0"
-                                CornerRadius="{StaticResource MesRadiusBase}"
-                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                                HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0"
+                    Title="Dashboard yuklenemedi"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

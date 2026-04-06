@@ -29,15 +29,11 @@ public partial class NotificationAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetUserNotificationsQuery(
                 TenantId: _currentUser.TenantId,
-                UserId: _currentUser.UserId ?? Guid.Empty));
+                UserId: _currentUser.UserId ?? Guid.Empty), ct);
 
             Notifications.Clear();
             foreach (var n in result.Items)
@@ -53,16 +49,7 @@ public partial class NotificationAvaloniaViewModel : ViewModelBase
 
             TotalCount = result.TotalCount;
             IsEmpty = Notifications.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Bildirimler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Bildirimler yuklenirken hata");
     }
 
     private static string FormatTimeAgo(DateTime createdAt)

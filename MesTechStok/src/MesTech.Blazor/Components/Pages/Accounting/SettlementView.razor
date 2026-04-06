@@ -1,5 +1,5 @@
 @page "/accounting/settlements"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<SettlementView> Logger
 
@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-file-invoice-dollar text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Hesap Kesimi</h3>
+        <h3 class="mb-0" >Hesap Kesimi</h3>
         <small class="text-muted">Platform bazli donem hakedisleri ve mutabakat</small>
     </div>
 </div>
@@ -178,11 +177,11 @@ else
     private static List<Settlement> GetDemoData() =>
     [
         new("Trendyol", "#F27A1A", "Mart 2026", 185_420m, 22_250m, 163_170m, "Mutabik"),
-        new("Hepsiburada", "#FF6000", "Mart 2026", 124_800m, 16_224m, 108_576m, "Beklemede"),
+        new("Hepsiburada", "var(--mestech-hepsi)", "Mart 2026", 124_800m, 16_224m, 108_576m, "Beklemede"),
         new("CicekSepeti", "#E91E63", "Mart 2026", 67_350m, 10_102m, 57_248m, "Mutabik"),
         new("N11", "#7B1FA2", "Mart 2026", 43_200m, 5_616m, 37_584m, "Uyumsuz"),
         new("Trendyol", "#F27A1A", "Subat 2026", 172_000m, 20_640m, 151_360m, "Mutabik"),
-        new("Hepsiburada", "#FF6000", "Subat 2026", 115_600m, 15_028m, 100_572m, "Mutabik"),
+        new("Hepsiburada", "var(--mestech-hepsi)", "Subat 2026", 115_600m, 15_028m, 100_572m, "Mutabik"),
         new("CicekSepeti", "#E91E63", "Subat 2026", 58_900m, 8_835m, 50_065m, "Mutabik"),
     ];
 

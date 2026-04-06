@@ -32,7 +32,7 @@ public sealed class MesaOSHealthCheck : IHealthCheck
     {
         try
         {
-            var response = await _httpClient.GetAsync("health", ct);
+            using var response = await _httpClient.GetAsync("health", ct);
 
             if (response.IsSuccessStatusCode)
             {

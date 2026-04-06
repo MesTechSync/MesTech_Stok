@@ -26,7 +26,8 @@ public sealed class CategoryPlatformMappingRepository : ICategoryPlatformMapping
         if (platform.HasValue)
             query = query.Where(m => m.PlatformType == platform.Value);
 
-        return await query.AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+        return await query.Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<CategoryPlatformMapping?> GetByCategoryAndPlatformAsync(
@@ -35,6 +36,14 @@ public sealed class CategoryPlatformMappingRepository : ICategoryPlatformMapping
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.TenantId == tenantId
                                    && m.CategoryId == categoryId
+                                   && m.PlatformType == platform, ct)
+            .ConfigureAwait(false);
+
+    public async Task<CategoryPlatformMapping?> GetByExternalCategoryIdAsync(
+        Guid tenantId, string externalCategoryId, PlatformType platform, CancellationToken ct = default)
+        => await _context.Set<CategoryPlatformMapping>()
+            .FirstOrDefaultAsync(m => m.TenantId == tenantId
+                                   && m.ExternalCategoryId == externalCategoryId
                                    && m.PlatformType == platform, ct)
             .ConfigureAwait(false);
 

@@ -53,6 +53,11 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        if (!string.IsNullOrWhiteSpace(_options.BaseUrl)
+            && Uri.TryCreate(_options.BaseUrl, UriKind.Absolute, out var parsedUri)
+            && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[NebimERPAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
     }
 
     private string BaseUrl => !string.IsNullOrWhiteSpace(_options.BaseUrl)
@@ -113,7 +118,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimOrder, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -136,7 +141,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             return ErpSyncResult.Fail(
                 $"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] SyncOrderAsync exception — OrderId:{OrderId}", orderId);
@@ -175,7 +180,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -193,7 +198,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 invoiceId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpSyncResult.Fail($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] SyncInvoiceAsync exception — InvoiceId:{InvoiceId}", invoiceId);
@@ -215,7 +220,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             SetApiKeyHeader();
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers?officeCode={_options.OfficeCode}&limit=200", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -250,7 +255,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return accounts.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalancesAsync exception");
             return Array.Empty<ErpAccountDto>();
@@ -268,7 +273,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/api/ping", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/api/ping", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -281,7 +286,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] Ping exception");
             return false;
@@ -307,7 +312,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/inventory/levels?warehouseCode={_options.WarehouseCode}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -337,7 +342,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 "[NebimERPAdapter] Retrieved {Count} stock items from Nebim", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetStockLevelsAsync exception");
             return new List<ErpStockItem>();
@@ -363,7 +368,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/inventory/levels?productCode={productCode}&warehouseCode={_options.WarehouseCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -386,7 +391,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return new ErpStockItem(productCode, productCode, qty, "AD", wh, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] GetStockByCodeAsync exception — ProductCode:{ProductCode}", productCode);
@@ -425,7 +430,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(payload, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/api/inventory/levels", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -442,7 +447,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 productCode, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NebimERPAdapter] UpdateStockAsync exception — ProductCode:{ProductCode}", productCode);
@@ -492,7 +497,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/invoices", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -516,7 +521,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateInvoiceAsync exception");
             return ErpInvoiceResult.Failed(ex.Message);
@@ -532,7 +537,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -554,7 +559,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpInvoiceResult.Ok(invoiceNumber, erpRef, date, amount, pdfUrl);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetInvoiceAsync exception — {Number}", invoiceNumber);
             return null;
@@ -569,7 +574,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         {
             SetApiKeyHeader();
             var url = $"{BaseUrl}/api/invoices?fromDate={from:yyyy-MM-dd}&toDate={to:yyyy-MM-dd}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -596,7 +601,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetInvoicesAsync exception");
             return new List<ErpInvoiceResult>();
@@ -620,7 +625,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 $"{BaseUrl}/api/invoices/{Uri.EscapeDataString(invoiceNumber)}/cancel")
             { Content = content };
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -629,7 +634,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             }
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CancelInvoiceAsync exception — {Number}", invoiceNumber);
             return false;
@@ -666,7 +671,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var content = new StringContent(
                 JsonSerializer.Serialize(nebimAccount, JsonOptions), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/customers", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/customers", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -677,7 +682,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -693,7 +698,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -714,7 +719,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpAccountResult.Ok(accountCode, name, balance, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountAsync exception — {Code}", accountCode);
             return null;
@@ -747,7 +752,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(request.AccountCode)}")
             { Content = content };
 
-            var response = await _httpClient.SendAsync(httpRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(httpRequest, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return ErpAccountResult.Ok(request.AccountCode, request.CompanyName, 0m);
@@ -755,7 +760,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] UpdateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -771,7 +776,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers?search={Uri.EscapeDataString(query)}&officeCode={_options.OfficeCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -797,7 +802,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] SearchAccountsAsync exception");
             return new List<ErpAccountResult>();
@@ -813,7 +818,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/customers/{Uri.EscapeDataString(accountCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -827,7 +832,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
             return json.RootElement.TryGetProperty("balance", out var b) ? b.GetDecimal() : 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetAccountBalanceAsync exception — {Code}", accountCode);
             return 0m;
@@ -871,7 +876,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(nebimDispatch, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/dispatches", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/dispatches", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -892,7 +897,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] CreateWaybillAsync exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -910,7 +915,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
         try
         {
             SetApiKeyHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/dispatches/{Uri.EscapeDataString(waybillNumber)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -931,7 +936,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return ErpWaybillResult.Ok(number, date);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
             return null;
@@ -977,7 +982,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/products?officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1013,7 +1018,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 "[NebimERPAdapter] Retrieved {Count} price items from Nebim", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetProductPricesAsync exception");
             return new List<ErpPriceItem>();
@@ -1035,7 +1040,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             SetApiKeyHeader();
 
             var url = $"{BaseUrl}/api/products/{Uri.EscapeDataString(productCode)}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -1056,7 +1061,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
 
             return new ErpPriceItem(productCode, name, purchasePrice, salePrice, listPrice, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;
@@ -1084,7 +1089,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             var fromStr = from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var url = $"{BaseUrl}/api/payments?startDate={fromStr}&endDate={toStr}&officeCode={_options.OfficeCode}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1112,7 +1117,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
             _logger.LogInformation("[NebimERPAdapter] Retrieved {Count} bank transactions", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] GetTransactionsAsync exception");
             return new List<ErpBankTransaction>();
@@ -1149,7 +1154,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 JsonSerializer.Serialize(payload),
                 System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payments", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/payments", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1165,7 +1170,7 @@ public sealed class NebimERPAdapter : IErpAdapter, IErpStockCapable, IErpInvoice
                 (int)response.StatusCode, err);
             return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NebimERPAdapter] RecordPayment exception");
             return ErpPaymentResult.Failed(ex.Message);

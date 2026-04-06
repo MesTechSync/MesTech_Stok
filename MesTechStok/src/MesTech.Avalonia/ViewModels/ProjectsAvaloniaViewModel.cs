@@ -31,13 +31,9 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetProjectsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetProjectsQuery(_currentUser.TenantId), ct);
 
             Projects.Clear();
             foreach (var dto in result)
@@ -58,16 +54,7 @@ public partial class ProjectsAvaloniaViewModel : ViewModelBase
             }
             TotalCount = Projects.Count;
             IsEmpty = Projects.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Projeler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Projeler yuklenirken hata");
     }
 
     [RelayCommand]

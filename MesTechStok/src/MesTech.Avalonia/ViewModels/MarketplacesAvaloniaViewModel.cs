@@ -33,10 +33,9 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: _currentUser.TenantId));
+            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: _currentUser.TenantId), ct);
 
             Platforms.Clear();
             foreach (var s in statuses)
@@ -45,18 +44,8 @@ public partial class MarketplacesAvaloniaViewModel : ViewModelBase
             PlatformCount = statuses.Count;
             TotalCount = statuses.Count;
             Summary = $"Pazaryeri yonetimi ekrani hazir. {statuses.Count} platform entegrasyonu aktif.";
-        }
-        catch (Exception)
-        {
-            // Fallback to default summary on error
-            PlatformCount = 10;
-            Summary = "Pazaryeri yonetimi ekrani hazir. 10 platform entegrasyonu, API ayarlari, senkronizasyon durumu ve hata loglari burada yer alacak.";
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = Platforms.Count == 0;
-        }
+        }, "Pazaryeri verileri yuklenirken hata");
     }
 
     [RelayCommand]

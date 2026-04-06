@@ -33,10 +33,13 @@ public sealed class MesaEventBroadcastService
     }
 
     public IReadOnlyList<MesaEventMessage> GetRecentEvents() =>
-        _buffer.ToArray().ToList().AsReadOnly();
+        _buffer.ToArray();
 
-    public DateTimeOffset? GetLastEventTimestamp() =>
-        _buffer.TryPeek(out _) ? _buffer.Last().Timestamp : null;
+    public DateTimeOffset? GetLastEventTimestamp()
+    {
+        var snapshot = _buffer.ToArray();
+        return snapshot.Length > 0 ? snapshot[^1].Timestamp : null;
+    }
 }
 
 /// <summary>

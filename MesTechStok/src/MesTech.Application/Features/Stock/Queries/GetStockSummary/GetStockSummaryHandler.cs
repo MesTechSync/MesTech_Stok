@@ -12,7 +12,7 @@ public sealed class GetStockSummaryHandler : IRequestHandler<GetStockSummaryQuer
 
     public async Task<StockSummaryResult> Handle(GetStockSummaryQuery request, CancellationToken cancellationToken)
     {
-        var products = await _productRepo.GetAllAsync().ConfigureAwait(false);
+        var products = await _productRepo.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         return new StockSummaryResult
         {

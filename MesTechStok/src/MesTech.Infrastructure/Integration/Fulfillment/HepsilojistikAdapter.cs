@@ -42,7 +42,12 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
         var opts = options?.Value ?? new HepsilojistikOptions();
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(opts.BaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(opts.BaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[HepsilojistikAdapter] BaseUrl points to private network: {BaseUrl}", opts.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         // Basic Auth: MerchantId:ApiKey (same pattern as HepsiburadaAdapter)
         var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{merchantId}:{apiKey}"));
@@ -130,7 +135,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/shipments");
@@ -164,7 +169,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[Hepsilojistik] Circuit breaker open — CreateInboundShipment skipped");
             return new InboundResult(false, string.Empty, "Service temporarily unavailable (circuit breaker open)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[Hepsilojistik] CreateInboundShipment exception");
             return new InboundResult(false, string.Empty, ex.Message);
@@ -194,7 +199,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var skuParam = string.Join(",", batch.Select(Uri.EscapeDataString));
                 var path = $"/inventory?merchantSkus={skuParam}";
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -244,7 +249,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[Hepsilojistik] GetInventoryLevels exception");
         }
@@ -265,7 +270,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         {
             var path = $"/shipments/{Uri.EscapeDataString(shipmentId)}/status";
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -301,7 +306,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[Hepsilojistik] Circuit breaker open — GetInboundStatus unavailable");
             return new InboundStatus(shipmentId, "UNAVAILABLE", 0, 0);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[Hepsilojistik] GetInboundStatus exception: {ShipmentId}", shipmentId);
             return new InboundStatus(shipmentId, "ERROR", 0, 0);
@@ -333,7 +338,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 var path = $"/orders?since={Uri.EscapeDataString(sinceStr)}" +
                            $"&page={page}&size={pageSize}";
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Get, path), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -422,7 +427,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[Hepsilojistik] GetFulfillmentOrders exception");
         }
@@ -437,7 +442,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
     {
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/inventory?limit=1"), ct).ConfigureAwait(false);
 
             var available = response.IsSuccessStatusCode || (int)response.StatusCode < 500;
@@ -445,7 +450,7 @@ public sealed class HepsilojistikAdapter : IFulfillmentProvider
                 available, response.StatusCode);
             return available;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[Hepsilojistik] IsAvailable check failed");
             return false;

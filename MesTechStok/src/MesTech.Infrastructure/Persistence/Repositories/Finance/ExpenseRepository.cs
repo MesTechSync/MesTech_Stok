@@ -11,14 +11,15 @@ public sealed class ExpenseRepository : IFinanceExpenseRepository
     public ExpenseRepository(AppDbContext context) => _context = context;
 
     public async Task<FinanceExpense?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.FinanceExpenses.FirstOrDefaultAsync(e => e.Id == id, ct);
+        => await _context.FinanceExpenses.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<FinanceExpense>> GetByTenantAsync(
         Guid tenantId, ExpenseStatus? status, CancellationToken ct = default)
     {
         var q = _context.FinanceExpenses.Where(e => e.TenantId == tenantId);
         if (status.HasValue) q = q.Where(e => e.Status == status.Value);
-        return await q.OrderByDescending(e => e.ExpenseDate).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(e => e.ExpenseDate).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<decimal> GetTotalByDateRangeAsync(
@@ -26,8 +27,8 @@ public sealed class ExpenseRepository : IFinanceExpenseRepository
         => await _context.FinanceExpenses
             .Where(e => e.TenantId == tenantId && e.ExpenseDate >= from && e.ExpenseDate <= to
                      && e.Status != ExpenseStatus.Rejected && e.Status != ExpenseStatus.Draft)
-            .SumAsync(e => e.Amount, ct);
+            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
 
     public async Task AddAsync(FinanceExpense expense, CancellationToken ct = default)
-        => await _context.FinanceExpenses.AddAsync(expense, ct);
+        => await _context.FinanceExpenses.AddAsync(expense, ct).ConfigureAwait(false);
 }

@@ -28,6 +28,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasOne(u => u.Tenant)
             .WithMany()
             .HasForeignKey(u => u.TenantId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

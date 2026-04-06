@@ -2,21 +2,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.StockAvaloniaView"
              x:DataType="vm:StockAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" Text="Stok Yonetimi"
-                           Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold"
-                           VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
-                        Command="{Binding RefreshCommand}"
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Stok Yonetimi" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} urun'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <!-- KD-DEV2-003: Platform Sync button -->
+                <Button Grid.Column="1" Content="Platformlara Senkronize Et" ToolTip.Tip="Tum platformlara stok gonder"
+                        Command="{Binding SyncPlatformStockCommand}"
                         Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,8,0" />
+                <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
+                        Command="{Binding RefreshCommand}"
+                        Background="{DynamicResource MesOverlayLight}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </Grid>
         </Border>
@@ -33,45 +44,161 @@
             </Grid>
         </Border>
 
-        <!-- Content -->
-        <Grid Grid.Row="2">
-            <!-- Stock Summary -->
-            <StackPanel VerticalAlignment="Top" Margin="20" Spacing="12"
-                        IsVisible="{Binding !IsLoading}">
-                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap" Opacity="0.7" />
-                <TextBlock Text="{Binding TotalCount, StringFormat='Toplam: {0} stok kalemi'}" FontSize="{StaticResource FontSizeCallout}" Opacity="0.5" />
-            </StackPanel>
-
-            <!-- Loading Skeleton -->
-            <Border Grid.Row="0"
-                    Background="{DynamicResource MesBgPage}"
-                    IsVisible="{Binding IsLoading}"
-                    ZIndex="100">
-                <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
+        <!-- KD-DEV2-003: KPI Cards -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" Margin="16,16,16,8">
+            <!-- Toplam Urun -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesTeal}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Urun" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalProducts}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesTeal}"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <!-- Stokta Var -->
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Stokta Var" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding InStockProducts}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesEmerald}"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <!-- Dusuk Stok -->
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Dusuk Stok" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding LowStockProducts}"
+                                   FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold" Foreground="{DynamicResource MesAmber}"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <!-- Stok Deger -->
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Stok Degeri" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalStockValue, StringFormat='₺{0:N0}'}"
+                                   FontSize="{StaticResource FontSizeH3}" FontWeight="Bold" Foreground="{DynamicResource MesPrimaryBlue}"
+                                   Margin="0,8,0,0" />
+                        <TextBlock Text="{Binding TotalUnits, StringFormat='{}{0} adet'}"
+                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
-    
-<!-- Empty state -->
-        <Border Background="{DynamicResource MesBgPrimary}" IsVisible="{Binding IsEmpty}" CornerRadius="{StaticResource MesRadiusMd}">
-          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-            <TextBlock Text="Stok verisi bulunamadi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="DemiBold" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
-            <TextBlock Text="Henuz urun bulunmuyor" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"/>
-          </StackPanel>
+
+        <!-- Content area: Out of stock + Sync Status -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,*" Margin="22,0,22,22">
+            <!-- Sync status bar -->
+            <Border Grid.Row="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="16,12" Margin="0,0,0,12"
+                    IsVisible="{Binding SyncStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <ProgressBar IsIndeterminate="{Binding IsSyncing}" Width="120" Height="4"
+                                 IsVisible="{Binding IsSyncing}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding SyncStatus}" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Stock critical alerts panel -->
+            <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="20" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Stok Durumu Ozeti" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesDarkSlate}" />
+                    <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource MesSlateGray}" />
+
+                    <!-- Out-of-stock warning -->
+                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusSm}"
+                            Padding="14,10" IsVisible="{Binding OutOfStockProducts}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MesRedAlert}" VerticalAlignment="Center" />
+                            <TextBlock Foreground="{DynamicResource MesRedAlert}" VerticalAlignment="Center">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} urun stokta yok — acil tedarik gerekli">
+                                        <Binding Path="OutOfStockProducts" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Low-stock warning -->
+                    <Border Background="{DynamicResource MesBgAmberLight}" CornerRadius="{StaticResource MesRadiusSm}"
+                            Padding="14,10" IsVisible="{Binding LowStockProducts}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
+                            <TextBlock Foreground="{DynamicResource MesAmberDark}" VerticalAlignment="Center">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} urunde dusuk stok uyarisi">
+                                        <Binding Path="LowStockProducts" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="0" Grid.RowSpan="4"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" />
+        </Border>
+
+        <!-- Empty State -->
+        <Border Grid.Row="1" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}"
+                ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Stok verisi bulunamadi" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <TextBlock Text="Henuz urun bulunmuyor. Urun ekleyerek baslayabilirsiniz."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" />
+                <Button Content="Yenile" ToolTip.Tip="Verileri yenile" Command="{Binding RefreshCommand}"
+                        Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel>
         </Border>
 
         <!-- Error State -->
-        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
-            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           TextWrapping="Wrap" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
-                        ToolTip.Tip="Verileri tekrar yukle"
-                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
+        <fa:InfoBar Grid.Row="0"
+                    Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
-</Grid>
+    </Grid>
 </UserControl>

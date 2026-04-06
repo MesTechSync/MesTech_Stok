@@ -7,6 +7,9 @@ namespace MesTech.Avalonia.Controls;
 
 public partial class CargoProviderCardViewModel : ObservableObject
 {
+    private static Color Token(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     [ObservableProperty] private CargoProvider provider;
     [ObservableProperty] private bool isConnected;
     [ObservableProperty] private string lastShipmentText = "—";
@@ -27,14 +30,14 @@ public partial class CargoProviderCardViewModel : ObservableObject
 
     public ISolidColorBrush ProviderColor => Provider switch
     {
-        CargoProvider.YurticiKargo => new SolidColorBrush(Color.Parse("#E31E24")),
-        CargoProvider.ArasKargo => new SolidColorBrush(Color.Parse("#00A651")),
-        CargoProvider.SuratKargo => new SolidColorBrush(Color.Parse("#ED1C24")),
-        CargoProvider.MngKargo => new SolidColorBrush(Color.Parse("#E30613")),
-        CargoProvider.PttKargo => new SolidColorBrush(Color.Parse("#FFC107")),
-        CargoProvider.Hepsijet => new SolidColorBrush(Color.Parse("#FF6000")),
-        CargoProvider.Sendeo => new SolidColorBrush(Color.Parse("#00BCD4")),
-        _ => new SolidColorBrush(Color.Parse("#9E9E9E"))
+        CargoProvider.YurticiKargo => new SolidColorBrush(Token("MesBrandYurtici")),
+        CargoProvider.ArasKargo => new SolidColorBrush(Token("MesBrandAras")),
+        CargoProvider.SuratKargo => new SolidColorBrush(Token("MesBrandSurat")),
+        CargoProvider.MngKargo => new SolidColorBrush(Token("MesBrandMng")),
+        CargoProvider.PttKargo => new SolidColorBrush(Token("MesBrandPttKargo")),
+        CargoProvider.Hepsijet => new SolidColorBrush(Token("MesBrandHepsijet")),
+        CargoProvider.Sendeo => new SolidColorBrush(Token("MesBrandSendeo")),
+        _ => new SolidColorBrush(Token("MesNeutralGray"))
     };
 
     public string ApiTypeText => Provider switch
@@ -50,8 +53,8 @@ public partial class CargoProviderCardViewModel : ObservableObject
     };
 
     public ISolidColorBrush ConnectionStatusColor => IsConnected
-        ? new SolidColorBrush(Color.Parse("#4CAF50"))
-        : new SolidColorBrush(Color.Parse("#F44336"));
+        ? new SolidColorBrush(Token("MesConnectedGreen"))
+        : new SolidColorBrush(Token("MesDisconnectedRed"));
 
     public string ConnectionStatusTooltip => IsConnected ? "Bağlantı aktif" : "Bağlantı kopuk";
 

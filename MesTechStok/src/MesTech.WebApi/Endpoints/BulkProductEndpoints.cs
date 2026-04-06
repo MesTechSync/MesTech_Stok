@@ -1,9 +1,11 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.Interfaces;
 using MediatR;
 using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
 using MesTech.Application.Features.Product.Commands.BulkCreateProducts;
 using MesTech.Domain.Interfaces;
+using MesTech.WebApi.Filters;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -16,7 +18,9 @@ public static class BulkProductEndpoints
     {
         var group = app.MapGroup("/api/v1/products/bulk")
             .WithTags("BulkProducts")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .RequireAuthorization()
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // POST /api/v1/products/bulk/validate — CSV/Excel dosya doğrulama
         group.MapPost("/validate", async (
@@ -87,36 +91,62 @@ public static class BulkProductEndpoints
         .Produces(200).Produces(400)
         .DisableAntiforgery()
         .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts")
         .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
         group.MapPost("/export", async (
             BulkExportRequest request,
+            IBulkProductImportService bulkService,
             IProductRepository productRepository,
             CancellationToken ct) =>
         {
+            const int maxExportLimit = 50_000; // OOM koruması — 50K üründen fazlası sayfalanmalı
             var format = request.Format?.ToLowerInvariant() ?? "csv";
 
-            // Tüm ürünleri getir
-            var products = await productRepository.GetAllAsync();
-
-            if (products.Count == 0)
+            // FIX-DEV6: ExportProductsAsync uses DB-level Take(50K) + AsNoTracking
+            // instead of GetAllAsync() which loads ALL products into memory
+            var exportBytes = await bulkService.ExportProductsAsync(
+                new BulkExportOptions { CategoryId = request.CategoryId, InStock = request.InStock }, ct);
+            if (exportBytes.Length == 0)
                 return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
 
-            // CSV formatında dışa aktar
-            var csvLines = new List<string>
+            // Excel export (service returns xlsx)
+            if (format == "xlsx" || format == "excel")
             {
-                "SKU,Name,PurchasePrice,SalePrice,Stock,MinimumStock,CategoryId,IsActive"
-            };
-
-            foreach (var p in products)
-            {
-                csvLines.Add($"\"{p.SKU}\",\"{p.Name}\",{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
+                var xlsxFilename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}.xlsx";
+                return Results.File(exportBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", xlsxFilename);
             }
+
+            // FIX-DEV6-G009: Paginated CSV export — GetPagedAsync döngüsü ile OOM önleme
+            const int pageSize = 5000;
+            var csvLines = new List<string> { "SKU,Name,PurchasePrice,SalePrice,Stock,MinimumStock,CategoryId,IsActive" };
+            int totalExported = 0;
+            int page = 1;
+
+            while (totalExported < maxExportLimit)
+            {
+                var pagedResult = await productRepository.GetPagedAsync(page, pageSize, activeOnly: true);
+                if (pagedResult.Items.Count == 0) break;
+
+                foreach (var p in pagedResult.Items)
+                {
+                    csvLines.Add($"{CsvEscape(p.SKU)},{CsvEscape(p.Name)},{p.PurchasePrice},{p.SalePrice},{p.Stock},{p.MinimumStock},{p.CategoryId},{p.IsActive}");
+                    totalExported++;
+                    if (totalExported >= maxExportLimit) break;
+                }
+
+                if (page * pageSize >= pagedResult.TotalCount) break;
+                page++;
+            }
+
+            if (totalExported == 0)
+                return Results.NotFound(new BulkProductErrorResponse("No products found for export."));
 
             var csvContent = string.Join(Environment.NewLine, csvLines);
             var bytes = System.Text.Encoding.UTF8.GetBytes(csvContent);
-            var filename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}.{format}";
+            var suffix = totalExported >= maxExportLimit ? $"-partial-{maxExportLimit}" : "";
+            var filename = $"mestech-products-{DateTime.UtcNow:yyyyMMddHHmm}{suffix}.{format}";
 
             return Results.File(bytes, "text/csv", filename);
         })
@@ -171,7 +201,8 @@ public static class BulkProductEndpoints
         })
         .WithName("BulkUpdateProducts")
         .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // POST /api/v1/products/bulk/create — JSON ile toplu ürün oluşturma
         // DEV6 TUR15: G519 — handler-endpoint gap kapatma
@@ -186,13 +217,14 @@ public static class BulkProductEndpoints
         .WithName("BulkCreateProducts")
         .WithSummary("JSON payload ile toplu ürün oluştur")
         .Produces<BulkCreateProductsResult>(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
     }
 
     /// <summary>
     /// Toplu export istek DTO'su.
     /// </summary>
-    public record BulkExportRequest(string? Format = "csv");
+    public record BulkExportRequest(string? Format = "csv", Guid? CategoryId = null, bool? InStock = null);
 
     /// <summary>
     /// Toplu güncelleme istek DTO'su.
@@ -216,4 +248,18 @@ public static class BulkProductEndpoints
 
     public sealed record BulkUpdateResponse(
         int SuccessCount, int FailedCount, IReadOnlyList<BulkUpdateFailureItem> Failures);
+
+    /// <summary>
+    /// CSV field escape: double-quote wrapping + formula injection guard (OWASP).
+    /// </summary>
+    private static string CsvEscape(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return "\"\"";
+        // Formula injection guard: prefix with single-quote if starts with =, +, -, @, \t, \r
+        var safe = value;
+        if (safe.Length > 0 && "=+-@\t\r".Contains(safe[0]))
+            safe = "'" + safe;
+        // RFC 4180: double-quote escaping
+        return "\"" + safe.Replace("\"", "\"\"") + "\"";
+    }
 }

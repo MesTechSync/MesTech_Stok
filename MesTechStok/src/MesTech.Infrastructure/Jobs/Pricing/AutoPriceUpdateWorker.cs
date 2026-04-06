@@ -67,7 +67,7 @@ public sealed class AutoPriceUpdateWorker
                 totalUpdated += updated;
                 totalSkipped += skipped;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex,
                     "[AutoPrice] Tenant {TenantId} işlenirken hata — devam ediliyor", tenant.Id);
@@ -84,7 +84,7 @@ public sealed class AutoPriceUpdateWorker
             await _notifier.NotifyPriceCycleDoneAsync(
                 Domain.Constants.DomainConstants.SystemTenantId, totalUpdated, totalSkipped, tenants.Count, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[AutoPrice] Cycle-done notification failed");
         }
@@ -107,7 +107,7 @@ public sealed class AutoPriceUpdateWorker
 
         foreach (var lost in lostBuyboxes)
         {
-            var product = await _productRepository.GetByIdAsync(lost.ProductId).ConfigureAwait(false);
+            var product = await _productRepository.GetByIdAsync(lost.ProductId, ct).ConfigureAwait(false);
             if (product is null)
             {
                 skipped++;
@@ -164,7 +164,7 @@ public sealed class AutoPriceUpdateWorker
                     tenantId, product.SKU, lost.CurrentPrice,
                     optimization.RecommendedPrice, optimization.Strategy.ToString(), ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "[AutoPrice] SignalR notification failed for {SKU} — pricing continues", product.SKU);
             }

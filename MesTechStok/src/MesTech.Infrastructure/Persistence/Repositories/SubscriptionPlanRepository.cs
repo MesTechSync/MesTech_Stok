@@ -14,16 +14,17 @@ public sealed class SubscriptionPlanRepository : ISubscriptionPlanRepository
     }
 
     public async Task<SubscriptionPlan?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.SubscriptionPlans.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
+        => await _context.SubscriptionPlans.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<SubscriptionPlan>> GetActiveAsync(CancellationToken ct = default)
         => await _context.SubscriptionPlans
             .Where(p => p.IsActive)
             .OrderBy(p => p.SortOrder)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(SubscriptionPlan plan, CancellationToken ct = default)
-        => await _context.SubscriptionPlans.AddAsync(plan, ct);
+        => await _context.SubscriptionPlans.AddAsync(plan, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(SubscriptionPlan plan, CancellationToken ct = default)
     {

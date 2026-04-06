@@ -17,11 +17,15 @@ namespace MesTech.Avalonia.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private static readonly TimeSpan ToolbarClockInterval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan IdleCheckInterval = TimeSpan.FromSeconds(10);
+
     private DispatcherTimer _clockTimer;
     private DispatcherTimer _idleTimer;
     private readonly DesktopSessionManager _session;
     private bool _sidebarExpanded; // default collapsed (icon-only)
     private DateTime _lastActivity = DateTime.Now;
+    private MainWindowViewModel? _subscribedVm;
 
     public MainWindow()
     {
@@ -31,13 +35,13 @@ public partial class MainWindow : Window
                    ?? new DesktopSessionManager();
 
         // Saat (toolbar, her 30 saniye)
-        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _clockTimer = new DispatcherTimer { Interval = ToolbarClockInterval };
         _clockTimer.Tick += (_, _) => UpdateToolbarClock();
         _clockTimer.Start();
         UpdateToolbarClock();
 
         // Idle timer — 10sn aralıkla kontrol
-        _idleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+        _idleTimer = new DispatcherTimer { Interval = IdleCheckInterval };
         _idleTimer.Tick += (_, _) => CheckIdle();
         _idleTimer.Start();
 
@@ -50,15 +54,26 @@ public partial class MainWindow : Window
         Opened += (_, _) => ApplySidebarState();
 
         // DEV2-01: Highlight active sidebar button when navigation changes
-        DataContextChanged += (_, _) =>
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        // Unsubscribe previous VM to prevent double-subscription leak
+        if (_subscribedVm is not null)
+            _subscribedVm.PropertyChanged -= OnVmPropertyChanged;
+
+        if (DataContext is MainWindowViewModel vm)
         {
-            if (DataContext is MainWindowViewModel vm)
-                vm.PropertyChanged += (_, args) =>
-                {
-                    if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem))
-                        HighlightSidebarButton(vm.SelectedMenuItem);
-                };
-        };
+            vm.PropertyChanged += OnVmPropertyChanged;
+            _subscribedVm = vm;
+        }
+    }
+
+    private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName == nameof(MainWindowViewModel.SelectedMenuItem) && sender is MainWindowViewModel vm)
+            HighlightSidebarButton(vm.SelectedMenuItem);
     }
 
     public void SetCurrentUser(string username)
@@ -106,7 +121,7 @@ public partial class MainWindow : Window
             switch (e.Key)
             {
                 case Key.K: // Command Palette
-                    OpenCommandPalette();
+                    _ = OpenCommandPaletteAsync();
                     e.Handled = true;
                     break;
 
@@ -155,7 +170,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void OpenCommandPalette()
+    private async Task OpenCommandPaletteAsync()
     {
         try
         {

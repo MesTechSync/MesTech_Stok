@@ -40,8 +40,6 @@ public class OrchestrationE2ETests
             CustomerName = "E2E Test Customer",
             SourcePlatform = platform
         };
-        mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(order);
         mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
         return mock;

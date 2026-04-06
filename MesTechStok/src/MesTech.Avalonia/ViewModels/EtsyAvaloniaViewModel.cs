@@ -25,6 +25,10 @@ public partial class EtsyAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string searchText = string.Empty;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false;
+
     private readonly List<PlatformOrderItem> _allOrders = [];
 
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
@@ -37,13 +41,9 @@ public partial class EtsyAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Etsy)) ?? new PlatformDashboardDto();
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Etsy), ct) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;
@@ -54,16 +54,7 @@ public partial class EtsyAvaloniaViewModel : ViewModelBase
             foreach (var o in result.RecentOrders)
                 _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Etsy verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Etsy verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -77,9 +68,28 @@ public partial class EtsyAvaloniaViewModel : ViewModelBase
                 o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 o.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+        filtered = SortColumn switch
+        {
+            "OrderNumber"  => SortAscending ? filtered.OrderBy(x => x.OrderNumber)  : filtered.OrderByDescending(x => x.OrderNumber),
+            "OrderDate"    => SortAscending ? filtered.OrderBy(x => x.OrderDate)    : filtered.OrderByDescending(x => x.OrderDate),
+            "CustomerName" => SortAscending ? filtered.OrderBy(x => x.CustomerName) : filtered.OrderByDescending(x => x.CustomerName),
+            "TotalAmount"  => SortAscending ? filtered.OrderBy(x => x.TotalAmount)  : filtered.OrderByDescending(x => x.TotalAmount),
+            "Status"       => SortAscending ? filtered.OrderBy(x => x.Status)       : filtered.OrderByDescending(x => x.Status),
+            _              => SortAscending ? filtered.OrderBy(x => x.OrderDate)    : filtered.OrderByDescending(x => x.OrderDate),
+        };
+
         foreach (var item in filtered) RecentOrders.Add(item);
         TotalCount = RecentOrders.Count;
         IsEmpty = RecentOrders.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]

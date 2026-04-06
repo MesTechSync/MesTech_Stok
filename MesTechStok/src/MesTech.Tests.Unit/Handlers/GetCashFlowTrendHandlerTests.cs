@@ -26,9 +26,9 @@ public class GetCashFlowTrendHandlerTests
     [Fact]
     public async Task Handle_NoData_ReturnsEmptyMonths()
     {
-        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+        _incomeRepoMock.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>().AsReadOnly());
-        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId))
+        _expenseRepoMock.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>().AsReadOnly());
 
         var query = new GetCashFlowTrendQuery(_tenantId, 3);

@@ -23,5 +23,7 @@ public sealed class WebhookDeadLetterConfiguration : IEntityTypeConfiguration<We
         builder.Property(x => x.Signature).HasMaxLength(512);
         builder.Property(x => x.ErrorMessage).HasMaxLength(2000);
         builder.Property(x => x.ProcessedBy).HasMaxLength(200);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

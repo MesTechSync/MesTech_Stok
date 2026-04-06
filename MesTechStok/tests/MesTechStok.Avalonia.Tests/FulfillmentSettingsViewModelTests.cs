@@ -16,6 +16,10 @@ public class FulfillmentSettingsViewModelTests
     public FulfillmentSettingsViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<MesTech.Application.Features.Settings.Queries.GetFulfillmentSettings.GetFulfillmentSettingsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MesTech.Application.Features.Settings.Queries.GetFulfillmentSettings.FulfillmentSettingsDto());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<MesTech.Application.Features.Settings.Commands.SaveFulfillmentSettings.SaveFulfillmentSettingsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MesTech.Application.Features.Settings.Commands.SaveFulfillmentSettings.SaveFulfillmentSettingsResult());
         _sut = new FulfillmentSettingsViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 

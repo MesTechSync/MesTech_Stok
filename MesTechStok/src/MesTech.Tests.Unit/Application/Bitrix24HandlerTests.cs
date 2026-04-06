@@ -104,7 +104,7 @@ public class PushOrderToBitrix24HandlerTests
         result.IsSuccess.Should().BeTrue();
         result.ExternalDealId.Should().Be("EXT-42");
         result.Bitrix24DealId.Should().Be(dealId);
-        _orderRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
+        _orderRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _adapter.Verify(a => a.PushDealAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

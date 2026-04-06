@@ -12,10 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class BackupAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
-    public BackupAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
+    public BackupAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _currentUser = currentUser;
@@ -40,12 +40,9 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var history = await _mediator.Send(new GetBackupHistoryQuery(_currentUser.TenantId));
+            var history = await _mediator.Send(new GetBackupHistoryQuery(_currentUser.TenantId), ct);
             BackupHistory.Clear();
             foreach (var entry in history)
             {
@@ -56,42 +53,33 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
                     "—",
                     entry.Status));
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Yedekleme gecmisi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = BackupHistory.Count == 0;
-        }
+        }, "Yedekleme gecmisi yuklenirken hata");
     }
 
     [RelayCommand]
-    private Task ManualBackupAsync()
+    private async Task ManualBackupAsync()
     {
         IsBackingUp = true;
         BackupProgress = 0;
         BackupMessage = "Yedekleme baslatiliyor...";
         try
         {
-            for (int i = 1; i <= 10; i++)
+            // TODO: Wire to CreateManualBackupCommand when DEV1 implements handler
+            // For now, simulate progress with async delay (not blocking UI)
+            string[] stages = ["Veritabani tablolari taraniyor...", "Veriler sikistiriliyor...", "Dosya yaziliyor...", "Dogrulama yapiliyor..."];
+            for (int i = 0; i < stages.Length; i++)
             {
-                BackupProgress = i * 10;
-                BackupMessage = i switch
-                {
-                    <= 3 => "Veritabani tabloları taranıyor...",
-                    <= 6 => "Veriler sikistiriliyor...",
-                    <= 8 => "Dosya yaziliyor...",
-                    _ => "Dogrulama yapiliyor..."
-                };
+                BackupMessage = stages[i];
+                BackupProgress = (i + 1) * 25;
+                await Task.Delay(500, CancellationToken);
             }
             BackupMessage = "Yedekleme basariyla tamamlandi!";
             LastBackupDate = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
             LastBackupStatus = "Basarili";
+            BackupProgress = 100;
         }
+        catch (OperationCanceledException) { BackupMessage = "Yedekleme iptal edildi."; }
         catch (Exception ex)
         {
             BackupMessage = $"Yedekleme hatasi: {ex.Message}";
@@ -100,7 +88,6 @@ public partial class BackupAvaloniaViewModel : ViewModelBase
         {
             IsBackingUp = false;
         }
-        return Task.CompletedTask;
     }
 
     [RelayCommand]

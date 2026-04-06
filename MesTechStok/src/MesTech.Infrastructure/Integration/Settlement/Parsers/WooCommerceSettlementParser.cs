@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -17,9 +18,10 @@ public sealed class WooCommerceSettlementParser : ISettlementParser
 {
     private readonly ILogger<WooCommerceSettlementParser> _logger;
     private List<WooCommerceOrder>? _cachedOrders;
+    private string? _rawFileHash;
     private Guid _tenantId;
 
-    public string Platform => "WooCommerce";
+    public string Platform => nameof(PlatformType.WooCommerce);
 
     public WooCommerceSettlementParser(ILogger<WooCommerceSettlementParser> logger)
     {
@@ -36,8 +38,7 @@ public sealed class WooCommerceSettlementParser : ISettlementParser
         if (tenantId == Guid.Empty) throw new ArgumentException("TenantId cannot be Guid.Empty.", nameof(tenantId));
 
         _tenantId = tenantId;
-        using var sha = SHA256.Create();
-        await sha.ComputeHashAsync(rawData, ct).ConfigureAwait(false);
+        _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
         using var doc = await JsonDocument.ParseAsync(rawData, cancellationToken: ct).ConfigureAwait(false);
@@ -117,6 +118,12 @@ public sealed class WooCommerceSettlementParser : ISettlementParser
         el.ValueKind == JsonValueKind.String
             ? decimal.TryParse(el.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var v) ? v : 0m
             : el.ValueKind == JsonValueKind.Number ? el.GetDecimal() : 0m;
+
+    private static async Task<string> ComputeStreamHashAsync(Stream s, CancellationToken ct)
+    {
+        using var sha = SHA256.Create();
+        return Convert.ToHexString(await sha.ComputeHashAsync(s, ct).ConfigureAwait(false));
+    }
 
     private sealed class WooCommerceOrder
     {

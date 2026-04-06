@@ -20,4 +20,5 @@ public sealed class StockMovementDto
     public DateTime Date { get; set; }
     public string? ProcessedBy { get; set; }
     public bool IsApproved { get; set; }
+    public string? Warehouse { get; set; }
 }

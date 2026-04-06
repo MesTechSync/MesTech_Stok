@@ -89,6 +89,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CounterpartyId");
@@ -381,6 +385,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BankAccountId");
@@ -619,6 +627,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_CashFlowEntries_TenantId");
 
+                    b.HasIndex("TenantId", "CounterpartyId")
+                        .HasDatabaseName("IX_CashFlowEntries_Tenant_Counterparty");
+
                     b.HasIndex("TenantId", "EntryDate", "Direction")
                         .HasDatabaseName("IX_CashFlowEntries_Tenant_Date_Dir");
 
@@ -757,6 +768,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<Guid?>("SettlementBatchId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -767,6 +781,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -775,6 +793,8 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("Platform");
+
+                    b.HasIndex("SettlementBatchId");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_CommissionRecords_TenantId");
@@ -1211,8 +1231,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
@@ -1224,6 +1242,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -1298,6 +1320,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -1309,6 +1335,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_JournalLines_TenantId");
+
+                    b.HasIndex("TenantId", "AccountId")
+                        .HasDatabaseName("IX_JournalLines_Tenant_Account");
 
                     b.ToTable("JournalLines");
                 });
@@ -1443,6 +1472,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("RelatedOrderId")
                         .HasColumnType("uuid");
 
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
+
                     b.Property<int>("Source")
                         .HasColumnType("integer");
 
@@ -1455,6 +1487,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -1765,6 +1801,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BankTransactionId");
@@ -2022,6 +2062,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -2103,6 +2147,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -2114,6 +2162,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_SettlementLines_TenantId");
+
+                    b.HasIndex("TenantId", "SettlementBatchId")
+                        .HasDatabaseName("IX_SettlementLines_Tenant_Batch");
 
                     b.ToTable("SettlementLines");
                 });
@@ -2188,6 +2239,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int?>("Year")
                         .HasColumnType("integer");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -2256,6 +2311,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("WithholdingAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -3347,6 +3406,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("IX_DunningLogs_TenantId");
 
                     b.HasIndex("TenantSubscriptionId");
+
+                    b.HasIndex("TenantId", "TenantSubscriptionId")
+                        .HasDatabaseName("IX_DunningLogs_Tenant_Subscription");
 
                     b.ToTable("DunningLogs");
                 });
@@ -5552,11 +5614,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("integer");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<string>("Segment")
                         .HasColumnType("text");
 
@@ -5589,6 +5646,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Website")
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -5680,11 +5741,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -5694,6 +5750,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -8180,11 +8240,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int>("Provider")
                         .HasColumnType("integer");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<int>("Scenario")
                         .HasColumnType("integer");
 
@@ -8253,6 +8308,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal?>("WithholdingRate")
                         .HasColumnType("numeric");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -9276,11 +9335,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("RequiredDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<DateTime?>("ShippedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -9326,6 +9380,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -9494,6 +9552,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("RefundedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -9510,6 +9571,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -9986,6 +10051,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "Status")
                         .HasDatabaseName("IX_PlatformPayments_Tenant_Status");
 
+                    b.HasIndex("TenantId", "StoreId")
+                        .HasDatabaseName("IX_PlatformPayments_Tenant_Store");
+
                     b.HasIndex("TenantId", "Platform", "PeriodStart")
                         .HasDatabaseName("IX_PlatformPayments_Tenant_Platform_Period");
 
@@ -10286,11 +10354,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("ReturnAddress")
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<string>("SKU")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -10353,6 +10416,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal?>("Width")
                         .HasColumnType("numeric");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -10736,6 +10803,9 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<int>("ReservedQuantity")
                         .HasColumnType("integer");
 
+                    b.Property<byte[]>("RowVersion")
+                        .HasColumnType("bytea");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -10748,6 +10818,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uuid");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -11213,11 +11287,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -11240,6 +11309,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -12079,11 +12152,6 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ReversalMovementId")
                         .HasColumnType("uuid");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
-
                     b.Property<string>("ScannedBarcode")
                         .HasColumnType("text");
 
@@ -12116,6 +12184,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -12212,6 +12284,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.Property<string>("WarehouseName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -12740,6 +12816,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("UsePercentMarkup")
                         .HasColumnType("boolean");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -14365,6 +14445,10 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -14468,6 +14552,13 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("MesTech.Domain.Accounting.Entities.CommissionRecord", b =>
+                {
+                    b.HasOne("MesTech.Domain.Accounting.Entities.SettlementBatch", null)
+                        .WithMany("CommissionRecords")
+                        .HasForeignKey("SettlementBatchId");
                 });
 
             modelBuilder.Entity("MesTech.Domain.Accounting.Entities.ExpenseCategory", b =>
@@ -15266,7 +15357,7 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                     b.HasOne("MesTech.Domain.Entities.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MesTech.Domain.Entities.Tenant", null)
@@ -15320,6 +15411,8 @@ namespace MesTech.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("MesTech.Domain.Accounting.Entities.SettlementBatch", b =>
                 {
+                    b.Navigation("CommissionRecords");
+
                     b.Navigation("Lines");
                 });
 

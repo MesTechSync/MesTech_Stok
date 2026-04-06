@@ -41,14 +41,10 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        TransferStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId)) ?? [];
+            TransferStatus = string.Empty;
+            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId), ct) ?? [];
 
             Warehouses.Clear();
             Warehouses.Add("Ana Depo");
@@ -70,13 +66,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = false;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Transfer verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Transfer verileri yuklenirken hata");
     }
 
     partial void OnSelectedSourceWarehouseChanged(string? value)

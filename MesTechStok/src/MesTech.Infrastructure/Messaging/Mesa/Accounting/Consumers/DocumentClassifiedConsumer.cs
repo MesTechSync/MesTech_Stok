@@ -17,6 +17,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
 {
     private readonly IMediator _mediator;
     private readonly IAccountingDocumentRepository _documentRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMesaEventMonitor _monitor;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<DocumentClassifiedConsumer> _logger;
@@ -24,12 +25,14 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
     public DocumentClassifiedConsumer(
         IMediator mediator,
         IAccountingDocumentRepository documentRepository,
+        IUnitOfWork unitOfWork,
         IMesaEventMonitor monitor,
         ITenantProvider tenantProvider,
         ILogger<DocumentClassifiedConsumer> logger)
     {
         _mediator = mediator;
         _documentRepository = documentRepository;
+        _unitOfWork = unitOfWork;
         _monitor = monitor;
         _tenantProvider = tenantProvider;
         _logger = logger;
@@ -44,6 +47,15 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning(
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.document.classified", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -62,7 +74,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiDocumentClassifiedEvent));
             throw; // Let MassTransit retry policy handle
@@ -80,7 +92,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
         }
 
         // AccountingDocument.ExtractedData guncelle
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is not null)
         {
             var extractedJson = System.Text.Json.JsonSerializer.Serialize(new
@@ -93,7 +105,8 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
             });
 
             document.UpdateExtractedData(extractedJson);
-            await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+            await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AccountingDocument guncellendi: DocId={DocumentId}", msg.DocumentId);

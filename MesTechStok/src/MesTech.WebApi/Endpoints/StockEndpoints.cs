@@ -1,10 +1,17 @@
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
+using MesTech.Application.DTOs;
+using MesTech.Domain.Enums;
+using MesTech.WebApi.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.AddStock;
 using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
 using MesTech.Application.Commands.TransferStock;
+using MesTech.Application.Commands.DeleteStockLot;
+using MesTech.Application.Queries.GetStockLotById;
+using MesTech.Application.Queries.GetStockMovementById;
 using MesTech.Application.Features.Stock.Commands.CreateStockLot;
 using MesTech.Application.Features.Stock.Commands.StartStockCount;
 using MesTech.Application.Features.Stock.Queries.GetStockLots;
@@ -23,7 +30,8 @@ public static class StockEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/stock").WithTags("Stock").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/stock").WithTags("Stock").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // GET /api/v1/stock/movements — list stock movements (optional filters)
         group.MapGet("/movements", async (
@@ -39,7 +47,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockMovements")
         .WithSummary("Stok hareketleri listesi (ürün, tarih filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockMovementDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value — total inventory value
@@ -50,7 +58,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryValue")
         .WithSummary("Toplam envanter değeri")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<InventoryValueResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/add — add stock to a product
@@ -64,7 +72,8 @@ public static class StockEndpoints
         .WithName("AddStock")
         .WithSummary("Ürüne stok girişi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/remove — remove stock from a product
         group.MapPost("/remove", async (RemoveStockCommand command, ISender mediator, CancellationToken ct) =>
@@ -77,7 +86,8 @@ public static class StockEndpoints
         .WithName("RemoveStock")
         .WithSummary("Üründen stok çıkışı")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // GET /api/v1/stock/inventory — paged inventory list with filters
         group.MapGet("/inventory", async (
@@ -101,7 +111,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryPaged")
         .WithSummary("Sayfalanmış envanter listesi (arama + stok durumu filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<GetInventoryPagedResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/statistics — inventory statistics (totals, values, alerts)
@@ -112,7 +122,7 @@ public static class StockEndpoints
         })
         .WithName("GetInventoryStatistics")
         .WithSummary("Stok istatistikleri (toplam, değer, uyarılar)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<InventoryStatisticsDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/stock/transfer — inter-warehouse stock transfer
@@ -128,7 +138,8 @@ public static class StockEndpoints
         .WithName("TransferStock")
         .WithSummary("Depolar arası stok transferi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/adjust — stock adjustment (correction/reconciliation)
         group.MapPost("/adjust", async (
@@ -143,7 +154,8 @@ public static class StockEndpoints
         .WithName("AdjustStock")
         .WithSummary("Stok düzeltme / sayım farkı girişi")
         .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStock");
 
         // POST /api/v1/stock/lot — add stock lot (batch tracking)
         group.MapPost("/lot", async (
@@ -170,7 +182,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockSummary")
         .WithSummary("Stok özeti — toplam adet, değer, uyarılar")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<StockSummaryResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/stock/transfers — recent stock transfers
@@ -180,12 +192,12 @@ public static class StockEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetStockTransfersQuery(tenantId, count ?? 100), ct);
+                new GetStockTransfersQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetStockTransfers")
         .WithSummary("Depolar arası transfer geçmişi")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockTransferItemDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/value-report — stock value report (FIFO/COGS)
@@ -200,7 +212,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockValueReport")
         .WithSummary("Stok değerleme raporu — depo bazlı, FIFO/COGS")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<StockValueReportResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/count — start a stock count session
@@ -226,7 +238,7 @@ public static class StockEndpoints
         })
         .WithName("GetStockLots")
         .WithSummary("Stok lot listesi — lot numarası, miktar, maliyet, son kullanma")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockLotDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/stock/lots — yeni stok lot kaydı oluştur
@@ -244,6 +256,50 @@ public static class StockEndpoints
         .Produces(201).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
+        // DELETE /api/v1/stock/lots/{id} — stok lot sil (GAP-3 FIX: handler mevcut)
+        group.MapDelete("/lots/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteStockLotCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteStockLot")
+        .WithSummary("Stok lot kaydını sil").Produces(204).Produces(400)
+        .RequirePermission("ManageStock");
+
+        // GET /api/v1/stock/lots/{id} — tek lot detayı (kopuk zincir fix)
+        group.MapGet("/lots/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockLotByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Stok lot {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetStockLotById")
+        .WithSummary("Stok lot detayı — lot no, miktar, birim maliyet, depo")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/stock/movements/{id} — tek stok hareket detayı (kopuk zincir fix)
+        group.MapGet("/movements/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockMovementByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Stok hareketi {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetStockMovementById")
+        .WithSummary("Stok hareket detayı — ürün, miktar, kaynak, tarih")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
         // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
         group.MapGet("/placements", async (
             Guid tenantId,
@@ -254,7 +310,40 @@ public static class StockEndpoints
         })
         .WithName("GetStockPlacements")
         .WithSummary("Stok yerleşim listesi — depo, raf, bölge bazlı stok dağılımı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockPlacementDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
+
+        // ═══ HH-D6-002 / HH-DEV6-S01: PLATFORM STOK SENKRONIZASYONU ═══
+
+        // POST /api/v1/stock/sync/{platformType} — stok seviyelerini platforma gönder (Push)
+        // Trendyol, HB, N11, Amazon vb. platformlara güncel stok push eder.
+        // SyncPlatformCommand(Push) → platform adapter stok güncellemesini tetikler.
+        group.MapPost("/sync/{platformType}", async (
+            string platformType,
+            Guid tenantId,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(platformType))
+                return Results.Problem(detail: "Platform tipi boş olamaz.", statusCode: 400);
+
+            var result = await mediator.Send(
+                new SyncPlatformCommand(platformType, SyncDirection.Push), ct);
+
+            return result.IsSuccess
+                ? Results.Ok(new
+                {
+                    Platform = platformType,
+                    SyncedCount = result.ItemsProcessed,
+                    FailedCount = result.ItemsFailed,
+                    result.ErrorMessage,
+                    SyncedAt = DateTime.UtcNow
+                })
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 422);
+        })
+        .WithName("SyncStockToPlatform")
+        .WithSummary("Platform stok senkronizasyonu — stok seviyelerini platforma push et (HH-D6-002)")
+        .Produces(200).Produces(400).Produces(422).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

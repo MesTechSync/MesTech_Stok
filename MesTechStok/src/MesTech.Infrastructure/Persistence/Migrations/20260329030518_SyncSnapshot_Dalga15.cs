@@ -6059,7 +6059,7 @@ namespace MesTech.Infrastructure.Persistence.Migrations
                 table: "JournalEntries",
                 columns: new[] { "TenantId", "ReferenceNumber" },
                 unique: true,
-                filter: "[ReferenceNumber] IS NOT NULL");
+                filter: "\"ReferenceNumber\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvoiceTemplates_IsDeleted",

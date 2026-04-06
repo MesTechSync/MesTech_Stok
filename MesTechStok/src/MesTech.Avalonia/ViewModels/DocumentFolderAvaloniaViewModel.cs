@@ -29,13 +29,9 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDocumentFoldersQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetDocumentFoldersQuery(_currentUser.TenantId), ct);
             Folders.Clear();
             Files.Clear();
             foreach (var f in result.Folders)
@@ -50,16 +46,7 @@ public partial class DocumentFolderAvaloniaViewModel : ViewModelBase
             }
             TotalCount = result.TotalCount;
             IsEmpty = Folders.Count == 0 && Files.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Belge klasorleri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Belge klasorleri yuklenirken hata");
     }
 
     [RelayCommand]

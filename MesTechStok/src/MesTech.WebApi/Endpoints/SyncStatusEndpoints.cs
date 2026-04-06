@@ -22,7 +22,7 @@ public static class SyncStatusEndpoints
         })
         .WithName("GetSyncStatus")
         .WithSummary("Platform senkronizasyon durumu")
-        .Produces(200)
+        .Produces<SyncStatusResult>(200)
         .CacheOutput("Dashboard30s");
     }
 }

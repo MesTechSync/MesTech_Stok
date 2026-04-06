@@ -17,13 +17,13 @@ public sealed class LoyaltyProgramRepository : ILoyaltyProgramRepository
     public async Task<LoyaltyProgram?> GetActiveByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.LoyaltyPrograms
             .Where(p => p.TenantId == tenantId && p.IsActive)
-            .AsNoTracking().FirstOrDefaultAsync(ct);
+            .AsNoTracking().FirstOrDefaultAsync(ct).ConfigureAwait(false);
 
     public async Task<LoyaltyProgram?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.LoyaltyPrograms.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
+        => await _context.LoyaltyPrograms.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
 
     public async Task AddAsync(LoyaltyProgram program, CancellationToken ct = default)
-        => await _context.LoyaltyPrograms.AddAsync(program, ct);
+        => await _context.LoyaltyPrograms.AddAsync(program, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(LoyaltyProgram program, CancellationToken ct = default)
     {

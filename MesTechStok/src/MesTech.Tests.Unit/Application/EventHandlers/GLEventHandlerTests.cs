@@ -182,7 +182,7 @@ public class OrderConfirmedRevenueHandlerTests
             250.00m, Guid.NewGuid(), CancellationToken.None);
 
         _incomeRepo.Verify(r => r.AddAsync(
-            It.IsAny<Income>()), Times.Once);
+            It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

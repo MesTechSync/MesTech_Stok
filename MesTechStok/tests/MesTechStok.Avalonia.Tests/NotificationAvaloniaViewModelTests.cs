@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.System.UserNotifications.Queries.GetUserNotifications;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,35 +17,27 @@ public class NotificationAvaloniaViewModelTests
     public NotificationAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetUserNotificationsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserNotificationListResult(
+                Items: Array.Empty<UserNotificationDto>(),
+                TotalCount: 0,
+                Page: 1,
+                PageSize: 20));
         _sut = new NotificationAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateNotifications()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Notifications.Should().HaveCount(5);
-        _sut.TotalCount.Should().Be(5);
-        _sut.IsEmpty.Should().BeFalse();
+        _sut.Notifications.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
+        _sut.IsEmpty.Should().BeTrue();
         _sut.IsLoading.Should().BeFalse();
         _sut.HasError.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldContainExpectedNotificationTypes()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.Notifications.Should().Contain(n => n.Title == "Stok Uyarisi");
-        _sut.Notifications.Should().Contain(n => n.Title == "Yeni Siparis");
-        _sut.Notifications.Should().Contain(n => n.Title == "Kargo Teslim");
-        _sut.Notifications.Should().Contain(n => n.Title == "Fiyat Guncelleme");
-        _sut.Notifications.Should().Contain(n => n.Title == "Sistem Bakimi");
     }
 
     [Fact]
@@ -67,7 +60,7 @@ public class NotificationAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task MarkAllReadCommand_ShouldSetAllColorsToMuted()
+    public async Task MarkAllReadCommand_ShouldNotThrowWhenEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -76,18 +69,15 @@ public class NotificationAvaloniaViewModelTests
         _sut.MarkAllReadCommand.Execute(null);
 
         // Assert
-        _sut.Notifications.Should().OnlyContain(n => n.StatusColor == "#94A3B8");
+        _sut.Notifications.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task LoadAsync_NotificationsHaveDistinctStatusColors()
+    public void Constructor_ShouldInitializeWithDefaults()
     {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert — before MarkAllRead, at least some have non-muted colors
-        _sut.Notifications.Should().Contain(n => n.StatusColor == "#EF4444", "critical alert should be red");
-        _sut.Notifications.Should().Contain(n => n.StatusColor == "#059669", "success should be green");
-        _sut.Notifications.Should().Contain(n => n.StatusColor == "#F59E0B", "warning should be amber");
+        _sut.IsLoading.Should().BeFalse();
+        _sut.HasError.Should().BeFalse();
+        _sut.Notifications.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
     }
 }

@@ -25,6 +25,11 @@ public sealed class SettlementLineDto
     public string? TransactionType { get; set; }
     public decimal Amount { get; set; }
     public decimal? CommissionAmount { get; set; }
+    public decimal ServiceFee { get; set; }
+    public decimal CargoDeduction { get; set; }
+    public decimal RefundDeduction { get; set; }
+    public decimal VatAmount { get; set; }
+    public decimal NetAmount { get; set; }
     public DateTime TransactionDate { get; set; }
 }
 

@@ -15,22 +15,23 @@ public sealed class LeadRepository : ILeadRepository
     }
 
     public async Task<Lead?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Leads.AsNoTracking().FirstOrDefaultAsync(l => l.Id == id, ct);
+        => await _context.Leads.AsNoTracking().FirstOrDefaultAsync(l => l.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Lead>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Leads
             .Where(l => l.TenantId == tenantId)
             .OrderByDescending(l => l.CreatedAt)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<bool> AnyByTenantAndNameAsync(Guid tenantId, string name, CancellationToken ct = default)
         => await _context.Leads
-            .AnyAsync(l => l.TenantId == tenantId && l.FullName == name, ct);
+            .AnyAsync(l => l.TenantId == tenantId && l.FullName == name, ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Lead lead)
-        => await _context.Leads.AddAsync(lead);
+    public async Task AddAsync(Lead lead, CancellationToken ct = default)
+        => await _context.Leads.AddAsync(lead, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Lead lead)
+    public Task UpdateAsync(Lead lead, CancellationToken ct = default)
     {
         _context.Leads.Update(lead);
         return Task.CompletedTask;

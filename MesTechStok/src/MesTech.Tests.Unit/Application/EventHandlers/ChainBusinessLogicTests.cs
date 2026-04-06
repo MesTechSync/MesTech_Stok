@@ -37,8 +37,8 @@ public class OrderConfirmedRevenueBusinessTests
     {
         var sut = CreateSut();
         Income? captured = null;
-        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => captured = i);
+        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => captured = i);
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-001", 250.50m, null, CancellationToken.None);
 
@@ -54,7 +54,7 @@ public class OrderConfirmedRevenueBusinessTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-002", 0m, null, CancellationToken.None);
 
-        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Never);
+        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Never);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -65,7 +65,7 @@ public class OrderConfirmedRevenueBusinessTests
 
         await sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-003", -10m, null, CancellationToken.None);
 
-        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Never);
+        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class OrderConfirmedRevenueBusinessTests
     {
         var tenantId = Guid.NewGuid();
         Income? captured = null;
-        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>())).Callback<Income>(i => captured = i);
+        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>())).Callback<Income, CancellationToken>((i, _) => captured = i);
 
         var sut = CreateSut();
         await sut.HandleAsync(Guid.NewGuid(), tenantId, "ORD-004", 100m, null, CancellationToken.None);

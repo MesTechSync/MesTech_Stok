@@ -86,7 +86,7 @@ public sealed class AdapterHealthService
                 adapter.PlatformCode, false, sw.ElapsedMilliseconds,
                 "Timeout (10s)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             _logger.LogWarning(ex, "Adapter health check failed: {Platform}", adapter.PlatformCode);
@@ -116,7 +116,7 @@ public sealed class AdapterHealthService
             sw.Stop();
             return new AdapterHealthResult($"ERP:{erp.ERPName}", false, sw.ElapsedMilliseconds, "Timeout (10s)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             _logger.LogWarning(ex, "ERP health check failed: {ERP}", erp.ERPName);
@@ -143,7 +143,7 @@ public sealed class AdapterHealthService
             sw.Stop();
             return new AdapterHealthResult($"Cargo:{cargo.Provider}", false, sw.ElapsedMilliseconds, "Timeout (10s)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             sw.Stop();
             _logger.LogWarning(ex, "Cargo health check failed: {Provider}", cargo.Provider);

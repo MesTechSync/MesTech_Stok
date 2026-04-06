@@ -15,19 +15,22 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDistributedLockService _lockService;
     private readonly ILogger<AdjustStockHandler> _logger;
+    private readonly ITenantProvider _tenantProvider;
 
     public AdjustStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
         IUnitOfWork unitOfWork,
         IDistributedLockService lockService,
-        ILogger<AdjustStockHandler> logger)
+        ILogger<AdjustStockHandler> logger,
+        ITenantProvider tenantProvider)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _movementRepository = movementRepository ?? throw new ArgumentNullException(nameof(movementRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _lockService = lockService ?? throw new ArgumentNullException(nameof(lockService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
     public async Task<AdjustStockResult> Handle(AdjustStockCommand request, CancellationToken cancellationToken)
@@ -46,7 +49,7 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
             return new AdjustStockResult { IsSuccess = false, ErrorMessage = "Stok kilidi alınamadı. Lütfen tekrar deneyin." };
         }
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new AdjustStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -59,6 +62,7 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
         var movement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = request.Quantity,
             Reason = request.Reason,
             ProcessedBy = request.PerformedBy,
@@ -67,8 +71,8 @@ public sealed class AdjustStockHandler : IRequestHandler<AdjustStockCommand, Adj
         movement.SetStockLevels(previousStock, product.Stock);
         movement.SetMovementType(StockMovementType.Adjustment);
 
-        await _movementRepository.AddAsync(movement).ConfigureAwait(false);
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _movementRepository.AddAsync(movement, cancellationToken).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new AdjustStockResult

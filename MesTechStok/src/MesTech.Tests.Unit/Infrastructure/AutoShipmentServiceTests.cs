@@ -48,7 +48,7 @@ public class AutoShipmentServiceTests
             SourcePlatform = PlatformType.Trendyol
         };
         _orderRepoMock
-            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(testOrder);
         _orderRepoMock
             .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))

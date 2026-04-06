@@ -52,7 +52,7 @@ public class CreateStockLotHandlerTests2
 
 [Trait("Category", "Unit")]
 [Trait("Layer", "Stock")]
-public class ExportStockHandlerTests
+public class ExportStockHandlerBatchTests
 {
     [Fact]
     public async Task Handle_ShouldReturnResultWithFileName()

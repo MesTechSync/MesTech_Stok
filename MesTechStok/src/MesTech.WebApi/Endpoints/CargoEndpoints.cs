@@ -41,12 +41,12 @@ public static class CargoEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetCargoTrackingListQuery(tenantId, count ?? 100), ct);
+                new GetCargoTrackingListQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetCargoTrackingList")
         .WithSummary("Kargo takip listesi — gönderim durumları")
-        .Produces(200)
+        .Produces<IReadOnlyList<CargoTrackingItemDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/cargo/label/{shipmentId} — kargo etiketi
@@ -62,7 +62,7 @@ public static class CargoEndpoints
         })
         .WithName("GetShipmentLabel")
         .WithSummary("Kargo etiketi (ZPL/PDF)")
-        .Produces(200).Produces(404);
+        .Produces<ShipmentLabelResult>(200).Produces(404);
     }
 
     private static string GetDisplayName(CargoProvider provider)

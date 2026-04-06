@@ -56,12 +56,12 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/sales_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        var id = result.GetProperty("data").GetProperty("id").GetString();
+        var id = ExtractJsonApiId(result);
         _logger.LogInformation("Paraşüt sales invoice created: {Id}", id);
         return id;
     }
@@ -80,12 +80,12 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/e_invoices", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        return result.GetProperty("data").GetProperty("id").GetString();
+        return ExtractJsonApiId(result);
     }
 
     public async Task<string?> CreateEArchiveAsync(string salesInvoiceId, CancellationToken ct = default)
@@ -102,20 +102,28 @@ public sealed class ParasutInvoiceSyncService : IParasutInvoiceSyncService
             }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        using var response = await _httpClient.PostAsJsonAsync(
             $"/v4/{_options.CompanyId}/e_archives", body, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
-        return result.GetProperty("data").GetProperty("id").GetString();
+        return ExtractJsonApiId(result);
     }
 
     public async Task<byte[]?> GetInvoicePdfAsync(string eInvoiceId, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"/v4/{_options.CompanyId}/e_invoices/{eInvoiceId}/pdf", ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Safely extract "data.id" from JSON:API response.</summary>
+    private static string? ExtractJsonApiId(JsonElement root)
+    {
+        if (root.TryGetProperty("data", out var data) && data.TryGetProperty("id", out var id))
+            return id.GetString();
+        return null;
     }
 }
 

@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
-using MediatR;
+using MesTech.Application.DTOs.Platform;
+using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -10,66 +12,47 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class SyncStatusAvaloniaViewModelTests
 {
+    private readonly Mock<IMediator> _mediatorMock = new();
     private readonly SyncStatusAvaloniaViewModel _sut;
 
     public SyncStatusAvaloniaViewModelTests()
     {
-        _sut = new SyncStatusAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPlatformSyncStatusQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<PlatformSyncStatusDto>());
+        _sut = new SyncStatusAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateItems()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Items.Should().HaveCount(10);
-        _sut.TotalCount.Should().Be(10);
-        _sut.IsEmpty.Should().BeFalse();
+        _sut.Items.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
+        _sut.IsEmpty.Should().BeTrue();
         _sut.IsLoading.Should().BeFalse();
         _sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldContainExpectedPlatforms()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.Items.Should().Contain(i => i.PlatformAdi == "Trendyol");
-        _sut.Items.Should().Contain(i => i.PlatformAdi == "Hepsiburada");
-        _sut.Items.Should().Contain(i => i.PlatformAdi == "Amazon");
-        _sut.Items.Should().Contain(i => i.PlatformAdi == "Shopify");
-        _sut.Items.Should().Contain(i => i.PlatformAdi == "eBay");
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldHaveVariousStatuses()
-    {
-        // Act
-        await _sut.LoadAsync();
-
-        // Assert
-        _sut.Items.Should().Contain(i => i.Durum == "Basarili");
-        _sut.Items.Should().Contain(i => i.Durum == "Hatali");
-        _sut.Items.Should().Contain(i => i.Durum == "Bekliyor");
-    }
-
-    [Fact]
-    public async Task SyncNowCommand_ShouldUpdateStatusToBasarili()
+    public async Task LoadAsync_ShouldTransitionLoadingState()
     {
         // Arrange
-        await _sut.LoadAsync();
-        var hatalıPlatform = _sut.Items.First(i => i.Durum == "Hatali");
+        var loadingStates = new List<bool>();
+        _sut.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(SyncStatusAvaloniaViewModel.IsLoading))
+                loadingStates.Add(_sut.IsLoading);
+        };
 
         // Act
-        await _sut.SyncNowCommand.ExecuteAsync(hatalıPlatform);
+        await _sut.LoadAsync();
 
         // Assert
-        hatalıPlatform.Durum.Should().Be("Basarili");
-        hatalıPlatform.SonSenkronizasyon.Should().NotBeNullOrEmpty();
+        loadingStates.Should().Contain(true);
+        _sut.IsLoading.Should().BeFalse();
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateFixedAsset;
 using MesTech.Application.Features.Accounting.Commands.DeactivateFixedAsset;
@@ -28,7 +29,7 @@ public static class FixedAssetEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("ListFixedAssets")
-        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)").Produces(200).Produces(400);
+        .WithSummary("Sabit kiymet listesi (aktif/pasif filtresi)").Produces<IReadOnlyList<FixedAssetDto>>(200).Produces(400);
 
         // GET /api/v1/accounting/fixed-assets/{id}/schedule — amortisman tablosu
         group.MapGet("/{id:guid}/schedule", async (
@@ -36,11 +37,11 @@ public static class FixedAssetEndpoints
         {
             var result = await mediator.Send(
                 new CalculateDepreciationQuery(id), ct);
-            return Results.Ok(result);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .CacheOutput("Lookup60s")
         .WithName("CalculateDepreciation")
-        .WithSummary("Sabit kiymet amortisman tablosu hesapla (VUK md. 315)").Produces(200).Produces(400);
+        .WithSummary("Sabit kiymet amortisman tablosu hesapla (VUK md. 315)").Produces<DepreciationResultDto>(200).Produces(400);
 
         // POST /api/v1/accounting/fixed-assets — yeni sabit kiymet olustur
         group.MapPost("/", async (

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetCrmActivities;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -12,7 +13,13 @@ public class ActivityAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private ActivityAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+    private ActivityAvaloniaViewModel CreateSut()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCrmActivitiesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CrmActivitiesResult { Activities = [] });
+        return new(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
@@ -32,7 +39,7 @@ public class ActivityAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate4Activities()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -41,15 +48,12 @@ public class ActivityAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        sut.Activities.Should().HaveCount(4);
-        sut.TotalCount.Should().Be(4);
-        sut.IsEmpty.Should().BeFalse();
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_ActivitiesShouldHaveCorrectTypes()
+    public async Task LoadAsync_WhenEmpty_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -58,35 +62,27 @@ public class ActivityAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        var types = sut.Activities.Select(a => a.Type).ToList();
-        types.Should().Contain("Arama");
-        types.Should().Contain("E-posta");
-        types.Should().Contain("Toplanti");
-        types.Should().Contain("Not");
+        sut.Activities.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
+        sut.TotalCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task LoadAsync_ActivityTypeIconsShouldResolve()
+    public void ActivityTypeIcons_ShouldResolveCorrectly()
     {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert
-        var call = sut.Activities.First(a => a.Type == "Arama");
+        // Assert — verify TypeIcon logic via DTO directly
+        var call = new ActivityItemVm { Type = "Arama" };
         call.TypeIcon.Should().Be("T");
 
-        var email = sut.Activities.First(a => a.Type == "E-posta");
+        var email = new ActivityItemVm { Type = "E-posta" };
         email.TypeIcon.Should().Be("@");
 
-        var meeting = sut.Activities.First(a => a.Type == "Toplanti");
+        var meeting = new ActivityItemVm { Type = "Toplanti" };
         meeting.TypeIcon.Should().Be("M");
     }
 
     [Fact]
-    public async Task LoadAsync_3StateTransition_LoadingToSuccess()
+    public async Task LoadAsync_3StateTransition_LoadingToEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -94,15 +90,10 @@ public class ActivityAvaloniaViewModelTests
         // Act
         await sut.LoadAsync();
 
-        // Assert — final 3-state: not loading, no error, not empty
+        // Assert — final 3-state: not loading, no error, empty (no mock data)
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Activities.Should().AllSatisfy(a =>
-        {
-            a.Subject.Should().NotBeNullOrEmpty();
-            a.CreatedBy.Should().NotBeNullOrEmpty();
-        });
+        sut.IsEmpty.Should().BeTrue();
     }
 }

@@ -48,7 +48,8 @@ public sealed class CustomerAccountConfiguration : IEntityTypeConfiguration<Cust
             .HasForeignKey(at => at.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Optimistic concurrency
-        builder.Property(ca => ca.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(ca => ca.RowVersion);
     }
 }

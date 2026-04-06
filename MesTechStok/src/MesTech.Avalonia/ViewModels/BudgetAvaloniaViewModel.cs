@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Finance.Queries.GetBudgetSummary;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -24,6 +25,11 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedYear = "2026";
 
     public ObservableCollection<BudgetLineItemDto> Items { get; } = [];
+    private List<BudgetLineItemDto> _allItems = [];
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     public ObservableCollection<string> Months { get; } =
         ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
@@ -39,23 +45,18 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Months.IndexOf(SelectedMonth) + 1;
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
             var month = monthIndex > 0 ? monthIndex : DateTime.Now.Month;
 
-            var result = await _mediator.Send(new GetBudgetSummaryQuery(_currentUser.TenantId, year, month));
+            var result = await _mediator.Send(new GetBudgetSummaryQuery(_currentUser.TenantId, year, month), ct);
 
-            Items.Clear();
-            foreach (var cat in result.Categories)
+            _allItems = result.Categories.Select(cat =>
             {
                 var remaining = cat.Budget - cat.Spent;
-                Items.Add(new BudgetLineItemDto
+                return new BudgetLineItemDto
                 {
                     CategoryName = cat.Category,
                     Budget = cat.Budget,
@@ -64,25 +65,54 @@ public partial class BudgetAvaloniaViewModel : ViewModelBase
                     ActualFormatted = $"{cat.Spent:N2} TL",
                     RemainingFormatted = $"{remaining:N2} TL",
                     StatusText = remaining < 0 ? "ASIM" : cat.Spent >= cat.Budget ? "Tamamlandi" : "Normal"
-                });
-            }
+                };
+            }).ToList();
 
             TotalBudget = $"{result.TotalBudget:N2} TL";
             TotalActual = $"{result.TotalSpent:N2} TL";
             TotalRemaining = $"{result.Remaining:N2} TL";
             UsageRate = $"%{result.UtilizationPercent:N0}";
 
-            IsEmpty = Items.Count == 0;
-        }
-        catch (Exception ex)
+            ApplySort();
+        }, "Butce verileri yuklenirken hata");
+    }
+
+    private void ApplySort()
+    {
+        var sorted = SortColumn switch
         {
-            HasError = true;
-            ErrorMessage = $"Butce verileri yuklenemedi: {ex.Message}";
-        }
-        finally
+            "CategoryName" => SortAscending ? _allItems.OrderBy(x => x.CategoryName).ToList() : _allItems.OrderByDescending(x => x.CategoryName).ToList(),
+            "Budget"       => SortAscending ? _allItems.OrderBy(x => x.Budget).ToList()       : _allItems.OrderByDescending(x => x.Budget).ToList(),
+            "Actual"       => SortAscending ? _allItems.OrderBy(x => x.Actual).ToList()       : _allItems.OrderByDescending(x => x.Actual).ToList(),
+            "StatusText"   => SortAscending ? _allItems.OrderBy(x => x.StatusText).ToList()   : _allItems.OrderByDescending(x => x.StatusText).ToList(),
+            _              => SortAscending ? _allItems.OrderBy(x => x.CategoryName).ToList() : _allItems.OrderByDescending(x => x.CategoryName).ToList(),
+        };
+        Items.Clear();
+        foreach (var item in sorted) Items.Add(item);
+        IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplySort();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
         {
-            IsLoading = false;
-        }
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "budget", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Butce verileri disa aktarilirken hata");
     }
 
     [RelayCommand]

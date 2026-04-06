@@ -21,6 +21,8 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string purchaseVat = "0,00 TL";
     [ObservableProperty] private string netVat = "0,00 TL";
     [ObservableProperty] private int withholdingRateCount;
+    [ObservableProperty] private string sortColumn = "Date";
+    [ObservableProperty] private bool sortAscending = true;
 
     // Filters
     [ObservableProperty] private string selectedPeriodType = "Aylik";
@@ -54,17 +56,13 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Array.IndexOf(MonthNames, SelectedMonth) + 1;
             if (monthIndex <= 0) monthIndex = DateTime.Now.Month;
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
 
-            var report = await _mediator.Send(new GetKdvReportQuery(_currentUser.TenantId, year, monthIndex));
+            var report = await _mediator.Send(new GetKdvReportQuery(_currentUser.TenantId, year, monthIndex), ct);
 
             SalesVat = $"{report.HesaplananKdv:N2} TL";
             PurchaseVat = $"{report.IndirilecekKdv:N2} TL";
@@ -79,6 +77,7 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
                     AmountFormatted = $"{report.HesaplananKdv + report.IndirilecekKdv:N2} TL",
                     VatRateFormatted = "%20",
                     VatAmountFormatted = $"{report.OdenecekKdv:N2} TL",
+                    VatAmountRaw = report.OdenecekKdv,
                     InvoiceType = "KDV Ozet"
                 }
             ];
@@ -88,28 +87,27 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
             // Withholding rates (G540 orphan wire)
             try
             {
-                var rates = await _mediator.Send(new GetWithholdingRatesQuery());
+                var rates = await _mediator.Send(new GetWithholdingRatesQuery(), ct);
                 WithholdingRateCount = rates.Count;
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetWithholdingRates failed: {ex.Message}"); WithholdingRateCount = 0; }
 
             // G540: KDV declaration draft
-            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}")); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetKdvDeclarationDraft failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetKdvDeclarationDraftQuery(_currentUser.TenantId, $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}"), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetKdvDeclarationDraft failed: {ex.Message}"); }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"KDV raporu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "KDV raporu yuklenirken hata");
     }
 
     partial void OnSelectedInvoiceTypeChanged(string value) => ApplyFilters();
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
 
     private void ApplyFilters()
     {
@@ -118,10 +116,20 @@ public partial class KdvRaporAvaloniaViewModel : ViewModelBase
         if (SelectedInvoiceType != "Tumu")
             filtered = filtered.Where(x => x.InvoiceType == SelectedInvoiceType);
 
+        filtered = SortColumn switch
+        {
+            "InvoiceNumber" => SortAscending ? filtered.OrderBy(x => x.InvoiceNumber) : filtered.OrderByDescending(x => x.InvoiceNumber),
+            "Date"          => SortAscending ? filtered.OrderBy(x => x.Date) : filtered.OrderByDescending(x => x.Date),
+            "InvoiceType"   => SortAscending ? filtered.OrderBy(x => x.InvoiceType) : filtered.OrderByDescending(x => x.InvoiceType),
+            "VatAmount"     => SortAscending ? filtered.OrderBy(x => x.VatAmountRaw) : filtered.OrderByDescending(x => x.VatAmountRaw),
+            _               => SortAscending ? filtered.OrderBy(x => x.Date) : filtered.OrderByDescending(x => x.Date),
+        };
+
         Items.Clear();
         foreach (var item in filtered)
             Items.Add(item);
 
+        TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
     }
 
@@ -136,5 +144,6 @@ public class VatLineItemDto
     public string AmountFormatted { get; set; } = string.Empty;
     public string VatRateFormatted { get; set; } = string.Empty;
     public string VatAmountFormatted { get; set; } = string.Empty;
+    public decimal VatAmountRaw { get; set; }
     public string InvoiceType { get; set; } = string.Empty;
 }

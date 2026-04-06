@@ -46,20 +46,23 @@ public partial class StoreSettingsAvaloniaViewModel : ViewModelBase
             var result = await _mediator.Send(
                 new GetStoreSettingsQuery(_currentUser.TenantId), ct);
 
-            CompanyName = result.CompanyName;
-            TaxNumber = result.TaxNumber;
-            Phone = result.Phone;
-            Email = result.Email;
-            Address = result.Address;
-            StoreCount = result.Stores.Count;
-
-            if (result.Stores.Count > 0)
+            await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                StoreName = result.Stores[0].StoreName;
-                PlatformName = result.Stores[0].PlatformType;
-            }
+                CompanyName = result.CompanyName;
+                TaxNumber = result.TaxNumber;
+                Phone = result.Phone;
+                Email = result.Email;
+                Address = result.Address;
+                StoreCount = result.Stores.Count;
 
-            IsEmpty = result.Stores.Count == 0;
+                if (result.Stores.Count > 0)
+                {
+                    StoreName = result.Stores[0].StoreName;
+                    PlatformName = result.Stores[0].PlatformType;
+                }
+
+                IsEmpty = result.Stores.Count == 0;
+            });
         }, "Magaza ayarlari yuklenirken hata");
     }
 

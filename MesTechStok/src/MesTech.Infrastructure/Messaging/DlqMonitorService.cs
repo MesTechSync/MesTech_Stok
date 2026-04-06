@@ -38,13 +38,17 @@ public sealed class DlqMonitorService
 
     public async Task CheckDlqDepthAsync(CancellationToken ct = default)
     {
-        var rabbitHost = _configuration["RabbitMQ:Host"] ?? "localhost";
-        var rabbitUser = _configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitPass = _configuration["RabbitMQ:Password"] ?? "guest";
+        var rabbitHost = _configuration["RabbitMQ:Host"]
+            ?? throw new InvalidOperationException("RabbitMQ:Host is not configured. Add it to appsettings or environment variables.");
+        var rabbitUser = _configuration["RabbitMQ:Username"]
+            ?? throw new InvalidOperationException("RabbitMQ:Username is not configured. Add it to appsettings or environment variables.");
+        var rabbitPass = _configuration["RabbitMQ:Password"]
+            ?? throw new InvalidOperationException("RabbitMQ:Password is not configured. Add it to appsettings or environment variables.");
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
-        var baseUrl = $"https://{rabbitHost}:{managementPort}";
+        var scheme = _configuration["RabbitMQ:ManagementScheme"] ?? "http";
+        var baseUrl = $"{scheme}://{rabbitHost}:{managementPort}";
 
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{rabbitUser}:{rabbitPass}");
         client.DefaultRequestHeaders.Authorization =
@@ -53,7 +57,7 @@ public sealed class DlqMonitorService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("[DLQ Monitor] RabbitMQ Management API unreachable: {StatusCode}",
@@ -67,7 +71,8 @@ public sealed class DlqMonitorService
 
             foreach (var queue in queues.EnumerateArray())
             {
-                var name = queue.GetProperty("name").GetString() ?? "";
+                var name = queue.TryGetProperty("name", out var nameProp)
+                    ? nameProp.GetString() ?? "" : "";
                 if (!name.EndsWith("_error"))
                     continue;
 
@@ -94,7 +99,7 @@ public sealed class DlqMonitorService
                                 "[DLQ Monitor] Auto-reprocess: Queue={Queue}, Reprocessed={Reprocessed}, Failed={Failed}",
                                 name, result.Reprocessed, result.Failed);
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) when (ex is not OperationCanceledException)
                         {
                             _logger.LogWarning(ex, "[DLQ Monitor] Auto-reprocess failed: Queue={Queue}", name);
                         }
@@ -115,14 +120,14 @@ public sealed class DlqMonitorService
                             TelegramAlertLevel.Warning,
                             ct).ConfigureAwait(false);
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         _logger.LogWarning(ex, "[DLQ Monitor] Telegram alarm gonderilemedi");
                     }
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[DLQ Monitor] DLQ depth check failed");
         }

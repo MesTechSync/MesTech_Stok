@@ -28,7 +28,7 @@ public class GetCustomersPagedHandlerTests
             IsActive = true
         }).ToList();
 
-        _customerRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(customers.AsReadOnly());
+        _customerRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(customers.AsReadOnly());
 
         var query = new GetCustomersPagedQuery(Page: 1, PageSize: 3);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -47,7 +47,7 @@ public class GetCustomersPagedHandlerTests
             new() { Id = Guid.NewGuid(), Name = "Ahmet Ticaret", Code = "AHM-002" }
         };
 
-        _customerRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(customers.AsReadOnly());
+        _customerRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(customers.AsReadOnly());
 
         var query = new GetCustomersPagedQuery(SearchTerm: "Ahmet");
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -64,7 +64,7 @@ public class GetCustomersPagedHandlerTests
             Id = Guid.NewGuid(), Name = $"Müşteri {i}", Code = $"MUS-{i:D3}"
         }).ToList();
 
-        _customerRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(customers.AsReadOnly());
+        _customerRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(customers.AsReadOnly());
 
         var query = new GetCustomersPagedQuery(Page: 2, PageSize: 3);
         var result = await _sut.Handle(query, CancellationToken.None);

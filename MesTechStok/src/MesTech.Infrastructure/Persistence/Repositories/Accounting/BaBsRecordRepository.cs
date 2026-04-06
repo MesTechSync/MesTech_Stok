@@ -22,6 +22,7 @@ public sealed class BaBsRecordRepository : IBaBsRecordRepository
             .Where(r => month == null || r.Month == month.Value)
             .OrderByDescending(r => r.Year).ThenByDescending(r => r.Month)
             .ThenBy(r => r.CounterpartyName)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(BaBsRecord record, CancellationToken ct = default)

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Xml.Linq;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ public sealed class N11SettlementParser : ISettlementParser
     private List<N11SettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "N11";
+    public string Platform => nameof(PlatformType.N11);
 
     public N11SettlementParser(ILogger<N11SettlementParser> logger)
     {
@@ -44,8 +45,15 @@ public sealed class N11SettlementParser : ISettlementParser
         _rawFileHash = await ComputeStreamHashAsync(rawData, ct).ConfigureAwait(false);
         rawData.Position = 0;
 
-        // Parse SOAP XML response
-        var doc = await XDocument.LoadAsync(rawData, LoadOptions.None, ct).ConfigureAwait(false);
+        // Parse SOAP XML response (secure: DTD prohibited, no external resolver)
+        var xmlSettings = new System.Xml.XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = System.Xml.DtdProcessing.Prohibit,
+            XmlResolver = null
+        };
+        using var xmlReader = System.Xml.XmlReader.Create(rawData, xmlSettings);
+        var doc = await XDocument.LoadAsync(xmlReader, LoadOptions.None, ct).ConfigureAwait(false);
         _cachedItems = ParseXmlItems(doc);
 
         if (_cachedItems.Count == 0)
@@ -130,7 +138,7 @@ public sealed class N11SettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.KomisyonTutari != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.SatisTutari,
@@ -138,7 +146,7 @@ public sealed class N11SettlementParser : ISettlementParser
                     commissionAmount: item.KomisyonTutari,
                     serviceFee: 0m,
                     orderId: item.SiparisNo,
-                    category: item.Kategori);
+                    category: item.Kategori));
             }
         }
 

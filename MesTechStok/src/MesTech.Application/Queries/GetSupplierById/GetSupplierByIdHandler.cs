@@ -16,7 +16,7 @@ public sealed class GetSupplierByIdHandler : IRequestHandler<GetSupplierByIdQuer
     public async Task<Supplier?> Handle(GetSupplierByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return await _supplierRepository.GetByIdAsync(request.SupplierId)
+        return await _supplierRepository.GetByIdAsync(request.SupplierId, cancellationToken)
             .ConfigureAwait(false);
     }
 }

@@ -14,6 +14,9 @@ public sealed class WarehouseBinConfiguration : IEntityTypeConfiguration<Warehou
         builder.Property(e => e.Code).HasMaxLength(50);
         builder.Property(e => e.BinType).HasMaxLength(50);
 
+        builder.Property(e => e.Width).HasPrecision(18, 4);
+        builder.Property(e => e.Depth).HasPrecision(18, 4);
+
         builder.HasIndex(e => new { e.TenantId, e.ShelfId })
             .HasDatabaseName("IX_WarehouseBins_Tenant_Shelf");
 

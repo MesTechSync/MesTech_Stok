@@ -24,7 +24,7 @@ public sealed class AuthService : IAuthService
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             return AuthResult.Fail("Kullanıcı adı ve şifre boş bırakılamaz.");
 
-        var user = await _userRepo.GetByUsernameAsync(username);
+        var user = await _userRepo.GetByUsernameAsync(username, ct);
 
         if (user is null)
         {

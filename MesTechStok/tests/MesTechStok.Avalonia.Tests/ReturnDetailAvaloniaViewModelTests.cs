@@ -89,7 +89,7 @@ public class ReturnDetailAvaloniaViewModelTests
         await _sut.LoadAsync();
 
         _sut.HasError.Should().BeTrue();
-        _sut.ErrorMessage.Should().Contain("yuklenemedi");
+        _sut.ErrorMessage.Should().Contain("yuklenirken hata");
         _sut.IsLoading.Should().BeFalse();
     }
 

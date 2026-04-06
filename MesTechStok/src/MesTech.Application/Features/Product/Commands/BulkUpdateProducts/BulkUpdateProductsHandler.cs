@@ -53,7 +53,7 @@ public sealed class BulkUpdateProductsHandler : IRequestHandler<BulkUpdateProduc
             {
                 ApplyAction(product, request.Action, request.Value);
                 product.UpdatedAt = DateTime.UtcNow;
-                await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
                 updatedCount++;
             }
 #pragma warning disable CA1031 // Catch general exception — batch processing must not abort on single item failure

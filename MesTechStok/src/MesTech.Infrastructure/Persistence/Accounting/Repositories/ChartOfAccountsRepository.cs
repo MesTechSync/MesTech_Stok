@@ -20,13 +20,13 @@ public sealed class ChartOfAccountsRepository : IChartOfAccountsRepository
     {
         var q = _context.ChartOfAccounts.Where(a => a.TenantId == tenantId);
         if (isActive.HasValue) q = q.Where(a => a.IsActive == isActive.Value);
-        return await q.OrderBy(a => a.Code).AsNoTracking().ToListAsync(ct);
+        return await q.OrderBy(a => a.Code).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<IReadOnlyList<ChartOfAccounts>> GetByParentIdAsync(Guid tenantId, Guid? parentId, CancellationToken ct = default)
         => await _context.ChartOfAccounts
             .Where(a => a.TenantId == tenantId && a.ParentId == parentId)
-            .OrderBy(a => a.Code).AsNoTracking().ToListAsync(ct);
+            .OrderBy(a => a.Code).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
 
     public async Task AddAsync(ChartOfAccounts account, CancellationToken ct = default)
         => await _context.ChartOfAccounts.AddAsync(account, ct);

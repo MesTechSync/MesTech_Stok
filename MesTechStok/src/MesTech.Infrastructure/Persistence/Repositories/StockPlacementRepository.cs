@@ -26,8 +26,9 @@ public sealed class StockPlacementRepository : IStockPlacementRepository
         return await query
             .OrderBy(p => p.WarehouseName)
             .ThenBy(p => p.ShelfCode)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<StockPlacement?> GetByProductAndLocationAsync(
@@ -39,11 +40,11 @@ public sealed class StockPlacementRepository : IStockPlacementRepository
                 p.TenantId == tenantId &&
                 p.ProductId == productId &&
                 p.WarehouseId == warehouseId &&
-                p.ShelfId == shelfId, ct);
+                p.ShelfId == shelfId, ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(StockPlacement placement, CancellationToken ct = default)
     {
-        await _db.Set<StockPlacement>().AddAsync(placement, ct);
+        await _db.Set<StockPlacement>().AddAsync(placement, ct).ConfigureAwait(false);
     }
 }

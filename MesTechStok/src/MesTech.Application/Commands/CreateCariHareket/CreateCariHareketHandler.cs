@@ -30,7 +30,7 @@ public sealed class CreateCariHareketHandler : IRequestHandler<CreateCariHareket
             OrderId = request.OrderId,
         };
 
-        await _cariHareketRepository.AddAsync(hareket).ConfigureAwait(false);
+        await _cariHareketRepository.AddAsync(hareket, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return hareket.Id;

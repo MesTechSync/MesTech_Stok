@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.LogViewerAvaloniaView"
              x:Name="RootLogViewerAvaloniaView"
              x:DataType="vm:LogViewerAvaloniaViewModel">
@@ -76,7 +77,7 @@
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Zaman"
                                     Binding="{Binding Timestamp}"
@@ -88,7 +89,7 @@
                             <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="4,2"
                                     Background="{Binding LevelColor, Converter={x:Static StringConverters.IsNullOrEmpty}, FallbackValue=Transparent}">
                                 <TextBlock Text="{Binding Level}"
-                                           FontSize="11" FontWeight="SemiBold"
+                                           FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold"
                                            Foreground="{Binding LevelColor}" />
                             </Border>
                         </DataTemplate>
@@ -112,7 +113,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="2"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -126,24 +127,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesBgPage}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
-            </StackPanel>
-        </Border>
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
     </Grid>
 </UserControl>

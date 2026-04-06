@@ -40,8 +40,8 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int pingDurationMs;
 
     // ── WPF013: API Info ─────────────────────────────────────────────────────
-    [ObservableProperty] private string sellerId = "12345678";
-    [ObservableProperty] private string apiKeyMasked = "****-****-****-3f7a";
+    [ObservableProperty] private string sellerId = "-";
+    [ObservableProperty] private string apiKeyMasked = "-";
     [ObservableProperty] private string sonBaglantiZamani = "-";
     [ObservableProperty] private int rateLimitUsed;
     [ObservableProperty] private int rateLimitTotal = 1000;
@@ -54,6 +54,10 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
     private readonly List<PlatformOrderItem> _allOrders = [];
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false;
+
     public ObservableCollection<PlatformOrderItem> RecentOrders { get; } = [];
     public ObservableCollection<ApiCallLogItem> ApiCallLogs { get; } = [];
 
@@ -65,34 +69,23 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol));
-            IsConnected = result.IsConnected;
-            ProductCount = result.ProductCount;
-            OrderCount = result.OrderCount;
-            DailyRevenue = result.DailyRevenue;
-            SyncStatus = result.SyncStatus;
-            LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
-            _allOrders.Clear();
-            foreach (var o in result.RecentOrders)
-                _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
-            ApplyFilter();
-        }
-        catch (OperationCanceledException) { /* navigasyon sırasında iptal — normal akış */ }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Trendyol verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.Trendyol), ct);
+            await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                IsConnected = result.IsConnected;
+                ProductCount = result.ProductCount;
+                OrderCount = result.OrderCount;
+                DailyRevenue = result.DailyRevenue;
+                SyncStatus = result.SyncStatus;
+                LastSyncTime = result.LastSyncAt?.ToString("HH:mm") ?? "-";
+                _allOrders.Clear();
+                foreach (var o in result.RecentOrders)
+                    _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status));
+                ApplyFilter();
+            });
+        }, "Trendyol verileri yuklenirken hata");
     }
 
     // ── WPF013: Test Connection — real adapter ping via TestStoreConnectionCommand ──
@@ -120,6 +113,9 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             }
 
             SellerId = trendyolStore.ExternalStoreId ?? trendyolStore.Id.ToString()[..8];
+            ApiKeyMasked = trendyolStore.StoreName is { Length: > 4 }
+                ? $"****-****-{trendyolStore.StoreName[^4..]}"
+                : "****";
 
             var result = await _mediator.Send(new TestStoreConnectionCommand(trendyolStore.Id), CancellationToken);
 
@@ -278,9 +274,29 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
                 o.OrderNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 o.CustomerName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 o.Status.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "OrderNumber"  => SortAscending ? filtered.OrderBy(x => x.OrderNumber)  : filtered.OrderByDescending(x => x.OrderNumber),
+            "OrderDate"    => SortAscending ? filtered.OrderBy(x => x.OrderDate)    : filtered.OrderByDescending(x => x.OrderDate),
+            "CustomerName" => SortAscending ? filtered.OrderBy(x => x.CustomerName) : filtered.OrderByDescending(x => x.CustomerName),
+            "TotalAmount"  => SortAscending ? filtered.OrderBy(x => x.TotalAmount)  : filtered.OrderByDescending(x => x.TotalAmount),
+            "Status"       => SortAscending ? filtered.OrderBy(x => x.Status)       : filtered.OrderByDescending(x => x.Status),
+            _              => SortAscending ? filtered.OrderBy(x => x.OrderDate)    : filtered.OrderByDescending(x => x.OrderDate),
+        };
+
         foreach (var item in filtered) RecentOrders.Add(item);
         TotalCount = RecentOrders.Count;
         IsEmpty = RecentOrders.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

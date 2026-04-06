@@ -17,6 +17,11 @@ public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
             .HasFilter("\"IsDeleted\" = false")
             .HasDatabaseName("IX_Warehouses_Tenant_Code");
 
+        builder.HasIndex(w => new { w.TenantId, w.Name })
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false")
+            .HasDatabaseName("IX_Warehouses_Tenant_Name");
+
         builder.HasIndex(w => new { w.TenantId, w.IsActive })
             .HasDatabaseName("IX_Warehouses_Tenant_Active");
 

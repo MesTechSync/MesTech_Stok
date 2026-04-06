@@ -51,7 +51,7 @@ public sealed class InvoiceApprovedGLBridge
     {
         var e = notification.DomainEvent;
 
-        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning(
@@ -94,7 +94,7 @@ public sealed class InvoiceCancelledReversalBridge
     {
         var e = notification.DomainEvent;
 
-        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+        var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning(
@@ -204,5 +204,79 @@ public sealed class CommissionChargedGLBridge
             orderId, e.TenantId, platformType,
             e.CommissionAmount, e.CommissionRate,
             cancellationToken).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Zincir 3b: InvoiceApprovedEvent → COGS GL kaydı (621/153).
+/// InvoiceApprovedGLBridge ile paralel çalışır — MediatR multi-handler.
+/// </summary>
+public sealed class InvoiceApprovedCOGSBridge
+    : INotificationHandler<DomainEventNotification<InvoiceApprovedEvent>>
+{
+    private readonly IInvoiceApprovedCOGSHandler _handler;
+    private readonly ILogger<InvoiceApprovedCOGSBridge> _logger;
+
+    public InvoiceApprovedCOGSBridge(
+        IInvoiceApprovedCOGSHandler handler,
+        ILogger<InvoiceApprovedCOGSBridge> logger)
+    {
+        _handler = handler;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<InvoiceApprovedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+
+        try
+        {
+            await _handler.HandleAsync(
+                e.InvoiceId, e.TenantId, e.InvoiceNumber,
+                e.GrandTotal, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Bridge] InvoiceApproved → COGS: Hata. Invoice={InvoiceNumber}", e.InvoiceNumber);
+        }
+    }
+}
+
+/// <summary>
+/// Zincir 7: TaxWithholdingComputedEvent → Stopaj GL kaydı (193/120).
+/// </summary>
+public sealed class WithholdingTaxGLBridge
+    : INotificationHandler<DomainEventNotification<TaxWithholdingComputedEvent>>
+{
+    private readonly IWithholdingTaxGLHandler _handler;
+    private readonly ILogger<WithholdingTaxGLBridge> _logger;
+
+    public WithholdingTaxGLBridge(
+        IWithholdingTaxGLHandler handler,
+        ILogger<WithholdingTaxGLBridge> logger)
+    {
+        _handler = handler;
+        _logger = logger;
+    }
+
+    public async Task Handle(
+        DomainEventNotification<TaxWithholdingComputedEvent> notification,
+        CancellationToken cancellationToken)
+    {
+        var e = notification.DomainEvent;
+
+        try
+        {
+            await _handler.HandleAsync(
+                e.TaxWithholdingId, e.TenantId,
+                e.TaxExclusiveAmount, e.Rate, e.WithholdingAmount,
+                e.TaxType, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Bridge] WithholdingComputed → GL: Hata. Id={Id}", e.TaxWithholdingId);
+        }
     }
 }

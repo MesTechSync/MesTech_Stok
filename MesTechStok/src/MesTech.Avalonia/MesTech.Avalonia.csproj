@@ -19,7 +19,22 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Controls.DataGrid" />
-    <!-- CommunityToolkit.Mvvm � same version as WPF Desktop ViewModels -->
+    <!-- TreeDataGrid: Avalonia Pro lisans gerektirir, ileride eklenecek -->
+    <!-- <PackageReference Include="Avalonia.Controls.TreeDataGrid" /> -->
+    <PackageReference Include="Avalonia.Xaml.Behaviors" />
+    <!-- ENT-FRONTEND-001: FluentAvalonia tema + ikonlar + UX -->
+    <PackageReference Include="FluentAvaloniaUI" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" />
+    <PackageReference Include="DialogHost.Avalonia" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" />
+    <PackageReference Include="HotAvalonia" />
+    <!-- ENT-FRONTEND-001: Toast/Notification sistemi -->
+    <PackageReference Include="Irihi.Ursa" />
+    <!-- ENT-AVALONIA-UPGRADE-001: Lottie animasyon (empty state, loading) -->
+    <PackageReference Include="Avalonia.Labs.Lottie" />
+    <!-- Diagnostics sadece Debug modda -->
+    <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
+    <!-- CommunityToolkit.Mvvm — same version as WPF Desktop ViewModels -->
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
     <PackageReference Include="MediatR" />
@@ -65,6 +80,11 @@
     <Content Include="Resources\Spotlights\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <!-- Lottie animation JSON files — avares:// URI ile erisilebilir -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Animations\**\*.json" />
   </ItemGroup>
 
 </Project>

@@ -12,16 +12,17 @@ public sealed class EmployeeRepository : IEmployeeRepository
     public EmployeeRepository(AppDbContext context) => _context = context;
 
     public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Employees.FirstOrDefaultAsync(e => e.Id == id, ct);
+        => await _context.Employees.FirstOrDefaultAsync(e => e.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Employee>> GetByTenantAsync(
         Guid tenantId, EmployeeStatus? status = null, CancellationToken ct = default)
     {
         var q = _context.Employees.Where(e => e.TenantId == tenantId);
         if (status.HasValue) q = q.Where(e => e.Status == status.Value);
-        return await q.OrderBy(e => e.EmployeeCode).AsNoTracking().ToListAsync(ct);
+        return await q.OrderBy(e => e.EmployeeCode).Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(Employee employee, CancellationToken ct = default)
-        => await _context.Employees.AddAsync(employee, ct);
+        => await _context.Employees.AddAsync(employee, ct).ConfigureAwait(false);
 }

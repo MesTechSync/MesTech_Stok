@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -27,13 +28,15 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// GetOrders: GET orders?status=processing&amp;after=ISO_DATE (IOrderCapableAdapter).
 /// </summary>
 public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WooCommerceAdapter> _logger;
     private readonly WooCommerceOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -46,10 +49,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private const int PageSize = 100;
 
     public WooCommerceAdapter(HttpClient httpClient, ILogger<WooCommerceAdapter> logger,
-        IOptions<WooCommerceOptions>? options = null)
+        IOptions<WooCommerceOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new WooCommerceOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -62,6 +66,10 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _isConfigured = !string.IsNullOrWhiteSpace(_siteUrl) &&
                             !string.IsNullOrWhiteSpace(_consumerKey) &&
                             !string.IsNullOrWhiteSpace(_consumerSecret);
+
+            // SSRF guard (G10853)
+            if (_isConfigured && Security.SsrfGuard.IsPrivateHost(new Uri(_siteUrl).Host))
+                _logger.LogWarning("[WooCommerceAdapter] SiteUrl points to private network: {Url}", _siteUrl);
         }
 
         _jsonOptions = new JsonSerializerOptions
@@ -149,7 +157,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "WooCommerce";
+    public string PlatformCode => nameof(PlatformType.WooCommerce);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;
@@ -224,7 +232,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             // System status endpoint — lightweight connectivity check
             var url = $"{ApiBase}/system_status";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -270,7 +278,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             result.IsSuccess = true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -308,7 +316,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/products?per_page={PageSize}&page={page}&status=publish";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -334,16 +342,17 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
                 foreach (var p in wooProducts)
                 {
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = p.Name ?? string.Empty,
                         SKU = p.Sku ?? string.Empty,
-                        Stock = p.StockQuantity ?? 0,
                         SalePrice = decimal.TryParse(p.Price, NumberStyles.Number,
                             CultureInfo.InvariantCulture, out var price)
                             ? price
                             : 0m
-                    });
+                    };
+                    product.SyncStock(p.StockQuantity ?? 0, "woocommerce-sync");
+                    products.Add(product);
                 }
 
                 page++;
@@ -352,7 +361,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("WooCommerce PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PullProducts failed");
         }
@@ -378,9 +387,16 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         _logger.LogInformation("WooCommerceAdapter.PushStockUpdateAsync: ProductId={Id} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.WooCommerce, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // Search by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
@@ -435,7 +451,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("WooCommerce PushStockUpdate: SKU={SKU} → {Qty} OK", sku, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PushStockUpdate failed");
             return false;
@@ -452,9 +468,16 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         _logger.LogInformation("WooCommerceAdapter.PushPriceUpdateAsync: ProductId={Id} price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.WooCommerce, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // 1. Find product by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
@@ -509,7 +532,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("WooCommerce PushPriceUpdate: SKU={SKU} → {Price} OK", sku, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PushPriceUpdate failed");
             return false;
@@ -524,7 +547,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         while (true)
         {
-            var response = await ThrottledExecuteAsync(async (token) =>
+            using var response = await ThrottledExecuteAsync(async (token) =>
             {
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get,
                     $"{ApiBase}/products/categories?per_page={perPage}&page={page}");
@@ -583,7 +606,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/orders?status=processing&per_page={PageSize}&page={page}{after}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -671,7 +694,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("WooCommerce PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce PullOrders failed");
         }
@@ -691,7 +714,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var payload = JsonSerializer.Serialize(new { status }, _jsonOptions);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(packageId)}";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, content);
@@ -708,7 +731,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce UpdateOrderStatus failed");
             return false;
@@ -775,7 +798,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{ApiBase}/orders/{Uri.EscapeDataString(platformOrderId)}";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Put, url, requestContent);
@@ -795,7 +818,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 platformOrderId, shipment.TrackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -858,7 +881,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
                 var url = $"{ApiBase}/products/batch";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -886,7 +909,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 "WooCommerce BatchUpdate complete: {Updated} updated, {Errors} errors",
                 result.Updated, result.Errors.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce BatchUpdateProducts failed");
             result.Errors.Add($"Exception: {ex.Message}");
@@ -920,7 +943,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             do
             {
                 var url = $"{ApiBase}/products/{Uri.EscapeDataString(productId)}/variations?per_page={PageSize}&page={page}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -975,7 +998,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 variations.Count, productId);
             return variations.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "WooCommerce GetProductVariations failed: ProductId={ProductId}", productId);
             return Array.Empty<ProductVariantDto>();
@@ -1002,7 +1025,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var url = $"{ApiBase}/reports/sales" +
                 $"?date_min={startDate:yyyy-MM-dd}&date_max={endDate:yyyy-MM-dd}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1111,7 +1134,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     $"&after={sinceDate:yyyy-MM-ddTHH:mm:ss}" +
                     $"&per_page={PageSize}&page={page}";
 
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1323,11 +1346,105 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         return Task.FromResult(true);
     }
     // ── IWebhookCapableAdapter ──
-    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[WooCommerce] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
-    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        EnsureConfigured();
+        _logger.LogInformation("[WooCommerce] RegisterWebhookAsync: {Url}", callbackUrl);
+
+        try
+        {
+            // WooCommerce REST API v3 requires separate webhook per topic
+            var topics = new[] { "order.created", "order.updated", "product.updated" };
+            var allOk = true;
+
+            foreach (var topic in topics)
+            {
+                var payload = JsonSerializer.Serialize(new
+                {
+                    name = $"MesTech {topic}",
+                    topic,
+                    delivery_url = callbackUrl,
+                    status = "active",
+                    secret = Guid.NewGuid().ToString("N")
+                }, _jsonOptions);
+
+                using var response = await ThrottledExecuteAsync(async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Post,
+                        $"{_siteUrl}/wp-json/wc/v3/webhooks");
+                    req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("[WooCommerce] Webhook registration failed for {Topic}: {Status} — {Error}",
+                        topic, response.StatusCode, error);
+                    allOk = false;
+                }
+            }
+
+            return allOk;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[WooCommerce] RegisterWebhookAsync exception");
+            return false;
+        }
+    }
+
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[WooCommerce] UnregisterWebhookAsync");
+
+        try
+        {
+            // List all webhooks, delete MesTech ones
+            using var listResponse = await ThrottledExecuteAsync(async token =>
+            {
+                using var req = CreateAuthenticatedRequest(HttpMethod.Get,
+                    $"{_siteUrl}/wp-json/wc/v3/webhooks?per_page=100");
+                return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!listResponse.IsSuccessStatusCode)
+                return false;
+
+            var content = await listResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            foreach (var wh in doc.RootElement.EnumerateArray())
+            {
+                var name = wh.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                if (!name.StartsWith("MesTech ", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var id = wh.TryGetProperty("id", out var idProp) ? idProp.GetInt64() : 0;
+                if (id <= 0) continue;
+
+                using var delResponse = await ThrottledExecuteAsync(async token =>
+                {
+                    using var req = CreateAuthenticatedRequest(HttpMethod.Delete,
+                        $"{_siteUrl}/wp-json/wc/v3/webhooks/{id}?force=true");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+                _logger.LogInformation("[WooCommerce] Deleted webhook {Id} ({Name})", id, name);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[WooCommerce] UnregisterWebhookAsync exception");
+            return false;
+        }
+    }
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(payload)) return;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
@@ -1338,12 +1455,81 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation(
                 "WooCommerce webhook processed: Topic={Topic} OrderId={OrderId} Status={Status} PayloadLength={Len}",
                 topic, orderId, status, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, topic, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (System.Text.Json.JsonException ex)
         {
             _logger.LogWarning(ex, "[WooCommerce] Webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from WooCommerce REST API.
+    /// GET /wp-json/wc/v3/products/reviews?page={page+1}&amp;per_page={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("WooCommerceAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var wooPage = page + 1; // WooCommerce 1-based
+            var response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Get,
+                        $"/wp-json/wc/v3/products/reviews?page={wooPage}&per_page={size}");
+                    req.Headers.TryAddWithoutValidation("User-Agent", "MesTech-WooCommerce-Client/3.0");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("WooCommerce GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("review", out var review) ? review.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("reviewer", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("date_created", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: false)); // WooCommerce review reply = comment thread (not tracked)
+                }
+            }
+
+            _logger.LogInformation("WooCommerce GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "WooCommerce GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ── IPingableAdapter ──
@@ -1354,10 +1540,10 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "WooCommerce ping failed");
             return false;

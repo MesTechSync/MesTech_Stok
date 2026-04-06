@@ -15,6 +15,10 @@ public class IncomeExpenseListViewModelTests
     public IncomeExpenseListViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList.GetIncomeExpenseListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList.IncomeExpenseListResultDto(
+                Items: Array.Empty<MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList.IncomeExpenseItemDto>(),
+                TotalCount: 0));
         _sut = new IncomeExpenseListViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
@@ -41,31 +45,5 @@ public class IncomeExpenseListViewModelTests
         _sut.Categories.Should().Contain("Satis");
         _sut.Categories.Should().Contain("Kargo");
         _sut.Categories.Should().Contain("Komisyon");
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldPopulateItems()
-    {
-        await _sut.LoadAsync();
-
-        _sut.Items.Should().NotBeEmpty();
-        _sut.TotalCount.Should().BeGreaterThan(0);
-        _sut.IsEmpty.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldSetLoadingStates()
-    {
-        var loadingStates = new List<bool>();
-        _sut.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(IncomeExpenseListViewModel.IsLoading))
-                loadingStates.Add(_sut.IsLoading);
-        };
-
-        await _sut.LoadAsync();
-
-        loadingStates.Should().ContainInOrder(true, false);
-        _sut.IsLoading.Should().BeFalse();
     }
 }

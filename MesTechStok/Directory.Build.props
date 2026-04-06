@@ -36,6 +36,9 @@
     <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
     <WarningsAsErrors>$(WarningsAsErrors);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618</WarningsAsErrors>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <!-- NX0002: null-forgiving (= null!) is standard EF Core nav-property pattern.
+         Suppress until Nullable.Extended.Analyzer supports [SuppressMessage] or pragma. -->
+    <NoWarn>$(NoWarn);NX0002</NoWarn>
   </PropertyGroup>
 
   <!-- Dalga 2 4.D2-02: Core + Desktop — analyzer aktif, nullable hata degil (mevcut uyarilar cok) -->

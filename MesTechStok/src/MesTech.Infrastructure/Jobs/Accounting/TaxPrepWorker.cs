@@ -73,7 +73,7 @@ public sealed class TaxPrepWorker : IAccountingJob
                 "Odenecek KDV: {PayableVAT:F2}, Tevkifat: {Withholding:F2}",
                 JobId, year, month, report.PayableVAT, report.TotalWithholding);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Aylik vergi taslagi hazirlama HATA — Donem: {Year}-{Month:D2}",
                 JobId, year, month);

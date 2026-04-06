@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Avalonia.Services;
 using MesTech.Application.Features.Crm.Queries.GetLeads;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using global::MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -21,9 +22,20 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    private List<LeadItemVm> _allLeads = [];
+
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string? selectedStatus;
     [ObservableProperty] private int totalCount;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "date";
+    [ObservableProperty] private bool sortAscending = false;
+
+    // Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int totalPages = 1;
+    private const int PageSize = 25;
 
     public ObservableCollection<LeadItemVm> Leads { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Iletisime Gecildi", "Nitelikli", "Donusturuldu", "Kaybedildi"];
@@ -38,36 +50,82 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var status = SelectedStatus == "Tumu" ? null : SelectedStatus;
             var result = await _mediator.Send(new GetLeadsQuery(
                 _currentUser.TenantId,
-                Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null));
+                Status: status != null ? Enum.Parse<MesTech.Domain.Enums.LeadStatus>(status.Replace(" ", "")) : null), ct);
 
-            Leads.Clear();
-            foreach (var lead in result.Items)
+            _allLeads = result.Items.Select(lead => new LeadItemVm
             {
-                Leads.Add(new LeadItemVm
-                {
-                    Id = lead.Id,
-                    FullName = lead.FullName,
-                    Company = lead.Company,
-                    Email = lead.Email,
-                    Phone = lead.Phone,
-                    Status = lead.Status,
-                    Source = lead.Source,
-                    CreatedAt = lead.CreatedAt
-                });
-            }
+                Id = lead.Id,
+                FullName = lead.FullName,
+                Company = lead.Company,
+                Email = lead.Email,
+                Phone = lead.Phone,
+                Status = lead.Status,
+                Source = lead.Source,
+                CreatedAt = lead.CreatedAt
+            }).ToList();
+
             TotalCount = result.TotalCount;
-        }
-        finally
+            ApplyFilters();
+        }, "Lead verileri yuklenirken hata");
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allLeads.AsEnumerable();
+
+        // Search filter (already existing behaviour — re-applied client-side for instant UX)
+        if (!string.IsNullOrWhiteSpace(SearchText) && SearchText.Length >= 2)
         {
-            IsLoading = false;
-            IsEmpty = Leads.Count == 0;
+            var term = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(l =>
+                l.FullName.Contains(term, StringComparison.InvariantCultureIgnoreCase) ||
+                (l.Company?.Contains(term, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                (l.Email?.Contains(term, StringComparison.InvariantCultureIgnoreCase) ?? false));
         }
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "date"   => SortAscending ? filtered.OrderBy(l => l.CreatedAt)  : filtered.OrderByDescending(l => l.CreatedAt),
+            "source" => SortAscending ? filtered.OrderBy(l => l.Source)     : filtered.OrderByDescending(l => l.Source),
+            "status" => SortAscending ? filtered.OrderBy(l => l.Status)     : filtered.OrderByDescending(l => l.Status),
+            _        => filtered.OrderByDescending(l => l.CreatedAt)
+        };
+
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        Leads.Clear();
+        foreach (var item in filteredList.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+            Leads.Add(item);
+
+        IsEmpty = Leads.Count == 0;
+    }
+
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
     }
 
     [RelayCommand]
@@ -82,6 +140,22 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     {
         // IDialogService replaces System.Windows.MessageBox — the ONLY change from WPF ViewModel
         await _dialog.ShowInfoAsync("Yeni Lead formu yakinda hazir.", "MesTech CRM");
+    }
+
+    // HH-FIX-014b: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "leads", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Lead verileri disa aktarilirken hata");
     }
 
     [RelayCommand]

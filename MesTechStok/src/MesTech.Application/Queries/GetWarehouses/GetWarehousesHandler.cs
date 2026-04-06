@@ -15,25 +15,27 @@ public sealed class GetWarehousesHandler : IRequestHandler<GetWarehousesQuery, I
     public async Task<IReadOnlyList<WarehouseListDto>> Handle(GetWarehousesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var warehouses = await _warehouseRepository.GetAllAsync().ConfigureAwait(false);
+        var warehouses = await _warehouseRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         if (request.ActiveOnly)
         {
             warehouses = warehouses.Where(w => w.IsActive).ToList();
         }
 
-        return warehouses.Select(w => new WarehouseListDto
-        {
-            Id = w.Id,
-            Name = w.Name,
-            Code = w.Code,
-            Description = w.Description,
-            Type = w.Type,
-            City = w.City,
-            Address = w.Address,
-            IsActive = w.IsActive,
-            IsDefault = w.IsDefault,
-            HasClimateControl = w.HasClimateControl,
-        }).ToList();
+        return warehouses
+            .DistinctBy(w => w.Id)
+            .Select(w => new WarehouseListDto
+            {
+                Id = w.Id,
+                Name = w.Name,
+                Code = w.Code,
+                Description = w.Description,
+                Type = w.Type,
+                City = w.City,
+                Address = w.Address,
+                IsActive = w.IsActive,
+                IsDefault = w.IsDefault,
+                HasClimateControl = w.HasClimateControl,
+            }).ToList();
     }
 }

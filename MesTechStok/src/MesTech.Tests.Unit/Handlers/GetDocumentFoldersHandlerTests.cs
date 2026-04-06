@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using FluentAssertions;
 using MesTech.Application.Features.Documents.Queries.GetDocumentFolders;
 using MesTech.Domain.Entities.Documents;
@@ -40,10 +41,12 @@ public class GetDocumentFoldersHandlerTests
 
         _folderRepoMock.Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DocumentFolder> { folder1, folder2 });
-        _docRepoMock.Setup(r => r.GetByFolderAsync(folder1.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Document> { doc1, doc2 });
-        _docRepoMock.Setup(r => r.GetByFolderAsync(folder2.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Document>());
+        _docRepoMock.Setup(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReadOnlyDictionary<Guid, int>(new Dictionary<Guid, int>
+            {
+                { folder1.Id, 2 },
+                { folder2.Id, 0 }
+            }));
 
         var query = new GetDocumentFoldersQuery(TenantId);
 
@@ -67,6 +70,8 @@ public class GetDocumentFoldersHandlerTests
         // Arrange
         _folderRepoMock.Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DocumentFolder>());
+        _docRepoMock.Setup(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReadOnlyDictionary<Guid, int>(new Dictionary<Guid, int>()));
 
         var query = new GetDocumentFoldersQuery(TenantId);
 
@@ -76,7 +81,6 @@ public class GetDocumentFoldersHandlerTests
         // Assert
         result.Folders.Should().BeEmpty();
         result.TotalCount.Should().Be(0);
-        _docRepoMock.Verify(r => r.GetByFolderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -88,8 +92,8 @@ public class GetDocumentFoldersHandlerTests
 
         _folderRepoMock.Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DocumentFolder> { parentFolder, childFolder });
-        _docRepoMock.Setup(r => r.GetByFolderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Document>());
+        _docRepoMock.Setup(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReadOnlyDictionary<Guid, int>(new Dictionary<Guid, int>()));
 
         var query = new GetDocumentFoldersQuery(TenantId);
 
@@ -107,15 +111,15 @@ public class GetDocumentFoldersHandlerTests
     [Fact]
     public async Task Handle_CallsGetByFolderForEachFolder()
     {
-        // Arrange — 3 folders, verify repo called 3 times
+        // Arrange — 3 folders, verify batch count called once (N+1 → 1+1)
         var folders = Enumerable.Range(1, 3)
             .Select(i => DocumentFolder.Create(TenantId, $"Folder-{i}"))
             .ToList();
 
         _folderRepoMock.Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(folders);
-        _docRepoMock.Setup(r => r.GetByFolderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Document>());
+        _docRepoMock.Setup(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReadOnlyDictionary<Guid, int>(new Dictionary<Guid, int>()));
 
         var query = new GetDocumentFoldersQuery(TenantId);
 
@@ -123,8 +127,8 @@ public class GetDocumentFoldersHandlerTests
         await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        _docRepoMock.Verify(r => r.GetByFolderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-            Times.Exactly(3));
+        _docRepoMock.Verify(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -135,8 +139,8 @@ public class GetDocumentFoldersHandlerTests
 
         _folderRepoMock.Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<DocumentFolder> { folder });
-        _docRepoMock.Setup(r => r.GetByFolderAsync(folder.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Document>());
+        _docRepoMock.Setup(r => r.CountByFolderIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReadOnlyDictionary<Guid, int>(new Dictionary<Guid, int>()));
 
         var query = new GetDocumentFoldersQuery(TenantId);
 

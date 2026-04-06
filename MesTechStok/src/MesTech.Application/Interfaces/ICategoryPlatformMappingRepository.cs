@@ -16,6 +16,9 @@ public interface ICategoryPlatformMappingRepository
     Task<CategoryPlatformMapping?> GetByCategoryAndPlatformAsync(
         Guid tenantId, Guid categoryId, PlatformType platform, CancellationToken ct = default);
 
+    Task<CategoryPlatformMapping?> GetByExternalCategoryIdAsync(
+        Guid tenantId, string externalCategoryId, PlatformType platform, CancellationToken ct = default);
+
     Task AddAsync(CategoryPlatformMapping mapping, CancellationToken ct = default);
     Task UpdateAsync(CategoryPlatformMapping mapping, CancellationToken ct = default);
 }

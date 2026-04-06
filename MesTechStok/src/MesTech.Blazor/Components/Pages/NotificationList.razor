@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-bell text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Bildirim Merkezi</h3>
+    <h3 class="mb-0" >Bildirim Merkezi</h3>
     <small class="text-muted">Tum bildirimlerinizi tek yerden yonetin</small>
   </div>
 </div>
@@ -83,7 +82,7 @@ else
           </div>
         </div>
         <div class="col-12 col-md-auto">
-          <button class="btn btn-sm btn-outline-secondary" @onclick="BulkMarkRead"
+          <button class="btn btn-sm btn-outline-secondary"@onclick="BulkMarkRead"
                   disabled="@(!notifications.Any(n => !n.IsRead))">
             <i class="fas fa-check-double me-1"></i>Toplu Okundu Isaretle
           </button>
@@ -150,7 +149,7 @@ else
   <div class="card shadow-sm mt-4">
     <div class="card-header bg-white" style="cursor: pointer;" @onclick="() => showSettings = !showSettings">
       <div class="d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-cog me-2" style="color: #2855AC;"></i>Bildirim Ayarlari</h6>
+        <h6 class="mb-0"><i class="fas fa-cog me-2" ></i>Bildirim Ayarlari</h6>
         <i class="fas @(showSettings ? "fa-chevron-up" : "fa-chevron-down") text-muted"></i>
       </div>
     </div>
@@ -165,28 +164,28 @@ else
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fas fa-envelope me-2 text-primary"></i>Email Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsEmailEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsEmailEnabled"
                          @onchange="(e) => settingsEmailEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fas fa-sms me-2 text-warning"></i>SMS Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsSmsEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsSmsEnabled"
                          @onchange="(e) => settingsSmsEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fab fa-whatsapp me-2 text-success"></i>WhatsApp Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsWhatsAppEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsWhatsAppEnabled"
                          @onchange="(e) => settingsWhatsAppEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fab fa-telegram me-2 text-info"></i>Telegram Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsTelegramEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsTelegramEnabled"
                          @onchange="(e) => settingsTelegramEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
@@ -200,21 +199,21 @@ else
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fas fa-shopping-cart me-2 text-primary"></i>Siparis Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsOrderEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsOrderEnabled"
                          @onchange="(e) => settingsOrderEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fas fa-boxes-stacked me-2 text-warning"></i>Stok Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsStockEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsStockEnabled"
                          @onchange="(e) => settingsStockEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Sync Hatasi Bildirimleri</span>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" checked="@settingsSyncErrorEnabled"
+                  <input class="form-check-input"type="checkbox" checked="@settingsSyncErrorEnabled"
                          @onchange="(e) => settingsSyncErrorEnabled = (bool)(e.Value ?? false)" />
                 </div>
               </div>
@@ -372,7 +371,7 @@ else
 
   private static string GetChannelColor(string channel) => channel switch
   {
-    "Email" => "#2855AC",
+    "Email" => "var(--mestech-primary)",
     "SMS" => "#ffc107",
     "WhatsApp" => "#25D366",
     "Telegram" => "#0088cc",

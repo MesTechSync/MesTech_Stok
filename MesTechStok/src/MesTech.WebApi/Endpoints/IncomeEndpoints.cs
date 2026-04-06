@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Commands.CreateIncome;
 using MesTech.Application.Commands.DeleteIncome;
@@ -30,7 +31,7 @@ public static class IncomeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetIncomes")
-        .WithSummary("Gelir kayitlari listesi (tarih + tip filtresi)").Produces(200).Produces(400);
+        .WithSummary("Gelir kayitlari listesi (tarih + tip filtresi)").Produces<IReadOnlyList<IncomeDto>>(200).Produces(400);
 
         // GET /api/v1/accounting/incomes/{id} — tek gelir kaydi
         group.MapGet("/{id:guid}", async (
@@ -41,7 +42,7 @@ public static class IncomeEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetIncomeById")
-        .WithSummary("Tek gelir kaydi detayi").Produces(200).Produces(400);
+        .WithSummary("Tek gelir kaydi detayi").Produces<IncomeDto>(200).Produces(400);
 
         // POST /api/v1/accounting/incomes — yeni gelir kaydi olustur
         group.MapPost("/", async (
@@ -52,7 +53,8 @@ public static class IncomeEndpoints
             return Results.Created($"/api/v1/accounting/incomes/{id}", new CreatedResponse(id));
         })
         .WithName("CreateIncome")
-        .WithSummary("Yeni gelir kaydi olustur").Produces(200).Produces(400);
+        .WithSummary("Yeni gelir kaydi olustur").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // PUT /api/v1/accounting/incomes/{id} — gelir kaydi guncelle
         group.MapPut("/{id:guid}", async (
@@ -64,7 +66,8 @@ public static class IncomeEndpoints
             return Results.NoContent();
         })
         .WithName("UpdateIncome")
-        .WithSummary("Gelir kaydi guncelle").Produces(200).Produces(400);
+        .WithSummary("Gelir kaydi guncelle").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // DELETE /api/v1/accounting/incomes/{id} — gelir kaydi sil (soft delete)
         group.MapDelete("/{id:guid}", async (

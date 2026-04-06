@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.InfoDialog"
+             x:CompileBindings="False"
+             AutomationProperties.Name="Info Dialog"
         Title="Bilgi"
         Width="420" Height="250"
         CanResize="False"

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.UserManagementAvaloniaView"
              x:Name="RootUserManagementAvaloniaView"
              x:DataType="vm:UserManagementAvaloniaViewModel">
@@ -9,7 +10,7 @@
 
     <!-- EMR-12: Kullanici Yonetimi — kullanici listesi + rol yonetimi -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -22,10 +23,25 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
-                        Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                <!-- HH-DEV2-038: User CRUD buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="+ Kullanici Ekle" ToolTip.Tip="Yeni kullanici ekle"
+                            Command="{Binding AddUserCommand}"
+                            Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Duzenle" ToolTip.Tip="Secili kullaniciyi duzenle"
+                            Command="{Binding EditUserCommand}"
+                            Background="{DynamicResource MesAmber}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Sil" ToolTip.Tip="Secili kullaniciyi sil"
+                            Command="{Binding DeleteUserCommand}"
+                            Background="{DynamicResource MesRedAlert}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -37,9 +53,39 @@
                      FontSize="{StaticResource FontSizeBody}" Padding="10,8" HorizontalAlignment="Left" />
         </Border>
 
+        <!-- HH-DEV2-038: Inline Edit Form -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" Padding="16,12"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1"
+                IsVisible="{Binding IsEditing}">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Kullanici Bilgileri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MesPrimaryBlue}" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBox Width="160" Watermark="Kullanici Adi" AutomationProperties.Name="Kullanici Adi"
+                             Text="{Binding EditUsername}" />
+                    <TextBox Width="180" Watermark="Ad Soyad" AutomationProperties.Name="Ad Soyad"
+                             Text="{Binding EditFullName}" />
+                    <TextBox Width="200" Watermark="E-posta" AutomationProperties.Name="E-posta"
+                             Text="{Binding EditEmail}" />
+                    <ComboBox Width="120" ItemsSource="{Binding RoleOptions}" SelectedItem="{Binding EditRole}"
+                              AutomationProperties.Name="Rol seciniz" />
+                    <Button Content="Kaydet" Command="{Binding SaveUserCommand}"
+                            Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}"
+                            FontWeight="SemiBold" Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Iptal" Command="{Binding CancelEditCommand}"
+                            Background="{DynamicResource MesBgMist}" Foreground="{DynamicResource MesSlateGray}"
+                            Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
+                <TextBlock Text="{Binding EditStatus}" FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{DynamicResource MesAmber}"
+                           IsVisible="{Binding EditStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+
         <!-- Users DataGrid -->
-        <DataGrid Grid.Row="2"
+        <DataGrid Grid.Row="3"
                   ItemsSource="{Binding Users}"
+                  SelectedItem="{Binding SelectedUser}"
                   AutoGenerateColumns="False"
                   CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="True"
                   IsReadOnly="True"
@@ -58,7 +104,7 @@
         </DataGrid>
 
         <!-- Empty State -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -72,26 +118,26 @@
         </Border>
 
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
     
-        <!-- Error State -->
-        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
-            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           TextWrapping="Wrap" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
-                        ToolTip.Tip="Verileri tekrar yukle"
-                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
 </Grid>
 </UserControl>

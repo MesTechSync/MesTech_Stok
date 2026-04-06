@@ -37,16 +37,12 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var from = SelectedDate?.Date ?? DateTime.Now.Date.AddDays(-7);
             var to = DateTime.Now.Date.AddDays(1);
             var entries = await _mediator.Send(new GetTimeEntriesQuery(
-                _currentUser.TenantId, from, to));
+                _currentUser.TenantId, from, to), ct);
 
             TimeEntries.Clear();
             foreach (var e in entries)
@@ -67,16 +63,7 @@ public partial class TimeEntryAvaloniaViewModel : ViewModelBase
 
             TotalCount = TimeEntries.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Zaman kayitlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Zaman kayitlari yuklenirken hata");
     }
 
     [RelayCommand]

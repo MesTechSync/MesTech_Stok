@@ -20,6 +20,7 @@ public sealed class NotificationSettingRepository : INotificationSettingReposito
     public async Task<IReadOnlyList<NotificationSetting>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         => await _context.Set<NotificationSetting>()
             .Where(s => s.UserId == userId)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 

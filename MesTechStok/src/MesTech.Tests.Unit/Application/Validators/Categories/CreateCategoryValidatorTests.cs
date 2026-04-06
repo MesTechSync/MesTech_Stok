@@ -37,18 +37,18 @@ public class CreateCategoryValidatorTests
     }
 
     [Fact]
-    public async Task Name_WhenExceeds500Chars_ShouldFail()
+    public async Task Name_WhenExceeds200Chars_ShouldFail()
     {
-        var cmd = CreateValidCommand() with { Name = new string('N', 501) };
+        var cmd = CreateValidCommand() with { Name = new string('N', 201) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name");
     }
 
     [Fact]
-    public async Task Name_WhenExactly500Chars_ShouldPass()
+    public async Task Name_WhenExactly200Chars_ShouldPass()
     {
-        var cmd = CreateValidCommand() with { Name = new string('N', 500) };
+        var cmd = CreateValidCommand() with { Name = new string('N', 200) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeTrue();
     }
@@ -72,18 +72,18 @@ public class CreateCategoryValidatorTests
     }
 
     [Fact]
-    public async Task Code_WhenExceeds500Chars_ShouldFail()
+    public async Task Code_WhenExceeds50Chars_ShouldFail()
     {
-        var cmd = CreateValidCommand() with { Code = new string('C', 501) };
+        var cmd = CreateValidCommand() with { Code = new string('C', 51) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Code");
     }
 
     [Fact]
-    public async Task Code_WhenExactly500Chars_ShouldPass()
+    public async Task Code_WhenExactly50Chars_ShouldPass()
     {
-        var cmd = CreateValidCommand() with { Code = new string('C', 500) };
+        var cmd = CreateValidCommand() with { Code = new string('C', 50) };
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeTrue();
     }

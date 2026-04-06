@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetTaxRecords;
 using MesTech.Application.Features.Accounting.Queries.GetTaxSummary;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -27,6 +28,10 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedStatus = "Tumu";
     [ObservableProperty] private string selectedStatusFilter = "Tümü";
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<TaxCalendarItemDto> Items { get; } = [];
     private List<TaxCalendarItemDto> _allItems = [];
 
@@ -47,17 +52,12 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var year = int.TryParse(SelectedYear, out var y) ? y : DateTime.Now.Year;
             var records = await _mediator.Send(
-                new GetTaxRecordsQuery(tenantId, Year: year), CancellationToken);
+                new GetTaxRecordsQuery(tenantId, Year: year), ct);
 
             var now = DateTime.Now;
             _allItems = records.Select(r =>
@@ -83,22 +83,13 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
             try
             {
                 var period = $"{year}-{Months.IndexOf(SelectedMonth) + 1:D2}";
-                var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period));
+                var summary = await _mediator.Send(new GetTaxSummaryQuery(tenantId, period), ct);
                 TaxSummaryText = $"Toplam: {summary.TotalTax:N2} TL | Odenmis: {summary.TotalPaid:N2} TL";
             }
             catch (Exception ex) { TaxSummaryText = "—"; System.Diagnostics.Debug.WriteLine($"[WARNING] TaxSummary query failed: {ex.Message}"); }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Vergi takvimi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Vergi takvimi yuklenirken hata");
     }
 
     partial void OnSelectedStatusChanged(string value) => ApplyFilters();
@@ -114,11 +105,44 @@ public partial class VergiTakvimiAvaloniaViewModel : ViewModelBase
         else if (SelectedStatus == "Tamamlanan")
             filtered = filtered.Where(x => x.StatusColor == "#059669");
 
+        // Sort
+        var sorted = SortColumn switch
+        {
+            "TaxName"          => SortAscending ? filtered.OrderBy(x => x.TaxName).ToList()          : filtered.OrderByDescending(x => x.TaxName).ToList(),
+            "DueDateFormatted" => SortAscending ? filtered.OrderBy(x => x.DueDateFormatted).ToList() : filtered.OrderByDescending(x => x.DueDateFormatted).ToList(),
+            "StatusText"       => SortAscending ? filtered.OrderBy(x => x.StatusText).ToList()       : filtered.OrderByDescending(x => x.StatusText).ToList(),
+            _                  => SortAscending ? filtered.OrderBy(x => x.DueDateFormatted).ToList() : filtered.OrderByDescending(x => x.DueDateFormatted).ToList(),
+        };
+
         Items.Clear();
-        foreach (var item in filtered)
+        foreach (var item in sorted)
             Items.Add(item);
 
+        TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "tax-calendar", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Vergi takvimi disa aktarilirken hata");
     }
 
     [RelayCommand]

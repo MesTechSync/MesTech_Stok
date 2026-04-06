@@ -50,7 +50,7 @@ public sealed class ErpEndpointTests : IClassFixture<EndpointTestWebAppFactory>
     [Fact]
     public async Task GetErpDashboard_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/erp/dashboard?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/erp/dashboard?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
@@ -67,7 +67,7 @@ public sealed class ErpEndpointTests : IClassFixture<EndpointTestWebAppFactory>
     public async Task DeleteErpAccountMapping_NonExistentId_ReturnsNotFound()
     {
         var id = Guid.NewGuid();
-        var response = await _authClient.DeleteAsync($"/api/v1/erp/account-mappings/{id}?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.DeleteAsync($"/api/v1/erp/account-mappings/{id}?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(
             HttpStatusCode.NotFound, HttpStatusCode.InternalServerError);
     }

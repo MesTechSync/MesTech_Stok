@@ -1,8 +1,9 @@
 using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views.Accounting;
 
-public partial class FixedExpenseAvaloniaView : UserControl
+public partial class FixedExpenseAvaloniaView : BaseView
 {
     public FixedExpenseAvaloniaView() => InitializeComponent();
 }

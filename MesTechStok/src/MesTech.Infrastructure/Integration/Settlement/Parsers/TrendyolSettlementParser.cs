@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
     private List<TrendyolSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Trendyol";
+    public string Platform => nameof(PlatformType.Trendyol);
 
     public TrendyolSettlementParser(ILogger<TrendyolSettlementParser> logger)
     {
@@ -129,6 +130,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
             var cargoDeduction = NormalizeTurkishDecimal(item.CargoDeduction);
             var refundDeduction = NormalizeTurkishDecimal(item.RefundDeduction);
             var net = NormalizeTurkishDecimal(item.NetAmount);
+            var vat = NormalizeTurkishDecimal(item.VatAmount);
 
             var line = SettlementLine.Create(
                 tenantId: batch.TenantId,
@@ -139,7 +141,8 @@ public sealed class TrendyolSettlementParser : ISettlementParser
                 serviceFee: serviceFee,
                 cargoDeduction: cargoDeduction,
                 refundDeduction: refundDeduction,
-                netAmount: net);
+                netAmount: net,
+                vatAmount: vat);
 
             lines.Add(line);
             batch.AddLine(line);
@@ -148,7 +151,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
             if (commission != 0m)
             {
                 var commissionRate = NormalizeTurkishDecimal(item.CommissionRate);
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: gross,
@@ -156,7 +159,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
                     commissionAmount: commission,
                     serviceFee: serviceFee,
                     orderId: item.OrderNumber,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

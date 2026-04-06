@@ -28,7 +28,7 @@ public sealed class FulfillmentShipmentRepository : IFulfillmentShipmentReposito
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<int> CountByTenantAsync(
@@ -44,11 +44,11 @@ public sealed class FulfillmentShipmentRepository : IFulfillmentShipmentReposito
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(f => f.Status == status);
 
-        return await query.CountAsync(ct);
+        return await query.CountAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(FulfillmentShipment shipment, CancellationToken ct = default)
     {
-        await _db.Set<FulfillmentShipment>().AddAsync(shipment, ct);
+        await _db.Set<FulfillmentShipment>().AddAsync(shipment, ct).ConfigureAwait(false);
     }
 }

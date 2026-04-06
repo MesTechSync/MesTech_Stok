@@ -36,5 +36,18 @@ public static class CrmCustomersEndpoint
         .WithSummary("CRM müşteri listesi — arama ve segment filtresi (EMR-09)")
         .Produces(200)
         .CacheOutput("Lookup60s");
+
+        // DELETE /api/v1/crm/customers/{id} — müşteri sil (kopuk zincir fix)
+        group.MapDelete("/customers/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Commands.DeleteCustomer.DeleteCustomerCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteCrmCustomer")
+        .WithSummary("CRM müşteri sil (soft-delete)").Produces(204).Produces(400);
     }
 }

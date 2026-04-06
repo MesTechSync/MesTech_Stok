@@ -35,6 +35,7 @@ using MesTech.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Minio;
 
@@ -76,7 +77,7 @@ public static class InfrastructureServiceRegistration
         var rawConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
 
-        // G176: Pool exhaustion korumas� � Hangfire+Web+SignalR concurrent connections
+        // G176: Pool exhaustion koruması — Hangfire+Web+SignalR concurrent connections
         var connectionString = rawConnectionString?.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) == true
             ? rawConnectionString
             : rawConnectionString + ";MaxPoolSize=50;MinPoolSize=10;Connection Idle Lifetime=300";
@@ -96,13 +97,21 @@ public static class InfrastructureServiceRegistration
 
         // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
         // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        // KN-1 FIX: Factory context MUST include interceptors — without them:
+        //   - TenantContextInterceptor missing → TenantId not set → global filter returns empty
+        //   - AuditInterceptor missing → audit trail gaps
+        //   - SlowQueryInterceptor missing → no performance monitoring
         services.AddDbContextFactory<AppDbContext>((sp, options) =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.EnableRetryOnFailure(3);
             });
-        }, ServiceLifetime.Singleton);
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<TenantContextInterceptor>(),
+                sp.GetRequiredService<SlowQueryInterceptor>());
+        }, ServiceLifetime.Scoped);
 
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
@@ -112,6 +121,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
@@ -126,6 +136,7 @@ public static class InfrastructureServiceRegistration
         else
             services.AddSingleton<Application.Interfaces.IDistributedLockService, Services.InProcessDistributedLockService>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IIncomeRepository, IncomeRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
@@ -134,6 +145,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProductSetRepository, ProductSetRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
+        services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<ILogEntryRepository, LogEntryRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
@@ -208,8 +220,14 @@ public static class InfrastructureServiceRegistration
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // ImportProgressReporter — NullObject fallback, WebApi overrides with SignalR impl
+        services.TryAddScoped<IImportProgressReporter, NullImportProgressReporter>();
+
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        // Scoped MediatR — desktop app concurrent DbContext fix (KN-1 / G67)
+        services.AddSingleton<IScopedMediator, ScopedMediator>();
 
         // Domain Services
         services.AddSingleton<StockCalculationService>();
@@ -217,6 +235,12 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<BarcodeValidationService>();
         services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
         services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
+        services.AddSingleton<BalanceCalculationService>();
+        services.AddSingleton<OmnibusDirectiveService>();
+        services.AddSingleton<OrderSlaService>();
+        services.AddSingleton<ProductCompletenessService>();
+        services.AddSingleton<ProductSyncBatchService>();
+        services.AddSingleton<ReturnPolicyService>();
 
         // Reporting Repositories
         services.AddScoped<MesTech.Application.Interfaces.ISavedReportRepository,
@@ -277,16 +301,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<ICacheService, RedisCacheService>();
 
         // Distributed Lock — Redis if available, InProcess fallback for dev/test
-        var redisConfig = configuration.GetConnectionString("Redis")
-            ?? configuration["Redis:Configuration"];
-        if (!string.IsNullOrEmpty(redisConfig))
-        {
-            services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
-        }
-        else
-        {
-            services.AddSingleton<IDistributedLockService, InProcessDistributedLockService>();
-        }
+        // IDistributedLockService already registered above (line 132-136) — Redis/InProcess conditional
 
         // Exchange Rate Service — TCMB XML API, IMemoryCache 1h TTL (Dalga 11 — Multi-currency)
         services.AddMemoryCache();
@@ -351,7 +366,7 @@ public static class InfrastructureServiceRegistration
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
-        services.AddScoped<PostgresHealthCheck>();
+        services.AddSingleton<PostgresHealthCheck>();
         services.AddSingleton<RedisHealthCheck>();
         services.AddSingleton<RabbitMqHealthCheck>();
         services.AddScoped<IInfrastructureHealthService, InfrastructureHealthService>();
@@ -369,6 +384,9 @@ public static class InfrastructureServiceRegistration
                 new HealthCheckEndpoint(
                     sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
+
+        // ── Event Publishing ──
+        services.AddSingleton<IEventPublisher, Messaging.InMemoryEventPublisher>();
 
         // ── Realtime Dashboard (port 3102) ──
         services.AddSingleton<WebSocketConnectionManager>();
@@ -466,6 +484,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Domain.Accounting.Services.ProfitCalculationService>();
         services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
             MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.IKdvCalculationService,
+            MesTech.Domain.Accounting.Services.KdvCalculationService>();
+        services.AddSingleton<MesTech.Domain.Services.IFEFOSortingService,
+            MesTech.Domain.Services.FEFOSortingService>();
 
         // ── MESA Muhasebe AI (MUH-02: Feature flag swap — Mock veya Real) ──
         // MockMesaAccountingService her zaman kayitli: Real client fallback olarak kullanir
@@ -609,6 +631,7 @@ public static class InfrastructureServiceRegistration
 
         // ── MUH-02 Accounting Workers ──
         services.AddScoped<ReconciliationWorker>();
+        services.AddScoped<SettlementOrderReconciliationJob>();
         services.AddScoped<ScheduledBriefingWorker>();
 
         // ── MUH-03 Accounting Workers ──
@@ -676,8 +699,20 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCancelledStockRestorationHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceCreatedNotificationHandler,
             Application.EventHandlers.InvoiceCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCompletedInvoiceHandler,
+            Application.EventHandlers.OrderCompletedInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
+            Application.EventHandlers.SettlementPaymentGLHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementImportedOrderPaymentHandler,
+            Application.EventHandlers.SettlementImportedOrderPaymentHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
+            Application.EventHandlers.InvoiceApprovedCOGSHandler>();
+        services.AddScoped<Application.EventHandlers.IWithholdingTaxGLHandler,
+            Application.EventHandlers.WithholdingTaxGLHandler>();
         services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
             Application.EventHandlers.StockChangedPlatformSyncHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceChangedPlatformSyncHandler,
+            Application.EventHandlers.PriceChangedPlatformSyncHandler>();
         services.AddScoped<Application.EventHandlers.ILowStockNotificationHandler,
             Application.EventHandlers.LowStockNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IProductCreatedNotificationHandler,
@@ -712,6 +747,18 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.SubscriptionNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
             Application.EventHandlers.MiscNotificationHandler>();
+
+        // ERPNext handlers (DEV1 TUR1 fix: 5 missing DI registrations):
+        services.AddScoped<Application.EventHandlers.IERPNextCustomerHandler,
+            Application.EventHandlers.ERPNextCustomerHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextSalesInvoiceHandler,
+            Application.EventHandlers.ERPNextSalesInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextStockEntryHandler,
+            Application.EventHandlers.ERPNextStockEntryHandler>();
+        services.AddScoped<Application.EventHandlers.IShipmentCostJournalHandler,
+            Application.EventHandlers.ShipmentCostJournalHandler>();
+        services.AddScoped<Application.EventHandlers.IStaleOrderNotificationHandler,
+            Application.EventHandlers.StaleOrderNotificationHandler>();
 
         // Repository implementations (DEV1 TUR 6: 7 missing repos):
         services.AddScoped<Domain.Interfaces.IBankAccountRepository,

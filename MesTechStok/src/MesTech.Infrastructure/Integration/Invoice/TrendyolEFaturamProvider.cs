@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Auth: Bearer token (Trendyol API key).
 /// URL pattern: {baseUrl}/suppliers/{supplierId}/e-invoices/...
 /// </summary>
-public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable
+public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable, IInvoiceTemplateCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TrendyolEFaturamProvider> _logger;
@@ -94,7 +95,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -117,7 +118,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -129,7 +130,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
         EnsureConfigured();
         _logger.LogInformation("TrendyolEFaturam GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -143,7 +144,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/taxpayer/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -158,7 +159,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -173,7 +174,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -186,7 +187,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -236,7 +237,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -270,7 +271,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -288,7 +289,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -310,7 +311,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
             return new KontorBalanceDto(remaining, total, expiresAt, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
@@ -339,7 +340,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
             };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(
+            using var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -349,7 +350,7 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "TrendyolEFaturam SetInvoiceTemplate exception");
             return false;
@@ -422,33 +423,187 @@ public sealed class TrendyolEFaturamProvider : IInvoiceProvider, IBulkInvoiceCap
 
     private async Task<InvoiceResult> PostInvoiceAsync(string url, object payload, CancellationToken ct)
     {
+        const int maxRetries = 3;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+
+                // 429 veya 5xx → retry
+                if ((int)response.StatusCode == 429 || (int)response.StatusCode >= 500)
+                {
+                    var retryBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning(
+                        "TrendyolEFaturam POST {Url} retry {Attempt}/{Max}: {Status} — {Error}",
+                        url, attempt, maxRetries, response.StatusCode, retryBody);
+
+                    if (attempt < maxRetries)
+                    {
+                        var delay = TimeSpan.FromSeconds(Math.Pow(2, attempt)); // 2s, 4s, 8s
+                        await Task.Delay(delay, ct).ConfigureAwait(false);
+                        continue;
+                    }
+
+                    return new InvoiceResult(false, null, null, $"HTTP {(int)response.StatusCode} after {maxRetries} retries: {retryBody}");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("TrendyolEFaturam POST {Url} failed: {Status} — {Error}",
+                        url, response.StatusCode, errorBody);
+                    return new InvoiceResult(false, null, null, errorBody);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(responseJson);
+                var root = doc.RootElement;
+
+                var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
+                var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
+
+                return new InvoiceResult(true, gibId, pdfUrl, null);
+            }
+            catch (HttpRequestException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning(ex, "TrendyolEFaturam POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "TrendyolEFaturam POST {Url} exception", url);
+                return new InvoiceResult(false, null, null, ex.Message);
+            }
+        }
+
+        return new InvoiceResult(false, null, null, "Max retries exhausted");
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "TrendyolEFaturam";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[TY-EFaturam] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
         try
         {
+            var url = $"{_baseUrl}/suppliers/{_supplierId}/e-invoices";
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                receiverVkn = document.BuyerVkn,
+                receiverTitle = document.BuyerTitle,
+                issueDate = document.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
-
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("TrendyolEFaturam POST {Url} failed: {Status} — {Error}",
-                    url, response.StatusCode, errorBody);
-                return new InvoiceResult(false, null, null, errorBody);
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
             }
-
-            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(responseJson);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
             var root = doc.RootElement;
-
-            var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
-            var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
-
-            return new InvoiceResult(true, gibId, pdfUrl, null);
+            var providerRef = root.TryGetProperty("eInvoiceId", out var eid) ? eid.GetString()
+                            : root.TryGetProperty("providerRef", out var pr) ? pr.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "TrendyolEFaturam POST {Url} exception", url);
-            return new InvoiceResult(false, null, null, ex.Message);
+            _logger.LogError(ex, "[TY-EFaturam] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var url = $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{providerRef}/pdf";
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var urlEl) ? urlEl.GetString() : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[TY-EFaturam] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var url = $"{_baseUrl}/suppliers/{_supplierId}/e-invoices/{providerRef}/cancel";
+            var payload = new { reason };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[TY-EFaturam] CancelAsync exception ref={Ref}", providerRef);
+            return false;
+        }
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var url = $"{_baseUrl}/suppliers/{_supplierId}/mukellef/{vkn}";
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var isEInvoice = root.TryGetProperty("isEInvoiceMukellef", out var eiv) && eiv.GetBoolean();
+            var isEArchive = root.TryGetProperty("isEArchiveMukellef", out var eav) && eav.GetBoolean();
+            var title = root.TryGetProperty("title", out var tv) ? tv.GetString() : null;
+            return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[TY-EFaturam] CheckVknMukellefAsync exception vkn={Vkn}", vkn);
+            return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+        }
+    }
+
+    async Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var url = $"{_baseUrl}/suppliers/{_supplierId}/e-invoice-credits";
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return -1;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("remainingCredits", out var rc) ? rc.GetInt32()
+                 : doc.RootElement.TryGetProperty("balance", out var bal) ? bal.GetInt32() : -1;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[TY-EFaturam] GetCreditBalanceAsync exception");
+            return -1;
         }
     }
 }

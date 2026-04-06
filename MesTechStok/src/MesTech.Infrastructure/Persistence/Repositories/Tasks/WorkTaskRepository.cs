@@ -26,6 +26,7 @@ public sealed class WorkTaskRepository : IWorkTaskRepository
             q = q.Where(t => t.AssignedToUserId == assignedToUserId.Value);
         return await q
             .OrderBy(t => t.Position)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -39,6 +40,7 @@ public sealed class WorkTaskRepository : IWorkTaskRepository
             q = q.Where(t => t.Status == status.Value);
         return await q
             .OrderBy(t => t.DueDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -49,6 +51,7 @@ public sealed class WorkTaskRepository : IWorkTaskRepository
                      && t.DueDate < DateTime.UtcNow
                      && t.Status != WorkTaskStatus.Done
                      && t.Status != WorkTaskStatus.Cancelled)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

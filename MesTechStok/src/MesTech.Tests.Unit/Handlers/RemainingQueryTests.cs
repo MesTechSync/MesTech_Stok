@@ -317,7 +317,7 @@ public class RemainingQueryTests
     public async Task GetQuotationByIdHandler_NotFound_ReturnsNull()
     {
         var repo = new Mock<IQuotationRepository>();
-        repo.Setup(r => r.GetByIdWithLinesAsync(It.IsAny<Guid>()))
+        repo.Setup(r => r.GetByIdWithLinesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Quotation?)null);
 
         var sut = new GetQuotationByIdHandler(repo.Object);
@@ -342,7 +342,7 @@ public class RemainingQueryTests
     public async Task ListQuotationsHandler_EmptyRepo_ReturnsEmptyList()
     {
         var repo = new Mock<IQuotationRepository>();
-        repo.Setup(r => r.GetAllAsync())
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Quotation>().AsReadOnly());
 
         var sut = new ListQuotationsHandler(repo.Object);
@@ -357,7 +357,7 @@ public class RemainingQueryTests
     public async Task ListQuotationsHandler_WithStatusFilter_CallsGetByStatusAsync()
     {
         var repo = new Mock<IQuotationRepository>();
-        repo.Setup(r => r.GetByStatusAsync(QuotationStatus.Draft))
+        repo.Setup(r => r.GetByStatusAsync(QuotationStatus.Draft, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Quotation>().AsReadOnly());
 
         var sut = new ListQuotationsHandler(repo.Object);
@@ -365,7 +365,7 @@ public class RemainingQueryTests
             new ListQuotationsQuery(QuotationStatus.Draft), CancellationToken.None);
 
         result.Should().NotBeNull();
-        repo.Verify(r => r.GetByStatusAsync(QuotationStatus.Draft), Times.Once);
+        repo.Verify(r => r.GetByStatusAsync(QuotationStatus.Draft, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     #endregion

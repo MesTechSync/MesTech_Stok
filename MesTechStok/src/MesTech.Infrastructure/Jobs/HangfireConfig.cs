@@ -7,6 +7,7 @@ using MesTech.Infrastructure.Jobs.Crm;
 using MesTech.Infrastructure.Jobs.Pricing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Jobs;
 
@@ -42,6 +43,9 @@ public static class HangfireConfig
                       .UseRecommendedSerializerSettings());
         }
 
+        // Global Hangfire filters — execution metrics + failure notification (tüm job'lara uygulanır)
+        GlobalJobFilters.Filters.Add(new JobExecutionMetricsFilter());
+
         // Job'lari register et
         services.AddScoped<TrendyolOrderSyncJob>();
         services.AddScoped<TrendyolStockSyncJob>();
@@ -53,7 +57,8 @@ public static class HangfireConfig
         services.AddScoped<OpenCartStockSyncJob>();
         services.AddScoped<InvoiceRetryJob>();
         services.AddScoped<HealthCheckJob>();
-        services.AddScoped<SettlementSyncJob>();
+        // SettlementSyncJob KALDIRILDI — deprecated connectivity-only job.
+        // Gerçek persist: SettlementSyncWorker (accounting-settlement-sync, 03:30)
         services.AddScoped<CategorySyncJob>();
         services.AddScoped<SupplierFeedSyncJob>();
 
@@ -103,6 +108,16 @@ public static class HangfireConfig
         // Platform claim + price sync (G498 + G499 FIX)
         services.AddScoped<GenericPlatformClaimSyncJob>();
         services.AddScoped<GenericPlatformPriceSyncJob>();
+
+        // Platform product import (DEV3 — ürün DB persist)
+        services.AddScoped<GenericPlatformProductSyncJob>();
+
+        // Trendyol Review + Ads sync (DEV 3 — yeni endpoint job'lari)
+        services.AddScoped<TrendyolReviewSyncJob>();
+        services.AddScoped<TrendyolAdsSyncJob>();
+
+        // Generic platform review sync (DEV 3 TUR7)
+        services.AddScoped<GenericPlatformReviewSyncJob>();
 
         // Pricing — Buybox recovery auto-price update (G506 FIX)
         services.AddScoped<AutoPriceUpdateWorker>();
@@ -171,10 +186,8 @@ public static class HangfireConfig
             job => job.ExecuteAsync(CancellationToken.None),
             "* * * * *");
 
-        RecurringJob.AddOrUpdate<SettlementSyncJob>(
-            "settlement-sync",
-            job => job.ExecuteAsync(CancellationToken.None),
-            "0 3 * * *");
+        // SettlementSyncJob KALDIRILDI — SettlementSyncWorker (03:30) yeterli
+        RecurringJob.RemoveIfExists("settlement-sync");
 
         RecurringJob.AddOrUpdate<CategorySyncJob>(
             "category-sync",
@@ -474,6 +487,52 @@ public static class HangfireConfig
             "fulfillment-stock-sync",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/30 * * * *");
+
+        // === Trendyol Review + Ads Sync (DEV 3) ===
+
+        // Her saat basi — urun degerlendirme cekme
+        RecurringJob.AddOrUpdate<TrendyolReviewSyncJob>(
+            "trendyol-review-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 * * * *");
+
+        // Her gun 07:00 — reklam kampanya performans raporu
+        RecurringJob.AddOrUpdate<TrendyolAdsSyncJob>(
+            "trendyol-ads-sync",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 7 * * *");
+
+        // === Generic Platform Product Import (DEV3) ===
+        // Ürün import: platformdan DB'ye çekme (günlük 1x yeterli — 9000+ ürün)
+        RecurringJob.AddOrUpdate<GenericPlatformProductSyncJob>(
+            "product-import-trendyol",
+            job => job.ExecuteAsync("Trendyol", CancellationToken.None),
+            Cron.Daily(5)); // Her gün 05:00
+
+        // === Generic Platform Review Sync (DEV3 TUR7) ===
+        // Trendyol review → kendi TrendyolReviewSyncJob kullanir (saatlik, daha detayli)
+        // Diger platformlar → GenericPlatformReviewSyncJob (2 saatte bir)
+        var reviewSyncPlatforms = new (string code, string cron)[]
+        {
+            ("Hepsiburada",  "0 */2 * * *"),   // TR — yüksek hacim
+            ("Ciceksepeti",  "0 */2 * * *"),   // TR — yüksek hacim
+            ("Amazon",       "0 */4 * * *"),   // Uluslararası
+            ("AmazonEu",     "0 */4 * * *"),   // Uluslararası
+            ("eBay",         "0 */4 * * *"),   // Uluslararası
+            ("Ozon",         "0 */6 * * *"),   // Rusya — düşük hacim
+            ("Etsy",         "0 */6 * * *"),   // Uluslararası — düşük hacim
+            ("WooCommerce",  "0 */6 * * *"),   // Self-hosted — düşük hacim
+            ("Zalando",      "0 */6 * * *"),   // Avrupa — düşük hacim
+            // Shopify → kendi review schedule'ı var (Shopify API rate limit farklı)
+        };
+
+        foreach (var (code, cron) in reviewSyncPlatforms)
+        {
+            RecurringJob.AddOrUpdate<GenericPlatformReviewSyncJob>(
+                $"review-sync-{code.ToLowerInvariant()}",
+                job => job.ExecuteAsync(code, CancellationToken.None),
+                cron);
+        }
 
         // === Pricing — Buybox Recovery (G506 FIX) ===
 

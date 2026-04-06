@@ -8,7 +8,7 @@ public sealed class RecordCommissionValidator : AbstractValidator<RecordCommissi
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.Platform).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.GrossAmount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.GrossAmount).GreaterThan(0).WithMessage("Brüt tutar sıfırdan büyük olmalıdır.");
         RuleFor(x => x.CommissionRate).GreaterThanOrEqualTo(0);
         RuleFor(x => x.CommissionAmount).GreaterThanOrEqualTo(0);
         RuleFor(x => x.ServiceFee).GreaterThanOrEqualTo(0);

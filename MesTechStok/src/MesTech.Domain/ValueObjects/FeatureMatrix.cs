@@ -6,7 +6,7 @@ namespace MesTech.Domain.ValueObjects;
 /// Plan katmani ozellik matrisi — hangi ozellik hangi planda acik.
 /// SubscriptionTier → Limitleri ve ozellik flaglerini doner.
 /// </summary>
-public sealed class FeatureMatrix
+public sealed record FeatureMatrix
 {
     public SubscriptionTier Tier { get; }
     public int MaxPlatforms { get; }

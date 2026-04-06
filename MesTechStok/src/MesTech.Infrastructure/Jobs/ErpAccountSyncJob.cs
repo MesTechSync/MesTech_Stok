@@ -113,7 +113,7 @@ public sealed class ErpAccountSyncJob : ISyncJob
                 _logger.LogWarning("[{JobId}] ERP hesap sync iptal edildi ({Provider})", JobId, provider);
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 totalFailed++;
                 sw.Stop();

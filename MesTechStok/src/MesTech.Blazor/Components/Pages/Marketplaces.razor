@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-globe text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Pazaryerleri</h3>
+        <h3 class="mb-0" >Pazaryerleri</h3>
         <small class="text-muted">10 platform entegrasyon yonetimi</small>
     </div>
 </div>
@@ -143,14 +142,14 @@ else
             else
             {
                 _isDemoMode = true;
-                platforms = GenerateDemoPlatforms();
+                platforms = ApiClient.IsDemoAllowed ? GenerateDemoPlatforms() : new();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Platform data load failed, using demo");
             _isDemoMode = true;
-            platforms = GenerateDemoPlatforms();
+            platforms = ApiClient.IsDemoAllowed ? GenerateDemoPlatforms() : new();
         }
         finally
         {
@@ -172,7 +171,7 @@ else
         new("Trendyol", "fas fa-shopping-bag", "#FF6F00", true, "OK", 1250, DateTime.Now.AddMinutes(-15)),
         new("Hepsiburada", "fas fa-box", "#FF9800", true, "OK", 980, DateTime.Now.AddMinutes(-30)),
         new("N11", "fas fa-store", "#FF5722", true, "Pending", 650, DateTime.Now.AddHours(-2)),
-        new("Amazon TR", "fab fa-amazon", "#FF9900", true, "OK", 420, DateTime.Now.AddHours(-1)),
+        new("Amazon TR", "fab fa-amazon", "var(--mestech-amazon)", true, "OK", 420, DateTime.Now.AddHours(-1)),
         new("OpenCart", "fas fa-cart-shopping", "#2196F3", true, "OK", 1100, DateTime.Now.AddMinutes(-45)),
         new("Pazarama", "fas fa-shop", "#4CAF50", true, "Error", 310, DateTime.Now.AddHours(-6)),
         new("CicekSepeti", "fas fa-seedling", "#E91E63", true, "OK", 180, DateTime.Now.AddHours(-1)),

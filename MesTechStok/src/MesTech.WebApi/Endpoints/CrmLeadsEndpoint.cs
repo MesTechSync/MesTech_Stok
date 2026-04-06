@@ -49,6 +49,20 @@ public static class CrmLeadsEndpoint
             return Results.Created($"/api/v1/crm/leads/{id}", new CreatedResponse(id));
         })
         .WithName("CreateLeadFull")
-        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)").Produces(200).Produces(400);
+        .WithSummary("Yeni lead oluştur — detaylı bilgi ile (EMR-09)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // DELETE /api/v1/crm/{id}/lead — lead sil (kopuk zincir fix)
+        group.MapDelete("/{id:guid}/lead", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Features.Crm.Commands.DeleteLead.DeleteLeadCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteLead")
+        .WithSummary("Lead sil (soft-delete)").Produces(204).Produces(400);
     }
 }

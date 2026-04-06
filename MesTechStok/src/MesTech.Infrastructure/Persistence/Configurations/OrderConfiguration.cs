@@ -45,6 +45,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.CommissionAmount).HasPrecision(18, 2);
         builder.Property(o => o.CommissionRate).HasPrecision(5, 4);
         builder.Property(o => o.CargoExpenseAmount).HasPrecision(18, 2);
+        builder.Property(o => o.TaxRate).HasPrecision(8, 4);
 
         // Cascade delete — OrderItem'lar sipariş silindiğinde silinir
         builder.HasMany(o => o.OrderItems)
@@ -52,7 +53,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Optimistic concurrency — concurrent sipariş güncellemelerinde veri bozulmasını önler
-        builder.Property(o => o.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(o => o.RowVersion);
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
@@ -36,13 +37,9 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.AmazonEu)) ?? new PlatformDashboardDto();
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.AmazonEu), ct) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;
@@ -53,16 +50,7 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
             foreach (var o in result.RecentOrders)
                 _allOrders.Add(new PlatformOrderItem(o.OrderNumber, o.OrderDate.ToString("dd.MM.yyyy"), o.CustomerName, o.Total.ToString("N2"), o.Status, PlatformType.AmazonEu));
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Amazon EU verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Amazon EU verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -90,10 +78,18 @@ public partial class AmazonEuAvaloniaViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-
-            await Task.CompletedTask;
-            SyncStatus = "Tamamlandi";
-            LastSyncTime = DateTime.Now.ToString("HH:mm");
+            var result = await _mediator.Send(new SyncPlatformCommand("AmazonEu", SyncDirection.Bidirectional));
+            if (result.IsSuccess)
+            {
+                SyncStatus = $"Tamamlandi ({result.ItemsProcessed} urun)";
+                LastSyncTime = DateTime.Now.ToString("HH:mm");
+                await LoadAsync();
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = result.ErrorMessage ?? "Senkronizasyon basarisiz";
+            }
         }
         catch (Exception ex)
         {

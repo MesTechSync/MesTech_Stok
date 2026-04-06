@@ -45,13 +45,9 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetFeedSourcesQuery()) ?? new();
+            var result = await _mediator.Send(new GetFeedSourcesQuery(), ct) ?? new();
 
             _allFeeds.Clear();
             foreach (var f in result.Items)
@@ -67,16 +63,7 @@ public partial class SupplierFeedListAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Feed listesi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Feed listesi yuklenirken hata");
     }
 
     [RelayCommand]

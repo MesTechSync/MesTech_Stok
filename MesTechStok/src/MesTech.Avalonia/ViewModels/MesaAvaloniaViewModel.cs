@@ -28,13 +28,9 @@ public partial class MesaAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var mesaStatus = await _mediator.Send(new GetMesaStatusQuery());
+            var mesaStatus = await _mediator.Send(new GetMesaStatusQuery(), ct);
             AiStatus = mesaStatus.IsConnected ? "Bagli" : "Bagli Degil";
             ModelVersion = mesaStatus.Version ?? "—";
             PredictionCount = mesaStatus.ActiveConsumers;
@@ -53,16 +49,7 @@ public partial class MesaAvaloniaViewModel : ViewModelBase
             RecentPredictions.Add(new MesaPredictionVm { Tool = "Anomali Tespit", Result = "Depo-2 stok seviyesi normalin %40 altinda", Confidence = "%92", CreatedAt = DateTime.Now.AddHours(-6) });
 
             IsEmpty = AiTools.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"MESA yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "MESA AI durumu yuklenirken hata");
     }
 
     [RelayCommand]

@@ -78,6 +78,7 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
         Status = ReturnStatus.Rejected;
         if (reason != null)
             Notes = reason;
+        RaiseDomainEvent(new ReturnRejectedEvent(Id, OrderId, TenantId, reason, DateTime.UtcNow));
     }
 
     public void MarkAsReceived()
@@ -86,7 +87,30 @@ public sealed class ReturnRequest : BaseEntity, ITenantEntity
             throw new InvalidOperationException("İade ürünü teslim alınamaz — onay veya kargoda olmalı.");
         Status = ReturnStatus.Received;
         ReceivedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ReturnReceivedEvent(Id, OrderId, TenantId, DateTime.UtcNow));
     }
+
+    /// <summary>
+    /// İade ürünü inceleme — kalite derecesi belirle (E21).
+    /// Sadece teslim alınmış iade için uygulanır.
+    /// </summary>
+    public void Inspect(ReturnInspectionGrade grade, string inspectedBy, string? notes = null)
+    {
+        if (Status != ReturnStatus.Received)
+            throw new InvalidOperationException("İnceleme sadece teslim alınmış iade için yapılabilir.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(inspectedBy);
+
+        InspectionGrade = grade;
+        InspectedBy = inspectedBy;
+        InspectionNotes = notes;
+        InspectedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public ReturnInspectionGrade? InspectionGrade { get; private set; }
+    public string? InspectedBy { get; private set; }
+    public string? InspectionNotes { get; private set; }
+    public DateTime? InspectedAt { get; private set; }
 
     public void MarkAsRefunded()
     {

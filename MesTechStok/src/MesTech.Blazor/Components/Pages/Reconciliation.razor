@@ -11,12 +11,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-balance-scale text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Mutabakat</h3>
+      <h3 class="mb-0" >Mutabakat</h3>
       <small class="text-muted">Settlement ve banka hareketi eslestirme motoru</small>
     </div>
   </div>
@@ -143,7 +142,7 @@
     <!-- Matches Table -->
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Eslestirme Sonuclari</h6>
+        <h6 class="mb-0"><i class="fas fa-exchange-alt me-2" ></i>Eslestirme Sonuclari</h6>
         <span class="badge bg-secondary">@filteredMatches.Count eslestirme</span>
       </div>
       <div class="card-body p-0">
@@ -195,11 +194,11 @@
                     <td class="d-none d-sm-table-cell">
                       @if (match.Durum == "Onay Bekliyor")
                       {
-                        <button class="btn btn-sm btn-outline-success me-1" @onclick="() => ApproveMatch(match)"
+                        <button class="btn btn-sm btn-outline-success me-1"@onclick="() => ApproveMatch(match)"
                                 title="Onayla">
                           <i class="fas fa-check"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="() => RejectMatch(match)"
+                        <button class="btn btn-sm btn-outline-danger"@onclick="() => RejectMatch(match)"
                                 title="Reddet">
                           <i class="fas fa-times"></i>
                         </button>

@@ -68,10 +68,12 @@ public sealed class HealthEndpointTests : IClassFixture<EndpointTestWebAppFactor
     }
 
     [Fact]
-    public async Task HealthCheck_NonExistentSubRoute_Returns404()
+    public async Task HealthCheck_NonExistentSubRoute_ReturnsNon200()
     {
+        // /health/nonexistent is NOT in AllowAnonymous bypass — FallbackPolicy returns 401,
+        // or if route doesn't exist, 404/405. All are acceptable non-200 responses.
         var response = await _noAuthClient.GetAsync("/health/nonexistent");
         response.StatusCode.Should().BeOneOf(
-            HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed);
+            HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed, HttpStatusCode.Unauthorized);
     }
 }

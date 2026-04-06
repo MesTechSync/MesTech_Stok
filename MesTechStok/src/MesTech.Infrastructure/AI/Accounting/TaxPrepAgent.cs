@@ -94,7 +94,7 @@ public sealed class TaxPrepAgent : ITaxPrepAgent
 
         // 1. Donem icindeki tum yevmiyeleri al (yalnizca IsPosted=true)
         var journalEntries = await _journalEntryRepository.GetByDateRangeAsync(
-            tenantId, periodStart, periodEnd, ct);
+            tenantId, periodStart, periodEnd, ct).ConfigureAwait(false);
 
         var postedEntries = journalEntries.Where(je => je.IsPosted).ToList();
 
@@ -103,9 +103,9 @@ public sealed class TaxPrepAgent : ITaxPrepAgent
             journalEntries.Count, postedEntries.Count);
 
         // 2. Hesap kodlarını cek (391, 191 hesaplarinin ID'leri)
-        var account391 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode391, ct);
-        var account191 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode191, ct);
-        var account360_02 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode360_02, ct);
+        var account391 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode391, ct).ConfigureAwait(false);
+        var account191 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode191, ct).ConfigureAwait(false);
+        var account360_02 = await _chartOfAccountsRepository.GetByCodeAsync(tenantId, AccountCode360_02, ct).ConfigureAwait(false);
 
         // 3. Hesaplanan KDV (391): Satis yevmiyelerindeki 391 hesabina alacak kayitlari
         decimal calculatedVAT = 0m;
@@ -145,7 +145,7 @@ public sealed class TaxPrepAgent : ITaxPrepAgent
 
         // 7. Tevkifat toplami (TaxWithholding kayitlarindan)
         var totalWithholding = await _taxWithholdingRepository.GetTotalWithholdingAsync(
-            tenantId, periodStart, periodEnd, ct);
+            tenantId, periodStart, periodEnd, ct).ConfigureAwait(false);
 
         // 8. Stopaj toplami (360.02 hesabindaki alacak kayitlari)
         decimal totalStopaj = 0m;

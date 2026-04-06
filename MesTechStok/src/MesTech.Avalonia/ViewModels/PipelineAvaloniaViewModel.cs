@@ -26,13 +26,9 @@ public partial class PipelineAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var board = await _mediator.Send(new GetPipelineKanbanQuery(_currentUser.TenantId, Guid.Empty));
+            var board = await _mediator.Send(new GetPipelineKanbanQuery(_currentUser.TenantId, Guid.Empty), ct);
 
             Stages.Clear();
             decimal grandTotal = board.Stages.SelectMany(s => s.Deals).Sum(d => d.Amount);
@@ -56,16 +52,7 @@ public partial class PipelineAvaloniaViewModel : ViewModelBase
             TotalCount = board.Stages.SelectMany(s => s.Deals).Count();
             TotalValue = $"{grandTotal:N0} TL";
             IsEmpty = Stages.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Pipeline yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Pipeline yuklenirken hata");
     }
 
     [RelayCommand]

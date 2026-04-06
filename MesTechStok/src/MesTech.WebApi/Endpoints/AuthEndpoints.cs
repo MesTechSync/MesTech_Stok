@@ -365,6 +365,97 @@ public static class AuthEndpoints
         .WithSummary("Kullanıcı MFA (TOTP) devre dışı bırak — aktif TOTP kodu gerekli (G222)")
         .Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // POST /api/v1/auth/reset-password — admin resets a user's password (HH-DEV6-002)
+        group.MapPost("/reset-password", async (
+            ResetPasswordRequest request,
+            IUserRepository userRepo,
+            IUnitOfWork unitOfWork,
+            ILoggerFactory loggerFactory,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
+
+            if (request.UserId == Guid.Empty || string.IsNullOrWhiteSpace(request.NewPassword))
+                return Results.BadRequest(new AuthErrorResponse("UserId and NewPassword are required."));
+
+            if (request.NewPassword.Length < 8)
+                return Results.BadRequest(new AuthErrorResponse("Password must be at least 8 characters."));
+
+            var user = await userRepo.GetByIdAsync(request.UserId, ct);
+            if (user is null)
+                return Results.NotFound(new AuthErrorResponse("User not found."));
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await userRepo.UpdateAsync(user, ct);
+            await unitOfWork.SaveChangesAsync(ct);
+
+            logger.LogInformation("Password reset by admin for User={UserId}", request.UserId);
+
+            return Results.Ok(new StatusResponse("PasswordReset", "Şifre başarıyla sıfırlandı."));
+        })
+        .WithName("ResetPassword")
+        .WithSummary("Admin şifre sıfırlama — kullanıcı ID ile yeni şifre atar (HH-DEV6-002)")
+        .Produces<StatusResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status404NotFound)
+        .RequireAuthorization()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // POST /api/v1/auth/change-password — user changes own password (HH-DEV6-003)
+        group.MapPost("/change-password", async (
+            ChangePasswordRequest request,
+            IUserRepository userRepo,
+            IUnitOfWork unitOfWork,
+            ILoggerFactory loggerFactory,
+            HttpContext httpContext,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("MesTech.WebApi.Endpoints.AuthEndpoints");
+
+            var userIdClaim = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                return Results.Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(request.CurrentPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
+                return Results.BadRequest(new AuthErrorResponse("CurrentPassword and NewPassword are required."));
+
+            if (request.NewPassword.Length < 8)
+                return Results.BadRequest(new AuthErrorResponse("New password must be at least 8 characters."));
+
+            var user = await userRepo.GetByIdAsync(userId, ct);
+            if (user is null)
+                return Results.NotFound(new AuthErrorResponse("User not found."));
+
+            bool currentValid;
+            try
+            {
+                currentValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash);
+            }
+            catch
+            {
+                return Results.BadRequest(new AuthErrorResponse("Password verification failed."));
+            }
+
+            if (!currentValid)
+                return Results.BadRequest(new AuthErrorResponse("Mevcut şifre hatalı."));
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await userRepo.UpdateAsync(user, ct);
+            await unitOfWork.SaveChangesAsync(ct);
+
+            logger.LogInformation("Password changed by user User={UserId}", userId);
+
+            return Results.Ok(new StatusResponse("PasswordChanged", "Şifre başarıyla değiştirildi."));
+        })
+        .WithName("ChangePassword")
+        .WithSummary("Kullanıcı kendi şifresini değiştirir — mevcut şifre doğrulaması gerekli (HH-DEV6-003)")
+        .Produces<StatusResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .RequireAuthorization()
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     // ── Request / Response Records ──
@@ -389,4 +480,10 @@ public static class AuthEndpoints
     public record TokenValidationResponse(bool Valid, Guid? UserId, Guid? TenantId);
 
     public sealed record AuthErrorResponse(string Error);
+
+    // HH-DEV6-002: Password reset request
+    public record ResetPasswordRequest(Guid UserId, string NewPassword);
+
+    // HH-DEV6-003: Password change request
+    public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 }

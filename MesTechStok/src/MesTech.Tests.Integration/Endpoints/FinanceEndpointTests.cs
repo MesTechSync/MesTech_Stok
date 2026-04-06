@@ -31,7 +31,7 @@ public sealed class FinanceEndpointTests : IClassFixture<EndpointTestWebAppFacto
     public async Task GetProfitLoss_NoApiKey_Returns401()
     {
         var response = await _noAuthClient.GetAsync(
-            $"/api/v1/finance/profit-loss?tenantId={Guid.NewGuid()}&year=2026&month=3");
+            $"/api/v1/finance/profit-loss?tenantId={EndpointTestWebAppFactory.TestTenantId}&year=2026&month=3");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -39,7 +39,7 @@ public sealed class FinanceEndpointTests : IClassFixture<EndpointTestWebAppFacto
     public async Task GetProfitLoss_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/finance/profit-loss?tenantId={Guid.NewGuid()}&year=2026&month=3");
+            $"/api/v1/finance/profit-loss?tenantId={EndpointTestWebAppFactory.TestTenantId}&year=2026&month=3");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
@@ -47,14 +47,14 @@ public sealed class FinanceEndpointTests : IClassFixture<EndpointTestWebAppFacto
     public async Task GetCashFlow_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/finance/cash-flow?tenantId={Guid.NewGuid()}&year=2026&month=3");
+            $"/api/v1/finance/cash-flow?tenantId={EndpointTestWebAppFactory.TestTenantId}&year=2026&month=3");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task GetBankAccounts_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/finance/bank-accounts?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/finance/bank-accounts?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -71,7 +71,7 @@ public sealed class FinanceEndpointTests : IClassFixture<EndpointTestWebAppFacto
     public async Task GetKarZarar_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/finance/kar-zarar?from=2026-01-01&to=2026-03-31&tenantId={Guid.NewGuid()}");
+            $"/api/v1/finance/kar-zarar?from=2026-01-01&to=2026-03-31&tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 }

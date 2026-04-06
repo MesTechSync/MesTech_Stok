@@ -48,7 +48,7 @@ public static class SeedEndpoints
             {
                 logger.LogError(ex, "Seed operation failed");
                 return Results.Problem(
-                    detail: ex.Message,
+                    detail: "Seed operation failed — check server logs for details",
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Seed failed");
             }
@@ -86,7 +86,7 @@ public static class SeedEndpoints
             {
                 logger.LogError(ex, "Ahmet Bey seed operation failed");
                 return Results.Problem(
-                    detail: ex.Message,
+                    detail: "Ahmet Bey seed operation failed — check server logs for details",
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Ahmet Bey seed failed");
             }

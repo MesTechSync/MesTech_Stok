@@ -20,6 +20,7 @@ public sealed class ActivityRepository : IActivityRepository
         => await _context.Activities
             .Where(a => a.TenantId == tenantId && !a.IsDeleted)
             .OrderByDescending(a => a.OccurredAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
@@ -27,6 +28,7 @@ public sealed class ActivityRepository : IActivityRepository
         => await _context.Activities
             .Where(a => a.CrmContactId == contactId && !a.IsDeleted)
             .OrderByDescending(a => a.OccurredAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

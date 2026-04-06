@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -15,17 +16,20 @@ public sealed class TrendyolPriceSyncJob : ISyncJob
     public string CronExpression => "0 */6 * * *"; // Her 6 saat
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<TrendyolPriceSyncJob> _logger;
 
-    public TrendyolPriceSyncJob(IAdapterFactory factory, ILogger<TrendyolPriceSyncJob> logger)
+    public TrendyolPriceSyncJob(IAdapterFactory factory, ITenantProvider tenantProvider, ILogger<TrendyolPriceSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Trendyol fiyat sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] Trendyol fiyat sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {
@@ -55,7 +59,7 @@ public sealed class TrendyolPriceSyncJob : ISyncJob
             _logger.LogWarning("[{JobId}] Trendyol fiyat sync iptal edildi", JobId);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Trendyol fiyat sync HATA", JobId);
             throw;

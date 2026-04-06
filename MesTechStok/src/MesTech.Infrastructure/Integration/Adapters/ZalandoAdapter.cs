@@ -5,8 +5,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -24,15 +27,18 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Pagination: page-based with page + pageSize query params.
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
-public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ZalandoAdapter> _logger;
     private readonly ZalandoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+    private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
     private const int DefaultTokenExpirySeconds = 3600;
 
     // OAuth2 Client Credentials state
@@ -49,14 +55,19 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private readonly string ApiBase;
 
     public ZalandoAdapter(HttpClient httpClient, ILogger<ZalandoAdapter> logger,
-        IOptions<ZalandoOptions>? options = null)
+        IOptions<ZalandoOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new ZalandoOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         TokenUrl = _options.TokenUrl;
         ApiBase = _options.ApiBaseUrl;
+
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(ApiBase, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[ZalandoAdapter] ApiBaseUrl points to private network: {Url}", ApiBase);
 
         // Seed from options if credentials provided
         if (!string.IsNullOrWhiteSpace(_options.ClientId))
@@ -152,7 +163,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Zalando";
+    public string PlatformCode => nameof(PlatformType.Zalando);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;
@@ -170,31 +181,43 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        var credentials = Convert.ToBase64String(
-            Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        await _tokenRefreshLock.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            ["grant_type"] = "client_credentials"
-        });
+            if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
+                return _accessToken;
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+            var credentials = Convert.ToBase64String(
+                Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
 
-        using var json = await JsonDocument.ParseAsync(
-            await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
-            cancellationToken: ct).ConfigureAwait(false);
+            using var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials"
+            });
 
-        _accessToken = json.RootElement.GetProperty("access_token").GetString() ?? string.Empty;
-        var expiresIn = json.RootElement.TryGetProperty("expires_in", out var expEl)
-            ? expEl.GetInt32()
-            : DefaultTokenExpirySeconds;
-        _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        _logger.LogInformation("Zalando OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
-        return _accessToken;
+            using var json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
+                cancellationToken: ct).ConfigureAwait(false);
+
+            _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
+                ? atProp.GetString() ?? string.Empty : string.Empty;
+            var expiresIn = json.RootElement.TryGetProperty("expires_in", out var expEl)
+                ? expEl.GetInt32()
+                : DefaultTokenExpirySeconds;
+            _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+
+            _logger.LogInformation("Zalando OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
+            return _accessToken;
+        }
+        finally
+        {
+            _tokenRefreshLock.Release();
+        }
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)
@@ -249,7 +272,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             // Probe: fetch a single article to confirm API access
             var url = $"{ApiBase}/partner/articles?page=0&pageSize=1";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -265,7 +288,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 result.ErrorMessage = $"HTTP {(int)response.StatusCode}: {error}";
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -305,7 +328,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             while (hasMore)
             {
                 var url = $"{ApiBase}/partner/articles?page={page}&pageSize={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -344,13 +367,14 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                             CultureInfo.InvariantCulture, out price);
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = name,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = price
-                    });
+                    };
+                    product.SyncStock(stock, "zalando-sync");
+                    products.Add(product);
                 }
 
                 page++;
@@ -362,7 +386,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Zalando PullProducts: {Count} articles retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PullProducts failed");
         }
@@ -392,19 +416,26 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ZalandoAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Zalando, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                sku = productId.ToString(),
+                sku = externalId,
                 availableUnits = newStock
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/inventory");
@@ -422,7 +453,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Zalando StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando StockUpdate exception: {ProductId}", productId);
             return false;
@@ -441,13 +472,20 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ZalandoAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} EUR",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Zalando, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                sku = productId.ToString(),
+                sku = externalId,
                 price = new
                 {
                     amount = newPrice.ToString("F2", CultureInfo.InvariantCulture),
@@ -457,7 +495,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, $"{ApiBase}/partner/prices");
@@ -476,7 +514,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 productId, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -524,7 +562,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             {
                 var url = $"{ApiBase}/partner/orders?createdAfter={Uri.EscapeDataString(sinceStr)}" +
                           $"&page={page}&pageSize={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -687,7 +725,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Zalando PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando PullOrders failed");
         }
@@ -723,7 +761,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -743,7 +781,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -764,7 +802,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(ApiBase, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Zalando ping: {StatusCode}", response.StatusCode);
             return true;
@@ -786,7 +824,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
             var payload = JsonSerializer.Serialize(new { tracking_number = trackingNumber, carrier = provider.ToString() });
 
-            var response = await ThrottledExecuteAsync(async c =>
+            using var response = await ThrottledExecuteAsync(async c =>
             {
                 using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/orders/{platformOrderId}/shipments")
                 { Content = new StringContent(payload, Encoding.UTF8, "application/json") };
@@ -796,7 +834,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ZalandoAdapter] SendShipment error");
             return false;
@@ -804,10 +842,112 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     }
 
     // ── ISettlementCapableAdapter ──
-    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    // Zalando Partner Finance API: GET /partner/settlement-reports
+    // Returns settlement summaries per period. Requires zDirect/Partner API access.
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
-        _logger.LogWarning("[ZalandoAdapter] GetSettlement — Zalando Settlements API not available for all partners");
-        return Task.FromResult<SettlementDto?>(null);
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var url = $"{ApiBase}/partner/settlement-reports?start_date={startDate:yyyy-MM-dd}&end_date={endDate:yyyy-MM-dd}";
+
+            using var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Zalando GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+
+                // 403/404 = partner not enrolled in Finance API — degrade gracefully
+                if (response.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
+                {
+                    _logger.LogWarning("[ZalandoAdapter] GetSettlement — partner not enrolled in Finance API; returning null");
+                    return null;
+                }
+
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Zalando",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "EUR"
+            };
+
+            // Zalando returns items array with settlement line items
+            var itemsProperty = doc.RootElement.TryGetProperty("items", out var items) ? items
+                : doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement
+                : default;
+
+            if (itemsProperty.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var entry in itemsProperty.EnumerateArray())
+                {
+                    var grossAmount = entry.TryGetProperty("gross_amount", out var grossEl) &&
+                                      grossEl.TryGetProperty("amount", out var grossVal) &&
+                                      decimal.TryParse(grossVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ga) ? ga : 0m;
+
+                    var commissionAmount = entry.TryGetProperty("commission_amount", out var commEl) &&
+                                           commEl.TryGetProperty("amount", out var commVal) &&
+                                           decimal.TryParse(commVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ca) ? ca : 0m;
+
+                    var shippingCost = entry.TryGetProperty("shipping_cost", out var shipEl) &&
+                                       shipEl.TryGetProperty("amount", out var shipVal) &&
+                                       decimal.TryParse(shipVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var sc) ? sc : 0m;
+
+                    var returnAmount = entry.TryGetProperty("return_amount", out var retEl) &&
+                                       retEl.TryGetProperty("amount", out var retVal) &&
+                                       decimal.TryParse(retVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ra) ? ra : 0m;
+
+                    var entryType = entry.TryGetProperty("type", out var typeEl)
+                        ? typeEl.GetString() ?? "SALE"
+                        : "SALE";
+
+                    var orderNumber = entry.TryGetProperty("order_number", out var onEl)
+                        ? onEl.GetString()
+                        : null;
+
+                    var txDate = entry.TryGetProperty("settlement_date", out var sdEl) &&
+                                 DateTime.TryParse(sdEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var sdv)
+                        ? sdv : startDate;
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderNumber,
+                        TransactionType = entryType,
+                        Amount = grossAmount,
+                        CommissionAmount = commissionAmount,
+                        TransactionDate = txDate
+                    });
+
+                    settlement.TotalSales += grossAmount;
+                    settlement.TotalCommission += Math.Abs(commissionAmount);
+                    settlement.TotalShippingCost += Math.Abs(shippingCost);
+                    settlement.TotalReturnDeduction += Math.Abs(returnAmount);
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("Zalando GetSettlement: {LineCount} entries, Net={Net} {Currency}",
+                settlement.Lines.Count, settlement.NetAmount, settlement.Currency);
+
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Zalando GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
     }
 
     public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
@@ -822,7 +962,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(async c =>
+            using var response = await ThrottledExecuteAsync(async c =>
             {
                 using var req = new HttpRequestMessage(HttpMethod.Get, $"{ApiBase}/merchants/returns?status=APPROVED");
                 req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -846,7 +986,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return claims;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ZalandoAdapter] PullClaims error");
             return Array.Empty<ExternalClaimDto>();
@@ -878,7 +1018,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 event_types = new[] { "ORDER_CREATED", "ORDER_UPDATED", "RETURN_CREATED" }
             }, _jsonOptions);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async c =>
                 {
                     using var req = new HttpRequestMessage(HttpMethod.Post, $"{ApiBase}/merchants/webhooks")
@@ -896,7 +1036,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando RegisterWebhook exception");
             return false;
@@ -912,7 +1052,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         {
             var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async c =>
                 {
                     using var req = new HttpRequestMessage(HttpMethod.Delete, $"{ApiBase}/merchants/webhooks");
@@ -929,25 +1069,97 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Zalando UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
             using var doc = JsonDocument.Parse(payload);
             var eventType = doc.RootElement.TryGetProperty("event_type", out var et) ? et.GetString() : "unknown";
             _logger.LogInformation("ZalandoAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Zalando] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Zalando Merchant API.
+    /// GET /merchants/{merchantId}/product-reviews?page_token={page}&amp;page_size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            var response = await ThrottledExecuteAsync(
+                async innerCt =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Get,
+                        $"{ApiBase}/merchants/{_options.ClientId}/product-reviews?page_token={page}&page_size={size}");
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    return await _httpClient.SendAsync(req, innerCt).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Zalando GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("items", out var itemArr) ? itemArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? id.GetString()?.GetHashCode() ?? 0 : 0,
+                        ProductId: item.TryGetProperty("simple_sku", out var sku) ? sku.GetString()?.GetHashCode() ?? 0 : 0,
+                        Comment: item.TryGetProperty("title", out var title) ? title.GetString() ?? ""
+                            : item.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("star_rating", out var sr) ? sr.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("nickname", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("merchant_reply", out var reply) && reply.ValueKind != JsonValueKind.Null));
+                }
+            }
+
+            _logger.LogInformation("Zalando GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Zalando GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 }

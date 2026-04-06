@@ -16,12 +16,14 @@ public sealed class TaxRecordRepository : ITaxRecordRepository
         => await _context.TaxRecords
             .Where(r => r.TenantId == tenantId && r.Period == period)
             .OrderBy(r => r.DueDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<IReadOnlyList<TaxRecord>> GetUnpaidAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.TaxRecords
             .Where(r => r.TenantId == tenantId && !r.IsPaid)
             .OrderBy(r => r.DueDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task<decimal> GetTotalTaxByPeriodAsync(Guid tenantId, string period, CancellationToken ct = default)
@@ -41,6 +43,7 @@ public sealed class TaxRecordRepository : ITaxRecordRepository
 
         return await query
             .OrderByDescending(r => r.DueDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 

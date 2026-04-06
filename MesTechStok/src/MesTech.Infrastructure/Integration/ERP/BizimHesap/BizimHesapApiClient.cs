@@ -35,6 +35,8 @@ public sealed class BizimHesapApiClient
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _baseUrl = (configuration["ERP:BizimHesap:BaseUrl"] ?? "https://api.bizimhesap.com/v1/").TrimEnd('/');
+        if (Uri.TryCreate(_baseUrl, UriKind.Absolute, out var parsedUri) && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[BizimHesapApiClient] BaseUrl points to private network: {BaseUrl}", _baseUrl);
         _apiKey = configuration["ERP:BizimHesap:ApiKey"] ?? string.Empty;
     }
 

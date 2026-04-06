@@ -36,14 +36,22 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Brand).HasMaxLength(100);
         builder.Property(p => p.Model).HasMaxLength(100);
 
-        // Decimal precision (para alanları — 18,2)
+        // Decimal precision (para alanları — 18,2; oranlar — 5,2; fiziksel — 10,2)
         builder.Property(p => p.PurchasePrice).HasPrecision(18, 2);
         builder.Property(p => p.SalePrice).HasPrecision(18, 2);
         builder.Property(p => p.ListPrice).HasPrecision(18, 2);
+        builder.Property(p => p.DiscountRate).HasPrecision(5, 2);
+        builder.Property(p => p.DiscountedPrice).HasPrecision(18, 2);
         builder.Property(p => p.TaxRate).HasPrecision(5, 2);
+        builder.Property(p => p.RecommendedPrice).HasPrecision(18, 2);
         builder.Property(p => p.Weight).HasPrecision(18, 4);
+        builder.Property(p => p.Length).HasPrecision(10, 2);
+        builder.Property(p => p.Width).HasPrecision(10, 2);
+        builder.Property(p => p.Height).HasPrecision(10, 2);
+        builder.Property(p => p.Desi).HasPrecision(10, 2);
 
-        // Optimistic concurrency — concurrent stok güncellemelerinde veri bozulmasını önler
-        builder.Property(p => p.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(p => p.RowVersion);
     }
 }

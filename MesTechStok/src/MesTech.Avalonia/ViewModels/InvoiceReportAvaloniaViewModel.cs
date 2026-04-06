@@ -45,9 +45,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             PlatformType? platformFilter = SelectedPlatform switch
             {
@@ -64,7 +62,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
                     FromDate.DateTime,
                     ToDate.DateTime,
                     platformFilter),
-                CancellationToken);
+                ct);
 
             TotalCount = report.TotalCount;
             TotalAmount = report.TotalAmount;
@@ -86,13 +84,7 @@ public partial class InvoiceReportAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Rapor yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Fatura raporu yuklenirken hata");
     }
 
     [RelayCommand]

@@ -1,6 +1,9 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.DTOs;
+using MesTech.Application.Queries.GetStockMovements;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -9,9 +12,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class StockMovementAvaloniaViewModelTests
 {
-    private static StockMovementAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
+
+    private StockMovementAvaloniaViewModel CreateSut()
     {
-        return new StockMovementAvaloniaViewModel(Mock.Of<IMediator>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetStockMovementsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<StockMovementDto>)Array.Empty<StockMovementDto>());
+        return new StockMovementAvaloniaViewModel(_mediatorMock.Object, _tenantProviderMock.Object);
     }
 
     // ── 3-State: Default / Empty ──
@@ -33,10 +41,10 @@ public class StockMovementAvaloniaViewModelTests
         sut.Items.Should().BeEmpty();
     }
 
-    // ── 3-State: Loading → Loaded ──
+    // ── 3-State: Loading → Loaded (empty) ──
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateItemsAndSetTotalCount()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -47,30 +55,16 @@ public class StockMovementAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.Items.Should().HaveCount(10);
-        sut.TotalCount.Should().Be(10);
-        sut.ChangedCount.Should().Be(0, "initial YeniStok == MevcutStok");
-        sut.IsEmpty.Should().BeFalse();
+        sut.Items.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
+        sut.ChangedCount.Should().Be(0);
+        sut.IsEmpty.Should().BeTrue();
     }
 
-    [Fact]
-    public async Task ChangedCount_ShouldUpdateWhenItemYeniStokChanges()
-    {
-        // Arrange
-        var sut = CreateSut();
-        await sut.LoadAsync();
-
-        // Act — modify one item's YeniStok
-        sut.Items[0].YeniStok = sut.Items[0].MevcutStok + 5;
-
-        // Assert
-        sut.ChangedCount.Should().Be(1);
-    }
-
-    // ── 3-State: BulkUpdate action ──
+    // ── 3-State: BulkUpdate with no items ──
 
     [Fact]
-    public async Task BulkUpdateCommand_NoChanges_ShouldSetUpdateStatus()
+    public async Task BulkUpdateCommand_NoItems_ShouldSetUpdateStatus()
     {
         // Arrange
         var sut = CreateSut();
@@ -82,24 +76,5 @@ public class StockMovementAvaloniaViewModelTests
         // Assert
         sut.UpdateStatus.Should().Be("Degisiklik yapilmadi.");
         sut.IsLoading.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task BulkUpdateCommand_WithChanges_ShouldApplyAndReportCount()
-    {
-        // Arrange
-        var sut = CreateSut();
-        await sut.LoadAsync();
-        sut.Items[0].YeniStok = 999;
-        sut.Items[1].YeniStok = 888;
-
-        // Act
-        await sut.BulkUpdateCommand.ExecuteAsync(null);
-
-        // Assert
-        sut.UpdateStatus.Should().Contain("2 urun");
-        sut.ChangedCount.Should().Be(0, "after bulk update MevcutStok == YeniStok");
-        sut.Items[0].MevcutStok.Should().Be(999);
-        sut.Items[1].MevcutStok.Should().Be(888);
     }
 }

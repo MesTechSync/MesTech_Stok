@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -31,6 +32,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private readonly Bitrix24Options _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static SemaphoreSlim _rateLimitSemaphore = new(50, 50);
     private const int MaxBatchCommands = 50;
@@ -40,10 +42,12 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private bool _isConfigured;
 
     public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger,
-        IHttpClientFactory? httpClientFactory = null, IOptions<Bitrix24Options>? options = null)
+        IHttpClientFactory? httpClientFactory = null, IOptions<Bitrix24Options>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClientFactory = httpClientFactory;
+        _scopeFactory = scopeFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new Bitrix24Options();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
@@ -140,6 +144,10 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 "Bitrix24 credentials require: Bitrix24ClientId, Bitrix24ClientSecret, Bitrix24PortalDomain, Bitrix24RefreshToken");
         }
 
+        // SSRF guard (G10853)
+        if (Security.SsrfGuard.IsPrivateHost(_portalDomain))
+            _logger.LogWarning("[Bitrix24Adapter] PortalDomain points to private network: {Domain}", _portalDomain);
+
         _httpClient.BaseAddress ??= new Uri($"https://{_portalDomain}/rest/", UriKind.Absolute);
 
         var tokenEndpoint = credentials.GetValueOrDefault("Bitrix24TokenEndpoint");
@@ -188,7 +196,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
             // Lightweight test: get current user info
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "profile"), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -213,7 +221,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 result.ErrorMessage = $"Bitrix24 API returned {response.StatusCode}: {errorBody}";
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             result.IsSuccess = false;
             result.ErrorMessage = $"Bitrix24 connection failed: {ex.Message}";
@@ -242,7 +250,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             var content = new FormUrlEncodedContent(
                 fields.Select(kvp => new KeyValuePair<string, string>($"fields[{kvp.Key}]", kvp.Value.ToString()!)));
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.product.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -256,7 +264,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogWarning("Bitrix24 PushProduct failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushProductAsync failed for {Name}", product.Name);
             return false;
@@ -285,7 +293,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     ["select[4]"] = "DESCRIPTION"
                 });
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "crm.product.list") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -316,7 +324,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 start = next.GetInt32();
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PullProductsAsync failed");
         }
@@ -336,18 +344,25 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Bitrix24, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         try
         {
-            // Find product by external ID (would need platform mapping)
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["id"] = productId.ToString(),
+                ["id"] = externalId,
                 ["fields[PRICE]"] = newPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
             });
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.product.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -360,7 +375,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushPriceUpdateAsync failed for {ProductId}", productId);
             return false;
@@ -376,7 +391,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "catalog.section.list"),
                 ct).ConfigureAwait(false);
 
@@ -403,7 +418,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 GetCategoriesAsync failed");
         }
@@ -438,7 +453,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -465,7 +480,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return externalDealId;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushDealAsync failed for order {OrderId}", order.Id);
             return null;
@@ -482,7 +497,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
         // Bitrix24 contacts to enable incremental sync.
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.list"),
                 ct).ConfigureAwait(false);
 
@@ -501,7 +516,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 SyncContacts: {Count} contacts found", count);
             return count;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 SyncContactsAsync failed");
             return 0;
@@ -527,7 +542,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                 ["fields[STAGE_ID]"] = stageId
             });
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -542,7 +557,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogWarning("Bitrix24 UpdateDealStage failed: {Status} {Error}", response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UpdateDealStageAsync failed for deal {DealId}", externalDealId);
             return false;
@@ -576,7 +591,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
                 var content = new FormUrlEncodedContent(formFields);
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "batch") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -615,7 +630,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Bitrix24 batch chunk failed ({Count} commands)", chunk.Count);
                 allResults.AddRange(chunk.Select(_ => ""));
@@ -650,7 +665,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
                     ["handler"] = callbackUrl
                 });
 
-                var response = await ExecuteWithRetryAsync(
+                using var response = await ExecuteWithRetryAsync(
                     () => new HttpRequestMessage(HttpMethod.Post, "event.bind") { Content = content },
                     ct).ConfigureAwait(false);
 
@@ -665,7 +680,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 webhooks registered for {Url}", callbackUrl);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 RegisterWebhookAsync failed");
             return false;
@@ -701,7 +716,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
             _logger.LogInformation("Bitrix24 webhooks unregistered for {Url}", callbackUrl);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UnregisterWebhookAsync failed");
             return false;
@@ -712,21 +727,21 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     async Task IWebhookCapableAdapter.ProcessWebhookPayloadAsync(string payload, CancellationToken ct)
         => await ProcessWebhookPayloadAsync(payload, null, ct).ConfigureAwait(false);
 
-    public Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
+    public async Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
     {
         try
         {
-            // Bitrix24 webhooks send form-encoded data with auth[application_token]
-            // Validation is done by comparing application_token with stored value
-            // The actual processing is delegated to WebhookReceiverService
-
             _logger.LogInformation("Bitrix24 webhook payload received ({Length} bytes)", payload?.Length ?? 0);
-            return Task.FromResult(true);
+
+            await WebhookDispatchHelper.DispatchAsync(
+                _scopeFactory, PlatformCode, "bitrix24_webhook", null, payload, _logger, ct).ConfigureAwait(false);
+
+            return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 ProcessWebhookPayloadAsync failed");
-            return Task.FromResult(false);
+            return false;
         }
     }
 
@@ -765,7 +780,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.add") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -787,7 +802,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 PushContactAsync failed for customer {CustomerId}", customer.Id);
             return null;
@@ -818,7 +833,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             var content = new FormUrlEncodedContent(fields);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Post, "crm.contact.update") { Content = content },
                 ct).ConfigureAwait(false);
 
@@ -831,7 +846,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 UpdateContactAsync failed for {ContactId}", externalContactId);
             return false;
@@ -858,7 +873,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
 
         var content = new FormUrlEncodedContent(formFields);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Post, "crm.deal.productrows.set") { Content = content },
             ct).ConfigureAwait(false);
 

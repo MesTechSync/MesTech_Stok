@@ -35,7 +35,7 @@ public static class QuotationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("ListQuotations")
-        .WithSummary("Teklif listesi (durum filtresi)").Produces(200).Produces(400);
+        .WithSummary("Teklif listesi (durum filtresi)").Produces<IReadOnlyList<QuotationDto>>(200).Produces(400);
 
         // GET /api/v1/quotations/{id} — get single quotation with lines
         group.MapGet("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -45,7 +45,7 @@ public static class QuotationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetQuotationById")
-        .WithSummary("Tekil teklif detayı").Produces(200).Produces(400);
+        .WithSummary("Tekil teklif detayı").Produces<QuotationDto>(200).Produces(400);
 
         // POST /api/v1/quotations — create a new quotation
         group.MapPost("/", async (CreateQuotationCommand command, ISender mediator, CancellationToken ct) =>
@@ -95,5 +95,18 @@ public static class QuotationEndpoints
         .WithName("ConvertQuotationToInvoice")
         .WithSummary("Kabul edilen teklifi faturaya dönüştür").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // DELETE /api/v1/quotations/{id} — teklif sil (kopuk zincir fix)
+        group.MapDelete("/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Commands.DeleteQuotation.DeleteQuotationCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteQuotation")
+        .WithSummary("Teklif sil (soft-delete)").Produces(204).Produces(400);
     }
 }

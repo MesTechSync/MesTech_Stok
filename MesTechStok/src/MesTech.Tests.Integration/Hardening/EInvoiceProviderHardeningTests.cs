@@ -207,7 +207,8 @@ public class EInvoiceProviderHardeningTests : IDisposable
 
         var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var ublBuilder = new UblTrXmlBuilder();
-        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
+        var ublValidator = new Mock<IUblTrXmlValidator>().Object;
+        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder, ublValidator);
         provider.Configure("test-api-key", _baseUrl);
 
         // Act
@@ -250,7 +251,8 @@ public class EInvoiceProviderHardeningTests : IDisposable
 
         var httpClient = CreateConfiguredHttpClient(TimeSpan.FromSeconds(30));
         var ublBuilder = new UblTrXmlBuilder();
-        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder);
+        var ublValidator = new Mock<IUblTrXmlValidator>().Object;
+        var provider = new SovosInvoiceProvider(httpClient, NullLogger<SovosInvoiceProvider>.Instance, ublBuilder, ublValidator);
         provider.Configure("test-api-key", _baseUrl);
 
         // Act

@@ -68,7 +68,8 @@ public class BaseEntityTests
     [Fact]
     public void DomainEvents_RaiseAndClear_ShouldWork()
     {
-        var product = new Product { Stock = 100 };
+        var product = new Product(); product.SyncStock(100);
+        product.ClearDomainEvents(); // SyncStock raises events — clear before test
 
         // AdjustStock raises a StockChangedEvent
         product.AdjustStock(10, MesTech.Domain.Enums.StockMovementType.StockIn);
@@ -81,7 +82,8 @@ public class BaseEntityTests
     [Fact]
     public void DomainEvents_MultipleEvents_ShouldAccumulate()
     {
-        var product = new Product { Stock = 100 };
+        var product = new Product(); product.SyncStock(100);
+        product.ClearDomainEvents(); // SyncStock raises events — clear before test
 
         product.AdjustStock(10, MesTech.Domain.Enums.StockMovementType.StockIn);
         product.AdjustStock(-5, MesTech.Domain.Enums.StockMovementType.Sale);

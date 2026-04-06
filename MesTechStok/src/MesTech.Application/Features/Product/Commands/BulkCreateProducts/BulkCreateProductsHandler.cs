@@ -100,7 +100,7 @@ public sealed class BulkCreateProductsHandler : IRequestHandler<BulkCreateProduc
                 if (input.Quantity != 0)
                     product.AdjustStock(input.Quantity, Domain.Enums.StockMovementType.Purchase, "Toplu import");
 
-                await _productRepository.AddAsync(product).ConfigureAwait(false);
+                await _productRepository.AddAsync(product, cancellationToken).ConfigureAwait(false);
                 successCount++;
             }
 #pragma warning disable CA1031 // Catch general exception — batch processing must not abort on single item failure

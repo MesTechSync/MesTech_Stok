@@ -4,8 +4,8 @@ namespace MesTech.Domain.Interfaces;
 
 public interface IProductSetRepository
 {
-    Task<ProductSet?> GetByIdAsync(Guid id);
-    Task<IReadOnlyList<ProductSet>> GetAllAsync(Guid? tenantId = null);
-    Task AddAsync(ProductSet productSet);
-    Task UpdateAsync(ProductSet productSet);
+    Task<ProductSet?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<ProductSet>> GetAllAsync(Guid? tenantId = null, CancellationToken ct = default);
+    Task AddAsync(ProductSet productSet, CancellationToken ct = default);
+    Task UpdateAsync(ProductSet productSet, CancellationToken ct = default);
 }

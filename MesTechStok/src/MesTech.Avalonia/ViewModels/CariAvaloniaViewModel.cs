@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetCounterparties;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -21,6 +22,10 @@ public partial class CariAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<CariItemDto> Accounts { get; } = [];
 
     public ObservableCollection<string> AccountTypes { get; } =
@@ -38,15 +43,11 @@ public partial class CariAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var results = await _mediator.Send(
                 new GetCounterpartiesQuery(_currentUser.TenantId),
-                CancellationToken);
+                ct);
 
             _allAccounts = results.Select(c => new CariItemDto
             {
@@ -63,16 +64,7 @@ public partial class CariAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Cari hesaplar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Cari hesaplar yuklenirken hata");
     }
 
     private void ApplyFilters()
@@ -91,12 +83,46 @@ public partial class CariAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(a => a.Type == SelectedType);
         }
 
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "Name"    => SortAscending ? filtered.OrderBy(x => x.Name).ToList()    : filtered.OrderByDescending(x => x.Name).ToList(),
+            "Type"    => SortAscending ? filtered.OrderBy(x => x.Type).ToList()    : filtered.OrderByDescending(x => x.Type).ToList(),
+            "Debt"    => SortAscending ? filtered.OrderBy(x => x.Debt).ToList()    : filtered.OrderByDescending(x => x.Debt).ToList(),
+            "Credit"  => SortAscending ? filtered.OrderBy(x => x.Credit).ToList()  : filtered.OrderByDescending(x => x.Credit).ToList(),
+            "Balance" => SortAscending ? filtered.OrderBy(x => x.Balance).ToList() : filtered.OrderByDescending(x => x.Balance).ToList(),
+            _         => SortAscending ? filtered.OrderBy(x => x.Name).ToList()    : filtered.OrderByDescending(x => x.Name).ToList(),
+        };
+
         Accounts.Clear();
-        foreach (var item in filtered)
+        foreach (var item in sortedList)
             Accounts.Add(item);
 
         TotalCount = Accounts.Count;
         IsEmpty = Accounts.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "accounts", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Cari hesaplar disa aktarilirken hata");
     }
 
     [RelayCommand]

@@ -14,7 +14,7 @@ public sealed class TrendyolOptions
     /// <summary>Trendyol Production API base URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
         Justification = "Configuration binding requires string type.")]
-    public string ProductionBaseUrl { get; set; } = "https://apigw.trendyol.com";
+    public string ProductionBaseUrl { get; set; } = "https://api.trendyol.com";
 
     /// <summary>Trendyol Sandbox (stage) API base URL.</summary>
     [SuppressMessage("Design", "CA1056:Uri properties should not be strings",
@@ -47,5 +47,12 @@ public sealed class TrendyolOptions
     /// Trendyol API: 50 req/10s — 100 allows burst queueing with retry.
     /// Override via config: Integrations:Trendyol:MaxConcurrentRequests
     /// </summary>
-    public int MaxConcurrentRequests { get; set; } = 100;
+    public int MaxConcurrentRequests { get; set; } = 50;
+
+    /// <summary>
+    /// Webhook HMAC-SHA256 dogrulama secret'i.
+    /// Trendyol webhook imzasi kontrol icin kullanilir.
+    /// Bos ise webhook dogrulama atlaniyor (log uyarisi).
+    /// </summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }

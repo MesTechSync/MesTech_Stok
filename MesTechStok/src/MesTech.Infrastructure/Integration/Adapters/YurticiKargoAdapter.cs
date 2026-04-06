@@ -49,6 +49,10 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
         // Initialise service URL from options so sandbox toggle works before Configure() is called
         _serviceUrl = _options.ServiceUrl;
 
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(_serviceUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[YurticiKargoAdapter] ServiceUrl points to private network: {Url}", _serviceUrl);
+
         _retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             // HTTP 429 rate-limit retry
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
@@ -169,10 +173,10 @@ public sealed class YurticiKargoAdapter : ICargoAdapter, ICargoRateProvider
                 AuthElement(),
                 new XElement(YkNs + "keys", "PING-TEST"));
 
-            await ThrottledSoapAsync(_serviceUrl, "https://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
+            await ThrottledSoapAsync(_serviceUrl, "http://yurticikargo.com/queryShipment", body, ct).ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[YurticiKargoAdapter] IsAvailableAsync health check failed");
             return false;

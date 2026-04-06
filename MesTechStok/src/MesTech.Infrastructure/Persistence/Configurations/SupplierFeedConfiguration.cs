@@ -35,5 +35,7 @@ public sealed class SupplierFeedConfiguration : IEntityTypeConfiguration<Supplie
             .WithMany()
             .HasForeignKey(f => f.SupplierId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

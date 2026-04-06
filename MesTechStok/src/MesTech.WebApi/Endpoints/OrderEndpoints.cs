@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.WebApi.Filters;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Commands.CancelOrder;
@@ -18,7 +19,8 @@ public static class OrderEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/orders").WithTags("Orders").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/orders").WithTags("Orders").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // GET /api/v1/orders — list orders (optional date range + status filter)
         group.MapGet("/", async (
@@ -34,7 +36,7 @@ public static class OrderEndpoints
         })
         .WithName("ListOrders")
         .WithSummary("Sipariş listesi (tarih + durum filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderListDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/orders — yeni sipariş oluştur
@@ -51,7 +53,8 @@ public static class OrderEndpoints
         .WithSummary("Yeni sipariş oluştur")
         .Produces(201).ProducesProblem(401).ProducesProblem(429)
         .Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageOrders");
 
         // POST /api/v1/orders/{id}/push-bitrix24 — siparişi Bitrix24 CRM'e gönder
         group.MapPost("/{id:guid}/push-bitrix24", async (
@@ -79,7 +82,7 @@ public static class OrderEndpoints
         })
         .WithName("GetStaleOrders")
         .WithSummary("Gecikmiş siparişler — platform bazlı SLA aşımı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StaleOrderDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/list — tenant-scoped order list (paged)
@@ -89,12 +92,12 @@ public static class OrderEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetOrderListQuery(tenantId, count ?? 100), ct);
+                new GetOrderListQuery(tenantId, Math.Clamp(count ?? 100, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetOrderList")
         .WithSummary("Tenant bazlı sipariş listesi (son N adet)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderListItemDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/orders/by-status — kanban view: orders grouped by status
@@ -108,7 +111,7 @@ public static class OrderEndpoints
         })
         .WithName("GetOrdersByStatus")
         .WithSummary("Sipariş kanban görünümü — duruma göre gruplu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<OrderKanbanResult>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/orders/{id} — sipariş detayı (P0 — DEV6 TUR10)

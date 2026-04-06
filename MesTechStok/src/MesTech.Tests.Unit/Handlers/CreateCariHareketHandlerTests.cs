@@ -35,7 +35,7 @@ public class CreateCariHareketHandlerTests
         result.Should().NotBe(Guid.Empty);
         _repo.Verify(r => r.AddAsync(It.Is<CariHareket>(h =>
             h.CariHesapId == hesapId && h.Amount == 1500m &&
-            h.Direction == CariDirection.Borc)), Times.Once());
+            h.Direction == CariDirection.Borc), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -51,7 +51,7 @@ public class CreateCariHareketHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.Is<CariHareket>(h =>
-            h.InvoiceId == invoiceId && h.OrderId == orderId)), Times.Once());
+            h.InvoiceId == invoiceId && h.OrderId == orderId), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class CreateCariHareketHandlerTests
         await _sut.Handle(command, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.Is<CariHareket>(h =>
-            h.Date.Date == DateTime.UtcNow.Date)), Times.Once());
+            h.Date.Date == DateTime.UtcNow.Date), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

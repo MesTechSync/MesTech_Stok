@@ -26,7 +26,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
     private readonly IUblTrXmlBuilder _ublBuilder;
-    private readonly IUblTrXmlValidator? _xmlValidator;
+    private readonly IUblTrXmlValidator _xmlValidator;
     private string? _apiKey;
     private string? _baseUrl;
     private bool _isConfigured;
@@ -41,12 +41,12 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         HttpClient httpClient,
         ILogger<SovosInvoiceProvider> logger,
         IUblTrXmlBuilder ublBuilder,
-        IUblTrXmlValidator? xmlValidator = null)
+        IUblTrXmlValidator xmlValidator)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ublBuilder = ublBuilder ?? throw new ArgumentNullException(nameof(ublBuilder));
-        _xmlValidator = xmlValidator;
+        _xmlValidator = xmlValidator ?? throw new ArgumentNullException(nameof(xmlValidator));
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -121,7 +121,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -133,7 +133,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         EnsureConfigured();
         _logger.LogInformation("Sovos GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -147,7 +147,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -164,7 +164,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             // Sovos returns isRegistered flag
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -179,7 +179,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -192,7 +192,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -237,7 +237,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -271,7 +271,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -294,7 +294,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         {
             var fromStr = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -333,7 +333,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return list;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetIncomingInvoices exception");
             return Array.Empty<IncomingInvoiceDto>();
@@ -348,7 +348,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -360,7 +360,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos AcceptInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return false;
@@ -377,7 +377,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { reason };
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{gibInvoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -389,7 +389,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos RejectInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return false;
@@ -405,7 +405,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -429,7 +429,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new KontorBalanceDto(remaining, total, lastChecked, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
@@ -458,7 +458,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(
+            using var response = await _httpClient.PutAsync(
                 $"{_baseUrl}/api/invoices/template", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -470,7 +470,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos SetInvoiceTemplate exception");
             return false;
@@ -514,7 +514,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/einvoice/send", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -533,7 +533,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new EInvoiceSendResult(true, providerRef, null, creditUsed);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos SendAsync exception for ETTN {EttnNo}", document.EttnNo);
             return new EInvoiceSendResult(false, null, ex.Message, 0);
@@ -547,7 +547,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/einvoice/{providerRef}/pdf-url", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -562,7 +562,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("pdfUrl", out var url) ? url.GetString() : null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetPdfUrlAsync exception for {ProviderRef}", providerRef);
             return null;
@@ -579,7 +579,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { providerRef, reason };
             var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/einvoice/{providerRef}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -591,7 +591,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CancelAsync exception for {ProviderRef}", providerRef);
             return false;
@@ -605,7 +605,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/einvoice/taxpayer/{vkn}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -628,7 +628,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos CheckVknMukellefAsync exception for VKN {Vkn}", vkn);
             return new VknMukellefResult(vkn, false, false, null, null);
@@ -642,7 +642,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/einvoice/credits", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -656,7 +656,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement.TryGetProperty("balance", out var b) ? b.GetInt32() : 0;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Sovos GetCreditBalanceAsync exception");
             return 0;
@@ -729,33 +729,60 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
     private async Task<InvoiceResult> PostInvoiceAsync(string url, object payload, CancellationToken ct)
     {
-        try
-        {
-            var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+        const int maxRetries = 3;
 
-            if (!response.IsSuccessStatusCode)
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("Sovos POST {Url} failed: {Status} — {Error}",
-                    url, response.StatusCode, errorBody);
-                return new InvoiceResult(false, null, null, errorBody);
+                var json = JsonSerializer.Serialize(payload, s_camelCaseJson);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+
+                if ((int)response.StatusCode == 429 || (int)response.StatusCode >= 500)
+                {
+                    var retryBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Sovos POST {Url} retry {Attempt}/{Max}: {Status} — {Error}",
+                        url, attempt, maxRetries, response.StatusCode, retryBody);
+
+                    if (attempt < maxRetries)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+                        continue;
+                    }
+
+                    return new InvoiceResult(false, null, null, $"HTTP {(int)response.StatusCode} after {maxRetries} retries: {retryBody}");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Sovos POST {Url} failed: {Status} — {Error}",
+                        url, response.StatusCode, errorBody);
+                    return new InvoiceResult(false, null, null, errorBody);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(responseJson);
+                var root = doc.RootElement;
+
+                var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
+                var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
+
+                return new InvoiceResult(true, gibId, pdfUrl, null);
             }
-
-            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(responseJson);
-            var root = doc.RootElement;
-
-            var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
-            var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
-
-            return new InvoiceResult(true, gibId, pdfUrl, null);
+            catch (HttpRequestException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning(ex, "Sovos POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "Sovos POST {Url} exception", url);
+                return new InvoiceResult(false, null, null, ex.Message);
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Sovos POST {Url} exception", url);
-            return new InvoiceResult(false, null, null, ex.Message);
-        }
+
+        return new InvoiceResult(false, null, null, "Max retries exhausted");
     }
 }

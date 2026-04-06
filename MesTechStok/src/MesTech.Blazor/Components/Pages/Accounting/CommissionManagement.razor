@@ -1,5 +1,5 @@
 @page "/accounting/commissions"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L
@@ -9,12 +9,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-percent text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.Commissions"]</h3>
+    <h3 class="mb-0" >@L["PageTitle.Commissions"]</h3>
     <small class="text-muted">Platform komisyon oranlari CRUD</small>
   </div>
 </div>
@@ -45,7 +44,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center">
       <h6 class="mb-0">
-        <i class="fas fa-@(isEditing ? "edit" : "plus-circle") me-2" style="color: #2855AC;"></i>
+        <i class="fas fa-@(isEditing ? "edit" : "plus-circle") me-2 text-mestech"></i>
         @(isEditing ? L["UI.EditCommission"] : L["UI.AddCommission"])
       </h6>
     </div>
@@ -97,7 +96,7 @@ else
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <h6 class="mb-0">
-        <i class="fas fa-table me-2" style="color: #2855AC;"></i>@L["Accounting.CommissionRates"]
+        <i class="fas fa-table me-2" ></i>@L["Accounting.CommissionRates"]
       </h6>
       <span class="badge bg-secondary">@rates.Count kayit</span>
     </div>
@@ -144,11 +143,11 @@ else
                   <td class="text-end fw-bold">%@rate.Rate.ToString("N2")</td>
                   <td class="d-none d-sm-table-cell text-muted small">@rate.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(rate)"
+                    <button class="btn btn-sm btn-outline-primary me-1"@onclick="() => StartEdit(rate)"
                             title="Duzenle" disabled="@isSaving">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(rate)"
+                    <button class="btn btn-sm btn-outline-danger"@onclick="() => ConfirmDelete(rate)"
                             title="Sil" disabled="@isSaving">
                       <i class="fas fa-trash-alt"></i>
                     </button>
@@ -422,7 +421,7 @@ else
     "Hepsiburada" => "#FF9800",
     "Pazarama" => "#4CAF50",
     "N11" => "#FF5722",
-    "Amazon" => "#FF9900",
+    "Amazon" => "var(--mestech-amazon)",
     "eBay" => "#E53238",
     "Shopify" => "#95BF47",
     "WooCommerce" => "#96588A",

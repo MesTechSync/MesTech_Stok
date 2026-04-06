@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.OnboardingWizardAvaloniaView"
              x:Name="RootOnboardingWizardAvaloniaView"
              x:DataType="vm:OnboardingWizardAvaloniaViewModel"
@@ -16,13 +18,13 @@
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="24,18">
             <StackPanel Spacing="12">
                 <TextBlock Text="MesTech Kurulum Sihirbazı" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="22" FontWeight="Bold" />
+                           FontSize="{StaticResource FontSizeH2}" FontWeight="Bold" />
                 <Grid ColumnDefinitions="*,Auto">
                     <ProgressBar Grid.Column="0" Minimum="0" Maximum="100" Value="{Binding CompletionPercent}"
                                  Height="8" CornerRadius="4" Foreground="{DynamicResource MesSuccessGreen}"
                                  Background="{DynamicResource MesBadgeOverlay}" />
                     <TextBlock Grid.Column="1" Foreground="{DynamicResource MesBgPrimary}" Margin="12,0,0,0"
-                               VerticalAlignment="Center" FontSize="13">
+                               VerticalAlignment="Center" FontSize="{StaticResource FontSizeCallout}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="Adım {0}/{1}">
                                 <Binding Path="CurrentStep" />
@@ -32,7 +34,7 @@
                     </TextBlock>
                 </Grid>
                 <TextBlock Text="{Binding StepTitle}" Foreground="{DynamicResource MesBgPrimary}"
-                           FontSize="16" FontWeight="SemiBold" Opacity="0.9" />
+                           FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Opacity="0.9" />
             </StackPanel>
         </Border>
 
@@ -50,11 +52,19 @@
                                HorizontalAlignment="Center" Opacity="0.6" />
                 </Border>
 
-                <!-- Error -->
-                <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-                        CornerRadius="8" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1" Margin="0,0,0,8">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-                </Border>
+                        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
                 <!-- Success Message -->
                 <Border IsVisible="{Binding IsRegistered}" Background="{DynamicResource MesBgSuccessLight}"
@@ -64,35 +74,35 @@
 
                 <!-- Step 1: Firma Kaydı -->
                 <StackPanel Spacing="12" IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=1}">
-                    <TextBlock Text="Firma Bilgileri" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="Firma Bilgileri" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
 
-                    <TextBlock Text="Firma Adı *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Firma Adı *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding CompanyName}" Watermark="Örn: MesTech Yazılım A.Ş."
                              ToolTip.Tip="Firmanızın resmi ticaret unvanını girin" />
 
-                    <TextBlock Text="Vergi Numarası" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Vergi Numarası" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding TaxNumber}" Watermark="İsteğe bağlı"
                              ToolTip.Tip="10 haneli vergi numarası veya 11 haneli TC kimlik no" />
 
-                    <TextBlock Text="Admin Kullanıcı" FontWeight="SemiBold" FontSize="16" Margin="0,12,0,0" />
+                    <TextBlock Text="Admin Kullanıcı" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" Margin="0,12,0,0" />
 
-                    <TextBlock Text="Kullanıcı Adı *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Kullanıcı Adı *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding AdminUsername}" Watermark="admin" />
 
-                    <TextBlock Text="E-posta *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="E-posta *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding AdminEmail}" Watermark="admin@firma.com" />
 
-                    <TextBlock Text="Şifre *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Şifre *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding AdminPassword}" PasswordChar="●" Watermark="Min 8 karakter, 1 büyük harf, 1 rakam"
                              ToolTip.Tip="Güçlü şifre: en az 8 karakter, 1 büyük harf, 1 rakam içermeli" />
 
                     <Grid ColumnDefinitions="*,*" Margin="0,4,0,0">
                         <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,6,0">
-                            <TextBlock Text="Ad" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Ad" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding AdminFirstName}" Watermark="Ad" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="4" Margin="6,0,0,0">
-                            <TextBlock Text="Soyad" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="Soyad" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                             <TextBox Text="{Binding AdminLastName}" Watermark="Soyad" />
                         </StackPanel>
                     </Grid>
@@ -100,47 +110,47 @@
 
                 <!-- Step 3: Mağaza Ekle -->
                 <StackPanel Spacing="12" IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=3}">
-                    <TextBlock Text="İlk Mağazanızı Ekleyin" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="İlk Mağazanızı Ekleyin" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
 
-                    <TextBlock Text="Mağaza Adı *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Mağaza Adı *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Text="{Binding StoreName}" Watermark="Trendyol Mağazam" />
 
-                    <TextBlock Text="Platform *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Platform *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <ComboBox ItemsSource="{Binding AvailablePlatforms}" SelectedItem="{Binding SelectedPlatform}"
                               HorizontalAlignment="Stretch" />
                 </StackPanel>
 
                 <!-- Step 4-5: Platform API -->
                 <StackPanel Spacing="12" IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=5}">
-                    <TextBlock Text="API Bilgilerini Girin" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="API Bilgilerini Girin" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
                     <TextBlock Text="Seçtiğiniz platformun API anahtarını ve secret bilgisini girin. Bu bilgiler şifreli saklanır."
-                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="13" />
+                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeCallout}" />
 
-                    <TextBlock Text="API Key *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="API Key *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Watermark="Platform API Key" />
 
-                    <TextBlock Text="API Secret *" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="API Secret *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox PasswordChar="●" Watermark="Platform API Secret" />
 
-                    <TextBlock Text="Satıcı ID" FontSize="12" Foreground="{DynamicResource MesSlateGray}" />
+                    <TextBlock Text="Satıcı ID" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
                     <TextBox Watermark="Platform Satıcı/Mağaza ID" />
                 </StackPanel>
 
                 <!-- Step 6: Sync -->
                 <StackPanel Spacing="12" IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=6}">
-                    <TextBlock Text="İlk Senkronizasyon" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="İlk Senkronizasyon" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSubtitle}" />
                     <TextBlock Text="Platformunuzdan ürün, sipariş ve stok verilerinizi çekiyoruz. Bu işlem birkaç dakika sürebilir."
-                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="13" />
-                    <ProgressBar IsIndeterminate="{Binding IsLoading}" Height="6" CornerRadius="3"
+                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeCallout}" />
+                    <ProgressBar IsIndeterminate="{Binding IsLoading}" Height="6" CornerRadius="{StaticResource MesRadiusSm}"
                                  Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,16" />
                 </StackPanel>
 
                 <!-- Step 7: Tamamlandı -->
                 <StackPanel Spacing="12" IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=7}">
-                    <TextBlock Text="Kurulum Tamamlandı!" FontWeight="Bold" FontSize="20"
+                    <TextBlock Text="Kurulum Tamamlandı!" FontWeight="Bold" FontSize="{StaticResource FontSizeTitle}"
                                Foreground="{DynamicResource MesSuccessGreen}" HorizontalAlignment="Center" />
                     <TextBlock Text="MesTech kullanmaya hazırsınız. Dashboard'a giderek mağazanızı yönetmeye başlayabilirsiniz."
-                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="14"
+                               TextWrapping="Wrap" Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeBody}"
                                HorizontalAlignment="Center" TextAlignment="Center" />
                 </StackPanel>
 
@@ -148,13 +158,13 @@
                 <StackPanel Spacing="12"
                             IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=2}">
                     <TextBlock Text="Firma bilgilerinizi doğrulayın ve devam edin."
-                               Foreground="{DynamicResource MesSlateGray}" FontSize="14" TextWrapping="Wrap" />
+                               Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap" />
                 </StackPanel>
 
                 <StackPanel Spacing="12"
                             IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=4}">
                     <TextBlock Text="Mağazanız için platform seçtiniz. Şimdi API bilgilerini girelim."
-                               Foreground="{DynamicResource MesSlateGray}" FontSize="14" TextWrapping="Wrap" />
+                               Foreground="{DynamicResource MesSlateGray}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap" />
                 </StackPanel>
 
             </StackPanel>
@@ -166,31 +176,53 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Content="Geri" Command="{Binding PreviousStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=1}"
-                        Padding="16,10" CornerRadius="6"
+                        Padding="16,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Önceki adıma dön" />
 
                 <!-- Step 1: Register button -->
                 <Button Grid.Column="2" Content="Kaydol ve Başla" Command="{Binding RegisterCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=1}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Firma ve admin bilgilerini kaydet, kuruluma başla" />
 
                 <!-- Steps 2-6: Next button -->
                 <Button Grid.Column="2" Content="Devam Et" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource BetweenConverter}, ConverterParameter=2-6}"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="SemiBold" Padding="20,10" CornerRadius="6"
+                        FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Sonraki adima devam et" />
 
                 <!-- Step 7: Go to Dashboard -->
                 <Button Grid.Column="2" Content="Dashboard'a Git" Command="{Binding NextStepCommand}"
                         IsVisible="{Binding CurrentStep, Converter={StaticResource EqualConverter}, ConverterParameter=7}"
                         Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="Bold" Padding="24,10" CornerRadius="6"
+                        FontWeight="Bold" Padding="24,10" CornerRadius="{StaticResource MesRadiusBase}"
                         ToolTip.Tip="Kurulumu tamamla ve ana panele git" />
             </Grid>
         </Border>
+
+        <!-- Loading Skeleton -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
+        </Border>
+
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
     </Grid>
 </UserControl>

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
-using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -11,7 +13,12 @@ public class HealthAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    private HealthAvaloniaViewModel CreateSut() => new(Mock.Of<IMediator>(), Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+    private HealthAvaloniaViewModel CreateSut()
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPlatformHealthQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PlatformHealthDto>());
+        return new HealthAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
@@ -32,7 +39,7 @@ public class HealthAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateMetrics()
+    public async Task LoadAsync_ShouldPopulateSystemMetrics()
     {
         // Arrange
         var sut = CreateSut();
@@ -40,16 +47,14 @@ public class HealthAvaloniaViewModelTests
         // Act
         await sut.LoadAsync();
 
-        // Assert
-        sut.CpuUsage.Should().Be(42);
-        sut.RamUsage.Should().Be(68);
-        sut.DiskUsage.Should().Be(55);
+        // Assert — real process metrics
         sut.LastUpdated.Should().NotBe("--:--");
         sut.IsLoading.Should().BeFalse();
+        sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate5Services()
+    public async Task LoadAsync_WithEmptyPlatformHealth_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -58,43 +63,8 @@ public class HealthAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        sut.ServiceStatuses.Should().HaveCount(5);
-        sut.ServiceStatuses.Should().AllSatisfy(s => s.Status.Should().Be("Aktif"));
-        sut.ServiceStatuses.Select(s => s.ServiceName)
-            .Should().Contain(new[] { "PostgreSQL", "Redis", "RabbitMQ" });
-    }
-
-    [Fact]
-    public async Task LoadAsync_ShouldClearErrorState()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert — 3-state verification
+        sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
-        sut.IsEmpty.Should().BeFalse();
-        sut.IsLoading.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_ServiceResponseTimesShouldNotBeEmpty()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert
-        sut.ServiceStatuses.Should().AllSatisfy(s =>
-        {
-            s.ResponseTime.Should().NotBeNullOrEmpty();
-            s.LastCheck.Should().NotBeNullOrEmpty();
-            s.ServiceName.Should().NotBeNullOrEmpty();
-        });
     }
 }

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Auth: HTTP Basic Auth — Authorization: Basic Base64(username:apiKey).
 /// URL pattern: {baseUrl}/invoice/api/v1/...
 /// </summary>
-public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable
+public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IKontorCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<HBFaturaProvider> _logger;
@@ -93,7 +94,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/invoice/api/v1/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -116,7 +117,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -128,7 +129,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
         EnsureConfigured();
         _logger.LogInformation("HBFatura GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/invoice/api/v1/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -142,7 +143,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/invoice/api/v1/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -157,7 +158,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -172,7 +173,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/invoice/api/v1/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -185,7 +186,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -235,7 +236,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/invoice/api/v1/invoices/bulk", httpContent, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -269,7 +270,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -287,7 +288,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/invoice/api/v1/kontor/balance", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -309,7 +310,7 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
 
             return new KontorBalanceDto(remaining, total, expiresAt, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "HBFatura GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
@@ -380,35 +381,175 @@ public sealed class HBFaturaProvider : IInvoiceProvider, IBulkInvoiceCapable, IK
         };
     }
 
-    private async Task<InvoiceResult> PostInvoiceAsync(string url, object payload, CancellationToken ct)
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "HBFatura";
+
+    /// <summary>UBL-TR XML Base64 encode edip HB e-fatura endpoint'e gonder.</summary>
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
     {
+        EnsureConfigured();
+        _logger.LogInformation("[HBFatura] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
         try
         {
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                invoiceType = "SATIS",
+                receiverVkn = document.BuyerVkn,
+                receiverTitle = document.BuyerTitle,
+                issueDate = document.IssueDate.ToString("yyyy-MM-dd")
+            };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
-
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/invoice/api/v1/einvoice/send", content, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                _logger.LogWarning("HBFatura POST {Url} failed: {Status} — {Error}",
-                    url, response.StatusCode, errorBody);
-                return new InvoiceResult(false, null, null, errorBody);
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
             }
-
-            var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(responseJson);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
             var root = doc.RootElement;
-
-            var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
-            var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
-
-            return new InvoiceResult(true, gibId, pdfUrl, null);
+            var providerRef = root.TryGetProperty("providerRef", out var pr) ? pr.GetString() : null;
+            var credits = root.TryGetProperty("creditUsed", out var cu) ? cu.GetInt32() : 1;
+            return new EInvoiceSendResult(true, providerRef, null, credits);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "HBFatura POST {Url} exception", url);
-            return new InvoiceResult(false, null, null, ex.Message);
+            _logger.LogError(ex, "[HBFatura] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
         }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/invoice/api/v1/invoices/{providerRef}/pdf", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var urlEl) ? urlEl.GetString() : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[HBFatura] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            var payload = new { providerRef, reason };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/invoice/api/v1/invoices/{providerRef}/cancel", content, ct).ConfigureAwait(false);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[HBFatura] CancelAsync exception ref={Ref}", providerRef);
+            return false;
+        }
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/invoice/api/v1/mukellef/{vkn}", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var isEInvoice = root.TryGetProperty("isEInvoiceMukellef", out var eiv) && eiv.GetBoolean();
+            var isEArchive = root.TryGetProperty("isEArchiveMukellef", out var eav) && eav.GetBoolean();
+            var title = root.TryGetProperty("title", out var tv) ? tv.GetString() : null;
+            return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[HBFatura] CheckVknMukellefAsync exception vkn={Vkn}", vkn);
+            return new VknMukellefResult(vkn, false, false, null, DateTime.UtcNow);
+        }
+    }
+
+    async Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/invoice/api/v1/credits", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return -1;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("balance", out var bal) ? bal.GetInt32() : -1;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[HBFatura] GetCreditBalanceAsync exception");
+            return -1;
+        }
+    }
+
+    private async Task<InvoiceResult> PostInvoiceAsync(string url, object payload, CancellationToken ct)
+    {
+        const int maxRetries = 3;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+
+                if ((int)response.StatusCode == 429 || (int)response.StatusCode >= 500)
+                {
+                    var retryBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("HBFatura POST {Url} retry {Attempt}/{Max}: {Status} — {Error}",
+                        url, attempt, maxRetries, response.StatusCode, retryBody);
+                    if (attempt < maxRetries) { await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false); continue; }
+                    return new InvoiceResult(false, null, null, $"HTTP {(int)response.StatusCode} after {maxRetries} retries: {retryBody}");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("HBFatura POST {Url} failed: {Status} — {Error}",
+                        url, response.StatusCode, errorBody);
+                    return new InvoiceResult(false, null, null, errorBody);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(responseJson);
+                var root = doc.RootElement;
+
+                var gibId = root.TryGetProperty("gibInvoiceId", out var gib) ? gib.GetString() : null;
+                var pdfUrl = root.TryGetProperty("pdfUrl", out var pdf) ? pdf.GetString() : null;
+
+                return new InvoiceResult(true, gibId, pdfUrl, null);
+            }
+            catch (HttpRequestException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning(ex, "HBFatura POST {Url} network retry {Attempt}/{Max}", url, attempt, maxRetries);
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "HBFatura POST {Url} exception", url);
+                return new InvoiceResult(false, null, null, ex.Message);
+            }
+        }
+        return new InvoiceResult(false, null, null, "Max retries exhausted");
     }
 }

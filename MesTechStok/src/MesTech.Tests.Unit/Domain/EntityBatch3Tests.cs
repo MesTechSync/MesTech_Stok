@@ -83,32 +83,6 @@ public class CariHesapTests
 
 #endregion
 
-#region DropshippingPoolProduct
-
-[Trait("Category", "Unit")]
-[Trait("Layer", "Domain")]
-public class DropshippingPoolProductTests
-{
-    [Fact]
-    public void Activate_ShouldSetIsActiveTrue()
-    {
-        var pp = new DropshippingPoolProduct(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 100m);
-        pp.Deactivate(); // ensure false first
-        pp.Activate();
-        pp.IsActive.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Deactivate_ShouldSetIsActiveFalse()
-    {
-        var pp = new DropshippingPoolProduct(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 100m);
-        pp.Deactivate();
-        pp.IsActive.Should().BeFalse();
-    }
-}
-
-#endregion
-
 #region AccessLog
 
 [Trait("Category", "Unit")]

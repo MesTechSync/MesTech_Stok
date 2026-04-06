@@ -19,7 +19,9 @@ public sealed class InvoiceAdapterFactory : IInvoiceAdapterFactory
         ILogger<InvoiceAdapterFactory> logger)
     {
         _logger = logger;
-        _adapters = adapters.ToDictionary(a => a.Provider.Provider, a => a);
+        _adapters = new Dictionary<InvoiceProvider, IInvoiceAdapter>();
+        foreach (var adapter in adapters)
+            _adapters[adapter.Provider.Provider] = adapter;
         _logger.LogInformation("InvoiceAdapterFactory baslatildi: {Count} adapter kayitli", _adapters.Count);
     }
 

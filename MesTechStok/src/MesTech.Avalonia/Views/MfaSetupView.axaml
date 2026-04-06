@@ -1,14 +1,17 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
              x:Class="MesTech.Avalonia.Views.MfaSetupView"
              x:Name="RootMfaSetupView"
              x:DataType="vm:MfaSetupViewModel"
              AutomationProperties.Name="MFA Iki Faktorlu Kimlik Dogrulama Ayarlari">
 
-    <UserControl.KeyBindings>
+    <base:BaseView.KeyBindings>
         <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-    </UserControl.KeyBindings>
+    </base:BaseView.KeyBindings>
 
     <!-- STD006: MFA Setup — QR kod + TOTP doğrulama -->
 
@@ -23,12 +26,12 @@
     </Border>
 
     <!-- Main Content -->
-    <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel MaxWidth="540" Margin="40,24" Spacing="20" HorizontalAlignment="Center">
 
         <!-- Header -->
         <StackPanel Spacing="4">
-            <TextBlock Text="Iki Faktorlu Kimlik Dogrulama (MFA)" FontSize="22" FontWeight="Bold"
+            <TextBlock Text="Iki Faktorlu Kimlik Dogrulama (MFA)" FontSize="{StaticResource FontSizeH2}" FontWeight="Bold"
                        Foreground="{DynamicResource MesDarkSlate}" />
             <TextBlock Text="OWASP ASVS V2.8 — Google Authenticator ile hesabinizi koruyun."
                        FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextSecondary}" />
@@ -38,9 +41,9 @@
         <Border IsVisible="{Binding IsMfaEnabled}" Background="{DynamicResource MesBgSuccessLight}" CornerRadius="{StaticResource MesRadiusLg}"
                 Padding="20">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="✅" FontSize="24" VerticalAlignment="Center" />
+                <TextBlock Text="✅" FontSize="{StaticResource FontSizeHeader}" VerticalAlignment="Center" />
                 <StackPanel Spacing="4">
-                    <TextBlock Text="MFA Aktif" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource MesGreenSuccess}" />
+                    <TextBlock Text="MFA Aktif" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesGreenSuccess}" />
                     <TextBlock Text="Hesabiniz iki faktorlu kimlik dogrulama ile korunuyor."
                                FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesGreenSuccess}" />
                 </StackPanel>
@@ -52,7 +55,7 @@
                 CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                 BoxShadow="{DynamicResource MesElevation1}">
             <StackPanel Spacing="16" HorizontalAlignment="Center">
-                <TextBlock Text="🔐" FontSize="48" HorizontalAlignment="Center" />
+                <TextBlock Text="🔐" FontSize="{StaticResource FontSizeHero}" HorizontalAlignment="Center" />
                 <TextBlock Text="MFA henuz etkin degil." FontSize="{StaticResource FontSizeSubtitle}"
                            HorizontalAlignment="Center" Foreground="{DynamicResource MesTextSecondary}" />
                 <TextBlock Text="Hesap guvenliginizi artirmak icin iki faktorlu dogrulamayi etkinlestirin."
@@ -63,7 +66,7 @@
                         ToolTip.Tip="TOTP iki faktorlu kimlik dogrulamayi etkinlestir"
                         AutomationProperties.Name="MFA etkinlestir butonu"
                         Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        FontWeight="Bold" FontSize="16" CornerRadius="{StaticResource MesRadiusMd}" />
+                        FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}" CornerRadius="{StaticResource MesRadiusMd}" />
             </StackPanel>
         </Border>
 
@@ -72,7 +75,7 @@
                 CornerRadius="{StaticResource MesRadiusLg}" Padding="24"
                 BoxShadow="{DynamicResource MesElevation1}">
             <StackPanel Spacing="16">
-                <TextBlock Text="Adim 1: QR Kodu Tarayin" FontWeight="Bold" FontSize="16"
+                <TextBlock Text="Adim 1: QR Kodu Tarayin" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}"
                            Foreground="{DynamicResource MesDarkSlate}" />
                 <TextBlock Text="Google Authenticator veya benzeri bir TOTP uygulamasi ile asagidaki QR kodu tarayin."
                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextSecondary}"
@@ -82,7 +85,7 @@
                 <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusMd}"
                         Padding="16" HorizontalAlignment="Center">
                     <StackPanel Spacing="8" HorizontalAlignment="Center">
-                        <TextBlock Text="📱 QR Kod" FontSize="48" HorizontalAlignment="Center" />
+                        <TextBlock Text="📱 QR Kod" FontSize="{StaticResource FontSizeHero}" HorizontalAlignment="Center" />
                         <TextBlock Text="(QR render icin SkiaSharp.QrCode entegrasyonu planlanmaktadir)"
                                    FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesTextTertiary}"
                                    HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
@@ -94,20 +97,20 @@
                     <TextBlock Text="Manuel giris icin anahtar:" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesTextSecondary}" />
                     <Border Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12,8">
-                        <SelectableTextBlock Text="{Binding SecretKey}" FontFamily="Consolas" FontSize="14"
+                        <SelectableTextBlock Text="{Binding SecretKey}" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
                                              FontWeight="Bold" Foreground="{DynamicResource MesDarkSlate}" />
                     </Border>
                 </StackPanel>
 
                 <!-- Step 3: Verification Code -->
-                <TextBlock Text="Adim 2: Dogrulama Kodu" FontWeight="Bold" FontSize="16"
+                <TextBlock Text="Adim 2: Dogrulama Kodu" FontWeight="Bold" FontSize="{StaticResource FontSizeSubtitle}"
                            Foreground="{DynamicResource MesDarkSlate}" Margin="0,12,0,0" />
                 <TextBlock Text="Uygulamadaki 6 haneli kodu girin:"
                            FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesTextSecondary}" />
 
                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                     <TextBox Text="{Binding VerificationCode}" Width="200"
-                             MaxLength="6" FontSize="24" FontWeight="Bold"
+                             MaxLength="6" FontSize="{StaticResource FontSizeHeader}" FontWeight="Bold"
                              TextAlignment="Center" Watermark="000000"
                              CornerRadius="{StaticResource MesRadiusMd}" />
                     <Button Content="Dogrula" Command="{Binding VerifyCodeCommand}"
@@ -130,13 +133,29 @@
                        HorizontalAlignment="Center" Opacity="0.6" />
         </Border>
 
-        <!-- Error -->
-        <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-                CornerRadius="{StaticResource MesRadiusMd}" Padding="12">
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
     </StackPanel>
     </ScrollViewer>
+
+    <!-- Loading Skeleton -->
+    <Border Background="{DynamicResource MesBgPage}"
+            IsVisible="{Binding IsLoading}"
+            ZIndex="100">
+        <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
+    </Border>
+
     </Panel>
-</UserControl>
+</base:BaseView>

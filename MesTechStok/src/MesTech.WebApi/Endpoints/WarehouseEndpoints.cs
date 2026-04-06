@@ -17,7 +17,8 @@ public static class WarehouseEndpoints
     {
         var group = app.MapGroup("/api/v1/warehouses")
             .WithTags("Warehouses")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageStock"));
 
         // GET /api/v1/warehouses — depo listesi
         group.MapGet("/", async (
@@ -30,7 +31,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouses")
         .WithSummary("Depo listesi (aktif/tümü filtresi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseListDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/warehouses/{id} — depo detayı
@@ -41,11 +42,11 @@ public static class WarehouseEndpoints
             var result = await sender.Send(new GetWarehouseByIdQuery(id), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = $"Warehouse {id} not found" });
+                : Results.Problem(detail: $"Warehouse {id} not found", statusCode: 404);
         })
         .WithName("GetWarehouseById")
         .WithSummary("Depo detayı")
-        .Produces(200)
+        .Produces<WarehouseListDto>(200)
         .Produces(404)
         .CacheOutput("Lookup60s");
 
@@ -77,7 +78,7 @@ public static class WarehouseEndpoints
                     request.Description, request.Type, request.IsActive), ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = $"Warehouse {id} not found or update failed" });
+                : Results.Problem(detail: $"Warehouse {id} not found or update failed", statusCode: 404);
         })
         .WithName("UpdateWarehouse")
         .WithSummary("Depo bilgilerini güncelle")
@@ -95,7 +96,7 @@ public static class WarehouseEndpoints
                 new DeleteWarehouseCommand(tenantId, id), ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = $"Warehouse {id} not found or delete failed" });
+                : Results.Problem(detail: $"Warehouse {id} not found or delete failed", statusCode: 404);
         })
         .WithName("DeleteWarehouse")
         .WithSummary("Depo sil / pasife al")
@@ -108,11 +109,11 @@ public static class WarehouseEndpoints
             ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new GetWarehouseStockQuery(id, tenantId), ct);
-            return Results.Ok(result);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetWarehouseStock")
         .WithSummary("Depo bazlı stok listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseStockDto>>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/warehouses/summary — depo özet raporu
@@ -125,7 +126,7 @@ public static class WarehouseEndpoints
         })
         .WithName("GetWarehouseSummary")
         .WithSummary("Tüm depoların özet raporu")
-        .Produces(200)
+        .Produces<IReadOnlyList<WarehouseSummaryDto>>(200)
         .CacheOutput("Dashboard30s");
     }
 

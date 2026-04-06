@@ -55,4 +55,11 @@ internal sealed class TrendyolSettlementItem
 
     [JsonPropertyName("commissionRate")]
     public decimal CommissionRate { get; set; }
+
+    /// <summary>
+    /// KDV tutari — Trendyol Finance API "vatAmount" alani.
+    /// Null/0 donerse muhasebe GL yevmiyesinde KDV satirina 0 yazilir.
+    /// </summary>
+    [JsonPropertyName("vatAmount")]
+    public decimal VatAmount { get; set; }
 }

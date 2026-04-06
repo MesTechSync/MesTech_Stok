@@ -19,7 +19,7 @@ public sealed class UpdateProductHandler : IRequestHandler<UpdateProductCommand,
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new UpdateProductResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
@@ -43,7 +43,7 @@ public sealed class UpdateProductHandler : IRequestHandler<UpdateProductCommand,
         }
 
         product.MarkAsUpdated();
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new UpdateProductResult { IsSuccess = true };

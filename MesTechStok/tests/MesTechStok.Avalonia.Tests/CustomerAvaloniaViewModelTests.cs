@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Crm.Queries.GetCustomersCrm;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -10,9 +11,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class CustomerAvaloniaViewModelTests
 {
-    private static CustomerAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private CustomerAvaloniaViewModel CreateSut()
     {
-        return new CustomerAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCustomersCrmQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetCustomersCrmResult { Items = [], TotalCount = 0 });
+        return new CustomerAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]
@@ -32,7 +38,7 @@ public class CustomerAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateItems()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -43,13 +49,10 @@ public class CustomerAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Items.Should().HaveCount(10);
-        sut.TotalCount.Should().Be(10);
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldContainExpectedCustomerData()
+    public async Task LoadAsync_WhenEmpty_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -58,13 +61,13 @@ public class CustomerAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        sut.Items.Should().Contain(c => c.AdSoyad == "Ahmet Yilmaz" && c.Sehir == "Istanbul");
-        sut.Items.Should().Contain(c => c.SiparisSayisi == 42);
-        sut.Items.Should().Contain(c => c.Email == "elif.yildiz@outlook.com");
+        sut.Items.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
+        sut.TotalCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task SearchText_WhenSet_ShouldFilterItems()
+    public async Task SearchText_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         var sut = CreateSut();
@@ -74,13 +77,12 @@ public class CustomerAvaloniaViewModelTests
         sut.SearchText = "Ahmet";
 
         // Assert
-        sut.Items.Should().HaveCount(1);
-        sut.Items[0].AdSoyad.Should().Be("Ahmet Yilmaz");
-        sut.TotalCount.Should().Be(1);
+        sut.Items.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task LoadAsync_MultipleCalls_ShouldClearAndReload()
+    public async Task LoadAsync_MultipleCalls_ShouldNotDoubleAdd()
     {
         // Arrange
         var sut = CreateSut();
@@ -90,8 +92,8 @@ public class CustomerAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert — should not double-add
-        sut.Items.Should().HaveCount(10);
-        sut.TotalCount.Should().Be(10);
+        sut.Items.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
         sut.HasError.Should().BeFalse();
     }
 }

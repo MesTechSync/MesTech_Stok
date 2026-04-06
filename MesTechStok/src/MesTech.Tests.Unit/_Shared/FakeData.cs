@@ -16,14 +16,13 @@ public static class FakeData
         int minimumStock = 5)
     {
         var faker = new Faker("tr");
-        return new Product
+        var product = new Product
         {
             Name = faker.Commerce.ProductName(),
             SKU = sku ?? faker.Random.AlphaNumeric(10).ToUpperInvariant(),
             Barcode = barcode ?? faker.Random.Long(1000000000000, 9999999999999).ToString(),
             PurchasePrice = purchasePrice,
             SalePrice = salePrice,
-            Stock = stock,
             MinimumStock = minimumStock,
             MaximumStock = 1000,
             ReorderLevel = 10,
@@ -31,6 +30,9 @@ public static class FakeData
             TenantId = Guid.NewGuid(),
             IsActive = true,
         };
+        product.SyncStock(stock);
+        product.ClearDomainEvents(); // SyncStock raises events — clear for clean test state
+        return product;
     }
 
     public static InventoryLot CreateLot(

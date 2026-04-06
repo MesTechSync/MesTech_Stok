@@ -39,7 +39,7 @@ public class ApproveReturnHandlerTests
         var returnRequest = CreatePendingReturn(returnId);
         var command = new ApproveReturnCommand(returnId, AutoRestoreStock: false);
 
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         var sut = CreateSut();
 
@@ -49,7 +49,7 @@ public class ApproveReturnHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.StockRestored.Should().BeFalse();
-        _returnRepo.Verify(r => r.UpdateAsync(It.IsAny<ReturnRequest>()), Times.Once);
+        _returnRepo.Verify(r => r.UpdateAsync(It.IsAny<ReturnRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -60,7 +60,7 @@ public class ApproveReturnHandlerTests
         var returnId = Guid.NewGuid();
         var command = new ApproveReturnCommand(returnId);
 
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync((ReturnRequest?)null);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync((ReturnRequest?)null);
 
         var sut = CreateSut();
 
@@ -94,7 +94,7 @@ public class ApproveReturnHandlerTests
         returnRequest.Approve(); // Now status is Approved
 
         var command = new ApproveReturnCommand(returnId);
-        _returnRepo.Setup(r => r.GetByIdAsync(returnId)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnId, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         var sut = CreateSut();
 

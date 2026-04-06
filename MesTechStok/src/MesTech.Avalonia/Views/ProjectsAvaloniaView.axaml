@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.ProjectsAvaloniaView"
              x:Name="RootProjectsAvaloniaView"
              x:DataType="vm:ProjectsAvaloniaViewModel">
@@ -47,12 +49,19 @@
             <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-            <!-- Error -->
-            <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
-                    CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
-                    VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-            </Border>
+                    <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
             <!-- Empty -->
             <TextBlock Text="Henuz proje bulunmuyor."
@@ -70,7 +79,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Proje Adi" Binding="{Binding Name}" Width="220" />
                     <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
@@ -83,8 +92,9 @@
                     <!-- Empty State -->
                     <TextBlock Text="Veri bulunamadi" HorizontalAlignment="Center" VerticalAlignment="Center"
                                Margin="0,40" Opacity="0.5" FontSize="{StaticResource FontSizeBody}"
-                               IsVisible="{Binding !IsLoading}" />
+                               />
                 </Grid>
         </Grid>
+<!-- Loading Skeleton -->        <Border Grid.Row="0" Grid.RowSpan="3"                Background="{DynamicResource MesBgPage}"                IsVisible="{Binding IsLoading}"                ZIndex="100">            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />        </Border>
     </Grid>
 </UserControl>

@@ -4,10 +4,13 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Cargo;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -22,7 +25,8 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// K1c-03: OAuth token auth (HepsiburadaTokenService), Polly retry + 401 token refresh, SemaphoreSlim rate limiting.
 /// </summary>
 public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly HepsiburadaTokenService? _tokenService;
@@ -30,6 +34,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private readonly HepsiburadaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
@@ -38,9 +43,11 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private bool _isConfigured;
 
     public HepsiburadaAdapter(HttpClient httpClient, ILogger<HepsiburadaAdapter> logger,
-        HepsiburadaTokenService? tokenService = null, IOptions<HepsiburadaOptions>? options = null)
+        HepsiburadaTokenService? tokenService = null, IOptions<HepsiburadaOptions>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new HepsiburadaOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -141,9 +148,8 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Hepsiburada base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[HepsiburadaAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[HepsiburadaAdapter] BaseUrl points to private network: {BaseUrl}", rawBaseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -204,7 +210,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             ConfigureAuth(credentials);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/listings/merchantid/{_merchantId}?limit=1&offset=0"), ct).ConfigureAwait(false);
 
@@ -259,7 +265,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/listings/merchantid/{_merchantId}?limit={limit}&offset={offset}"), ct).ConfigureAwait(false);
 
@@ -290,16 +296,17 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
                 // Passive → IsActive=false, Active → IsActive=true
                 var isActive = string.Equals(listing.ListingStatus, "Active", StringComparison.OrdinalIgnoreCase);
 
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = listing.ProductName,
                     SKU = listing.MerchantSku,
                     Barcode = listing.Barcode,
                     Description = listing.Description,
                     SalePrice = listing.Price,
-                    Stock = listing.AvailableStock,
                     IsActive = isActive
-                });
+                };
+                product.SyncStock(listing.AvailableStock, "hepsiburada-sync");
+                products.Add(product);
             }
 
             offset += limit;
@@ -316,13 +323,20 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Hepsiburada, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         var payload = new
         {
-            listings = new[] { new { merchantSku = productId.ToString(), availableStock = newStock } }
+            listings = new[] { new { merchantSku = externalId, availableStock = newStock } }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
@@ -345,13 +359,20 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Hepsiburada, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         var payload = new
         {
-            listings = new[] { new { merchantSku = productId.ToString(), price = newPrice } }
+            listings = new[] { new { merchantSku = externalId, price = newPrice } }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/listings/and-inventory");
@@ -384,7 +405,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}&offset={offset}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -446,7 +467,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         var payload = new { status };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, $"/packages/{packageId}/status");
@@ -490,7 +511,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, $"/packages/{platformOrderId}/shipment");
@@ -519,7 +540,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, "/claims"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -543,7 +564,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/approve"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -567,7 +588,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         var payload = new { reason };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, $"/claims/{claimId}/reject");
@@ -595,7 +616,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/activate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -616,7 +637,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Put, $"/listings/{sku}/deactivate"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -639,7 +660,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/listings/upload-status/{correlationId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -668,7 +689,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         var url = $"/finance/commissions?startDate={start:yyyy-MM-dd}&endDate={end:yyyy-MM-dd}";
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -703,7 +724,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/invoices");
@@ -732,7 +753,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/packages/{packageId}/label"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -757,7 +778,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/transportation/tracking/{trackingNo}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -783,7 +804,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/product/api/categories/get-all-categories"),
                 ct).ConfigureAwait(false);
 
@@ -814,7 +835,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada GetCategories: {Count} top-level categories", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -852,7 +873,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         {
             var url = $"/api/settlement-reports?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -931,7 +952,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             if (since.HasValue)
                 url += "?startDate=" + since.Value.ToString("yyyy-MM-dd'T'HH:mm:ss");
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -971,7 +992,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             _logger.LogInformation("Hepsiburada PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada PullClaims exception");
         }
@@ -1015,7 +1036,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             var payload = new { invoiceUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,
@@ -1035,7 +1056,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1055,7 +1076,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
             formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,
@@ -1075,7 +1096,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation("Hepsiburada SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1089,7 +1110,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         await _rateLimitSemaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            var initialResponse = await _retryPipeline.ExecuteAsync(async token =>
             {
                 using var request = requestFactory();
                 await ApplyAuthHeaderAsync(request, token).ConfigureAwait(false);
@@ -1097,8 +1118,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             }, ct).ConfigureAwait(false);
 
             // K1c-04: On 401 — invalidate token, refresh, retry once
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized && _tokenService is not null)
+            HttpResponseMessage response;
+            if (initialResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized && _tokenService is not null)
             {
+                initialResponse.Dispose();
                 _logger.LogWarning("{Platform} received 401 — refreshing OAuth token and retrying", PlatformCode);
                 _tokenService.InvalidateToken();
 
@@ -1108,6 +1131,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
                     await ApplyAuthHeaderAsync(retryRequest, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(retryRequest, token).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
+            }
+            else
+            {
+                response = initialResponse;
             }
 
             return response;
@@ -1144,7 +1171,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/api/webhook/subscribe");
@@ -1161,7 +1188,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada RegisterWebhook exception");
             return false;
@@ -1175,7 +1202,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Delete, "/api/webhook/unsubscribe"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1187,19 +1214,20 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Hepsiburada UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+            eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
 
             _logger.LogInformation(
                 "HepsiburadaAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
@@ -1209,7 +1237,77 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         {
             _logger.LogWarning(ex, "[Hepsiburada] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload!, _logger, ct).ConfigureAwait(false);
+    }
+
+    // ═══════════════════════════════════════════
+    // Product Reviews (Ürün Değerlendirme)
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Hepsiburada.
+    /// GET /reviews/merchantid/{merchantId}?limit={size}&amp;offset={page*size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("HepsiburadaAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var offset = page * size;
+            var request = new HttpRequestMessage(HttpMethod.Get,
+                new Uri($"/reviews/merchantid/{_merchantId}?limit={size}&offset={offset}", UriKind.Relative));
+            await ApplyAuthHeaderAsync(request, ct).ConfigureAwait(false);
+
+            using var response = await _retryPipeline.ExecuteAsync(
+                async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct)
+                .ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Hepsiburada GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("productId", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("comment", out var comment) ? comment.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("rate", out var rate2) ? rate2.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("customerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("createdDate", out var cd)
+                            ? (cd.ValueKind == JsonValueKind.Number && cd.TryGetInt64(out var ts)
+                                ? DateTimeOffset.FromUnixTimeMilliseconds(ts).UtcDateTime
+                                : DateTime.TryParse(cd.GetString(), out var dt) ? dt : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Hepsiburada GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Hepsiburada GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ── IPingableAdapter ──
@@ -1222,10 +1320,10 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var pingRequest = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress);
             pingRequest.Headers.TryAddWithoutValidation("User-Agent", "MesTech-Hepsiburada-Client/3.0");
-            var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.SendAsync(pingRequest, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Hepsiburada ping failed");
             return false;

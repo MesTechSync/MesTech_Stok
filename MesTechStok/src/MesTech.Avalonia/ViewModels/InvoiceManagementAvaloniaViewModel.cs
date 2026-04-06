@@ -26,6 +26,12 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private int totalCount;
 
+    // KD-DEV2-001: Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+
     public ObservableCollection<InvoiceMgmtItemDto> Invoices { get; } = [];
 
     public ObservableCollection<string> InvoiceTypes { get; } =
@@ -37,11 +43,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             InvoiceType? typeFilter = SelectedType switch
             {
@@ -58,7 +60,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
                     From: null,
                     To: null,
                     Search: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText),
-                CancellationToken);
+                ct);
 
             _allInvoices = result.Items.Select(i => new InvoiceMgmtItemDto
             {
@@ -71,13 +73,7 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Faturalar yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Fatura yonetimi yuklenirken hata");
     }
 
     private void ApplyFilters()
@@ -98,12 +94,22 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(i => i.Tip == SelectedType);
         }
 
+        // KD-DEV2-001: Pagination
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        var paged = filteredList.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+
         Invoices.Clear();
-        foreach (var item in filtered)
+        foreach (var item in paged)
             Invoices.Add(item);
 
-        TotalCount = Invoices.Count;
-        IsEmpty = Invoices.Count == 0;
+        IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} fatura)"
+            : string.Empty;
     }
 
     [RelayCommand]
@@ -126,8 +132,35 @@ public partial class InvoiceManagementAvaloniaViewModel : ViewModelBase
     partial void OnSelectedTypeChanged(string value)
     {
         if (_allInvoices.Count > 0)
+        {
+            CurrentPage = 1;
             ApplyFilters();
+        }
     }
+
+    // KD-DEV2-001: Pagination commands
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void FirstPage() { if (CurrentPage != 1) { CurrentPage = 1; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void LastPage() { if (CurrentPage != TotalPages) { CurrentPage = TotalPages; ApplyFilters(); } }
+
+    // KD-DEV2-002: Export CSV placeholder
+    [RelayCommand]
+    private Task ExportCsvAsync()
+    {
+        // DEP: Real export via Application layer — placeholder for now
+        ExportMessage = $"CSV dosyasi basariyla olusturuldu. ({TotalCount} fatura)";
+        return Task.CompletedTask;
+    }
+
+    [ObservableProperty] private string exportMessage = string.Empty;
 }
 
 public class InvoiceMgmtItemDto

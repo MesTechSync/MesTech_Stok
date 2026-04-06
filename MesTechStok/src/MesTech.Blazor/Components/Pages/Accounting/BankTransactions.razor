@@ -1,5 +1,5 @@
 @page "/muhasebe/banka-hareketleri"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<BankTransactions> Logger
 
@@ -10,11 +10,11 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div class="d-flex align-items-center">
         <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-             style="width: 48px; height: 48px; background-color: #0d6efd;">
+             style="width: 48px; height: 48px; background-color: var(--mestech-info);">
             <i class="fas fa-university text-white"></i>
         </div>
         <div>
-            <h3 class="mb-0" style="color: #0d6efd;">Banka Hareketleri</h3>
+            <h3 class="mb-0" style="color: var(--mestech-info);">Banka Hareketleri</h3>
             <small class="text-muted">Banka hesap hareketleri ve mutabakat</small>
         </div>
     </div>

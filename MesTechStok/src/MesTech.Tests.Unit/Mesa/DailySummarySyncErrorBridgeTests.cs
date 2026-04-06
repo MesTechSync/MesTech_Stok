@@ -63,12 +63,13 @@ public class DailySummarySyncErrorBridgeTests
     }
 
     [Fact]
-    public async Task DailySummary_Handler_RecordsMonitor()
+    public async Task DailySummary_Handler_CallsPublisher()
     {
-        var monitorMock = CreateMonitor();
+        // RecordPublish moved inside MesaEventPublisher — handler just calls publisher
+        var publisherMock = new Mock<IMesaEventPublisher>();
         var handler = new DailySummaryBridgeHandler(
-            new Mock<IMesaEventPublisher>().Object,
-            monitorMock.Object,
+            publisherMock.Object,
+            CreateMonitor().Object,
             CreateTenantProvider().Object,
             new Mock<ILogger<DailySummaryBridgeHandler>>().Object);
 
@@ -79,8 +80,10 @@ public class DailySummarySyncErrorBridgeTests
             new DomainEventNotification<DailySummaryGeneratedEvent>(domainEvent),
             CancellationToken.None);
 
-        monitorMock.Verify(
-            x => x.RecordPublish("daily.summary"),
+        publisherMock.Verify(
+            x => x.PublishDailySummaryAsync(
+                It.IsAny<MesaDailySummaryEvent>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -146,12 +149,13 @@ public class DailySummarySyncErrorBridgeTests
     }
 
     [Fact]
-    public async Task SyncError_Handler_RecordsMonitor()
+    public async Task SyncError_Handler_CallsPublisher()
     {
-        var monitorMock = CreateMonitor();
+        // RecordPublish moved inside MesaEventPublisher — handler just calls publisher
+        var publisherMock = new Mock<IMesaEventPublisher>();
         var handler = new SyncErrorBridgeHandler(
-            new Mock<IMesaEventPublisher>().Object,
-            monitorMock.Object,
+            publisherMock.Object,
+            CreateMonitor().Object,
             CreateTenantProvider().Object,
             CreateNotifier().Object,
             new Mock<ILogger<SyncErrorBridgeHandler>>().Object);
@@ -163,8 +167,10 @@ public class DailySummarySyncErrorBridgeTests
             new DomainEventNotification<SyncErrorOccurredEvent>(domainEvent),
             CancellationToken.None);
 
-        monitorMock.Verify(
-            x => x.RecordPublish("sync.error"),
+        publisherMock.Verify(
+            x => x.PublishSyncErrorAsync(
+                It.IsAny<MesaSyncErrorEvent>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

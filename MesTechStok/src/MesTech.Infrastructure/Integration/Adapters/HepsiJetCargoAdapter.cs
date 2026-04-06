@@ -7,6 +7,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Application.Interfaces.Cargo;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Cargo;
+using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -31,7 +32,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private string _username = string.Empty;
-    private string _password = Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
+    private string _password = string.Empty;
     private string _customerCode = string.Empty;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
@@ -120,7 +121,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         ArgumentNullException.ThrowIfNull(credentials);
 
         _username = credentials.GetValueOrDefault("UserName", "");
-        _password = credentials.GetValueOrDefault("Password") ?? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty;
+        _password = credentials.GetValueOrDefault("Password", "");
         _customerCode = credentials.GetValueOrDefault("CustomerCode", "");
 
         var rawBaseUrl = credentials.GetValueOrDefault("BaseUrl", "");
@@ -129,9 +130,8 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             if (!Uri.TryCreate(rawBaseUrl, UriKind.Absolute, out var parsedUri) ||
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid HepsiJet base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[HepsiJetCargoAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[HepsiJetCargoAdapter] BaseUrl points to private network: {BaseUrl}", rawBaseUrl);
             _httpClient.BaseAddress = parsedUri;
         }
 
@@ -160,7 +160,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             var tokenPayload = new
             {
                 username = _username,
-                password = string.IsNullOrEmpty(_password) ? Environment.GetEnvironmentVariable("HEPSIJET_PASSWORD") ?? string.Empty : _password
+                password = _password
             };
 
             var json = JsonSerializer.Serialize(tokenPayload, _jsonOptions);
@@ -169,7 +169,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 
-            var response = await _httpClient.SendAsync(tokenRequest, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(tokenRequest, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -211,11 +211,11 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
         if (!_isConfigured) return false;
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/health"), ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[HepsiJetCargoAdapter] IsAvailableAsync health check failed");
             return false;
@@ -251,7 +251,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/shipments");
                 req.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -295,7 +295,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/api/v1/shipments/{trackingNumber}/tracking"), ct).ConfigureAwait(false);
 
@@ -322,8 +322,8 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
                 {
                     trackingResult.Events.Add(new TrackingEvent
                     {
-                        Timestamp = DateTime.TryParse(
-                            evt.GetProperty("timestamp").GetString(), out var ts)
+                        Timestamp = evt.TryGetProperty("timestamp", out var tsProp)
+                            && DateTime.TryParse(tsProp.GetString(), out var ts)
                             ? ts : DateTime.UtcNow,
                         Location = evt.TryGetProperty("location", out var loc)
                             ? loc.GetString() ?? "" : "",
@@ -356,7 +356,7 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get,
                 $"/api/v1/shipments/{shipmentId}/label"), ct).ConfigureAwait(false);
 
@@ -368,7 +368,10 @@ public sealed class HepsiJetCargoAdapter : ICargoAdapter, ICargoRateProvider
 
         var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(content);
-        var base64 = doc.RootElement.GetProperty("labelData").GetString();
+        var base64 = doc.RootElement.TryGetProperty("labelData", out var ld)
+            ? ld.GetString()
+            : doc.RootElement.TryGetProperty("pdfData", out var pd)
+                ? pd.GetString() : null;
 
         if (string.IsNullOrEmpty(base64))
             throw new InvalidOperationException("HepsiJet etiket verisi bos");

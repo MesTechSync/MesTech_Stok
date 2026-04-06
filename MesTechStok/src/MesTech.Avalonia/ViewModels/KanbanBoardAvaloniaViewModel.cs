@@ -22,15 +22,11 @@ public partial class KanbanBoardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var board = await _mediator.Send(
-                new GetPipelineKanbanQuery(tenantId, PipelineId: Guid.Empty), CancellationToken);
+                new GetPipelineKanbanQuery(tenantId, PipelineId: Guid.Empty), ct);
 
             Columns.Clear();
             foreach (var stage in board.Stages.OrderBy(s => s.Position))
@@ -55,16 +51,7 @@ public partial class KanbanBoardAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = Columns.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kanban panosu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kanban panosu yuklenirken hata");
     }
 
     [RelayCommand]

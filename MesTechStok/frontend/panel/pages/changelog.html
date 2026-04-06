@@ -257,7 +257,7 @@
   (function() {
     'use strict';
 
-    var CATEGORY_LABELS = {
+    const CATEGORY_LABELS = {
       feature: 'Yeni Ozellik',
       improvement: 'Iyilestirme',
       bugfix: 'Hata Duzeltme',
@@ -267,7 +267,7 @@
     // ========================================
     // Changelog Data
     // ========================================
-    var changelog = [
+    const changelog = [
       {
         version: 'v1.0.0',
         date: '20 Mart 2026',
@@ -442,7 +442,7 @@
     // DOM Helper
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') node.className = attrs[key];
@@ -468,16 +468,16 @@
     // Render Timeline (DOM-SAFE)
     // ========================================
     function renderChangelog() {
-      var container = document.getElementById('changelog-timeline');
+      const container = document.getElementById('changelog-timeline');
       clearChildren(container);
 
       changelog.forEach(function(release) {
-        var entry = el('div', { className: 'timeline-entry' });
+        const entry = el('div', { className: 'timeline-entry' });
 
         entry.appendChild(el('div', { className: 'timeline-dot' }));
 
         // Version header
-        var header = el('div', { className: 'version-header' });
+        const header = el('div', { className: 'version-header' });
         header.appendChild(el('span', { className: 'version-tag', textContent: release.version }));
         header.appendChild(el('span', { className: 'version-date', textContent: release.date }));
         if (release.latest) {
@@ -491,9 +491,9 @@
 
         // Change categories
         release.changes.forEach(function(change) {
-          var catCard = el('div', { className: 'change-category' });
+          const catCard = el('div', { className: 'change-category' });
 
-          var catHeader = el('div', { className: 'change-category-header' });
+          const catHeader = el('div', { className: 'change-category-header' });
           catHeader.appendChild(el('span', { className: 'cat-badge ' + change.type, textContent: change.label }));
           catHeader.appendChild(el('span', {
             className: 'text-muted',
@@ -502,9 +502,9 @@
           }));
           catCard.appendChild(catHeader);
 
-          var list = el('ul', { className: 'change-list' });
+          const list = el('ul', { className: 'change-list' });
           change.items.forEach(function(item) {
-            var li = el('li');
+            const li = el('li');
             li.appendChild(el('span', { className: 'change-dot ' + change.type }));
             li.appendChild(document.createTextNode(item));
             list.appendChild(li);

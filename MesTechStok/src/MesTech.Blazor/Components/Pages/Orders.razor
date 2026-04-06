@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-shopping-cart text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Siparisler</h3>
+        <h3 class="mb-0" >Siparisler</h3>
         <small class="text-muted">Tum platform siparisleri tek ekranda</small>
     </div>
 </div>
@@ -148,14 +147,14 @@ else
             else
             {
                 _isDemoMode = true;
-                orders = GenerateDemoOrders();
+                orders = ApiClient.IsDemoAllowed ? GenerateDemoOrders() : new();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Order list load failed, using demo data");
             _isDemoMode = true;
-            orders = GenerateDemoOrders();
+            orders = ApiClient.IsDemoAllowed ? GenerateDemoOrders() : new();
         }
         finally
         {

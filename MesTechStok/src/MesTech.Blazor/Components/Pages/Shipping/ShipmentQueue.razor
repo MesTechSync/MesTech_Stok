@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-shipping-fast text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Kargo Gonderim Kuyrugu</h3>
+        <h3 class="mb-0" >Kargo Gonderim Kuyrugu</h3>
         <small class="text-muted">Siparis gonderim yonetimi ve kargo entegrasyonu</small>
     </div>
 </div>
@@ -102,8 +101,7 @@ else
                     <thead class="table-light">
                         <tr>
                             <th style="width: 40px;">
-                                <input type="checkbox" class="form-check-input"
-                                       @onchange="ToggleSelectAll"
+                                <input type="checkbox" class="form-check-input"@onchange="ToggleSelectAll"
                                        checked="@isAllSelected" />
                             </th>
                             <th>Siparis No</th>
@@ -129,8 +127,7 @@ else
                         {
                             <tr class="@(selectedIds.Contains(s.Id) ? "table-active" : "")">
                                 <td>
-                                    <input type="checkbox" class="form-check-input"
-                                           checked="@selectedIds.Contains(s.Id)"
+                                    <input type="checkbox" class="form-check-input"checked="@selectedIds.Contains(s.Id)"
                                            @onchange="() => ToggleSelect(s.Id)" />
                                 </td>
                                 <td class="fw-bold">@s.SiparisNo</td>
@@ -144,7 +141,7 @@ else
                                 <td>
                                     @if (s.Durum == "Beklemede")
                                     {
-                                        <select class="form-select form-select-sm" style="width: 120px;"
+                                        <select class="form-select form-select-sm"style="width: 120px;"
                                                 @bind="s.KargoFirma">
                                             <option value="Yurtici">Yurtici</option>
                                             <option value="Aras">Aras</option>

@@ -70,9 +70,6 @@ public class AutoShipmentProdTests
             SourcePlatform = platform
         };
         _orderRepoMock
-            .Setup(r => r.GetByIdAsync(_orderId))
-            .ReturnsAsync(order);
-        _orderRepoMock
             .Setup(r => r.GetByIdAsync(_orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
     }
@@ -425,9 +422,6 @@ public class AutoShipmentProdTests
     public async Task ProcessOrderAsync_OrderNotFound_ReturnsFailed()
     {
         // Arrange — repository returns null (both overloads)
-        _orderRepoMock
-            .Setup(r => r.GetByIdAsync(_orderId))
-            .ReturnsAsync((Order?)null);
         _orderRepoMock
             .Setup(r => r.GetByIdAsync(_orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Order?)null);

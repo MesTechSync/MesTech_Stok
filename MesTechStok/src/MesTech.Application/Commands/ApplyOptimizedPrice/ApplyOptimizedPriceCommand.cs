@@ -39,8 +39,8 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
 
     public async Task Handle(ApplyOptimizedPriceCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false)
-                      ?? await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false)
+                      ?? await _productRepository.GetBySKUAsync(request.SKU, cancellationToken).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogWarning("ApplyOptimizedPrice: Product not found — ProductId={ProductId}, SKU={SKU}", request.ProductId, request.SKU);
@@ -55,7 +55,8 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
         }
 
         var clampedPrice = Math.Clamp(request.RecommendedPrice, request.MinPrice, request.MaxPrice);
-        product.SalePrice = clampedPrice;
+        var previousPrice = product.SalePrice;
+        product.UpdatePrice(clampedPrice);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("ApplyOptimizedPrice: {SKU} price -> {Price:C} (confidence={Confidence:P0})", request.SKU, clampedPrice, request.Confidence);
@@ -66,13 +67,13 @@ public sealed class ApplyOptimizedPriceHandler : IRequestHandler<ApplyOptimizedP
             TenantId = request.TenantId,
             ProductId = product.Id,
             RecommendedPrice = request.RecommendedPrice,
-            CurrentPrice = product.SalePrice,
+            CurrentPrice = previousPrice,
             CompetitorMinPrice = request.CompetitorMinPrice,
             Confidence = request.Confidence,
             Reasoning = request.Reasoning ?? string.Empty,
             Source = "ai.price.optimized"
         };
-        await _priceRecommendationRepository.AddAsync(recommendation).ConfigureAwait(false);
+        await _priceRecommendationRepository.AddAsync(recommendation, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("ApplyOptimizedPrice: PriceRecommendation saved — SKU={SKU}, Id={Id}", request.SKU, recommendation.Id);

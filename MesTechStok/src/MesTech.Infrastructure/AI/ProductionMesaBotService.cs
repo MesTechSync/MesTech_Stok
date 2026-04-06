@@ -1,7 +1,9 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.AI;
 
@@ -16,6 +18,7 @@ public sealed class ProductionMesaBotService : IMesaBotService
     private readonly HttpClient _httpClient;
     private readonly MockMesaBotService _mockFallback;
     private readonly ILogger<ProductionMesaBotService> _logger;
+    private readonly AsyncCircuitBreakerPolicy _circuitBreaker;
 
     public ProductionMesaBotService(
         HttpClient httpClient,
@@ -34,6 +37,21 @@ public sealed class ProductionMesaBotService : IMesaBotService
         var apiKey = configuration["Mesa:ApiKey"];
         if (!string.IsNullOrWhiteSpace(apiKey))
             _httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+
+        _circuitBreaker = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .Or<OperationCanceledException>()
+            .CircuitBreakerAsync(
+                exceptionsAllowedBeforeBreaking: 3,
+                durationOfBreak: TimeSpan.FromSeconds(45),
+                onBreak: (ex, ts) => { MesaMetrics.RecordCircuitState("mesa_bot", 2); _logger.LogWarning(
+                    "[MESA Bot] Circuit OPEN — {Duration}s. Error: {Error}",
+                    ts.TotalSeconds, ex.Message); },
+                onReset: () => { MesaMetrics.RecordCircuitState("mesa_bot", 0); _logger.LogInformation(
+                    "[MESA Bot] Circuit CLOSED — MESA Bot baglantisi yeniden aktif"); },
+                onHalfOpen: () => { MesaMetrics.RecordCircuitState("mesa_bot", 1); _logger.LogInformation(
+                    "[MESA Bot] Circuit HALF-OPEN — test cagrisi yapiliyor"); });
     }
 
     public async Task<bool> SendWhatsAppNotificationAsync(
@@ -43,37 +61,42 @@ public sealed class ProductionMesaBotService : IMesaBotService
     {
         try
         {
-            var payload = new
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                phone = phoneNumber,
-                template = templateName,
-                data = templateData
-            };
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", "whatsapp"));
+                var payload = new
+                {
+                    phone = phoneNumber,
+                    template = templateName,
+                    data = templateData
+                };
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/whatsapp/send", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/bot/whatsapp/send", payload, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning(
-                    "[MESA Bot] WhatsApp gonderim basarisiz: {StatusCode} — fallback mock (phone={Phone}, template={Template})",
-                    response.StatusCode, MaskPhone(phoneNumber), templateName);
-                return await _mockFallback.SendWhatsAppNotificationAsync(
-                    phoneNumber, templateName, templateData, ct);
-            }
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Bot] WhatsApp gonderim basarisiz: {StatusCode} — fallback mock (phone={Phone}, template={Template})",
+                        response.StatusCode, MaskPhone(phoneNumber), templateName);
+                    return await _mockFallback.SendWhatsAppNotificationAsync(
+                        phoneNumber, templateName, templateData, ct).ConfigureAwait(false);
+                }
 
-            _logger.LogInformation(
-                "[MESA Bot] WhatsApp basarili: phone={Phone}, template={Template}",
-                MaskPhone(phoneNumber), templateName);
-            return true;
+                _logger.LogInformation(
+                    "[MESA Bot] WhatsApp basarili: phone={Phone}, template={Template}",
+                    MaskPhone(phoneNumber), templateName);
+                return true;
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA Bot] MESA OS unreachable, falling back to mock (WhatsApp, phone={Phone})",
                 MaskPhone(phoneNumber));
             return await _mockFallback.SendWhatsAppNotificationAsync(
-                phoneNumber, templateName, templateData, ct);
+                phoneNumber, templateName, templateData, ct).ConfigureAwait(false);
         }
     }
 
@@ -84,37 +107,42 @@ public sealed class ProductionMesaBotService : IMesaBotService
     {
         try
         {
-            var payload = new
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                chatId = channelId,
-                message,
-                level = level.ToString().ToLowerInvariant()
-            };
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", "telegram"));
+                var payload = new
+                {
+                    chatId = channelId,
+                    message,
+                    level = level.ToString().ToLowerInvariant()
+                };
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/telegram/alert", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/bot/telegram/alert", payload, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning(
-                    "[MESA Bot] Telegram gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel})",
-                    response.StatusCode, channelId);
-                return await _mockFallback.SendTelegramAlertAsync(
-                    channelId, message, level, ct);
-            }
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Bot] Telegram gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel})",
+                        response.StatusCode, channelId);
+                    return await _mockFallback.SendTelegramAlertAsync(
+                        channelId, message, level, ct).ConfigureAwait(false);
+                }
 
-            _logger.LogInformation(
-                "[MESA Bot] Telegram basarili: channel={Channel}, level={Level}",
-                channelId, level);
-            return true;
+                _logger.LogInformation(
+                    "[MESA Bot] Telegram basarili: channel={Channel}, level={Level}",
+                    channelId, level);
+                return true;
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA Bot] MESA OS unreachable, falling back to mock (Telegram, channel={Channel})",
                 channelId);
             return await _mockFallback.SendTelegramAlertAsync(
-                channelId, message, level, ct);
+                channelId, message, level, ct).ConfigureAwait(false);
         }
     }
 
@@ -125,38 +153,43 @@ public sealed class ProductionMesaBotService : IMesaBotService
     {
         try
         {
-            var payload = new
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                channel = channel.ToString().ToLowerInvariant(),
-                recipients,
-                template = templateName,
-                data
-            };
+                MesaMetrics.BotSendTotal.Add(1, new KeyValuePair<string, object?>("channel", channel.ToString().ToLowerInvariant()));
+                var payload = new
+                {
+                    channel = channel.ToString().ToLowerInvariant(),
+                    recipients,
+                    template = templateName,
+                    data
+                };
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "v1/bot/bulk/send", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "v1/bot/bulk/send", payload, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning(
-                    "[MESA Bot] Bulk gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel}, count={Count})",
-                    response.StatusCode, channel, recipients.Count);
-                return await _mockFallback.SendBulkNotificationAsync(
-                    channel, recipients, templateName, data, ct);
-            }
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Bot] Bulk gonderim basarisiz: {StatusCode} — fallback mock (channel={Channel}, count={Count})",
+                        response.StatusCode, channel, recipients.Count);
+                    return await _mockFallback.SendBulkNotificationAsync(
+                        channel, recipients, templateName, data, ct).ConfigureAwait(false);
+                }
 
-            _logger.LogInformation(
-                "[MESA Bot] Bulk basarili: channel={Channel}, count={Count}, template={Template}",
-                channel, recipients.Count, templateName);
-            return true;
+                _logger.LogInformation(
+                    "[MESA Bot] Bulk basarili: channel={Channel}, count={Count}, template={Template}",
+                    channel, recipients.Count, templateName);
+                return true;
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex,
                 "[MESA Bot] MESA OS unreachable, falling back to mock (Bulk, channel={Channel})",
                 channel);
             return await _mockFallback.SendBulkNotificationAsync(
-                channel, recipients, templateName, data, ct);
+                channel, recipients, templateName, data, ct).ConfigureAwait(false);
         }
     }
 

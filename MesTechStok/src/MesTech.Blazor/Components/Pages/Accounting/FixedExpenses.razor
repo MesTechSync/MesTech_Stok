@@ -1,5 +1,5 @@
 @page "/accounting/fixed-expenses"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @using Microsoft.AspNetCore.Authorization
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L
@@ -21,12 +21,11 @@
 
   <!-- Page Header -->
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-file-invoice text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Sabit Giderler</h3>
+      <h3 class="mb-0" >Sabit Giderler</h3>
       <small class="text-muted">Aylik tekrarlayan gider kalemleri yonetimi</small>
     </div>
   </div>
@@ -124,7 +123,7 @@
           <div class="col-12 col-sm-5">
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-              <input type="text" class="form-control" placeholder="Gider ara..."
+              <input type="text" class="form-control"placeholder="Gider ara..."
                      @bind="_searchText" @bind:event="oninput" />
             </div>
           </div>
@@ -140,7 +139,7 @@
     <!-- Data Table -->
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-table me-2" style="color: #2855AC;"></i>Sabit Gider Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-table me-2" ></i>Sabit Gider Listesi</h6>
         <span class="badge bg-secondary">@FilteredExpenses.Count kayit</span>
       </div>
       <div class="card-body p-0">

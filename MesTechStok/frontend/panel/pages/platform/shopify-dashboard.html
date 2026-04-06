@@ -310,14 +310,14 @@
   (function() {
     'use strict';
 
-    var API_BASE = '/api/v1/shopify';
-    var orderPieChart = null;
+    const API_BASE = '/api/v1/shopify';
+    let orderPieChart = null;
 
     // ========================================
     // DOM Helper Utilities (XSS-safe)
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') { node.className = attrs[key]; }
@@ -347,7 +347,7 @@
     // ========================================
     // Mock Data (API fallback)
     // ========================================
-    var MOCK = {
+    const MOCK = {
       kpi: { activeProducts: 342, orderCount: 128, revenue: 185400, storeStatus: 'active' },
       products: [
         { name: 'Organik Pamuk T-Shirt', sku: 'SH-TSH-001', price: 249.90, stock: 85, status: 'active' },
@@ -372,7 +372,7 @@
     // ========================================
     // KPI Cards (DOM-SAFE)
     // ========================================
-    var kpiDefs = [
+    const kpiDefs = [
       { id: 'active-products', title: 'Aktif Urun', icon: 'fas fa-boxes-stacked', iconBg: 'rgba(150,191,72,0.15)', iconColor: '#96BF48', dataKey: 'activeProducts', format: function(v) { return formatCurrency(v); } },
       { id: 'order-count', title: 'Siparis', icon: 'fas fa-shopping-cart', iconBg: 'rgba(245,158,11,0.12)', iconColor: '#f59e0b', dataKey: 'orderCount', format: function(v) { return formatCurrency(v); } },
       { id: 'revenue', title: 'Ciro', icon: 'fas fa-turkish-lira-sign', iconBg: 'rgba(59,130,246,0.12)', iconColor: '#3b82f6', dataKey: 'revenue', format: function(v) { return '\u20BA' + formatCurrency(v); } },
@@ -380,20 +380,20 @@
     ];
 
     function renderKpiCards(data) {
-      var container = document.getElementById('kpi-row');
+      const container = document.getElementById('kpi-row');
       clearChildren(container);
       kpiDefs.forEach(function(kpi) {
-        var value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
-        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
-        var card = el('div', { className: 'kpi-card' });
-        var topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-3' });
+        const value = data && data[kpi.dataKey] != null ? data[kpi.dataKey] : 0;
+        const col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        const card = el('div', { className: 'kpi-card' });
+        const topRow = el('div', { className: 'd-flex justify-content-between align-items-start mb-3' });
         topRow.appendChild(el('span', { className: 'text-muted small text-uppercase', textContent: kpi.title }));
-        var iconBadge = el('span', { className: 'kpi-icon-badge' });
+        const iconBadge = el('span', { className: 'kpi-icon-badge' });
         iconBadge.style.background = kpi.iconBg;
         iconBadge.style.color = kpi.iconColor;
         iconBadge.appendChild(el('i', { className: kpi.icon }));
         topRow.appendChild(iconBadge);
-        var valueEl = el('h3', { className: 'mb-0 fw-bold', textContent: kpi.format(value) });
+        const valueEl = el('h3', { className: 'mb-0 fw-bold', textContent: kpi.format(value) });
         valueEl.style.fontSize = '1.6rem';
         card.appendChild(topRow);
         card.appendChild(valueEl);
@@ -403,13 +403,13 @@
     }
 
     function renderKpiSkeletons() {
-      var container = document.getElementById('kpi-row');
+      const container = document.getElementById('kpi-row');
       clearChildren(container);
-      for (var i = 0; i < 4; i++) {
-        var col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
-        var card = el('div', { className: 'kpi-card' });
-        var s1 = el('div', { className: 'skeleton' }); s1.style.height = '16px'; s1.style.width = '50%'; s1.style.marginBottom = '16px';
-        var s2 = el('div', { className: 'skeleton' }); s2.style.height = '32px'; s2.style.width = '70%';
+      for (let i = 0; i < 4; i++) {
+        const col = el('div', { className: 'col-xl-3 col-md-6 col-sm-6' });
+        const card = el('div', { className: 'kpi-card' });
+        const s1 = el('div', { className: 'skeleton' }); s1.style.height = '16px'; s1.style.width = '50%'; s1.style.marginBottom = '16px';
+        const s2 = el('div', { className: 'skeleton' }); s2.style.height = '32px'; s2.style.width = '70%';
         card.appendChild(s1); card.appendChild(s2);
         col.appendChild(card); container.appendChild(col);
       }
@@ -419,8 +419,8 @@
     // Products Table (DOM-SAFE)
     // ========================================
     function renderProductsTable(products) {
-      var container = document.getElementById('products-table-body');
-      var badge = document.getElementById('product-count-badge');
+      const container = document.getElementById('products-table-body');
+      const badge = document.getElementById('product-count-badge');
       clearChildren(container);
       if (!products || products.length === 0) {
         container.appendChild(el('div', { className: 'fallback-state' }, [
@@ -431,31 +431,31 @@
         return;
       }
       badge.textContent = String(products.length);
-      var table = el('table', { className: 'table table-hover mb-0' });
-      var thead = el('thead');
-      var headRow = el('tr');
+      const table = el('table', { className: 'table table-hover mb-0' });
+      const thead = el('thead');
+      const headRow = el('tr');
       ['Urun', 'SKU', 'Fiyat', 'Stok', 'Durum'].forEach(function(h) {
         headRow.appendChild(el('th', { className: 'small text-muted text-uppercase', textContent: h }));
       });
       thead.appendChild(headRow);
       table.appendChild(thead);
-      var tbody = el('tbody');
+      const tbody = el('tbody');
       products.forEach(function(p) {
-        var tr = el('tr');
+        const tr = el('tr');
         tr.appendChild(el('td', { className: 'small fw-medium', textContent: p.name || '--' }));
-        var skuCell = el('td');
+        const skuCell = el('td');
         skuCell.appendChild(el('code', { className: 'small', textContent: p.sku || '--' }));
         tr.appendChild(skuCell);
         tr.appendChild(el('td', { className: 'small', textContent: '\u20BA' + formatCurrency(p.price || 0) }));
-        var stockCell = el('td');
-        var stockVal = p.stock != null ? p.stock : 0;
+        const stockCell = el('td');
+        const stockVal = p.stock != null ? p.stock : 0;
         stockCell.appendChild(el('span', {
           className: 'badge ' + (stockVal > 20 ? 'bg-success-subtle text-success' : stockVal > 0 ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger'),
           textContent: String(stockVal)
         }));
         tr.appendChild(stockCell);
-        var statusCell = el('td');
-        var dot = el('span', { className: 'status-dot' });
+        const statusCell = el('td');
+        const dot = el('span', { className: 'status-dot' });
         dot.style.backgroundColor = p.status === 'active' ? '#10b981' : '#94a3b8';
         statusCell.appendChild(dot);
         statusCell.appendChild(document.createTextNode(p.status === 'active' ? 'Aktif' : 'Taslak'));
@@ -470,8 +470,8 @@
     // Orders Table (DOM-SAFE)
     // ========================================
     function renderOrdersTable(orders) {
-      var container = document.getElementById('orders-table-body');
-      var badge = document.getElementById('order-count-badge');
+      const container = document.getElementById('orders-table-body');
+      const badge = document.getElementById('order-count-badge');
       clearChildren(container);
       if (!orders || orders.length === 0) {
         container.appendChild(el('div', { className: 'fallback-state' }, [
@@ -482,23 +482,23 @@
         return;
       }
       badge.textContent = String(orders.length);
-      var table = el('table', { className: 'table table-hover mb-0' });
-      var thead = el('thead');
-      var headRow = el('tr');
+      const table = el('table', { className: 'table table-hover mb-0' });
+      const thead = el('thead');
+      const headRow = el('tr');
       ['Siparis', 'Musteri', 'Tutar', 'Durum'].forEach(function(h) {
         headRow.appendChild(el('th', { className: 'small text-muted text-uppercase', textContent: h }));
       });
       thead.appendChild(headRow);
       table.appendChild(thead);
-      var tbody = el('tbody');
-      var statusMap = { fulfilled: { cls: 'bg-success-subtle text-success', text: 'Tamamlandi' }, pending: { cls: 'bg-warning-subtle text-warning', text: 'Bekliyor' }, shipped: { cls: 'bg-info-subtle text-info', text: 'Kargoda' }, cancelled: { cls: 'bg-danger-subtle text-danger', text: 'Iptal' } };
+      const tbody = el('tbody');
+      const statusMap = { fulfilled: { cls: 'bg-success-subtle text-success', text: 'Tamamlandi' }, pending: { cls: 'bg-warning-subtle text-warning', text: 'Bekliyor' }, shipped: { cls: 'bg-info-subtle text-info', text: 'Kargoda' }, cancelled: { cls: 'bg-danger-subtle text-danger', text: 'Iptal' } };
       orders.forEach(function(o) {
-        var tr = el('tr');
+        const tr = el('tr');
         tr.appendChild(el('td', { className: 'small fw-medium', textContent: o.id || '--' }));
         tr.appendChild(el('td', { className: 'small', textContent: o.customer || '--' }));
         tr.appendChild(el('td', { className: 'small', textContent: '\u20BA' + formatCurrency(o.total || 0) }));
-        var sCell = el('td');
-        var sInfo = statusMap[o.status] || { cls: 'bg-secondary-subtle text-secondary', text: o.status || '--' };
+        const sCell = el('td');
+        const sInfo = statusMap[o.status] || { cls: 'bg-secondary-subtle text-secondary', text: o.status || '--' };
         sCell.appendChild(el('span', { className: 'badge ' + sInfo.cls, textContent: sInfo.text }));
         tr.appendChild(sCell);
         tbody.appendChild(tr);
@@ -511,11 +511,11 @@
     // Order Distribution Chart (Chart.js)
     // ========================================
     function renderOrderPieChart(data) {
-      var canvas = document.getElementById('orderPieChart');
+      const canvas = document.getElementById('orderPieChart');
       if (!canvas) return;
       if (orderPieChart) { orderPieChart.destroy(); orderPieChart = null; }
       if (!data || !data.labels || data.labels.length === 0) {
-        var wrapper = canvas.parentElement;
+        const wrapper = canvas.parentElement;
         clearChildren(wrapper);
         wrapper.appendChild(el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-chart-pie text-muted' }),
@@ -523,7 +523,7 @@
         ]));
         return;
       }
-      var colors = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
+      const colors = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
       orderPieChart = new Chart(canvas, {
         type: 'pie',
         data: {
@@ -542,22 +542,22 @@
     // API Settings (DOM-SAFE)
     // ========================================
     function renderApiSettings(settings) {
-      var container = document.getElementById('api-settings-body');
+      const container = document.getElementById('api-settings-body');
       clearChildren(container);
-      var fields = [
+      const fields = [
         { key: 'storeUrl', label: 'Store URL', placeholder: 'magaza-adi.myshopify.com', icon: 'fas fa-globe', type: 'text' },
         { key: 'accessToken', label: 'Access Token', placeholder: 'shpat_xxxxx', icon: 'fas fa-key', type: 'password' },
         { key: 'apiVersion', label: 'API Version', placeholder: '2024-01', icon: 'fas fa-code-branch', type: 'text' }
       ];
       fields.forEach(function(f) {
-        var row = el('div', { className: 'setting-row' });
-        var left = el('div');
-        var labelRow = el('div', { className: 'd-flex align-items-center gap-2' });
+        const row = el('div', { className: 'setting-row' });
+        const left = el('div');
+        const labelRow = el('div', { className: 'd-flex align-items-center gap-2' });
         labelRow.appendChild(el('i', { className: f.icon + ' text-muted' }));
         labelRow.appendChild(el('span', { className: 'fw-medium small', textContent: f.label }));
         left.appendChild(labelRow);
         row.appendChild(left);
-        var input = el('input', {
+        const input = el('input', {
           className: 'form-control form-control-sm',
           type: f.type,
           id: 'setting-' + f.key,
@@ -569,15 +569,15 @@
         row.appendChild(input);
         container.appendChild(row);
       });
-      var btnRow = el('div', { className: 'd-flex gap-2 mt-3' });
-      var saveBtn = el('button', { className: 'btn btn-sm w-100', id: 'btn-save-api' }, [
+      const btnRow = el('div', { className: 'd-flex gap-2 mt-3' });
+      const saveBtn = el('button', { className: 'btn btn-sm w-100', id: 'btn-save-api' }, [
         el('i', { className: 'fas fa-save me-2' }),
         document.createTextNode('Ayarlari Kaydet')
       ]);
       saveBtn.style.backgroundColor = 'var(--mestech-primary)';
       saveBtn.style.color = '#fff';
       saveBtn.addEventListener('click', saveApiSettings);
-      var testBtn = el('button', { className: 'btn btn-outline-secondary btn-sm', id: 'btn-test-api' }, [
+      const testBtn = el('button', { className: 'btn btn-outline-secondary btn-sm', id: 'btn-test-api' }, [
         el('i', { className: 'fas fa-plug me-2' }),
         document.createTextNode('Baglanti Test')
       ]);
@@ -588,9 +588,9 @@
     }
 
     async function saveApiSettings() {
-      var btn = document.getElementById('btn-save-api');
+      const btn = document.getElementById('btn-save-api');
       btn.disabled = true;
-      var settings = {};
+      const settings = {};
       document.querySelectorAll('#api-settings-body [data-key]').forEach(function(input) {
         settings[input.getAttribute('data-key')] = input.value;
       });
@@ -604,7 +604,7 @@
     }
 
     async function testApiConnection() {
-      var btn = document.getElementById('btn-test-api');
+      const btn = document.getElementById('btn-test-api');
       btn.disabled = true;
       try {
         await fetch(API_BASE + '/test-connection');
@@ -618,17 +618,17 @@
     // Alert Helper
     // ========================================
     function showAlert(message, type) {
-      var existing = document.getElementById('page-alert');
+      const existing = document.getElementById('page-alert');
       if (existing) existing.remove();
-      var alertDiv = el('div', { className: 'alert alert-' + type + ' alert-dismissible fade show', id: 'page-alert', role: 'alert' });
+      const alertDiv = el('div', { className: 'alert alert-' + type + ' alert-dismissible fade show', id: 'page-alert', role: 'alert' });
       alertDiv.appendChild(document.createTextNode(message));
-      var closeBtn = el('button', { className: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Kapat' });
+      const closeBtn = el('button', { className: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Kapat' });
       alertDiv.appendChild(closeBtn);
-      var main = document.querySelector('.dashboard-main');
-      var header = main.querySelector('.page-header-bar');
+      const main = document.querySelector('.dashboard-main');
+      const header = main.querySelector('.page-header-bar');
       if (header && header.nextSibling) main.insertBefore(alertDiv, header.nextSibling);
       else main.appendChild(alertDiv);
-      setTimeout(function() { var a = document.getElementById('page-alert'); if (a) a.remove(); }, 5000);
+      setTimeout(function() { const a = document.getElementById('page-alert'); if (a) a.remove(); }, 5000);
     }
 
     // ========================================
@@ -637,9 +637,9 @@
     async function loadDashboardData() {
       renderKpiSkeletons();
       try {
-        var response = await fetch(API_BASE + '/dashboard');
+        const response = await fetch(API_BASE + '/dashboard');
         if (!response.ok) throw new Error('API ' + response.status);
-        var data = await response.json();
+        const data = await response.json();
         renderKpiCards(data.kpi || MOCK.kpi);
         renderProductsTable(data.products || MOCK.products);
         renderOrdersTable(data.orders || MOCK.orders);
@@ -660,10 +660,10 @@
     // Theme Toggle
     // ========================================
     function initTheme() {
-      var btn = document.querySelector('[data-theme-toggle]');
+      const btn = document.querySelector('[data-theme-toggle]');
       if (!btn) return;
       btn.addEventListener('click', function() {
-        var current = document.documentElement.getAttribute('data-theme');
+        const current = document.documentElement.getAttribute('data-theme');
         document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
       });
     }

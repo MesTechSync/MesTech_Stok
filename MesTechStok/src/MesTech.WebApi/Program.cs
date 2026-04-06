@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Threading.RateLimiting;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -109,6 +110,7 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddMeter("MesTech.Adapters") // G10802: AdapterMetrics OTel-native (DEV3 TUR7)
+        .AddMeter("MesTech.Mesa")    // DEV6-TUR3: MesaMetrics (AI, Bot, Consumer, CB, DLQ)
         .AddOtlpExporter(opt =>
         {
             opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
@@ -298,6 +300,7 @@ builder.Services.AddOutputCache(options =>
     options.AddPolicy("Lookup60s", b => b.Expire(TimeSpan.FromSeconds(60)).SetVaryByQuery("*"));
     options.AddPolicy("Dashboard30s", b => b.Expire(TimeSpan.FromSeconds(30)).SetVaryByQuery("*"));
     options.AddPolicy("Report120s", b => b.Expire(TimeSpan.FromSeconds(120)).SetVaryByQuery("*"));
+    options.AddPolicy("Catalog300s", b => b.Expire(TimeSpan.FromSeconds(300)).SetVaryByQuery("*")); // Kategori/brand — nadiren değişir
 });
 
 // SignalR real-time bildirim hub'i (G-02)
@@ -337,6 +340,10 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireRole("Admin", "SuperAdmin"));
 });
 
 var app = builder.Build();
@@ -355,6 +362,18 @@ if (app.Environment.IsProduction())
         throw new InvalidOperationException(
             "STARTUP BLOCKED: Jwt:Secret is placeholder or empty. " +
             "Set a secure 32+ character secret via user-secrets before deploying to production.");
+
+    // Payment webhook secret validation — missing secret = webhook bypass risk (DEV6-TUR24)
+    var stripeSecret = app.Configuration["Stripe:WebhookSecret"];
+    var iyzicoSecret = app.Configuration["Iyzico:WebhookSecret"];
+    if (string.IsNullOrWhiteSpace(stripeSecret) && string.IsNullOrWhiteSpace(iyzicoSecret))
+    {
+        var startupLogger = app.Services.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MesTech.WebApi.Startup");
+        startupLogger.LogWarning(
+            "SECURITY WARNING: No payment webhook secrets configured (Stripe:WebhookSecret, Iyzico:WebhookSecret). " +
+            "Webhook signature verification is BYPASSED — configure secrets before accepting live payments.");
+    }
 }
 
 // Production: check for pending migrations — auto-migrate YASAK (KOMUTAN KARARI)
@@ -372,27 +391,35 @@ if (app.Environment.IsProduction())
 }
 
 // Demo data seeder — populates DB with demo tenant, products, orders on first run (Sprint 3)
-try
+// HH-DEV4-003: Only seed demo data in Development — production must NOT get demo records
+if (!app.Environment.IsProduction())
 {
-    using var scope = app.Services.CreateScope();
-    var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
-    await seeder.SeedAsync();
-}
-catch (Exception ex)
-{
-    app.Logger.LogWarning(ex, "DemoDataSeeder failed — continuing startup");
-}
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "DemoDataSeeder failed — continuing startup");
+    }
 
-// Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
-try
-{
-    using var scope = app.Services.CreateScope();
-    var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
-    await ahmetSeeder.SeedAsync();
+    // Ahmet Bey 14-step demo scenario — realistic end-to-end flow (A-M3-03)
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var ahmetSeeder = scope.ServiceProvider.GetRequiredService<AhmetBeyDemoSeeder>();
+        await ahmetSeeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
+    }
 }
-catch (Exception ex)
+else
 {
-    app.Logger.LogWarning(ex, "AhmetBeyDemoSeeder failed — continuing startup");
+    app.Logger.LogInformation("Production environment detected — skipping demo data seeders");
 }
 
 // HTTPS redirection + HSTS (S01f+S01g security hardening)
@@ -572,7 +599,7 @@ app.Use(async (context, next) =>
     if (context.Request.Query.ContainsKey("pageSize"))
     {
         var qs = context.Request.Query.ToDictionary(q => q.Key, q => q.Value);
-        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && ps > 200)
+        if (int.TryParse(qs["pageSize"].ToString(), out var ps) && (ps < 1 || ps > 200))
         {
             qs["pageSize"] = new Microsoft.Extensions.Primitives.StringValues(
                 Math.Clamp(ps, 1, 200).ToString());
@@ -651,6 +678,7 @@ ProductEndpoints.Map(app);
 ProductEndpoints.MapBuybox(app);
 StockEndpoints.Map(app);
 CategoryEndpoints.Map(app);
+BrandEndpoints.Map(app); // HH-DEV6-081: Brand GetById kopuk zincir
 OrderEndpoints.Map(app);
 SyncStatusEndpoints.Map(app);
 InvoiceEndpoints.Map(app);
@@ -674,8 +702,8 @@ ShipmentEndpoints.Map(app);
 CargoEndpoints.Map(app);
 SocialFeedEndpoints.Map(app);
 PaymentEndpoints.Map(app);
-SeedEndpoints.Map(app);
-DemoEndpoints.Map(app);
+SeedEndpoints.Map(app);       // guard: IsDevelopment() inside
+DemoEndpoints.Map(app);       // guard: IsProduction() → skip (HH-DEV4-003)
 WarehouseEndpoints.Map(app);
 CalendarEndpoints.Map(app);
 ProjectEndpoints.Map(app);
@@ -727,16 +755,19 @@ ProductImageEndpoints.Map(app);
 CustomerEndpoints.Map(app);
 DocumentEndpoints.Map(app);
 BuyboxEndpoints.Map(app);
+ComplianceEndpoints.Map(app); // DEV6: E10+E25+E50 ETBİS + Credit Note + Monthly Close
 SupplierEndpoints.Map(app); // DEV6-TUR11: Tedarikçi CRUD
 MesaStatusEndpoint.Map(app); // DEV6-TUR13: MESA health
 CrmActivitiesEndpoint.Map(app); // DEV6-TUR13: CRM aktiviteler
 DocumentFoldersEndpoint.Map(app); // DEV6-TUR13: Belge klasörleri
 ImportTemplateEndpoint.Map(app); // DEV6-TUR13: Import şablon
 OpenCartProductsEndpoint.Map(app); // DEV6-TUR15: G519 OpenCart ürünler
+OpenCartEndpoints.Map(app); // D3-044: OpenCart standart endpoint'ler (categories/connection/sync)
 TrendyolEndpoints.Map(app); // DEV6: G808 Trendyol Swagger endpoint'leri
 HepsiburadaEndpoints.Map(app); // DEV6: G10821 Hepsiburada Swagger endpoint'leri
 N11Endpoints.Map(app); // DEV6: G10821 N11 Swagger endpoint'leri
 AmazonEndpoints.Map(app); // DEV6: G10821 Amazon Swagger endpoint'leri
+AmazonEuEndpoints.Map(app); // D3-043: Amazon EU Swagger endpoint'leri
 CiceksepetiEndpoints.Map(app); // DEV6: G10821
 EbayEndpoints.Map(app); // DEV6: G10821
 OzonEndpoints.Map(app); // DEV6: G10821
@@ -746,9 +777,19 @@ PazaramaEndpoints.Map(app); // DEV6: G10821
 PttAvmEndpoints.Map(app); // DEV6: G10821
 EtsyEndpoints.Map(app); // DEV6: G10821
 ZalandoEndpoints.Map(app); // DEV6: G10821
+Bitrix24Endpoints.Map(app); // DEV6: 16th platform — Bitrix24 Swagger endpoint'leri
+UserEndpoints.Map(app); // HH-DEV6-004: User CRUD
+RoleEndpoints.Map(app); // HH-DEV6-005: Role CRUD + HH-DEV6-006: Permission assignment
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
+
+// Hangfire dashboard + recurring jobs (DEV4: Trendyol sync altyapısı)
+app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
+{
+    Authorization = new[] { new MesTech.WebApi.Filters.HangfireDashboardAuthFilter(app.Configuration) }
+});
+MesTech.Infrastructure.Jobs.HangfireConfig.RegisterRecurringJobs(app.Services);
 
 app.Run();
 

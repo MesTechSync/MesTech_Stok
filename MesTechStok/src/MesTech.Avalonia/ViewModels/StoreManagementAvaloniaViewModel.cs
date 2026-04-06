@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
+using MesTech.Application.Features.Stores.Commands.DeleteStoreCredential;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -15,29 +17,31 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private readonly INavigationService _nav;
+    private readonly IDialogService _dialog;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
+    [ObservableProperty] private StoreItemDto? selectedStore;
 
     public ObservableCollection<StoreItemDto> Stores { get; } = [];
 
-    public StoreManagementAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
+    public StoreManagementAvaloniaViewModel(
+        IMediator mediator, ITenantProvider tenantProvider,
+        INavigationService nav, IDialogService dialog)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+        _nav = nav;
+        _dialog = dialog;
     }
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var settings = await _mediator.Send(new GetStoreSettingsQuery(tenantId), CancellationToken);
+            var settings = await _mediator.Send(new GetStoreSettingsQuery(tenantId), ct);
 
             Stores.Clear();
             foreach (var s in settings.Stores)
@@ -52,24 +56,52 @@ public partial class StoreManagementAvaloniaViewModel : ViewModelBase
 
             TotalCount = Stores.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Magaza bilgileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Magaza bilgileri yuklenirken hata");
     }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    // HH-DEV2-028: Navigate to StoreWizard for adding new store
+    [RelayCommand]
+    private async Task AddStore() => await _nav.NavigateToAsync("StoreWizard");
+
+    // HH-DEV2-028: Navigate to StoreSettings for editing selected store
+    [RelayCommand]
+    private async Task EditStore()
+    {
+        if (SelectedStore is null) return;
+        await _nav.NavigateToAsync("StoreSettings");
+    }
+
+    // HH-DEV2-028: Delete selected store with confirmation
+    [RelayCommand]
+    private async Task DeleteStore()
+    {
+        if (SelectedStore is null) return;
+
+        var confirmed = await _dialog.ShowConfirmAsync(
+            $"{SelectedStore.StoreName} magazasini silmek istediginize emin misiniz?",
+            "Magaza Sil");
+
+        if (!confirmed) return;
+
+        await SafeExecuteAsync(async ct =>
+        {
+            await _mediator.Send(new DeleteStoreCredentialCommand(
+                SelectedStore.StoreId, "admin"), ct);
+
+            Stores.Remove(SelectedStore);
+            SelectedStore = null;
+            TotalCount = Stores.Count;
+            IsEmpty = TotalCount == 0;
+        }, "Magaza silinirken hata");
+    }
 }
 
 public class StoreItemDto
 {
+    public Guid StoreId { get; set; }
     public string StoreName { get; set; } = string.Empty;
     public string Platform { get; set; } = string.Empty;
     public string ApiStatus { get; set; } = string.Empty;

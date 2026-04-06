@@ -41,6 +41,8 @@ public static class IntegrationHttpClientRegistry
         public const string PttKargo = "PttKargo";
         public const string HepsiJet = "HepsiJet";
         public const string Sendeo = "Sendeo";
+        public const string DhlExpress = "DhlExpress";
+        public const string UPS = "UPS";
 
         // Invoice providers
         public const string Sovos = "Sovos";
@@ -101,6 +103,8 @@ public static class IntegrationHttpClientRegistry
         RegisterDefault(services, ClientNames.PttKargo);
         RegisterDefault(services, ClientNames.HepsiJet);
         RegisterDefault(services, ClientNames.Sendeo);
+        RegisterDefault(services, ClientNames.DhlExpress);
+        RegisterDefault(services, ClientNames.UPS);
 
         // Invoice providers
         RegisterDefault(services, ClientNames.Sovos);

@@ -3,6 +3,7 @@ using MediatR;
 using MesTech.Avalonia.ViewModels;
 using GetOrderListQuery = MesTech.Application.Features.Orders.Queries.GetOrderList.GetOrderListQuery;
 using AppOrderListItemDto = MesTech.Application.Features.Orders.Queries.GetOrderList.OrderListItemDto;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 using Moq;
 
@@ -14,11 +15,12 @@ public class OrdersAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
     private readonly Mock<ITenantProvider> _tenantMock = new();
+    private readonly Mock<INavigationService> _navigationMock = new();
 
     private OrdersAvaloniaViewModel CreateSut()
     {
         _tenantMock.Setup(t => t.GetCurrentTenantId()).Returns(Guid.NewGuid());
-        return new OrdersAvaloniaViewModel(_mediatorMock.Object, _tenantMock.Object);
+        return new OrdersAvaloniaViewModel(_mediatorMock.Object, _tenantMock.Object, _navigationMock.Object);
     }
 
     private static IReadOnlyList<AppOrderListItemDto> CreateTestOrders() =>

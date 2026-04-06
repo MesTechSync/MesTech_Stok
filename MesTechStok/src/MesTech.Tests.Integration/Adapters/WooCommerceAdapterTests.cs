@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using FluentAssertions;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Tests.Integration._Shared;
@@ -112,7 +112,7 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public void PlatformCode_IsWooCommerce()
+    public void PlatformCode_WhenCalled_ReturnsWooCommerce()
     {
         var adapter = CreateAdapter();
         adapter.PlatformCode.Should().Be("WooCommerce");
@@ -123,7 +123,7 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task TestConnection_ValidSite_ReturnsSuccess()
+    public async Task TestConnection_WithValidSite_ReturnsSuccess()
     {
         // Arrange
         StubSystemStatus("https://mystore.example.com");
@@ -146,7 +146,7 @@ public class WooCommerceAdapterTests : IClassFixture<WireMockFixture>, IDisposab
     // ══════════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task TestConnection_Error_ReturnsFailure()
+    public async Task TestConnection_WithErrorResponse_ReturnsFailure()
     {
         // Arrange — system_status returns 401
         _mockServer

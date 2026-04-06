@@ -45,7 +45,7 @@ public class DisableMfaHandlerTests
     public async Task Handle_UserNotFound_ShouldReturnError()
     {
         var sut = CreateSut();
-        _userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((User?)null);
+        _userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
 
         var result = await sut.Handle(
             new DisableMfaCommand(Guid.NewGuid(), "123456"), CancellationToken.None);
@@ -62,7 +62,7 @@ public class DisableMfaHandlerTests
         var userId = Guid.NewGuid();
         var user = CreateMfaEnabledUser(userId);
         user.IsMfaEnabled = false;
-        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _userRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var result = await sut.Handle(
             new DisableMfaCommand(userId, "123456"), CancellationToken.None);
@@ -78,7 +78,7 @@ public class DisableMfaHandlerTests
         var sut = CreateSut();
         var userId = Guid.NewGuid();
         var user = CreateMfaEnabledUser(userId);
-        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _userRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _totpService.Setup(s => s.VerifyCode(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
         var result = await sut.Handle(
@@ -95,7 +95,7 @@ public class DisableMfaHandlerTests
         var sut = CreateSut();
         var userId = Guid.NewGuid();
         var user = CreateMfaEnabledUser(userId);
-        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _userRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _totpService.Setup(s => s.VerifyCode("JBSWY3DPEHPK3PXP", "123456")).Returns(true);
 
         var result = await sut.Handle(
@@ -105,7 +105,7 @@ public class DisableMfaHandlerTests
         result.ErrorMessage.Should().BeNull();
         user.IsMfaEnabled.Should().BeFalse();
         user.TotpSecret.Should().BeNull();
-        _userRepo.Verify(r => r.UpdateAsync(user), Times.Once);
+        _userRepo.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -116,7 +116,7 @@ public class DisableMfaHandlerTests
         var userId = Guid.NewGuid();
         var user = CreateMfaEnabledUser(userId);
         user.TotpSecret = null;
-        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _userRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var result = await sut.Handle(
             new DisableMfaCommand(userId, "123456"), CancellationToken.None);

@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -15,17 +16,20 @@ public sealed class CiceksepetiOrderSyncJob : ISyncJob
     public string CronExpression => "*/5 * * * *";
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<CiceksepetiOrderSyncJob> _logger;
 
-    public CiceksepetiOrderSyncJob(IAdapterFactory factory, ILogger<CiceksepetiOrderSyncJob> logger)
+    public CiceksepetiOrderSyncJob(IAdapterFactory factory, ITenantProvider tenantProvider, ILogger<CiceksepetiOrderSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Ciceksepeti siparis sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] Ciceksepeti siparis sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {
@@ -43,7 +47,7 @@ public sealed class CiceksepetiOrderSyncJob : ISyncJob
                 "[{JobId}] Ciceksepeti siparis sync tamamlandi: {Count} siparis cekildi (son 1 saat)",
                 JobId, orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Ciceksepeti siparis sync HATA", JobId);
             throw;

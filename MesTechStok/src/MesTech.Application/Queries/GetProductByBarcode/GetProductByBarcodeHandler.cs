@@ -19,7 +19,7 @@ public sealed class GetProductByBarcodeHandler : IRequestHandler<GetProductByBar
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepository.GetByBarcodeAsync(request.Barcode).ConfigureAwait(false);
+        var product = await _productRepository.GetByBarcodeAsync(request.Barcode, cancellationToken).ConfigureAwait(false);
         if (product == null) return null;
 
         var dto = product.Adapt<ProductDto>();

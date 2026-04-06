@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetStockAlerts;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -18,6 +19,10 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string currentFilter = "All";
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     private List<StockAlertItemDto> _allAlerts = [];
     public ObservableCollection<StockAlertItemDto> FilteredAlerts { get; } = [];
@@ -41,13 +46,9 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId)) ?? [];
+            var alerts = await _mediator.Send(new GetStockAlertsQuery(_currentUser.TenantId), ct) ?? [];
 
             _allAlerts = alerts.Select(a => new StockAlertItemDto
             {
@@ -65,13 +66,7 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
 
             ApplyFilter();
             OnPropertyChanged(nameof(AlertSummary));
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Stok uyarilari yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Stok uyarilari yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -95,10 +90,29 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
                 a.LevelText.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        filtered = SortColumn switch
+        {
+            "Sku"          => SortAscending ? filtered.OrderBy(x => x.Sku)           : filtered.OrderByDescending(x => x.Sku),
+            "ProductName"  => SortAscending ? filtered.OrderBy(x => x.ProductName)   : filtered.OrderByDescending(x => x.ProductName),
+            "Level"        => SortAscending ? filtered.OrderBy(x => x.Level)         : filtered.OrderByDescending(x => x.Level),
+            "CurrentStock" => SortAscending ? filtered.OrderBy(x => x.CurrentStock)  : filtered.OrderByDescending(x => x.CurrentStock),
+            "MinimumStock" => SortAscending ? filtered.OrderBy(x => x.MinimumStock)  : filtered.OrderByDescending(x => x.MinimumStock),
+            _              => SortAscending ? filtered.OrderBy(x => x.ProductName)   : filtered.OrderByDescending(x => x.ProductName),
+        };
+
         foreach (var alert in filtered)
             FilteredAlerts.Add(alert);
 
         IsEmpty = FilteredAlerts.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand] private async Task Refresh() => await LoadAsync();
@@ -117,6 +131,21 @@ public partial class StockAlertAvaloniaViewModel : ViewModelBase
     private void ExecuteSecondaryAction(StockAlertItemDto? alert)
     {
         // NAV: Execute secondary action (transfer/adjust) based on alert level
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "stock-alerts", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok alarm listesi disa aktarilirken hata");
     }
 }
 

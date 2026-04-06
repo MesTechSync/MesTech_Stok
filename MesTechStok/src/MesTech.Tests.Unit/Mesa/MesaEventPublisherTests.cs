@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MassTransit;
+using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Messaging.Mesa;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,10 +18,11 @@ namespace MesTech.Tests.Unit.Mesa;
 public class MesaEventPublisherTests
 {
     private readonly Mock<IPublishEndpoint> _publishEndpointMock = new();
+    private readonly Mock<IMesaEventMonitor> _monitorMock = new();
     private readonly Mock<ILogger<MesaEventPublisher>> _loggerMock = new();
 
     private MesaEventPublisher CreateSut() =>
-        new(_publishEndpointMock.Object, _loggerMock.Object);
+        new(_publishEndpointMock.Object, _monitorMock.Object, _loggerMock.Object);
 
     // ══════════════════════════════════════════════
     //  PublishProductCreatedAsync

@@ -59,7 +59,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("GetBuyboxPositions")
         .WithSummary("Platform bazlı tüm ürünlerin buybox pozisyonları")
-        .Produces(200);
+        .Produces<IReadOnlyList<BuyboxPosition>>(200);
 
         app.MapGet("/api/v1/buybox/analyze", async (
             string sku,
@@ -81,7 +81,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("AnalyzeCompetitors")
         .WithSummary("Rakip analizi — opsiyonel minSellerRating ile düşük puanlı satıcıları filtrele")
-        .Produces(200);
+        .Produces<BuyboxAnalysis>(200);
 
         app.MapGet("/api/v1/buybox/lost", async (
             Guid tenantId,
@@ -96,7 +96,7 @@ public static class BuyboxEndpoints
         .WithTags("Buybox")
         .WithName("GetLostBuyboxes")
         .WithSummary("Son kaybedilen buybox'lar — fiyat düşürme fırsatları")
-        .Produces(200);
+        .Produces<IReadOnlyList<BuyboxLostItem>>(200);
 
         // ── Price Optimization ──
 
@@ -108,6 +108,8 @@ public static class BuyboxEndpoints
             IPriceOptimizationService priceService,
             CancellationToken ct) =>
         {
+            if (currentPrice <= 0 || costPrice < 0)
+                return Results.Problem(detail: "currentPrice must be > 0 and costPrice must be >= 0.", statusCode: 400);
             var result = await priceService.OptimizePriceAsync(
                 productId, currentPrice, costPrice, platformCode, ct);
             return Results.Ok(result);
@@ -117,7 +119,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("OptimizePrice")
         .WithSummary("AI fiyat optimizasyonu — marj analizi, strateji önerisi")
-        .Produces(200);
+        .Produces<PriceOptimization>(200);
 
         app.MapGet("/api/v1/pricing/optimize/bulk", async (
             Guid tenantId,
@@ -135,7 +137,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("OptimizePriceBulk")
         .WithSummary("Toplu fiyat optimizasyonu — tüm ürünler veya kategori/platform bazlı")
-        .Produces(200);
+        .Produces<IReadOnlyList<PriceOptimization>>(200);
 
         app.MapGet("/api/v1/pricing/history/{productId:guid}", async (
             Guid productId,
@@ -152,7 +154,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("GetPriceHistory")
         .WithSummary("Fiyat geçmişi — platform fiyat + AI önerisi zaman serisi")
-        .Produces(200);
+        .Produces<PriceHistory>(200);
 
         // ── Pricing Intelligence Dashboard (DEV6-F) ──
 
@@ -163,13 +165,9 @@ public static class BuyboxEndpoints
             ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
-            var lostTask = buyboxService.GetLostBuyboxesAsync(tenantId, ct);
-            var optimizeTask = priceService.OptimizeBulkAsync(tenantId, ct: ct);
-
-            await Task.WhenAll(lostTask, optimizeTask);
-
-            var lost = await lostTask;
-            var optimizations = await optimizeTask;
+            // Sequential — Task.WhenAll causes concurrent DbContext access (G67/KÖK-1)
+            var lost = await buyboxService.GetLostBuyboxesAsync(tenantId, ct);
+            var optimizations = await priceService.OptimizeBulkAsync(tenantId, ct: ct);
 
             RecurringJobDto? jobInfo = null;
             try
@@ -189,7 +187,7 @@ public static class BuyboxEndpoints
                 lost.Take(10).ToList(),
                 optimizations.Count,
                 optimizations
-                    .Where(o => Math.Abs(o.RecommendedPrice - o.CurrentPrice) / o.CurrentPrice > 0.01m)
+                    .Where(o => o.CurrentPrice > 0 && Math.Abs(o.RecommendedPrice - o.CurrentPrice) / o.CurrentPrice > 0.01m)
                     .OrderByDescending(o => Math.Abs(o.RecommendedPrice - o.CurrentPrice))
                     .Take(20).ToList(),
                 new AutoPriceStatusResponse(
@@ -204,7 +202,7 @@ public static class BuyboxEndpoints
         .WithTags("Pricing")
         .WithName("GetPricingDashboard")
         .WithSummary("Pricing intelligence dashboard — lost buybox + suggestions + auto-price status")
-        .Produces(200)
+        .Produces<PricingDashboardResponse>(200)
         .CacheOutput("Report120s");
 
         // ── Auto-Price Configuration (DEV6-F) ──
@@ -270,13 +268,14 @@ public static class BuyboxEndpoints
         .WithName("TriggerAutoPrice")
         .WithSummary("Manuel auto-price tetikle — zamanlanmış döngüyü hemen çalıştır")
         .Produces(200)
-        .Produces(503);
+        .Produces(503)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     // ── Typed Response DTOs — Swagger contract stability (G538) ──
     public sealed record PricingDashboardResponse(
-        int LostBuyboxCount, object LostBuyboxes,
-        int OptimizationCount, object PriceChangeSuggestions,
+        int LostBuyboxCount, IReadOnlyList<BuyboxLostItem> LostBuyboxes,
+        int OptimizationCount, IReadOnlyList<PriceOptimization> PriceChangeSuggestions,
         AutoPriceStatusResponse AutoPrice);
     public sealed record AutoPriceStatusResponse(
         bool IsEnabled, string CronExpression,

@@ -26,16 +26,19 @@ public sealed class GetDocumentFoldersHandler : IRequestHandler<GetDocumentFolde
 
         var folders = await _folderRepo.GetByTenantAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
 
+        // Batch count — tek SQL ile tüm folder'ların doküman sayısı (N+1 → 1+1)
+        var folderIds = folders.Select(f => f.Id).ToList();
+        var countsByFolder = await _docRepo.CountByFolderIdsAsync(folderIds, cancellationToken).ConfigureAwait(false);
+
         var folderDtos = new List<DocumentFolderDto>(folders.Count);
         foreach (var folder in folders)
         {
-            var docs = await _docRepo.GetByFolderAsync(folder.Id, cancellationToken).ConfigureAwait(false);
             folderDtos.Add(new DocumentFolderDto
             {
                 Id = folder.Id,
                 Name = folder.Name,
                 ParentId = folder.ParentFolderId,
-                DocumentCount = docs.Count,
+                DocumentCount = countsByFolder.GetValueOrDefault(folder.Id, 0),
                 CreatedAt = folder.CreatedAt
             });
         }

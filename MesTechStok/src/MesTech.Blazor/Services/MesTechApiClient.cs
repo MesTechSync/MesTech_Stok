@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using Microsoft.AspNetCore.Hosting;
 
 namespace MesTech.Blazor.Services;
 
@@ -11,11 +12,19 @@ public sealed class MesTechApiClient
 {
     private readonly HttpClient _http;
     private readonly string _baseUrl;
+    private readonly bool _isDevelopment;
 
-    public MesTechApiClient(HttpClient http, IConfiguration config)
+    /// <summary>
+    /// True only in Development — demo/fake data may be shown.
+    /// Production always shows empty state instead of misleading demo data.
+    /// </summary>
+    public bool IsDemoAllowed => _isDevelopment;
+
+    public MesTechApiClient(HttpClient http, IConfiguration config, IWebHostEnvironment env)
     {
         _http = http;
         _baseUrl = config["WebApi:BaseUrl"] ?? "http://localhost:3100";
+        _isDevelopment = env.IsDevelopment();
     }
 
     // ── Public generic methods returning ApiResult<T> ──

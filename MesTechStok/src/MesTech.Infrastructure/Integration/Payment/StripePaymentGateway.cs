@@ -60,7 +60,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
                 ["description"] = description ?? "MesTech Subscription"
             });
 
-            var response = await http.PostAsync("/v1/payment_intents", formData, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/v1/payment_intents", formData, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -74,7 +74,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
             _logger.LogError("Stripe odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Stripe odeme hatasi");
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
@@ -99,7 +99,7 @@ public sealed class StripePaymentGateway : IPaymentGateway
             if (partialAmount.HasValue)
                 formData["amount"] = ((int)(partialAmount.Value * CurrencySubunitMultiplier)).ToString();
 
-            var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/v1/refunds", new FormUrlEncodedContent(formData), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
@@ -107,34 +107,48 @@ public sealed class StripePaymentGateway : IPaymentGateway
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogError(ex, "Stripe refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }
 
-    public async Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
+    public Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
     {
         _logger.LogInformation("Stripe SaveCard: {Holder}", cardInfo.CardHolderName);
 
         if (!_options.IsConfigured)
-            return $"pm_sandbox_{Guid.NewGuid():N}"[..28];
+            return Task.FromResult($"pm_sandbox_{Guid.NewGuid():N}"[..28]);
 
-        await Task.CompletedTask.ConfigureAwait(false);
-        return $"pm_{Guid.NewGuid():N}"[..28];
+        // Stripe card tokenization requires Stripe.net SDK (NuGet: Stripe.net)
+        // Until SDK integrated, reject with clear message to prevent fake tokens in production
+        _logger.LogWarning("Stripe SaveCard not yet implemented — requires Stripe.net SDK integration");
+        throw new NotSupportedException(
+            "Stripe card tokenization requires Stripe.net SDK. " +
+            "Add NuGet Stripe.net package and implement SetupIntent + PaymentMethod flow.");
     }
 
-    public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
+    public Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
         _logger.LogInformation("Stripe DeleteCard: token=***masked***");
-        await Task.CompletedTask.ConfigureAwait(false);
-        return true;
+
+        if (!_options.IsConfigured)
+            return Task.FromResult(true);
+
+        _logger.LogWarning("Stripe DeleteCard not yet implemented — requires Stripe.net SDK integration");
+        throw new NotSupportedException(
+            "Stripe card deletion requires Stripe.net SDK. " +
+            "Add NuGet Stripe.net package and implement PaymentMethod.Detach flow.");
     }
 
     private HttpClient CreateHttpClient()
     {
         var client = _httpClientFactory.CreateClient("Stripe");
-        client.BaseAddress = new Uri(_options.BaseUrl);
+        var baseUri = new Uri(_options.BaseUrl);
+        if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+            _logger.LogWarning("[StripePaymentGateway] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+        client.BaseAddress = baseUri;
         client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.SecretKey);

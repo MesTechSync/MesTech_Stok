@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.InvoiceListAvaloniaView"
              x:DataType="vm:InvoiceListAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -28,6 +29,11 @@
                     <Button Content="Yeni Fatura" ToolTip.Tip="Yeni fatura olustur"
                             Command="{Binding CreateInvoiceCommand}"
                             Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+                    <!-- KD-DEV2-006: Export Excel button -->
+                    <Button Content="Excel Aktar" ToolTip.Tip="Fatura listesini Excel olarak disari aktar"
+                            Command="{Binding ExportExcelCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
                     <Button Content="Iptal Et" ToolTip.Tip="Secili faturayi iptal et"
                             Command="{Binding CancelInvoiceCommand}"
@@ -71,7 +77,7 @@
                   GridLinesVisibility="Horizontal"
                   BorderThickness="0"
                   Background="{DynamicResource SurfaceBrush}"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fatura No" Binding="{Binding InvoiceNumber}" Width="170"/>
                 <DataGridTextColumn Header="Alici" Binding="{Binding RecipientName}" Width="240"/>
@@ -95,9 +101,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:InvoiceListItemDto">
                             <Border Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" HorizontalAlignment="Left"
-                                    Margin="4,0">
+                                    Margin="4,0" Background="{Binding StatusColor}">
                                 <TextBlock Text="{Binding Status}" FontSize="{StaticResource FontSizeCaption}"
-                                           FontWeight="SemiBold"/>
+                                           FontWeight="SemiBold" Foreground="White"/>
                             </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -174,19 +180,20 @@
             </StackPanel>
         </Border>
     
-        <!-- Error State -->
-        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
-            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           TextWrapping="Wrap" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
-                        ToolTip.Tip="Verileri tekrar yukle"
-                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0"
+                    Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
 </Grid>
 </UserControl>

@@ -23,6 +23,7 @@ public sealed class SalaryRecordRepository : ISalaryRecordRepository
 
         return await query
             .OrderByDescending(r => r.Year).ThenByDescending(r => r.Month)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 

@@ -4,11 +4,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 // ═══════════════════════════════════════════════════════════════
-// Trendyol Sandbox Smoke Test — G804
+// Trendyol Smoke Test + Full Sync Runner — G804 + DEV3 TUR4
 // ═══════════════════════════════════════════════════════════════
-// Kullanım: dotnet run --project tools/TrendyolSmokeTest/
-// Env vars: TRENDYOL_API_KEY, TRENDYOL_API_SECRET, TRENDYOL_SUPPLIER_ID
+// Kullanım:
+//   dotnet run --project tools/TrendyolSmokeTest/                 → Smoke test (sandbox)
+//   dotnet run --project tools/TrendyolSmokeTest/ -- --full-sync  → Full sync (production → DB)
 // ═══════════════════════════════════════════════════════════════
+
+if (args.Contains("--full-sync"))
+    return await TrendyolFullSyncRunner.RunAsync();
 
 Console.WriteLine("═══ Trendyol Sandbox Smoke Test ═══");
 

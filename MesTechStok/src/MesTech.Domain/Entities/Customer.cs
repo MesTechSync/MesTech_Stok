@@ -95,6 +95,8 @@ public sealed class Customer : BaseEntity, ITenantEntity
 
     public static Customer Create(Guid tenantId, string name, string code, string? email = null, string? phone = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 

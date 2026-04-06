@@ -3,13 +3,15 @@
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:converters="using:MesTech.Avalonia.Converters"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:asyncImage="using:AsyncImageLoader"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.ProductsAvaloniaView"
              x:DataType="vm:ProductsAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
 
     <!-- Urun Yonetimi — DataGrid + Smart Search + Grid/List Toggle -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -50,10 +52,21 @@
                     </Button>
                 </StackPanel>
 
-                <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
-                        Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Content="+ Yeni Urun" ToolTip.Tip="Yeni urun ekle"
+                            Command="{Binding AddProductCommand}"
+                            Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <!-- KD-DEV2-005: Export CSV -->
+                    <Button Content="CSV Aktar" ToolTip.Tip="Urun listesini CSV olarak disari aktar"
+                            Command="{Binding ExportCsvCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -173,7 +186,8 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding IsListView}">
+                  IsVisible="{Binding IsListView}"
+                  DoubleTapped="OnDataGridDoubleTapped">
             <!-- WPF014: Row background by stock level (Red=out, Yellow=low, Transparent=ok) -->
             <DataGrid.Styles>
                 <Style Selector="DataGridRow" x:DataType="vm:ProductItemDto">
@@ -184,12 +198,28 @@
                 </Style>
             </DataGrid.Styles>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
-                <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
-                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="130" />
-                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
-                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                <DataGridTemplateColumn Header="" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:ProductItemDto">
+                            <Border Width="36" Height="36" CornerRadius="4" ClipToBounds="True" Margin="2">
+                                <Panel>
+                                    <TextBlock Text="&#x1F4E6;" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}" Opacity="0.4"/>
+                                    <asyncImage:AdvancedImage
+                                        IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                        Source="{Binding ImageUrl}" Width="36" Height="36" Stretch="UniformToFill"/>
+                                </Panel>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="120" />
+                <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Marka" Binding="{Binding Brand}" Width="120" />
+                <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="130" />
+                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding SalePrice, StringFormat='{}{0:N2}'}" Width="110" />
+                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="70" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -222,16 +252,24 @@
                                 BoxShadow="{DynamicResource MesElevationCard}"
                                 ClipToBounds="True">
                             <Grid RowDefinitions="140,*">
-                                <!-- Product Image -->
+                                <!-- Product Image (AsyncImageLoader lazy load) -->
                                 <Border Grid.Row="0" Background="{DynamicResource MesBgMist}" CornerRadius="10,10,0,0">
                                     <Grid>
-                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <!-- Placeholder (görsel yoksa veya yüklenirken) -->
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
                                             <TextBlock Text="&#x1F4E6;" FontSize="{StaticResource FontSizeXL}"
                                                        HorizontalAlignment="Center" Opacity="0.4" />
                                             <TextBlock Text="{Binding SKU}" FontSize="{StaticResource FontSizeCaption1}"
                                                        Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Center"
                                                        Margin="0,4,0,0" />
                                         </StackPanel>
+                                        <!-- Lazy-loaded product image -->
+                                        <asyncImage:AdvancedImage
+                                            IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            Source="{Binding ImageUrl}"
+                                            Stretch="UniformToFill"
+                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
                                         <!-- Discount badge -->
                                         <Border IsVisible="{Binding HasDiscount}"
                                                 Background="{DynamicResource MesRedClassic}" CornerRadius="0,0,0,8"
@@ -285,46 +323,85 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Row 4: HH-DEV2-001 Pagination Controls -->
+        <Border Grid.Row="4" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Page size selector -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Sayfa boyutu:" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding PageSizeOptions}" SelectedItem="{Binding PageSize}"
+                              Width="80" AutomationProperties.Name="Sayfa boyutu" />
+                </StackPanel>
+
+                <!-- Pagination info -->
+                <TextBlock Grid.Column="1" Text="{Binding PaginationInfo}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <!-- Navigation buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Content="&#x00AB;" ToolTip.Tip="Ilk sayfa"
+                            Command="{Binding FirstPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x2039;" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PrevPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6">
+                        <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="&#x203A;" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x00BB;" ToolTip.Tip="Son sayfa"
+                            Command="{Binding LastPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
             <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />
         </Border>
 
-        <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
+        <!-- Empty State (Lottie + EmptyStateControl) -->
+        <Border Grid.Row="1" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kayit bulunamadi" FontSize="{StaticResource FontSizeTitle}"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" Margin="0,0,0,8" />
-                <TextBlock Text="Arama kriterlerine uygun urun bulunamadi"
-                           FontSize="{StaticResource FontSizeSubtitle}" Foreground="{DynamicResource MesSlateGray}"
-                           HorizontalAlignment="Center" Opacity="0.7" />
-            </StackPanel>
+            <controls:EmptyStateControl
+                Title="Urun bulunamadi"
+                Subtitle="Arama kriterlerine uygun urun bulunamadi. Filtreleri degistirmeyi deneyin."
+                LottieSource="avares://MesTech.Avalonia/Assets/Animations/empty-box.json"
+                ActionText="Yenile"
+                ActionCommand="{Binding RefreshCommand}" />
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"
-                                   TextWrapping="Wrap" MaxWidth="400" />
-                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                                Command="{Binding RefreshCommand}"
-                                Padding="16,6" Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0"
+                    Title="Bir sorun oluştu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

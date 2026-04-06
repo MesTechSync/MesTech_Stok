@@ -111,7 +111,7 @@ public sealed class DunningWorker
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex,
                     "[{JobId}] Dunning islemi hatasi: SubscriptionId={SubscriptionId}",
@@ -171,7 +171,8 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: ServerInitiatedIp),
+                    CustomerIp: ServerInitiatedIp,
+                    CustomerEmail: "billing@mestech.app"),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;
@@ -187,7 +188,7 @@ public sealed class DunningWorker
                     JobId, subscription.Id);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errorMessage = ex.Message;
             _logger.LogWarning(ex,
@@ -240,7 +241,8 @@ public sealed class DunningWorker
                     Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                     CardToken: null,
                     ReturnUrl: string.Empty,
-                    CustomerIp: ServerInitiatedIp),
+                    CustomerIp: ServerInitiatedIp,
+                    CustomerEmail: "billing@mestech.app"),
                 ct).ConfigureAwait(false);
 
             success = paymentResult.Success;
@@ -256,7 +258,7 @@ public sealed class DunningWorker
                     JobId, subscription.Id);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errorMessage = ex.Message;
             _logger.LogWarning(ex,

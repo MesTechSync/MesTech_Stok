@@ -8,6 +8,8 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -34,6 +36,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private readonly PazaramaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -41,10 +44,12 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private bool _isConfigured;
 
     public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger,
-        IHttpClientFactory? httpClientFactory = null, IOptions<PazaramaOptions>? options = null)
+        IHttpClientFactory? httpClientFactory = null, IOptions<PazaramaOptions>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _options = options?.Value ?? new PazaramaOptions();
+        _scopeFactory = scopeFactory;
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -136,9 +141,8 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Pazarama base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[PazaramaAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[PazaramaAdapter] BaseUrl points to private network: {BaseUrl}", baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -219,7 +223,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             ConfigureAuth(credentials);
             await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/brand/getBrands?Page=1&Size=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -287,7 +291,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
 
         var json = JsonSerializer.Serialize(createRequest, _jsonOptions);
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/create");
@@ -328,7 +332,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             await Task.Delay(interval, ct).ConfigureAwait(false);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/product/getProductBatchResult?BatchRequestId={batchRequestId}"), ct).ConfigureAwait(false);
 
@@ -383,7 +387,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get,
                     $"/product/products?Approved=true&Page={page}&Size={pageSize}"), ct).ConfigureAwait(false);
 
@@ -403,16 +407,17 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             foreach (var pzProduct in pzResponse.Data)
             {
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = pzProduct.Name,
                     SKU = pzProduct.Code,
                     Barcode = null,
                     Description = null,
                     SalePrice = pzProduct.SalePrice,
-                    Stock = pzProduct.StockCount,
                     IsActive = pzProduct.State == 3 // State 3 = Active
-                });
+                };
+                product.SyncStock(pzProduct.StockCount, "pazarama-sync");
+                products.Add(product);
             }
 
             page++;
@@ -429,18 +434,26 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Pazarama, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var payload = new PzStockUpdateRequest
         {
             Items = new List<PzStockItem>
             {
-                new PzStockItem { Code = productId.ToString(), StockCount = newStock }
+                new PzStockItem { Code = externalId, StockCount = newStock }
             }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/updateStock");
@@ -462,6 +475,14 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Pazarama, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var payload = new PzPriceUpdateRequest
@@ -470,7 +491,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             {
                 new PzPriceItem
                 {
-                    Code = productId.ToString(),
+                    Code = externalId,
                     ListPrice = newPrice,
                     SalePrice = newPrice
                 }
@@ -478,7 +499,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/product/updatePrice");
@@ -529,7 +550,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(requestBody, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/order/getOrdersForApi");
@@ -633,7 +654,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/order/updateOrderStatus");
@@ -760,7 +781,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(requestBody, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/order/getRefund");
@@ -841,7 +862,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
@@ -879,7 +900,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/updateRefund");
@@ -921,7 +942,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/order/invoice-link");
@@ -956,7 +977,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         EnsureConfigured();
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, "/category/getCategoryTree"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -1065,7 +1086,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             var url = $"/api/settlement?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
 
-            var response = await ExecuteWithRetryAsync(() =>
+            using var response = await ExecuteWithRetryAsync(() =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Get, new Uri(url, UriKind.Relative));
                 return req;
@@ -1118,7 +1139,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1151,7 +1172,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, "/api/webhook/register");
@@ -1168,7 +1189,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama RegisterWebhook exception");
             return false;
@@ -1183,7 +1204,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Delete, "/api/webhook/unregister"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1195,7 +1216,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Pazarama UnregisterWebhook exception");
             return false;
@@ -1203,7 +1224,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     }
 
     /// <inheritdoc />
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1213,12 +1234,13 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation(
                 "PazaramaAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
                 eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Pazarama] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
     }
 
     // ── IPingableAdapter ──
@@ -1229,10 +1251,10 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pazarama ping failed");
             return false;

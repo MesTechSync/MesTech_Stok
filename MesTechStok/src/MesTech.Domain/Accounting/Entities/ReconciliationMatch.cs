@@ -76,8 +76,8 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
         RaiseDomainEvent(new ReconciliationCompletedEvent
         {
             MatchId = Id,
-            SettlementBatchId = SettlementBatchId ?? Guid.Empty,
-            BankTransactionId = BankTransactionId ?? Guid.Empty,
+            SettlementBatchId = SettlementBatchId,
+            BankTransactionId = BankTransactionId,
             FinalStatus = ReconciliationStatus.ManualMatch,
             Confidence = Confidence
         });
@@ -97,8 +97,8 @@ public sealed class ReconciliationMatch : BaseEntity, ITenantEntity
         RaiseDomainEvent(new ReconciliationCompletedEvent
         {
             MatchId = Id,
-            SettlementBatchId = SettlementBatchId ?? Guid.Empty,
-            BankTransactionId = BankTransactionId ?? Guid.Empty,
+            SettlementBatchId = SettlementBatchId,
+            BankTransactionId = BankTransactionId,
             FinalStatus = ReconciliationStatus.Rejected,
             Confidence = Confidence
         });

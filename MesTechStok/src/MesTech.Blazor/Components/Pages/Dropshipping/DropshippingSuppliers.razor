@@ -12,12 +12,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-handshake text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Tedarikciler</h3>
+      <h3 class="mb-0" >Tedarikciler</h3>
       <small class="text-muted">Tedarikci feed yonetimi ve guvenilirlik takibi</small>
     </div>
   </div>
@@ -108,11 +107,11 @@
     <!-- Add Supplier Modal -->
     @if (showAddModal)
     {
-      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal d-block" tabindex="-1" style="background-color: var(--mestech-modal-overlay);">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color: #2855AC;"></i>Yeni Tedarikci</h5>
+              <h5 class="modal-title"><i class="fas fa-plus-circle me-2" ></i>Yeni Tedarikci</h5>
               <button type="button" class="btn-close" @onclick="CloseAddForm"></button>
             </div>
             <EditForm Model="@newSupplier" OnValidSubmit="AddSupplier">
@@ -165,7 +164,7 @@
     <!-- Delete Confirmation -->
     @if (deleteTarget is not null)
     {
-      <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal d-block" tabindex="-1" style="background-color: var(--mestech-modal-overlay);">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -195,7 +194,7 @@
     <!-- Suppliers Table -->
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Tedarikci Listesi</h6>
+        <h6 class="mb-0"><i class="fas fa-list me-2" ></i>Tedarikci Listesi</h6>
         <span class="badge bg-secondary">@suppliers.Count tedarikci</span>
       </div>
       <div class="card-body p-0">
@@ -249,11 +248,11 @@
                       <small class="text-muted">@supplier.SonSync.ToString("dd.MM.yyyy HH:mm")</small>
                     </td>
                     <td>
-                      <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => SyncSupplier(supplier)"
+                      <button class="btn btn-sm btn-outline-primary me-1"@onclick="() => SyncSupplier(supplier)"
                               title="Sync Baslat" disabled="@isSubmitting">
                         <i class="fas fa-sync-alt"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDelete(supplier)"
+                      <button class="btn btn-sm btn-outline-danger"@onclick="() => RequestDelete(supplier)"
                               title="Sil">
                         <i class="fas fa-trash"></i>
                       </button>

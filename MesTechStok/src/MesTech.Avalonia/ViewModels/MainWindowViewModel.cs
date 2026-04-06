@@ -74,7 +74,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
     }
 
     [RelayCommand]
-    private async Task NavigateTo(string viewName)
+    private Task NavigateTo(string viewName)
     {
         var resolved = _viewModelFactory.Create(viewName);
         if (resolved is not null)
@@ -82,12 +82,8 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             (CurrentView as IDisposable)?.Dispose();
             CurrentView = resolved;
             SelectedMenuItem = viewName;
-            // G040 FIX: Trigger data loading for the new view
-            if (resolved is ViewModelBase vmBase)
-            {
-                try { await vmBase.LoadAsync(); }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] {viewName}.LoadAsync failed: {ex.Message}"); }
-            }
+            // BaseView.OnAttachedToVisualTree → InitializeAsync → LoadAsync otomatik çağrılır.
+            // Burada tekrar çağırmak çift yükleme (2x DB sorgusu) yapıyordu — kaldırıldı.
         }
 
         CurrentViewTitle = viewName switch
@@ -198,7 +194,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "NotificationSettings" => "Bildirim Ayarlari",
             "ReportDashboard" => "Rapor Merkezi",
             "AuditLog" => "Denetim Kayitlari",
-            "ProductDescriptionAI" => "AI Urun Aciklama",
+            "ProductDescriptionAI" => "AI Ürün Açıklama",
             "Backup" => "Yedekleme",
             "Buybox" => "Buybox Analizi",
             "ImportProducts" => "Urun Iceaktar",
@@ -271,6 +267,10 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "StoreSettings" => "Magaza Ayarlari",
             "StoreWizard" => "Magaza Sihirbazi",
             "SupplierFeeds" => "Tedarikci Feed'leri",
+            // D7-035: Missing sidebar nav titles
+            "Bitrix24" => "Bitrix24 CRM",
+            "CategoryMapping" => "Kategori Eslestirme",
+            "ImportSettings" => "Iceri Aktarma Ayarlari",
             _ => CurrentViewTitle
         };
 
@@ -301,6 +301,8 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             _ => "Diger"
         };
         Breadcrumb = category == "Ana Sayfa" ? "Ana Sayfa" : $"Ana Sayfa > {category} > {CurrentViewTitle}";
+
+        return Task.CompletedTask;
     }
 
     // INavigationService implementation — delegates to existing NavigateTo

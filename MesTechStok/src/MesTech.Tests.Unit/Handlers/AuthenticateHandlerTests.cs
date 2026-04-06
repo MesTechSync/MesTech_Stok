@@ -79,6 +79,6 @@ public class AuthenticateHandlerTests
         var sut = CreateSut();
         await sut.Handle(new AuthenticateCommand("test", "pass"), CancellationToken.None);
 
-        _userRepo.Verify(r => r.GetByUsernameAsync("test"), Times.Once);
+        _userRepo.Verify(r => r.GetByUsernameAsync("test", It.IsAny<CancellationToken>()), Times.Once);
     }
 }

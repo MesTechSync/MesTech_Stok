@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -15,17 +16,20 @@ public sealed class HepsiburadaOrderSyncJob : ISyncJob
     public string CronExpression => "*/5 * * * *";
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<HepsiburadaOrderSyncJob> _logger;
 
-    public HepsiburadaOrderSyncJob(IAdapterFactory factory, ILogger<HepsiburadaOrderSyncJob> logger)
+    public HepsiburadaOrderSyncJob(IAdapterFactory factory, ITenantProvider tenantProvider, ILogger<HepsiburadaOrderSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Hepsiburada siparis sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] Hepsiburada siparis sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {
@@ -43,7 +47,7 @@ public sealed class HepsiburadaOrderSyncJob : ISyncJob
                 "[{JobId}] Hepsiburada siparis sync tamamlandi: {Count} siparis cekildi (son 1 saat)",
                 JobId, orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Hepsiburada siparis sync HATA", JobId);
             throw;

@@ -33,7 +33,7 @@ public class CreateSupplierHandlerTests
 
         _supplierRepoMock.Verify(r => r.AddAsync(It.Is<Supplier>(s =>
             s.Name == "Test Tedarikçi" &&
-            s.Code == "TDK-001")), Times.Once);
+            s.Code == "TDK-001"), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -55,7 +55,7 @@ public class CreateSupplierHandlerTests
         _supplierRepoMock.Verify(r => r.AddAsync(It.Is<Supplier>(s =>
             s.ContactPerson == "Ali Bey" &&
             s.City == "İstanbul" &&
-            s.TaxNumber == "1234567890")), Times.Once);
+            s.TaxNumber == "1234567890"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

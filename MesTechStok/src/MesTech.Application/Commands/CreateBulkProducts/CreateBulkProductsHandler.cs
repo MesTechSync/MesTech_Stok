@@ -39,12 +39,12 @@ public sealed class CreateBulkProductsHandler : IRequestHandler<CreateBulkProduc
                 Barcode = $"869{DateTime.UtcNow.Ticks % 10_000_000_000:D10}",
                 PurchasePrice = 10m + i,
                 SalePrice = 20m + i * 2,
-                Stock = 100,
                 IsActive = true
             };
+            product.SyncStock(100, "bulk-create");
             product.MarkAsCreated();
 
-            await _productRepo.AddAsync(product).ConfigureAwait(false);
+            await _productRepo.AddAsync(product, cancellationToken).ConfigureAwait(false);
             created++;
         }
 

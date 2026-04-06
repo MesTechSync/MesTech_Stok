@@ -30,10 +30,12 @@ public sealed class GetCargoProvidersHandler : IRequestHandler<GetCargoProviders
             {
                 isAvailable = await adapter.IsAvailableAsync(cancellationToken).ConfigureAwait(false);
             }
+#pragma warning disable CA1031 // Intentional: adapter availability check — log failure, mark unavailable
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Cargo provider {Provider} availability check failed", adapter.Provider);
             }
+#pragma warning restore CA1031
 
             results.Add(new CargoProviderDto
             {

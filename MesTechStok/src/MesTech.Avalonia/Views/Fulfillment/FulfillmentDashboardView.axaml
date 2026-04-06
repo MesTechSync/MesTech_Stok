@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.Fulfillment.FulfillmentDashboardView"
              x:Name="RootFulfillmentDashboardView"
              x:DataType="vm:FulfillmentDashboardViewModel"
@@ -26,7 +28,7 @@
         </Border>
 
         <!-- Row 1: KPI Cards -->
-        <Border Grid.Row="1" Padding="20,16" IsVisible="{Binding !IsLoading}">
+        <Border Grid.Row="1" Padding="20,16">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <!-- FBA Stok -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
@@ -89,7 +91,7 @@
                       IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="True" GridLinesVisibility="Horizontal"
                       Background="{DynamicResource MesBgPrimary}"
                       BorderBrush="{DynamicResource MesBorderDefault}" BorderThickness="1"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="180" />
                     <DataGridTextColumn Header="Mevcut" Binding="{Binding AvailableQuantity}" Width="100" />
@@ -120,20 +122,21 @@
                 </StackPanel>
             </Border>
 
-            <!-- Error -->
-            <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <StackPanel HorizontalAlignment="Center" Spacing="8">
-                    <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                               Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                               Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                               TextWrapping="Wrap" MaxWidth="400" />
-                    <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
-                            ToolTip.Tip="Verileri tekrar yukle"
-                            Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
+                    <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
         </Grid>
 
+<!-- Loading Skeleton -->        <Border Grid.Row="0" Grid.RowSpan="3"                Background="{DynamicResource MesBgPage}"                IsVisible="{Binding IsLoading}"                ZIndex="100">            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />        </Border>
     </Grid>
 </UserControl>

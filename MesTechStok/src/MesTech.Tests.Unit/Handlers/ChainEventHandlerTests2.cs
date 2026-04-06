@@ -43,7 +43,7 @@ public class OrderConfirmedRevenueHandlerTests
 
         await _sut.HandleAsync(orderId, tenantId, "ORD-001", 1500m, null, CancellationToken.None);
 
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Once);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>(), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -54,7 +54,7 @@ public class OrderConfirmedRevenueHandlerTests
         var act = () => _sut.HandleAsync(Guid.NewGuid(), Guid.NewGuid(), "ORD-002", 0m, null, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
-        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>()), Times.Never);
+        _incomeRepoMock.Verify(r => r.AddAsync(It.IsAny<MesTech.Domain.Entities.Income>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
 

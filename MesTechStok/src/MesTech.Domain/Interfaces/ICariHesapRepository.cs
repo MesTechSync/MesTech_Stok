@@ -5,9 +5,9 @@ namespace MesTech.Domain.Interfaces;
 
 public interface ICariHesapRepository
 {
-    Task<CariHesap?> GetByIdAsync(Guid id);
-    Task<IReadOnlyList<CariHesap>> GetByTypeAsync(CariHesapType type, Guid? tenantId = null);
-    Task<IReadOnlyList<CariHesap>> GetAllAsync(Guid? tenantId = null);
-    Task AddAsync(CariHesap cariHesap);
-    Task UpdateAsync(CariHesap cariHesap);
+    Task<CariHesap?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<CariHesap>> GetByTypeAsync(CariHesapType type, Guid? tenantId = null, CancellationToken ct = default);
+    Task<IReadOnlyList<CariHesap>> GetAllAsync(Guid? tenantId = null, CancellationToken ct = default);
+    Task AddAsync(CariHesap cariHesap, CancellationToken ct = default);
+    Task UpdateAsync(CariHesap cariHesap, CancellationToken ct = default);
 }

@@ -33,5 +33,11 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
 
         builder.HasIndex(e => new { e.TenantId, e.AssignedToUserId })
             .HasDatabaseName("IX_Deals_Tenant_Assigned");
+
+        // Explicit FK — prevents EF Core from creating shadow CrmContactId1
+        builder.HasOne(e => e.Contact)
+            .WithMany()
+            .HasForeignKey(e => e.CrmContactId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

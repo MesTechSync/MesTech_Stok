@@ -12,7 +12,7 @@ public sealed class DropshipProductRepository : IDropshipProductRepository
 
     public async Task<DropshipProduct?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.DropshipProducts
-            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<DropshipProduct>> GetByTenantAsync(
         Guid tenantId,
@@ -25,7 +25,8 @@ public sealed class DropshipProductRepository : IDropshipProductRepository
         if (isLinked.HasValue)
             query = query.Where(p => p.IsLinked == isLinked.Value);
 
-        return await query.AsNoTracking().ToListAsync(ct);
+        return await query.Take(5000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<DropshipProduct>> GetBySupplierAsync(
@@ -33,13 +34,14 @@ public sealed class DropshipProductRepository : IDropshipProductRepository
         CancellationToken ct = default)
         => await _context.DropshipProducts
             .Where(p => p.DropshipSupplierId == supplierId)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(5000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(DropshipProduct product, CancellationToken ct = default)
-        => await _context.DropshipProducts.AddAsync(product, ct);
+        => await _context.DropshipProducts.AddAsync(product, ct).ConfigureAwait(false);
 
     public async Task AddRangeAsync(IEnumerable<DropshipProduct> products, CancellationToken ct = default)
-        => await _context.DropshipProducts.AddRangeAsync(products, ct);
+        => await _context.DropshipProducts.AddRangeAsync(products, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(DropshipProduct product, CancellationToken ct = default)
     {

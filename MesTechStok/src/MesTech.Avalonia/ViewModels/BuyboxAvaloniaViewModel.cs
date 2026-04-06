@@ -48,8 +48,9 @@ public partial class BuyboxAvaloniaViewModel : ViewModelBase
                         Status = buybox.IsWinner ? "Kazaniyor" : "Kaybediyor"
                     });
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[Buybox] Price query failed for {p.Name}: {ex.Message}");
                     items.Add(new BuyboxItemViewModel
                     {
                         ProductName = p.Name,

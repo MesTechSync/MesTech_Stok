@@ -20,7 +20,7 @@ public class DeleteProductHandlerTests
     public async Task Handle_ExistingProduct_ShouldDeleteSuccessfully()
     {
         var product = FakeData.CreateProduct(sku: "DEL-001");
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new DeleteProductCommand(product.Id);
@@ -28,7 +28,7 @@ public class DeleteProductHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        _productRepo.Verify(r => r.DeleteAsync(product.Id), Times.Once);
+        _productRepo.Verify(r => r.DeleteAsync(product.Id, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -36,7 +36,7 @@ public class DeleteProductHandlerTests
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new DeleteProductCommand(missingId);
@@ -45,18 +45,18 @@ public class DeleteProductHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain(missingId.ToString());
-        _productRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        _productRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_ShouldCallDeleteWithCorrectId()
     {
         var product = FakeData.CreateProduct(sku: "DEL-VERIFY");
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         Guid? capturedId = null;
-        _productRepo.Setup(r => r.DeleteAsync(It.IsAny<Guid>()))
-            .Callback<Guid>(id => capturedId = id);
+        _productRepo.Setup(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<Guid, CancellationToken>((id, _) => capturedId = id);
 
         var handler = CreateHandler();
         await handler.Handle(new DeleteProductCommand(product.Id), CancellationToken.None);
@@ -68,7 +68,7 @@ public class DeleteProductHandlerTests
     public async Task Handle_NotFound_ShouldNotCallUnitOfWork()
     {
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         await handler.Handle(new DeleteProductCommand(missingId), CancellationToken.None);
@@ -81,8 +81,8 @@ public class DeleteProductHandlerTests
     {
         var p1 = FakeData.CreateProduct(sku: "DEL-A");
         var p2 = FakeData.CreateProduct(sku: "DEL-B");
-        _productRepo.Setup(r => r.GetByIdAsync(p1.Id)).ReturnsAsync(p1);
-        _productRepo.Setup(r => r.GetByIdAsync(p2.Id)).ReturnsAsync(p2);
+        _productRepo.Setup(r => r.GetByIdAsync(p1.Id, It.IsAny<CancellationToken>())).ReturnsAsync(p1);
+        _productRepo.Setup(r => r.GetByIdAsync(p2.Id, It.IsAny<CancellationToken>())).ReturnsAsync(p2);
 
         var handler = CreateHandler();
 
@@ -91,6 +91,6 @@ public class DeleteProductHandlerTests
 
         r1.IsSuccess.Should().BeTrue();
         r2.IsSuccess.Should().BeTrue();
-        _productRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Exactly(2));
+        _productRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 }

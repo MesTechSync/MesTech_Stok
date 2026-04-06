@@ -18,21 +18,26 @@ public sealed class StoreRepository : IStoreRepository
         => await _context.Stores
             .Include(s => s.Credentials)
             .Include(s => s.ProductMappings)
-            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Store>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores
+            .Include(s => s.Credentials)
             .Include(s => s.ProductMappings)
             .Where(s => s.TenantId == tenantId && s.IsActive)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Store>> GetByPlatformTypeAsync(PlatformType platformType, CancellationToken ct = default)
         => await _context.Stores
+            .Include(s => s.Credentials)
+            .Include(s => s.ProductMappings)
             .Where(s => s.PlatformType == platformType && s.IsActive)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Store store, CancellationToken ct = default)
-        => await _context.Stores.AddAsync(store, ct);
+        => await _context.Stores.AddAsync(store, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(Store store, CancellationToken ct = default)
     {
@@ -48,4 +53,12 @@ public sealed class StoreRepository : IStoreRepository
 
     public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Stores.CountAsync(s => s.TenantId == tenantId, ct).ConfigureAwait(false);
+
+    public async Task<bool> ExistsByTenantAndPlatformAsync(
+        Guid tenantId, PlatformType platformType, string storeName, CancellationToken ct = default)
+        => await _context.Stores.AnyAsync(
+            s => s.TenantId == tenantId
+              && s.PlatformType == platformType
+              && s.StoreName == storeName
+              && s.IsActive, ct).ConfigureAwait(false);
 }

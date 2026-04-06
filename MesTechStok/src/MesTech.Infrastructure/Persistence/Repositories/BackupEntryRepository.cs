@@ -18,11 +18,11 @@ public sealed class BackupEntryRepository : IBackupEntryRepository
             .OrderByDescending(b => b.CreatedAt)
             .Take(limit)
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddAsync(BackupEntry entry, CancellationToken ct = default)
     {
-        await _db.Set<BackupEntry>().AddAsync(entry, ct);
+        await _db.Set<BackupEntry>().AddAsync(entry, ct).ConfigureAwait(false);
     }
 }

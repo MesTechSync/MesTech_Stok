@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+// D4-150: Distributed lock prevents parallel feed imports for same feedId
+
 // Panel-E: DEV-E2 — IServiceProvider replaced with IFeedParserFactory (constructor DI)
 
 namespace MesTech.Infrastructure.Jobs;
@@ -26,6 +28,7 @@ public sealed class SupplierFeedSyncJob
     private readonly IAdapterFactory _adapterFactory;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IFeedParserFactory _feedParserFactory;
+    private readonly IDistributedLockService _lockService;
     private readonly ILogger<SupplierFeedSyncJob> _logger;
 
     public SupplierFeedSyncJob(
@@ -35,6 +38,7 @@ public sealed class SupplierFeedSyncJob
         IAdapterFactory adapterFactory,
         IHttpClientFactory httpClientFactory,
         IFeedParserFactory feedParserFactory,
+        IDistributedLockService lockService,
         ILogger<SupplierFeedSyncJob> logger)
     {
         _dbContextFactory = dbContextFactory;
@@ -43,12 +47,25 @@ public sealed class SupplierFeedSyncJob
         _adapterFactory = adapterFactory;
         _httpClientFactory = httpClientFactory;
         _feedParserFactory = feedParserFactory;
+        _lockService = lockService;
         _logger = logger;
     }
 
     [AutomaticRetry(Attempts = 2)]
     public async Task ExecuteAsync(Guid feedId, CancellationToken ct = default)
     {
+        // D4-150: Distributed lock — prevent parallel imports for the same feed
+        var lockExpiry = TimeSpan.FromMinutes(10);
+        var lockWait = TimeSpan.FromSeconds(5);
+        await using var lockHandle = await _lockService.AcquireLockAsync(
+            $"feed-sync:{feedId}", lockExpiry, lockWait, ct).ConfigureAwait(false);
+
+        if (lockHandle is null)
+        {
+            _logger.LogWarning("[SupplierFeedSync] Could not acquire lock for feed {FeedId} — another instance is running. Skipping.", feedId);
+            return;
+        }
+
         _logger.LogInformation("[SupplierFeedSync] Starting sync for feed {FeedId}", feedId);
 
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
@@ -148,7 +165,7 @@ public sealed class SupplierFeedSyncJob
                     if (wasDeactivated)
                         deactivatedProducts++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex,
                         "[SupplierFeedSync] Failed to process product SKU={SKU} Barcode={Barcode} in feed {FeedName}",
@@ -173,7 +190,7 @@ public sealed class SupplierFeedSyncJob
                 feedId, feed.Name);
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[SupplierFeedSync] Sync FAILED for feed {FeedId} ({FeedName})",
                 feedId, feed.Name);
@@ -195,7 +212,7 @@ public sealed class SupplierFeedSyncJob
             preloadedBySku.TryGetValue(parsed.SKU, out existing);
 
         if (existing == null && !string.IsNullOrWhiteSpace(parsed.Barcode))
-            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode).ConfigureAwait(false);
+            existing = await _productRepository.GetByBarcodeAsync(parsed.Barcode, ct).ConfigureAwait(false);
 
         bool wasUpdated = false;
         bool wasDeactivated = false;
@@ -245,7 +262,7 @@ public sealed class SupplierFeedSyncJob
             {
                 existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = "supplier-feed-sync";
-                await _productRepository.UpdateAsync(existing).ConfigureAwait(false);
+                await _productRepository.UpdateAsync(existing, ct).ConfigureAwait(false);
             }
 
             return (existing, wasUpdated, wasDeactivated);
@@ -261,7 +278,6 @@ public sealed class SupplierFeedSyncJob
                 Description = parsed.Description,
                 SalePrice = feed.ApplyMarkup(parsed.Price ?? 0m),
                 PurchasePrice = parsed.Price ?? 0m,
-                Stock = parsed.Quantity ?? 0,
                 ImageUrl = parsed.ImageUrl,
                 Brand = parsed.Brand,
                 Model = parsed.Model,
@@ -272,7 +288,8 @@ public sealed class SupplierFeedSyncJob
                 UpdatedBy = "supplier-feed-sync"
             };
 
-            await _productRepository.AddAsync(newProduct).ConfigureAwait(false);
+            newProduct.SyncStock(parsed.Quantity ?? 0, "supplier-feed-sync");
+            await _productRepository.AddAsync(newProduct, ct).ConfigureAwait(false);
 
             _logger.LogDebug(
                 "[SupplierFeedSync] Created new product {SKU} from feed {FeedName}",
@@ -324,7 +341,7 @@ public sealed class SupplierFeedSyncJob
                     var ok = await adapter.PushProductAsync(product, ct).ConfigureAwait(false);
                     if (ok) pushed++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex,
                         "[SupplierFeedSync] Failed to push product {SKU} to {Platform}",

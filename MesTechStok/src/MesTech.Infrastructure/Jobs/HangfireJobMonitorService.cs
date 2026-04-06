@@ -48,7 +48,7 @@ public sealed class HangfireJobMonitorService
                 Jobs = jobs
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Hangfire job dashboard query failed — storage may not be initialized");
             return new HangfireJobDashboard

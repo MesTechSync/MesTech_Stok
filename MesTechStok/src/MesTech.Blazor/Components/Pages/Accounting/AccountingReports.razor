@@ -1,7 +1,6 @@
 @page "/accounting/reports"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
 @inject MesTechApiClient ApiClient
 @inject NavigationManager Navigation
 @inject ILogger<AccountingReports> Logger
@@ -12,12 +11,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-chart-bar text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Muhasebe Raporlari</h3>
+      <h3 class="mb-0" >Muhasebe Raporlari</h3>
       <small class="text-muted">Mizan, bilanco ve gelir-gider tablosu</small>
     </div>
   </div>
@@ -60,7 +58,7 @@
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
         <h6 class="mb-0">
-          <i class="fas fa-table me-2" style="color: #2855AC;"></i>@GetTabTitle()
+          <i class="fas fa-table me-2" ></i>@GetTabTitle()
         </h6>
         <span class="badge bg-secondary">@_reportRows.Count satir</span>
       </div>

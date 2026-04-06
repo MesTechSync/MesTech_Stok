@@ -28,7 +28,7 @@ public class ApproveInvoiceHandlerTests
             order, InvoiceType.EFatura, "INV-001");
         invoice.AddLine(CreateTestLine());
 
-        _repository.Setup(r => r.GetByIdAsync(invoice.Id)).ReturnsAsync(invoice);
+        _repository.Setup(r => r.GetByIdAsync(invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
         var handler = CreateHandler();
         var command = new ApproveInvoiceCommand(invoice.Id);
@@ -39,7 +39,7 @@ public class ApproveInvoiceHandlerTests
         // Assert
         result.Should().BeTrue();
         invoice.Status.Should().Be(InvoiceStatus.Queued);
-        _repository.Verify(r => r.UpdateAsync(invoice), Times.Once);
+        _repository.Verify(r => r.UpdateAsync(invoice, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class ApproveInvoiceHandlerTests
     {
         // Arrange
         var missingId = Guid.NewGuid();
-        _repository.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((MesTech.Domain.Entities.Invoice?)null);
+        _repository.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((MesTech.Domain.Entities.Invoice?)null);
 
         var handler = CreateHandler();
         var command = new ApproveInvoiceCommand(missingId);
@@ -57,7 +57,7 @@ public class ApproveInvoiceHandlerTests
 
         // Assert
         result.Should().BeFalse();
-        _repository.Verify(r => r.UpdateAsync(It.IsAny<MesTech.Domain.Entities.Invoice>()), Times.Never);
+        _repository.Verify(r => r.UpdateAsync(It.IsAny<MesTech.Domain.Entities.Invoice>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class ApproveInvoiceHandlerTests
         invoice.Approve(); // Draft -> Queued
         invoice.MarkAsSent("GIB-123", "https://pdf.url"); // Queued -> Sent
 
-        _repository.Setup(r => r.GetByIdAsync(invoice.Id)).ReturnsAsync(invoice);
+        _repository.Setup(r => r.GetByIdAsync(invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
         var handler = CreateHandler();
         var command = new ApproveInvoiceCommand(invoice.Id);

@@ -26,8 +26,8 @@ public sealed class GetCashFlowTrendHandler : IRequestHandler<GetCashFlowTrendQu
         var from = new DateTime(now.Year, now.Month, 1).AddMonths(-request.Months + 1);
         var to = now;
 
-        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
-        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
+        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId, cancellationToken).ConfigureAwait(false);
+        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId, cancellationToken).ConfigureAwait(false);
 
         var months = new List<CashFlowMonthDto>();
         decimal cumulative = 0;

@@ -16,6 +16,12 @@ public sealed class WarehouseZoneConfiguration : IEntityTypeConfiguration<Wareho
         builder.Property(e => e.TemperatureRange).HasMaxLength(50);
         builder.Property(e => e.HumidityRange).HasMaxLength(50);
 
+        // Decimal precision
+        builder.Property(e => e.Width).HasPrecision(18, 4);
+        builder.Property(e => e.Length).HasPrecision(18, 4);
+        builder.Property(e => e.Height).HasPrecision(18, 4);
+        builder.Property(e => e.Area).HasPrecision(18, 4);
+
         builder.HasIndex(e => new { e.TenantId, e.WarehouseId })
             .HasDatabaseName("IX_WarehouseZones_Tenant_Warehouse");
 

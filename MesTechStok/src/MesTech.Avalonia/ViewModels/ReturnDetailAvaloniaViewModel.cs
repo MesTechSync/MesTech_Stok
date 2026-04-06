@@ -57,12 +57,9 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 100));
+            var returns = await _mediator.Send(new GetReturnListQuery(_currentUser.TenantId, 100), ct);
 
             _allReturns = returns.Select(r => new ReturnSummaryItemDto
             {
@@ -93,20 +90,15 @@ public partial class ReturnDetailAvaloniaViewModel : ViewModelBase
                 IsEmpty = true;
             }
 
-            Timeline.Clear();
-            Timeline.Add(new() { Step = "Talep Olusturuldu", Date = new DateTime(2026, 3, 18, 10, 30, 0), IsCompleted = true, Description = "Musteri iade talebi olusturdu" });
-            Timeline.Add(new() { Step = "Onay Bekliyor", Date = null, IsCompleted = false, IsCurrent = true, Description = "Iade talebi inceleniyor" });
-            Timeline.Add(new() { Step = "Kargo Bekleniyor", Date = null, IsCompleted = false, Description = "Urun kargoya verilecek" });
-            Timeline.Add(new() { Step = "Iade Tamamlandi", Date = null, IsCompleted = false, Description = "Iade sureci tamamlanacak" });
-
-            IsEmpty = false;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Iade detaylari yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+            if (returns.Count > 0)
+            {
+                Timeline.Clear();
+                Timeline.Add(new() { Step = "Talep Olusturuldu", Date = new DateTime(2026, 3, 18, 10, 30, 0), IsCompleted = true, Description = "Musteri iade talebi olusturdu" });
+                Timeline.Add(new() { Step = "Onay Bekliyor", Date = null, IsCompleted = false, IsCurrent = true, Description = "Iade talebi inceleniyor" });
+                Timeline.Add(new() { Step = "Kargo Bekleniyor", Date = null, IsCompleted = false, Description = "Urun kargoya verilecek" });
+                Timeline.Add(new() { Step = "Iade Tamamlandi", Date = null, IsCompleted = false, Description = "Iade sureci tamamlanacak" });
+            }
+        }, "Iade detaylari yuklenirken hata");
     }
 
     [RelayCommand]

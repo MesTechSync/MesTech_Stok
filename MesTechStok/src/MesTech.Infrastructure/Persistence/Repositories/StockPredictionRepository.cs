@@ -11,16 +11,17 @@ public sealed class StockPredictionRepository : IStockPredictionRepository
     public StockPredictionRepository(AppDbContext context)
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<StockPrediction?> GetByIdAsync(Guid id)
-        => await _context.StockPredictions.FirstOrDefaultAsync(p => p.Id == id).ConfigureAwait(false);
+    public async Task<StockPrediction?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _context.StockPredictions.FirstOrDefaultAsync(p => p.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<StockPrediction>> GetByProductIdAsync(Guid productId)
+    public async Task<IReadOnlyList<StockPrediction>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
         => await _context.StockPredictions
             .Where(p => p.ProductId == productId)
             .OrderByDescending(p => p.CreatedAt)
-            .AsNoTracking().ToListAsync()
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 
-    public async Task AddAsync(StockPrediction prediction)
-        => await _context.StockPredictions.AddAsync(prediction).ConfigureAwait(false);
+    public async Task AddAsync(StockPrediction prediction, CancellationToken ct = default)
+        => await _context.StockPredictions.AddAsync(prediction, ct).ConfigureAwait(false);
 }

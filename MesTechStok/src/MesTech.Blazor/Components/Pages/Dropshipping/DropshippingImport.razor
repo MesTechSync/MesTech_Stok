@@ -11,11 +11,11 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div class="d-flex align-items-center">
         <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-             style="width: 48px; height: 48px; background-color: #6f42c1;">
+             style="width: 48px; height: 48px; background-color: var(--mestech-purple);">
             <i class="fas fa-file-import text-white"></i>
         </div>
         <div>
-            <h3 class="mb-0" style="color: #6f42c1;">Dropshipping Ice Aktar</h3>
+            <h3 class="mb-0" style="color: var(--mestech-purple);">Dropshipping Ice Aktar</h3>
             <small class="text-muted">Tedarikci urun listelerini toplu olarak iceye aktarin</small>
         </div>
     </div>
@@ -217,10 +217,34 @@ else
         }
     }
 
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".xlsx", ".xls", ".csv"
+    };
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
+
     private void HandleFileSelected(InputFileChangeEventArgs e)
     {
-        _selectedFile = e.File;
         _importResult = null;
+        var file = e.File;
+        var ext = Path.GetExtension(file.Name);
+
+        if (!AllowedExtensions.Contains(ext))
+        {
+            errorMessage = $"Desteklenmeyen dosya türü: {ext}. Sadece .xlsx, .xls, .csv kabul edilir.";
+            _selectedFile = null;
+            return;
+        }
+
+        if (file.Size > MaxFileSize)
+        {
+            errorMessage = $"Dosya çok büyük: {file.Size / 1024 / 1024} MB. Maksimum 10 MB.";
+            _selectedFile = null;
+            return;
+        }
+
+        errorMessage = null;
+        _selectedFile = file;
     }
 
     private async Task ImportFileAsync()

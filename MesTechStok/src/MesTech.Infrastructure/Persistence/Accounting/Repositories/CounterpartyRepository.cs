@@ -18,7 +18,7 @@ public sealed class CounterpartyRepository : ICounterpartyRepository
         var q = _context.Counterparties.Where(c => c.TenantId == tenantId);
         if (type.HasValue) q = q.Where(c => c.CounterpartyType == type.Value);
         if (isActive.HasValue) q = q.Where(c => c.IsActive == isActive.Value);
-        return await q.OrderBy(c => c.Name).AsNoTracking().ToListAsync(ct);
+        return await q.OrderBy(c => c.Name).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<Counterparty?> GetByVknAsync(Guid tenantId, string vkn, CancellationToken ct = default)

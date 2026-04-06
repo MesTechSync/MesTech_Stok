@@ -1,14 +1,16 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<base:BaseView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:base="using:MesTech.Avalonia.Views.Base"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.PlatformConnectionTestAvaloniaView"
              x:Name="RootPlatformConnectionTestAvaloniaView"
              x:DataType="vm:PlatformConnectionTestAvaloniaViewModel"
              AutomationProperties.Name="Platform Baglanti Testi">
-<UserControl.KeyBindings>
+<base:BaseView.KeyBindings>
     <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
-</UserControl.KeyBindings>
+</base:BaseView.KeyBindings>
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
 
@@ -64,21 +66,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}" ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
-                <TextBlock Text="Hata Olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource MesErrorRed}" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource MesTextMuted}" TextWrapping="Wrap"
-                           MaxWidth="400" HorizontalAlignment="Center" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" HorizontalAlignment="Center"
-                        ToolTip.Tip="Tekrar dene"
-                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
-            </StackPanel>
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
         <!-- Platform Cards Grid -->
         <ScrollViewer Grid.Row="1" Padding="16">
@@ -106,19 +106,19 @@
                                     <Border Grid.Column="1" Background="{Binding StatusColor}"
                                             CornerRadius="10" Padding="8,2">
                                         <TextBlock Text="{Binding StatusText}"
-                                                   Foreground="White" FontSize="10" FontWeight="SemiBold" />
+                                                   Foreground="White" FontSize="{StaticResource FontSizeCaption1}" FontWeight="SemiBold" />
                                     </Border>
                                 </Grid>
 
                                 <!-- Stats -->
                                 <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,0,0,6">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Urun" FontSize="10" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                        <TextBlock Text="Urun" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
                                         <TextBlock Text="{Binding ProductCount}" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="2">
-                                        <TextBlock Text="Siparis" FontSize="10" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                        <TextBlock Text="Siparis" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
                                         <TextBlock Text="{Binding OrderCount}" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                     </StackPanel>
@@ -127,7 +127,7 @@
                                 <!-- Store count + Adapter -->
                                 <Grid Grid.Row="2" ColumnDefinitions="*,*" Margin="0,0,0,6">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Magaza" FontSize="10" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                        <TextBlock Text="Magaza" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
                                         <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesDarkSlate}">
                                             <TextBlock.Text>
                                                 <MultiBinding StringFormat="{}{0}/{1} aktif">
@@ -138,7 +138,7 @@
                                         </TextBlock>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="2">
-                                        <TextBlock Text="Son Sync" FontSize="10" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
+                                        <TextBlock Text="Son Sync" FontSize="{StaticResource FontSizeCaption1}" Foreground="{DynamicResource MesSlateGray}" Opacity="0.7" />
                                         <TextBlock Text="{Binding LastSync}" FontSize="{StaticResource FontSizeSmall}"
                                                    Foreground="{DynamicResource MesDarkSlate}" />
                                     </StackPanel>
@@ -156,4 +156,4 @@
             </ItemsControl>
         </ScrollViewer>
     </Grid>
-</UserControl>
+</base:BaseView>

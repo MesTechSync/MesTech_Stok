@@ -11,6 +11,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class StockAlertItemViewModel : ViewModelBase
 {
+    private static Color Tk(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     [ObservableProperty] private string productName = "";
     [ObservableProperty] private string sku = "";
     [ObservableProperty] private string stockText = "0";
@@ -32,10 +35,10 @@ public partial class StockAlertItemViewModel : ViewModelBase
 
         StockLevelColor = stock switch
         {
-            0 => new SolidColorBrush(Color.Parse("#1F2937")),                                // T\u00FCkendi (dark)
-            _ when stock <= minimumStock => new SolidColorBrush(Color.Parse("#D32F2F")),      // Kritik (red)
-            _ when stock <= minimumStock * 2 => new SolidColorBrush(Color.Parse("#F57C00")),  // D\u00FC\u015F\u00FCk (orange)
-            _ => new SolidColorBrush(Color.Parse("#388E3C"))                                  // Yeterli (green)
+            0 => new SolidColorBrush(Tk("MesDarkCharcoal")),                                // Tukendi
+            _ when stock <= minimumStock => new SolidColorBrush(Tk("MesDangerDark")),        // Kritik
+            _ when stock <= minimumStock * 2 => new SolidColorBrush(Tk("MesWarningDark")),   // Dusuk
+            _ => new SolidColorBrush(Tk("MesGreenForest"))                                   // Yeterli
         };
     }
 

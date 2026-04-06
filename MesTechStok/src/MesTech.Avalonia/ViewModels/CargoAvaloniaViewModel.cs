@@ -42,15 +42,11 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var results = await _mediator.Send(
                 new GetCargoTrackingListQuery(_currentUser.TenantId, 100),
-                CancellationToken);
+                ct);
 
             _allCargos = results.Select(r => new CargoItemDto
             {
@@ -62,16 +58,7 @@ public partial class CargoAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kargo verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kargo verileri yuklenirken hata");
     }
 
     private void ApplyFilters()

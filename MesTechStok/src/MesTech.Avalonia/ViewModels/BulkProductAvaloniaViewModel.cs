@@ -108,23 +108,13 @@ public partial class BulkProductAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var status = await _mediator.Send(new Application.Queries.GetProductDbStatus.GetProductDbStatusQuery());
+            var status = await _mediator.Send(new Application.Queries.GetProductDbStatus.GetProductDbStatusQuery(), ct);
             ExportProductCount = status.TotalCount;
             SelectedProductCount = 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Toplu islem verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = PreviewRows.Count == 0;
-        }
+        }, "Toplu islem verileri yuklenirken hata");
     }
 
     private static readonly FilePickerFileType ExcelFileType = new("Excel Dosyalari")

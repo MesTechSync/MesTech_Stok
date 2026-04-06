@@ -19,7 +19,8 @@ public static class BillingEndpoints
     {
         var group = app.MapGroup("/api/v1/billing")
             .WithTags("Billing")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageBilling"));
 
         // GET /api/v1/billing/plans — list subscription plans
         group.MapGet("/plans", async (
@@ -30,7 +31,7 @@ public static class BillingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetSubscriptionPlans")
-        .WithSummary("Abonelik planları listesi").Produces(200).Produces(400)
+        .WithSummary("Abonelik planları listesi").Produces<IReadOnlyList<SubscriptionPlanDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/billing/subscription — current tenant subscription
@@ -43,7 +44,7 @@ public static class BillingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetTenantSubscription")
-        .WithSummary("Mevcut tenant abonelik bilgisi").Produces(200).Produces(400)
+        .WithSummary("Mevcut tenant abonelik bilgisi").Produces<TenantSubscriptionDto>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/billing/subscription — create subscription
@@ -83,7 +84,7 @@ public static class BillingEndpoints
             return Results.Ok(result);
         })
         .WithName("GetBillingInvoices")
-        .WithSummary("Faturalama geçmişi").Produces(200).Produces(400)
+        .WithSummary("Faturalama geçmişi").Produces<IReadOnlyList<BillingInvoiceDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/billing/invoices — create billing invoice
@@ -123,7 +124,7 @@ public static class BillingEndpoints
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetSubscriptionUsage")
-        .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)").Produces(200).Produces(400)
+        .WithSummary("Abonelik kullanım durumu (store/product/user limitleri)").Produces<SubscriptionUsageDto>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/billing/webhooks/{provider} — payment webhook receiver
@@ -154,7 +155,8 @@ public static class BillingEndpoints
         .Produces(200).Produces(400).Produces(422)
         .AllowAnonymous() // Webhook'lar JWT olmadan gelir
         .RequireRateLimiting("WebhookRateLimit") // DEV6-TUR8: Payment webhook flood protection
-        .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)); // G088: 1MB limit
+        .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1_048_576)) // G088: 1MB limit
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/billing/features — tenant feature flags (plan bazlı)
         group.MapGet("/features", async (
@@ -166,7 +168,7 @@ public static class BillingEndpoints
         })
         .WithName("GetUserFeatures")
         .WithSummary("Tenant aktif özellik listesi — plan bazlı feature flags")
-        .Produces(200)
+        .Produces<UserFeaturesResult>(200)
         .CacheOutput("Lookup60s");
     }
 }

@@ -17,12 +17,11 @@ public class ProductEntityTests
 {
     private static Product CreateProduct(int stock = 100, decimal salePrice = 50m, decimal purchasePrice = 30m)
     {
-        return new Product
+        var product = new Product
         {
             TenantId = Guid.NewGuid(),
             Name = "Test Product",
             SKU = "TST-001",
-            Stock = stock,
             SalePrice = salePrice,
             PurchasePrice = purchasePrice,
             MinimumStock = 5,
@@ -31,6 +30,8 @@ public class ProductEntityTests
             ReorderQuantity = 50,
             TaxRate = 0.18m
         };
+        product.SyncStock(stock, "test-seed");
+        return product;
     }
 
     // ═══════════════════════════════════════════

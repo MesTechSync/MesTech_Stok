@@ -18,5 +18,7 @@ public sealed class TaxRecordConfiguration : IEntityTypeConfiguration<TaxRecord>
         builder.HasIndex(x => x.TenantId);
         builder.HasIndex(x => new { x.TenantId, x.Period, x.TaxType })
             .HasDatabaseName("IX_TaxRecords_Tenant_Period_Type");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

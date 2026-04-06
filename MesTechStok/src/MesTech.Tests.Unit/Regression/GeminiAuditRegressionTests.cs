@@ -16,8 +16,9 @@ public class GeminiAuditRegressionTests
 
     private static string FindSrcRoot()
     {
+        // Walk up from BaseDirectory looking for src/ marker (MesTech.Domain folder)
         var dir = AppDomain.CurrentDomain.BaseDirectory;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 15; i++)
         {
             var parent = Directory.GetParent(dir);
             if (parent == null) break;
@@ -25,13 +26,34 @@ public class GeminiAuditRegressionTests
             if (Directory.Exists(Path.Combine(dir, "MesTech.Domain")))
                 return dir;
         }
-        throw new DirectoryNotFoundException("src/ root not found");
+
+        // Fallback: try well-known relative paths from working directory
+        var cwd = Directory.GetCurrentDirectory();
+        var candidates = new[]
+        {
+            Path.Combine(cwd, "src"),
+            Path.Combine(cwd, "MesTechStok", "src"),
+            Path.Combine(cwd, "MesTech_Stok", "MesTechStok", "src"),
+            // When running with -o bin/dev5unit/, BaseDirectory is the output dir
+            // Try navigating from BaseDirectory to known project structure
+            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "src")),
+            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "src")),
+        };
+        foreach (var c in candidates)
+        {
+            if (Directory.Exists(Path.Combine(c, "MesTech.Domain")))
+                return c;
+        }
+
+        throw new DirectoryNotFoundException(
+            $"src/ root not found. BaseDirectory={AppDomain.CurrentDomain.BaseDirectory}, CWD={cwd}");
     }
 
     private static string FindRepoRoot()
     {
+        // Walk up from BaseDirectory looking for mono-repo root (MesTech_Stok + MesTech_Trendyol)
         var dir = AppDomain.CurrentDomain.BaseDirectory;
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 20; i++)
         {
             var parent = Directory.GetParent(dir);
             if (parent == null) break;
@@ -40,7 +62,24 @@ public class GeminiAuditRegressionTests
                 Directory.Exists(Path.Combine(dir, "MesTech_Stok")))
                 return dir;
         }
-        throw new DirectoryNotFoundException("repo root not found");
+
+        // Fallback: try well-known relative paths from working directory
+        var cwd = Directory.GetCurrentDirectory();
+        var candidates = new[]
+        {
+            cwd,
+            Path.GetFullPath(Path.Combine(cwd, "..", "..")),
+            Path.GetFullPath(Path.Combine(cwd, "..", "..", "..", "..")),
+        };
+        foreach (var c in candidates)
+        {
+            if (Directory.Exists(Path.Combine(c, "MesTech_Trendyol")) &&
+                Directory.Exists(Path.Combine(c, "MesTech_Stok")))
+                return c;
+        }
+
+        throw new DirectoryNotFoundException(
+            $"repo root not found. BaseDirectory={AppDomain.CurrentDomain.BaseDirectory}, CWD={cwd}");
     }
 
     // ── Test 1: No real passwords in appsettings ──

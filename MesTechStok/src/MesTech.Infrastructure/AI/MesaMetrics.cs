@@ -38,4 +38,11 @@ public static class MesaMetrics
     public static readonly Gauge<int> DlqDepth =
         Meter.CreateGauge<int>("mesa_dlq_depth",
             description: "Current DLQ depth per queue");
+
+    /// <summary>
+    /// Record circuit breaker state change. Call from Polly onBreak/onReset/onHalfOpen.
+    /// Values: 0=Closed, 1=HalfOpen, 2=Open.
+    /// </summary>
+    public static void RecordCircuitState(string serviceName, int state)
+        => CircuitBreakerState.Record(state, new KeyValuePair<string, object?>("service", serviceName));
 }

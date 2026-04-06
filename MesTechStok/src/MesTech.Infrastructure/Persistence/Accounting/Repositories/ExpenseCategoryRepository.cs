@@ -17,13 +17,13 @@ public sealed class ExpenseCategoryRepository : IExpenseCategoryRepository
     {
         var q = _context.AccountingExpenseCategories.Where(c => c.TenantId == tenantId);
         if (isActive.HasValue) q = q.Where(c => c.IsActive == isActive.Value);
-        return await q.OrderBy(c => c.Name).AsNoTracking().ToListAsync(ct);
+        return await q.OrderBy(c => c.Name).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<IReadOnlyList<ExpenseCat>> GetByParentIdAsync(Guid tenantId, Guid? parentId, CancellationToken ct = default)
         => await _context.AccountingExpenseCategories
             .Where(c => c.TenantId == tenantId && c.ParentId == parentId)
-            .OrderBy(c => c.Name).AsNoTracking().ToListAsync(ct);
+            .OrderBy(c => c.Name).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
 
     public async Task AddAsync(ExpenseCat category, CancellationToken ct = default)
         => await _context.AccountingExpenseCategories.AddAsync(category, ct);

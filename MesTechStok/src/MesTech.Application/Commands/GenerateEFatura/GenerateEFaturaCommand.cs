@@ -52,7 +52,7 @@ public sealed class GenerateEFaturaHandler : IRequestHandler<GenerateEFaturaComm
         var invoiceNumber = $"EF-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
 
         var invoice = Invoice.CreateForOrder(order, invoiceType, invoiceNumber);
-        await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);
+        await _invoiceRepository.AddAsync(invoice, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("GenerateEFatura: {InvoiceNumber} ({Type}) created for Order {OrderId}",

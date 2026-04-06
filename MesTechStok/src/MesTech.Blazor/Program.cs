@@ -112,6 +112,13 @@ builder.Services.AddHttpClient<MesTechApiClient>(client =>
 .AddPolicyHandler(retryPolicy)
 .AddPolicyHandler(circuitBreakerPolicy);
 
+// Named HttpClient for Login.razor and other direct API calls (replaces new HttpClient())
+builder.Services.AddHttpClient("MesTechApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 // ── Authentication & Authorization (JWT token-based, scoped per circuit) ──
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -211,21 +218,29 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-// Port comes from launchSettings.json (5200) or ASPNETCORE_URLS env var — no hardcoded override
+// Port comes from launchSettings.json (3501 dev) or ASPNETCORE_URLS env var (3200 Docker) — no hardcoded override
 
 var app = builder.Build();
 
 // Forwarded headers — MUST be first middleware for correct client IP behind proxy/Traefik
 // Required for rate limiting to work correctly (prevents X-Forwarded-For spoofing bypass)
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+// KnownNetworks: trust Docker internal networks (172.16.0.0/12, 10.0.0.0/8) as proxy sources
+var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-});
+    ForwardLimit = 2, // client → nginx/traefik → blazor (max 2 hops)
+};
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("172.16.0.0"), 12));
+forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+    System.Net.IPAddress.Parse("10.0.0.0"), 8));
+app.UseForwardedHeaders(forwardedOptions);
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
 app.UseResponseCompression();
@@ -237,7 +252,7 @@ app.Use(async (context, next) =>
     context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
-    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["X-XSS-Protection"] = "0"; // Modern browsers: CSP preferred over X-XSS-Protection
     context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
     context.Response.Headers["Cross-Origin-Resource-Policy"] = "same-origin";
     await next();
@@ -245,7 +260,23 @@ app.Use(async (context, next) =>
 
 app.UseCors();
 app.UseSerilogRequestLogging();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Immutable assets (hashed filenames): cache 1 year
+        // Other static files: cache 1 day with revalidation
+        var path = ctx.Context.Request.Path.Value ?? "";
+        if (path.Contains(".module.wasm") || path.Contains("-") && (path.EndsWith(".js") || path.EndsWith(".css")))
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+        }
+        else
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=86400, must-revalidate";
+        }
+    }
+});
 app.UseRequestLocalization();
 app.UseRateLimiter();
 app.UseHttpMetrics();
@@ -255,8 +286,11 @@ app.UseAntiforgery();
 app.MapHealthChecks("/health");
 app.MapMetrics();
 
-// Login rate limit — apply "login" policy to /login path
-app.MapGet("/login", () => Results.Redirect("/login")).RequireRateLimiting("login");
+// Login rate limit — apply "login" policy to login-related API calls
+// NOTE: Blazor /login page is served by MapRazorComponents; this endpoint
+// protects the authentication POST from brute-force attacks.
+app.MapPost("/api/auth/login", () => Results.StatusCode(StatusCodes.Status405MethodNotAllowed))
+    .RequireRateLimiting("login");
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

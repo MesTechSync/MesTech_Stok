@@ -19,8 +19,10 @@ public sealed class InvoiceProviderFactory : IInvoiceProviderFactory
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _providers = (providers ?? throw new ArgumentNullException(nameof(providers)))
-            .ToDictionary(p => p.Provider, p => p);
+        ArgumentNullException.ThrowIfNull(providers);
+        _providers = new Dictionary<InvoiceProvider, IInvoiceProvider>();
+        foreach (var provider in providers)
+            _providers[provider.Provider] = provider;
 
         _logger.LogInformation("InvoiceProviderFactory initialized with {Count} providers: [{Providers}]",
             _providers.Count, string.Join(", ", _providers.Keys));

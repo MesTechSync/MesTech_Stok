@@ -23,6 +23,8 @@ public sealed class CloseAccountingPeriodHandler : IRequestHandler<CloseAccounti
 
     public async Task<Guid> Handle(CloseAccountingPeriodCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var period = await _repo.GetByYearMonthAsync(
             request.TenantId, request.Year, request.Month, cancellationToken).ConfigureAwait(false);
 

@@ -75,6 +75,7 @@ public class PayTRDirectAdapterTests : IClassFixture<WireMockFixture>, IDisposab
             CardToken: null,
             ReturnUrl: "https://mestech.app/payment/return",
             CustomerIp: "192.168.1.100",
+            CustomerEmail: "test@example.com",
             BasketItems: new List<BasketItem>
             {
                 new BasketItem("ITEM-1", "Test Urun", "Elektronik", 100.00m)

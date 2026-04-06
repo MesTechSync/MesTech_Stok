@@ -13,6 +13,8 @@ public sealed class OfflineQueueService : IOfflineQueue
 {
     private readonly ILogger<OfflineQueueService> _logger;
     private readonly ConcurrentDictionary<Guid, OfflineQueueEntry> _queue = new();
+    private const int MaxQueueSize = 10_000; // OOM koruma — unbounded growth önleme
+    private const int MaxRetries = 5; // Sonsuz retry önleme
 
     public OfflineQueueService(ILogger<OfflineQueueService> logger)
     {
@@ -21,6 +23,14 @@ public sealed class OfflineQueueService : IOfflineQueue
 
     public Task EnqueueAsync(string channel, string payload, CancellationToken ct = default)
     {
+        if (_queue.Count >= MaxQueueSize)
+        {
+            _logger.LogError(
+                "OfflineQueue: MAX CAPACITY ({MaxSize}) reached — dropping item. Channel={Channel}",
+                MaxQueueSize, channel);
+            return Task.CompletedTask;
+        }
+
         var entry = new OfflineQueueEntry(
             Guid.NewGuid(),
             channel,
@@ -30,8 +40,8 @@ public sealed class OfflineQueueService : IOfflineQueue
 
         _queue.TryAdd(entry.Id, entry);
         _logger.LogWarning(
-            "OfflineQueue: item enqueued (in-memory fallback). Id={Id}, Channel={Channel}",
-            entry.Id, channel);
+            "OfflineQueue: item enqueued (in-memory fallback). Id={Id}, Channel={Channel}, QueueSize={Size}",
+            entry.Id, channel, _queue.Count);
         return Task.CompletedTask;
     }
 
@@ -68,12 +78,25 @@ public sealed class OfflineQueueService : IOfflineQueue
     {
         if (_queue.TryGetValue(entryId, out var existing))
         {
+            if (existing.RetryCount >= MaxRetries)
+            {
+                _queue.TryRemove(entryId, out _);
+                _logger.LogError(
+                    "OfflineQueue: MaxRetries ({MaxRetries}) exceeded — item discarded. Id={Id}, Error={Error}",
+                    MaxRetries, entryId, error);
+                return Task.CompletedTask;
+            }
+
             // Replace with incremented retry count
             var updated = existing with { RetryCount = existing.RetryCount + 1 };
-            _queue.TryUpdate(entryId, updated, existing);
+            if (!_queue.TryUpdate(entryId, updated, existing))
+            {
+                _logger.LogWarning(
+                    "OfflineQueue: MarkFailed — concurrent update lost retry increment. Id={Id}", entryId);
+            }
             _logger.LogWarning(
-                "OfflineQueue: item marked failed (in-memory fallback). Id={Id}, Retry={Retry}, Error={Error}",
-                entryId, updated.RetryCount, error);
+                "OfflineQueue: item marked failed (in-memory fallback). Id={Id}, Retry={Retry}/{MaxRetries}, Error={Error}",
+                entryId, updated.RetryCount, MaxRetries, error);
         }
         else
         {

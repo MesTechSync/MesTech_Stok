@@ -38,13 +38,9 @@ public partial class TaxRecordAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetTaxRecordsQuery(_currentUser.TenantId)) ?? [];
+            var result = await _mediator.Send(new GetTaxRecordsQuery(_currentUser.TenantId), ct) ?? [];
 
             _allItems = result.Select(t => new TaxRecordItemDto
             {
@@ -67,16 +63,7 @@ public partial class TaxRecordAvaloniaViewModel : ViewModelBase
             PendingTaxAmount = $"{pending:N2} TL";
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Vergi kayitlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Vergi kayitlari yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

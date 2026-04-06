@@ -48,13 +48,9 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetDropshipDashboardQuery(_currentUser.TenantId)) ?? new();
+            var result = await _mediator.Send(new GetDropshipDashboardQuery(_currentUser.TenantId), ct) ?? new();
 
             // Original KPIs
             TotalOrders = result.PendingOrders;
@@ -95,22 +91,13 @@ public partial class DropshipDashboardAvaloniaViewModel : ViewModelBase
             IsEmpty = Suppliers.Count == 0;
 
             // Supplier count from dedicated query
-            var suppliers = await _mediator.Send(new GetDropshipSuppliersQuery(_currentUser.TenantId));
+            var suppliers = await _mediator.Send(new GetDropshipSuppliersQuery(_currentUser.TenantId), ct);
             SupplierCount = suppliers.Count;
 
             // Auto-order defaults
             IsAutoOrderEnabled = true;
             AutoOrderThreshold = 5;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Dropshipping verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Dropship verileri yuklenirken hata");
     }
 
     [RelayCommand]

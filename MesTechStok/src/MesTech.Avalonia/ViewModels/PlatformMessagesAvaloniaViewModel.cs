@@ -42,11 +42,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var platform = SelectedPlatformFilter switch
             {
@@ -69,7 +65,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
             var result = await _mediator.Send(new GetPlatformMessagesQuery(
                 TenantId: _currentUser.TenantId,
                 Platform: platform,
-                Status: status));
+                Status: status), ct);
 
             Messages.Clear();
             foreach (var dto in result.Items)
@@ -82,16 +78,7 @@ public partial class PlatformMessagesAvaloniaViewModel : ViewModelBase
 
             if (Messages.Count > 0 && SelectedMessage is null)
                 SelectedMessage = Messages[0];
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Mesajlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Mesajlar yuklenirken hata");
     }
 
     [RelayCommand]

@@ -50,6 +50,15 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("bot.efatura.requested", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(BotEFaturaRequestedIntegrationEvent), context.MessageId);
@@ -64,7 +73,7 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(BotEFaturaRequestedIntegrationEvent));
             throw; // Let MassTransit retry policy handle
@@ -90,15 +99,15 @@ public sealed class BotEFaturaRequestedConsumer : IConsumer<BotEFaturaRequestedI
                 $"Muhasebe islemi bekliyor.");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Bot e-fatura talebi NotificationLog olarak kaydedildi: " +
                 "NotificationId={NotificationId}, BotUserId={BotUserId}",
                 notification.Id, msg.BotUserId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[MESA Consumer] Bot e-fatura talebi islenirken hata: BotUserId={BotUserId}",

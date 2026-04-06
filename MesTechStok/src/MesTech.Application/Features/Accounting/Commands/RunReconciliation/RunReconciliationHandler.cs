@@ -12,7 +12,7 @@ namespace MesTech.Application.Features.Accounting.Commands.RunReconciliation;
 /// 1. Eslestirilmemis SettlementBatch'leri al
 /// 2. Eslesmemis BankTransaction'lari al
 /// 3. Her batch x tx cifti icin skor hesapla
-/// 4. >= 0.95 → AutoMatched, 0.70-0.94 → NeedsReview, &lt; 0.70 → skip (Unmatched)
+/// 4. >= 0.85 → AutoMatched, 0.70-0.84 → NeedsReview, &lt; 0.70 → skip (Unmatched)
 /// </summary>
 public sealed class RunReconciliationHandler : IRequestHandler<RunReconciliationCommand, RunReconciliationResult>
 {

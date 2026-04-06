@@ -19,10 +19,13 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string netProfit = "0,00 TL";
     [ObservableProperty] private string profitMarginText = "%0,0";
     [ObservableProperty] private string periodLabel = string.Empty;
+    [ObservableProperty] private string sortColumn = "Name";
+    [ObservableProperty] private bool sortAscending = true;
 
     private DateTime _currentPeriod = DateTime.Now;
 
     public ObservableCollection<KarZararLineItemDto> LineItems { get; } = [];
+    private List<KarZararLineItemDto> _allItems = [];
 
     public KarZararAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -40,16 +43,12 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var from = new DateTime(_currentPeriod.Year, _currentPeriod.Month, 1);
             var to = from.AddMonths(1).AddDays(-1);
 
-            var dto = await _mediator.Send(new GetKarZararQuery(from, to, _currentUser.TenantId));
+            var dto = await _mediator.Send(new GetKarZararQuery(from, to, _currentUser.TenantId), ct);
 
             var margin = dto.ToplamGelir > 0 ? dto.NetKar / dto.ToplamGelir * 100 : 0;
 
@@ -58,25 +57,46 @@ public partial class KarZararAvaloniaViewModel : ViewModelBase
             NetProfit = $"{dto.NetKar:N2} TL";
             ProfitMarginText = $"%{margin:N1}";
 
-            LineItems.Clear();
-            LineItems.Add(new KarZararLineItemDto { Name = "Toplam Gelir", Type = "Gelir", AmountFormatted = $"{dto.ToplamGelir:N2} TL", PercentFormatted = "%100,0" });
-            LineItems.Add(new KarZararLineItemDto { Name = "Toplam Gider", Type = "Gider", AmountFormatted = $"-{dto.ToplamGider:N2} TL", PercentFormatted = dto.ToplamGelir > 0 ? $"%{dto.ToplamGider / dto.ToplamGelir * 100:N1}" : "%0,0" });
+            _allItems =
+            [
+                new KarZararLineItemDto { Name = "Toplam Gelir", Type = "Gelir", AmountRaw = dto.ToplamGelir, AmountFormatted = $"{dto.ToplamGelir:N2} TL", PercentFormatted = "%100,0" },
+                new KarZararLineItemDto { Name = "Toplam Gider", Type = "Gider", AmountRaw = dto.ToplamGider, AmountFormatted = $"-{dto.ToplamGider:N2} TL", PercentFormatted = dto.ToplamGelir > 0 ? $"%{dto.ToplamGider / dto.ToplamGelir * 100:N1}" : "%0,0" },
+            ];
 
-            IsEmpty = LineItems.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kar/Zarar raporu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            ApplyFilters();
+        }, "Kar/Zarar raporu yuklenirken hata");
     }
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allItems.AsEnumerable();
+
+        filtered = SortColumn switch
+        {
+            "Name"    => SortAscending ? filtered.OrderBy(x => x.Name) : filtered.OrderByDescending(x => x.Name),
+            "Type"    => SortAscending ? filtered.OrderBy(x => x.Type) : filtered.OrderByDescending(x => x.Type),
+            "Amount"  => SortAscending ? filtered.OrderBy(x => x.AmountRaw) : filtered.OrderByDescending(x => x.AmountRaw),
+            "Percent" => SortAscending ? filtered.OrderBy(x => x.PercentFormatted) : filtered.OrderByDescending(x => x.PercentFormatted),
+            _         => SortAscending ? filtered.OrderBy(x => x.Name) : filtered.OrderByDescending(x => x.Name),
+        };
+
+        LineItems.Clear();
+        foreach (var item in filtered)
+            LineItems.Add(item);
+
+        IsEmpty = LineItems.Count == 0;
+    }
 
     [RelayCommand]
     private async Task PrevMonth()
@@ -99,6 +119,7 @@ public class KarZararLineItemDto
 {
     public string Name { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
+    public decimal AmountRaw { get; set; }
     public string AmountFormatted { get; set; } = string.Empty;
     public string PercentFormatted { get; set; } = string.Empty;
 }

@@ -1,5 +1,5 @@
 @page "/accounting/profit-loss"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<ProfitLoss> Logger
 
@@ -9,12 +9,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-chart-line text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">Kar / Zarar</h3>
+      <h3 class="mb-0" >Kar / Zarar</h3>
       <small class="text-muted">Donemsel kar/zarar analizi</small>
     </div>
   </div>
@@ -42,7 +41,7 @@
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
         <h6 class="mb-0">
-          <i class="fas fa-table me-2" style="color: #2855AC;"></i>Kar/Zarar Detay
+          <i class="fas fa-table me-2" ></i>Kar/Zarar Detay
         </h6>
         <span class="badge bg-secondary">@_rows.Count satir</span>
       </div>
@@ -97,11 +96,13 @@
     {
       isLoading = true;
       errorMessage = null;
-      var result = await ApiClient.SafeGetAsync<List<object>>("accounting/profit-loss");
+      var result = await ApiClient.SafeGetAsync<List<ProfitLossRow>>("accounting/profit-loss");
       if (result.IsSuccess && result.Data is { Count: > 0 })
       {
+        // SECURITY FIX (HH-DEV4-031): Gerçek API verilerini kullan — önceden
+        // başarılı sonuçta bile GetDemoData() çağrılıyordu (veriler kaybediliyordu)
         _isDemoMode = false;
-        _rows = GetDemoData();
+        _rows = result.Data;
       }
       else
       {

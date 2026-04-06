@@ -56,7 +56,12 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
         };
 
         if (!string.IsNullOrEmpty(_options.BaseUrl))
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(_options.BaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[PayTRiFrameAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         _retryPipeline = BuildRetryPipeline();
     }
@@ -90,7 +95,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 _options.MerchantId,
                 request.CustomerIp,
                 merchantOid,
-                "customer@mestech.app",
+                request.CustomerEmail,
                 paymentAmount.ToString(),
                 basketJson,
                 "0",    // no_installment
@@ -106,7 +111,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["merchant_id"] = _options.MerchantId,
                 ["user_ip"] = request.CustomerIp,
                 ["merchant_oid"] = merchantOid,
-                ["email"] = "customer@mestech.app",
+                ["email"] = request.CustomerEmail,
                 ["payment_amount"] = paymentAmount.ToString(),
                 ["paytr_token"] = token,
                 ["user_basket"] = basketJson,
@@ -119,7 +124,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["merchant_fail_url"] = request.ReturnUrl
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(TokenEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -147,7 +152,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRiFrame] ProcessPayment failed for order {OrderId}", request.OrderId);
             return new PaymentResult(false, null, null, ex.Message);
@@ -174,7 +179,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(StatusEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -201,7 +206,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRiFrame] GetTransactionStatus failed for {Oid}", transactionId);
             return new PaymentStatusResult(transactionId, PaymentTransactionStatus.Failed, 0m, null);
@@ -228,7 +233,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(BinEndpoint, payload), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -253,7 +258,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRiFrame] GetInstallmentOptions failed");
             return new InstallmentOptions(Array.Empty<InstallmentOption>());
@@ -283,7 +288,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
                 ["paytr_token"] = token
             };
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => BuildFormRequest(RefundEndpoint, payload), ct).ConfigureAwait(false);
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -305,7 +310,7 @@ public sealed class PayTRiFrameAdapter : IPaymentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[PayTRiFrame] Refund failed for {Oid}", transactionId);
             return new RefundResult(false, null, ex.Message);

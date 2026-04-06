@@ -20,5 +20,7 @@ public sealed class AccountingDocumentConfiguration : IEntityTypeConfiguration<A
         builder.Property(e => e.StoragePath).HasMaxLength(1000).IsRequired();
         builder.Property(e => e.ExtractedData).HasMaxLength(4000);
         builder.Property(e => e.Amount).HasPrecision(18, 2);
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

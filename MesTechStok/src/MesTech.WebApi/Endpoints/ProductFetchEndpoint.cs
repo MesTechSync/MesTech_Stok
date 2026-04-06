@@ -21,7 +21,8 @@ public static class ProductFetchEndpoint
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("FetchProductFromUrl")
-        .WithSummary("URL'den ürün bilgisi çek (scrape/API)").Produces(200).Produces(400);
+        .WithSummary("URL'den ürün bilgisi çek (scrape/API)").Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/fetch-from-platform — platform'dan ürün çek (G564)
         group.MapPost("/fetch-from-platform", async (
@@ -33,6 +34,7 @@ public static class ProductFetchEndpoint
         })
         .WithName("FetchProductFromPlatform")
         .WithSummary("Platform URL'sinden ürün bilgisi scrape et")
-        .Produces(200).Produces(404);
+        .Produces(200).Produces(404)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

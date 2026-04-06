@@ -28,6 +28,13 @@ public sealed class DunningLog : BaseEntity, ITenantEntity
         bool success,
         string? errorMessage = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
+        if (tenantSubscriptionId == Guid.Empty)
+            throw new ArgumentException("TenantSubscriptionId cannot be empty.", nameof(tenantSubscriptionId));
+        if (attemptNumber < 1)
+            throw new ArgumentOutOfRangeException(nameof(attemptNumber), "AttemptNumber must be >= 1.");
+
         var now = DateTime.UtcNow;
         return new DunningLog
         {

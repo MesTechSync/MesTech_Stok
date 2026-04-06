@@ -33,13 +33,9 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: _currentUser.TenantId));
+            var statuses = await _mediator.Send(new GetPlatformSyncStatusQuery(TenantId: _currentUser.TenantId), ct);
 
             _allPlatforms = statuses.Select(s => new PlatformSyncItemDto
             {
@@ -51,16 +47,7 @@ public partial class PlatformSyncAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Platform verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Platform verileri yuklenirken hata");
     }
 
     private void ApplyFilters()

@@ -143,7 +143,7 @@ public class FulfillmentInboundViewModelTests
 
         // Assert
         sut.HasError.Should().BeTrue();
-        sut.ErrorMessage.Should().Contain("Inbound verileri yuklenemedi");
+        sut.ErrorMessage.Should().Contain("yuklenirken hata");
         sut.ErrorMessage.Should().Contain("Service unavailable");
         sut.IsLoading.Should().BeFalse();
     }

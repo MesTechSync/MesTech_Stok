@@ -40,7 +40,7 @@ public sealed class RedisTokenCacheProvider : ITokenCacheProvider
 
             return JsonSerializer.Deserialize<AuthToken>(json, JsonOptions);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Redis token cache GET failed for key={Key}, returning null", key);
             return null;
@@ -67,7 +67,7 @@ public sealed class RedisTokenCacheProvider : ITokenCacheProvider
 
             await _cache.SetStringAsync(KeyPrefix + key, json, options, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Redis token cache SET failed for key={Key}", key);
         }
@@ -79,7 +79,7 @@ public sealed class RedisTokenCacheProvider : ITokenCacheProvider
         {
             await _cache.RemoveAsync(KeyPrefix + key, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Redis token cache REMOVE failed for key={Key}", key);
         }

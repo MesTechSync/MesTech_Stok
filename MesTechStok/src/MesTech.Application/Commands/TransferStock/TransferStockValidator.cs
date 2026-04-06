@@ -9,7 +9,7 @@ public sealed class TransferStockValidator : AbstractValidator<TransferStockComm
         RuleFor(x => x.ProductId).NotEmpty();
         RuleFor(x => x.SourceWarehouseId).NotEmpty();
         RuleFor(x => x.TargetWarehouseId).NotEmpty();
-        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Quantity).GreaterThan(0);
         RuleFor(x => x.Notes).MaximumLength(500).When(x => x.Notes != null);
     }
 }

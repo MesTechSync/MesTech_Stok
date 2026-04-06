@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -18,20 +19,24 @@ namespace MesTech.Infrastructure.Jobs;
 public sealed class GenericPlatformPriceSyncJob
 {
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<GenericPlatformPriceSyncJob> _logger;
 
     public GenericPlatformPriceSyncJob(
         IAdapterFactory factory,
+        ITenantProvider tenantProvider,
         ILogger<GenericPlatformPriceSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(string platformCode, CancellationToken ct = default)
     {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
         _logger.LogInformation(
-            "[PriceSync] {Platform} fiyat sync başlıyor...", platformCode);
+            "[PriceSync] {Platform} fiyat sync başlıyor... TenantId={TenantId}", platformCode, tenantId);
 
         var adapter = _factory.Resolve(platformCode);
         if (adapter is null)
@@ -63,7 +68,7 @@ public sealed class GenericPlatformPriceSyncJob
                     if (pushed) synced++;
                     else skipped++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     errors++;
                     _logger.LogWarning(ex,
@@ -76,7 +81,7 @@ public sealed class GenericPlatformPriceSyncJob
                 "[PriceSync] {Platform} TAMAMLANDI — synced={Synced}, skipped={Skip}, errors={Err}, total={Total}",
                 platformCode, synced, skipped, errors, products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[PriceSync] {Platform} fiyat sync BAŞARISIZ", platformCode);

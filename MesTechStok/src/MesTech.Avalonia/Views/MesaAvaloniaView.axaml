@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.MesaAvaloniaView"
              x:Name="RootMesaAvaloniaView"
              x:DataType="vm:MesaAvaloniaViewModel"
@@ -42,14 +44,22 @@
                   </StackPanel>
                 </Border>
 
-                <!-- Error -->
-                <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}"
-                        CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-                </Border>
+                        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
                 <!-- KPI Cards -->
-                <UniformGrid Columns="4" IsVisible="{Binding !IsLoading}">
+                <UniformGrid Columns="4">
                     <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                         <StackPanel Spacing="4">
@@ -81,7 +91,7 @@
                 </UniformGrid>
 
                 <!-- AI Tools + Recent Predictions -->
-                <Grid ColumnDefinitions="*,*" IsVisible="{Binding !IsLoading}">
+                <Grid ColumnDefinitions="*,*">
                     <!-- AI Tools -->
                     <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMdLg}" Margin="4" Padding="16"
                             BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
@@ -164,9 +174,10 @@
                 <!-- Last Updated -->
                 <TextBlock Text="{Binding LastUpdated, StringFormat='Son guncelleme: {0}'}"
                            FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" HorizontalAlignment="Right"
-                           IsVisible="{Binding !IsLoading}" />
+                           />
 
             </StackPanel>
         </ScrollViewer>
+<!-- Loading Skeleton -->        <Border Grid.Row="0" Grid.RowSpan="2"                Background="{DynamicResource MesBgPage}"                IsVisible="{Binding IsLoading}"                ZIndex="100">            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />        </Border>
     </Grid>
 </UserControl>

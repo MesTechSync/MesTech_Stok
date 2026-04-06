@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:asyncImage="using:AsyncImageLoader"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.ProductFetchAvaloniaView"
              x:Name="RootProductFetchAvaloniaView"
              x:DataType="vm:ProductFetchAvaloniaViewModel">
@@ -47,6 +49,17 @@
                         IsVisible="{Binding ProductLoaded}">
                     <StackPanel Spacing="14">
                         <TextBlock Text="Çekilen Ürün Bilgileri" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+
+                        <!-- Product Image Preview (AsyncImageLoader lazy load + cache) -->
+                        <Border CornerRadius="{StaticResource MesRadiusMd}" ClipToBounds="True"
+                                Width="200" Height="200" HorizontalAlignment="Left"
+                                Background="{DynamicResource MesBgMist}"
+                                IsVisible="{Binding FetchedImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                            <asyncImage:AdvancedImage
+                                Source="{Binding FetchedImageUrl}"
+                                Width="200" Height="200"
+                                Stretch="UniformToFill" />
+                        </Border>
 
                         <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Ürün Adı:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" />
@@ -97,11 +110,17 @@
                   </StackPanel>
                 </Border>
 
-                <!-- Error -->
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="12"
-                        IsVisible="{Binding HasError}">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" />
-                </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+                <fa:InfoBar Title="Bir sorun olustu"
+                            Message="{Binding ErrorMessage}"
+                            Severity="Error"
+                            IsOpen="{Binding HasError}"
+                            IsClosable="True">
+                    <fa:InfoBar.ActionButton>
+                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                                Command="{Binding RefreshCommand}" />
+                    </fa:InfoBar.ActionButton>
+                </fa:InfoBar>
 
                 <!-- Empty state before fetch -->
                 <StackPanel IsVisible="{Binding !ProductLoaded}" HorizontalAlignment="Center" Margin="0,48,0,0">

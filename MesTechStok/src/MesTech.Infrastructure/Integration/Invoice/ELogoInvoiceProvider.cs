@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Xml.Linq;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Soap;
 using MesTech.Infrastructure.Security;
@@ -18,7 +19,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Desteklenen islemler: e-Fatura, e-Arsiv, e-Irsaliye, durum, PDF, iptal,
 /// toplu fatura, gelen fatura, kontor bakiye.
 /// </summary>
-public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable
+public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IIncomingInvoiceCapable, IKontorCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly SimpleSoapClient _soapClient;
@@ -97,7 +98,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/status", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -120,7 +121,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -132,7 +133,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         EnsureConfigured();
         _logger.LogInformation("e-Logo GetPdf for {GibInvoiceId}", gibInvoiceId);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/api/invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -146,7 +147,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/taxpayers/{taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -161,7 +162,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return doc.RootElement.TryGetProperty("isRegistered", out var reg) && reg.GetBoolean();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -176,7 +177,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/{gibInvoiceId}/cancel", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -189,7 +190,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -234,7 +235,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { invoices = payloads };
             var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/outgoing/bulk", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -268,7 +269,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo CreateBulkInvoice exception");
             var failResults = requestList.Select(r =>
@@ -291,7 +292,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         {
             var fromStr = startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var toStr = endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/invoices/incoming?from={fromStr}&to={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -328,7 +329,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return list;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo GetIncomingInvoices exception");
             return Array.Empty<IncomingInvoiceDto>();
@@ -343,7 +344,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         try
         {
             var content = new StringContent("{}", Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{invoiceId}/accept", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -353,7 +354,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo AcceptInvoice exception for {InvoiceId}", invoiceId);
             return false;
@@ -370,7 +371,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
             var payload = new { reason };
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{_baseUrl}/api/invoices/incoming/{invoiceId}/reject", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -380,7 +381,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo RejectInvoice exception for {InvoiceId}", invoiceId);
             return false;
@@ -396,7 +397,7 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
         try
         {
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/api/account/kontor", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -418,11 +419,88 @@ public sealed class ELogoInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
 
             return new KontorBalanceDto(remaining, total, expiresAt, ProviderName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "e-Logo GetKontorBalance exception");
             return new KontorBalanceDto(0, 0, null, ProviderName);
         }
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "ELogo";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[ELogo] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            var payload = new
+            {
+                ettnNo = document.EttnNo,
+                gibUuid = document.GibUuid,
+                scenario = document.Scenario.ToString(),
+                buyerVkn = document.BuyerVkn,
+                buyerTitle = document.BuyerTitle,
+                issueDate = document.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
+            var json = JsonSerializer.Serialize(payload, CamelCaseOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _httpClient.PostAsync($"{_baseUrl}/api/einvoice/send", content, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
+            }
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var providerRef = root.TryGetProperty("invoiceId", out var iid) ? iid.GetString()
+                            : root.TryGetProperty("providerRef", out var pr) ? pr.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[ELogo] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            using var response = await _httpClient.GetAsync($"{_baseUrl}/api/invoices/{providerRef}/pdf-url", ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("pdfUrl", out var urlEl) ? urlEl.GetString() : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[ELogo] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        var result = await CancelInvoiceAsync(providerRef, ct).ConfigureAwait(false);
+        return result.Success;
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        var isRegistered = await IsEInvoiceTaxpayerAsync(vkn, ct).ConfigureAwait(false);
+        return new VknMukellefResult(vkn, isRegistered, false, null, DateTime.UtcNow);
+    }
+
+    async Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        var balance = await GetKontorBalanceAsync(ct).ConfigureAwait(false);
+        return balance.RemainingKontor;
     }
 
     // ── Private helpers ──────────────────────────────────────────────────

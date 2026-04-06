@@ -25,7 +25,7 @@ public sealed class RejectReturnHandler : IRequestHandler<RejectReturnCommand, R
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId).ConfigureAwait(false);
+        var returnRequest = await _returnRepo.GetByIdAsync(request.ReturnRequestId, cancellationToken).ConfigureAwait(false);
         if (returnRequest is null)
             return new RejectReturnResult
             {
@@ -36,7 +36,7 @@ public sealed class RejectReturnHandler : IRequestHandler<RejectReturnCommand, R
         // Domain method — throws if status is not Pending
         returnRequest.Reject(request.RejectionReason);
 
-        await _returnRepo.UpdateAsync(returnRequest).ConfigureAwait(false);
+        await _returnRepo.UpdateAsync(returnRequest, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new RejectReturnResult

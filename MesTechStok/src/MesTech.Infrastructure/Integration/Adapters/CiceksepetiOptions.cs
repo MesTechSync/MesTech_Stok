@@ -20,4 +20,7 @@ public sealed class CiceksepetiOptions
     public int MaxConcurrentRequests { get; set; } = 10;
 
     public string ApiKeyHeaderName { get; set; } = "x-api-key";
+
+    /// <summary>Webhook HMAC-SHA256 dogrulama secret'i. Bos ise dogrulama atlaniyor.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }

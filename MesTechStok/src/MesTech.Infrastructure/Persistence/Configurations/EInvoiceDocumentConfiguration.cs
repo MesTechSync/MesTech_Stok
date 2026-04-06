@@ -32,6 +32,8 @@ public sealed class EInvoiceDocumentConfiguration : IEntityTypeConfiguration<EIn
         builder.Property(x => x.AllowanceTotalAmount).HasPrecision(18, 4);
         builder.Property(x => x.TaxAmount).HasPrecision(18, 4);
         builder.Property(x => x.PayableAmount).HasPrecision(18, 4);
+        builder.Property(x => x.WithholdingRate).HasPrecision(8, 4);
+        builder.Property(x => x.WithholdingAmount).HasPrecision(18, 4);
 
         builder.HasIndex(x => x.GibUuid).IsUnique();
         builder.HasIndex(x => x.EttnNo).IsUnique();

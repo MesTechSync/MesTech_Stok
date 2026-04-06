@@ -39,12 +39,12 @@ public sealed class MesaMeetingScheduledConsumer : IConsumer<MesaMeetingSchedule
                 Location: msg.Location,
                 AttendeeUserIds: msg.AttendeeUserIds,
                 RelatedDealId: msg.RelatedDealId
-            )).ConfigureAwait(false);
+            ), context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("CalendarEvent oluşturuldu: {EventId} for MessageId={MessageId}",
                 eventId, context.MessageId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Consumer {Consumer} failed for MessageId={MessageId}",
                 nameof(MesaMeetingScheduledConsumer), context.MessageId);

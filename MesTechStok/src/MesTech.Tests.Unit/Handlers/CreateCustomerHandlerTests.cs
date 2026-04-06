@@ -34,7 +34,7 @@ public class CreateCustomerHandlerTests
         _customerRepoMock.Verify(r => r.AddAsync(It.Is<Customer>(c =>
             c.Name == "Test Müşteri" &&
             c.Code == "MUS-001" &&
-            c.Email == "info@test.com")), Times.Once);
+            c.Email == "info@test.com"), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -49,7 +49,7 @@ public class CreateCustomerHandlerTests
         _customerRepoMock.Verify(r => r.AddAsync(It.Is<Customer>(c =>
             c.CustomerType == "INDIVIDUAL" &&
             c.PaymentTermDays == 0 &&
-            c.IsActive == true)), Times.Once);
+            c.IsActive == true), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class CreateCustomerHandlerTests
         await _sut.Handle(cmd, CancellationToken.None);
 
         _customerRepoMock.Verify(r => r.AddAsync(It.Is<Customer>(c =>
-            c.TenantId == TestTenantId)), Times.Once);
+            c.TenantId == TestTenantId), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

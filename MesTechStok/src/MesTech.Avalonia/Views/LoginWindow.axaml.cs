@@ -101,12 +101,14 @@ public partial class LoginWindow : Window
                 }
             }
 
-            // Offline fallback: DB yokken demo giriş (WPF ile aynı davranış)
+#if DEBUG
+            // Offline fallback: ONLY in DEBUG builds — never in production
             if (!isValid && _authService is null)
             {
                 if (username == "admin" && password == "Admin123!")
                     isValid = true;
             }
+#endif
 
             // Minimum 300ms bekleme (psikolojik: "sistem kontrol ediyor")
             var elapsed = DateTime.Now - loginStart;

@@ -3,12 +3,15 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.Integration.Auth;
 
 /// <summary>
 /// OAuth 2.0 kimlik dogrulama — Amazon, eBay.
 /// client_credentials grant, token cache, auto-refresh.
+/// Polly resilience: 3 retries (exp backoff) + circuit breaker (5 failures → 30s open).
 /// </summary>
 public sealed class OAuth2AuthProvider : IAuthenticationProvider
 {
@@ -21,6 +24,7 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
     private readonly string? _scope;
     private readonly ILogger<OAuth2AuthProvider> _logger;
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private readonly ResiliencePipeline _resiliencePipeline;
     private static readonly TimeSpan RefreshBuffer = TimeSpan.FromMinutes(5);
     private const int DefaultTokenExpirySeconds = 3600;
 
@@ -43,6 +47,43 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
         _tokenEndpoint = tokenEndpoint;
         _scope = scope;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _resiliencePipeline = new ResiliencePipelineBuilder()
+            .AddRetry(new Polly.Retry.RetryStrategyOptions
+            {
+                MaxRetryAttempts = 3,
+                BackoffType = DelayBackoffType.Exponential,
+                Delay = TimeSpan.FromSeconds(1),
+                OnRetry = args =>
+                {
+                    _logger.LogWarning(
+                        "OAuth2 token retry #{Attempt} for {Platform} after {Delay}s — {Error}",
+                        args.AttemptNumber, PlatformCode,
+                        args.RetryDelay.TotalSeconds,
+                        args.Outcome.Exception?.Message ?? "unknown");
+                    return default;
+                }
+            })
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions
+            {
+                FailureRatio = 0.8,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                MinimumThroughput = 3,
+                BreakDuration = TimeSpan.FromSeconds(30),
+                OnOpened = args =>
+                {
+                    _logger.LogError(
+                        "OAuth2 circuit OPEN for {Platform} — token endpoint down. Break={Duration}s",
+                        PlatformCode, args.BreakDuration.TotalSeconds);
+                    return default;
+                },
+                OnClosed = _ =>
+                {
+                    _logger.LogInformation("OAuth2 circuit CLOSED for {Platform} — recovered", PlatformCode);
+                    return default;
+                }
+            })
+            .Build();
     }
 
     public async Task<AuthToken> GetTokenAsync(CancellationToken ct = default)
@@ -91,7 +132,9 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
                 ["client_secret"] = _clientSecret
             };
 
-            var token = await PostTokenRequestAsync(parameters, ct).ConfigureAwait(false);
+            var token = await _resiliencePipeline.ExecuteAsync(
+                async tkn => await PostTokenRequestAsync(parameters, tkn).ConfigureAwait(false),
+                ct).ConfigureAwait(false);
             await _tokenCache.SetAsync(cacheKey, token, ct).ConfigureAwait(false);
             return token;
         }
@@ -116,7 +159,9 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
         if (!string.IsNullOrEmpty(_scope))
             parameters["scope"] = _scope;
 
-        return await PostTokenRequestAsync(parameters, ct).ConfigureAwait(false);
+        return await _resiliencePipeline.ExecuteAsync(
+            async token => await PostTokenRequestAsync(parameters, token).ConfigureAwait(false),
+            ct).ConfigureAwait(false);
     }
 
     private async Task<AuthToken> PostTokenRequestAsync(
@@ -132,7 +177,7 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
             Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
         request.Headers.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -147,8 +192,10 @@ public sealed class OAuth2AuthProvider : IAuthenticationProvider
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        var accessToken = root.GetProperty("access_token").GetString()
-            ?? throw new InvalidOperationException("access_token missing from OAuth2 response");
+        var accessToken = root.TryGetProperty("access_token", out var atProp)
+            ? atProp.GetString() : null;
+        if (string.IsNullOrEmpty(accessToken))
+            throw new InvalidOperationException("access_token missing from OAuth2 response");
 
         var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : DefaultTokenExpirySeconds;
         var refreshTokenValue = root.TryGetProperty("refresh_token", out var rt) ? rt.GetString() : null;

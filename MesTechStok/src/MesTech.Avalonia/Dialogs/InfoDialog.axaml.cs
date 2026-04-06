@@ -14,6 +14,9 @@ public enum InfoDialogType
 
 public partial class InfoDialog : Window
 {
+    private static Color TokenColor(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     public InfoDialog() : this(string.Empty, string.Empty) { }
 
     public InfoDialog(string title, string message, InfoDialogType type = InfoDialogType.Info)
@@ -26,16 +29,16 @@ public partial class InfoDialog : Window
         {
             case InfoDialogType.Success:
                 IconText.Text = "\u2713";
-                IconBorder.Background = new SolidColorBrush(Color.Parse("#4CAF50"));
+                IconBorder.Background = new SolidColorBrush(TokenColor("MesConnectedGreen"));
                 break;
             case InfoDialogType.Warning:
                 IconText.Text = "!";
-                IconBorder.Background = new SolidColorBrush(Color.Parse("#FF9800"));
+                IconBorder.Background = new SolidColorBrush(TokenColor("MesWarningOrange"));
                 break;
             case InfoDialogType.Info:
             default:
                 IconText.Text = "i";
-                IconBorder.Background = new SolidColorBrush(Color.Parse("#2196F3"));
+                IconBorder.Background = new SolidColorBrush(TokenColor("MesBlueMaterial"));
                 break;
         }
     }

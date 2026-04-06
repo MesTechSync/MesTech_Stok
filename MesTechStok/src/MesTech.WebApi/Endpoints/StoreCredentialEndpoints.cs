@@ -19,7 +19,8 @@ public static class StoreCredentialEndpoints
     {
         var group = app.MapGroup("/api/v1/stores/{storeId:guid}/credentials")
             .WithTags("Store Credentials")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageStores"));
 
         // POST /api/v1/stores/{storeId}/credentials — credential kaydet (upsert)
         group.MapPost("/", async (
@@ -62,7 +63,7 @@ public static class StoreCredentialEndpoints
                 new GetStoreCredentialQuery(storeId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { Message = $"No credentials found for store {storeId}" });
+                : Results.Problem(detail: $"No credentials found for store {storeId}.", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetStoreCredentials")
@@ -77,7 +78,7 @@ public static class StoreCredentialEndpoints
                 new DeleteStoreCredentialCommand(storeId), ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { Message = $"No credentials found for store {storeId}" });
+                : Results.Problem(detail: $"No credentials found for store {storeId}.", statusCode: 404);
         })
         .WithName("DeleteStoreCredential")
         .WithSummary("Magaza credential'larini soft-delete et").Produces(200).Produces(400);

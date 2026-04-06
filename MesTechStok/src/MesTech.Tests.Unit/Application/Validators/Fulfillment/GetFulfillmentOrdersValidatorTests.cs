@@ -18,5 +18,23 @@ public class GetFulfillmentOrdersValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task DefaultSince_ShouldFail()
+    {
+        var input = CreateValidQuery() with { Since = default };
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Since");
+    }
+
+    [Fact]
+    public async Task InvalidCenter_ShouldFail()
+    {
+        var input = CreateValidQuery() with { Center = (MesTech.Application.DTOs.Fulfillment.FulfillmentCenter)999 };
+        var result = await _sut.ValidateAsync(input);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Center");
+    }
+
     private static GetFulfillmentOrdersQuery CreateValidQuery() => new(Center: MesTech.Application.DTOs.Fulfillment.FulfillmentCenter.OwnWarehouse, Since: DateTime.UtcNow);
 }

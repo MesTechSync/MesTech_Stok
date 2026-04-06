@@ -37,7 +37,7 @@ public sealed class AutoCompetePriceHandler
         AutoCompetePriceCommand request, CancellationToken cancellationToken)
     {
         // 1. Ürünü bul
-        var product = await _productRepo.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product is null)
             return AutoCompetePriceResult.Failure("Ürün bulunamadı");
 

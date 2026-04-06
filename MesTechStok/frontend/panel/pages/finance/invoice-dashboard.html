@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Fatura Yonetimi Dashboard
+  Version: 1.0.0
+  Date: 2026-04-06
+  Author: DEV 2 (Frontend & UI/UX)
+  Status: ACTIVE
+
+  FEATURES:
+  - 4 KPI cards: Toplam Fatura, Bekleyen, Kesilmis, Iptal
+  - Son faturalar tablosu (durum badge renkli)
+  - e-Fatura/e-Arsiv durum dagilimi (pie chart)
+  - Aylik fatura trendi (line chart)
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Dark mode [data-theme="dark"]
+  - Responsive + CSP
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+  - Chart.js 4.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' cdnjs.cloudflare.com fonts.gstatic.com; connect-src 'self' localhost:*">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MesTech Panel - Fatura yonetimi dashboard">
+  <meta name="theme-color" content="#0078D4">
+  <title>MesTech Stok - Fatura Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root{--mestech-primary:#0078D4;--mestech-primary-hover:#005a9e;--mestech-bg:#f4f5f7;--mestech-card-bg:#fff;--mestech-text:#1e293b;--mestech-text-secondary:#64748b;--mestech-border:#e2e8f0;--mestech-success:#10b981;--mestech-danger:#ef4444;--mestech-warning:#f59e0b;--mestech-info:#3b82f6;--mestech-radius:12px;--mestech-shadow-sm:0 1px 3px rgba(0,0,0,.06);--mestech-shadow-md:0 4px 12px rgba(0,0,0,.08)}
+    [data-theme="dark"]{--mestech-bg:#0f172a;--mestech-card-bg:#1e293b;--mestech-text:#f1f5f9;--mestech-text-secondary:#94a3b8;--mestech-border:#334155}
+    *{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--mestech-bg);color:var(--mestech-text);margin:0}
+    #root{display:flex;flex-direction:column;min-height:100vh}
+    .dashboard-main{flex:1;padding:24px;max-width:1800px;margin:0 auto;width:100%}
+    .page-header-bar{background:linear-gradient(135deg,var(--mestech-primary),var(--mestech-primary-hover));color:#fff;padding:20px 24px;margin-bottom:24px;border-radius:var(--mestech-radius)}
+    .page-header-bar .breadcrumb-item a{color:rgba(255,255,255,.7);text-decoration:none}.page-header-bar .breadcrumb-item.active{color:#fff}
+    .kpi-card{background:var(--mestech-card-bg);border:none;border-radius:var(--mestech-radius);box-shadow:var(--mestech-shadow-sm);padding:20px;height:100%;transition:transform .2s,box-shadow .2s}
+    .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--mestech-shadow-md)}
+    .kpi-icon-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+    .data-card{background:var(--mestech-card-bg);border:none;border-radius:var(--mestech-radius);box-shadow:var(--mestech-shadow-sm);margin-bottom:24px}
+    .data-card .card-header-custom{background:var(--mestech-card-bg);border-bottom:1px solid var(--mestech-border);padding:16px 20px;font-weight:600;display:flex;justify-content:space-between;align-items:center;border-radius:var(--mestech-radius) var(--mestech-radius) 0 0}
+    .data-card .card-body-custom{padding:20px}.chart-wrapper{position:relative;height:280px}
+    .table{color:var(--mestech-text)}.table thead th{border-bottom:2px solid var(--mestech-border);font-weight:600;font-size:.85rem;text-transform:uppercase;color:var(--mestech-text-secondary)}
+    .table tbody td{border-bottom:1px solid var(--mestech-border);vertical-align:middle;font-size:.9rem}
+    @media(max-width:767px){.dashboard-main{padding:12px}.page-header-bar{padding:16px}}
+    @media print{.sidebar,.navbar,.btn,.no-print,nav,footer{display:none!important}body{background:#fff!important;color:#000!important}.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir.</div></noscript>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+    <main class="dashboard-main">
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold"><i class="fas fa-file-invoice me-2"></i>Fatura Dashboard</h4>
+            <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0" style="font-size:.85rem"><li class="breadcrumb-item"><a href="#">MesTech</a></li><li class="breadcrumb-item"><a href="#">Finans</a></li><li class="breadcrumb-item active">Faturalar</li></ol></nav>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button data-theme-toggle class="btn btn-sm btn-outline-light" title="Koyu temaya gec"><i class="fas fa-moon"></i></button>
+            <div class="text-end"><small class="d-block opacity-75">Son guncelleme</small><strong id="last-update-time">--:--:--</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3 mb-4" id="kpi-row"></div>
+      <div class="row g-4 mb-4">
+        <div class="col-lg-5"><div class="data-card"><div class="card-header-custom"><span><i class="fas fa-chart-pie me-2 text-info"></i>Fatura Tipi Dagilimi</span></div><div class="card-body-custom"><div class="chart-wrapper"><canvas id="typeChart"></canvas></div></div></div></div>
+        <div class="col-lg-7"><div class="data-card"><div class="card-header-custom"><span><i class="fas fa-chart-line me-2 text-success"></i>Aylik Fatura Trendi</span></div><div class="card-body-custom"><div class="chart-wrapper"><canvas id="trendChart"></canvas></div></div></div></div>
+      </div>
+      <div class="row g-4">
+        <div class="col-12"><div class="data-card"><div class="card-header-custom"><span><i class="fas fa-file-invoice me-2" style="color:var(--mestech-primary)"></i>Son Faturalar</span></div><div class="card-body-custom"><div class="table-responsive"><table class="table table-hover mb-0"><thead id="inv-thead"></thead><tbody id="inv-tbody"></tbody></table></div></div></div></div>
+      </div>
+    </main>
+  </div>
+  <script>
+    'use strict';
+    // DOM-SAFE: No innerHTML usage (XSS hardening)
+    function el(tag,attrs,children){var e=document.createElement(tag);if(attrs)Object.keys(attrs).forEach(function(k){if(k==='className')e.className=attrs[k];else if(k==='textContent')e.textContent=attrs[k];else e.setAttribute(k,attrs[k])});if(children)children.forEach(function(c){if(c)e.appendChild(c)});return e}
+    var MOCK={
+      kpi:{toplam:342,bekleyen:28,kesilmis:298,iptal:16},
+      invoices:[
+        {no:'MES2026000342',musteri:'ABC Tekstil',tip:'e-Fatura',tutar:24850,durum:'Kesildi',tarih:'2026-04-05'},
+        {no:'MES2026000341',musteri:'XYZ Gida',tip:'e-Arsiv',tutar:8920,durum:'Kesildi',tarih:'2026-04-05'},
+        {no:'MES2026000340',musteri:'Delta Makine',tip:'e-Fatura',tutar:45200,durum:'Bekliyor',tarih:'2026-04-04'},
+        {no:'MES2026000339',musteri:'Omega Kimya',tip:'e-Arsiv',tutar:3150,durum:'Iptal',tarih:'2026-04-04'},
+        {no:'MES2026000338',musteri:'Sigma Elektronik',tip:'e-Fatura',tutar:67800,durum:'Kesildi',tarih:'2026-04-03'}
+      ],
+      typeDistribution:{'e-Fatura':218,'e-Arsiv':108,'Iptal':16},
+      trend:{labels:['Kas','Ara','Oca','Sub','Mar','Nis'],data:[245,280,310,295,325,342]}
+    };
+    function fetchData(url){return fetch(url).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).catch(function(){return null})}
+    function renderKPIs(d){var kpis=[{label:'Toplam Fatura',value:d.toplam,icon:'fas fa-file-invoice',color:'var(--mestech-primary)',bg:'rgba(0,120,212,.12)'},{label:'Bekleyen',value:d.bekleyen,icon:'fas fa-clock',color:'var(--mestech-warning)',bg:'rgba(245,158,11,.12)'},{label:'Kesilmis',value:d.kesilmis,icon:'fas fa-check-circle',color:'var(--mestech-success)',bg:'rgba(16,185,129,.12)'},{label:'Iptal',value:d.iptal,icon:'fas fa-times-circle',color:'var(--mestech-danger)',bg:'rgba(239,68,68,.12)'}];var row=document.getElementById('kpi-row');kpis.forEach(function(k){var col=el('div',{className:'col-sm-6 col-xl-3'});var card=el('div',{className:'kpi-card'});var d1=el('div',{className:'d-flex justify-content-between align-items-start'});var left=el('div');left.appendChild(el('small',{className:'d-block text-secondary mb-1',textContent:k.label}));left.appendChild(el('h3',{className:'mb-0 fw-bold',textContent:String(k.value)}));var badge=el('div',{className:'kpi-icon-badge'});badge.style.background=k.bg;badge.style.color=k.color;badge.appendChild(el('i',{className:k.icon}));d1.appendChild(left);d1.appendChild(badge);card.appendChild(d1);col.appendChild(card);row.appendChild(col)})}
+    function renderTable(invoices){var thead=document.getElementById('inv-thead');var hrow=el('tr');['Fatura No','Musteri','Tip','Tutar (TL)','Durum','Tarih'].forEach(function(h){hrow.appendChild(el('th',{textContent:h}))});thead.appendChild(hrow);var tbody=document.getElementById('inv-tbody');invoices.forEach(function(inv){var tr=el('tr');tr.appendChild(el('td',{className:'fw-semibold',textContent:inv.no}));tr.appendChild(el('td',{textContent:inv.musteri}));tr.appendChild(el('td',{textContent:inv.tip}));tr.appendChild(el('td',{textContent:inv.tutar.toLocaleString('tr-TR',{minimumFractionDigits:2})}));var cls=inv.durum==='Kesildi'?'bg-success':inv.durum==='Bekliyor'?'bg-warning text-dark':'bg-danger';var durumTd=el('td');durumTd.appendChild(el('span',{className:'badge '+cls,textContent:inv.durum}));tr.appendChild(durumTd);tr.appendChild(el('td',{textContent:inv.tarih}));tbody.appendChild(tr)})}
+    function initCharts(d){if(typeof Chart==='undefined'){setTimeout(function(){initCharts(d)},200);return}new Chart(document.getElementById('typeChart'),{type:'pie',data:{labels:Object.keys(d.typeDistribution),datasets:[{data:Object.values(d.typeDistribution),backgroundColor:['#0078D4','#10b981','#ef4444']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:d.trend.labels,datasets:[{label:'Fatura Sayisi',data:d.trend.data,borderColor:'#0078D4',backgroundColor:'rgba(0,120,212,.1)',fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}})}
+    document.addEventListener('click',function(e){if(e.target.closest('[data-theme-toggle]')){var html=document.documentElement;html.setAttribute('data-theme',html.getAttribute('data-theme')==='dark'?'light':'dark')}});
+    document.addEventListener('DOMContentLoaded',function(){fetchData('/api/finance/invoices/dashboard').then(function(data){var d=data||MOCK;renderKPIs(d.kpi||MOCK.kpi);renderTable(d.invoices||MOCK.invoices);initCharts({typeDistribution:d.typeDistribution||MOCK.typeDistribution,trend:d.trend||MOCK.trend});document.getElementById('last-update-time').textContent=new Date().toLocaleTimeString('tr-TR')})});
+  </script>
+</body>
+</html>

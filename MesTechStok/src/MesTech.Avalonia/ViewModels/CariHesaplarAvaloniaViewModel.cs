@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Application.Queries.GetCariHesaplar;
 using MesTech.Domain.Interfaces;
 
@@ -25,6 +27,9 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private decimal totalCredit;
     [ObservableProperty] private decimal netBalance;
 
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<CariHesapItemDto> Items { get; } = [];
     public ObservableCollection<CariHesapItemDto> FilteredItems { get; } = [];
     public ObservableCollection<string> TypeOptions { get; } = ["Tumu", "Musteri", "Tedarikci"];
@@ -39,14 +44,10 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new GetCariHesaplarQuery(TenantId: _tenantProvider.GetCurrentTenantId()));
+                new GetCariHesaplarQuery(TenantId: _tenantProvider.GetCurrentTenantId()), ct);
 
             _allItems.Clear();
             _allItems.AddRange(result.Select(c => new CariHesapItemDto
@@ -59,16 +60,7 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
             }));
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Cari hesaplar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Cari hesaplar yuklenirken hata");
     }
 
     partial void OnSelectedTypeChanged(string value) => ApplyFilter();
@@ -76,8 +68,6 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
 
     private void ApplyFilter()
     {
-        FilteredItems.Clear();
-
         var filtered = _allItems.AsEnumerable();
         if (SelectedType != "Tumu")
             filtered = filtered.Where(x => x.Tip == SelectedType);
@@ -86,6 +76,18 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
                 x.HesapAdi.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 x.Tip.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
+        // Sort
+        filtered = SortColumn switch
+        {
+            "HesapAdi"  => SortAscending ? filtered.OrderBy(x => x.HesapAdi)  : filtered.OrderByDescending(x => x.HesapAdi),
+            "Tip"       => SortAscending ? filtered.OrderBy(x => x.Tip)        : filtered.OrderByDescending(x => x.Tip),
+            "Borc"      => SortAscending ? filtered.OrderBy(x => x.Borc)       : filtered.OrderByDescending(x => x.Borc),
+            "Alacak"    => SortAscending ? filtered.OrderBy(x => x.Alacak)     : filtered.OrderByDescending(x => x.Alacak),
+            "Bakiye"    => SortAscending ? filtered.OrderBy(x => x.Bakiye)     : filtered.OrderByDescending(x => x.Bakiye),
+            _           => filtered
+        };
+
+        FilteredItems.Clear();
         foreach (var item in filtered)
             FilteredItems.Add(item);
 
@@ -94,6 +96,39 @@ public partial class CariHesaplarAvaloniaViewModel : ViewModelBase
         TotalDebit = FilteredItems.Sum(x => x.Borc);
         TotalCredit = FilteredItems.Sum(x => x.Alacak);
         NetBalance = TotalDebit - TotalCredit;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilter();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(
+                new ExportReportCommand(_tenantProvider.GetCurrentTenantId(), "cari-hesaplar", "xlsx"), ct);
+
+            if (result?.FileData.Length > 0)
+            {
+                var dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    "MesTech_Exports");
+                Directory.CreateDirectory(dir);
+                var path = Path.Combine(dir, result.FileName);
+                await File.WriteAllBytesAsync(path, result.FileData.ToArray(), ct);
+            }
+        }, "Excel export sirasinda hata");
     }
 
     [RelayCommand]

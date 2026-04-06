@@ -23,12 +23,23 @@ public sealed class RequirePermissionFilter : IEndpointFilter
             return Results.Unauthorized();
 
         var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
-        var hasPermission = await permissionService.HasPermissionAsync(userId, _permissionName);
+
+        bool hasPermission;
+        try
+        {
+            hasPermission = await permissionService.HasPermissionAsync(userId, _permissionName).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<RequirePermissionFilter>>();
+            logger.LogError(ex, "Permission check failed for user {UserId}, permission {Permission}", userId, _permissionName);
+            return Results.Problem(detail: "Yetki kontrolu sirasinda hata olustu. Lutfen tekrar deneyin.", statusCode: 503);
+        }
 
         if (!hasPermission)
             return Results.Forbid();
 
-        return await next(context);
+        return await next(context).ConfigureAwait(false);
     }
 }
 

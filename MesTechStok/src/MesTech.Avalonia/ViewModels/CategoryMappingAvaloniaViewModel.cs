@@ -56,13 +56,9 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetCategoryMappingsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetCategoryMappingsQuery(_currentUser.TenantId), ct);
 
             Mappings.Clear();
             foreach (var m in result)
@@ -86,16 +82,7 @@ public partial class CategoryMappingAvaloniaViewModel : ViewModelBase
                 : 0;
             LastSyncText = $"Son sync: {DateTime.Now:HH:mm}";
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kategori eslestirmeleri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kategori eslestirmeleri yuklenirken hata");
     }
 
     [RelayCommand]

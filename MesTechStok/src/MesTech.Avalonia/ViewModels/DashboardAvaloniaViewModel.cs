@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,6 +11,7 @@ using MesTech.Application.DTOs.Dashboard;
 using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Application.Features.Dashboard.Queries.GetSalesChartData;
 using MesTech.Domain.Interfaces;
+using LiveChartsCore.Measure;
 using SkiaSharp;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -22,6 +23,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class DashboardAvaloniaViewModel : ViewModelBase
 {
+    private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromSeconds(30);
+
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
 
@@ -43,6 +46,10 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     [ObservableProperty] private string lastUpdated = "--:--";
 
+    // HH-DEV2-020: Date filter
+    [ObservableProperty] private string selectedPeriod = "Bugun";
+    public string[] PeriodOptions { get; } = ["Bugun", "Bu Hafta", "Bu Ay", "Son 3 Ay"];
+
     // Zarar uyarı (Chain 10 — PriceLossDetectedEvent)
     [ObservableProperty] private int priceLossCount;
     [ObservableProperty] private string priceLossAlertText = string.Empty;
@@ -56,17 +63,23 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasPriceLossAlerts));
     }
 
+    // HH-DEV2-020: Period change triggers data reload
+    partial void OnSelectedPeriodChanged(string value)
+    {
+        _ = LoadAsync();
+    }
+
     // ── Auto-refresh toggle ───────────────────────────────────────────────
     [ObservableProperty] private bool _isAutoRefreshEnabled = true;
     [ObservableProperty] private string _lastRefreshText = "";
 
     // ── Premium KPI Card ViewModels (6 cards) ─────────────────────────────
-    [ObservableProperty] private KpiCardViewModel _todaySalesKpi = new();
-    [ObservableProperty] private KpiCardViewModel _weekRevenueKpi = new();
-    [ObservableProperty] private KpiCardViewModel _totalProductsKpi = new();
-    [ObservableProperty] private KpiCardViewModel _lowStockKpi = new();
-    [ObservableProperty] private KpiCardViewModel _pendingOrdersKpi = new();
-    [ObservableProperty] private KpiCardViewModel _returnsKpi = new();
+    [ObservableProperty] private KpiCardViewModel _todaySalesKpi = new("Bugün Satış", "₺0");
+    [ObservableProperty] private KpiCardViewModel _weekRevenueKpi = new("Haftalık Gelir", "₺0");
+    [ObservableProperty] private KpiCardViewModel _totalProductsKpi = new("Toplam Ürün", "0");
+    [ObservableProperty] private KpiCardViewModel _lowStockKpi = new("Kritik Stok", "0");
+    [ObservableProperty] private KpiCardViewModel _pendingOrdersKpi = new("Bekleyen Sipariş", "0");
+    [ObservableProperty] private KpiCardViewModel _returnsKpi = new("İade Oranı", "%0.0");
 
     // ── Platform Health (15 platforms) ────────────────────────────────────
     [ObservableProperty]
@@ -84,6 +97,9 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private Axis[] _salesChartXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _salesChartYAxes = Array.Empty<Axis>();
 
+    // ── LiveCharts2 — Stok Dağılım Pasta Grafiği ────────────────────────
+    [ObservableProperty] private ISeries[] _stockDistributionSeries = Array.Empty<ISeries>();
+
     public ObservableCollection<RecentOrderDto> RecentOrders { get; } = [];
     public ObservableCollection<CriticalStockDto> CriticalStockItems { get; } = [];
 
@@ -92,8 +108,8 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
         _tenantProvider = tenantProvider;
 
-        // Initialize auto-refresh timer (30 second interval)
-        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        // Initialize auto-refresh timer
+        _refreshTimer = new DispatcherTimer { Interval = AutoRefreshInterval };
         _refreshTimer.Tick += OnRefreshTimerTick;
         _refreshTimer.Start();
     }
@@ -126,15 +142,11 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var summary = await _mediator.Send(
-                new GetDashboardSummaryQuery(tenantId), CancellationToken.None);
+                new GetDashboardSummaryQuery(tenantId), ct);
 
             // ── Satır 1 ──
             TotalProducts = summary.ActiveProductCount.ToString("N0");
@@ -226,20 +238,14 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
             // ── Grafik verisi — GetSalesChartDataQuery ile gerçek DB'den ──
             await BuildChartDataAsync();
 
+            // ── Stok dağılım pasta grafiği ──
+            BuildStockDistributionChart(summary);
+
             // ── Refresh timestamp ──
             _lastRefresh = DateTime.Now;
             LastUpdated = _lastRefresh.ToString("HH:mm:ss");
             LastRefreshText = $"Son güncelleme: {_lastRefresh:HH:mm:ss}";
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Dashboard yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Dashboard verileri yuklenirken hata");
     }
 
     [RelayCommand]
@@ -306,6 +312,41 @@ public partial class DashboardAvaloniaViewModel : ViewModelBase
         SalesChartYAxes = new Axis[]
         {
             new Axis { Name = "Sipariş" }
+        };
+    }
+
+    /// <summary>
+    /// Stok dağılım pasta grafiği — Kritik / Düşük / Normal stok oranları.
+    /// Mevcut DashboardSummaryDto'dan hesaplanır.
+    /// </summary>
+    private void BuildStockDistributionChart(DashboardSummaryDto summary)
+    {
+        var critical = summary.CriticalStockCount;
+        var total = summary.ActiveProductCount;
+        // Düşük stok: kritik eşiğin 2x üstü (yaklaşık) — CriticalStockItems listesinden ayrıştırılabilir
+        // Basitleştirilmiş dağılım: Critical / Normal
+        var normal = Math.Max(0, total - critical);
+
+        StockDistributionSeries = new ISeries[]
+        {
+            new PieSeries<int>
+            {
+                Name = "Normal",
+                Values = new[] { normal },
+                Fill = new SolidColorPaint(SKColor.Parse("#16A34A")),
+                DataLabelsPaint = new SolidColorPaint(SKColors.White),
+                DataLabelsPosition = PolarLabelsPosition.Middle,
+                DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:N0}"
+            },
+            new PieSeries<int>
+            {
+                Name = "Kritik",
+                Values = new[] { critical },
+                Fill = new SolidColorPaint(SKColor.Parse("#E53935")),
+                DataLabelsPaint = new SolidColorPaint(SKColors.White),
+                DataLabelsPosition = PolarLabelsPosition.Middle,
+                DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:N0}"
+            }
         };
     }
 

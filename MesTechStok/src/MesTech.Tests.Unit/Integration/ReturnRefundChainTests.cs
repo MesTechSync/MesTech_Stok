@@ -38,8 +38,8 @@ public class ReturnRefundChainTests
         _productRepo = new Mock<IProductRepository>();
         _uow = new Mock<IUnitOfWork>();
 
-        _returnRepo.Setup(r => r.UpdateAsync(It.IsAny<ReturnRequest>()))
-            .Callback<ReturnRequest>(rr => _capturedReturn = rr)
+        _returnRepo.Setup(r => r.UpdateAsync(It.IsAny<ReturnRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<ReturnRequest, CancellationToken>((rr, _) => _capturedReturn = rr)
             .Returns(Task.CompletedTask);
 
         _approveHandler = new ApproveReturnHandler(
@@ -87,17 +87,17 @@ public class ReturnRefundChainTests
         {
             SKU = sku,
             Name = $"Product {sku}",
-            Stock = stock,
             SalePrice = salePrice,
             PurchasePrice = salePrice * 0.6m,
             CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(stock, "test-seed");
         _registeredProducts.Add(product);
         // Handler uses batch GetByIdsAsync — return all registered products
         _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IEnumerable<Guid> ids, CancellationToken _) =>
                 _registeredProducts.Where(p => ids.Contains(p.Id)).ToList());
-        _productRepo.Setup(r => r.UpdateAsync(product)).Returns(Task.CompletedTask);
+        _productRepo.Setup(r => r.UpdateAsync(product, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         return product;
     }
 
@@ -116,7 +116,7 @@ public class ReturnRefundChainTests
             new[] { product1, product2 },
             new[] { 2, 1 });
 
-        _returnRepo.Setup(r => r.GetByIdAsync(returnRequest.Id)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnRequest.Id, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         // === STEP 1: ApproveReturn ===
         var approveCommand = new ApproveReturnCommand(returnRequest.Id, AutoRestoreStock: true);
@@ -128,9 +128,9 @@ public class ReturnRefundChainTests
         _capturedReturn!.Status.Should().Be(ReturnStatus.Approved);
         _capturedReturn.StockRestored.Should().BeTrue();
 
-        // Verify stock was increased by ApproveReturnHandler (auto-restore)
-        product1.Stock.Should().Be(12, "Product1 stock should increase from 10 to 12 (2 returned)");
-        product2.Stock.Should().Be(6, "Product2 stock should increase from 5 to 6 (1 returned)");
+        // Stock restoration is now handled by ReturnApprovedStockRestorationHandler (Z5a chain), not ApproveReturnHandler
+        product1.Stock.Should().Be(10, "Stock remains unchanged — restoration handled by event handler (Z5a chain)");
+        product2.Stock.Should().Be(5, "Stock remains unchanged — restoration handled by event handler (Z5a chain)");
 
         // === STEP 2: ReturnApprovedStockRestoration (SRP handler — separate event path) ===
         // In the event-driven flow, this handler fires on ReturnApprovedEvent
@@ -142,8 +142,8 @@ public class ReturnRefundChainTests
             .ToList();
 
         // Reset stock to test the SRP handler independently
-        product1.Stock = 10;
-        product2.Stock = 5;
+        product1.SyncStock(10, "test-reset");
+        product2.SyncStock(5, "test-reset");
 
         await _stockRestorationHandler.HandleAsync(
             returnRequest.Id, tenantId, lines, CancellationToken.None);
@@ -174,7 +174,7 @@ public class ReturnRefundChainTests
             orderId, tenantId,
             new[] { product },
             new[] { 3 });
-        _returnRepo.Setup(r => r.GetByIdAsync(returnRequest.Id)).ReturnsAsync(returnRequest);
+        _returnRepo.Setup(r => r.GetByIdAsync(returnRequest.Id, It.IsAny<CancellationToken>())).ReturnsAsync(returnRequest);
 
         // Step 1: Approve WITHOUT auto-restore
         var result = await _approveHandler.Handle(
@@ -207,7 +207,7 @@ public class ReturnRefundChainTests
     public async Task Chain_ReturnNotFound_FailsEarly_NoDownstreamEffects()
     {
         var missingId = Guid.NewGuid();
-        _returnRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((ReturnRequest?)null);
+        _returnRepo.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((ReturnRequest?)null);
 
         var result = await _approveHandler.Handle(
             new ApproveReturnCommand(missingId), CancellationToken.None);

@@ -52,29 +52,17 @@ public partial class InvoiceSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var settings = await _mediator.Send(new GetInvoiceSettingsQuery(tenantId), CancellationToken);
+            var settings = await _mediator.Send(new GetInvoiceSettingsQuery(tenantId), ct);
 
             SelectedProvider = settings.DefaultProvider;
             InvoicePrefix = settings.InvoicePrefix ?? "MES";
             NextInvoiceNumber = settings.NextInvoiceNumber;
             DefaultVatRate = (int)(settings.DefaultTaxRate * 100);
             AutoCreateEArchive = settings.AutoApprove;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Fatura ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Fatura ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

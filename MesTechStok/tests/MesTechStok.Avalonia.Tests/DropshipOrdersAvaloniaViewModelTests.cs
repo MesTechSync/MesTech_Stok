@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+using FluentAssertions;
+using MesTech.Application.DTOs.Dropshipping;
+using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -13,9 +15,35 @@ public class DropshipOrdersAvaloniaViewModelTests
     private readonly Mock<IMediator> _mediatorMock;
     private readonly DropshipOrdersAvaloniaViewModel _sut;
 
+    /// <summary>
+    /// 8 realistic dropship orders with mixed statuses:
+    /// 2 Yeni, 2 Tedarikçiye İletildi, 2 Kargoda, 1 Teslim Edildi, 1 İptal
+    /// </summary>
+    private static IReadOnlyList<DropshipOrderDto> CreateTestOrders()
+    {
+        var supplierId = Guid.NewGuid();
+        return new List<DropshipOrderDto>
+        {
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-001", Status = "Tedarikçiye İletildi" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-002", Status = "Yeni" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-003", Status = "Kargoda" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-004", Status = "Teslim Edildi" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-005", Status = "Tedarikçiye İletildi" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-006", Status = "Kargoda" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-007", Status = "Yeni" },
+            new() { Id = Guid.NewGuid(), OrderId = Guid.NewGuid(), DropshipSupplierId = supplierId, SupplierOrderRef = "DS-2026-008", Status = "İptal" },
+        };
+    }
+
     public DropshipOrdersAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+
+        // Setup: GetDropshipOrdersQuery returns 8 test orders
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetDropshipOrdersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateTestOrders());
+
         _sut = new DropshipOrdersAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 

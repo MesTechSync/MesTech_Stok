@@ -34,6 +34,10 @@ public sealed class HealthCheckEndpoint : BackgroundService
         _listener = new HttpListener();
         _listener.Prefixes.Add($"http://localhost:{_port}/");
 
+        // FIX: HttpListener.GetContextAsync() does NOT support CancellationToken.
+        // Register callback to close listener on shutdown — otherwise ExecuteAsync hangs forever.
+        using var ctr = stoppingToken.Register(() => _listener.Close());
+
         try
         {
             _listener.Start();
@@ -41,9 +45,17 @@ public sealed class HealthCheckEndpoint : BackgroundService
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var context = await _listener.GetContextAsync();
+                var context = await _listener.GetContextAsync().ConfigureAwait(false);
                 _ = SafeHandleRequestAsync(context, stoppingToken);
             }
+        }
+        catch (HttpListenerException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener closed via CancellationToken callback — graceful shutdown
+        }
+        catch (ObjectDisposedException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected: listener disposed during shutdown
         }
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
         {
@@ -51,7 +63,7 @@ public sealed class HealthCheckEndpoint : BackgroundService
         }
         finally
         {
-            _listener?.Stop();
+            try { _listener?.Stop(); } catch (ObjectDisposedException) { }
         }
     }
 

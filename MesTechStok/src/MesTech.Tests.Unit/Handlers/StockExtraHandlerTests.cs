@@ -29,7 +29,7 @@ public class StockExtraHandlerTests
         var movementRepo = new Mock<IStockMovementRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object);
+        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object, Mock.Of<ITenantProvider>());
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -42,7 +42,7 @@ public class StockExtraHandlerTests
         var movementRepo = new Mock<IStockMovementRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object);
+        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object, Mock.Of<ITenantProvider>());
 
         var command = new TransferStockCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 0);
         var result = await sut.Handle(command, CancellationToken.None);
@@ -58,7 +58,7 @@ public class StockExtraHandlerTests
         var movementRepo = new Mock<IStockMovementRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object);
+        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object, Mock.Of<ITenantProvider>());
 
         var whId = Guid.NewGuid();
         var command = new TransferStockCommand(Guid.NewGuid(), whId, whId, 10);
@@ -72,12 +72,12 @@ public class StockExtraHandlerTests
     public async Task TransferStock_ProductNotFound_ReturnsFailure()
     {
         var productRepo = new Mock<IProductRepository>();
-        productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
         var movementRepo = new Mock<IStockMovementRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
         var uow = new Mock<IUnitOfWork>();
-        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object);
+        var sut = new TransferStockHandler(productRepo.Object, movementRepo.Object, warehouseRepo.Object, uow.Object, Mock.Of<ITenantProvider>());
 
         var command = new TransferStockCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 5);
         var result = await sut.Handle(command, CancellationToken.None);
@@ -93,7 +93,8 @@ public class StockExtraHandlerTests
             null!,
             new Mock<IStockMovementRepository>().Object,
             new Mock<IWarehouseRepository>().Object,
-            new Mock<IUnitOfWork>().Object);
+            new Mock<IUnitOfWork>().Object,
+            Mock.Of<ITenantProvider>());
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -104,7 +105,8 @@ public class StockExtraHandlerTests
             new Mock<IProductRepository>().Object,
             new Mock<IStockMovementRepository>().Object,
             new Mock<IWarehouseRepository>().Object,
-            null!);
+            null!,
+            Mock.Of<ITenantProvider>());
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -142,7 +144,7 @@ public class StockExtraHandlerTests
     {
         var productId = Guid.NewGuid();
         var repo = new Mock<IStockMovementRepository>();
-        repo.Setup(r => r.GetByProductIdAsync(productId))
+        repo.Setup(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<StockMovement>().AsReadOnly());
 
         var sut = new GetStockMovementsHandler(repo.Object, Mock.Of<ITenantProvider>());
@@ -150,7 +152,7 @@ public class StockExtraHandlerTests
         var result = await sut.Handle(query, CancellationToken.None);
 
         result.Should().BeEmpty();
-        repo.Verify(r => r.GetByProductIdAsync(productId), Times.Once());
+        repo.Verify(r => r.GetByProductIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     // ── GetStockAlertsHandler ──────────────────────────────────

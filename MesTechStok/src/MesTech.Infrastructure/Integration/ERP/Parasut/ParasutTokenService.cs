@@ -64,6 +64,9 @@ public sealed class ParasutTokenService
     /// </summary>
     public async Task<string> GetAccessTokenAsync(CancellationToken ct = default)
     {
+        if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_clientSecret))
+            throw new InvalidOperationException("Parasut ERP is not configured. Set ERP:Parasut:ClientId and ERP:Parasut:ClientSecret in configuration.");
+
         // Fast path: return cached token without lock
         if (_cache.TryGetValue(CacheKey, out string? cachedToken) && !string.IsNullOrEmpty(cachedToken))
         {
@@ -90,7 +93,7 @@ public sealed class ParasutTokenService
             };
 
             var content = new FormUrlEncodedContent(formData);
-            var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(_options.TokenUrl, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

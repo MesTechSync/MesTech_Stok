@@ -32,7 +32,7 @@ public class CreateCategoryHandlerTests
         result.CategoryId.Should().NotBe(Guid.Empty);
 
         _categoryRepoMock.Verify(r => r.AddAsync(It.Is<Category>(c =>
-            c.Name == "Elektronik" && c.Code == "ELK" && c.IsActive)), Times.Once);
+            c.Name == "Elektronik" && c.Code == "ELK" && c.IsActive), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -44,7 +44,7 @@ public class CreateCategoryHandlerTests
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        _categoryRepoMock.Verify(r => r.AddAsync(It.Is<Category>(c => !c.IsActive)), Times.Once);
+        _categoryRepoMock.Verify(r => r.AddAsync(It.Is<Category>(c => !c.IsActive), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

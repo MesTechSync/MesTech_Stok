@@ -1,5 +1,5 @@
 @page "/admin/api-health"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<ApiHealth> Logger
 
@@ -23,12 +23,11 @@ else if (errorMessage is not null)
 else
 {
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-heartbeat text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">API Saglik Durumu</h3>
+      <h3 class="mb-0" >API Saglik Durumu</h3>
       <small class="text-muted">Platform adapter'larinin canli durum izleme paneli</small>
     </div>
     <button class="btn btn-outline-primary ms-auto" @onclick="RefreshAll" disabled="@isRefreshing">

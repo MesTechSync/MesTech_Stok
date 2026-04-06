@@ -47,7 +47,10 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
         if (_options.IsConfigured)
         {
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl.TrimEnd('/') + "/");
+            var baseUri = new Uri(_options.BaseUrl.TrimEnd('/') + "/");
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[ERPNextRestAdapter] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+            _httpClient.BaseAddress = baseUri;
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("token", $"{_options.ApiKey}:{_options.ApiSecret}");
         }
@@ -59,7 +62,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
         try
         {
-            var response = await _httpClient.GetAsync("api/method/frappe.auth.get_logged_user", ct)
+            using var response = await _httpClient.GetAsync("api/method/frappe.auth.get_logged_user", ct)
                 .ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -72,7 +75,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             _logger.LogWarning("[ERPNext] Connection test failed: {Status}", response.StatusCode);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPNext] Connection test error");
             return false;
@@ -116,7 +119,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
 
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "invoice", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync invoice {InvoiceId}", invoice.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "invoice", "error").Inc();
@@ -159,7 +162,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
                 _logger.LogInformation("[ERPNext] Purchase Invoice created for expense: {ExpenseId}", expense.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "expense", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync expense {ExpenseId}", expense.Id);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "expense", "error").Inc();
@@ -194,7 +197,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
                 _logger.LogInformation("[ERPNext] {DocType} synced: {Name}", doctype, party.Name);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "counterparty", "success").Inc();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "[ERPNext] Failed to sync counterparty {Name}", party.Name);
                 ErpMetrics.SyncTotal.WithLabels("erpnext", "counterparty", "error").Inc();
@@ -211,7 +214,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             var url = $"api/method/erpnext.accounts.utils.get_balance_on?account={Uri.EscapeDataString(accountCode)}" +
                       $"&date={DateTime.UtcNow:yyyy-MM-dd}&company={Uri.EscapeDataString(_options.Company)}";
 
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -223,7 +226,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
             _logger.LogWarning("[ERPNext] GetBalance response missing 'message' field for account {Account}", accountCode);
             return 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[ERPNext] GetBalance failed for account {Account}", accountCode);
             return 0m;
@@ -297,7 +300,7 @@ public sealed class ERPNextRestAdapter : IERPAdapter, MesTech.Application.Interf
         var json = JsonSerializer.Serialize(new { data = payload }, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync($"api/resource/{doctype}", content, ct)
+        using var response = await _httpClient.PostAsync($"api/resource/{doctype}", content, ct)
             .ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)

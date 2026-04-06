@@ -57,7 +57,7 @@ public sealed class CustomerCreatedEventHandler
                 "Müşteri oluşturma bildirimi kaydedildi — Customer={Name}",
                 evt.CustomerName);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "Müşteri oluşturma handler hatası — Customer={Name}",

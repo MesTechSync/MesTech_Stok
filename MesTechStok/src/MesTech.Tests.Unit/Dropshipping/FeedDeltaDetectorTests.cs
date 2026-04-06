@@ -16,16 +16,19 @@ namespace MesTech.Tests.Unit.Dropshipping;
 public class FeedDeltaDetectorTests
 {
     private static Product MakeProduct(string sku, decimal price, int stock, bool isActive = true)
-        => new()
+    {
+        var product = new Product
         {
             SKU = sku,
             Name = $"Test Urun {sku}",
             SalePrice = price,
-            Stock = stock,
             IsActive = isActive,
             TenantId = Guid.NewGuid(),
             CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(stock, "test-seed");
+        return product;
+    }
 
     private static ParsedProduct MakeParsed(string sku, decimal? price = null, int? quantity = null)
         => new(SKU: sku, Barcode: null, Name: $"Feed Urun {sku}", Description: null,

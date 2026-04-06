@@ -38,15 +38,11 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
-            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId));
-            var invoices = await _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId));
+            var subscription = await _mediator.Send(new GetTenantSubscriptionQuery(_currentUser.TenantId), ct);
+            var invoices = await _mediator.Send(new GetBillingInvoicesQuery(_currentUser.TenantId), ct);
 
             CurrentPlan = subscription?.PlanName ?? "—";
             NextBillingDate = subscription?.NextBillingDate?.ToString("yyyy-MM-dd") ?? "—";
@@ -70,24 +66,15 @@ public partial class BillingAvaloniaViewModel : ViewModelBase
             // Subscription plans (G540 orphan wire)
             try
             {
-                var plans = await _mediator.Send(new GetSubscriptionPlansQuery());
+                var plans = await _mediator.Send(new GetSubscriptionPlansQuery(), ct);
                 AvailablePlanCount = plans.Count;
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetSubscriptionPlans failed: {ex.Message}"); AvailablePlanCount = 0; }
-            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetSubscriptionUsage failed: {ex.Message}"); }
-            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId)); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetUserFeatures failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetSubscriptionUsageQuery(_currentUser.TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetSubscriptionUsage failed: {ex.Message}"); }
+            try { _ = await _mediator.Send(new GetUserFeaturesQuery(_currentUser.TenantId), ct); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetUserFeatures failed: {ex.Message}"); }
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Fatura verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Fatura verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

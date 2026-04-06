@@ -34,6 +34,7 @@ public sealed class CrmDealRepository : ICrmDealRepository
 
         return await query
             .OrderByDescending(d => d.CreatedAt)
+            .Take(5000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
     }
@@ -43,6 +44,7 @@ public sealed class CrmDealRepository : ICrmDealRepository
             .Include(d => d.Stage)
             .Where(d => d.CrmContactId == contactId)
             .OrderByDescending(d => d.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

@@ -1,13 +1,19 @@
 using MediatR;
+using MesTech.Application.Commands.GenerateEFatura;
+using MesTech.WebApi.Filters;
 using MesTech.Application.Commands.SendInvoice;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MesTech.Application.DTOs.Invoice;
+using MesTech.Application.Features.Invoice.DTOs;
+using MesTech.Domain.Common;
 using MesTech.Application.Features.Invoice.Commands;
 using MesTech.Application.Features.Invoice.Commands.ExportInvoiceReport;
 using MesTech.Application.Features.Invoice.Commands.ExportInvoices;
 using MesTech.Application.Features.Invoice.Queries;
 using MesTech.Application.Features.Invoice.Queries.GetInvoiceSettings;
 using MesTech.Application.Interfaces;
+using MesTech.Application.Queries.GetInvoiceById;
 using MesTech.Domain.Enums;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -52,7 +58,8 @@ public static class InvoiceEndpoints
         })
         .WithName("CreateInvoiceViaAdapter")
         .WithSummary("Fatura oluştur (adapter üzerinden)")
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageInvoices");
 
         // GET /api/v1/invoices — fatura listesi
         group.MapGet("/", async (
@@ -68,8 +75,73 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoices")
         .WithSummary("Fatura listesi (tip, durum, platform, tarih filtresi)")
-        .Produces(200)
+        .Produces<PagedResult<InvoiceListDto>>(200)
         .CacheOutput("Report120s");
+
+        // GET /api/v1/invoices/{id} — fatura detayı (GAP-1 FIX: handler mevcut, endpoint eksikti)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetInvoiceByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Fatura {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetInvoiceById")
+        .WithSummary("Fatura detayı — kalemler, KDV, toplam, durum bilgisi")
+        .Produces<MesTech.Application.DTOs.InvoiceDto>(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/invoices/{id}/pdf — fatura PDF indir (GAP-2 FIX: IInvoicePdfGenerator mevcut)
+        group.MapGet("/{id:guid}/pdf", async (
+            Guid id,
+            ISender mediator,
+            IInvoicePdfGenerator pdfGenerator,
+            ILoggerFactory loggerFactory,
+            CancellationToken ct) =>
+        {
+            var invoice = await mediator.Send(new GetInvoiceByIdQuery(id), ct);
+            if (invoice is null)
+                return Results.Problem(detail: $"Fatura {id} bulunamadı.", statusCode: 404);
+
+            try
+            {
+                var pdfRequest = new InvoicePdfRequest(
+                    InvoiceNumber: invoice.InvoiceNumber,
+                    InvoiceType: invoice.Type.ToString(),
+                    InvoiceDate: invoice.InvoiceDate,
+                    SellerName: string.Empty, // Tenant config'den doldurulacak (generator içinde)
+                    SellerVkn: string.Empty,
+                    SellerTaxOffice: string.Empty,
+                    SellerAddress: string.Empty,
+                    BuyerName: invoice.CustomerName,
+                    BuyerVkn: invoice.CustomerTaxNumber,
+                    BuyerTaxOffice: invoice.CustomerTaxOffice,
+                    BuyerAddress: invoice.CustomerAddress,
+                    Currency: invoice.Currency,
+                    SubTotal: invoice.SubTotal,
+                    TaxTotal: invoice.TaxTotal,
+                    GrandTotal: invoice.GrandTotal,
+                    GibUuid: null,
+                    Lines: invoice.Lines.Select((l, i) => new InvoiceLinePdfItem(
+                        i + 1, l.ProductName, l.Quantity, "Adet",
+                        l.UnitPrice, l.TaxRate, l.TaxAmount, l.LineTotal)).ToList());
+
+                var pdfBytes = await pdfGenerator.GenerateInvoicePdfAsync(pdfRequest, ct);
+                return Results.File(pdfBytes, "application/pdf",
+                    $"fatura-{invoice.InvoiceNumber}.pdf");
+            }
+            catch (Exception ex)
+            {
+                loggerFactory.CreateLogger("InvoiceEndpoints")
+                    .LogError(ex, "PDF generation failed for invoice {InvoiceId}", id);
+                return Results.Problem(detail: "PDF oluşturulamadı.", statusCode: 500);
+            }
+        })
+        .WithName("GetInvoicePdf")
+        .WithSummary("Fatura PDF indir — A4 format, QuestPDF ile oluşturulur")
+        .Produces(200).Produces(404).Produces(500);
 
         // POST /api/v1/invoices/{id}/approve — fatura onayla
         group.MapPost("/{id:guid}/approve", async (
@@ -97,6 +169,75 @@ public static class InvoiceEndpoints
         .WithSummary("Toplu fatura oluştur (sipariş ID listesi)").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
+        // POST /api/v1/invoices/{id}/upload/{platform} — fatura pazaryerine yükle (GAP-3 FIX)
+        group.MapPost("/{id:guid}/upload/{platform}", async (
+            Guid id,
+            string platform,
+            ISender mediator,
+            IAdapterFactory adapterFactory,
+            IInvoicePdfGenerator pdfGenerator,
+            ILoggerFactory loggerFactory,
+            CancellationToken ct) =>
+        {
+            var logger = loggerFactory.CreateLogger("InvoiceEndpoints");
+            var adapter = adapterFactory.Resolve(platform);
+            if (adapter is null)
+                return Results.Problem(detail: $"Platform '{platform}' adapter bulunamadı.", statusCode: 404);
+
+            if (adapter is not IInvoiceCapableAdapter invoiceAdapter)
+                return Results.Problem(detail: $"Platform '{platform}' fatura yükleme desteklemiyor.", statusCode: 400);
+
+            var invoice = await mediator.Send(new GetInvoiceByIdQuery(id), ct);
+            if (invoice is null)
+                return Results.Problem(detail: $"Fatura {id} bulunamadı.", statusCode: 404);
+
+            try
+            {
+                // PDF oluştur ve platforma yükle
+                var pdfRequest = new InvoicePdfRequest(
+                    InvoiceNumber: invoice.InvoiceNumber,
+                    InvoiceType: invoice.Type.ToString(),
+                    InvoiceDate: invoice.InvoiceDate,
+                    SellerName: string.Empty, SellerVkn: string.Empty,
+                    SellerTaxOffice: string.Empty, SellerAddress: string.Empty,
+                    BuyerName: invoice.CustomerName,
+                    BuyerVkn: invoice.CustomerTaxNumber,
+                    BuyerTaxOffice: invoice.CustomerTaxOffice,
+                    BuyerAddress: invoice.CustomerAddress,
+                    Currency: invoice.Currency,
+                    SubTotal: invoice.SubTotal, TaxTotal: invoice.TaxTotal, GrandTotal: invoice.GrandTotal,
+                    GibUuid: null,
+                    Lines: invoice.Lines.Select((l, i) => new InvoiceLinePdfItem(
+                        i + 1, l.ProductName, l.Quantity, "Adet",
+                        l.UnitPrice, l.TaxRate, l.TaxAmount, l.LineTotal)).ToList());
+
+                var pdfBytes = await pdfGenerator.GenerateInvoicePdfAsync(pdfRequest, ct);
+                var fileName = $"fatura-{invoice.InvoiceNumber}.pdf";
+
+                var success = await invoiceAdapter.SendInvoiceFileAsync(
+                    id.ToString(), pdfBytes, fileName, ct);
+
+                if (!success)
+                    return Results.Problem(detail: $"Fatura {platform}'a yüklenemedi.", statusCode: 502);
+
+                logger.LogInformation(
+                    "[InvoiceUpload] Fatura {InvoiceNumber} {Platform}'a yüklendi",
+                    invoice.InvoiceNumber, platform);
+
+                return Results.Ok(new { invoiceId = id, platform, uploaded = true, fileName });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Invoice upload failed: {InvoiceId} → {Platform}", id, platform);
+                return Results.Problem(detail: "Fatura yükleme sırasında hata oluştu.", statusCode: 500);
+            }
+        })
+        .WithName("UploadInvoiceToPlatform")
+        .WithSummary("Fatura PDF'ini pazaryerine yükle (Trendyol, HB, N11)")
+        .Produces(200).Produces(400).Produces(404).Produces(502)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageInvoices");
+
         // GET /api/v1/invoices/providers — fatura sağlayıcı durumları
         group.MapGet("/providers", async (
             ISender mediator, CancellationToken ct) =>
@@ -106,7 +247,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceProviders")
         .WithSummary("Fatura sağlayıcı listesi ve durumları")
-        .Produces(200)
+        .Produces<List<InvoiceProviderStatusDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/invoices/report — fatura raporu
@@ -120,7 +261,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceReport")
         .WithSummary("Fatura raporu (tarih aralığı + platform filtresi)")
-        .Produces(200)
+        .Produces<InvoiceReportDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/invoices/settings — invoice settings (provider config, defaults)
@@ -133,7 +274,7 @@ public static class InvoiceEndpoints
         })
         .WithName("GetInvoiceSettings")
         .WithSummary("Fatura ayarları — sağlayıcı konfigürasyonu ve varsayılanlar")
-        .Produces(200)
+        .Produces<InvoiceSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/invoices/{id}/send — send invoice to provider (e-Fatura/e-Arşiv)
@@ -184,5 +325,21 @@ public static class InvoiceEndpoints
         .WithName("ExportInvoiceReport")
         .WithSummary("Fatura raporu dışa aktar — Excel veya PDF")
         .Produces(200).Produces(400);
+
+        // ═══ G85: E-FATURA OLUŞTURMA ═══
+
+        // POST /api/v1/invoices/e-fatura — sipariş bazlı e-fatura/e-arşiv oluştur
+        // VKN varsa e-Fatura, yoksa e-Arşiv tipi seçilir.
+        group.MapPost("/e-fatura", async (
+            GenerateEFaturaCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(command, ct);
+            return Results.Ok(new { Message = "E-Fatura başarıyla oluşturuldu.", OrderId = command.OrderId });
+        })
+        .WithName("GenerateEFatura")
+        .WithSummary("E-Fatura/E-Arşiv oluştur — sipariş bazlı otomatik fatura (G85)")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 }

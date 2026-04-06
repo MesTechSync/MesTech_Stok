@@ -42,6 +42,7 @@ public sealed class CrmContactRepository : ICrmContactRepository
         => await _context.CrmContacts
             .Where(c => c.TenantId == tenantId)
             .OrderBy(c => c.FullName)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct)
             .ConfigureAwait(false);
 

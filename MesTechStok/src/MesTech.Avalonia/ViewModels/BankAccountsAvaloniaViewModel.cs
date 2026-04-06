@@ -24,6 +24,10 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private decimal totalBalance;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public BankAccountsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
         _mediator = mediator;
@@ -56,11 +60,29 @@ public partial class BankAccountsAvaloniaViewModel : ViewModelBase
                 (a.IBAN ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase))
               .ToList();
 
-        Accounts = new ObservableCollection<BankAccountDto>(filtered);
-        TotalCount = filtered.Count;
-        TotalBalance = filtered.Where(a => a.IsActive).Sum(a => a.Balance);
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "BankName"      => SortAscending ? filtered.OrderBy(x => x.BankName).ToList()      : filtered.OrderByDescending(x => x.BankName).ToList(),
+            "AccountNumber" => SortAscending ? filtered.OrderBy(x => x.AccountNumber).ToList() : filtered.OrderByDescending(x => x.AccountNumber).ToList(),
+            "Balance"       => SortAscending ? filtered.OrderBy(x => x.Balance).ToList()       : filtered.OrderByDescending(x => x.Balance).ToList(),
+            "CurrencyCode"  => SortAscending ? filtered.OrderBy(x => x.CurrencyCode).ToList()  : filtered.OrderByDescending(x => x.CurrencyCode).ToList(),
+            _               => SortAscending ? filtered.OrderBy(x => x.BankName).ToList()      : filtered.OrderByDescending(x => x.BankName).ToList(),
+        };
+
+        Accounts = new ObservableCollection<BankAccountDto>(sortedList);
+        TotalCount = sortedList.Count;
+        TotalBalance = sortedList.Where(a => a.IsActive).Sum(a => a.Balance);
         Summary = $"{TotalCount} hesap — {TotalBalance:N2} ₺";
         IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]

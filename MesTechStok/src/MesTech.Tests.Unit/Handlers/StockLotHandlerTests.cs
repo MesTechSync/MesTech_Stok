@@ -24,7 +24,11 @@ public class StockLotHandlerTests
     [Fact]
     public async Task AddStockLot_NullRequest_ThrowsArgumentNullException()
     {
-        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
+        var lockMock = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        lockMock.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object,
+            lockMock.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<AddStockLotHandler>.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.Handle(null!, CancellationToken.None));
@@ -33,7 +37,11 @@ public class StockLotHandlerTests
     [Fact]
     public async Task AddStockLot_ZeroQuantity_ReturnsFailure()
     {
-        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
+        var lockMock = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        lockMock.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object,
+            lockMock.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<AddStockLotHandler>.Instance);
         var cmd = new AddStockLotCommand(Guid.NewGuid(), "LOT-001", 0, 10m);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -45,7 +53,11 @@ public class StockLotHandlerTests
     [Fact]
     public async Task AddStockLot_EmptyLotNumber_ReturnsFailure()
     {
-        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
+        var lockMock = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        lockMock.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object,
+            lockMock.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<AddStockLotHandler>.Instance);
         var cmd = new AddStockLotCommand(Guid.NewGuid(), "", 5, 10m);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -58,9 +70,13 @@ public class StockLotHandlerTests
     public async Task AddStockLot_ProductNotFound_ReturnsFailure()
     {
         var productId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
-        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object);
+        var lockMock = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        lockMock.Setup(l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        var sut = new AddStockLotHandler(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object,
+            lockMock.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<AddStockLotHandler>.Instance);
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10m);
 
         var result = await sut.Handle(cmd, CancellationToken.None);
@@ -72,7 +88,9 @@ public class StockLotHandlerTests
     [Fact]
     public void AddStockLot_NullProductRepository_ThrowsArgumentNullException()
     {
-        var act = () => new AddStockLotHandler(null!, _movementRepo.Object, _unitOfWork.Object);
+        var lockMock2 = new Mock<MesTech.Application.Interfaces.IDistributedLockService>();
+        var act = () => new AddStockLotHandler(null!, _movementRepo.Object, _unitOfWork.Object,
+            lockMock2.Object, Microsoft.Extensions.Logging.Abstractions.NullLogger<AddStockLotHandler>.Instance);
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -128,7 +146,7 @@ public class StockLotHandlerTests
     public async Task ConvertQuotation_QuotationNotFound_ReturnsFailure()
     {
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId)).ReturnsAsync((Quotation?)null);
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>())).ReturnsAsync((Quotation?)null);
 
         var sut = new ConvertQuotationToInvoiceHandler(_quotationRepo.Object, _invoiceRepo.Object, _unitOfWork.Object);
         var cmd = new ConvertQuotationToInvoiceCommand(quotationId, "INV-001");

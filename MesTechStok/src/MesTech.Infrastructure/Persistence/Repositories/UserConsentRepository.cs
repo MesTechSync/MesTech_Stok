@@ -31,6 +31,7 @@ public sealed class UserConsentRepository : IUserConsentRepository
         return await _context.UserConsents
             .Where(c => c.TenantId == tenantId && c.UserId == userId)
             .OrderByDescending(c => c.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);

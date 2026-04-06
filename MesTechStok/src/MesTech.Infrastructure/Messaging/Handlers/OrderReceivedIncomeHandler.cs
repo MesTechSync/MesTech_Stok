@@ -46,10 +46,20 @@ public sealed class OrderReceivedIncomeHandler
             Date: e.OccurredAt,
             Note: $"Otomatik olusturuldu. OrderId: {e.OrderId}");
 
-        var incomeId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var incomeId = await _mediator.Send(command, cancellationToken).ConfigureAwait(false);
 
-        _logger.LogInformation(
-            "OrderReceived -> Income: Income record {IncomeId} created for order {OrderId}",
-            incomeId, e.OrderId);
+            _logger.LogInformation(
+                "OrderReceived -> Income: Income record {IncomeId} created for order {OrderId}",
+                incomeId, e.OrderId);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "OrderReceived -> Income FAILED for order {OrderId}. " +
+                "Income record will need manual creation. Order processing continues.",
+                e.OrderId);
+        }
     }
 }

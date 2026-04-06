@@ -17,7 +17,7 @@ public sealed class GetProductVariantsHandler : IRequestHandler<GetProductVarian
 
     public async Task<ProductVariantMatrixDto> Handle(GetProductVariantsQuery request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product is null || product.TenantId != request.TenantId)
         {
             _logger.LogWarning("Product {ProductId} not found or tenant mismatch", request.ProductId);

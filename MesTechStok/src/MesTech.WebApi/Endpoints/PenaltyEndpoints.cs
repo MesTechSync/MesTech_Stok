@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreatePenaltyRecord;
 using MesTech.Application.Features.Accounting.Commands.DeletePenaltyRecord;
@@ -29,7 +30,7 @@ public static class PenaltyEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecords")
-        .WithSummary("Ceza kayitlari listesi (kaynak filtresi)").Produces(200).Produces(400);
+        .WithSummary("Ceza kayitlari listesi (kaynak filtresi)").Produces<IReadOnlyList<PenaltyRecordDto>>(200).Produces(400);
 
         // GET /api/v1/accounting/penalties/{id} — tek ceza kaydi
         group.MapGet("/{id:guid}", async (
@@ -40,7 +41,7 @@ public static class PenaltyEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetPenaltyRecordById")
-        .WithSummary("Tek ceza kaydi detayi").Produces(200).Produces(400);
+        .WithSummary("Tek ceza kaydi detayi").Produces<PenaltyRecordDto>(200).Produces(400);
 
         // POST /api/v1/accounting/penalties — yeni ceza kaydi olustur
         group.MapPost("/", async (

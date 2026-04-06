@@ -24,7 +24,7 @@ public interface IInvoiceProvider
     /// Health check — G327: AdapterHealthService fatura provider DOWN tespiti icin.
     /// </summary>
     Task<bool> PingAsync(CancellationToken ct = default)
-        => CheckStatusAsync("PING", ct).ContinueWith(t => !t.IsFaulted, ct);
+        => CheckStatusAsync("PING", ct).ContinueWith(t => !t.IsFaulted, TaskScheduler.Default);
 }
 
 public record InvoiceDto(
