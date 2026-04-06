@@ -25,7 +25,8 @@ public sealed class ImportSettlementHandler : IRequestHandler<ImportSettlementCo
             var settlementLine = SettlementLine.Create(
                 request.TenantId, batch.Id, line.OrderId,
                 line.GrossAmount, line.CommissionAmount, line.ServiceFee,
-                line.CargoDeduction, line.RefundDeduction, line.NetAmount);
+                line.CargoDeduction, line.RefundDeduction, line.NetAmount,
+                line.VatAmount);
             batch.AddLine(settlementLine);
         }
 

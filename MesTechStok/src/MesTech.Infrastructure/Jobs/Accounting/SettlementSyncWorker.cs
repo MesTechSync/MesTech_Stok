@@ -97,10 +97,11 @@ public sealed class SettlementSyncWorker : IAccountingJob
             OrderId: l.OrderNumber,
             GrossAmount: l.Amount,
             CommissionAmount: l.CommissionAmount ?? 0m,
-            ServiceFee: 0m,
-            CargoDeduction: 0m,
-            RefundDeduction: 0m,
-            NetAmount: l.Amount - (l.CommissionAmount ?? 0m)
+            ServiceFee: l.ServiceFee,
+            CargoDeduction: l.CargoDeduction,
+            RefundDeduction: l.RefundDeduction,
+            NetAmount: l.NetAmount != 0 ? l.NetAmount : l.Amount - (l.CommissionAmount ?? 0m),
+            VatAmount: l.VatAmount
         )).ToList();
 
         var command = new ImportSettlementCommand(
