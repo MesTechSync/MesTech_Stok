@@ -263,4 +263,150 @@ public class TrendyolSettlementParserTests
 
         act.Should().Throw<ArgumentNullException>();
     }
+
+    // ══════════════════════════════════════
+    // KDV (VAT) Tests — KÇ-12 TY-TST-004
+    // ══════════════════════════════════════
+
+    [Fact]
+    public async Task ParseLinesAsync_VatAmount_ShouldBeParsedFromJson()
+    {
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-KDV-001",
+                    "grossSalesAmount": 1000,
+                    "commissionAmount": 150,
+                    "serviceFee": 10,
+                    "cargoDeduction": 30,
+                    "refundDeduction": 0,
+                    "netAmount": 810,
+                    "transactionDate": "2026-03-15",
+                    "commissionRate": 0.15,
+                    "vatAmount": 152.54
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+        var lines = await _sut.ParseLinesAsync(batch);
+
+        lines.Should().HaveCount(1);
+        lines[0].VatAmount.Should().Be(152.54m,
+            "vatAmount from Trendyol Finance API should map to SettlementLine.VatAmount");
+    }
+
+    [Fact]
+    public async Task ParseLinesAsync_VatAmount_ZeroWhenMissing()
+    {
+        // vatAmount alanı JSON'da yoksa → 0 olmalı
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-NOVAT",
+                    "grossSalesAmount": 500,
+                    "commissionAmount": 75,
+                    "serviceFee": 5,
+                    "cargoDeduction": 15,
+                    "refundDeduction": 0,
+                    "netAmount": 405,
+                    "transactionDate": "2026-03-12",
+                    "commissionRate": 0.15
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+        var lines = await _sut.ParseLinesAsync(batch);
+
+        lines.Should().HaveCount(1);
+        lines[0].VatAmount.Should().Be(0m,
+            "missing vatAmount field should default to 0");
+    }
+
+    [Fact]
+    public async Task ParseLinesAsync_MultipleItems_DifferentVatRates()
+    {
+        // Farklı KDV oranları: %10 ve %18
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-KDV10",
+                    "grossSalesAmount": 1100,
+                    "commissionAmount": 165,
+                    "serviceFee": 10,
+                    "cargoDeduction": 0,
+                    "refundDeduction": 0,
+                    "netAmount": 925,
+                    "transactionDate": "2026-03-20",
+                    "commissionRate": 0.15,
+                    "vatAmount": 100.00
+                },
+                {
+                    "orderNumber": "ORD-KDV18",
+                    "grossSalesAmount": 590,
+                    "commissionAmount": 88.50,
+                    "serviceFee": 5,
+                    "cargoDeduction": 0,
+                    "refundDeduction": 0,
+                    "netAmount": 496.50,
+                    "transactionDate": "2026-03-20",
+                    "commissionRate": 0.15,
+                    "vatAmount": 90.00
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+        var lines = await _sut.ParseLinesAsync(batch);
+
+        lines.Should().HaveCount(2);
+        lines[0].VatAmount.Should().Be(100.00m);
+        lines[1].VatAmount.Should().Be(90.00m);
+
+        // GL yevmiye doğrulaması: toplam KDV
+        lines.Sum(l => l.VatAmount).Should().Be(190.00m,
+            "total VAT across both lines for GL journal entry");
+    }
+
+    [Fact]
+    public async Task ParseLinesAsync_VatAmount_WithTurkishDecimalFormat()
+    {
+        // Türkçe ondalık formatı: 152,54 (virgül ile)
+        var json = """
+        {
+            "content": [
+                {
+                    "orderNumber": "ORD-TR-KDV",
+                    "grossSalesAmount": 1000,
+                    "commissionAmount": 150,
+                    "serviceFee": 0,
+                    "cargoDeduction": 0,
+                    "refundDeduction": 0,
+                    "netAmount": 850,
+                    "transactionDate": "2026-03-25",
+                    "commissionRate": 0.15,
+                    "vatAmount": 152.54
+                }
+            ]
+        }
+        """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var batch = await _sut.ParseAsync(TestTenantId, stream, "json");
+        var lines = await _sut.ParseLinesAsync(batch);
+
+        lines[0].VatAmount.Should().Be(152.54m,
+            "parser should handle decimal format correctly for vatAmount");
+        lines[0].GrossAmount.Should().Be(1000m);
+    }
 }
