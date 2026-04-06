@@ -44,6 +44,17 @@ public static class DocumentEndpoints
             if (file.Length > 50 * 1024 * 1024) // 50MB limit (KÇ-29: ASVS V12 file size)
                 return Results.Problem(detail: "Dosya boyutu 50MB sınırını aşıyor.", statusCode: 400);
 
+            // HH-DEV6-046: Block dangerous content types that could enable XSS if served inline
+            var blockedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "text/html", "application/xhtml+xml", "text/xml", "application/xml",
+                "image/svg+xml", "application/javascript", "text/javascript"
+            };
+            if (blockedTypes.Contains(file.ContentType))
+                return Results.Problem(
+                    detail: $"Güvenlik: '{file.ContentType}' dosya tipi yüklenemez. PDF, Office veya resim dosyaları kullanın.",
+                    statusCode: 400);
+
             await using var stream = file.OpenReadStream();
             var result = await mediator.Send(new UploadDocumentCommand(
                 tenantId, userId, file.FileName, file.ContentType, file.Length, stream,
