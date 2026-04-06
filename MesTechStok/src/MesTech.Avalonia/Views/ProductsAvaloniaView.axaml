@@ -198,6 +198,21 @@
                 </Style>
             </DataGrid.Styles>
             <DataGrid.Columns>
+                <DataGridTemplateColumn Header="" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:ProductItemDto">
+                            <Border Width="36" Height="36" CornerRadius="4" ClipToBounds="True" Margin="2">
+                                <Panel>
+                                    <TextBlock Text="&#x1F4E6;" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}" Opacity="0.4"/>
+                                    <asyncImage:AdvancedImage
+                                        IsVisible="{Binding ImageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                        Source="{Binding ImageUrl}" Width="36" Height="36" Stretch="UniformToFill"/>
+                                </Panel>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
                 <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
                 <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="130" />
