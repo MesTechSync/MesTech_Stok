@@ -55,6 +55,14 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Yetersiz stok. Mevcut: {product.Stock}, İstenen: {request.Quantity}" };
 
         var previousStock = product.Stock;
+        var transferReason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}";
+
+        // Product.AdjustStock ile stok düş — StockChangedEvent fırlatır → platform sync tetiklenir
+        // Transfer depo-içi hareket: toplam stok DEĞİŞMEZ (aynı ürün, farklı depo)
+        // Ancak AdjustStock çağrısı domain event'leri tetikler (low stock alert vb.)
+        product.AdjustStock(-request.Quantity, StockMovementType.Transfer, transferReason);
+        product.AdjustStock(request.Quantity, StockMovementType.Transfer, transferReason);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
 
         // OUT movement from source
         var outMovement = new StockMovement
@@ -65,7 +73,7 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
-            Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
+            Reason = transferReason,
             Date = DateTime.UtcNow
         };
         outMovement.SetStockLevels(previousStock, previousStock - request.Quantity);
@@ -80,7 +88,7 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
-            Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
+            Reason = transferReason,
             Date = DateTime.UtcNow
         };
         inMovement.SetStockLevels(previousStock - request.Quantity, previousStock);
@@ -93,7 +101,7 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         return new TransferStockResult
         {
             IsSuccess = true,
-            SourceRemainingStock = previousStock - request.Quantity,
+            SourceRemainingStock = product.Stock,
             TargetNewStock = request.Quantity,
             MovementId = outMovement.Id
         };
