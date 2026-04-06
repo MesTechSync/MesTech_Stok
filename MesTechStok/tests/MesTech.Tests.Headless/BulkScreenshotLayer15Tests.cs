@@ -26,17 +26,26 @@ namespace MesTech.Tests.Headless;
 [Collection("HeadlessPostgresCollection")]
 [Trait("Category", "Headless")]
 [Trait("Layer", "UI")]
-public class BulkScreenshotLayer15Tests
+public class BulkScreenshotLayer15Tests : IAsyncLifetime
 {
     private readonly TestPostgresFactory _pgFactory;
-    private readonly IServiceProvider _serviceProvider;
+    private IServiceProvider _serviceProvider = null!;
 
     public BulkScreenshotLayer15Tests(TestPostgresFactory pgFactory)
     {
         _pgFactory = pgFactory;
-        _serviceProvider = BuildDiContainer();
-        SeedTestData().GetAwaiter().GetResult();
     }
+
+    public async Task InitializeAsync()
+    {
+        // DI container'ı UI thread dışında oluştur — Avalonia Headless UI thread'de
+        // .GetAwaiter().GetResult() çağrısı EF Core async → UI thread re-entrancy deadlock yaratıyor.
+        // Task.Run ile thread pool'a kaçarak deadlock önlenir.
+        _serviceProvider = BuildDiContainer();
+        await Task.Run(SeedTestData);
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 
     private async Task SeedTestData()
     {
