@@ -1807,6 +1807,12 @@
                         <DataTemplate DataType="monvm:StaleOrdersAvaloniaViewModel">
                             <monviews:StaleOrdersAvaloniaView />
                         </DataTemplate>
+                        <DataTemplate DataType="vm:BarcodeReaderViewModel">
+                            <views:BarcodeReaderView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SettlementAvaloniaViewModel">
+                            <views:SettlementAvaloniaView />
+                        </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
             </DockPanel>
