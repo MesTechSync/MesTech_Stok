@@ -38,6 +38,10 @@ public static class WebhookServiceRegistration
         services.AddScoped<WebhookEventRouter>();
         services.AddScoped<IWebhookProcessor, WebhookProcessor>();
 
+        // === WebhookReceivedEvent Handler (MediatR — tüm platformlar) ===
+        services.AddScoped<INotificationHandler<MesTech.Infrastructure.Messaging.WebhookReceivedEvent>,
+            MesTech.Infrastructure.Integration.Webhooks.WebhookReceivedEventHandler>();
+
         // === Webhook Retry Job ===
         services.AddScoped<Jobs.WebhookRetryJob>();
 

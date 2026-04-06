@@ -1,5 +1,4 @@
 using MesTech.Application.Interfaces;
-using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging;
 using MediatR;
 using Microsoft.Extensions.Logging;
