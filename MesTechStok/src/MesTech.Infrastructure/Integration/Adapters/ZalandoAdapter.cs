@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -34,6 +35,7 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private readonly ZalandoOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
     private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
@@ -53,10 +55,11 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private readonly string ApiBase;
 
     public ZalandoAdapter(HttpClient httpClient, ILogger<ZalandoAdapter> logger,
-        IOptions<ZalandoOptions>? options = null)
+        IOptions<ZalandoOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new ZalandoOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         TokenUrl = _options.TokenUrl;
@@ -957,19 +960,20 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
             using var doc = JsonDocument.Parse(payload);
             var eventType = doc.RootElement.TryGetProperty("event_type", out var et) ? et.GetString() : "unknown";
             _logger.LogInformation("ZalandoAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Zalando] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
     }
 
     // ═══════════════════════════════════════════

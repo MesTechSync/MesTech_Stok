@@ -9,6 +9,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -31,6 +32,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private readonly ILogger<OzonAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
@@ -44,10 +46,11 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private const string ApiKeyHeader = "Api-Key";
 
     public OzonAdapter(HttpClient httpClient, ILogger<OzonAdapter> logger,
-        IOptions<OzonOptions>? options = null)
+        IOptions<OzonOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new OzonOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -1046,7 +1049,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1056,12 +1059,13 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogInformation(
                 "OzonAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
                 eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Ozon] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
     }
 
     // ═══════════════════════════════════════════

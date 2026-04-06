@@ -9,6 +9,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -31,6 +32,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     private readonly ILogger<AmazonTrAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
 
@@ -50,10 +52,11 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     private const string UnauthorizedStatusCode = "401";
 
     public AmazonTrAdapter(HttpClient httpClient, ILogger<AmazonTrAdapter> logger,
-        IOptions<AmazonOptions>? options = null)
+        IOptions<AmazonOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new AmazonOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -1490,15 +1493,17 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     /// Processes an Amazon SNS notification JSON payload.
     /// Amazon EventBridge/SQS delivers notifications as SNS messages with a Topic and Message field.
     /// </remarks>
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? topic = null;
+        string? messageId = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
 
-            var topic = doc.RootElement.TryGetProperty("TopicArn", out var topicEl) ? topicEl.GetString() :
+            topic = doc.RootElement.TryGetProperty("TopicArn", out var topicEl) ? topicEl.GetString() :
                         doc.RootElement.TryGetProperty("notificationType", out var ntEl) ? ntEl.GetString() : "unknown";
-            var messageId = doc.RootElement.TryGetProperty("MessageId", out var midEl) ? midEl.GetString() : null;
+            messageId = doc.RootElement.TryGetProperty("MessageId", out var midEl) ? midEl.GetString() : null;
 
             _logger.LogInformation(
                 "AmazonTrAdapter SNS webhook processed: Topic={Topic} MessageId={MessageId} PayloadLength={Length}",
@@ -1508,7 +1513,7 @@ public sealed class AmazonTrAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         {
             _logger.LogWarning(ex, "[AmazonTr] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, topic, messageId, payload!, _logger, ct).ConfigureAwait(false);
     }
 
     // ═══════════════════════════════════════════

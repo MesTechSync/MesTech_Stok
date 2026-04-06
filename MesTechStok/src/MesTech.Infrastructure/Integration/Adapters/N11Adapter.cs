@@ -7,6 +7,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
 using MesTech.Infrastructure.Integration.Soap;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -27,6 +28,7 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
     private readonly ResiliencePipeline _retryPipeline;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly N11Options _options;
+    private readonly IServiceScopeFactory? _scopeFactory;
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(5, 5);
     private SimpleSoapClient? _soapClient;
     private string? _appKey;
@@ -50,10 +52,11 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
     private const string BrandServicePath = "/ws/BrandService.wsdl";
 
     public N11Adapter(ILogger<N11Adapter> logger, IHttpClientFactory httpClientFactory,
-        IOptions<N11Options>? options = null)
+        IOptions<N11Options>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new N11Options();
 
         // NOT: SimpleSoapClient zaten Polly retry (2 attempt, exp backoff) iceriyor.
@@ -1183,12 +1186,12 @@ public sealed class N11Adapter : IIntegratorAdapter, IOrderCapableAdapter, IShip
         return Task.FromResult(true);
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         _logger.LogWarning(
             "N11Adapter.ProcessWebhookPayloadAsync: N11 webhook not supported. PayloadLength={Length}",
             payload.Length);
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, null, null, payload, _logger, ct).ConfigureAwait(false);
     }
 
     // ── IPingableAdapter ──

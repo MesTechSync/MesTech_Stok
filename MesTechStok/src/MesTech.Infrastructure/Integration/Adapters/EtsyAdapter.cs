@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -38,6 +39,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private readonly EtsyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -50,10 +52,11 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private readonly string BaseUrl;
 
     public EtsyAdapter(HttpClient httpClient, ILogger<EtsyAdapter> logger,
-        IOptions<EtsyOptions>? options = null)
+        IOptions<EtsyOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new EtsyOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         BaseUrl = _options.BaseUrl;
@@ -1237,19 +1240,20 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
+            eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
             _logger.LogInformation("EtsyAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Etsy] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload!, _logger, ct).ConfigureAwait(false);
     }
 }
 

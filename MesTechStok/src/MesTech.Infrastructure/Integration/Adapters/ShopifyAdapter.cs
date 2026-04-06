@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -38,6 +39,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private readonly ShopifyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     // Shopify leaky bucket: 40 req/s burst, 2 req/s sustained. 4 concurrency prevents 429 storm.
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(4, 4);
@@ -52,10 +54,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private const string ApiVersion = "2024-01";
 
     public ShopifyAdapter(HttpClient httpClient, ILogger<ShopifyAdapter> logger,
-        IOptions<ShopifyOptions>? options = null)
+        IOptions<ShopifyOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new ShopifyOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -1117,12 +1120,12 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     /// Payload format: JSON string prefixed with "X-Shopify-Hmac-Sha256:{base64Hmac}|{payload}"
     /// Convention used here: raw JSON payload is passed directly; signature checked separately.
     /// </summary>
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(payload))
         {
             _logger.LogWarning("ShopifyAdapter.ProcessWebhookPayloadAsync — bos payload");
-            return Task.CompletedTask;
+            return;
         }
 
         _logger.LogInformation("Shopify webhook payload received ({Length} bytes)", payload.Length);
@@ -1143,13 +1146,13 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation(
                 "Shopify webhook processed: OrderId={OrderId} FinancialStatus={Status}",
                 orderId, financialStatus);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, financialStatus, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Shopify webhook payload JSON parse hatasi");
         }
-
-        return Task.CompletedTask;
     }
 
     /// <summary>

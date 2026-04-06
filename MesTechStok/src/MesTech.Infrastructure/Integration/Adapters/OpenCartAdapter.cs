@@ -7,6 +7,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MesTech.Infrastructure.Integration.Security;
@@ -30,15 +31,17 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private readonly OpenCartOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private string _apiToken = string.Empty;
     private bool _isConfigured;
 
     public OpenCartAdapter(HttpClient httpClient, ILogger<OpenCartAdapter> logger,
-        IOptions<OpenCartOptions>? options = null)
+        IOptions<OpenCartOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _options = options?.Value ?? new OpenCartOptions();
+        _scopeFactory = scopeFactory;
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -1414,9 +1417,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     // ── IWebhookCapableAdapter ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(payload)) return;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
@@ -1428,12 +1431,13 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation(
                 "OpenCart webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Len}",
                 eventType, orderId, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (System.Text.Json.JsonException ex)
         {
             _logger.LogWarning(ex, "[OpenCart] Webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
     }
 
     // ── IPingableAdapter ──

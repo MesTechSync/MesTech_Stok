@@ -9,6 +9,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -41,6 +42,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     private readonly ILogger<AmazonEuAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
 
@@ -96,10 +98,11 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         };
 
     public AmazonEuAdapter(HttpClient httpClient, ILogger<AmazonEuAdapter> logger,
-        IOptions<AmazonOptions>? options = null)
+        IOptions<AmazonOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new AmazonOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -1504,18 +1507,20 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     // ── IWebhookCapableAdapter (Amazon SNS) ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] RegisterWebhook (SNS) {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(payload)) return;
+        string? notificationType = null;
+        string? messageId = null;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
             var root = doc.RootElement;
-            var notificationType = root.TryGetProperty("NotificationType", out var nt) ? nt.GetString()
+            notificationType = root.TryGetProperty("NotificationType", out var nt) ? nt.GetString()
                                  : root.TryGetProperty("Type", out var tp) ? tp.GetString()
                                  : "unknown";
             var topicArn = root.TryGetProperty("TopicArn", out var ta) ? ta.GetString() : null;
-            var messageId = root.TryGetProperty("MessageId", out var mid) ? mid.GetString() : null;
+            messageId = root.TryGetProperty("MessageId", out var mid) ? mid.GetString() : null;
             _logger.LogInformation(
                 "AmazonEU webhook processed: NotificationType={NotificationType} TopicArn={TopicArn} MessageId={MessageId} PayloadLength={Len}",
                 notificationType, topicArn, messageId, payload.Length);
@@ -1524,6 +1529,6 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         {
             _logger.LogWarning(ex, "[AmazonEu] SNS webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, notificationType, messageId, payload, _logger, ct).ConfigureAwait(false);
     }
 }

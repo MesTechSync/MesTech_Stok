@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -35,6 +36,7 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private readonly WooCommerceOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -47,10 +49,11 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private const int PageSize = 100;
 
     public WooCommerceAdapter(HttpClient httpClient, ILogger<WooCommerceAdapter> logger,
-        IOptions<WooCommerceOptions>? options = null)
+        IOptions<WooCommerceOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new WooCommerceOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -1425,9 +1428,9 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             return false;
         }
     }
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(payload)) return;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
@@ -1438,12 +1441,13 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
             _logger.LogInformation(
                 "WooCommerce webhook processed: Topic={Topic} OrderId={OrderId} Status={Status} PayloadLength={Len}",
                 topic, orderId, status, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, topic, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (System.Text.Json.JsonException ex)
         {
             _logger.LogWarning(ex, "[WooCommerce] Webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
     }
 
     // ═══════════════════════════════════════════

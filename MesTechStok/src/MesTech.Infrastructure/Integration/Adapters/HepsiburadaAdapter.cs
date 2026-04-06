@@ -10,6 +10,7 @@ using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -33,6 +34,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private readonly HepsiburadaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
@@ -41,9 +43,11 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     private bool _isConfigured;
 
     public HepsiburadaAdapter(HttpClient httpClient, ILogger<HepsiburadaAdapter> logger,
-        HepsiburadaTokenService? tokenService = null, IOptions<HepsiburadaOptions>? options = null)
+        HepsiburadaTokenService? tokenService = null, IOptions<HepsiburadaOptions>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new HepsiburadaOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -1203,12 +1207,13 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
+            eventType = doc.RootElement.TryGetProperty("eventType", out var et) ? et.GetString() : "unknown";
 
             _logger.LogInformation(
                 "HepsiburadaAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
@@ -1218,7 +1223,7 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
         {
             _logger.LogWarning(ex, "[Hepsiburada] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload!, _logger, ct).ConfigureAwait(false);
     }
 
     // ═══════════════════════════════════════════

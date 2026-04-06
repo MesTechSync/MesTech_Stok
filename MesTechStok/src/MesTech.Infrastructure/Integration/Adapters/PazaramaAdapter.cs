@@ -9,6 +9,7 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -35,6 +36,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private readonly PazaramaOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -42,10 +44,12 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private bool _isConfigured;
 
     public PazaramaAdapter(HttpClient httpClient, ILogger<PazaramaAdapter> logger,
-        IHttpClientFactory? httpClientFactory = null, IOptions<PazaramaOptions>? options = null)
+        IHttpClientFactory? httpClientFactory = null, IOptions<PazaramaOptions>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _options = options?.Value ?? new PazaramaOptions();
+        _scopeFactory = scopeFactory;
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _httpClientFactory = httpClientFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -1204,7 +1208,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     }
 
     /// <inheritdoc />
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1214,12 +1218,13 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation(
                 "PazaramaAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
                 eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Pazarama] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
     }
 
     // ── IPingableAdapter ──

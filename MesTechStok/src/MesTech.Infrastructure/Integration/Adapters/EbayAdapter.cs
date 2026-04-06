@@ -9,6 +9,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -32,6 +33,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private readonly EbayOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
     private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
@@ -51,10 +53,11 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
     public EbayAdapter(HttpClient httpClient, ILogger<EbayAdapter> logger,
-        IOptions<EbayOptions>? options = null)
+        IOptions<EbayOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new EbayOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -1510,12 +1513,13 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? notificationType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
+            notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
                 && meta.TryGetProperty("topic", out var topic)
                     ? topic.GetString()
                     : "unknown";
@@ -1528,8 +1532,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             _logger.LogWarning(ex, "[EbayAdapter] Malformed webhook payload (length={Length})", payload?.Length ?? 0);
         }
-
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, notificationType, null, payload!, _logger, ct).ConfigureAwait(false);
     }
 
     // ═══════════════════════════════════════════

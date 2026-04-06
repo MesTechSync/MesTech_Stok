@@ -10,6 +10,7 @@ using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -32,6 +33,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     private readonly CiceksepetiOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -39,9 +41,10 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     private bool _isConfigured;
 
     public CiceksepetiAdapter(HttpClient httpClient, ILogger<CiceksepetiAdapter> logger,
-        IOptions<CiceksepetiOptions>? options = null)
+        IOptions<CiceksepetiOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new CiceksepetiOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -518,11 +521,15 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
+        string? orderId = null;
         try
         {
             var webhook = JsonSerializer.Deserialize<CsWebhookPayload>(payload, _jsonOptions);
+            eventType = webhook?.EventType;
+            orderId = webhook?.OrderId?.ToString();
             _logger.LogInformation("Ciceksepeti webhook received: {EventType} Order={OrderId} Sub={SubOrderId}",
                 webhook?.EventType, webhook?.OrderId, webhook?.SubOrderId);
         }
@@ -530,7 +537,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         {
             _logger.LogWarning(ex, "[Ciceksepeti] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, orderId, payload!, _logger, ct).ConfigureAwait(false);
     }
 
     // ── Shipment notification ───────────────────────────

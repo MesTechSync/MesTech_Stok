@@ -8,6 +8,7 @@ using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -31,6 +32,7 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private readonly Bitrix24Options _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static SemaphoreSlim _rateLimitSemaphore = new(50, 50);
     private const int MaxBatchCommands = 50;
@@ -40,10 +42,12 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     private bool _isConfigured;
 
     public Bitrix24Adapter(HttpClient httpClient, ILogger<Bitrix24Adapter> logger,
-        IHttpClientFactory? httpClientFactory = null, IOptions<Bitrix24Options>? options = null)
+        IHttpClientFactory? httpClientFactory = null, IOptions<Bitrix24Options>? options = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _httpClientFactory = httpClientFactory;
+        _scopeFactory = scopeFactory;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? new Bitrix24Options();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
@@ -716,21 +720,21 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     async Task IWebhookCapableAdapter.ProcessWebhookPayloadAsync(string payload, CancellationToken ct)
         => await ProcessWebhookPayloadAsync(payload, null, ct).ConfigureAwait(false);
 
-    public Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
+    public async Task<bool> ProcessWebhookPayloadAsync(string payload, string? signature, CancellationToken ct = default)
     {
         try
         {
-            // Bitrix24 webhooks send form-encoded data with auth[application_token]
-            // Validation is done by comparing application_token with stored value
-            // The actual processing is delegated to WebhookReceiverService
-
             _logger.LogInformation("Bitrix24 webhook payload received ({Length} bytes)", payload?.Length ?? 0);
-            return Task.FromResult(true);
+
+            await WebhookDispatchHelper.DispatchAsync(
+                _scopeFactory, PlatformCode, "bitrix24_webhook", null, payload, _logger, ct).ConfigureAwait(false);
+
+            return true;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Bitrix24 ProcessWebhookPayloadAsync failed");
-            return Task.FromResult(false);
+            return false;
         }
     }
 
