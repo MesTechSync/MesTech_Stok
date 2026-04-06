@@ -699,6 +699,10 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCompletedInvoiceHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
             Application.EventHandlers.SettlementPaymentGLHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
+            Application.EventHandlers.InvoiceApprovedCOGSHandler>();
+        services.AddScoped<Application.EventHandlers.IWithholdingTaxGLHandler,
+            Application.EventHandlers.WithholdingTaxGLHandler>();
         services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
             Application.EventHandlers.StockChangedPlatformSyncHandler>();
         services.AddScoped<Application.EventHandlers.IPriceChangedPlatformSyncHandler,
