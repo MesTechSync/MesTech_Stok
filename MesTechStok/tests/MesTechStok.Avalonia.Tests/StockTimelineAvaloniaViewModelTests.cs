@@ -2,6 +2,7 @@ using FluentAssertions;
 using MesTech.Application.DTOs;
 using MesTech.Application.Queries.GetStockMovements;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -12,12 +13,13 @@ namespace MesTechStok.Avalonia.Tests;
 public class StockTimelineAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock = new();
+    private readonly Mock<ITenantProvider> _tenantProviderMock = new();
 
     private StockTimelineAvaloniaViewModel CreateSut()
     {
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetStockMovementsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<StockMovementDto>)Array.Empty<StockMovementDto>());
-        return new StockTimelineAvaloniaViewModel(_mediatorMock.Object);
+        return new StockTimelineAvaloniaViewModel(_mediatorMock.Object, _tenantProviderMock.Object);
     }
 
     // ── 3-State: Default ──
