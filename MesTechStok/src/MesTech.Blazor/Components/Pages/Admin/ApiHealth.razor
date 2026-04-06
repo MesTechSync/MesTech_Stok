@@ -1,5 +1,5 @@
 @page "/admin/api-health"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<ApiHealth> Logger
 

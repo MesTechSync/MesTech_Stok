@@ -1,5 +1,5 @@
 @page "/muhasebe/bilanco"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<BalanceSheet> Logger
 

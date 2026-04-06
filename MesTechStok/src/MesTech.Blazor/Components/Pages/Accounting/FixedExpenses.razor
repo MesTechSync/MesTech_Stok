@@ -1,5 +1,5 @@
 @page "/accounting/fixed-expenses"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @using Microsoft.AspNetCore.Authorization
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L

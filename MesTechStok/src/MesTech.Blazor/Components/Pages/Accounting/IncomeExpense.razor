@@ -1,5 +1,5 @@
 @page "/accounting/income-expense"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<IncomeExpense> Logger
 

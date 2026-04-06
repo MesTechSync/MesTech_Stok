@@ -1,5 +1,5 @@
 @page "/accounting/sales-by-platform"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<SalesByPlatform> Logger
 

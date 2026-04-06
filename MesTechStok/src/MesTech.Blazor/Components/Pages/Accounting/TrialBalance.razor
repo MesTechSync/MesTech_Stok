@@ -1,5 +1,5 @@
 @page "/accounting/trial-balance"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<TrialBalance> Logger
 @inject NavigationManager Navigation

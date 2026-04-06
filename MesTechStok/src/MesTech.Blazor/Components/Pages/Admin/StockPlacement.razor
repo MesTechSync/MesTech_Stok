@@ -1,5 +1,5 @@
 @page "/admin/stock-placement"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject MesTechApiClient ApiClient
 
 <PageTitle>MesTech - Stok Yerlestirme</PageTitle>

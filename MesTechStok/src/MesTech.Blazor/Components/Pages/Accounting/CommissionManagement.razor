@@ -1,5 +1,5 @@
 @page "/accounting/commissions"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 
 @inject MesTechApiClient ApiClient
 @inject IStringLocalizer<Strings> L

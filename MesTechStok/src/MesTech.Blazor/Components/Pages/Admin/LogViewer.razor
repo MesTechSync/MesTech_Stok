@@ -1,5 +1,5 @@
 @page "/admin/logs"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<LogViewer> Logger
 

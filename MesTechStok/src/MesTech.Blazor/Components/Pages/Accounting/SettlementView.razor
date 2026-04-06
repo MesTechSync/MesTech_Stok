@@ -1,5 +1,5 @@
 @page "/accounting/settlements"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @inject MesTechApiClient ApiClient
 @inject ILogger<SettlementView> Logger
 

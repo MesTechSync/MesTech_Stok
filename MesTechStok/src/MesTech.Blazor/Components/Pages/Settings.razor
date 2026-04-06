@@ -1,5 +1,5 @@
 @page "/ayarlar"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject MesTechApiClient ApiClient
 
 <PageTitle>MesTech - Ayarlar</PageTitle>
