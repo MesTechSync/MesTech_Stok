@@ -58,7 +58,7 @@ public static class ComplianceEndpoints
         // POST /api/v1/compliance/credit-note — iade faturası oluştur
         // BAĞIMLILIK: DEV1 → CreateCreditNoteCommand handler gerekli
         // Bu endpoint handler yazıldığında aktif edilecek.
-        group.MapPost("/credit-note", async (
+        group.MapPost("/credit-note", (
             CreditNoteRequest request,
             ISender mediator,
             ILoggerFactory loggerFactory,
