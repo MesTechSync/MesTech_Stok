@@ -117,7 +117,7 @@ public static class SystemHealthEndpoints
                 new GetUsersQuery(tenantId), ct);
             return Results.Ok(result);
         })
-        .WithName("GetUsers")
+        .WithName("GetSystemUsers")
         .WithSummary("Kullanıcı listesi (tenant bazlı veya tümü)").Produces<IReadOnlyList<UserListItemDto>>(200).Produces(400);
 
         // GET /api/v1/admin/system/adapter-health — platform adapter ping durumu
