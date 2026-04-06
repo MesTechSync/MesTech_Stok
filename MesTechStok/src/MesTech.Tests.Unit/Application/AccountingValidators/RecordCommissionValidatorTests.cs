@@ -91,11 +91,12 @@ public class RecordCommissionValidatorTests
     }
 
     [Fact]
-    public async Task ZeroGrossAmount_PassesValidation()
+    public async Task ZeroGrossAmount_FailsValidation()
     {
         var cmd = ValidCommand() with { GrossAmount = 0m };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "GrossAmount");
     }
 
     [Fact]
