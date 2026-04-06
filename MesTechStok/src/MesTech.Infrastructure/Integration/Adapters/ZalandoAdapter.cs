@@ -842,10 +842,112 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     }
 
     // ── ISettlementCapableAdapter ──
-    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    // Zalando Partner Finance API: GET /partner/settlement-reports
+    // Returns settlement summaries per period. Requires zDirect/Partner API access.
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
-        _logger.LogWarning("[ZalandoAdapter] GetSettlement — Zalando Settlements API not available for all partners");
-        return Task.FromResult<SettlementDto?>(null);
+        EnsureConfigured();
+        _logger.LogInformation("ZalandoAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var url = $"{ApiBase}/partner/settlement-reports?start_date={startDate:yyyy-MM-dd}&end_date={endDate:yyyy-MM-dd}";
+
+            using var response = await ThrottledExecuteAsync(
+                async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("Zalando GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+
+                // 403/404 = partner not enrolled in Finance API — degrade gracefully
+                if (response.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
+                {
+                    _logger.LogWarning("[ZalandoAdapter] GetSettlement — partner not enrolled in Finance API; returning null");
+                    return null;
+                }
+
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Zalando",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "EUR"
+            };
+
+            // Zalando returns items array with settlement line items
+            var itemsProperty = doc.RootElement.TryGetProperty("items", out var items) ? items
+                : doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement
+                : default;
+
+            if (itemsProperty.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var entry in itemsProperty.EnumerateArray())
+                {
+                    var grossAmount = entry.TryGetProperty("gross_amount", out var grossEl) &&
+                                      grossEl.TryGetProperty("amount", out var grossVal) &&
+                                      decimal.TryParse(grossVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ga) ? ga : 0m;
+
+                    var commissionAmount = entry.TryGetProperty("commission_amount", out var commEl) &&
+                                           commEl.TryGetProperty("amount", out var commVal) &&
+                                           decimal.TryParse(commVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ca) ? ca : 0m;
+
+                    var shippingCost = entry.TryGetProperty("shipping_cost", out var shipEl) &&
+                                       shipEl.TryGetProperty("amount", out var shipVal) &&
+                                       decimal.TryParse(shipVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var sc) ? sc : 0m;
+
+                    var returnAmount = entry.TryGetProperty("return_amount", out var retEl) &&
+                                       retEl.TryGetProperty("amount", out var retVal) &&
+                                       decimal.TryParse(retVal.GetRawText(), NumberStyles.Number, CultureInfo.InvariantCulture, out var ra) ? ra : 0m;
+
+                    var entryType = entry.TryGetProperty("type", out var typeEl)
+                        ? typeEl.GetString() ?? "SALE"
+                        : "SALE";
+
+                    var orderNumber = entry.TryGetProperty("order_number", out var onEl)
+                        ? onEl.GetString()
+                        : null;
+
+                    var txDate = entry.TryGetProperty("settlement_date", out var sdEl) &&
+                                 DateTime.TryParse(sdEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var sdv)
+                        ? sdv : startDate;
+
+                    settlement.Lines.Add(new SettlementLineDto
+                    {
+                        OrderNumber = orderNumber,
+                        TransactionType = entryType,
+                        Amount = grossAmount,
+                        CommissionAmount = commissionAmount,
+                        TransactionDate = txDate
+                    });
+
+                    settlement.TotalSales += grossAmount;
+                    settlement.TotalCommission += Math.Abs(commissionAmount);
+                    settlement.TotalShippingCost += Math.Abs(shippingCost);
+                    settlement.TotalReturnDeduction += Math.Abs(returnAmount);
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("Zalando GetSettlement: {LineCount} entries, Net={Net} {Currency}",
+                settlement.Lines.Count, settlement.NetAmount, settlement.Currency);
+
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Zalando GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
     }
 
     public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
