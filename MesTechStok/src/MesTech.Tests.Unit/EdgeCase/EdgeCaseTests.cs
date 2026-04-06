@@ -473,14 +473,18 @@ public class EdgeCaseTests
     // ═══════════════════════════════════════════════════════════════
     public class BoundaryValueTests
     {
-        [Theory]
-        [InlineData(int.MaxValue)]
-        [InlineData(int.MinValue)]
-        public void Product_ExtremeStock_NoOverflow(int stock)
+        [Fact]
+        public void Product_MaxStock_NoOverflow()
         {
-            var product = FakeData.CreateProduct(stock: stock);
+            var product = FakeData.CreateProduct(stock: int.MaxValue);
+            product.Stock.Should().Be(int.MaxValue);
+        }
 
-            product.Stock.Should().Be(stock);
+        [Fact]
+        public void Product_NegativeStock_ThrowsArgumentOutOfRange()
+        {
+            var act = () => FakeData.CreateProduct(stock: int.MinValue);
+            act.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [Theory]
