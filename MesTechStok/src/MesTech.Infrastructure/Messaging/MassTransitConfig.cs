@@ -85,6 +85,26 @@ public static class MassTransitConfig
             bus.AddConsumer<MesaDailySummaryAuditConsumer>();
             bus.AddConsumer<MesaSyncErrorAuditConsumer>();
 
+            // Integration Event Audit Consumers — orphan event fix (D3-050 DEV6)
+            bus.AddConsumer<StockChangedAuditConsumer>();
+            bus.AddConsumer<PriceChangedAuditConsumer>();
+            bus.AddConsumer<OrderReceivedAuditConsumer>();
+            bus.AddConsumer<InvoiceCreatedAuditConsumer>();
+            bus.AddConsumer<OrderShippedAuditConsumer>();
+            bus.AddConsumer<ProductUpdatedAuditConsumer>();
+            bus.AddConsumer<ShipmentCostRecordedAuditConsumer>();
+            bus.AddConsumer<ZeroStockAuditConsumer>();
+            bus.AddConsumer<StaleOrderDetectedAuditConsumer>();
+            bus.AddConsumer<PlatformDeactivatedAuditConsumer>();
+            bus.AddConsumer<EInvoiceSentAuditConsumer>();
+            bus.AddConsumer<EInvoiceCancelledAuditConsumer>();
+            bus.AddConsumer<ErpSyncCompletedAuditConsumer>();
+            bus.AddConsumer<EbayOrderReceivedAuditConsumer>();
+            bus.AddConsumer<CreditBalanceLowAuditConsumer>();
+            bus.AddConsumer<LeadConvertedAuditConsumer>();
+            bus.AddConsumer<DealWonAuditConsumer>();
+            bus.AddConsumer<DealLostAuditConsumer>();
+
             bus.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(rabbitHost, rabbitPort, "/", h =>
@@ -112,6 +132,22 @@ public static class MassTransitConfig
                     x.SetEntityName("mestech.order.stale"));
                 cfg.Message<PlatformDeactivatedIntegrationEvent>(x =>
                     x.SetEntityName("mestech.platform.product.deactivated"));
+
+                // D3-050 FIX: Missing exchange configs for orphan events
+                cfg.Message<OrderShippedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.order.shipped"));
+                cfg.Message<ProductUpdatedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.product.updated"));
+                cfg.Message<EInvoiceSentIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.einvoice.sent"));
+                cfg.Message<EInvoiceCancelledIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.einvoice.cancelled"));
+                cfg.Message<ErpSyncCompletedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.erp.sync.completed"));
+                cfg.Message<EbayOrderReceivedIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.ebay.order.received"));
+                cfg.Message<CreditBalanceLowIntegrationEvent>(x =>
+                    x.SetEntityName("mestech.credit.balance.low"));
 
                 // MESA OS exchange'ler — MesTech -> MESA
                 cfg.Message<MesaProductCreatedEvent>(x =>
