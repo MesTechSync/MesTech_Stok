@@ -232,6 +232,9 @@ public sealed class BarcodeGenerationService : IBarcodeGenerationService
 
     private static string RenderSvg(bool[] pattern, string data, int width, int height)
     {
+        if (pattern.Length == 0)
+            return $"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}"></svg>""";
+
         var barWidth = (double)width / pattern.Length;
         var sb = new StringBuilder();
 
