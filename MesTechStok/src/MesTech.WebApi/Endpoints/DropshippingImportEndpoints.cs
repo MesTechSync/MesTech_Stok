@@ -36,25 +36,19 @@ public static class DropshippingImportEndpoints
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/dropshipping/import/status — tüm platform sync durumu (D12-22)
-        group.MapGet("/status", async (
-            IAdapterFactory adapterFactory,
-            CancellationToken ct) =>
+        group.MapGet("/status", (
+            IIntegratorOrchestrator orchestrator) =>
         {
-            var platforms = new[] { "Trendyol", "Hepsiburada", "N11", "Amazon", "Ciceksepeti" };
-            var statuses = new List<object>();
-
-            foreach (var platform in platforms)
+            var adapters = orchestrator.RegisteredAdapters;
+            var statuses = adapters.Select(a => new
             {
-                var adapter = adapterFactory.Resolve(platform);
-                statuses.Add(new
-                {
-                    platform,
-                    adapterRegistered = adapter is not null,
-                    timestamp = DateTime.UtcNow
-                });
-            }
+                platform = a.PlatformCode,
+                displayName = a.DisplayName,
+                isEnabled = a.IsEnabled,
+                timestamp = DateTime.UtcNow
+            }).ToList();
 
-            return Results.Ok(statuses);
+            return Results.Ok(new { total = statuses.Count, platforms = statuses });
         })
         .WithName("GetDropshippingImportStatus")
         .WithSummary("Platform sync durumu — adapter kayıt ve son sync bilgisi")
