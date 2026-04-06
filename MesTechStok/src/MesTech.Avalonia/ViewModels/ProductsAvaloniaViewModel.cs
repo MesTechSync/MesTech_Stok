@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.CreateProduct;
+using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Avalonia.Services;
@@ -368,7 +370,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             ApplyFilters();
     }
 
-    /// <summary>D2-027: Yeni ürün ekle — ProductEditDialog açar.</summary>
+    /// <summary>D2-027: Yeni ürün ekle — ProductEditDialog → CreateProductCommand.</summary>
     [RelayCommand]
     private async Task AddProduct()
     {
@@ -380,14 +382,36 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         if (owner is not null)
             await dialog.ShowDialog(owner);
 
-        if (dialog.Result)
+        if (dialog.Result && !string.IsNullOrWhiteSpace(dialog.ProductName))
         {
-            _toast.ShowSuccess($"'{dialog.ProductName}' eklendi");
-            await LoadAsync();
+            await SafeExecuteAsync(async ct =>
+            {
+                _ = decimal.TryParse(dialog.Price, out var price);
+                var result = await _mediator.Send(new CreateProductCommand(
+                    Name: dialog.ProductName!,
+                    SKU: dialog.Sku ?? $"SKU-{DateTime.Now:yyyyMMddHHmmss}",
+                    Barcode: dialog.Barcode,
+                    PurchasePrice: 0m,
+                    SalePrice: price,
+                    CategoryId: Guid.Empty,
+                    Description: dialog.Description,
+                    Brand: null,
+                    SyncToPlatforms: true), ct);
+
+                if (result.IsSuccess)
+                {
+                    _toast.ShowSuccess($"'{dialog.ProductName}' eklendi");
+                    await LoadAsync();
+                }
+                else
+                {
+                    _toast.ShowError(result.ErrorMessage ?? "Urun eklenemedi");
+                }
+            }, "Urun eklenirken hata");
         }
     }
 
-    /// <summary>D2-025: Seçili ürünü düzenle — ProductEditDialog açar.</summary>
+    /// <summary>D2-025: Seçili ürünü düzenle — ProductEditDialog → UpdateProductCommand.</summary>
     [RelayCommand]
     private async Task EditProduct()
     {
@@ -399,7 +423,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             name: p.Name,
             sku: p.SKU,
             barcode: p.Barcode,
-            price: p.Price.ToString("F2"),
+            price: p.SalePrice.ToString("F2"),
             description: p.Description);
 
         var owner = global::Avalonia.Application.Current?.ApplicationLifetime
@@ -409,10 +433,28 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         if (owner is not null)
             await dialog.ShowDialog(owner);
 
-        if (dialog.Result)
+        if (dialog.Result && !string.IsNullOrWhiteSpace(dialog.ProductName))
         {
-            _toast.ShowSuccess($"'{dialog.ProductName}' guncellendi");
-            await LoadAsync();
+            await SafeExecuteAsync(async ct =>
+            {
+                _ = decimal.TryParse(dialog.Price, out var price);
+                var result = await _mediator.Send(new UpdateProductCommand(
+                    ProductId: p.Id,
+                    Name: dialog.ProductName,
+                    Description: dialog.Description,
+                    SalePrice: price > 0 ? price : null,
+                    SyncToPlatforms: true), ct);
+
+                if (result.IsSuccess)
+                {
+                    _toast.ShowSuccess($"'{dialog.ProductName}' guncellendi");
+                    await LoadAsync();
+                }
+                else
+                {
+                    _toast.ShowError(result.ErrorMessage ?? "Urun guncellenemedi");
+                }
+            }, "Urun guncellenirken hata");
         }
     }
 
