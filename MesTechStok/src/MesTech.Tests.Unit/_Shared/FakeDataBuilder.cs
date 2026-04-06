@@ -25,7 +25,6 @@ public static class FakeDataBuilder
             Name = name ?? _faker.Commerce.ProductName(),
             SKU = sku ?? _faker.Random.AlphaNumeric(8).ToUpperInvariant(),
             Barcode = _faker.Random.ReplaceNumbers("869#########"),
-            Stock = stock,
             PurchasePrice = purchasePrice,
             SalePrice = salePrice,
             CategoryId = categoryId ?? Guid.NewGuid(),
@@ -37,6 +36,8 @@ public static class FakeDataBuilder
             IsActive = true,
             CurrencyCode = "TRY"
         };
+        product.SyncStock(stock);
+        product.ClearDomainEvents(); // SyncStock raises events — clear for clean test state
         return product;
     }
 
