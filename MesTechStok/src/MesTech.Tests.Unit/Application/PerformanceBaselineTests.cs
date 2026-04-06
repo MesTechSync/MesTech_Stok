@@ -25,7 +25,7 @@ public class PerformanceBaselineTests
         var products = new List<Product>(10_000);
         for (int i = 0; i < 10_000; i++)
         {
-            products.Add(new Product
+            var p = new Product
             {
                 TenantId = tenantId,
                 CategoryId = categoryId,
@@ -34,10 +34,11 @@ public class PerformanceBaselineTests
                 Barcode = $"869000{i:D7}",
                 PurchasePrice = 10m + (i % 100),
                 SalePrice = 20m + (i % 100),
-                Stock = 100 + (i % 500),
                 TaxRate = 0.18m,
                 IsActive = true
-            });
+            };
+            p.SyncStock(100 + (i % 500));
+            products.Add(p);
         }
 
         sw.Stop();
@@ -156,9 +157,10 @@ public class PerformanceBaselineTests
             Name = "Event-Stress-Product",
             SKU = "EVT-STRESS",
             PurchasePrice = 10m,
-            SalePrice = 20m,
-            Stock = 50_000
+            SalePrice = 20m
         };
+        product.SyncStock(50_000);
+        product.ClearDomainEvents(); // SyncStock raises events — clear before stress test
 
         var sw = Stopwatch.StartNew();
 
