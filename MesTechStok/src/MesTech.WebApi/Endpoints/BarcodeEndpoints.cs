@@ -1,6 +1,7 @@
 using MesTech.Application.DTOs;
 using MediatR;
 using MesTech.Application.Commands.CreateBarcodeScanLog;
+using MesTech.Application.Interfaces;
 using MesTech.Application.Queries.GetBarcodeScanLogs;
 using MesTech.Application.Queries.GetProductByBarcode;
 using Microsoft.AspNetCore.OutputCaching;
@@ -58,5 +59,28 @@ public static class BarcodeEndpoints
         .CacheOutput("Lookup60s")
         .WithName("GetBarcodeScanLogs")
         .WithSummary("Barkod tarama geçmişi (sayfalanmış)").Produces(200).Produces(400);
+
+        // POST /api/v1/barcodes/generate — barkod PNG oluştur (GAP-5 FIX: service mevcut)
+        group.MapPost("/generate", (
+            BarcodeGenerateRequest request,
+            IBarcodeGenerationService barcodeService) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Data))
+                return Results.Problem(detail: "Barkod verisi boş olamaz.", statusCode: 400);
+
+            var bytes = request.Format?.ToLowerInvariant() switch
+            {
+                "ean13" => barcodeService.GenerateEan13Png(request.Data, request.Width ?? 300, request.Height ?? 100),
+                _ => barcodeService.GenerateCode128Png(request.Data, request.Width ?? 400, request.Height ?? 80)
+            };
+
+            var fileName = $"barcode-{request.Data}.png";
+            return Results.File(bytes, "image/png", fileName);
+        })
+        .WithName("GenerateBarcode")
+        .WithSummary("Barkod PNG oluştur (Code128 veya EAN-13)")
+        .Produces(200).Produces(400);
     }
+
+    private sealed record BarcodeGenerateRequest(string Data, string? Format, int? Width, int? Height);
 }

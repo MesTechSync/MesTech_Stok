@@ -169,6 +169,27 @@ public static class ProductEndpoints
         .Produces(204)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
 
+        // PUT /api/v1/products/{id}/content — AI ürün içeriği güncelle (GAP-1 FIX: handler mevcut)
+        group.MapPut("/{id:guid}/content", async (
+            Guid id,
+            UpdateProductContentRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new Application.Commands.UpdateProductContent.UpdateProductContentCommand
+            {
+                ProductId = id,
+                SKU = request.SKU ?? string.Empty,
+                GeneratedContent = request.Content,
+                AiProvider = request.Provider ?? "manual",
+                TenantId = request.TenantId
+            }, ct);
+            return Results.Ok(new { productId = id, updated = true });
+        })
+        .WithName("UpdateProductContent")
+        .WithSummary("Ürün açıklama/içerik güncelle — AI veya manuel")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (
             Guid id,
@@ -408,4 +429,6 @@ public static class ProductEndpoints
         .Produces(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
+
+    private sealed record UpdateProductContentRequest(string Content, Guid TenantId, string? SKU, string? Provider);
 }

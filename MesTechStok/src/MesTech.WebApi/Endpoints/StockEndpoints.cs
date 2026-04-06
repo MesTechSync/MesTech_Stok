@@ -8,6 +8,7 @@ using MesTech.Application.Commands.AddStockLot;
 using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
 using MesTech.Application.Commands.TransferStock;
+using MesTech.Application.Commands.DeleteStockLot;
 using MesTech.Application.Features.Stock.Commands.CreateStockLot;
 using MesTech.Application.Features.Stock.Commands.StartStockCount;
 using MesTech.Application.Features.Stock.Queries.GetStockLots;
@@ -247,6 +248,19 @@ public static class StockEndpoints
         .WithSummary("Yeni stok lot kaydı — lot numarası, miktar, birim maliyet, depo")
         .Produces(201).Produces(400).ProducesProblem(401).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // DELETE /api/v1/stock/lots/{id} — stok lot sil (GAP-3 FIX: handler mevcut)
+        group.MapDelete("/lots/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteStockLotCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteStockLot")
+        .WithSummary("Stok lot kaydını sil").Produces(204).Produces(400);
 
         // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
         group.MapGet("/placements", async (
