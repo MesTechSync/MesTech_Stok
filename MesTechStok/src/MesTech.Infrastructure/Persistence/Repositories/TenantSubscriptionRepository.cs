@@ -15,7 +15,9 @@ public sealed class TenantSubscriptionRepository : ITenantSubscriptionRepository
 
     public async Task<TenantSubscription?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.TenantSubscriptions
+            .IgnoreQueryFilters() // Webhook flow: JWT yok → tenant filter bypass, ID ile doğrudan erişim
             .Include(s => s.Plan)
+            .Where(s => !s.IsDeleted) // soft-delete manuel kontrol
             .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
 
     public async Task<TenantSubscription?> GetActiveByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
