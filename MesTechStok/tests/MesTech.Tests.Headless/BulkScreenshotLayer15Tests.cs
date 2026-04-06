@@ -125,6 +125,7 @@ public class BulkScreenshotLayer15Tests : IAsyncLifetime
         services.AddSingleton<MesTech.Avalonia.Services.INavigationService, Infrastructure.HeadlessNavigationService>();
         services.AddSingleton<MesTech.Avalonia.Services.IFeatureGateService, Infrastructure.HeadlessFeatureGateService>();
         services.AddSingleton<MesTech.Avalonia.Services.INotificationService, Infrastructure.HeadlessNotificationService>();
+        services.AddSingleton<MesTech.Application.Interfaces.IInfrastructureHealthService, Infrastructure.HeadlessInfrastructureHealthService>();
 
         // EF Core — TestPostgresFactory connection string ile
         services.AddDbContext<AppDbContext>((sp, options) =>

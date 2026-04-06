@@ -82,3 +82,18 @@ public sealed class HeadlessNotificationService : INotificationService
     public void ShowWarning(string message) { /* no-op */ }
     public void ShowInfo(string message) { /* no-op */ }
 }
+
+// ─── IInfrastructureHealthService ──────────────────────────────────
+public sealed class HeadlessInfrastructureHealthService : MesTech.Application.Interfaces.IInfrastructureHealthService
+{
+    public Task<IReadOnlyList<MesTech.Application.Interfaces.ServiceHealthResult>> CheckAllAsync(CancellationToken ct = default)
+    {
+        IReadOnlyList<MesTech.Application.Interfaces.ServiceHealthResult> results =
+        [
+            new("PostgreSQL", true, "1ms"),
+            new("Redis", true, "1ms"),
+            new("RabbitMQ", true, "1ms")
+        ];
+        return Task.FromResult(results);
+    }
+}
