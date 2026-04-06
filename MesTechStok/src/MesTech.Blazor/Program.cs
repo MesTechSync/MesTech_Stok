@@ -260,7 +260,23 @@ app.Use(async (context, next) =>
 
 app.UseCors();
 app.UseSerilogRequestLogging();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Immutable assets (hashed filenames): cache 1 year
+        // Other static files: cache 1 day with revalidation
+        var path = ctx.Context.Request.Path.Value ?? "";
+        if (path.Contains(".module.wasm") || path.Contains("-") && (path.EndsWith(".js") || path.EndsWith(".css")))
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+        }
+        else
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=86400, must-revalidate";
+        }
+    }
+});
 app.UseRequestLocalization();
 app.UseRateLimiter();
 app.UseHttpMetrics();
