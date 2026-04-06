@@ -432,6 +432,40 @@ public static class ProductEndpoints
         .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
         .Produces(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
+
+        // GET /api/v1/products/export?format=pdf|xml — PDF/XML export (HH-DEV6-088)
+        group.MapGet("/export", async (
+            string format,
+            IReportExportService reportExport,
+            IXmlExportService xmlExport,
+            MesTech.Domain.Interfaces.IProductRepository productRepo,
+            CancellationToken ct) =>
+        {
+            var entities = await productRepo.GetPagedAsync(1, 10_000, activeOnly: true, ct: ct);
+            var exportDtos = entities.Items.Select(p => new ProductExportDto(
+                p.SKU, p.Name, p.SalePrice, p.Stock,
+                null, p.Barcode)).ToList();
+
+            if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                var pdfBytes = await reportExport.ExportToPdfAsync(
+                    exportDtos, "MesTech Ürün Listesi", ct);
+                return Results.File(pdfBytes, "application/pdf",
+                    $"products_{DateTime.UtcNow:yyyyMMdd}.pdf");
+            }
+
+            if (string.Equals(format, "xml", StringComparison.OrdinalIgnoreCase))
+            {
+                var xmlStream = await xmlExport.ExportProductsAsync(exportDtos, ct);
+                return Results.Stream(xmlStream, "application/xml",
+                    $"products_{DateTime.UtcNow:yyyyMMdd}.xml");
+            }
+
+            return Results.BadRequest("Desteklenen formatlar: pdf, xml. Excel/CSV için POST /export kullanın.");
+        })
+        .WithName("ExportProductsGetPdfXml")
+        .WithSummary("Ürün dışa aktarma — PDF veya XML formatında (GET parametreli)")
+        .Produces(200).Produces(400);
     }
 
     private sealed record UpdateProductContentRequest(string Content, Guid TenantId, string? SKU, string? Provider);
