@@ -294,9 +294,36 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
             if (platformBrandId == 0)
             {
-                _logger.LogError("Trendyol PushProduct: brandId=0 for SKU={SKU}. " +
-                    "Trendyol API requires a valid brandId. Map brand via BrandPlatformMapping. Product will be REJECTED.", product.SKU);
+                _logger.LogError("Trendyol PushProduct ABORTED: brandId=0 for SKU={SKU}. " +
+                    "Trendyol API requires a valid brandId. Map brand via BrandPlatformMapping.", product.SKU);
+                return false;
             }
+
+            // categoryId must be integer for Trendyol API — resolve from CategoryPlatformMapping
+            var platformCategoryId = 0;
+            if (product.PlatformMappings is { Count: > 0 })
+            {
+                var trendyolMapping = product.PlatformMappings
+                    .FirstOrDefault(m => m.PlatformType == PlatformType.Trendyol);
+                if (trendyolMapping?.ExternalCategoryId is not null
+                    && int.TryParse(trendyolMapping.ExternalCategoryId, out var parsedCatId))
+                {
+                    platformCategoryId = parsedCatId;
+                }
+            }
+
+            if (platformCategoryId == 0)
+            {
+                _logger.LogError("Trendyol PushProduct ABORTED: categoryId=0 for SKU={SKU}. " +
+                    "Trendyol API requires a leaf-level integer categoryId. Map via PlatformMapping.ExternalCategoryId.", product.SKU);
+                return false;
+            }
+
+            // dimensionalWeight (desi) — Trendyol zorunlu alan
+            var dimensionalWeight = product.Desi ?? 1m;
+
+            // cargoCompanyId — Trendyol zorunlu (varsayılan: Yurtiçi=17)
+            const int defaultCargoCompanyId = 17;
 
             // Images — Trendyol requires at least 1 image URL
             var imageUrls = new List<object>();
@@ -305,11 +332,11 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 // Primary image
                 imageUrls.Add(new { url = product.ImageUrl });
             }
-            // Additional images from PlatformMapping metadata (if stored as JSON array)
-            if (_scopeFactory is not null && imageUrls.Count == 0)
+            if (imageUrls.Count == 0)
             {
-                _logger.LogWarning("Trendyol PushProduct: no images for SKU={SKU}. " +
-                    "Trendyol may reject products without images.", product.SKU);
+                _logger.LogError("Trendyol PushProduct ABORTED: no images for SKU={SKU}. " +
+                    "Trendyol requires at least 1 product image.", product.SKU);
+                return false;
             }
 
             var payload = new
@@ -322,14 +349,16 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         title = product.Name,
                         productMainId = product.SKU,
                         brandId = platformBrandId,
-                        categoryId = product.CategoryId,
+                        categoryId = platformCategoryId,
                         quantity = product.Stock,
                         stockCode = product.SKU,
+                        dimensionalWeight = dimensionalWeight,
                         description = product.Description ?? "",
                         currencyType = product.CurrencyCode,
                         listPrice = product.ListPrice ?? product.SalePrice,
                         salePrice = product.SalePrice,
                         vatRate = (int)(product.TaxRate * 100),
+                        cargoCompanyId = defaultCargoCompanyId,
                         images = imageUrls
                     }
                 }
@@ -352,7 +381,23 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 return false;
             }
 
-            _logger.LogInformation("Trendyol PushProduct success: {SKU}", product.SKU);
+            // Parse batchRequestId from Trendyol async response
+            try
+            {
+                var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var responseDoc = JsonDocument.Parse(responseBody);
+                var batchId = responseDoc.RootElement.TryGetProperty("batchRequestId", out var bid)
+                    ? bid.GetString() : null;
+
+                _logger.LogInformation(
+                    "Trendyol PushProduct accepted: SKU={SKU} BatchRequestId={BatchId} — poll /batch-requests/{BatchId} for status",
+                    product.SKU, batchId);
+            }
+            catch (JsonException)
+            {
+                _logger.LogInformation("Trendyol PushProduct accepted: SKU={SKU} (response not JSON)", product.SKU);
+            }
+
             return true;
         }
         catch (JsonException jex)
@@ -2415,12 +2460,14 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         title = product.Name,
                         productMainId = product.SKU,
                         stockCode = product.SKU,
+                        dimensionalWeight = product.Desi ?? 1m,
                         description = product.Description ?? "",
                         currencyType = product.CurrencyCode,
                         listPrice = product.ListPrice ?? product.SalePrice,
                         salePrice = product.SalePrice,
                         quantity = product.Stock,
-                        vatRate = (int)(product.TaxRate * 100)
+                        vatRate = (int)(product.TaxRate * 100),
+                        cargoCompanyId = 17
                     }
                 }
             };
