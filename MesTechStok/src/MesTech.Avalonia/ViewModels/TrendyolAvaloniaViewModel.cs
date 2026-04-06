@@ -40,8 +40,8 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int pingDurationMs;
 
     // ── WPF013: API Info ─────────────────────────────────────────────────────
-    [ObservableProperty] private string sellerId = "12345678";
-    [ObservableProperty] private string apiKeyMasked = "****-****-****-3f7a";
+    [ObservableProperty] private string sellerId = "-";
+    [ObservableProperty] private string apiKeyMasked = "-";
     [ObservableProperty] private string sonBaglantiZamani = "-";
     [ObservableProperty] private int rateLimitUsed;
     [ObservableProperty] private int rateLimitTotal = 1000;
@@ -113,6 +113,9 @@ public partial class TrendyolAvaloniaViewModel : ViewModelBase
             }
 
             SellerId = trendyolStore.ExternalStoreId ?? trendyolStore.Id.ToString()[..8];
+            ApiKeyMasked = trendyolStore.StoreName is { Length: > 4 }
+                ? $"****-****-{trendyolStore.StoreName[^4..]}"
+                : "****";
 
             var result = await _mediator.Send(new TestStoreConnectionCommand(trendyolStore.Id), CancellationToken);
 
