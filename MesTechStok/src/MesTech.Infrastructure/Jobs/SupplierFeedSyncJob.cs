@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+// D4-150: Distributed lock prevents parallel feed imports for same feedId
+
 // Panel-E: DEV-E2 — IServiceProvider replaced with IFeedParserFactory (constructor DI)
 
 namespace MesTech.Infrastructure.Jobs;
@@ -26,6 +28,7 @@ public sealed class SupplierFeedSyncJob
     private readonly IAdapterFactory _adapterFactory;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IFeedParserFactory _feedParserFactory;
+    private readonly IDistributedLockService _lockService;
     private readonly ILogger<SupplierFeedSyncJob> _logger;
 
     public SupplierFeedSyncJob(
@@ -35,6 +38,7 @@ public sealed class SupplierFeedSyncJob
         IAdapterFactory adapterFactory,
         IHttpClientFactory httpClientFactory,
         IFeedParserFactory feedParserFactory,
+        IDistributedLockService lockService,
         ILogger<SupplierFeedSyncJob> logger)
     {
         _dbContextFactory = dbContextFactory;
@@ -43,12 +47,25 @@ public sealed class SupplierFeedSyncJob
         _adapterFactory = adapterFactory;
         _httpClientFactory = httpClientFactory;
         _feedParserFactory = feedParserFactory;
+        _lockService = lockService;
         _logger = logger;
     }
 
     [AutomaticRetry(Attempts = 2)]
     public async Task ExecuteAsync(Guid feedId, CancellationToken ct = default)
     {
+        // D4-150: Distributed lock — prevent parallel imports for the same feed
+        var lockExpiry = TimeSpan.FromMinutes(10);
+        var lockWait = TimeSpan.FromSeconds(5);
+        await using var lockHandle = await _lockService.AcquireLockAsync(
+            $"feed-sync:{feedId}", lockExpiry, lockWait, ct).ConfigureAwait(false);
+
+        if (lockHandle is null)
+        {
+            _logger.LogWarning("[SupplierFeedSync] Could not acquire lock for feed {FeedId} — another instance is running. Skipping.", feedId);
+            return;
+        }
+
         _logger.LogInformation("[SupplierFeedSync] Starting sync for feed {FeedId}", feedId);
 
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(ct).ConfigureAwait(false);
