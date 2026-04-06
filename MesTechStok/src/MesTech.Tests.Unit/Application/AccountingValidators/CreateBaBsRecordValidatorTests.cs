@@ -102,11 +102,12 @@ public class CreateBaBsRecordValidatorTests
     }
 
     [Fact]
-    public async Task ZeroTotalAmount_PassesValidation()
+    public async Task ZeroTotalAmount_FailsValidation()
     {
         var cmd = ValidCommand() with { TotalAmount = 0m };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "TotalAmount");
     }
 
     [Fact]
@@ -119,10 +120,11 @@ public class CreateBaBsRecordValidatorTests
     }
 
     [Fact]
-    public async Task ZeroDocumentCount_PassesValidation()
+    public async Task ZeroDocumentCount_FailsValidation()
     {
         var cmd = ValidCommand() with { DocumentCount = 0 };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "DocumentCount");
     }
 }
