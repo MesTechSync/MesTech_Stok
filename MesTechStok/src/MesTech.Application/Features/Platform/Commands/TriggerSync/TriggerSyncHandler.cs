@@ -1,3 +1,4 @@
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -6,11 +7,16 @@ namespace MesTech.Application.Features.Platform.Commands.TriggerSync;
 
 public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, TriggerSyncResult>
 {
+    private readonly IIntegratorOrchestrator _orchestrator;
     private readonly IBackgroundJobService _jobService;
     private readonly ILogger<TriggerSyncHandler> _logger;
 
-    public TriggerSyncHandler(IBackgroundJobService jobService, ILogger<TriggerSyncHandler> logger)
+    public TriggerSyncHandler(
+        IIntegratorOrchestrator orchestrator,
+        IBackgroundJobService jobService,
+        ILogger<TriggerSyncHandler> logger)
     {
+        _orchestrator = orchestrator;
         _jobService = jobService;
         _logger = logger;
     }
@@ -23,8 +29,11 @@ public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, Tri
         try
         {
             var platform = request.PlatformCode;
+
+            // Gerçek sync — IIntegratorOrchestrator.SyncPlatformAsync delegate
+            // Hangfire background job olarak enqueue et (UI bloklamadan)
             var jobId = _jobService.Enqueue(() =>
-                Task.Run(() => _logger.LogInformation("Sync job executing for {Platform}", platform)));
+                _orchestrator.SyncPlatformAsync(platform, CancellationToken.None));
 
             return Task.FromResult(new TriggerSyncResult
             {
@@ -32,7 +41,7 @@ public sealed class TriggerSyncHandler : IRequestHandler<TriggerSyncCommand, Tri
                 JobId = jobId
             });
         }
-#pragma warning disable CA1031 // Intentional broad catch — per-item resilience
+#pragma warning disable CA1031
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to trigger sync for {Platform}", request.PlatformCode);
