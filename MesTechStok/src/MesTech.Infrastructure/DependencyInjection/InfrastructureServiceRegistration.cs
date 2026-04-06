@@ -693,6 +693,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.InvoiceCreatedNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
             Application.EventHandlers.StockChangedPlatformSyncHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceChangedPlatformSyncHandler,
+            Application.EventHandlers.PriceChangedPlatformSyncHandler>();
         services.AddScoped<Application.EventHandlers.ILowStockNotificationHandler,
             Application.EventHandlers.LowStockNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IProductCreatedNotificationHandler,
