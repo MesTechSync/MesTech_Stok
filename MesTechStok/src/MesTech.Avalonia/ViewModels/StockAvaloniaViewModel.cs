@@ -156,6 +156,12 @@ public partial class StockAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
 
+    [RelayCommand]
+    private async Task AddMovement()
+    {
+        await _dialog.ShowInfoAsync("Stok hareketi eklemek icin 'Stok Hareketleri' ekranini kullanin.", "MesTech");
+    }
+
     // HH-DEV2-017: Platform stock sync
     [RelayCommand]
     private async Task SyncPlatformStock()
