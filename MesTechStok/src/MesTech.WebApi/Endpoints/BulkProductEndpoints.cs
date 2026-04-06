@@ -91,8 +91,8 @@ public static class BulkProductEndpoints
         .Produces(200).Produces(400)
         .DisableAntiforgery()
         .AddEndpointFilter<Filters.IdempotencyFilter>()
-        .WithRequestTimeout("LongRunning")
-        .RequirePermission("ManageProducts");
+        .RequirePermission("ManageProducts")
+        .WithRequestTimeout("LongRunning");
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
         group.MapPost("/export", async (
