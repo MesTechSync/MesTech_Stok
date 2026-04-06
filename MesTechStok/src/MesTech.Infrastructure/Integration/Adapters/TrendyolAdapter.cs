@@ -390,10 +390,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         stockCode = product.SKU,
                         dimensionalWeight = dimensionalWeight,
                         description = product.Description ?? "",
-                        currencyType = product.CurrencyCode,
+                        currencyType = "TRY",
                         listPrice = product.ListPrice ?? product.SalePrice,
                         salePrice = product.SalePrice,
-                        vatRate = (int)(product.TaxRate * 100),
+                        vatRate = MapToTrendyolVatRate(product.TaxRate),
                         cargoCompanyId = defaultCargoCompanyId,
                         images = imageUrls,
                         attributes
@@ -3127,6 +3127,29 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             }
             catch { /* non-critical logging */ }
         }, ct);
+    }
+
+    // ═══════════════════════════════════════════
+    // Trendyol VAT Rate Mapping
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Maps product tax rate (decimal, e.g. 0.20) to Trendyol valid VAT rates: 0, 1, 10, 20.
+    /// Trendyol API rejects any other value with 400 Bad Request.
+    /// </summary>
+    private static int MapToTrendyolVatRate(decimal taxRate)
+    {
+        var pct = (int)Math.Round(taxRate * 100);
+        return pct switch
+        {
+            0 => 0,
+            1 => 1,
+            10 => 10,
+            20 => 20,
+            8 => 10,   // 8% → round up to 10% (Trendyol nearest tier)
+            18 => 20,  // 18% → round up to 20% (Trendyol nearest tier)
+            _ => 20    // Default to highest tier (safe — overcharge not undercharge)
+        };
     }
 
     // ═══════════════════════════════════════════

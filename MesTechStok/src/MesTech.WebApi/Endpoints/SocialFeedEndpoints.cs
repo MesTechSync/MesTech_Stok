@@ -137,6 +137,38 @@ public static class SocialFeedEndpoints
         .WithSummary("Sosyal feed yenileme tetikle — Google Merchant, Facebook Shop vb.")
         .Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/feeds/{platform}.xml — PUBLIC feed XML (Google Merchant, Facebook Shop crawler)
+        // AllowAnonymous: Feed URL'leri dış servisler tarafından çekilir
+        app.MapGet("/api/v1/feeds/{platform}.xml", async (
+            string platform,
+            Guid storeId,
+            IEnumerable<ISocialFeedAdapter> adapters,
+            CancellationToken ct) =>
+        {
+            if (!Enum.TryParse<SocialFeedPlatform>(platform, ignoreCase: true, out var parsedPlatform))
+                return Results.Problem(detail: $"Bilinmeyen feed platform: {platform}", statusCode: 400);
+
+            var adapter = adapters.FirstOrDefault(a => a.Platform == parsedPlatform);
+            if (adapter is null)
+                return Results.Problem(detail: $"Feed adaptörü bulunamadı: {platform}", statusCode: 404);
+
+            var result = await adapter.GenerateFeedAsync(
+                new FeedGenerationRequest(storeId, null), ct);
+
+            if (!result.Success || string.IsNullOrEmpty(result.FeedUrl))
+                return Results.Problem(detail: "Feed oluşturulamadı.", statusCode: 500);
+
+            // FeedUrl MinIO/CDN'ye redirect — crawler buradan XML'i çeker
+            return Results.Redirect(result.FeedUrl);
+        })
+        .AllowAnonymous()
+        .RequireRateLimiting("WebhookRateLimit")
+        .WithTags("Social Feeds")
+        .WithName("GetPublicFeedXml")
+        .WithSummary("Public feed XML — Google Merchant / Facebook Shop crawler erişimi")
+        .Produces(200).Produces(400).Produces(404)
+        .CacheOutput("Report120s");
     }
 
     /// <summary>Feed URL doğrulama istek gövdesi.</summary>
