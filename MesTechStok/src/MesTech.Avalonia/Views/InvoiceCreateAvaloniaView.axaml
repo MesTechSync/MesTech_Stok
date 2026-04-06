@@ -122,7 +122,7 @@
                           MinHeight="300">
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Header="Sec" Binding="{Binding IsSelected}" Width="60"/>
-                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderId}" Width="150"/>
+                        <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNumber}" Width="150"/>
                         <DataGridTextColumn Header="Musteri" Binding="{Binding CustomerName}" Width="240"/>
                         <DataGridTextColumn Header="Tutar (TL)" Binding="{Binding Amount, StringFormat='{}{0:N2}'}" Width="140"/>
                         <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="120"/>

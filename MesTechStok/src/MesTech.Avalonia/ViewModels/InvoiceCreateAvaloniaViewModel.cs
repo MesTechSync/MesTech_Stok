@@ -5,6 +5,7 @@ using MediatR;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Domain.Enums;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -12,16 +13,31 @@ namespace MesTech.Avalonia.ViewModels;
 /// <summary>
 /// 3-adimli fatura olusturma sihirbazi ViewModel.
 /// Step 1: Siparis secimi, Step 2: Fatura detaylari, Step 3: Onizleme ve onay.
+/// INavigationAware: OrderDetail'den OrderId/CustomerName/TotalAmount alir.
 /// </summary>
-public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
+public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase, INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ITenantProvider _tenantProvider;
+    private Guid? _preselectedOrderId;
 
     public InvoiceCreateAvaloniaViewModel(IMediator mediator, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
         _tenantProvider = tenantProvider;
+    }
+
+    public Task OnNavigatedToAsync(IDictionary<string, object?> parameters)
+    {
+        if (parameters.TryGetValue("OrderId", out var idObj) && idObj is Guid id)
+            _preselectedOrderId = id;
+        if (parameters.TryGetValue("CustomerName", out var nameObj) && nameObj is string name)
+            RecipientName = name;
+        if (parameters.TryGetValue("TotalAmount", out var amtObj) && amtObj is decimal amt)
+            PreviewTotal = amt;
+        if (parameters.TryGetValue("TaxAmount", out var taxObj) && taxObj is decimal tax)
+            PreviewKdv = tax;
+        return LoadAsync();
     }
 
     [ObservableProperty] private string _statusMessage = string.Empty;
@@ -74,13 +90,21 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
             {
                 Orders.Add(new()
                 {
-                    OrderId = o.OrderNumber,
+                    Id = o.Id,
+                    OrderNumber = o.OrderNumber,
                     CustomerName = o.CustomerName ?? "-",
                     Amount = o.TotalAmount,
                     Date = o.OrderDate,
                     Platform = o.SourcePlatform ?? "-",
-                    IsSelected = false
+                    IsSelected = _preselectedOrderId.HasValue && o.Id == _preselectedOrderId.Value
                 });
+            }
+
+            // Pre-selected order varsa direkt Step 2'ye geç
+            if (_preselectedOrderId.HasValue && Orders.Any(o => o.IsSelected))
+            {
+                CurrentStep = 2;
+                UpdateWizardState();
             }
 
             IsEmpty = Orders.Count == 0;
@@ -119,7 +143,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
             var scenario = SelectedType == "e-Arsiv" ? EInvoiceScenario.EARSIVFATURA : EInvoiceScenario.TEMELFATURA;
             var type = EInvoiceType.SATIS;
             var selectedOrder = Orders.FirstOrDefault(o => o.IsSelected);
-            var orderId = Guid.TryParse(selectedOrder?.OrderId, out var oid) ? oid : (Guid?)null;
+            var orderId = selectedOrder?.Id != Guid.Empty ? selectedOrder?.Id : null;
             await _mediator.Send(new CreateEInvoiceCommand(
                 orderId,
                 RecipientVkn,
@@ -155,7 +179,7 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
         {
             PreviewLines.Add(new()
             {
-                Description = $"Siparis {order.OrderId} — {order.CustomerName}",
+                Description = $"Siparis {order.OrderNumber} — {order.CustomerName}",
                 Amount = order.Amount
             });
             subtotal += order.Amount;
@@ -168,7 +192,8 @@ public partial class InvoiceCreateAvaloniaViewModel : ViewModelBase
 
 public class InvoiceOrderItemDto : ObservableObject
 {
-    public string OrderId { get; set; } = string.Empty;
+    public Guid Id { get; set; }
+    public string OrderNumber { get; set; } = string.Empty;
     public string CustomerName { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public DateTime Date { get; set; }
