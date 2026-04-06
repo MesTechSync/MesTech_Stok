@@ -1,6 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Threading.RateLimiting;
 using Hangfire;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -53,6 +54,12 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .WriteTo.Seq(ctx.Configuration["Serilog:SeqUrl"] ?? ctx.Configuration["Seq:Url"] ?? "http://mestech-seq:80")
     .Enrich.WithProperty("Application", "MesTech.WebApi"));
+
+// ForwardedHeaders — Nginx/Traefik reverse proxy support (DEV4-G046)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 // JWT Options — bind from appsettings "Jwt" section (E01)
 builder.Services.Configure<JwtTokenOptions>(
@@ -421,6 +428,10 @@ else
 {
     app.Logger.LogInformation("Production environment detected — skipping demo data seeders");
 }
+
+// ForwardedHeaders — required behind reverse proxy (Nginx/Traefik) for correct
+// client IP, scheme, and host resolution (DEV4-G046 security fix)
+app.UseForwardedHeaders();
 
 // HTTPS redirection + HSTS (S01f+S01g security hardening)
 if (!app.Environment.IsDevelopment())

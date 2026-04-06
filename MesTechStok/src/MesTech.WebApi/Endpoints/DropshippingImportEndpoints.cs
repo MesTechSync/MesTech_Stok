@@ -43,8 +43,8 @@ public static class DropshippingImportEndpoints
             var statuses = adapters.Select(a => new
             {
                 platform = a.PlatformCode,
-                displayName = a.DisplayName,
-                isEnabled = a.IsEnabled,
+                displayName = a.PlatformCode,
+                isEnabled = true,
                 timestamp = DateTime.UtcNow
             }).ToList();
 
