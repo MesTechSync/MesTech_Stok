@@ -345,5 +345,60 @@ public static class StockEndpoints
         .WithSummary("Platform stok senkronizasyonu — stok seviyelerini platforma push et (HH-D6-002)")
         .Produces(200).Produces(400).Produces(422).ProducesProblem(429)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // ═══ KOPUK ZİNCİR FIX: Handler var, endpoint yok olanlar ═══
+
+        // GET /api/v1/stock/alerts — stok uyarıları (düşük stok ürünleri)
+        group.MapGet("/alerts", async (
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Features.Dashboard.Queries.GetStockAlerts.GetStockAlertsQuery(tenantId), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetStockAlerts")
+        .WithSummary("Stok uyarıları — minimum stok altı ürünler")
+        .Produces<IReadOnlyList<Application.Features.Dashboard.Queries.GetStockAlerts.StockAlertDto>>(200)
+        .ProducesProblem(401).ProducesProblem(429)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/stock/alerts/low — düşük stok uyarıları (önem dereceli)
+        group.MapGet("/alerts/low", async (
+            Guid tenantId,
+            int? count,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Features.Dashboard.Queries.GetLowStockAlerts.GetLowStockAlertsQuery(
+                    tenantId, Math.Clamp(count ?? 20, 1, 100)), ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetLowStockAlerts")
+        .WithSummary("Düşük stok uyarıları — deficit ve severity bilgisi dahil")
+        .Produces<IReadOnlyList<Application.Features.Dashboard.Queries.GetLowStockAlerts.LowStockAlertDto>>(200)
+        .ProducesProblem(401).ProducesProblem(429)
+        .CacheOutput("Dashboard30s");
+
+        // GET /api/v1/stock/export — stok verisi dışa aktarma (xlsx/csv)
+        group.MapGet("/export", async (
+            Guid tenantId,
+            string? format,
+            string? filter,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Features.Stock.Commands.ExportStock.ExportStockCommand(
+                    tenantId, format ?? "xlsx", filter), ct);
+            if (result.FileData.Length == 0)
+                return Results.Problem(detail: "Export produced no data", statusCode: 400);
+            var contentType = (format ?? "xlsx") == "csv"
+                ? "text/csv"
+                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return Results.File(result.FileData.ToArray(), contentType, result.FileName);
+        })
+        .WithName("ExportStock")
+        .WithSummary("Stok verisi dışa aktarma — Excel veya CSV formatında")
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
     }
 }
