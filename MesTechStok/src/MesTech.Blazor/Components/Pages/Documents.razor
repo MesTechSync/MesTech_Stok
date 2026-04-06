@@ -132,20 +132,20 @@ else
                     var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
                     _documents = System.Text.Json.JsonSerializer.Deserialize<List<DocumentItem>>(json,
                         new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                        ?? GetDemoData();
+                        ?? (ApiClient.IsDemoAllowed ? GetDemoData() : new());
                 }
-                catch { _documents = GetDemoData(); _isDemoMode = true; }
+                catch { _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new(); _isDemoMode = true; }
             }
             else
             {
                 _isDemoMode = true;
-                _documents = GetDemoData();
+                _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new();
             }
         }
         catch (Exception ex)
         {
             _isDemoMode = true;
-            _documents = GetDemoData();
+            _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new();
             Logger.LogWarning(ex, "API error, falling back to demo mode");
         }
         finally

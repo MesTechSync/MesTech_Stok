@@ -147,14 +147,14 @@ else
             else
             {
                 _isDemoMode = true;
-                orders = GenerateDemoOrders();
+                orders = ApiClient.IsDemoAllowed ? GenerateDemoOrders() : new();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Order list load failed, using demo data");
             _isDemoMode = true;
-            orders = GenerateDemoOrders();
+            orders = ApiClient.IsDemoAllowed ? GenerateDemoOrders() : new();
         }
         finally
         {

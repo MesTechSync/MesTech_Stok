@@ -142,14 +142,14 @@ else
             else
             {
                 _isDemoMode = true;
-                platforms = GenerateDemoPlatforms();
+                platforms = ApiClient.IsDemoAllowed ? GenerateDemoPlatforms() : new();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Platform data load failed, using demo");
             _isDemoMode = true;
-            platforms = GenerateDemoPlatforms();
+            platforms = ApiClient.IsDemoAllowed ? GenerateDemoPlatforms() : new();
         }
         finally
         {

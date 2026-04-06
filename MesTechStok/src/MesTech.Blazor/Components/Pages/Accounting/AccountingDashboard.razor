@@ -180,14 +180,14 @@
       else
       {
         _isDemoMode = true;
-        _summary = GetDemoData();
+        if (ApiClient.IsDemoAllowed) _summary = GetDemoData();
       }
     }
     catch (Exception ex)
     {
       Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
-      _summary = GetDemoData();
+      if (ApiClient.IsDemoAllowed) _summary = GetDemoData();
     }
     finally
     {

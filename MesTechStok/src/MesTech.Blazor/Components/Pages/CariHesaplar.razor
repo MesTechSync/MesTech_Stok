@@ -395,16 +395,14 @@
       else
       {
         _isDemoMode = true;
-        cariHesaplar = GetDemoCariHesaplar();
-        hareketler = GetDemoHareketler();
+        if (ApiClient.IsDemoAllowed) { cariHesaplar = GetDemoCariHesaplar(); hareketler = GetDemoHareketler(); }
       }
     }
     catch (Exception ex)
     {
       Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
-      cariHesaplar = GetDemoCariHesaplar();
-      hareketler = GetDemoHareketler();
+      if (ApiClient.IsDemoAllowed) { cariHesaplar = GetDemoCariHesaplar(); hareketler = GetDemoHareketler(); }
     }
     finally
     {

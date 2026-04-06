@@ -319,14 +319,14 @@ else
       else
       {
         _isDemoMode = true;
-        LoadDemoData();
+        if (ApiClient.IsDemoAllowed) LoadDemoData();
       }
     }
     catch (Exception ex)
     {
       Logger.LogWarning(ex, "API error, falling back to demo data");
       _isDemoMode = true;
-      LoadDemoData();
+      if (ApiClient.IsDemoAllowed) LoadDemoData();
     }
     finally
     {

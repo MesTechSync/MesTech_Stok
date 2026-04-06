@@ -283,14 +283,14 @@ else
             else
             {
                 _isDemoMode = true;
-                LoadDemoCategoryData();
+                if (ApiClient.IsDemoAllowed) LoadDemoCategoryData();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "API error, falling back to demo data");
             _isDemoMode = true;
-            LoadDemoCategoryData();
+            if (ApiClient.IsDemoAllowed) LoadDemoCategoryData();
         }
         finally
         {

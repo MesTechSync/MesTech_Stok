@@ -254,7 +254,7 @@ else
             else
             {
                 _isDemoMode = true;
-                _products = GetDemoData();
+                _products = ApiClient.IsDemoAllowed ? GetDemoData() : new();
                 _categories = _products.Select(p => p.Category).Distinct().OrderBy(c => c).ToList();
             }
         }
@@ -262,7 +262,7 @@ else
         {
             Logger.LogWarning(ex, "Product list load failed, using demo data");
             _isDemoMode = true;
-            _products = GetDemoData();
+            _products = ApiClient.IsDemoAllowed ? GetDemoData() : new();
             _categories = _products.Select(p => p.Category).Distinct().OrderBy(c => c).ToList();
         }
         finally

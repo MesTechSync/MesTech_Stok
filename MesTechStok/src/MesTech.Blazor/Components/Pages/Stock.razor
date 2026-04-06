@@ -199,14 +199,14 @@ else
             else
             {
                 _isDemoMode = true;
-                products = GenerateDemoProducts();
+                products = ApiClient.IsDemoAllowed ? GenerateDemoProducts() : new();
             }
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Stock data load failed, using demo data");
             _isDemoMode = true;
-            products = GenerateDemoProducts();
+            products = ApiClient.IsDemoAllowed ? GenerateDemoProducts() : new();
         }
         finally
         {

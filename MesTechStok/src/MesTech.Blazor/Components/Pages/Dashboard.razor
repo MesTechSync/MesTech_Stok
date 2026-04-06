@@ -513,7 +513,9 @@
       return;
     }
 
-    // Demo fallback data
+    // Demo fallback data — only in Development; production shows empty state
+    if (!ApiClient.IsDemoAllowed) return;
+
     _recentOrders =
     [
       new() { OrderNumber = "TY-2026-4812", CustomerName = "Ahmet Yilmaz", TotalAmount = 1_250.00m, Status = "Hazirlaniyor", PlatformName = "Trendyol", CreatedAt = DateTime.Now.AddHours(-2) },
