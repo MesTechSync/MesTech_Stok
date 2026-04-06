@@ -28,6 +28,7 @@ public sealed class ShipmentCost : BaseEntity, ITenantEntity
         decimal? desiWeight = null, bool isChargedToCustomer = false,
         decimal? customerChargeAmount = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         if (cost < 0) throw new ArgumentException("Kargo ucreti negatif olamaz.", nameof(cost));
 
         return new ShipmentCost

@@ -25,6 +25,7 @@ public sealed class CariHareket : BaseEntity, ITenantEntity
         CariDirection direction, string description,
         DateTime? date = null, Guid? invoiceId = null, Guid? orderId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount, nameof(amount));
         ArgumentException.ThrowIfNullOrWhiteSpace(description, nameof(description));
 

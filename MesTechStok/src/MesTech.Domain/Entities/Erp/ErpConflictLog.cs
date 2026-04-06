@@ -47,6 +47,7 @@ public sealed class ErpConflictLog : BaseEntity, ITenantEntity
         string winner,
         string resolution = "Auto")
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         return new ErpConflictLog
         {
             TenantId = tenantId,

@@ -31,6 +31,7 @@ public sealed class StockAlertRule : BaseEntity, ITenantEntity
         Guid? warehouseId = null, bool autoReorder = false, int? reorderQty = null,
         Guid? supplierId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentOutOfRangeException.ThrowIfNegative(warningThreshold);
         ArgumentOutOfRangeException.ThrowIfNegative(criticalThreshold);
         if (criticalThreshold >= warningThreshold)
