@@ -16,6 +16,7 @@ public sealed class SettlementLine : BaseEntity, ITenantEntity
     public decimal CargoDeduction { get; private set; }
     public decimal RefundDeduction { get; private set; }
     public decimal NetAmount { get; private set; }
+    public decimal VatAmount { get; private set; }
 
     public byte[]? RowVersion { get; set; }
 
@@ -33,7 +34,8 @@ public sealed class SettlementLine : BaseEntity, ITenantEntity
         decimal serviceFee,
         decimal cargoDeduction,
         decimal refundDeduction,
-        decimal netAmount)
+        decimal netAmount,
+        decimal vatAmount = 0m)
     {
         return new SettlementLine
         {
@@ -47,6 +49,7 @@ public sealed class SettlementLine : BaseEntity, ITenantEntity
             CargoDeduction = cargoDeduction,
             RefundDeduction = refundDeduction,
             NetAmount = netAmount,
+            VatAmount = vatAmount,
             CreatedAt = DateTime.UtcNow
         };
     }

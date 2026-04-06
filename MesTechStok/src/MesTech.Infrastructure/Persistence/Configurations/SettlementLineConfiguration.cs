@@ -15,6 +15,7 @@ public sealed class SettlementLineConfiguration : IEntityTypeConfiguration<Settl
         builder.Property(x => x.CargoDeduction).HasPrecision(18, 2);
         builder.Property(x => x.RefundDeduction).HasPrecision(18, 2);
         builder.Property(x => x.NetAmount).HasPrecision(18, 2);
+        builder.Property(x => x.VatAmount).HasPrecision(18, 2);
 
         builder.HasIndex(x => x.SettlementBatchId);
         builder.HasIndex(x => x.OrderId);

@@ -130,6 +130,7 @@ public sealed class TrendyolSettlementParser : ISettlementParser
             var cargoDeduction = NormalizeTurkishDecimal(item.CargoDeduction);
             var refundDeduction = NormalizeTurkishDecimal(item.RefundDeduction);
             var net = NormalizeTurkishDecimal(item.NetAmount);
+            var vat = NormalizeTurkishDecimal(item.VatAmount);
 
             var line = SettlementLine.Create(
                 tenantId: batch.TenantId,
@@ -140,7 +141,8 @@ public sealed class TrendyolSettlementParser : ISettlementParser
                 serviceFee: serviceFee,
                 cargoDeduction: cargoDeduction,
                 refundDeduction: refundDeduction,
-                netAmount: net);
+                netAmount: net,
+                vatAmount: vat);
 
             lines.Add(line);
             batch.AddLine(line);
