@@ -1140,10 +1140,133 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     }
 
     // ── ISettlementCapableAdapter ──
-    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    // Etsy Payment Account Ledger API: GET /v3/application/shops/{shopId}/payment-account/ledger-entries
+    // Requires transactions_r scope. Returns payment entries with amounts + fees.
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
-        _logger.LogWarning("[EtsyAdapter] GetSettlement — Etsy Ledger API requires elevated scope");
-        return Task.FromResult<SettlementDto?>(null);
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var minCreated = new DateTimeOffset(startDate.ToUniversalTime()).ToUnixTimeSeconds();
+            var maxCreated = new DateTimeOffset(endDate.ToUniversalTime()).ToUnixTimeSeconds();
+
+            var url = $"{BaseUrl}/application/shops/{_shopId}/payment-account/ledger-entries" +
+                      $"?min_created={minCreated}&max_created={maxCreated}&limit=100";
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Etsy",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "USD"
+            };
+
+            var hasMore = true;
+            var offset = 0;
+
+            while (hasMore)
+            {
+                var pagedUrl = offset > 0 ? $"{url}&offset={offset}" : url;
+                using var request = CreateAuthenticatedRequest(HttpMethod.Get, pagedUrl);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Etsy GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+
+                    // 403 = scope insufficient — degrade gracefully (backward compat)
+                    if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        _logger.LogWarning("[EtsyAdapter] GetSettlement — transactions_r scope not granted; returning null");
+                        return null;
+                    }
+
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.TryGetProperty("results", out var results) &&
+                    results.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var entry in results.EnumerateArray())
+                    {
+                        var amount = entry.TryGetProperty("amount", out var amtEl) &&
+                                     amtEl.TryGetProperty("amount", out var amtVal) &&
+                                     int.TryParse(amtVal.GetRawText(), out var cents)
+                            ? cents / 100m
+                            : 0m;
+
+                        var feeAmount = entry.TryGetProperty("fee", out var feeEl) &&
+                                        feeEl.TryGetProperty("amount", out var feeVal) &&
+                                        int.TryParse(feeVal.GetRawText(), out var feeCents)
+                            ? Math.Abs(feeCents / 100m)
+                            : 0m;
+
+                        var entryType = entry.TryGetProperty("entry_type", out var etEl)
+                            ? etEl.GetString() ?? "sale"
+                            : "sale";
+
+                        var ledgerDate = entry.TryGetProperty("create_date", out var cdEl) &&
+                                         cdEl.TryGetInt64(out var unixTs)
+                            ? DateTimeOffset.FromUnixTimeSeconds(unixTs).UtcDateTime
+                            : startDate;
+
+                        var sequenceNumber = entry.TryGetProperty("sequence_number", out var snEl)
+                            ? snEl.GetInt64().ToString()
+                            : null;
+
+                        settlement.Lines.Add(new SettlementLineDto
+                        {
+                            OrderNumber = sequenceNumber,
+                            TransactionType = entryType,
+                            Amount = amount,
+                            CommissionAmount = feeAmount,
+                            TransactionDate = ledgerDate
+                        });
+
+                        if (entryType is "sale" or "transaction")
+                        {
+                            settlement.TotalSales += amount;
+                            settlement.TotalCommission += feeAmount;
+                        }
+                        else if (entryType is "refund")
+                        {
+                            settlement.TotalReturnDeduction += Math.Abs(amount);
+                        }
+                        else if (entryType is "shipping" or "shipping_transaction")
+                        {
+                            settlement.TotalShippingCost += Math.Abs(amount);
+                        }
+                    }
+
+                    var count = results.GetArrayLength();
+                    offset += count;
+                    hasMore = count >= 100; // Etsy page size
+                }
+                else
+                {
+                    hasMore = false;
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("Etsy GetSettlement: {LineCount} entries, Net={Net} {Currency}",
+                settlement.Lines.Count, settlement.NetAmount, settlement.Currency);
+
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Etsy GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
     }
 
     public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
