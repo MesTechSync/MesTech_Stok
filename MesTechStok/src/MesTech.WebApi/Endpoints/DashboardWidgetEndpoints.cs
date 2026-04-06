@@ -54,7 +54,7 @@ public static class DashboardWidgetEndpoints
             var result = await mediator.Send(new GetStockAlertsQuery(tenantId), ct);
             return Results.Ok(result);
         })
-        .WithName("GetStockAlerts")
+        .WithName("GetWidgetStockAlerts")
         .WithSummary("Dusuk stok uyarilari (stok <= minThreshold)")
         .Produces<IReadOnlyList<StockAlertDto>>(200)
         .CacheOutput("Dashboard30s");

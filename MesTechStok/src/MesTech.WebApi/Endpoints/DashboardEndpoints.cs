@@ -159,7 +159,7 @@ public static class DashboardEndpoints
                 new GetLowStockAlertsQuery(tenantId, count ?? 20), ct);
             return Results.Ok(result);
         })
-        .WithName("GetLowStockAlerts")
+        .WithName("GetDashboardLowStockAlerts")
         .WithSummary("Düşük stok uyarıları — yeniden sipariş noktası altı ürünler")
         .Produces<IReadOnlyList<LowStockAlertDto>>(200)
         .CacheOutput("Dashboard30s");
