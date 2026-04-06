@@ -39,6 +39,14 @@ public sealed class CategoryPlatformMappingRepository : ICategoryPlatformMapping
                                    && m.PlatformType == platform, ct)
             .ConfigureAwait(false);
 
+    public async Task<CategoryPlatformMapping?> GetByExternalCategoryIdAsync(
+        Guid tenantId, string externalCategoryId, PlatformType platform, CancellationToken ct = default)
+        => await _context.Set<CategoryPlatformMapping>()
+            .FirstOrDefaultAsync(m => m.TenantId == tenantId
+                                   && m.ExternalCategoryId == externalCategoryId
+                                   && m.PlatformType == platform, ct)
+            .ConfigureAwait(false);
+
     public async Task AddAsync(CategoryPlatformMapping mapping, CancellationToken ct = default)
         => await _context.Set<CategoryPlatformMapping>().AddAsync(mapping, ct).ConfigureAwait(false);
 

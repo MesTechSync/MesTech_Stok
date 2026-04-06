@@ -13,6 +13,7 @@ public sealed class CategoryPlatformMappingConfiguration : IEntityTypeConfigurat
         builder.Property(m => m.ExternalCategoryName).HasMaxLength(200);
 
         builder.Property(m => m.MatchConfidence).HasPrecision(8, 4);
+        builder.Property(m => m.CachedAttributesJson).HasColumnType("text");
 
         builder.HasIndex(m => new { m.CategoryId, m.StoreId }).IsUnique();
 
