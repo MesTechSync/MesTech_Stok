@@ -4,6 +4,7 @@ using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Common;
 using MesTech.Application.DTOs.EInvoice;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -21,7 +22,7 @@ public class InvoiceListAvaloniaViewModelTests
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetEInvoicesQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(PagedResult<EInvoiceDto>.Empty());
-        _sut = new InvoiceListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<IDialogService>());
+        _sut = new InvoiceListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<IDialogService>(), Mock.Of<ITenantProvider>());
     }
 
     [Fact]
