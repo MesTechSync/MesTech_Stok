@@ -86,6 +86,30 @@
                     </Grid>
                 </Border>
 
+                <!-- Adres + Finans Detay -->
+                <Grid ColumnDefinitions="*,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Teslimat Adresi" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Text="{Binding CustomerAddress}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDarkSlate}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Padding="20"
+                            BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Ara Toplam" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SubTotal, StringFormat='{}{0:N2} TL'}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="KDV" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TaxAmount, StringFormat='{}{0:N2} TL'}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,6,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Toplam" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold" Foreground="{DynamicResource MesTeal}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TotalAmount, StringFormat='{}{0:N2} TL'}" FontSize="{StaticResource FontSizeBody}" FontWeight="Bold" Foreground="{DynamicResource MesTeal}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Odeme Durumu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PaymentStatus}" FontWeight="SemiBold" Foreground="{DynamicResource MesDarkSlate}" Margin="0,8,0,0" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
                 <!-- Order Items DataGrid -->
                 <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
                         BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">

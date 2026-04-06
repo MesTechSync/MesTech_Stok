@@ -64,6 +64,7 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
             _allOrders = result.Select(o => new OrderItemDto
             {
+                Id = o.Id,
                 OrderNo = o.OrderNumber,
                 Date = o.OrderDate.ToString("dd.MM.yyyy"),
                 Customer = o.CustomerName ?? "-",
@@ -134,7 +135,10 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
     private async Task ShowOrderDetail()
     {
         if (SelectedOrder is null) return;
-        await _nav.NavigateToAsync("OrderDetail");
+        await _nav.NavigateToAsync("OrderDetail", new Dictionary<string, object?>
+        {
+            ["OrderId"] = SelectedOrder.Id
+        });
     }
 
     partial void OnSearchTextChanged(string value)
@@ -190,6 +194,7 @@ public partial class OrdersAvaloniaViewModel : ViewModelBase
 
 public class OrderItemDto
 {
+    public Guid Id { get; set; }
     public string OrderNo { get; set; } = string.Empty;
     public string Date { get; set; } = string.Empty;
     public string Customer { get; set; } = string.Empty;
