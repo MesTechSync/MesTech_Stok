@@ -7,8 +7,10 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -33,6 +35,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     private readonly TrendyolOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     // Trendyol API: 50 req/10s limit — 100 concurrency allows burst queueing with 5-attempt 429 retry.
     // Higher than other adapters (10-20) due to batch product sync volume (10K+ SKU).
@@ -47,10 +50,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
     private bool _isConfigured;
 
     public TrendyolAdapter(HttpClient httpClient, ILogger<TrendyolAdapter> logger,
-        IOptions<TrendyolOptions>? options = null, IConfiguration? configuration = null)
+        IOptions<TrendyolOptions>? options = null, IConfiguration? configuration = null,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new TrendyolOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -275,10 +280,36 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
             // brandId must be integer for Trendyol API — resolve from BrandPlatformMapping
-            var platformBrandId = 0; // Default; caller should set via BrandPlatformMapping
-            if (product.BrandEntity != null)
+            var platformBrandId = 0;
+            if (product.BrandEntity?.PlatformMappings is { Count: > 0 })
             {
-                // BrandDto.PlatformBrandId is already int
+                var trendyolBrandMapping = product.BrandEntity.PlatformMappings
+                    .FirstOrDefault(m => m.PlatformType == PlatformType.Trendyol);
+                if (trendyolBrandMapping is not null
+                    && int.TryParse(trendyolBrandMapping.ExternalBrandId, out var parsedBrandId))
+                {
+                    platformBrandId = parsedBrandId;
+                }
+            }
+
+            if (platformBrandId == 0)
+            {
+                _logger.LogError("Trendyol PushProduct: brandId=0 for SKU={SKU}. " +
+                    "Trendyol API requires a valid brandId. Map brand via BrandPlatformMapping. Product will be REJECTED.", product.SKU);
+            }
+
+            // Images — Trendyol requires at least 1 image URL
+            var imageUrls = new List<object>();
+            if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                // Primary image
+                imageUrls.Add(new { url = product.ImageUrl });
+            }
+            // Additional images from PlatformMapping metadata (if stored as JSON array)
+            if (_scopeFactory is not null && imageUrls.Count == 0)
+            {
+                _logger.LogWarning("Trendyol PushProduct: no images for SKU={SKU}. " +
+                    "Trendyol may reject products without images.", product.SKU);
             }
 
             var payload = new
@@ -298,7 +329,8 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         currencyType = product.CurrencyCode,
                         listPrice = product.ListPrice ?? product.SalePrice,
                         salePrice = product.SalePrice,
-                        vatRate = (int)(product.TaxRate * 100)
+                        vatRate = (int)(product.TaxRate * 100),
+                        images = imageUrls
                     }
                 }
             };
@@ -457,11 +489,19 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
+            var barcode = await ResolveBarcodeAsync(productId, ct).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(barcode))
+            {
+                _logger.LogError("Trendyol StockUpdate ABORTED: no barcode mapping for ProductId={ProductId}. " +
+                    "ProductPlatformMapping with PlatformType.Trendyol required.", productId);
+                return false;
+            }
+
             var payload = new
             {
                 items = new[]
                 {
-                    new { barcode = productId.ToString(), quantity = newStock }
+                    new { barcode, quantity = newStock }
                 }
             };
 
@@ -505,11 +545,19 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
 
+            var barcode = await ResolveBarcodeAsync(productId, ct).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(barcode))
+            {
+                _logger.LogError("Trendyol PriceUpdate ABORTED: no barcode mapping for ProductId={ProductId}. " +
+                    "ProductPlatformMapping with PlatformType.Trendyol required.", productId);
+                return false;
+            }
+
             var payload = new
             {
                 items = new[]
                 {
-                    new { barcode = productId.ToString(), listPrice = newPrice, salePrice = newPrice }
+                    new { barcode, listPrice = newPrice, salePrice = newPrice }
                 }
             };
 
@@ -1616,7 +1664,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1625,15 +1673,43 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             var orderId = doc.RootElement.TryGetProperty("orderNumber", out var on) ? on.GetString() : null;
 
             _logger.LogInformation(
-                "TrendyolAdapter webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
+                "TrendyolAdapter webhook received: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
                 eventType, orderId, payload.Length);
+
+            // Dispatch to MediatR pipeline via IServiceScopeFactory
+            if (_scopeFactory is not null)
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+                var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
+                if (mediator is not null)
+                {
+                    var notification = new MesTech.Infrastructure.Messaging.WebhookReceivedEvent(
+                        PlatformCode: PlatformCode,
+                        EventType: eventType ?? "unknown",
+                        OrderId: orderId,
+                        RawPayload: payload,
+                        ReceivedAt: DateTime.UtcNow);
+
+                    await mediator.Publish(notification, ct).ConfigureAwait(false);
+
+                    _logger.LogInformation(
+                        "TrendyolAdapter webhook dispatched to MediatR: EventType={EventType} OrderId={OrderId}",
+                        eventType, orderId);
+                }
+                else
+                {
+                    _logger.LogWarning("TrendyolAdapter: IMediator not available in DI — webhook not dispatched");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("TrendyolAdapter: IServiceScopeFactory not available — webhook log-only mode");
+            }
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[TrendyolAdapter] Malformed webhook payload (length={Length})", payload?.Length ?? 0);
         }
-
-        return Task.CompletedTask;
     }
 
     // ═══════════════════════════════════════════
@@ -2920,6 +2996,73 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         {
             _logger.LogWarning(ex, "Trendyol ping failed");
             return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Barcode Resolution — ProductPlatformMapping
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Resolves Trendyol barcode from ProductPlatformMapping.ExternalProductId.
+    /// Falls back to Product.Barcode or Product.SKU if no mapping exists.
+    /// Uses IServiceScopeFactory to access scoped repository from singleton-compatible adapter.
+    /// </summary>
+    private async Task<string?> ResolveBarcodeAsync(Guid productId, CancellationToken ct)
+    {
+        if (_scopeFactory is null)
+        {
+            _logger.LogWarning("TrendyolAdapter: IServiceScopeFactory not available — cannot resolve barcode for {ProductId}. " +
+                "Falling back to Guid (will fail on Trendyol API).", productId);
+            return productId.ToString();
+        }
+
+        try
+        {
+            await using var scope = _scopeFactory.CreateAsyncScope();
+            var mappingRepo = scope.ServiceProvider.GetService<IProductPlatformMappingRepository>();
+            if (mappingRepo is null)
+            {
+                _logger.LogWarning("TrendyolAdapter: IProductPlatformMappingRepository not registered in DI");
+                return null;
+            }
+
+            var mappings = await mappingRepo.GetByProductIdAsync(productId, ct).ConfigureAwait(false);
+            var trendyolMapping = mappings.FirstOrDefault(m =>
+                m.PlatformType == PlatformType.Trendyol && m.IsEnabled);
+
+            if (trendyolMapping is not null && !string.IsNullOrEmpty(trendyolMapping.ExternalProductId))
+            {
+                _logger.LogDebug("Resolved barcode for {ProductId}: {Barcode} (from PlatformMapping)",
+                    productId, trendyolMapping.ExternalProductId);
+                return trendyolMapping.ExternalProductId;
+            }
+
+            // Fallback: try Product.Barcode or SKU
+            var productRepo = scope.ServiceProvider.GetService<IProductRepository>();
+            if (productRepo is not null)
+            {
+                var product = await productRepo.GetByIdAsync(productId, ct).ConfigureAwait(false);
+                if (product is not null)
+                {
+                    var barcode = product.Barcode ?? product.SKU;
+                    if (!string.IsNullOrEmpty(barcode))
+                    {
+                        _logger.LogDebug("Resolved barcode for {ProductId}: {Barcode} (from Product entity)",
+                            productId, barcode);
+                        return barcode;
+                    }
+                }
+            }
+
+            _logger.LogWarning("TrendyolAdapter: no barcode found for ProductId={ProductId} — " +
+                "no PlatformMapping and no Product.Barcode/SKU", productId);
+            return null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "TrendyolAdapter: barcode resolution failed for ProductId={ProductId}", productId);
+            return null;
         }
     }
 }

@@ -155,3 +155,19 @@ public record AdBudgetAlertIntegrationEvent(
     string PlatformCode,
     DateTime OccurredAt
 );
+
+// ════════════════════════════════════════
+// Webhook Dispatch — adapter → MediatR pipeline
+// ════════════════════════════════════════
+
+/// <summary>
+/// Platform webhook'u alındığında adapter'dan MediatR pipeline'a dispatch edilir.
+/// Handler'lar eventType'a göre sipariş sync, stok update vb. tetikler.
+/// </summary>
+public record WebhookReceivedEvent(
+    string PlatformCode,
+    string EventType,
+    string? OrderId,
+    string RawPayload,
+    DateTime ReceivedAt
+) : MediatR.INotification;
