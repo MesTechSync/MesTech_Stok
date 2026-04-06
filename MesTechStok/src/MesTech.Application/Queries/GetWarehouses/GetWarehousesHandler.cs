@@ -22,18 +22,20 @@ public sealed class GetWarehousesHandler : IRequestHandler<GetWarehousesQuery, I
             warehouses = warehouses.Where(w => w.IsActive).ToList();
         }
 
-        return warehouses.Select(w => new WarehouseListDto
-        {
-            Id = w.Id,
-            Name = w.Name,
-            Code = w.Code,
-            Description = w.Description,
-            Type = w.Type,
-            City = w.City,
-            Address = w.Address,
-            IsActive = w.IsActive,
-            IsDefault = w.IsDefault,
-            HasClimateControl = w.HasClimateControl,
-        }).ToList();
+        return warehouses
+            .DistinctBy(w => w.Id)
+            .Select(w => new WarehouseListDto
+            {
+                Id = w.Id,
+                Name = w.Name,
+                Code = w.Code,
+                Description = w.Description,
+                Type = w.Type,
+                City = w.City,
+                Address = w.Address,
+                IsActive = w.IsActive,
+                IsDefault = w.IsDefault,
+                HasClimateControl = w.HasClimateControl,
+            }).ToList();
     }
 }
