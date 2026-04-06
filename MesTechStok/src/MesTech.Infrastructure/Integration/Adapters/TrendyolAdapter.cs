@@ -1485,6 +1485,42 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.GetCategoryAttributesAsync categoryId={CategoryId}", categoryId);
 
+        // Cache check — CategoryPlatformMapping.CachedAttributesJson (24h TTL)
+        if (_scopeFactory is not null)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var catMappingRepo = scope.ServiceProvider.GetService<ICategoryPlatformMappingRepository>();
+                var tenantProvider = scope.ServiceProvider.GetService<ITenantProvider>();
+                if (catMappingRepo is not null && tenantProvider is not null)
+                {
+                    var tenantId = tenantProvider.GetCurrentTenantId();
+                    var mapping = await catMappingRepo.GetByExternalCategoryIdAsync(
+                        tenantId, categoryId.ToString(), PlatformType.Trendyol, ct).ConfigureAwait(false);
+
+                    if (mapping?.CachedAttributesJson is not null
+                        && mapping.AttributesCachedAt.HasValue
+                        && mapping.AttributesCachedAt.Value > DateTime.UtcNow.AddHours(-24))
+                    {
+                        var cached = JsonSerializer.Deserialize<List<CategoryAttributeDto>>(
+                            mapping.CachedAttributesJson, _jsonOptions);
+                        if (cached is { Count: > 0 })
+                        {
+                            _logger.LogDebug(
+                                "Trendyol GetCategoryAttributes cache HIT: {Count} attributes for category {CategoryId}",
+                                cached.Count, categoryId);
+                            return cached.AsReadOnly();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "CategoryAttribute cache lookup failed — falling through to API");
+            }
+        }
+
         try
         {
             await ApplyRateLimitAsync(ct).ConfigureAwait(false);
@@ -1538,6 +1574,37 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             }
 
             _logger.LogInformation("Trendyol GetCategoryAttributes: {Count} attributes for category {CategoryId}", attributes.Count, categoryId);
+
+            // Cache write — API sonucunu CategoryPlatformMapping.CachedAttributesJson'a yaz
+            if (attributes.Count > 0 && _scopeFactory is not null)
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var catMappingRepo = scope.ServiceProvider.GetService<ICategoryPlatformMappingRepository>();
+                    var tenantProvider = scope.ServiceProvider.GetService<ITenantProvider>();
+                    var unitOfWork = scope.ServiceProvider.GetService<IUnitOfWork>();
+                    if (catMappingRepo is not null && tenantProvider is not null && unitOfWork is not null)
+                    {
+                        var tenantId = tenantProvider.GetCurrentTenantId();
+                        var mapping = await catMappingRepo.GetByExternalCategoryIdAsync(
+                            tenantId, categoryId.ToString(), PlatformType.Trendyol, ct).ConfigureAwait(false);
+                        if (mapping is not null)
+                        {
+                            mapping.CachedAttributesJson = JsonSerializer.Serialize(attributes, _jsonOptions);
+                            mapping.AttributesCachedAt = DateTime.UtcNow;
+                            await catMappingRepo.UpdateAsync(mapping, ct).ConfigureAwait(false);
+                            await unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+                            _logger.LogDebug("Trendyol CategoryAttributes cache WRITE: {Count} attrs for category {CategoryId}", attributes.Count, categoryId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "CategoryAttribute cache write failed — non-critical, API data still returned");
+                }
+            }
+
             return attributes.AsReadOnly();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
