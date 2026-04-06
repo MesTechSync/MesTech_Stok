@@ -265,7 +265,8 @@ public static class StockEndpoints
                 : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
         })
         .WithName("DeleteStockLot")
-        .WithSummary("Stok lot kaydını sil").Produces(204).Produces(400);
+        .WithSummary("Stok lot kaydını sil").Produces(204).Produces(400)
+        .RequirePermission("ManageStock");
 
         // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
         group.MapGet("/placements", async (

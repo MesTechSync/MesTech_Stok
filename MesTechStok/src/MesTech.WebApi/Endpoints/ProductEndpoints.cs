@@ -191,7 +191,8 @@ public static class ProductEndpoints
         .WithName("UpdateProductContent")
         .WithSummary("Ürün açıklama/içerik güncelle — AI veya manuel")
         .Produces(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (

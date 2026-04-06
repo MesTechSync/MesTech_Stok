@@ -235,7 +235,8 @@ public static class InvoiceEndpoints
         .WithName("UploadInvoiceToPlatform")
         .WithSummary("Fatura PDF'ini pazaryerine yükle (Trendyol, HB, N11)")
         .Produces(200).Produces(400).Produces(404).Produces(502)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageInvoices");
 
         // GET /api/v1/invoices/providers — fatura sağlayıcı durumları
         group.MapGet("/providers", async (
