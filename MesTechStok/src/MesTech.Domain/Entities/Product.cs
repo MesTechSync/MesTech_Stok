@@ -305,4 +305,47 @@ public sealed class Product : BaseEntity, ITenantEntity
         : null;
 
     public override string ToString() => $"[{SKU}] {Name} (Stok: {Stock})";
+
+    /// <summary>
+    /// Factory method — yeni ürün oluşturur ve ProductCreatedEvent fırlatır.
+    /// Guard: SKU ve Name zorunlu, SalePrice >= 0, TenantId boş olamaz.
+    /// </summary>
+    public static Product Create(
+        Guid tenantId,
+        string sku,
+        string name,
+        decimal salePrice,
+        decimal purchasePrice,
+        Guid categoryId,
+        int minimumStock = 5,
+        decimal taxRate = 0.18m)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(sku, nameof(sku));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        if (salePrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(salePrice), "Satış fiyatı negatif olamaz.");
+        if (purchasePrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(purchasePrice), "Alış fiyatı negatif olamaz.");
+
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            SKU = sku,
+            Name = name,
+            SalePrice = salePrice,
+            PurchasePrice = purchasePrice,
+            CategoryId = categoryId,
+            MinimumStock = minimumStock,
+            TaxRate = taxRate,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        product.MarkAsCreated();
+        return product;
+    }
 }
