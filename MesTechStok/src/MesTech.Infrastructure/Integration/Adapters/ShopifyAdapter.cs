@@ -425,6 +425,13 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ShopifyAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Shopify, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(_locationId))
         {
             _logger.LogWarning("ShopifyAdapter.PushStockUpdateAsync — LocationId yapilandirilmamis. " +
@@ -434,8 +441,8 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         try
         {
-            // Step 1: Find variant by productId (used as SKU in Shopify context)
-            var sku = productId.ToString();
+            // Step 1: Find variant by externalId (SKU in Shopify context)
+            var sku = externalId;
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku,inventory_item_id&limit=250";
             var variantResponse = await ThrottledExecuteAsync(
                 async token =>
@@ -527,9 +534,16 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ShopifyAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Shopify, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // Step 1: Find variant id by SKU
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku&limit=250";

@@ -539,13 +539,21 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.eBay, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("EbayAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
 
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var sku = Uri.EscapeDataString(productId.ToString());
+            var sku = Uri.EscapeDataString(externalId);
             var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}";
 
             // We need the current inventory_item first to do a proper PUT (partial update not supported)
@@ -613,13 +621,21 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.eBay, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("EbayAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
 
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var sku = Uri.EscapeDataString(productId.ToString());
+            var sku = Uri.EscapeDataString(externalId);
 
             // Step 1: Find offerId for the SKU
             var getOffersUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer?sku={sku}";

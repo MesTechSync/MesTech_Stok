@@ -323,9 +323,16 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Hepsiburada, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         var payload = new
         {
-            listings = new[] { new { merchantSku = productId.ToString(), availableStock = newStock } }
+            listings = new[] { new { merchantSku = externalId, availableStock = newStock } }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
@@ -352,9 +359,16 @@ public sealed class HepsiburadaAdapter : IIntegratorAdapter, IOrderCapableAdapte
     {
         EnsureConfigured();
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Hepsiburada, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         var payload = new
         {
-            listings = new[] { new { merchantSku = productId.ToString(), price = newPrice } }
+            listings = new[] { new { merchantSku = externalId, price = newPrice } }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 

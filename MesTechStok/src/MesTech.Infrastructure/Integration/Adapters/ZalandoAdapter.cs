@@ -416,13 +416,20 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ZalandoAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Zalando, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                sku = productId.ToString(),
+                sku = externalId,
                 availableUnits = newStock
             };
 
@@ -465,13 +472,20 @@ public sealed class ZalandoAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ZalandoAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} EUR",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Zalando, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                sku = productId.ToString(),
+                sku = externalId,
                 price = new
                 {
                     amount = newPrice.ToString("F2", CultureInfo.InvariantCulture),

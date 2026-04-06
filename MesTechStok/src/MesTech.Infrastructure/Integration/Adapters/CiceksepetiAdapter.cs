@@ -299,7 +299,14 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var payload = new { items = new[] { new { stockCode = productId.ToString(), quantity = newStock } } };
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ciceksepeti, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
+        var payload = new { items = new[] { new { stockCode = externalId, quantity = newStock } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
         using var response = await ExecuteWithRetryAsync(
@@ -325,7 +332,14 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var payload = new { items = new[] { new { stockCode = productId.ToString(), salesPrice = newPrice } } };
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ciceksepeti, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
+        var payload = new { items = new[] { new { stockCode = externalId, salesPrice = newPrice } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
         using var response = await ExecuteWithRetryAsync(

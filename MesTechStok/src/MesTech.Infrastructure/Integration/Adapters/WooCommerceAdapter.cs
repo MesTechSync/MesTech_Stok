@@ -387,9 +387,16 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         _logger.LogInformation("WooCommerceAdapter.PushStockUpdateAsync: ProductId={Id} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.WooCommerce, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // Search by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";
@@ -461,9 +468,16 @@ public sealed class WooCommerceAdapter : IIntegratorAdapter, IOrderCapableAdapte
         _logger.LogInformation("WooCommerceAdapter.PushPriceUpdateAsync: ProductId={Id} price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.WooCommerce, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // 1. Find product by SKU
             var searchUrl = $"{ApiBase}/products?sku={Uri.EscapeDataString(sku)}&per_page=1";

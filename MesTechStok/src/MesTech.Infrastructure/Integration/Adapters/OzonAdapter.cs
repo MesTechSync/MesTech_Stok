@@ -505,6 +505,14 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ozon, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("OzonAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
@@ -516,7 +524,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 {
                     new
                     {
-                        offer_id = productId.ToString(),
+                        offer_id = externalId,
                         stock = newStock,
                         warehouse_id = 0L // Default warehouse — override via configuration
                     }
@@ -579,6 +587,14 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ozon, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("OzonAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
@@ -590,7 +606,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 {
                     new
                     {
-                        offer_id = productId.ToString(),
+                        offer_id = externalId,
                         price = newPrice.ToString("F2", CultureInfo.InvariantCulture),
                         old_price = "0"  // Ozon requires old_price; "0" means no strikethrough
                     }

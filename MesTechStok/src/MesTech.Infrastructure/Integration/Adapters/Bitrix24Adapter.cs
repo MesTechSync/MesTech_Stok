@@ -344,14 +344,21 @@ public sealed class Bitrix24Adapter : IBitrix24Adapter, IWebhookCapableAdapter, 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Bitrix24, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         try
         {
-            // Find product by external ID (would need platform mapping)
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["id"] = productId.ToString(),
+                ["id"] = externalId,
                 ["fields[PRICE]"] = newPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
             });
 

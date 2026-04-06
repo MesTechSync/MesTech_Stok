@@ -418,10 +418,17 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _logger.LogInformation("EtsyAdapter.PushStockUpdateAsync: ProductId={ProductId}, Qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Etsy, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             // Step 1: Find listing by searching shop listings for the product
-            var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
+            var listingId = await FindListingIdByProductAsync(externalId, ct).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(listingId))
             {
@@ -480,9 +487,16 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _logger.LogInformation("EtsyAdapter.PushPriceUpdateAsync: ProductId={ProductId}, Price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Etsy, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
+            var listingId = await FindListingIdByProductAsync(externalId, ct).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(listingId))
             {
@@ -896,11 +910,9 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     /// In production, this would use ProductPlatformMapping table for O(1) lookup.
     /// For now, we search by offset pagination.
     /// </summary>
-    private async Task<string?> FindListingIdByProductAsync(Guid productId, CancellationToken ct)
+    private async Task<string?> FindListingIdByProductAsync(string targetSku, CancellationToken ct)
     {
-        // In a full implementation, this would look up ProductPlatformMapping table.
-        // Fallback: search first 200 listings for a matching SKU (productId.ToString()).
-        var targetSku = productId.ToString();
+        // Search first 200 listings for a matching SKU (resolved via BarcodeResolverHelper).
         var offset = 0;
         const int limit = 100;
 

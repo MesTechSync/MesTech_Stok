@@ -434,13 +434,21 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Pazarama, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var payload = new PzStockUpdateRequest
         {
             Items = new List<PzStockItem>
             {
-                new PzStockItem { Code = productId.ToString(), StockCount = newStock }
+                new PzStockItem { Code = externalId, StockCount = newStock }
             }
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
@@ -467,6 +475,14 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Pazarama, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         await EnsureAuthHeaderAsync(ct).ConfigureAwait(false);
 
         var payload = new PzPriceUpdateRequest
@@ -475,7 +491,7 @@ public sealed class PazaramaAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             {
                 new PzPriceItem
                 {
-                    Code = productId.ToString(),
+                    Code = externalId,
                     ListPrice = newPrice,
                     SalePrice = newPrice
                 }
