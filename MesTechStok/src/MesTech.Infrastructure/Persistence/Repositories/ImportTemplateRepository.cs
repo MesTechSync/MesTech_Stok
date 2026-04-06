@@ -11,7 +11,7 @@ public sealed class ImportTemplateRepository : IImportTemplateRepository
     public ImportTemplateRepository(AppDbContext db) => _db = db;
 
     public async Task<IReadOnlyList<ImportTemplate>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
-        => await _db.Set<ImportTemplate>()
+        => await _db.Set<ImportTemplate>().AsNoTracking()
             .Where(x => x.TenantId == tenantId && !x.IsDeleted)
             .Include(x => x.Mappings)
             .OrderByDescending(x => x.LastUsedAt)

@@ -17,7 +17,7 @@ public sealed class SocialFeedConfigurationRepository : ISocialFeedConfiguration
             .FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<SocialFeedConfiguration>> GetActiveAsync(CancellationToken ct = default)
-        => await _context.SocialFeedConfigurations
+        => await _context.SocialFeedConfigurations.AsNoTracking()
             .Where(c => c.IsActive)
             .OrderBy(c => c.Platform)
             .Take(1000) // G485: pagination guard
