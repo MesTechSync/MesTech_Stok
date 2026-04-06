@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -20,13 +21,16 @@ namespace MesTech.Infrastructure.Jobs;
 public sealed class GenericPlatformStockSyncJob
 {
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<GenericPlatformStockSyncJob> _logger;
 
     public GenericPlatformStockSyncJob(
         IAdapterFactory factory,
+        ITenantProvider tenantProvider,
         ILogger<GenericPlatformStockSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
@@ -36,8 +40,9 @@ public sealed class GenericPlatformStockSyncJob
     /// </summary>
     public async Task ExecuteAsync(string platformCode, CancellationToken ct = default)
     {
+        var tenantId = _tenantProvider.GetCurrentTenantId();
         _logger.LogInformation(
-            "[GenericSync] {Platform} stok sync başlıyor...", platformCode);
+            "[GenericSync] {Platform} stok sync başlıyor... TenantId={TenantId}", platformCode, tenantId);
 
         var adapter = _factory.Resolve(platformCode);
         if (adapter is null)

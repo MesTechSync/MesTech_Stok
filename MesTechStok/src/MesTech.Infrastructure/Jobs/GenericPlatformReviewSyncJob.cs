@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Messaging;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -16,22 +17,26 @@ namespace MesTech.Infrastructure.Jobs;
 public sealed class GenericPlatformReviewSyncJob
 {
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<GenericPlatformReviewSyncJob> _logger;
 
     public GenericPlatformReviewSyncJob(
         IAdapterFactory factory,
+        ITenantProvider tenantProvider,
         IPublishEndpoint publishEndpoint,
         ILogger<GenericPlatformReviewSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(string platformCode, CancellationToken ct = default)
     {
-        _logger.LogInformation("[ReviewSync] {Platform} review sync basliyor...", platformCode);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[ReviewSync] {Platform} review sync basliyor... TenantId={TenantId}", platformCode, tenantId);
 
         var adapter = _factory.ResolveCapability<IReviewCapableAdapter>(platformCode);
         if (adapter is null)

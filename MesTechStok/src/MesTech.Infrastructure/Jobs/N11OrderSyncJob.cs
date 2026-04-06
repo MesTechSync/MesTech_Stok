@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -15,17 +16,20 @@ public sealed class N11OrderSyncJob : ISyncJob
     public string CronExpression => "*/5 * * * *";
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<N11OrderSyncJob> _logger;
 
-    public N11OrderSyncJob(IAdapterFactory factory, ILogger<N11OrderSyncJob> logger)
+    public N11OrderSyncJob(IAdapterFactory factory, ITenantProvider tenantProvider, ILogger<N11OrderSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] N11 siparis sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] N11 siparis sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {

@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 
@@ -15,17 +16,20 @@ public sealed class OpenCartStockSyncJob : ISyncJob
     public string CronExpression => "*/30 * * * *"; // Her 30 dk
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<OpenCartStockSyncJob> _logger;
 
-    public OpenCartStockSyncJob(IAdapterFactory factory, ILogger<OpenCartStockSyncJob> logger)
+    public OpenCartStockSyncJob(IAdapterFactory factory, ITenantProvider tenantProvider, ILogger<OpenCartStockSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] OpenCart stok sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] OpenCart stok sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {

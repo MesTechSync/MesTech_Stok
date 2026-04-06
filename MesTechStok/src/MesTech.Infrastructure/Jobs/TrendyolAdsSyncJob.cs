@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Messaging;
 using MassTransit;
@@ -21,22 +22,26 @@ public sealed class TrendyolAdsSyncJob : ISyncJob
     private const decimal BudgetAlertThreshold = 0.80m; // %80
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<TrendyolAdsSyncJob> _logger;
 
     public TrendyolAdsSyncJob(
         IAdapterFactory factory,
+        ITenantProvider tenantProvider,
         IPublishEndpoint publishEndpoint,
         ILogger<TrendyolAdsSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Trendyol ads sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] Trendyol ads sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {

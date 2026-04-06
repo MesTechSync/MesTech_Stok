@@ -1,4 +1,5 @@
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Adapters;
 using MesTech.Infrastructure.Messaging;
 using MassTransit;
@@ -19,22 +20,26 @@ public sealed class TrendyolReviewSyncJob : ISyncJob
     public string CronExpression => "0 * * * *"; // Her saat basi
 
     private readonly IAdapterFactory _factory;
+    private readonly ITenantProvider _tenantProvider;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<TrendyolReviewSyncJob> _logger;
 
     public TrendyolReviewSyncJob(
         IAdapterFactory factory,
+        ITenantProvider tenantProvider,
         IPublishEndpoint publishEndpoint,
         ILogger<TrendyolReviewSyncJob> logger)
     {
         _factory = factory;
+        _tenantProvider = tenantProvider;
         _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("[{JobId}] Trendyol review sync basliyor...", JobId);
+        var tenantId = _tenantProvider.GetCurrentTenantId();
+        _logger.LogInformation("[{JobId}] Trendyol review sync basliyor... TenantId={TenantId}", JobId, tenantId);
 
         try
         {
