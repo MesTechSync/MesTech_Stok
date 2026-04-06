@@ -15,7 +15,7 @@ public record Barcode
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException("Barcode cannot be empty.", nameof(value));
 
-        Value = value.Trim().Replace(" ", "").Replace("-", "");
+        Value = value.Trim().Replace(" ", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal);
         Format = DetectFormat(Value);
     }
 
@@ -28,7 +28,7 @@ public record Barcode
     public static Barcode Create(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        var cleaned = value.Trim().Replace(" ", "").Replace("-", "");
+        var cleaned = value.Trim().Replace(" ", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal);
         var format = DetectFormat(cleaned);
 
         if (format != BarcodeFormat.Internal && !ValidateCheckDigit(cleaned))
