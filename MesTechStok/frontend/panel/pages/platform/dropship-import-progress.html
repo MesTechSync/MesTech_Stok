@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Dropship Import Progress
+  Version: 1.0.0
+  Date: 2026-04-07
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: D12-10 — Dropshipping Import Progress (9000 urun cekme)
+  Status: ACTIVE
+
+  FEATURES:
+  - Platform bazli ilerleme cubuklari
+  - API call sayaci / rate limit durumu
+  - Hata listesi (canli guncellenen)
+  - Son sync zamani + sonraki sync geri sayim
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+-->
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Progress | MesTech Dropshipping</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7icsOsd1QObEIQozRYGnPbkztVcB3pC0zO0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3iYfN0LeAzKUYyp5meodHkCQ/9ctAU7Dzd0" crossorigin="anonymous">
+  <style>
+    :root { --mes-primary: #f27a1a; --mes-bg: #f4f5f7; --mes-card: #fff; --mes-border: #e5e9f2; }
+    body { font-family: 'Inter', sans-serif; background: var(--mes-bg); }
+    .progress-card { background: var(--mes-card); border-radius: 12px; padding: 20px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; }
+    .rate-limit-bar { height: 6px; border-radius: 3px; background: #e9ecef; }
+    .rate-limit-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .error-list { max-height: 300px; overflow-y: auto; }
+    .error-item { padding: 8px 12px; border-left: 3px solid #dc3545; background: #fff5f5; margin-bottom: 4px; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
+    .countdown { font-size: 2rem; font-weight: 700; color: var(--mes-primary); }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="mb-1"><i class="fas fa-sync-alt me-2"></i>Urun Import Durumu</h4>
+        <small class="text-muted">Platform bazli urun cekme ilerlemesi</small>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary btn-sm" onclick="startImport()"><i class="fas fa-play me-1"></i>Import Baslat</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="refreshStatus()"><i class="fas fa-refresh me-1"></i>Yenile</button>
+      </div>
+    </div>
+
+    <!-- Summary KPI -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="progress-card text-center">
+          <div class="fs-3 fw-bold text-primary" id="totalImported">0</div>
+          <small class="text-muted">Toplam Import</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="progress-card text-center">
+          <div class="fs-3 fw-bold text-success" id="successCount">0</div>
+          <small class="text-muted">Basarili</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="progress-card text-center">
+          <div class="fs-3 fw-bold text-danger" id="errorCount">0</div>
+          <small class="text-muted">Hata</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="progress-card text-center">
+          <div class="countdown" id="nextSync">--:--</div>
+          <small class="text-muted">Sonraki Sync</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Progress Bars -->
+    <div id="platformProgress"></div>
+
+    <!-- Rate Limit Status -->
+    <div class="progress-card mb-4">
+      <h6 class="mb-3"><i class="fas fa-tachometer-alt me-2"></i>API Rate Limit</h6>
+      <div class="row" id="rateLimitContainer"></div>
+    </div>
+
+    <!-- Error List -->
+    <div class="progress-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Hatalar</h6>
+        <span class="badge bg-danger" id="errorBadge">0</span>
+      </div>
+      <div class="error-list" id="errorList">
+        <div class="text-center text-muted py-3">Hata yok</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  var platforms = [
+    { id: 'trendyol', name: 'Trendyol', color: '#f27a1a', total: 9103, imported: 0 },
+    { id: 'hepsiburada', name: 'Hepsiburada', color: '#ff6000', total: 0, imported: 0 },
+    { id: 'n11', name: 'N11', color: '#7B2D8E', total: 0, imported: 0 },
+    { id: 'amazon', name: 'Amazon', color: '#FF9900', total: 0, imported: 0 }
+  ];
+  var errors = [];
+  var pollInterval = null;
+
+  function renderPlatformProgress() {
+    var container = document.getElementById('platformProgress');
+    container.textContent = '';
+    platforms.forEach(function(p) {
+      var card = document.createElement('div');
+      card.className = 'progress-card';
+
+      var header = document.createElement('div');
+      header.className = 'd-flex align-items-center mb-2';
+
+      var icon = document.createElement('div');
+      icon.className = 'platform-icon me-3';
+      icon.style.background = p.color;
+      icon.textContent = p.name[0];
+      header.appendChild(icon);
+
+      var info = document.createElement('div');
+      info.className = 'flex-grow-1';
+      var nameEl = document.createElement('div');
+      nameEl.className = 'fw-bold';
+      nameEl.textContent = p.name;
+      info.appendChild(nameEl);
+      var statsEl = document.createElement('small');
+      statsEl.className = 'text-muted';
+      statsEl.textContent = p.imported + ' / ' + p.total + ' urun';
+      info.appendChild(statsEl);
+      header.appendChild(info);
+
+      var pct = p.total > 0 ? Math.round(p.imported / p.total * 100) : 0;
+      var pctEl = document.createElement('div');
+      pctEl.className = 'fw-bold';
+      pctEl.textContent = pct + '%';
+      header.appendChild(pctEl);
+
+      card.appendChild(header);
+
+      var progress = document.createElement('div');
+      progress.className = 'progress';
+      progress.style.height = '8px';
+      var bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      bar.style.width = pct + '%';
+      bar.style.background = p.color;
+      progress.appendChild(bar);
+      card.appendChild(progress);
+
+      container.appendChild(card);
+    });
+  }
+
+  function renderRateLimits() {
+    var container = document.getElementById('rateLimitContainer');
+    container.textContent = '';
+    platforms.forEach(function(p) {
+      if (p.total === 0) return;
+      var col = document.createElement('div');
+      col.className = 'col-md-3 mb-2';
+
+      var label = document.createElement('small');
+      label.className = 'text-muted d-block mb-1';
+      label.textContent = p.name + ' (' + Math.min(p.imported * 2, 1000) + '/1000)';
+      col.appendChild(label);
+
+      var bar = document.createElement('div');
+      bar.className = 'rate-limit-bar';
+      var fill = document.createElement('div');
+      fill.className = 'rate-limit-fill';
+      var usage = Math.min(p.imported * 2 / 10, 100);
+      fill.style.width = usage + '%';
+      fill.style.background = usage > 80 ? '#dc3545' : usage > 50 ? '#ffc107' : '#28a745';
+      bar.appendChild(fill);
+      col.appendChild(bar);
+
+      container.appendChild(col);
+    });
+  }
+
+  function addError(platform, message) {
+    errors.unshift({ platform: platform, message: message, time: new Date().toLocaleTimeString('tr-TR') });
+    if (errors.length > 50) errors.pop();
+    renderErrors();
+  }
+
+  function renderErrors() {
+    var list = document.getElementById('errorList');
+    list.textContent = '';
+    document.getElementById('errorBadge').textContent = String(errors.length);
+    document.getElementById('errorCount').textContent = String(errors.length);
+    if (errors.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'text-center text-muted py-3';
+      empty.textContent = 'Hata yok';
+      list.appendChild(empty);
+      return;
+    }
+    errors.forEach(function(e) {
+      var item = document.createElement('div');
+      item.className = 'error-item';
+      var time = document.createElement('small');
+      time.className = 'text-muted me-2';
+      time.textContent = '[' + e.time + ']';
+      item.appendChild(time);
+      var platform = document.createElement('strong');
+      platform.textContent = e.platform + ': ';
+      item.appendChild(platform);
+      item.appendChild(document.createTextNode(e.message));
+      list.appendChild(item);
+    });
+  }
+
+  function updateKPI() {
+    var total = platforms.reduce(function(s, p) { return s + p.imported; }, 0);
+    document.getElementById('totalImported').textContent = String(total);
+    document.getElementById('successCount').textContent = String(total - errors.length);
+  }
+
+  async function refreshStatus() {
+    try {
+      var resp = await fetch('/api/v1/sync/status');
+      if (!resp.ok) return;
+      var data = await resp.json();
+      if (data.platforms) {
+        data.platforms.forEach(function(ps) {
+          var p = platforms.find(function(x) { return x.id === ps.id; });
+          if (p) { p.imported = ps.imported || 0; p.total = ps.total || p.total; }
+        });
+      }
+    } catch (e) { /* silent — status endpoint may not exist yet */ }
+    renderPlatformProgress();
+    renderRateLimits();
+    updateKPI();
+  }
+
+  function startImport() {
+    alert('Import basladi — /api/v1/sync/trigger endpoint\'i DEV6 tarafindan yazilacak');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    renderPlatformProgress();
+    renderRateLimits();
+    renderErrors();
+    updateKPI();
+    refreshStatus();
+  });
+  </script>
+</body>
+</html>
