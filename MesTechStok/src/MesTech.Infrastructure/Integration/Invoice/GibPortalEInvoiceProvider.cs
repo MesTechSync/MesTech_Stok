@@ -29,6 +29,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
 
     private string? _token;
     private DateTime _tokenExpiry = DateTime.MinValue;
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -270,7 +271,14 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
         if (!string.IsNullOrEmpty(_token) && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        _logger.LogInformation("GibPortalEInvoice: Acquiring new auth token from {BaseUrl}", BaseUrl);
+        await _tokenLock.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            // Double-check after acquiring lock (another thread may have refreshed)
+            if (!string.IsNullOrEmpty(_token) && DateTime.UtcNow < _tokenExpiry)
+                return;
+
+            _logger.LogInformation("GibPortalEInvoice: Acquiring new auth token from {BaseUrl}", BaseUrl);
 
         var loginContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -311,6 +319,11 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
         _tokenExpiry = DateTime.UtcNow.AddMinutes(25);
 
         _logger.LogInformation("GibPortalEInvoice: Token acquired, expires at {Expiry}", _tokenExpiry);
+        }
+        finally
+        {
+            _tokenLock.Release();
+        }
     }
 }
 
