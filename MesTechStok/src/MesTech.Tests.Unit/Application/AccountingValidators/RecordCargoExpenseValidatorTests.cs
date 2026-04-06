@@ -61,11 +61,12 @@ public class RecordCargoExpenseValidatorTests
     }
 
     [Fact]
-    public async Task ZeroCost_PassesValidation()
+    public async Task ZeroCost_FailsValidation()
     {
         var cmd = ValidCommand() with { Cost = 0m };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Cost");
     }
 
     [Fact]
