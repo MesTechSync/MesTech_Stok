@@ -5,6 +5,7 @@ using MediatR;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -16,14 +17,16 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
+    private readonly ITenantProvider _tenantProvider;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private InvoiceListItemDto? selectedInvoice;
 
-    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog, ITenantProvider tenantProvider)
     {
         _mediator = mediator;
         _dialog = dialog;
+        _tenantProvider = tenantProvider;
     }
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -246,7 +249,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
             var from = StartDate?.DateTime ?? DateTime.Now.AddMonths(-3);
             var to = EndDate?.DateTime ?? DateTime.Now;
             var result = await _mediator.Send(new MesTech.Application.Features.Reporting.Commands.ExportReport.ExportReportCommand(
-                Guid.Empty, "invoices", "xlsx"), ct);
+                _tenantProvider.GetCurrentTenantId(), "invoices", "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
