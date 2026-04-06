@@ -628,19 +628,19 @@ public static class IntegrationServiceRegistration
         // -----------------------------------------------------------------------
         // Phase B DONE: +4 kargo adaptor (MNG, PTT, HepsiJet, Sendeo) registered above.
 
-        // DHL Express — Basic Auth, MyDHL REST API
-        services.AddSingleton<DhlExpressAdapter>(sp =>
+        // DHL Express — Basic Auth, MyDHL REST API (Scoped for multi-tenant credential isolation)
+        services.AddScoped<DhlExpressAdapter>(sp =>
             new DhlExpressAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.DhlExpress),
                 sp.GetRequiredService<ILogger<DhlExpressAdapter>>()));
-        services.AddSingleton<ICargoAdapter>(sp => sp.GetRequiredService<DhlExpressAdapter>());
+        services.AddScoped<ICargoAdapter>(sp => sp.GetRequiredService<DhlExpressAdapter>());
 
-        // UPS — OAuth 2.0 Client Credentials, UPS REST API
-        services.AddSingleton<UpsAdapter>(sp =>
+        // UPS — OAuth 2.0 Client Credentials, UPS REST API (Scoped for multi-tenant credential isolation)
+        services.AddScoped<UpsAdapter>(sp =>
             new UpsAdapter(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(IntegrationHttpClientRegistry.ClientNames.UPS),
                 sp.GetRequiredService<ILogger<UpsAdapter>>()));
-        services.AddSingleton<ICargoAdapter>(sp => sp.GetRequiredService<UpsAdapter>());
+        services.AddScoped<ICargoAdapter>(sp => sp.GetRequiredService<UpsAdapter>());
         // -----------------------------------------------------------------------
 
         // -----------------------------------------------------------------------
