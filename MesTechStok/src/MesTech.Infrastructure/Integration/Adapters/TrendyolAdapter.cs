@@ -390,7 +390,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                     ? bid.GetString() : null;
 
                 _logger.LogInformation(
-                    "Trendyol PushProduct accepted: SKU={SKU} BatchRequestId={BatchId} — poll /batch-requests/{BatchId} for status",
+                    "Trendyol PushProduct accepted: SKU={SKU} BatchRequestId={BatchId}",
                     product.SKU, batchId);
             }
             catch (JsonException)
@@ -567,6 +567,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 return false;
             }
 
+            LogBatchRequestId(response, "StockUpdate", barcode, ct);
             return true;
         }
         catch (JsonException jex)
@@ -623,6 +624,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 return false;
             }
 
+            LogBatchRequestId(response, "PriceUpdate", barcode, ct);
             return true;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -3044,6 +3046,27 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             _logger.LogWarning(ex, "Trendyol ping failed");
             return false;
         }
+    }
+
+    // ═══════════════════════════════════════════
+    // Batch Request ID Logging
+    // ═══════════════════════════════════════════
+
+    private void LogBatchRequestId(HttpResponseMessage response, string operation, string identifier, CancellationToken ct)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(body);
+                var batchId = doc.RootElement.TryGetProperty("batchRequestId", out var bid) ? bid.GetString() : null;
+                if (!string.IsNullOrEmpty(batchId))
+                    _logger.LogInformation("Trendyol {Operation} batch accepted: {Identifier} BatchId={BatchId}",
+                        operation, identifier, batchId);
+            }
+            catch { /* non-critical logging */ }
+        }, ct);
     }
 
     // ═══════════════════════════════════════════
