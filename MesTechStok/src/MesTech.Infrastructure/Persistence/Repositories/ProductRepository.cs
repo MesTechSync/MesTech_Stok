@@ -85,8 +85,8 @@ public sealed class ProductRepository : IProductRepository
         return PagedResult<Product>.Create(items, totalCount, page, pageSize);
     }
 
-    public async Task AddRangeAsync(IEnumerable<Product> products)
-        => await _context.Products.AddRangeAsync(products).ConfigureAwait(false);
+    public async Task AddRangeAsync(IEnumerable<Product> products, CancellationToken ct = default)
+        => await _context.Products.AddRangeAsync(products, ct).ConfigureAwait(false);
 
     public Task UpdateRangeAsync(IEnumerable<Product> products)
     {
