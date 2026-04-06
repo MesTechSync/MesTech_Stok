@@ -26,7 +26,7 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
     private readonly HttpClient _httpClient;
     private readonly ILogger<SovosInvoiceProvider> _logger;
     private readonly IUblTrXmlBuilder _ublBuilder;
-    private readonly IUblTrXmlValidator? _xmlValidator;
+    private readonly IUblTrXmlValidator _xmlValidator;
     private string? _apiKey;
     private string? _baseUrl;
     private bool _isConfigured;
@@ -41,12 +41,12 @@ public sealed class SovosInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
         HttpClient httpClient,
         ILogger<SovosInvoiceProvider> logger,
         IUblTrXmlBuilder ublBuilder,
-        IUblTrXmlValidator? xmlValidator = null)
+        IUblTrXmlValidator xmlValidator)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ublBuilder = ublBuilder ?? throw new ArgumentNullException(nameof(ublBuilder));
-        _xmlValidator = xmlValidator;
+        _xmlValidator = xmlValidator ?? throw new ArgumentNullException(nameof(xmlValidator));
     }
 
     /// <summary>
