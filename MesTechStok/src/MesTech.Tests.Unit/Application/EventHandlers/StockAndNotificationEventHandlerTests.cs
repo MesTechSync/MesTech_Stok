@@ -44,15 +44,17 @@ public class OrderPlacedStockDeductionHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ShouldAcquireDistributedLock()
+    public async Task HandleAsync_OrderNotFound_ShouldNotAcquireDistributedLock()
     {
         var sut = CreateSut();
         _orderRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         await sut.HandleAsync(Guid.NewGuid(), "ORD-LOCK", CancellationToken.None);
 
-        // Lock should still be attempted even if order not found
-        // (defensive pattern — lock first, then lookup)
+        // Order not found → no product IDs → lock not attempted (lock is per-product, inside item loop)
+        _lockService.Verify(
+            l => l.AcquireLockAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
 
