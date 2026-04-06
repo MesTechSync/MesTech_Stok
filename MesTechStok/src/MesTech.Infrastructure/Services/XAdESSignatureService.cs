@@ -46,6 +46,21 @@ public sealed class XAdESSignatureService : IDigitalSignatureService
             if (cert == null)
                 throw new InvalidOperationException("Mali mühür sertifikası yüklenemedi.");
 
+            // D4-132: XAdES certificate expiry monitoring
+            if (cert.NotAfter < DateTime.UtcNow)
+            {
+                _logger.LogError("XAdES sertifikası SÜRESİ DOLMUŞ. NotAfter={NotAfter}, Subject={Subject}",
+                    cert.NotAfter, cert.Subject);
+                throw new InvalidOperationException(
+                    $"Mali mühür sertifikası süresi dolmuş (NotAfter: {cert.NotAfter:yyyy-MM-dd}). Yenilenmesi gerekiyor.");
+            }
+
+            if (cert.NotAfter < DateTime.UtcNow.AddDays(30))
+            {
+                _logger.LogWarning("XAdES sertifikası 30 gün içinde sona erecek. NotAfter={NotAfter}, Subject={Subject}, KalanGün={RemainingDays}",
+                    cert.NotAfter, cert.Subject, (cert.NotAfter - DateTime.UtcNow).Days);
+            }
+
             var signedXml = new SignedXml(doc)
             {
                 SigningKey = cert.GetRSAPrivateKey()
