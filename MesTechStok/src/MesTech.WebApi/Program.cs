@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Threading.RateLimiting;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -782,6 +783,13 @@ RoleEndpoints.Map(app); // HH-DEV6-005: Role CRUD + HH-DEV6-006: Permission assi
 
 // SignalR real-time hub (G-02)
 app.MapHub<MesTechHub>("/hubs/mestech");
+
+// Hangfire dashboard + recurring jobs (DEV4: Trendyol sync altyapısı)
+app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
+{
+    Authorization = new[] { new MesTech.WebApi.Filters.HangfireDashboardAuthFilter(app.Configuration) }
+});
+MesTech.Infrastructure.Jobs.HangfireConfig.RegisterRecurringJobs(app.Services);
 
 app.Run();
 
