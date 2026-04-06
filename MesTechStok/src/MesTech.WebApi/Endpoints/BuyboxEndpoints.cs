@@ -187,7 +187,7 @@ public static class BuyboxEndpoints
                 lost.Take(10).ToList(),
                 optimizations.Count,
                 optimizations
-                    .Where(o => Math.Abs(o.RecommendedPrice - o.CurrentPrice) / o.CurrentPrice > 0.01m)
+                    .Where(o => o.CurrentPrice > 0 && Math.Abs(o.RecommendedPrice - o.CurrentPrice) / o.CurrentPrice > 0.01m)
                     .OrderByDescending(o => Math.Abs(o.RecommendedPrice - o.CurrentPrice))
                     .Take(20).ToList(),
                 new AutoPriceStatusResponse(
