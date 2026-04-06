@@ -88,13 +88,14 @@ public class QueryHandlerBatch2Tests
         var product1 = new Product
         {
             Id = Guid.NewGuid(), Name = "P1", WarehouseId = whId,
-            Stock = 0, MinimumStock = 5
+            MinimumStock = 5
         };
         var product2 = new Product
         {
             Id = Guid.NewGuid(), Name = "P2", WarehouseId = whId,
-            Stock = 50, MinimumStock = 5
+            MinimumStock = 5
         };
+        product2.SyncStock(50);
         var whRepo = new Mock<IWarehouseRepository>();
         whRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Warehouse> { wh });

@@ -346,8 +346,9 @@ public class QueryHandlerBatch1Tests
         var product = new Product
         {
             Id = Guid.NewGuid(), Name = "Test Urun", SKU = "TST001",
-            Stock = 2, MinimumStock = 10
+            MinimumStock = 10
         };
+        product.SyncStock(2);
         var repo = new Mock<IProductRepository>();
         repo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product });
@@ -370,7 +371,7 @@ public class QueryHandlerBatch1Tests
         var product = new Product
         {
             Id = Guid.NewGuid(), Name = "Kritik", SKU = "KRT001",
-            Stock = 0, MinimumStock = 5
+            MinimumStock = 5
         };
         var repo = new Mock<IProductRepository>();
         repo.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>()))

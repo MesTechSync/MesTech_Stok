@@ -186,12 +186,12 @@ public class QueryHandlerBatch3Tests
     [Fact]
     public async Task GetInventoryStatistics_WithProducts_CalculatesCorrectly()
     {
-        var products = new List<Product>
-        {
-            new() { Id = Guid.NewGuid(), Stock = 0, SalePrice = 100, MinimumStock = 5 },
-            new() { Id = Guid.NewGuid(), Stock = 3, SalePrice = 50, MinimumStock = 10 },
-            new() { Id = Guid.NewGuid(), Stock = 100, SalePrice = 200, MinimumStock = 5 },
-        };
+        var p1 = new Product { Id = Guid.NewGuid(), SalePrice = 100, MinimumStock = 5 };
+        var p2 = new Product { Id = Guid.NewGuid(), SalePrice = 50, MinimumStock = 10 };
+        p2.SyncStock(3);
+        var p3 = new Product { Id = Guid.NewGuid(), SalePrice = 200, MinimumStock = 5 };
+        p3.SyncStock(100);
+        var products = new List<Product> { p1, p2, p3 };
 
         var productRepo = new Mock<IProductRepository>();
         productRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))

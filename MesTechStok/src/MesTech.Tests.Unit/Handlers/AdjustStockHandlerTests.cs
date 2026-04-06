@@ -35,7 +35,8 @@ public class AdjustStockHandlerTests
     public async Task Handle_ValidProduct_ReturnsSuccessAndRecordsMovement()
     {
         // Arrange
-        var product = new Product { Name = "Test", SKU = "SKU-001", Stock = 50 };
+        var product = new Product { Name = "Test", SKU = "SKU-001" };
+        product.SyncStock(50);
         var productId = product.Id;
         _productRepo.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 

@@ -22,7 +22,8 @@ public class StockHandlerTests
     [Fact]
     public async Task AddStockLot_ValidCommand_CreatesLotAndMovement()
     {
-        var product = new Product { Name = "Test", SKU = "TST-001", Stock = 10 };
+        var product = new Product { Name = "Test", SKU = "TST-001" };
+        product.SyncStock(10);
         _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(
@@ -60,7 +61,8 @@ public class StockHandlerTests
     [Fact]
     public async Task AdjustStock_ValidCommand_AdjustsAndRecords()
     {
-        var product = new Product { Name = "Test", SKU = "ADJ-001", Stock = 100 };
+        var product = new Product { Name = "Test", SKU = "ADJ-001" };
+        product.SyncStock(100);
         _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AdjustStockCommand(product.Id, -10, "Damaged", "admin");

@@ -28,10 +28,10 @@ public class GetProductByIdHandlerTests
             SKU = "SKU-001",
             PurchasePrice = 50m,
             SalePrice = 100m,
-            Stock = 10,
             MinimumStock = 5,
             IsActive = true
         };
+        product.SyncStock(10);
 
         _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 

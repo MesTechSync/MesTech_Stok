@@ -20,11 +20,10 @@ public class GetLowStockProductsHandlerTests
     [Fact]
     public async Task Handle_ReturnsLowStockProducts()
     {
-        var products = new List<Product>
-        {
-            new Product { Id = Guid.NewGuid(), Name = "Düşük Stok A", Stock = 2, MinimumStock = 10 },
-            new Product { Id = Guid.NewGuid(), Name = "Düşük Stok B", Stock = 0, MinimumStock = 5 }
-        };
+        var p1 = new Product { Id = Guid.NewGuid(), Name = "Düşük Stok A", MinimumStock = 10 };
+        p1.SyncStock(2);
+        var p2 = new Product { Id = Guid.NewGuid(), Name = "Düşük Stok B", MinimumStock = 5 };
+        var products = new List<Product> { p1, p2 };
         _productRepoMock.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new GetLowStockProductsQuery();

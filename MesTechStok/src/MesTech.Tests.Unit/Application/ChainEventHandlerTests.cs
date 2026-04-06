@@ -77,9 +77,10 @@ public class OrderPlacedStockDeductionHandlerTests
         var product = new Product
         {
             Id = productId,
-            Name = "Test Ürün", SKU = "TST-001", Stock = 50,
+            Name = "Test Ürün", SKU = "TST-001",
             MinimumStock = 5, SalePrice = 100m, IsActive = true
         };
+        product.SyncStock(50);
 
         _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
@@ -350,7 +351,7 @@ public class ZeroStockDetectedEventHandlerTests
         var productId = Guid.NewGuid();
         var product = new Product
         {
-            Name = "Tükenmiş Ürün", SKU = "ZERO-001", Stock = 0,
+            Name = "Tükenmiş Ürün", SKU = "ZERO-001",
             SalePrice = 50m, IsActive = true
         };
         _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
@@ -367,7 +368,7 @@ public class ZeroStockDetectedEventHandlerTests
         var productId = Guid.NewGuid();
         var product = new Product
         {
-            Name = "Zaten Pasif", SKU = "ZERO-002", Stock = 0,
+            Name = "Zaten Pasif", SKU = "ZERO-002",
             SalePrice = 50m, IsActive = false
         };
         _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);

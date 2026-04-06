@@ -190,7 +190,8 @@ public class CqrsHandlerHardeningTests
     [Fact]
     public async Task AddStockHandler_ZeroQuantity_ExecutesWithoutError()
     {
-        var product = new Product { Name = "Test", SKU = "T1", Stock = 10 };
+        var product = new Product { Name = "Test", SKU = "T1" };
+        product.SyncStock(10);
         _productRepoMock.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var addLockMock = new Mock<IDistributedLockService>();

@@ -30,7 +30,8 @@ public class AddStockLotHandlerTests
     public async Task Handle_ValidCommand_CreatesLotAndReturnsSuccess()
     {
         var productId = Guid.NewGuid();
-        var product = new Product { Id = productId, Name = "Test", Description = "DESC", Stock = 10, TenantId = Guid.NewGuid(), SKU = "TST-001" };
+        var product = new Product { Id = productId, Name = "Test", Description = "DESC", TenantId = Guid.NewGuid(), SKU = "TST-001" };
+        product.SyncStock(10);
         _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10.5m);

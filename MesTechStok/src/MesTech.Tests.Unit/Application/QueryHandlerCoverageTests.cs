@@ -51,14 +51,16 @@ public class GetWarehouseStockHandlerTests
 
         var product1 = new Product
         {
-            Name = "Ürün 1", SKU = "U1", Stock = 10, SalePrice = 100m,
+            Name = "Ürün 1", SKU = "U1", SalePrice = 100m,
             WarehouseId = warehouseId, TenantId = tenantId, IsActive = true
         };
+        product1.SyncStock(10);
         var product2 = new Product
         {
-            Name = "Ürün 2", SKU = "U2", Stock = 5, SalePrice = 50m,
+            Name = "Ürün 2", SKU = "U2", SalePrice = 50m,
             WarehouseId = warehouseId, TenantId = Guid.NewGuid(), IsActive = true
         };
+        product2.SyncStock(5);
         var products = new List<Product> { product1, product2 };
 
         _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
