@@ -354,6 +354,54 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         if (_allProducts.Count > 0)
             ApplyFilters();
     }
+
+    /// <summary>D2-027: Yeni ürün ekle — ProductEditDialog açar.</summary>
+    [RelayCommand]
+    private async Task AddProduct()
+    {
+        var dialog = new MesTech.Avalonia.Dialogs.ProductEditDialog("Yeni Urun Ekle");
+        var owner = global::Avalonia.Application.Current?.ApplicationLifetime
+            is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow : null;
+
+        if (owner is not null)
+            await dialog.ShowDialog(owner);
+
+        if (dialog.Result)
+        {
+            _toast.ShowSuccess($"'{dialog.ProductName}' eklendi");
+            await LoadAsync();
+        }
+    }
+
+    /// <summary>D2-025: Seçili ürünü düzenle — ProductEditDialog açar.</summary>
+    [RelayCommand]
+    private async Task EditProduct()
+    {
+        if (SelectedProduct is null) return;
+
+        var p = SelectedProduct;
+        var dialog = new MesTech.Avalonia.Dialogs.ProductEditDialog(
+            "Urun Duzenle",
+            name: p.Name,
+            sku: p.SKU,
+            barcode: p.Barcode,
+            price: p.Price.ToString("F2"),
+            description: p.Description);
+
+        var owner = global::Avalonia.Application.Current?.ApplicationLifetime
+            is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow : null;
+
+        if (owner is not null)
+            await dialog.ShowDialog(owner);
+
+        if (dialog.Result)
+        {
+            _toast.ShowSuccess($"'{dialog.ProductName}' guncellendi");
+            await LoadAsync();
+        }
+    }
 }
 
 public class ProductItemDto

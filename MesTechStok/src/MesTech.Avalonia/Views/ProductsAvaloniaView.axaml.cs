@@ -28,4 +28,11 @@ public partial class ProductsAvaloniaView : BaseView
             e.Handled = true;
         }
     }
+
+    /// <summary>D2-025: DataGrid double-click → EditProduct dialog açar.</summary>
+    private void OnDataGridDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is ViewModels.ProductsAvaloniaViewModel vm && vm.EditProductCommand.CanExecute(null))
+            vm.EditProductCommand.Execute(null);
+    }
 }
