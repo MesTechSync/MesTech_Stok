@@ -1827,6 +1827,58 @@
                         <DataTemplate DataType="vm:SettlementAvaloniaViewModel">
                             <views:SettlementAvaloniaView />
                         </DataTemplate>
+                        <!-- D12: Missing DataTemplates — 17 VM'in view eşlemesi -->
+                        <DataTemplate DataType="vm:CustomerAvaloniaViewModel">
+                            <views:CustomerAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:InvoiceProviderSettingsAvaloniaViewModel">
+                            <views:InvoiceProviderSettingsAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:SupplierFeedListAvaloniaViewModel">
+                            <views:SupplierFeedListAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="monvm:StaleOrdersAvaloniaViewModel">
+                            <monviews:StaleOrdersAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FixedAssetAvaloniaViewModel">
+                            <views:FixedAssetAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:FixedExpenseAvaloniaViewModel">
+                            <views:FixedExpenseAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PenaltyAvaloniaViewModel">
+                            <views:PenaltyAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:TaxRecordAvaloniaViewModel">
+                            <views:TaxRecordAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="erpvm:ErpDashboardViewModel">
+                            <erpviews:ErpDashboardView />
+                        </DataTemplate>
+                        <DataTemplate DataType="erpvm:ErpAccountMappingViewModel">
+                            <erpviews:ErpAccountMappingView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:IncomeExpenseDashboardViewModel">
+                            <acctviews:IncomeExpenseDashboardView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:IncomeExpenseListViewModel">
+                            <acctviews:IncomeExpenseListView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:ProfitabilityReportViewModel">
+                            <acctviews:ProfitabilityReportView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:JournalEntryListViewModel">
+                            <acctviews:JournalEntryListView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:TrialBalanceViewModel">
+                            <acctviews:TrialBalanceView />
+                        </DataTemplate>
+                        <DataTemplate DataType="acctvm:CommissionRatesViewModel">
+                            <acctviews:CommissionRatesView />
+                        </DataTemplate>
+                        <DataTemplate DataType="ordvm:OrderKanbanViewModel">
+                            <ordviews:OrderKanbanView />
+                        </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
             </DockPanel>
