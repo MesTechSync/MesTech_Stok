@@ -115,6 +115,22 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
                     errors.Add("TaxSubtotal/TaxCategory/TaxScheme zorunlu alan eksik.");
                 else if (string.IsNullOrWhiteSpace(taxScheme.Element(Cbc + "TaxTypeCode")?.Value))
                     errors.Add("TaxScheme/TaxTypeCode zorunlu alan eksik (ör. 0015=KDV).");
+
+                // Business rule: TaxAmount vs TaxableAmount tutarlılık
+                var subTaxAmountStr = sub.Element(Cbc + "TaxAmount")?.Value;
+                var taxableAmountStr = sub.Element(Cbc + "TaxableAmount")?.Value;
+                if (decimal.TryParse(subTaxAmountStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var subTaxAmount)
+                    && decimal.TryParse(taxableAmountStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var taxableAmount))
+                {
+                    if (subTaxAmount < 0)
+                        errors.Add($"TaxSubtotal/TaxAmount negatif olamaz: {subTaxAmount}.");
+                    if (taxableAmount < 0)
+                        errors.Add($"TaxSubtotal/TaxableAmount negatif olamaz: {taxableAmount}.");
+                    if (taxableAmount > 0 && subTaxAmount > taxableAmount)
+                        errors.Add($"TaxSubtotal/TaxAmount ({subTaxAmount}) TaxableAmount'tan ({taxableAmount}) büyük olamaz.");
+                }
             }
         }
 
@@ -184,7 +200,9 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         if (element is null || string.IsNullOrWhiteSpace(element.Value))
             errors.Add($"LegalMonetaryTotal/{fieldName} zorunlu alan eksik.");
         else if (!decimal.TryParse(element.Value, System.Globalization.NumberStyles.Any,
-                     System.Globalization.CultureInfo.InvariantCulture, out _))
+                     System.Globalization.CultureInfo.InvariantCulture, out var amount))
             errors.Add($"LegalMonetaryTotal/{fieldName} geçerli bir sayısal değer olmalı.");
+        else if (amount < 0 && fieldName is "PayableAmount" or "TaxInclusiveAmount" or "LineExtensionAmount")
+            errors.Add($"LegalMonetaryTotal/{fieldName} negatif olamaz: {amount}. GİB reddetir.");
     }
 }
