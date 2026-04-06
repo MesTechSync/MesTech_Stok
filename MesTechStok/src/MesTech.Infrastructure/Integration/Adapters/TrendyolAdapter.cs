@@ -507,20 +507,52 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 {
                     foreach (var item in contentArr.EnumerateArray())
                     {
-                        // ImageUrl: ilk resim URL'si
+                        // Images: ilk resim → ImageUrl, tum resimler → PlatformSpecificData
                         string? imageUrl = null;
+                        var allImageUrls = new List<string>();
                         if (item.TryGetProperty("images", out var images) && images.ValueKind == JsonValueKind.Array)
                         {
-                            var firstImg = images.EnumerateArray().FirstOrDefault();
-                            if (firstImg.ValueKind == JsonValueKind.Object && firstImg.TryGetProperty("url", out var imgUrl))
-                                imageUrl = imgUrl.GetString();
+                            foreach (var img in images.EnumerateArray())
+                            {
+                                if (img.ValueKind == JsonValueKind.Object && img.TryGetProperty("url", out var imgUrl))
+                                {
+                                    var url = imgUrl.GetString();
+                                    if (!string.IsNullOrWhiteSpace(url))
+                                    {
+                                        imageUrl ??= url;
+                                        allImageUrls.Add(url);
+                                    }
+                                }
+                            }
                         }
+
+                        // SKU resolution: stockCode → productMainId → barcode (Trendyol API often returns stockCode=null)
+                        var skuValue = item.TryGetProperty("stockCode", out var sc) && sc.ValueKind == JsonValueKind.String ? sc.GetString() : null;
+                        if (string.IsNullOrEmpty(skuValue))
+                            skuValue = item.TryGetProperty("productMainId", out var pmi2) && pmi2.ValueKind == JsonValueKind.String ? pmi2.GetString() : null;
+                        if (string.IsNullOrEmpty(skuValue))
+                            skuValue = item.TryGetProperty("barcode", out var bc2) ? bc2.GetString() : null;
+
+                        // External IDs — PushProduct'ta BrandPlatformMapping/ProductPlatformMapping ile eslestirilir
+                        var extBrandId = item.TryGetProperty("brandId", out var bi) ? bi.GetInt64().ToString() : null;
+                        var extCategoryId = item.TryGetProperty("pimCategoryId", out var ci) ? ci.GetInt32().ToString()
+                            : item.TryGetProperty("categoryId", out var ci2) ? ci2.GetInt32().ToString() : null;
+
+                        // Structured metadata JSON — downstream sync handler'lari icin
+                        var metadata = JsonSerializer.Serialize(new
+                        {
+                            trendyolBrandId = extBrandId,
+                            trendyolCategoryId = extCategoryId,
+                            images = allImageUrls,
+                            color = item.TryGetProperty("color", out var clr) ? clr.GetString() : null,
+                            gender = item.TryGetProperty("gender", out var gen) ? gen.GetString() : null
+                        }, _jsonOptions);
 
                         var product = new Product
                         {
                             Id = Guid.NewGuid(),
                             Name = item.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "",
-                            SKU = item.TryGetProperty("stockCode", out var sc) ? sc.GetString() ?? "" : "",
+                            SKU = skuValue ?? "",
                             Barcode = item.TryGetProperty("barcode", out var b) ? b.GetString() : null,
                             SalePrice = item.TryGetProperty("salePrice", out var sp) ? sp.GetDecimal() : 0,
                             ListPrice = item.TryGetProperty("listPrice", out var lp) ? lp.GetDecimal() : null,
@@ -528,9 +560,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             TaxRate = item.TryGetProperty("vatRate", out var vr) ? vr.GetDecimal() / 100m : 0.18m,
                             ImageUrl = imageUrl,
                             Code = item.TryGetProperty("productMainId", out var pmi) ? pmi.GetString() : null,
-                            Notes = item.TryGetProperty("brandId", out var bi)
-                                ? $"Trendyol brandId:{bi.GetInt64()} categoryId:{(item.TryGetProperty("pimCategoryId", out var ci) ? ci.GetInt32().ToString() : "?")}"
-                                : null
+                            Color = item.TryGetProperty("color", out var clr2) ? clr2.GetString() : null,
+                            CurrencyCode = item.TryGetProperty("currencyType", out var ccy) ? ccy.GetString() ?? "TRY" : "TRY",
+                            Notes = metadata
                         };
                         product.SyncStock(item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0, "trendyol-sync");
                         products.Add(product);
@@ -753,6 +785,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                                     Quantity = line.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
                                     UnitPrice = line.TryGetProperty("price", out var up) ? up.GetDecimal() : 0,
                                     DiscountAmount = line.TryGetProperty("discount", out var disc) ? disc.GetDecimal() : null,
+                                    TaxRate = line.TryGetProperty("vatBaseAmount", out var vba) && vba.GetDecimal() > 0 && line.TryGetProperty("amount", out var amt2) && amt2.GetDecimal() > 0
+                                        ? (vba.GetDecimal() / amt2.GetDecimal())
+                                        : 0,
                                     LineTotal = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0
                                 });
                             }
@@ -775,6 +810,18 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             order.CustomerCity = addr.TryGetProperty("city", out var city) ? city.GetString() : null;
                             if (string.IsNullOrEmpty(order.CustomerPhone))
                                 order.CustomerPhone = addr.TryGetProperty("phone", out var ph) ? ph.GetString() : null;
+                        }
+
+                        // Fatura adresi — e-fatura (UBL-TR) kesimi icin kritik
+                        if (item.TryGetProperty("invoiceAddress", out var invAddr))
+                        {
+                            order.InvoiceAddress = invAddr.TryGetProperty("fullAddress", out var ifa) ? ifa.GetString() : null;
+                            order.InvoiceCity = invAddr.TryGetProperty("city", out var icity) ? icity.GetString() : null;
+                            order.InvoiceDistrict = invAddr.TryGetProperty("district", out var idistr) ? idistr.GetString() : null;
+                            order.InvoiceFullName = invAddr.TryGetProperty("fullName", out var ifn) ? ifn.GetString() : null;
+                            // TC/Vergi No — Trendyol invoiceAddress icinde doner
+                            if (string.IsNullOrEmpty(order.CustomerTaxNumber) && invAddr.TryGetProperty("taxNumber", out var taxNo))
+                                order.CustomerTaxNumber = taxNo.GetString();
                         }
 
                         // Son güncelleme tarihi
@@ -1762,35 +1809,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                 "TrendyolAdapter webhook received: EventType={EventType} OrderId={OrderId} PayloadLength={Length}",
                 eventType, orderId, payload.Length);
 
-            // Dispatch to MediatR pipeline via IServiceScopeFactory
-            if (_scopeFactory is not null)
-            {
-                await using var scope = _scopeFactory.CreateAsyncScope();
-                var mediator = scope.ServiceProvider.GetService<MediatR.IMediator>();
-                if (mediator is not null)
-                {
-                    var notification = new MesTech.Infrastructure.Messaging.WebhookReceivedEvent(
-                        PlatformCode: PlatformCode,
-                        EventType: eventType ?? "unknown",
-                        OrderId: orderId,
-                        RawPayload: payload,
-                        ReceivedAt: DateTime.UtcNow);
-
-                    await mediator.Publish(notification, ct).ConfigureAwait(false);
-
-                    _logger.LogInformation(
-                        "TrendyolAdapter webhook dispatched to MediatR: EventType={EventType} OrderId={OrderId}",
-                        eventType, orderId);
-                }
-                else
-                {
-                    _logger.LogWarning("TrendyolAdapter: IMediator not available in DI — webhook not dispatched");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("TrendyolAdapter: IServiceScopeFactory not available — webhook log-only mode");
-            }
+            // Delegate to WebhookDispatchHelper — handles replay protection + MediatR dispatch
+            await WebhookDispatchHelper.DispatchAsync(
+                _scopeFactory, PlatformCode, eventType, orderId, payload, _logger, ct)
+                .ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
