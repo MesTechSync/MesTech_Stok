@@ -734,6 +734,8 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             Status = item.TryGetProperty("status", out var st) ? st.GetString() ?? "" : "",
                             CustomerName = BuildTrendyolCustomerName(item),
                             TotalAmount = item.TryGetProperty("totalPrice", out var tp2) ? tp2.GetDecimal() : 0,
+                            GrossAmount = item.TryGetProperty("grossAmount", out var ga) ? ga.GetDecimal() : null,
+                            TotalDiscount = item.TryGetProperty("totalDiscount", out var td) ? td.GetDecimal() : null,
                             OrderDate = item.TryGetProperty("orderDate", out var od) ? DateTimeOffset.FromUnixTimeMilliseconds(od.GetInt64()).UtcDateTime : DateTime.UtcNow
                         };
 

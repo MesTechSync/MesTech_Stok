@@ -20,6 +20,8 @@ public sealed class ExternalOrderDto
 
     // Tutar
     public decimal TotalAmount { get; set; }
+    public decimal? GrossAmount { get; set; }
+    public decimal? TotalDiscount { get; set; }
     public decimal? DiscountAmount { get; set; }
     public decimal? ShippingCost { get; set; }
     public string Currency { get; set; } = "TRY";
