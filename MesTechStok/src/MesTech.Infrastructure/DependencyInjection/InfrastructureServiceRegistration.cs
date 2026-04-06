@@ -481,6 +481,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Domain.Accounting.Services.ProfitCalculationService>();
         services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
             MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.IKdvCalculationService,
+            MesTech.Domain.Accounting.Services.KdvCalculationService>();
+        services.AddSingleton<MesTech.Domain.Services.IFEFOSortingService,
+            MesTech.Domain.Services.FEFOSortingService>();
 
         // ── MESA Muhasebe AI (MUH-02: Feature flag swap — Mock veya Real) ──
         // MockMesaAccountingService her zaman kayitli: Real client fallback olarak kullanir
