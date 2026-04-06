@@ -83,11 +83,12 @@ public class CreateFixedAssetValidatorTests
     }
 
     [Fact]
-    public async Task ZeroAcquisitionCost_PassesValidation()
+    public async Task ZeroAcquisitionCost_FailsValidation()
     {
         var cmd = ValidCommand() with { AcquisitionCost = 0m };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "AcquisitionCost");
     }
 
     [Fact]
