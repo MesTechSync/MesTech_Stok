@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Stock.Commands.ExportStock;
 using MesTech.Application.Queries.GetInventoryPaged;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -15,6 +16,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class InventoryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -44,9 +46,10 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     public ObservableCollection<InventoryItemDto> Items { get; } = [];
     private List<InventoryItemDto> _allItems = [];
 
-    public InventoryAvaloniaViewModel(IMediator mediator)
+    public InventoryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
@@ -155,7 +158,7 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var tenantId = Guid.Empty; // TODO: inject ICurrentUserService
+            var tenantId = _currentUser.TenantId;
             var result = await _mediator.Send(new ExportStockCommand(tenantId, "xlsx"), ct);
             if (result.FileData.Length > 0)
             {
