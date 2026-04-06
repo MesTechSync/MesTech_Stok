@@ -5,6 +5,7 @@ using MesTech.Application.Commands.BulkUpdatePrice;
 using MesTech.Application.Commands.BulkUpdateStock;
 using MesTech.Application.Features.Product.Commands.BulkCreateProducts;
 using MesTech.Domain.Interfaces;
+using MesTech.WebApi.Filters;
 
 namespace MesTech.WebApi.Endpoints;
 
@@ -17,7 +18,9 @@ public static class BulkProductEndpoints
     {
         var group = app.MapGroup("/api/v1/products/bulk")
             .WithTags("BulkProducts")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .RequireAuthorization()
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // POST /api/v1/products/bulk/validate — CSV/Excel dosya doğrulama
         group.MapPost("/validate", async (
@@ -88,7 +91,8 @@ public static class BulkProductEndpoints
         .Produces(200).Produces(400)
         .DisableAntiforgery()
         .AddEndpointFilter<Filters.IdempotencyFilter>()
-        .WithRequestTimeout("LongRunning");
+        .WithRequestTimeout("LongRunning")
+        .RequirePermission("ManageProducts");
 
         // POST /api/v1/products/bulk/export — Ürünleri dosya olarak dışa aktar
         group.MapPost("/export", async (
@@ -197,7 +201,8 @@ public static class BulkProductEndpoints
         })
         .WithName("BulkUpdateProducts")
         .WithSummary("Toplu ürün stok ve fiyat güncellemesi").Produces(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // POST /api/v1/products/bulk/create — JSON ile toplu ürün oluşturma
         // DEV6 TUR15: G519 — handler-endpoint gap kapatma
@@ -212,7 +217,8 @@ public static class BulkProductEndpoints
         .WithName("BulkCreateProducts")
         .WithSummary("JSON payload ile toplu ürün oluştur")
         .Produces<BulkCreateProductsResult>(200).Produces(400)
-        .AddEndpointFilter<Filters.IdempotencyFilter>();
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
     }
 
     /// <summary>
