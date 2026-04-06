@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Orders.Queries.GetOrderDetail;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -17,7 +18,7 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
-
+    private readonly INavigationService _nav;
 
     [ObservableProperty] private string searchText = string.Empty;
 
@@ -35,10 +36,11 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 
     public ObservableCollection<OrderDetailItemDto> OrderItems { get; } = [];
 
-    public OrderDetailAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
+    public OrderDetailAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, INavigationService nav)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _nav = nav;
     }
 
     public override async Task LoadAsync()
@@ -113,6 +115,10 @@ public partial class OrderDetailAvaloniaViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task Refresh() => await LoadAsync();
+
+    /// <summary>D2-018: Sipariş detayından fatura oluşturma ekranına geçiş.</summary>
+    [RelayCommand]
+    private async Task CreateInvoice() => await _nav.NavigateToAsync("InvoiceCreate");
 }
 
 public class OrderDetailItemDto
