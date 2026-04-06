@@ -1397,3 +1397,210 @@ public sealed class SupplierCreatedBridgeHandler
 }
 
 #endregion
+
+#region KD-DEV1: P0 Orphan Event Handlers (Kalite Devrimi)
+
+/// <summary>
+/// OrderPaidEvent → Sipariş ödeme tamamlandı — muhasebe GL kaydı + fatura oluşturma tetikle.
+/// </summary>
+public sealed class OrderPaidBridgeHandler
+    : INotificationHandler<DomainEventNotification<OrderPaidEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<OrderPaidBridgeHandler> _logger;
+
+    public OrderPaidBridgeHandler(IMediator mediator, ILogger<OrderPaidBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<OrderPaidEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] OrderPaid — OrderId={OrderId}, OrderNumber={OrderNumber}, Amount={Amount}, TenantId={TenantId}",
+            e.OrderId, e.OrderNumber, e.TotalAmount, e.TenantId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "order-paid",
+                Content: $"Sipariş ödemesi alındı.\n" +
+                         $"Sipariş: {e.OrderNumber}\n" +
+                         $"Tutar: {e.TotalAmount:C}\n" +
+                         $"Tarih: {e.OccurredAt:yyyy-MM-dd HH:mm}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "OrderPaid bildirim gönderilemedi — {OrderId}", e.OrderId);
+        }
+    }
+}
+
+/// <summary>
+/// OrderStatusChangedEvent → Sipariş durum değişimi loglama + bildirim.
+/// </summary>
+public sealed class OrderStatusChangedBridgeHandler
+    : INotificationHandler<DomainEventNotification<OrderStatusChangedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<OrderStatusChangedBridgeHandler> _logger;
+
+    public OrderStatusChangedBridgeHandler(IMediator mediator, ILogger<OrderStatusChangedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<OrderStatusChangedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] OrderStatusChanged — OrderId={OrderId}, {OldStatus} → {NewStatus}, By={ChangedBy}, TenantId={TenantId}",
+            e.OrderId, e.OldStatus, e.NewStatus, e.ChangedBy, e.TenantId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "order-status-changed",
+                Content: $"Sipariş durumu değişti.\n" +
+                         $"Sipariş: {e.OrderId}\n" +
+                         $"{e.OldStatus} → {e.NewStatus}\n" +
+                         $"Değiştiren: {e.ChangedBy ?? "Sistem"}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "OrderStatusChanged bildirim gönderilemedi — {OrderId}", e.OrderId);
+        }
+    }
+}
+
+/// <summary>
+/// ShipmentCreatedEvent → Kargo oluşturuldu loglama + bildirim.
+/// </summary>
+public sealed class ShipmentCreatedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ShipmentCreatedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<ShipmentCreatedBridgeHandler> _logger;
+
+    public ShipmentCreatedBridgeHandler(IMediator mediator, ILogger<ShipmentCreatedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<ShipmentCreatedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ShipmentCreated — ShipmentId={ShipmentId}, OrderId={OrderId}, Tracking={Tracking}, Cargo={Cargo}, TenantId={TenantId}",
+            e.ShipmentId, e.OrderId, e.TrackingNumber, e.CargoProvider, e.TenantId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "shipment-created",
+                Content: $"Kargo oluşturuldu.\n" +
+                         $"Sipariş: {e.OrderId}\n" +
+                         $"Kargo: {e.CargoProvider} — Takip: {e.TrackingNumber}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "ShipmentCreated bildirim gönderilemedi — {ShipmentId}", e.ShipmentId);
+        }
+    }
+}
+
+/// <summary>
+/// PaymentCompletedEvent → Platform ödemesi tamamlandı loglama + bildirim.
+/// </summary>
+public sealed class PaymentCompletedBridgeHandler
+    : INotificationHandler<DomainEventNotification<PaymentCompletedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<PaymentCompletedBridgeHandler> _logger;
+
+    public PaymentCompletedBridgeHandler(IMediator mediator, ILogger<PaymentCompletedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<PaymentCompletedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] PaymentCompleted — PaymentId={PaymentId}, Net={NetAmount}, BankRef={BankRef}, TenantId={TenantId}",
+            e.PlatformPaymentId, e.NetAmount, e.BankReference, e.TenantId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "payment-completed",
+                Content: $"Ödeme tamamlandı.\n" +
+                         $"Net Tutar: {e.NetAmount:C}\n" +
+                         $"Banka Ref: {e.BankReference ?? "—"}"), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "PaymentCompleted bildirim gönderilemedi — {PaymentId}", e.PlatformPaymentId);
+        }
+    }
+}
+
+/// <summary>
+/// ReturnReceivedEvent → İade ürün teslim alındı — stok güncelleme + kalite kontrol tetikle.
+/// </summary>
+public sealed class ReturnReceivedBridgeHandler
+    : INotificationHandler<DomainEventNotification<ReturnReceivedEvent>>
+{
+    private readonly IMediator _mediator;
+    private readonly ILogger<ReturnReceivedBridgeHandler> _logger;
+
+    public ReturnReceivedBridgeHandler(IMediator mediator, ILogger<ReturnReceivedBridgeHandler> logger)
+    {
+        _mediator = mediator;
+        _logger = logger;
+    }
+
+    public async Task Handle(DomainEventNotification<ReturnReceivedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogInformation(
+            "[Event] ReturnReceived — ReturnId={ReturnId}, OrderId={OrderId}, TenantId={TenantId}",
+            e.ReturnRequestId, e.OrderId, e.TenantId);
+
+        try
+        {
+            await _mediator.Send(new SendNotificationCommand(
+                TenantId: e.TenantId,
+                Channel: "System",
+                Recipient: "tenant-admins",
+                TemplateName: "return-received",
+                Content: $"İade ürün teslim alındı.\n" +
+                         $"İade No: {e.ReturnRequestId}\n" +
+                         $"Sipariş: {e.OrderId}\n" +
+                         $"Kalite kontrol ve stok güncelleme bekleniyor."), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "ReturnReceived bildirim gönderilemedi — {ReturnId}", e.ReturnRequestId);
+        }
+    }
+}
+
+#endregion
