@@ -12,6 +12,12 @@ public sealed class ProductPlatformMappingConfiguration : IEntityTypeConfigurati
         builder.Property(m => m.ExternalProductId).HasMaxLength(200);
         builder.Property(m => m.ExternalCategoryId).HasMaxLength(200);
         builder.Property(m => m.ExternalUrl).HasMaxLength(1000);
+        builder.Property(m => m.PlatformBarcode).HasMaxLength(100);
+        builder.Property(m => m.PlatformModelCode).HasMaxLength(200);
+        builder.Property(m => m.PlatformStockCode).HasMaxLength(200);
+
+        builder.HasIndex(m => new { m.TenantId, m.PlatformBarcode, m.PlatformType })
+            .HasDatabaseName("IX_PPM_Tenant_PlatformBarcode");
 
         builder.HasIndex(m => new { m.ProductId, m.StoreId }).IsUnique()
             .HasFilter("\"ProductVariantId\" IS NULL");
