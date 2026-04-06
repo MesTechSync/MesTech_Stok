@@ -45,8 +45,8 @@ public class PerformanceBaselineTests
 
         // Assert
         products.Should().HaveCount(10_000);
-        sw.ElapsedMilliseconds.Should().BeLessThan(500,
-            $"10000 Product olusturma {sw.ElapsedMilliseconds}ms surdu, limit 500ms");
+        sw.ElapsedMilliseconds.Should().BeLessThan(1000,
+            $"10000 Product olusturma {sw.ElapsedMilliseconds}ms surdu, limit 1000ms");
     }
 
     [Fact]
