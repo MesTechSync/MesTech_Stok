@@ -64,13 +64,16 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         // Initialise BaseAddress from options so sandbox toggle works without credential override
         _httpClient.BaseAddress = new Uri(_options.BaseUrl, UriKind.Absolute);
 
-        // Auto-configure from IConfiguration (user-secrets / appsettings) if credentials present
-        if (configuration is not null && _options.Enabled)
+        // Auto-configure from IConfiguration (user-secrets / appsettings / env vars) if credentials present
+        if (configuration is not null)
         {
             var section = configuration.GetSection(TrendyolOptions.Section);
             var apiKey = section["ApiKey"];
             var apiSecret = section["ApiSecret"];
             var supplierId = section["SupplierId"];
+
+            _logger.LogDebug("TrendyolAdapter auto-configure check: Enabled={Enabled}, ApiKey={HasKey}, SupplierId={SupplierId}",
+                _options.Enabled, !string.IsNullOrEmpty(apiKey), supplierId ?? "(null)");
 
             if (!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiSecret) && !string.IsNullOrEmpty(supplierId))
             {
