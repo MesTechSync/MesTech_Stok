@@ -297,16 +297,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<ICacheService, RedisCacheService>();
 
         // Distributed Lock — Redis if available, InProcess fallback for dev/test
-        var redisConfig = configuration.GetConnectionString("Redis")
-            ?? configuration["Redis:Configuration"];
-        if (!string.IsNullOrEmpty(redisConfig))
-        {
-            services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
-        }
-        else
-        {
-            services.AddSingleton<IDistributedLockService, InProcessDistributedLockService>();
-        }
+        // IDistributedLockService already registered above (line 132-136) — Redis/InProcess conditional
 
         // Exchange Rate Service — TCMB XML API, IMemoryCache 1h TTL (Dalga 11 — Multi-currency)
         services.AddMemoryCache();
