@@ -37,32 +37,39 @@ public sealed class SettlementImportedBridgeHandler
     public async Task Handle(
         DomainEventNotification<SettlementImportedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] SettlementImported yakalandi: BatchId={BatchId}, Platform={Platform}",
-            e.SettlementBatchId, e.Platform);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] SettlementImported yakalandi: BatchId={BatchId}, Platform={Platform}",
+                e.SettlementBatchId, e.Platform);
 
-        var tenantId = e.TenantId != Guid.Empty
-            ? e.TenantId
-            : _tenantProvider.GetCurrentTenantId();
+            var tenantId = e.TenantId != Guid.Empty
+                ? e.TenantId
+                : _tenantProvider.GetCurrentTenantId();
 
-        var integrationEvent = new FinanceSettlementImportedEvent(
-            e.SettlementBatchId,
-            e.Platform,
-            e.PeriodStart,
-            e.PeriodEnd,
-            e.TotalNet,
-            0, // LineCount domain event'te mevcut degil — 0 default
-            tenantId,
-            e.OccurredAt);
+            var integrationEvent = new FinanceSettlementImportedEvent(
+                e.SettlementBatchId,
+                e.Platform,
+                e.PeriodStart,
+                e.PeriodEnd,
+                e.TotalNet,
+                0, // LineCount domain event'te mevcut degil — 0 default
+                tenantId,
+                e.OccurredAt);
 
-        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
+            await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
-        _logger.LogInformation(
-            "[MESA] FinanceSettlementImported yayinlandi: batch={BatchId}, platform={Platform} (Tenant: {TenantId})",
-            integrationEvent.SettlementBatchId, integrationEvent.Platform, integrationEvent.TenantId);
+            _logger.LogInformation(
+                "[MESA] FinanceSettlementImported yayinlandi: batch={BatchId}, platform={Platform} (Tenant: {TenantId})",
+                integrationEvent.SettlementBatchId, integrationEvent.Platform, integrationEvent.TenantId);
 
-        _monitor.RecordPublish("finance.settlement.imported");
+            _monitor.RecordPublish("finance.settlement.imported");
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] SettlementImportedBridgeHandler failed");
+        }
     }
 }
 
@@ -89,29 +96,36 @@ public sealed class DocumentReceivedBridgeHandler
     public async Task Handle(
         DomainEventNotification<DocumentReceivedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] DocumentReceived yakalandi: DocumentId={DocumentId}, FileName={FileName}",
-            e.DocumentId, e.FileName);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] DocumentReceived yakalandi: DocumentId={DocumentId}, FileName={FileName}",
+                e.DocumentId, e.FileName);
 
-        var tenantId = e.TenantId != Guid.Empty
-            ? e.TenantId
-            : _tenantProvider.GetCurrentTenantId();
+            var tenantId = e.TenantId != Guid.Empty
+                ? e.TenantId
+                : _tenantProvider.GetCurrentTenantId();
 
-        var integrationEvent = new FinanceDocumentReceivedEvent(
-            e.DocumentId,
-            e.FileName,
-            string.Empty, // MimeType domain event'te mevcut degil
-            e.Source.ToString(),
-            tenantId,
-            e.OccurredAt);
+            var integrationEvent = new FinanceDocumentReceivedEvent(
+                e.DocumentId,
+                e.FileName,
+                string.Empty, // MimeType domain event'te mevcut degil
+                e.Source.ToString(),
+                tenantId,
+                e.OccurredAt);
 
-        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
+            await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
-        _logger.LogInformation(
-            "[MESA] FinanceDocumentReceived yayinlandi: doc={DocumentId}, dosya={FileName} (Tenant: {TenantId})",
-            integrationEvent.DocumentId, integrationEvent.FileName, integrationEvent.TenantId);
+            _logger.LogInformation(
+                "[MESA] FinanceDocumentReceived yayinlandi: doc={DocumentId}, dosya={FileName} (Tenant: {TenantId})",
+                integrationEvent.DocumentId, integrationEvent.FileName, integrationEvent.TenantId);
 
-        _monitor.RecordPublish("finance.document.received");
+            _monitor.RecordPublish("finance.document.received");
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] DocumentReceivedBridgeHandler failed");
+        }
     }
 }
