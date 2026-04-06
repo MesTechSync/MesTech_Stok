@@ -28,7 +28,8 @@ public static class FinanceEndpoints
     {
         var group = app.MapGroup("/api/v1/finance")
             .WithTags("Finance")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageFinance"));
 
         // GET /api/v1/finance/profit-loss — aylık kâr/zarar raporu
         group.MapGet("/profit-loss", async (

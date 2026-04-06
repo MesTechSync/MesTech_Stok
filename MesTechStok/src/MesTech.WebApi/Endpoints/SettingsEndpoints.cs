@@ -24,7 +24,8 @@ public static class SettingsEndpoints
     {
         var group = app.MapGroup("/api/v1/settings")
             .WithTags("Settings")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageSettings"));
 
         // GET /api/v1/settings/profile
         group.MapGet("/profile", async (

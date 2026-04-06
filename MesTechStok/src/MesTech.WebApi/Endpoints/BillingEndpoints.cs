@@ -19,7 +19,8 @@ public static class BillingEndpoints
     {
         var group = app.MapGroup("/api/v1/billing")
             .WithTags("Billing")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageBilling"));
 
         // GET /api/v1/billing/plans — list subscription plans
         group.MapGet("/plans", async (

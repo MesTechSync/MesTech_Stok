@@ -19,7 +19,8 @@ public static class StoreCredentialEndpoints
     {
         var group = app.MapGroup("/api/v1/stores/{storeId:guid}/credentials")
             .WithTags("Store Credentials")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageStores"));
 
         // POST /api/v1/stores/{storeId}/credentials — credential kaydet (upsert)
         group.MapPost("/", async (

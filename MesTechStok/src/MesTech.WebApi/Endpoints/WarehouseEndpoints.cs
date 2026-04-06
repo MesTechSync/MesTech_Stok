@@ -17,7 +17,8 @@ public static class WarehouseEndpoints
     {
         var group = app.MapGroup("/api/v1/warehouses")
             .WithTags("Warehouses")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageStock"));
 
         // GET /api/v1/warehouses — depo listesi
         group.MapGet("/", async (

@@ -21,7 +21,8 @@ public static class ErpEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/erp").WithTags("ERP").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/erp").WithTags("ERP").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageErp"));
 
         // GET /api/v1/erp/providers — list all registered ERP providers
         group.MapGet("/providers", (IErpAdapterFactory factory) =>

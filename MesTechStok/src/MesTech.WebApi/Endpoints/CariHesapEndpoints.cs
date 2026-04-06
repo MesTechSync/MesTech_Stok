@@ -18,7 +18,8 @@ public static class CariHesapEndpoints
     {
         var group = app.MapGroup("/api/v1/accounting/cari-hesaplar")
             .WithTags("Accounting - Cari Hesaplar")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageAccounting"));
 
         // GET /api/v1/accounting/cari-hesaplar — cari hesap listesi
         group.MapGet("/", async (

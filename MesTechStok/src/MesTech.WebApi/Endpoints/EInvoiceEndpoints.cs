@@ -16,7 +16,8 @@ public static class EInvoiceEndpoints
     {
         var group = app.MapGroup("/api/v1/e-invoices")
             .WithTags("E-Invoices")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageInvoices"));
 
         // GET /api/v1/e-invoices — e-fatura listesi
         group.MapGet("/", async (
