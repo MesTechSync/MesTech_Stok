@@ -39,7 +39,7 @@ public sealed class MesaMeetingScheduledConsumer : IConsumer<MesaMeetingSchedule
                 Location: msg.Location,
                 AttendeeUserIds: msg.AttendeeUserIds,
                 RelatedDealId: msg.RelatedDealId
-            )).ConfigureAwait(false);
+            ), context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("CalendarEvent oluşturuldu: {EventId} for MessageId={MessageId}",
                 eventId, context.MessageId);
