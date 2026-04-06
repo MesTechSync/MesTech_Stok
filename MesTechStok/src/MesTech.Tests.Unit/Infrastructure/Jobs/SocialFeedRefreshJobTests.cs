@@ -283,6 +283,7 @@ public class SocialFeedRefreshJobTests
             .Options;
         var tenantProvider = new Mock<ITenantProvider>();
         tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(tenantId ?? Guid.NewGuid());
+        tenantProvider.Setup(t => t.GetCurrentUserName()).Returns("test-user");
         return new AppDbContext(options, tenantProvider.Object);
     }
 
@@ -293,6 +294,7 @@ public class SocialFeedRefreshJobTests
         var tid = tenantId ?? Guid.NewGuid();
         var tenantProvider = new Mock<ITenantProvider>();
         tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(tid);
+        tenantProvider.Setup(t => t.GetCurrentUserName()).Returns("test-user");
 
         AppDbContext CreateDb()
         {
