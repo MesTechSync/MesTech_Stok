@@ -213,10 +213,10 @@ public sealed class Invoice : BaseEntity, ITenantEntity
             Scenario = InvoiceScenario.Commercial;
             IsEInvoiceTaxpayer = true;
         }
-        else if (PlatformCode == PlatformType.AmazonEu.ToString()
-              || PlatformCode == PlatformType.eBay.ToString()
-              || PlatformCode == PlatformType.Etsy.ToString()
-              || PlatformCode == PlatformType.Ozon.ToString())
+        else if (string.Equals(PlatformCode, PlatformType.AmazonEu.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.eBay.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.Etsy.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.Ozon.ToString(), StringComparison.Ordinal))
         {
             // Yurt disi platform → e-Ihracat
             Type = InvoiceType.EIhracat;
