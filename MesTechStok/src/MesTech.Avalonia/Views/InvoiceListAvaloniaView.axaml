@@ -30,6 +30,11 @@
                             Command="{Binding CreateInvoiceCommand}"
                             Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
+                    <!-- KD-DEV2-006: Export Excel button -->
+                    <Button Content="Excel Aktar" ToolTip.Tip="Fatura listesini Excel olarak disari aktar"
+                            Command="{Binding ExportExcelCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource CornerRadiusMedium}"/>
                     <Button Content="Iptal Et" ToolTip.Tip="Secili faturayi iptal et"
                             Command="{Binding CancelInvoiceCommand}"
                             Background="{DynamicResource StatusDangerBrush}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
