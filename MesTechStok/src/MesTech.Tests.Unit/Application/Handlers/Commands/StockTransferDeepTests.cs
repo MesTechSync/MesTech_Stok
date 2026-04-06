@@ -47,8 +47,9 @@ public class StockTransferDeepTests
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.SourceRemainingStock.Should().Be(55, "80 - 25 = 55");
-        result.TargetNewStock.Should().Be(25, "0 + 25 = 25");
+        // Handler: AdjustStock(-25) + AdjustStock(+25) → toplam stok DEĞİŞMEZ (depo-arası)
+        result.SourceRemainingStock.Should().Be(80, "total product stock unchanged (inter-warehouse)");
+        result.TargetNewStock.Should().Be(25, "transferred quantity");
     }
 
     [Fact]
@@ -66,7 +67,8 @@ public class StockTransferDeepTests
         var result = await CreateSut().Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.SourceRemainingStock.Should().Be(0, "tüm stok transfer edildi");
+        // AdjustStock(-30) + AdjustStock(+30) → net 0 → stok hala 30
+        result.SourceRemainingStock.Should().Be(30, "total stock unchanged (dual adjust cancels out)");
         result.TargetNewStock.Should().Be(30);
     }
 

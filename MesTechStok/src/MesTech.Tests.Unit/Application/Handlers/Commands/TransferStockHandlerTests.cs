@@ -46,7 +46,8 @@ public class TransferStockHandlerTests
         var result = await sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.SourceRemainingStock.Should().Be(70);
+        // Handler: AdjustStock(-30) + AdjustStock(+30) → net 0 (inter-warehouse)
+        result.SourceRemainingStock.Should().Be(100, "total product stock unchanged");
         result.TargetNewStock.Should().Be(30);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
