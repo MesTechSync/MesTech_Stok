@@ -11,7 +11,7 @@
 
     <!-- Urun Yonetimi — DataGrid + Smart Search + Grid/List Toggle -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -302,8 +302,53 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Row 4: HH-DEV2-001 Pagination Controls -->
+        <Border Grid.Row="4" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Page size selector -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Sayfa boyutu:" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{DynamicResource MesSlateGray}" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding PageSizeOptions}" SelectedItem="{Binding PageSize}"
+                              Width="80" AutomationProperties.Name="Sayfa boyutu" />
+                </StackPanel>
+
+                <!-- Pagination info -->
+                <TextBlock Grid.Column="1" Text="{Binding PaginationInfo}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <!-- Navigation buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Content="&#x00AB;" ToolTip.Tip="Ilk sayfa"
+                            Command="{Binding FirstPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x2039;" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PrevPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6">
+                        <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="&#x203A;" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x00BB;" ToolTip.Tip="Son sayfa"
+                            Command="{Binding LastPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="4"
+        <Border Grid.Row="0" Grid.RowSpan="5"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -311,7 +356,7 @@
         </Border>
 
         <!-- Empty State (Lottie + EmptyStateControl) -->
-        <Border Grid.Row="1" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -324,7 +369,7 @@
         </Border>
 
         <!-- Error State — FluentAvalonia InfoBar -->
-        <fa:InfoBar Grid.Row="0" Grid.ColumnSpan="4"
+        <fa:InfoBar Grid.Row="0"
                     Title="Bir sorun oluştu"
                     Message="{Binding ErrorMessage}"
                     Severity="Error"
