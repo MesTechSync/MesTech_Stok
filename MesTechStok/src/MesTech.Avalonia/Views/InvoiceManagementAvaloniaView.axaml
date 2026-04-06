@@ -10,7 +10,7 @@
 
     <!-- e-Fatura Yonetimi — Dalga 14/15 -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -27,6 +27,11 @@
                         ToolTip.Tip="Yeni e-Fatura Olustur"
                         Command="{Binding CreateInvoiceCommand}"
                         Background="{DynamicResource MesGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,10,0" />
+                <!-- KD-DEV2-002: Export CSV -->
+                <Button Content="CSV Aktar" ToolTip.Tip="Fatura listesini CSV olarak disari aktar"
+                        Command="{Binding ExportCsvCommand}"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
                         Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" Margin="0,0,10,0" />
                 <Button Grid.Column="2" Content="Yenile" ToolTip.Tip="Verileri yenile"
                         Command="{Binding RefreshCommand}"
@@ -71,8 +76,42 @@
         </DataGrid>
 <!-- Empty State -->        <TextBlock Grid.Row="2" Text="Kayıt bulunamadı"                   HorizontalAlignment="Center"                   VerticalAlignment="Center"                   Margin="0,40"                   Opacity="0.5"                   FontSize="{StaticResource FontSizeSubtitle}"                   IsVisible="{Binding !Invoices.Count}" />
 
+        <!-- Row 3: KD-DEV2-001 Pagination Controls -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                           VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Content="&#x00AB;" ToolTip.Tip="Ilk sayfa"
+                            Command="{Binding FirstPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x2039;" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PrevPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6">
+                        <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="&#x203A;" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Button Content="&#x00BB;" ToolTip.Tip="Son sayfa"
+                            Command="{Binding LastPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -80,7 +119,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="1" Grid.RowSpan="2"
+        <Border Grid.Row="1" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
