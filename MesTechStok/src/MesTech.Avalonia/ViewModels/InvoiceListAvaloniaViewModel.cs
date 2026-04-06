@@ -18,15 +18,17 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
     private readonly ITenantProvider _tenantProvider;
+    private readonly INavigationService _nav;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private InvoiceListItemDto? selectedInvoice;
 
-    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog, ITenantProvider tenantProvider)
+    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog, ITenantProvider tenantProvider, INavigationService nav)
     {
         _mediator = mediator;
         _dialog = dialog;
         _tenantProvider = tenantProvider;
+        _nav = nav;
     }
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -188,8 +190,8 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateInvoice()
     {
-        // G013: Fatura oluşturma — InvoiceCreateAvaloniaView'a yönlendir
-        await _dialog.ShowInfoAsync("Fatura olusturma ekranina yonlendiriliyorsunuz...", "Yeni Fatura");
+        // D2-017 FIX: InvoiceCreate ekranına navigate et (eski: sadece dialog gösteriyordu)
+        await _nav.NavigateToAsync("InvoiceCreate");
     }
 
     [RelayCommand]
