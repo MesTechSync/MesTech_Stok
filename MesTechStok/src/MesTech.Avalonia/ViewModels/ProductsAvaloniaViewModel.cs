@@ -6,6 +6,7 @@ using MesTech.Application.Commands.CreateProduct;
 using MesTech.Application.Commands.UpdateProduct;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Queries.GetCategories;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -74,6 +75,10 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
+            // Fetch categories for name resolution (handler only returns CategoryId)
+            var categories = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: false), ct);
+            var catMap = categories.ToDictionary(c => c.Id, c => c.Name);
+
             var result = await _mediator.Send(new GetProductsQuery(
                 _currentUser.TenantId,
                 SearchTerm: null,
@@ -95,7 +100,8 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
                 Stock = dto.Stock,
                 MinimumStock = dto.MinimumStock,
                 Brand = dto.Brand ?? string.Empty,
-                CategoryName = dto.CategoryName ?? string.Empty,
+                CategoryName = dto.CategoryName
+                    ?? (catMap.TryGetValue(dto.CategoryId, out var catName) ? catName : string.Empty),
                 ImageUrl = dto.ImageUrl ?? string.Empty,
                 Platform = string.Empty,
                 Status = dto.IsActive ? "Aktif" : "Pasif",
