@@ -35,6 +35,7 @@ using MesTech.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Minio;
 
@@ -218,6 +219,9 @@ public static class InfrastructureServiceRegistration
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // ImportProgressReporter — NullObject fallback, WebApi overrides with SignalR impl
+        services.TryAddScoped<IImportProgressReporter, NullImportProgressReporter>();
 
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
