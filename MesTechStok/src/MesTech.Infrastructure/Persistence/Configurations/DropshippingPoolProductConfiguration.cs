@@ -11,10 +11,10 @@ public sealed class DropshippingPoolProductConfiguration : IEntityTypeConfigurat
         builder.HasKey(pp => pp.Id);
 
         builder.Property(pp => pp.PoolPrice)
-            .HasPrecision(18, 2);
+            .HasPrecision(18, 4);
 
         builder.Property(pp => pp.ReliabilityScore)
-            .HasPrecision(5, 2)
+            .HasPrecision(8, 4)
             .HasDefaultValue(0m);
 
         builder.Property(pp => pp.ReliabilityColor)

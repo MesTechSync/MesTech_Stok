@@ -15,6 +15,13 @@ public sealed class EInvoiceLineConfiguration : IEntityTypeConfiguration<EInvoic
         builder.Property(x => x.Description).IsRequired().HasMaxLength(512);
         builder.Property(x => x.UnitCode).IsRequired().HasMaxLength(10);
         builder.Property(x => x.ProductCode).HasMaxLength(50);
+
+        builder.Property(x => x.Quantity).HasPrecision(18, 4);
+        builder.Property(x => x.UnitPrice).HasPrecision(18, 4);
+        builder.Property(x => x.LineExtensionAmount).HasPrecision(18, 4);
+        builder.Property(x => x.AllowanceAmount).HasPrecision(18, 4);
+        builder.Property(x => x.TaxAmount).HasPrecision(18, 4);
+
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_einvoice_lines_tenant_id");

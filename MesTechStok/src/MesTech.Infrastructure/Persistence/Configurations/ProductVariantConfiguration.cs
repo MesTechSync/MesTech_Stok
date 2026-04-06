@@ -14,6 +14,9 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
         builder.Property(v => v.Color).HasMaxLength(50);
         builder.Property(v => v.Size).HasMaxLength(50);
 
+        builder.Property(v => v.Price).HasPrecision(18, 4);
+        builder.Property(v => v.PriceOverride).HasPrecision(18, 4);
+
         builder.HasIndex(v => v.VariantSKU).IsUnique().HasFilter("\"VariantSKU\" IS NOT NULL");
 
         builder.HasOne(v => v.Product)

@@ -45,6 +45,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.CommissionAmount).HasPrecision(18, 2);
         builder.Property(o => o.CommissionRate).HasPrecision(5, 4);
         builder.Property(o => o.CargoExpenseAmount).HasPrecision(18, 2);
+        builder.Property(o => o.TaxRate).HasPrecision(8, 4);
 
         // Cascade delete — OrderItem'lar sipariş silindiğinde silinir
         builder.HasMany(o => o.OrderItems)
