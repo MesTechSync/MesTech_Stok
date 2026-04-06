@@ -322,7 +322,7 @@ public class TrendyolPullOrdersMappingTests : IClassFixture<WireMockFixture>, ID
     }
 
     [Fact]
-    public async Task PullOrders_LineTaxRate_ShouldMatchVatRate_DocumentsAccuracyGap()
+    public async Task PullOrders_LineTaxRate_ShouldMatchVatRateExactly()
     {
         // Arrange
         var adapter = await CreateConfiguredAdapterAsync();
@@ -331,19 +331,13 @@ public class TrendyolPullOrdersMappingTests : IClassFixture<WireMockFixture>, ID
         // Act
         var orders = await adapter.PullOrdersAsync();
 
-        // Assert — Adapter'ın hesaplama yöntemi vatBaseAmount/amount kullanıyor
-        // ancak Trendyol'un doğrudan sağladığı vatRate (10, 18) alanını
-        // okumak daha doğru olur. Mevcut hesaplama yaklaşık sonuç verir.
-        // Line 1: gerçek KDV = %10 (0.10)
-        var line1Rate = orders[0].Lines[0].TaxRate;
-        // Line 2: gerçek KDV = %18 (0.18)
-        var line2Rate = orders[0].Lines[1].TaxRate;
-
-        // NOT: Bu test şu an hesaplanan oranı belgeler.
-        // vatRate alanından doğrudan okuma yapılırsa 0.10 ve 0.18 olmalı.
-        line1Rate.Should().NotBe(0.10m,
-            "TaxRate is calculated from vatBaseAmount ratio, not directly from vatRate field — " +
-            "accuracy gap: should use lines[].vatRate directly for exact KDV rate");
+        // Assert — DEV1 fix (commit 29c7f904): adapter artık vatRate/100 kullanıyor
+        // Line 1: vatRate=10 → TaxRate=0.10
+        // Line 2: vatRate=18 → TaxRate=0.18
+        orders[0].Lines[0].TaxRate.Should().Be(0.10m,
+            "vatRate 10 should map to TaxRate 0.10 (vatRate/100 — fixed by DEV1)");
+        orders[0].Lines[1].TaxRate.Should().Be(0.18m,
+            "vatRate 18 should map to TaxRate 0.18");
     }
 
     // ══════════════════════════════════════
