@@ -40,9 +40,13 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <TextBox Width="280" Watermark="Urun adi, SKU veya platform ara..."
+                <TextBox Width="260" Watermark="Urun adi, SKU veya platform ara..."
                          AutomationProperties.Name="Urun adi, SKU veya platform ara..."
                          Text="{Binding SearchText}" />
+                <!-- HH-DEV2-013: Warehouse filter ComboBox -->
+                <ComboBox Width="180" ItemsSource="{Binding WarehouseOptions}"
+                          SelectedItem="{Binding SelectedWarehouse}"
+                          AutomationProperties.Name="Depo seciniz" />
                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="{StaticResource MesRadiusMd}" Padding="10,6">
                     <TextBlock Text="{Binding ChangedCount, StringFormat='{}{0} degisiklik'}"
                                FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesAmber}" FontWeight="SemiBold" />

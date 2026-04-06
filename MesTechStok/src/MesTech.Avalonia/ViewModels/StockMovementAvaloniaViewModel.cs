@@ -30,6 +30,10 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string sortColumn = "default";
     [ObservableProperty] private bool sortAscending = true;
 
+    // HH-DEV2-013: Warehouse filter
+    [ObservableProperty] private string? selectedWarehouse = "Tum Depolar";
+    public ObservableCollection<string> WarehouseOptions { get; } = ["Tum Depolar"];
+
     // HH-DEV2-012: New movement form fields
     [ObservableProperty] private bool isAddingMovement;
     [ObservableProperty] private string newMovementType = "Giris";
@@ -67,9 +71,19 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
                     UrunAdi = m.ProductName ?? string.Empty,
                     MevcutStok = m.PreviousStock,
                     YeniStok = m.NewStock,
-                    Platform = m.MovementType
+                    Platform = m.MovementType,
+                    Warehouse = m.Warehouse ?? string.Empty
                 });
             }
+
+            // HH-DEV2-013: Populate warehouse options from data
+            var warehouses = _allItems.Select(i => i.Warehouse).Where(w => !string.IsNullOrWhiteSpace(w)).Distinct().OrderBy(w => w);
+            WarehouseOptions.Clear();
+            WarehouseOptions.Add("Tum Depolar");
+            foreach (var w in warehouses)
+                WarehouseOptions.Add(w);
+            if (SelectedWarehouse is null)
+                SelectedWarehouse = "Tum Depolar";
 
             ApplyFilter();
 
@@ -89,6 +103,7 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnSelectedWarehouseChanged(string? value) => ApplyFilter();
 
     private void ApplyFilter()
     {
@@ -103,6 +118,10 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
                 i.Platform.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 i.Sku.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
+
+        // HH-DEV2-013: Warehouse filter
+        if (!string.IsNullOrWhiteSpace(SelectedWarehouse) && SelectedWarehouse != "Tum Depolar")
+            filtered = filtered.Where(i => i.Warehouse == SelectedWarehouse);
 
         // Sort
         filtered = SortColumn switch
@@ -234,4 +253,5 @@ public partial class StockMovementItemDto : ObservableObject
     [ObservableProperty] private int mevcutStok;
     [ObservableProperty] private int yeniStok;
     public string Platform { get; set; } = string.Empty;
+    public string Warehouse { get; set; } = string.Empty;
 }
