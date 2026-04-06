@@ -95,4 +95,13 @@ public class ShipmentItemDto
     public string RecipientName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string ShipDate { get; set; } = string.Empty;
+
+    public string StatusColor => Status switch
+    {
+        "Teslim Edildi" => "#10B981",
+        "Yolda" or "Dagitimda" => "#3B82F6",
+        "Hazirlaniyor" => "#F59E0B",
+        "Iptal" => "#EF4444",
+        _ => "#64748B"
+    };
 }
