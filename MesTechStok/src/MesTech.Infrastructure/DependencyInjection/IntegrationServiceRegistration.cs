@@ -781,6 +781,10 @@ public static class IntegrationServiceRegistration
 
         // -----------------------------------------------------------------------
 
+        // D12-13: Platform sync issue tracking
+        services.AddSingleton<Integration.Services.IPlatformSyncIssueService,
+            Integration.Services.PlatformSyncIssueService>();
+
         return services;
     }
 }

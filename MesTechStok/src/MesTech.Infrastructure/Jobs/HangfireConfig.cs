@@ -112,6 +112,9 @@ public static class HangfireConfig
         // Platform product import (DEV3 — ürün DB persist)
         services.AddScoped<GenericPlatformProductSyncJob>();
 
+        // D12-12: 3 aşamalı delta sync job (QuickDelta/PoolScan/FullReconciliation)
+        services.AddScoped<ProductImportSyncJob>();
+
         // Trendyol Review + Ads sync (DEV 3 — yeni endpoint job'lari)
         services.AddScoped<TrendyolReviewSyncJob>();
         services.AddScoped<TrendyolAdsSyncJob>();
@@ -508,6 +511,22 @@ public static class HangfireConfig
             "product-import-trendyol",
             job => job.ExecuteAsync("Trendyol", CancellationToken.None),
             Cron.Daily(5)); // Her gün 05:00
+
+        // === D12-12: 3 Aşamalı Delta Sync (DEV3) ===
+        RecurringJob.AddOrUpdate<ProductImportSyncJob>(
+            "product-sync-quick-trendyol",
+            job => job.ExecuteQuickDeltaAsync("Trendyol", CancellationToken.None),
+            "*/15 * * * *"); // Her 15 dk — sadece değişenler
+
+        RecurringJob.AddOrUpdate<ProductImportSyncJob>(
+            "product-sync-pool-trendyol",
+            job => job.ExecutePoolScanAsync("Trendyol", CancellationToken.None),
+            "0 * * * *"); // Her saat başı — yeni/silinen tespiti
+
+        RecurringJob.AddOrUpdate<ProductImportSyncJob>(
+            "product-sync-full-trendyol",
+            job => job.ExecuteFullReconciliationAsync("Trendyol", CancellationToken.None),
+            "0 3 * * *"); // Gece 03:00 — tam karşılaştırma
 
         // === Generic Platform Review Sync (DEV3 TUR7) ===
         // Trendyol review → kendi TrendyolReviewSyncJob kullanir (saatlik, daha detayli)
