@@ -106,9 +106,10 @@ public static class HealthEndpoints
                     cargoSw.Stop();
                     return new HealthCheckItem(name, ok, cargoSw.Elapsed.TotalMilliseconds, ok ? null : "Cargo ping failed");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     cargoSw.Stop();
+                    logger.LogWarning(ex, "Cargo {Provider} health ping failed", cargo.Provider);
                     return new HealthCheckItem(name, false, cargoSw.Elapsed.TotalMilliseconds, "Cargo connection failed");
                 }
             });
