@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Orders.Queries.GetOrderList;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
@@ -28,7 +29,7 @@ public class OrderListAvaloniaViewModelTests
                 new() { Id = Guid.NewGuid(), OrderNumber = "SIP-004", CustomerName = "Mehmet Can", Status = "Teslim Edildi", SourcePlatform = "N11", TotalAmount = 1200m, OrderDate = DateTime.Now.AddDays(-4) },
                 new() { Id = Guid.NewGuid(), OrderNumber = "SIP-005", CustomerName = "Zeynep Ak", Status = "Yeni", SourcePlatform = "Hepsiburada", TotalAmount = 650m, OrderDate = DateTime.Now.AddDays(-5) }
             });
-        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _sut = new OrderListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>(), Mock.Of<INavigationService>());
     }
 
     [Fact]

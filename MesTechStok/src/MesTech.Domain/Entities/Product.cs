@@ -28,7 +28,7 @@ public sealed class Product : BaseEntity, ITenantEntity
     public decimal? DiscountedPrice { get; set; }
 
     // Stok — yalnızca AdjustStock/SyncStock domain metotları üzerinden değiştirilir
-    public int Stock { get; private set; }
+    public int Stock { get; internal set; }
     public int MinimumStock { get; set; } = 5;
     public int MaximumStock { get; set; } = 1000;
     public int ReorderLevel { get; set; } = 10;

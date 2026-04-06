@@ -5,6 +5,7 @@ using FluentAssertions;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Integration.Webhooks;
+using MesTech.Infrastructure.Messaging;
 using MesTech.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -83,6 +84,7 @@ public class AesGcmEncryptionServiceTests
 [Trait("Category", "Unit")]
 public class WebhookReceiverServiceTests
 {
+    private readonly Mock<IIntegrationEventPublisher> _eventPublisher = new();
     private readonly Mock<ILogger<WebhookReceiverService>> _logger = new();
 
     private static Mock<IIntegratorAdapter> CreateWebhookAdapter(string platformCode)
@@ -101,7 +103,7 @@ public class WebhookReceiverServiceTests
         var adapter = CreateWebhookAdapter("trendyol");
 
         var service = new WebhookReceiverService(
-            new IIntegratorAdapter[] { adapter.Object }, _logger.Object);
+            new IIntegratorAdapter[] { adapter.Object }, _eventPublisher.Object, _logger.Object);
 
         var payload = JsonSerializer.Serialize(new { orderNumber = "ORD-123" });
         var result = await service.ProcessOrderWebhookAsync("trendyol", payload);
@@ -115,7 +117,7 @@ public class WebhookReceiverServiceTests
     public async Task ProcessOrderWebhook_UnknownPlatform_ShouldReturnError()
     {
         var service = new WebhookReceiverService(
-            Array.Empty<IIntegratorAdapter>(), _logger.Object);
+            Array.Empty<IIntegratorAdapter>(), _eventPublisher.Object, _logger.Object);
 
         var result = await service.ProcessOrderWebhookAsync("unknown", "{}");
 
@@ -129,7 +131,7 @@ public class WebhookReceiverServiceTests
         var adapter = CreateWebhookAdapter("trendyol");
 
         var service = new WebhookReceiverService(
-            new IIntegratorAdapter[] { adapter.Object }, _logger.Object);
+            new IIntegratorAdapter[] { adapter.Object }, _eventPublisher.Object, _logger.Object);
 
         var payload = JsonSerializer.Serialize(new { claimId = "CLM-456" });
         var result = await service.ProcessClaimWebhookAsync("trendyol", payload);
@@ -145,7 +147,7 @@ public class WebhookReceiverServiceTests
         var adapter = CreateWebhookAdapter("opencart");
 
         var service = new WebhookReceiverService(
-            new IIntegratorAdapter[] { adapter.Object }, _logger.Object);
+            new IIntegratorAdapter[] { adapter.Object }, _eventPublisher.Object, _logger.Object);
 
         var payload = JsonSerializer.Serialize(new { orderNumber = "OC-789" });
         var result = await service.ProcessGenericWebhookAsync("opencart", "OrderCreated", payload);
@@ -160,7 +162,7 @@ public class WebhookReceiverServiceTests
         var adapter = CreateWebhookAdapter("trendyol");
 
         var service = new WebhookReceiverService(
-            new IIntegratorAdapter[] { adapter.Object }, _logger.Object);
+            new IIntegratorAdapter[] { adapter.Object }, _eventPublisher.Object, _logger.Object);
 
         var result = await service.ProcessGenericWebhookAsync("trendyol", "CustomEvent", "{}");
 

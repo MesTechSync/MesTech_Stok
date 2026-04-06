@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.Features.Settings.Queries.GetStoreSettings;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
@@ -20,7 +21,7 @@ public class StoreManagementAvaloniaViewModelTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetStoreSettingsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new StoreSettingsDto());
         var tenantProviderMock = new Mock<ITenantProvider>();
-        _sut = new StoreManagementAvaloniaViewModel(_mediatorMock.Object, tenantProviderMock.Object);
+        _sut = new StoreManagementAvaloniaViewModel(_mediatorMock.Object, tenantProviderMock.Object, Mock.Of<INavigationService>(), Mock.Of<IDialogService>());
     }
 
     [Fact]
