@@ -37,11 +37,14 @@ public sealed class ProductPlanLimitFilter : IEndpointFilter
         var services = context.HttpContext.RequestServices;
         var logger = services.GetRequiredService<ILogger<ProductPlanLimitFilter>>();
 
-        var tenantIdStr = context.HttpContext.Request.Query["tenantId"].FirstOrDefault()
+        // G105 FIX: JWT claim preferred — query/route fallback for backward compat
+        var tenantIdStr = context.HttpContext.User?.FindFirst("tenant_id")?.Value
+            ?? context.HttpContext.User?.FindFirst("tenantId")?.Value
+            ?? context.HttpContext.Request.Query["tenantId"].FirstOrDefault()
             ?? context.HttpContext.Request.RouteValues["tenantId"]?.ToString();
 
         if (!Guid.TryParse(tenantIdStr, out var tenantId))
-            return null; // No tenant context — skip
+            return null; // No tenant context — skip (unauthenticated endpoints)
 
         // G134 FIX: Distributed lock — count+create atomik
         // Lock olmadan iki eşzamanlı istek aynı count'u görüp limiti aşabilir
@@ -183,7 +186,10 @@ public sealed class FeatureGateFilter : IEndpointFilter
         var services = context.HttpContext.RequestServices;
         var logger = services.GetRequiredService<ILogger<FeatureGateFilter>>();
 
-        var tenantIdStr = context.HttpContext.Request.Query["tenantId"].FirstOrDefault()
+        // G105 FIX: JWT claim preferred — query/route fallback for backward compat
+        var tenantIdStr = context.HttpContext.User?.FindFirst("tenant_id")?.Value
+            ?? context.HttpContext.User?.FindFirst("tenantId")?.Value
+            ?? context.HttpContext.Request.Query["tenantId"].FirstOrDefault()
             ?? context.HttpContext.Request.RouteValues["tenantId"]?.ToString();
 
         if (!Guid.TryParse(tenantIdStr, out var tenantId))
