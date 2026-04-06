@@ -696,6 +696,7 @@ SupplierFeedsEndpoints.Map(app);
 DropshippingPoolEndpoints.Map(app);
 AccountingEndpoints.Map(app);
 DropshippingEndpoints.Map(app);
+DropshippingImportEndpoints.Map(app); // D12-22: Import pipeline + D12-23: Pool extend + D12-24: Reliability
 NotificationEndpoints.Map(app);
 ShippingEndpoints.Map(app);
 ShipmentEndpoints.Map(app);
