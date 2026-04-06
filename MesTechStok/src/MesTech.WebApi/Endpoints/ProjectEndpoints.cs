@@ -81,5 +81,18 @@ public static class ProjectEndpoints
         .WithName("CompleteTask")
         .WithSummary("Görevi tamamlandı olarak işaretle").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // DELETE /api/v1/projects/{id} — proje sil (kopuk zincir fix)
+        group.MapDelete("/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new Application.Features.Tasks.Commands.DeleteProject.DeleteProjectCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteProject")
+        .WithSummary("Proje sil (soft-delete)").Produces(204).Produces(400);
     }
 }
