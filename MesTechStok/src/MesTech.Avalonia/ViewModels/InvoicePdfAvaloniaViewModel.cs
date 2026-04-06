@@ -1,23 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Application.Interfaces;
+using MesTech.Avalonia.Services;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
 /// Fatura PDF goruntuleme ViewModel.
+/// D2-020 FIX: INavigationAware ile fatura ID/numara parametresi alinir.
 /// Avalonia native PDF goruntuleme desteklemiyor — placeholder + aksiyonlar.
 /// Wired to IInvoicePdfGenerator for real PDF generation.
 /// </summary>
-public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
+public partial class InvoicePdfAvaloniaViewModel : ViewModelBase, INavigationAware
 {
     private readonly IInvoicePdfGenerator? _pdfGenerator;
 
-    [ObservableProperty] private string invoiceNumber = "MES2026000001";
-    [ObservableProperty] private string recipientName = "Yilmaz Elektronik Ltd. Sti.";
-    [ObservableProperty] private decimal amount = 24850.00m;
+    [ObservableProperty] private string invoiceNumber = string.Empty;
+    [ObservableProperty] private string recipientName = string.Empty;
+    [ObservableProperty] private decimal amount;
     [ObservableProperty] private string invoiceType = "e-Fatura";
-    [ObservableProperty] private DateTime invoiceDate = new(2026, 3, 17);
+    [ObservableProperty] private DateTime invoiceDate = DateTime.Now;
     [ObservableProperty] private string pdfUrl = string.Empty;
     [ObservableProperty] private bool hasPdf = true;
     [ObservableProperty] private string statusMessage = string.Empty;
@@ -28,17 +30,34 @@ public partial class InvoicePdfAvaloniaViewModel : ViewModelBase
         _pdfGenerator = pdfGenerator;
     }
 
+    /// <summary>D2-020: Navigation parametreleri ile fatura bilgilerini al.</summary>
+    public Task OnNavigatedToAsync(IDictionary<string, object?> parameters)
+    {
+        if (parameters.TryGetValue("InvoiceNumber", out var num) && num is string s)
+            InvoiceNumber = s;
+        if (parameters.TryGetValue("RecipientName", out var name) && name is string n)
+            RecipientName = n;
+        if (parameters.TryGetValue("Amount", out var amt) && amt is decimal d)
+            Amount = d;
+        if (parameters.TryGetValue("InvoiceType", out var typ) && typ is string t)
+            InvoiceType = t;
+        return Task.CompletedTask;
+    }
+
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(_ =>
         {
-            // DEP: DEV1 — Wire to GetEInvoiceByIdQuery when invoice ID is passed via navigation
+            if (string.IsNullOrEmpty(InvoiceNumber))
+            {
+                IsEmpty = true;
+                StatusMessage = "Fatura numarasi belirtilmedi — fatura listesinden secim yapin.";
+                return Task.CompletedTask;
+            }
             PdfUrl = $"/invoices/{InvoiceNumber}.pdf";
             HasPdf = true;
-            await Task.CompletedTask;
-        }
-        finally { IsLoading = false; }
+            return Task.CompletedTask;
+        }, "Fatura PDF yuklenirken hata");
     }
 
     [RelayCommand]
