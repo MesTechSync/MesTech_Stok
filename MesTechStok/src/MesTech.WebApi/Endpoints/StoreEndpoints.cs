@@ -1,9 +1,12 @@
 using MediatR;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Platform.Commands.CreateStore;
+using MesTech.Application.Features.Platform.Commands.DeleteStore;
 using MesTech.Application.Features.Platform.Commands.TestStoreConnection;
+using MesTech.Application.Features.Platform.Commands.UpdateStore;
 using MesTech.Application.Features.Stores.Queries.GetStoreDetail;
 using MesTech.Application.Queries.GetStoresByTenant;
+using MesTech.WebApi.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
@@ -19,7 +22,9 @@ public static class StoreEndpoints
     {
         var group = app.MapGroup("/api/v1/admin/stores")
             .WithTags("Stores (Admin)")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .RequireAuthorization()
+            .AddEndpointFilter<NullResultFilter>();
 
         // GET /api/v1/admin/stores — kiracıya ait mağaza listesi
         group.MapGet("/", async (
@@ -78,5 +83,41 @@ public static class StoreEndpoints
         .WithSummary("Mağaza detay — platform credential + sync durumu")
         .Produces<StoreDetailDto>(200)
         .Produces(404);
+
+        // PUT /api/v1/admin/stores/{id} — mağaza güncelle (KD-DEV6-002)
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            UpdateStoreRequest request,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new UpdateStoreCommand(id, request.TenantId, request.StoreName, request.IsActive), ct);
+            return result.IsSuccess
+                ? Results.Ok(ApiResponse<EntityActionResponse>.Ok(new EntityActionResponse(id, "Updated")))
+                : Results.BadRequest(ApiResponse<object>.Fail(result.ErrorMessage ?? "Mağaza güncellenemedi"));
+        })
+        .WithName("UpdateStore")
+        .WithSummary("Mağaza güncelle — ad, aktiflik durumu")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageStores");
+
+        // DELETE /api/v1/admin/stores/{id} — mağaza sil (soft-delete) (KD-DEV6-002)
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            Guid tenantId,
+            ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new DeleteStoreCommand(id, tenantId), ct);
+            return result.IsSuccess
+                ? Results.Ok(ApiResponse<EntityActionResponse>.Ok(new EntityActionResponse(id, "Deleted")))
+                : Results.BadRequest(ApiResponse<object>.Fail(result.ErrorMessage ?? "Mağaza silinemedi"));
+        })
+        .WithName("DeleteStore")
+        .WithSummary("Mağaza sil (soft-delete)")
+        .Produces(200).Produces(400)
+        .RequirePermission("ManageStores");
     }
+
+    public sealed record UpdateStoreRequest(Guid TenantId, string StoreName, bool IsActive);
 }
