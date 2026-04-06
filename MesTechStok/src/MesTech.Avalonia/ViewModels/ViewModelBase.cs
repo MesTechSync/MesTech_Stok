@@ -150,14 +150,13 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
 
     /// <summary>API çağrısını try-catch + DbContext concurrency guard ile sarmala.</summary>
     /// <remarks>
-    /// G10810 FIX: action() UI thread dışında çalışır (DB deadlock önleme).
-    /// Sadece IsLoading/ClearError/SetError UI thread'de çalışır.
-    /// action() içindeki ObservableCollection mutations ConfigureAwait(false) sayesinde
-    /// SynchronizationContext yoksa direkt çalışır, varsa post eder.
+    /// D7-020 FIX: action UI thread'de çalışır — ObservableCollection mutations güvenli.
+    /// MediatR async I/O sayesinde UI donmaz (await sırasında thread serbest kalır).
+    /// Önceki ConfigureAwait(false) "invalid thread" crash'ine neden oluyordu.
     /// </remarks>
     protected async Task SafeExecuteAsync(Func<Task> action, string context = "")
     {
-        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
+        await _dbGuard.WaitAsync(CancellationToken);
         try
         {
             await RunOnUIAsync(() =>
@@ -166,11 +165,10 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
                 ClearError();
             });
 
-            // KÖK-4 + G10810: action runs on caller thread (not forced to UI).
-            // DB queries won't deadlock with UI dispatcher.
-            // ObservableCollection mutations inside action should use
-            // Dispatcher.UIThread.Post() if needed.
-            await action().ConfigureAwait(false);
+            // D7-020: Action UI thread'de çalışır — property ve collection
+            // güncellemeleri güvenli. MediatR Send async olduğu için
+            // UI thread await sırasında serbest kalır, donma olmaz.
+            await Dispatcher.UIThread.InvokeAsync(action);
         }
         catch (OperationCanceledException)
         {
@@ -190,7 +188,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     /// <summary>CancellationToken destekli SafeExecute + DbContext concurrency guard.</summary>
     protected async Task SafeExecuteAsync(Func<CancellationToken, Task> action, string context = "")
     {
-        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
+        await _dbGuard.WaitAsync(CancellationToken);
         try
         {
             await RunOnUIAsync(() =>
@@ -199,7 +197,8 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
                 ClearError();
             });
 
-            await action(CancellationToken).ConfigureAwait(false);
+            // D7-020: CancellationToken overload — aynı UI thread fix.
+            await Dispatcher.UIThread.InvokeAsync(async () => await action(CancellationToken));
         }
         catch (OperationCanceledException)
         {
