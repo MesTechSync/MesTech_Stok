@@ -273,4 +273,14 @@ public class InvoiceListItemDto
     public string Platform { get; set; } = string.Empty;
     public DateTime Date { get; set; }
     public bool IsSelected { get; set; }
+
+    /// <summary>D2-019: Durum badge rengi — Paraşüt pattern: yeşil/kırmızı/turuncu/gri.</summary>
+    public string StatusColor => Status switch
+    {
+        "Kesildi" or "Onaylandi" or "Gonderildi" => "#10B981",
+        "Iptal" or "Reddedildi" => "#EF4444",
+        "Bekliyor" or "Isleniyor" => "#F59E0B",
+        "Taslak" or "Draft" => "#94A3B8",
+        _ => "#64748B"
+    };
 }

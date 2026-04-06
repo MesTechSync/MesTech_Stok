@@ -96,9 +96,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:InvoiceListItemDto">
                             <Border Padding="6,2" CornerRadius="{StaticResource MesRadiusSm}" HorizontalAlignment="Left"
-                                    Margin="4,0">
+                                    Margin="4,0" Background="{Binding StatusColor}">
                                 <TextBlock Text="{Binding Status}" FontSize="{StaticResource FontSizeCaption}"
-                                           FontWeight="SemiBold"/>
+                                           FontWeight="SemiBold" Foreground="White"/>
                             </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
