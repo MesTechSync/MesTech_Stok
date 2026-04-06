@@ -845,6 +845,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                                         : line.TryGetProperty("lineUnitPrice", out var lup) && lup.ValueKind == JsonValueKind.Number ? lup.GetDecimal() : 0,
                                     DiscountAmount = line.TryGetProperty("discount", out var disc) && disc.ValueKind == JsonValueKind.Number ? disc.GetDecimal()
                                         : line.TryGetProperty("lineTotalDiscount", out var ltd) && ltd.ValueKind == JsonValueKind.Number ? ltd.GetDecimal() : null,
+                                    CommissionAmount = line.TryGetProperty("commission", out var comm) && comm.ValueKind == JsonValueKind.Number ? comm.GetDecimal() : null,
                                     TaxRate = line.TryGetProperty("vatRate", out var lvr) ? lvr.GetDecimal() / 100m : 0m,
                                     LineTotal = line.TryGetProperty("amount", out var amt) && amt.ValueKind == JsonValueKind.Number ? amt.GetDecimal()
                                         : line.TryGetProperty("lineGrossAmount", out var lga) && lga.ValueKind == JsonValueKind.Number ? lga.GetDecimal() : 0
