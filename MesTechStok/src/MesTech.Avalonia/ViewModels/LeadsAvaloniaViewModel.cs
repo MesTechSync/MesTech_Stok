@@ -32,6 +32,11 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string sortColumn = "date";
     [ObservableProperty] private bool sortAscending = false;
 
+    // Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int totalPages = 1;
+    private const int PageSize = 25;
+
     public ObservableCollection<LeadItemVm> Leads { get; } = [];
     public string[] StatusOptions { get; } = ["Tumu", "Yeni", "Iletisime Gecildi", "Nitelikli", "Donusturuldu", "Kaybedildi"];
     public string[] SourceOptions { get; } = ["Tumu", "Manuel", "Web", "WhatsApp", "Telegram", "Pazaryeri", "Referans"];
@@ -92,12 +97,23 @@ public partial class LeadsAvaloniaViewModel : ViewModelBase
             _        => filtered.OrderByDescending(l => l.CreatedAt)
         };
 
+        var filteredList = filtered.ToList();
+        TotalCount = filteredList.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
         Leads.Clear();
-        foreach (var item in filtered)
+        foreach (var item in filteredList.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Leads.Add(item);
 
         IsEmpty = Leads.Count == 0;
     }
+
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
 
     [RelayCommand]
     private void SortBy(string column)

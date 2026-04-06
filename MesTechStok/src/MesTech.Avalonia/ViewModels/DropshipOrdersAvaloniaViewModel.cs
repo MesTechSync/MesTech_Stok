@@ -23,6 +23,11 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string sortColumn = "default";
     [ObservableProperty] private bool sortAscending = true;
 
+    // Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int totalPages = 1;
+    private const int PageSize = 25;
+
     public ObservableCollection<DropshipOrderItemDto> Orders { get; } = [];
     public ObservableCollection<string> StatusOptions { get; } = ["Tumu", "Yeni", "Tedarikçiye İletildi", "Kargoda", "Teslim Edildi", "İptal"];
 
@@ -81,13 +86,22 @@ public partial class DropshipOrdersAvaloniaViewModel : ViewModelBase
             _               => [.. list.OrderBy(o => o.OrderId)]
         };
 
+        TotalCount = list.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
         Orders.Clear();
-        foreach (var item in list)
+        foreach (var item in list.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Orders.Add(item);
 
-        TotalCount = Orders.Count;
         IsEmpty = Orders.Count == 0;
     }
+
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
 
     partial void OnSearchTextChanged(string value)
     {
