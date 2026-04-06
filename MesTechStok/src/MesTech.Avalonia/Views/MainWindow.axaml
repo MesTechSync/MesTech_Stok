@@ -861,6 +861,17 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Dropshipping Havuz"
+                                    AutomationProperties.Name="Dropshipping Havuz"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="DropshippingPool"
+                                    IsVisible="{Binding ShowMultiPlatform}">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="Box" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="Havuz"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Tedarikci Feed'leri"
                                     AutomationProperties.Name="Tedarikci Feed'leri"
                                     Command="{Binding NavigateToCommand}"
@@ -1426,6 +1437,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:DropshipProfitAvaloniaViewModel">
                             <views:DropshipProfitAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:DropshippingPoolAvaloniaViewModel">
+                            <views:DropshippingPoolAvaloniaView />
                         </DataTemplate>
                         <DataTemplate DataType="vm:ImportSettingsAvaloniaViewModel">
                             <views:ImportSettingsAvaloniaView />
