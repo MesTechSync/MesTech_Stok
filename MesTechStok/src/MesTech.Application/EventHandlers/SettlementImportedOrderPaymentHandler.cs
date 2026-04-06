@@ -5,13 +5,18 @@ using Microsoft.Extensions.Logging;
 namespace MesTech.Application.EventHandlers;
 
 /// <summary>
+/// Settlement→Order eslestirme sonucu.
+/// </summary>
+public sealed record SettlementPaymentResult(int Matched, int NotFound, int AlreadyPaid, int TotalLines);
+
+/// <summary>
 /// Settlement import edildiginde ilgili siparislerin odeme durumunu gunceller.
 /// Zincir 4a: SettlementImportedEvent → OrderNumber lookup → Order.MarkAsPaid() + SetCommission().
 /// Tetikleyici: SettlementImportedEvent (SettlementBatch.Create icinden firlatirilir)
 /// </summary>
 public interface ISettlementImportedOrderPaymentHandler
 {
-    Task HandleAsync(Guid settlementBatchId, Guid tenantId, CancellationToken ct);
+    Task<SettlementPaymentResult> HandleAsync(Guid settlementBatchId, Guid tenantId, CancellationToken ct);
 }
 
 public sealed class SettlementImportedOrderPaymentHandler : ISettlementImportedOrderPaymentHandler
@@ -33,7 +38,7 @@ public sealed class SettlementImportedOrderPaymentHandler : ISettlementImportedO
         _logger = logger;
     }
 
-    public async Task HandleAsync(Guid settlementBatchId, Guid tenantId, CancellationToken ct)
+    public async Task<SettlementPaymentResult> HandleAsync(Guid settlementBatchId, Guid tenantId, CancellationToken ct)
     {
         _logger.LogInformation(
             "SettlementImported → siparis odeme guncelleme basliyor. BatchId={BatchId}",
@@ -43,13 +48,13 @@ public sealed class SettlementImportedOrderPaymentHandler : ISettlementImportedO
         if (batch is null)
         {
             _logger.LogError("SettlementBatch {BatchId} bulunamadi — odeme guncelleme atlanıyor", settlementBatchId);
-            return;
+            return new SettlementPaymentResult(0, 0, 0, 0);
         }
 
         if (batch.Lines.Count == 0)
         {
             _logger.LogDebug("SettlementBatch {BatchId} bos — eslestirme yapilacak siparis yok", settlementBatchId);
-            return;
+            return new SettlementPaymentResult(0, 0, 0, 0);
         }
 
         int matched = 0, notFound = 0, alreadyPaid = 0;
@@ -89,21 +94,29 @@ public sealed class SettlementImportedOrderPaymentHandler : ISettlementImportedO
                 order.SetCommission(commissionRate, line.CommissionAmount);
             }
 
+            // Kargo gideri set et
+            if (line.CargoDeduction != 0m)
+                order.SetCargoExpense(line.CargoDeduction);
+
             // Odeme durumunu guncelle
             order.MarkAsPaid();
             await _orderRepo.UpdateAsync(order, ct).ConfigureAwait(false);
             matched++;
 
             _logger.LogDebug(
-                "Siparis {OrderNumber} MarkAsPaid — komisyon={Commission:F2}, net={Net:F2}",
-                order.OrderNumber, line.CommissionAmount, line.NetAmount);
+                "Siparis {OrderNumber} MarkAsPaid — komisyon={Commission:F2}, kargo={Cargo:F2}, net={Net:F2}",
+                order.OrderNumber, line.CommissionAmount, line.CargoDeduction, line.NetAmount);
         }
 
         if (matched > 0)
             await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
+        var result = new SettlementPaymentResult(matched, notFound, alreadyPaid, batch.Lines.Count);
+
         _logger.LogInformation(
-            "SettlementImported odeme guncelleme tamamlandi — BatchId={BatchId}: {Matched} eslesti, {NotFound} bulunamadi, {AlreadyPaid} zaten odenmis",
-            settlementBatchId, matched, notFound, alreadyPaid);
+            "SettlementImported odeme guncelleme tamamlandi — BatchId={BatchId}: {Matched}/{Total} eslesti, {NotFound} bulunamadi, {AlreadyPaid} zaten odenmis",
+            settlementBatchId, matched, batch.Lines.Count, notFound, alreadyPaid);
+
+        return result;
     }
 }
