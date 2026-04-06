@@ -114,22 +114,32 @@ public sealed class StripePaymentGateway : IPaymentGateway
         }
     }
 
-    public async Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
+    public Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
     {
         _logger.LogInformation("Stripe SaveCard: {Holder}", cardInfo.CardHolderName);
 
         if (!_options.IsConfigured)
-            return $"pm_sandbox_{Guid.NewGuid():N}"[..28];
+            return Task.FromResult($"pm_sandbox_{Guid.NewGuid():N}"[..28]);
 
-        await Task.CompletedTask.ConfigureAwait(false);
-        return $"pm_{Guid.NewGuid():N}"[..28];
+        // Stripe card tokenization requires Stripe.net SDK (NuGet: Stripe.net)
+        // Until SDK integrated, reject with clear message to prevent fake tokens in production
+        _logger.LogWarning("Stripe SaveCard not yet implemented — requires Stripe.net SDK integration");
+        throw new NotSupportedException(
+            "Stripe card tokenization requires Stripe.net SDK. " +
+            "Add NuGet Stripe.net package and implement SetupIntent + PaymentMethod flow.");
     }
 
-    public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
+    public Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
         _logger.LogInformation("Stripe DeleteCard: token=***masked***");
-        await Task.CompletedTask.ConfigureAwait(false);
-        return true;
+
+        if (!_options.IsConfigured)
+            return Task.FromResult(true);
+
+        _logger.LogWarning("Stripe DeleteCard not yet implemented — requires Stripe.net SDK integration");
+        throw new NotSupportedException(
+            "Stripe card deletion requires Stripe.net SDK. " +
+            "Add NuGet Stripe.net package and implement PaymentMethod.Detach flow.");
     }
 
     private HttpClient CreateHttpClient()
