@@ -120,6 +120,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
@@ -143,6 +144,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProductSetRepository, ProductSetRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
+        services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<ILogEntryRepository, LogEntryRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
