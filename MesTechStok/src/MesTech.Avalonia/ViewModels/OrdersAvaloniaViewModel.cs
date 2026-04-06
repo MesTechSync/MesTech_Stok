@@ -187,4 +187,14 @@ public class OrderItemDto
     public string Platform { get; set; } = string.Empty;
     public bool StockDeducted { get; set; }
     public string StockStatusText => StockDeducted ? "Stok Dusuruldu" : "Beklemede";
+
+    /// <summary>Sipariş durum badge rengi — yeşil/kırmızı/turuncu/mavi/gri.</summary>
+    public string StatusColor => Status switch
+    {
+        "Tamamlandi" or "Teslim Edildi" => "#10B981",
+        "Iptal" => "#EF4444",
+        "Hazirlaniyor" => "#F59E0B",
+        "Kargoda" or "Gonderildi" => "#3B82F6",
+        _ => "#64748B"
+    };
 }

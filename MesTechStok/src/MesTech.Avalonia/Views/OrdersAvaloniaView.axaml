@@ -76,7 +76,17 @@
                 <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="180" />
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" />
                 <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="120" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
+                <DataGridTemplateColumn Header="Durum" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:OrderItemDto">
+                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                                    Margin="4,0" Background="{Binding StatusColor}">
+                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                           FontWeight="SemiBold" Foreground="White"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Stok" Binding="{Binding StockStatusText}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
