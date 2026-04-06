@@ -366,7 +366,7 @@ public static class InfrastructureServiceRegistration
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
-        services.AddScoped<PostgresHealthCheck>();
+        services.AddSingleton<PostgresHealthCheck>();
         services.AddSingleton<RedisHealthCheck>();
         services.AddSingleton<RabbitMqHealthCheck>();
         services.AddScoped<IInfrastructureHealthService, InfrastructureHealthService>();
