@@ -109,7 +109,7 @@ public sealed class AccountingApprovalConsumer : IConsumer<BotAccountingApproved
             msg.DocumentId, msg.ApprovedBy, msg.ApprovalSource);
 
         // Belgeyi bul ve cikarilmis veriyi oku
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(

@@ -92,7 +92,7 @@ public sealed class DocumentClassifiedConsumer : IConsumer<AiDocumentClassifiedE
         }
 
         // AccountingDocument.ExtractedData guncelle
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is not null)
         {
             var extractedJson = System.Text.Json.JsonSerializer.Serialize(new

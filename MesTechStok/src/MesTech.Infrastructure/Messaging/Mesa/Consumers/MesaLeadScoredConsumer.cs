@@ -37,7 +37,7 @@ public sealed class MesaLeadScoredConsumer : IConsumer<MesaLeadScoredEvent>
 
         try
         {
-            var lead = await _leadRepository.GetByIdAsync(msg.LeadId).ConfigureAwait(false);
+            var lead = await _leadRepository.GetByIdAsync(msg.LeadId, context.CancellationToken).ConfigureAwait(false);
             if (lead is null)
             {
                 _logger.LogWarning(

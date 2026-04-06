@@ -91,7 +91,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
             msg.DocumentId, msg.Confidence);
 
         // Belgeyi bul
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
