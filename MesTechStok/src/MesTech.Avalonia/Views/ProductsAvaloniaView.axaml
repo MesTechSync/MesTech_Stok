@@ -213,12 +213,13 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="140" />
-                <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="280" />
-                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="130" />
-                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
-                <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="120" />
+                <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="120" />
+                <DataGridTextColumn Header="Ad" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Marka" Binding="{Binding Brand}" Width="120" />
+                <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="130" />
+                <DataGridTextColumn Header="Fiyat (TL)" Binding="{Binding SalePrice, StringFormat='{}{0:N2}'}" Width="110" />
+                <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="70" />
+                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="80" />
             </DataGrid.Columns>
         </DataGrid>
 

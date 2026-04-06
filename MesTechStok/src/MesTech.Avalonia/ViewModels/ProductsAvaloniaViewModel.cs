@@ -2,7 +2,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -32,7 +33,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     // HH-DEV2-002: Sorting
     [ObservableProperty] private string sortColumn = "Name";
     [ObservableProperty] private bool sortAscending = true;
-    public string[] SortOptions { get; } = ["Name", "Price", "Stock", "SKU", "Platform"];
+    public string[] SortOptions { get; } = ["Name", "Price", "Stock", "SKU", "Brand", "Category"];
 
     // HH-DEV2-003: Bulk selection
     [ObservableProperty] private int selectedCount;
@@ -71,22 +72,33 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     {
         await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetTopProductsQuery(_currentUser.TenantId, 50), ct) ?? [];
+            var result = await _mediator.Send(new GetProductsQuery(
+                _currentUser.TenantId,
+                SearchTerm: null,
+                CategoryId: null,
+                IsActive: null,
+                LowStockOnly: null,
+                Page: 1,
+                PageSize: 5000), ct);
 
-            _allProducts = result.Select(dto => new ProductItemDto
+            _allProducts = result.Items.Select(dto => new ProductItemDto
             {
+                Id = dto.Id,
                 SKU = dto.SKU,
                 Name = dto.Name,
-                Price = dto.Revenue > 0 && dto.SoldQuantity > 0
-                    ? Math.Round(dto.Revenue / dto.SoldQuantity, 2)
-                    : 0m,
-                SalePrice = dto.Revenue > 0 && dto.SoldQuantity > 0
-                    ? Math.Round(dto.Revenue / dto.SoldQuantity, 2)
-                    : 0m,
-                Stock = dto.SoldQuantity,
+                Description = dto.Description ?? string.Empty,
+                Barcode = dto.Barcode ?? string.Empty,
+                Price = dto.ListPrice ?? dto.SalePrice,
+                SalePrice = dto.SalePrice,
+                Stock = dto.Stock,
+                MinimumStock = dto.MinimumStock,
+                Brand = dto.Brand ?? string.Empty,
+                CategoryName = dto.CategoryName ?? string.Empty,
+                ImageUrl = dto.ImageUrl ?? string.Empty,
                 Platform = string.Empty,
-                Status = "Aktif",
-                IsActive = true
+                Status = dto.IsActive ? "Aktif" : "Pasif",
+                IsActive = dto.IsActive,
+                StockStatus = dto.StockStatus
             }).ToList();
 
             ApplyFilters();
@@ -154,10 +166,11 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
         // HH-DEV2-002: Apply sorting
         filtered = SortColumn switch
         {
-            "Price" => SortAscending ? filtered.OrderBy(p => p.Price) : filtered.OrderByDescending(p => p.Price),
+            "Price" => SortAscending ? filtered.OrderBy(p => p.SalePrice) : filtered.OrderByDescending(p => p.SalePrice),
             "Stock" => SortAscending ? filtered.OrderBy(p => p.Stock) : filtered.OrderByDescending(p => p.Stock),
             "SKU" => SortAscending ? filtered.OrderBy(p => p.SKU) : filtered.OrderByDescending(p => p.SKU),
-            "Platform" => SortAscending ? filtered.OrderBy(p => p.Platform) : filtered.OrderByDescending(p => p.Platform),
+            "Brand" => SortAscending ? filtered.OrderBy(p => p.Brand) : filtered.OrderByDescending(p => p.Brand),
+            "Category" => SortAscending ? filtered.OrderBy(p => p.CategoryName) : filtered.OrderByDescending(p => p.CategoryName),
             _ => SortAscending ? filtered.OrderBy(p => p.Name) : filtered.OrderByDescending(p => p.Name),
         };
 
@@ -415,6 +428,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
 
 public class ProductItemDto
 {
+    public Guid Id { get; set; }
     public string SKU { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
@@ -422,26 +436,28 @@ public class ProductItemDto
     public string Platform { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
 
-    // GOREV 4: Additional fields for smart search
+    // Product detail fields
     public string Barcode { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
     public int MinimumStock { get; set; }
     public bool IsActive { get; set; } = true;
     public decimal SalePrice { get; set; }
+    public string Brand { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
+    public string StockStatus { get; set; } = string.Empty;
     public string VariantSKU { get; set; } = string.Empty;
     public string VariantBarcode { get; set; } = string.Empty;
 
-    // HH-DEV2-003: Bulk selection
+    // Bulk selection
     public bool IsSelected { get; set; }
 
-    // GOREV 5: Computed properties for card view
+    // Computed properties for card view
     public string StockDisplay => Stock == 0 ? "Tukendi" : $"{Stock} stok";
     public string StockColor => Stock == 0 ? "#E74C3C" : Stock <= MinimumStock ? "#F39C12" : "#27AE60";
     public string PriceDisplay => $"\u20BA{SalePrice:N2}";
-    public bool HasDiscount => SalePrice < Price;
+    public bool HasDiscount => SalePrice < Price && SalePrice > 0;
     public string OriginalPriceDisplay => HasDiscount ? $"\u20BA{Price:N2}" : string.Empty;
     public string PlatformBadge => Platform;
-    // WPF014: Row background for stock level coloring
     public string RowBackground => Stock == 0 ? "#FFEBEE" : Stock < MinimumStock ? "#FFF8E1" : "Transparent";
 }
