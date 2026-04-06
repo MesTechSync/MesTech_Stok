@@ -325,18 +325,54 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             // cargoCompanyId — Trendyol zorunlu (varsayılan: Yurtiçi=17)
             const int defaultCargoCompanyId = 17;
 
-            // Images — Trendyol requires at least 1 image URL
+            // Images — Trendyol requires at least 1, supports up to 8 image URLs
             var imageUrls = new List<object>();
             if (!string.IsNullOrEmpty(product.ImageUrl))
-            {
-                // Primary image
                 imageUrls.Add(new { url = product.ImageUrl });
+
+            // Additional images from PlatformSpecificData JSON: { "images": ["url1","url2"] }
+            var trendyolPlatformMapping = product.PlatformMappings?
+                .FirstOrDefault(m => m.PlatformType == PlatformType.Trendyol);
+            var platformData = ParsePlatformSpecificData(trendyolPlatformMapping?.PlatformSpecificData);
+
+            if (platformData.TryGetValue("images", out var extraImagesElement)
+                && extraImagesElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var img in extraImagesElement.EnumerateArray())
+                {
+                    var url = img.GetString();
+                    if (!string.IsNullOrWhiteSpace(url))
+                        imageUrls.Add(new { url });
+                }
             }
+
             if (imageUrls.Count == 0)
             {
                 _logger.LogError("Trendyol PushProduct ABORTED: no images for SKU={SKU}. " +
                     "Trendyol requires at least 1 product image.", product.SKU);
                 return false;
+            }
+
+            // Attributes — Trendyol requires category-specific attributes
+            // Format: [{ attributeId: 123, attributeValueId: 456 }]
+            // Read from PlatformSpecificData JSON: { "attributes": [{"attributeId":1,"attributeValueId":2}] }
+            var attributes = new List<object>();
+            if (platformData.TryGetValue("attributes", out var attrsElement)
+                && attrsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var attr in attrsElement.EnumerateArray())
+                {
+                    if (attr.TryGetProperty("attributeId", out var aid)
+                        && attr.TryGetProperty("attributeValueId", out var avid))
+                    {
+                        attributes.Add(new { attributeId = aid.GetInt32(), attributeValueId = avid.GetInt32() });
+                    }
+                    else if (attr.TryGetProperty("attributeId", out var aid2)
+                             && attr.TryGetProperty("customAttributeValue", out var cav))
+                    {
+                        attributes.Add(new { attributeId = aid2.GetInt32(), customAttributeValue = cav.GetString() });
+                    }
+                }
             }
 
             var payload = new
@@ -359,7 +395,8 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         salePrice = product.SalePrice,
                         vatRate = (int)(product.TaxRate * 100),
                         cargoCompanyId = defaultCargoCompanyId,
-                        images = imageUrls
+                        images = imageUrls,
+                        attributes
                     }
                 }
             };
@@ -2422,6 +2459,29 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         if (!_isConfigured)
             throw new InvalidOperationException(
                 "TrendyolAdapter henuz yapilandirilmadi. Once TestConnectionAsync ile credential'lari verin.");
+    }
+
+    /// <summary>
+    /// PlatformSpecificData JSON string'ini Dictionary'ye parse eder.
+    /// Boş/null ise boş dictionary döner.
+    /// </summary>
+    private static Dictionary<string, JsonElement> ParsePlatformSpecificData(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new Dictionary<string, JsonElement>();
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var result = new Dictionary<string, JsonElement>();
+            foreach (var prop in doc.RootElement.EnumerateObject())
+                result[prop.Name] = prop.Value.Clone();
+            return result;
+        }
+        catch (JsonException)
+        {
+            return new Dictionary<string, JsonElement>();
+        }
     }
 
     private async Task ApplyRateLimitAsync(CancellationToken ct = default)
