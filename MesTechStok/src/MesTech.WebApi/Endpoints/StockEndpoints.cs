@@ -10,6 +10,8 @@ using MesTech.Application.Commands.AdjustStock;
 using MesTech.Application.Commands.RemoveStock;
 using MesTech.Application.Commands.TransferStock;
 using MesTech.Application.Commands.DeleteStockLot;
+using MesTech.Application.Queries.GetStockLotById;
+using MesTech.Application.Queries.GetStockMovementById;
 using MesTech.Application.Features.Stock.Commands.CreateStockLot;
 using MesTech.Application.Features.Stock.Commands.StartStockCount;
 using MesTech.Application.Features.Stock.Queries.GetStockLots;
@@ -267,6 +269,36 @@ public static class StockEndpoints
         .WithName("DeleteStockLot")
         .WithSummary("Stok lot kaydını sil").Produces(204).Produces(400)
         .RequirePermission("ManageStock");
+
+        // GET /api/v1/stock/lots/{id} — tek lot detayı (kopuk zincir fix)
+        group.MapGet("/lots/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockLotByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Stok lot {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetStockLotById")
+        .WithSummary("Stok lot detayı — lot no, miktar, birim maliyet, depo")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
+
+        // GET /api/v1/stock/movements/{id} — tek stok hareket detayı (kopuk zincir fix)
+        group.MapGet("/movements/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStockMovementByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Stok hareketi {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetStockMovementById")
+        .WithSummary("Stok hareket detayı — ürün, miktar, kaynak, tarih")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
 
         // GET /api/v1/stock/placements — stok yerleşim listesi (depo/raf/bölge)
         group.MapGet("/placements", async (
