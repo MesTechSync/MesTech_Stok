@@ -46,6 +46,10 @@ public sealed class AdapterFactory : IAdapterFactory
         if (adapter is T capable)
             return capable;
 
+        // Unwrap InstrumentedAdapterDecorator to check inner adapter capability
+        if (adapter is Adapters.InstrumentedAdapterDecorator decorated && decorated.Inner is T innerCapable)
+            return innerCapable;
+
         if (adapter is not null)
             _logger.LogWarning("Adapter '{Code}' does not implement {Capability}",
                 platformCode, typeof(T).Name);

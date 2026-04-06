@@ -20,6 +20,9 @@ public sealed class InstrumentedAdapterDecorator : IIntegratorAdapter, IPingable
     private readonly IIntegratorAdapter _inner;
     private readonly ILogger<InstrumentedAdapterDecorator> _logger;
 
+    /// <summary>Unwrapped inner adapter — used by AdapterFactory.ResolveCapability for capability checks.</summary>
+    public IIntegratorAdapter Inner => _inner;
+
     public string PlatformCode => _inner.PlatformCode;
     public bool SupportsStockUpdate => _inner.SupportsStockUpdate;
     public bool SupportsPriceUpdate => _inner.SupportsPriceUpdate;
