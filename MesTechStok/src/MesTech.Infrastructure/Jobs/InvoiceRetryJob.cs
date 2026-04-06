@@ -70,10 +70,55 @@ public sealed class InvoiceRetryJob : ISyncJob
                         }
                     }
 
-                    // GibInvoiceId yoksa henüz gönderilmemiş — manuel gönderim gerekli
-                    _logger.LogWarning("[{JobId}] Fatura {InvoiceId} GIB ID yok — yeniden gönderim gerekli (InvoiceNumber={Num})",
+                    // GibInvoiceId yoksa henüz gönderilmemiş — tekrar gönder
+                    _logger.LogInformation("[{JobId}] Fatura {InvoiceId} GIB ID yok — yeniden gönderiliyor (InvoiceNumber={Num})",
                         JobId, invoice.Id, invoice.InvoiceNumber);
-                    failed++;
+
+                    // VKN sorgusu → e-Fatura veya e-Arşiv karar
+                    var useEFatura = false;
+                    if (!string.IsNullOrEmpty(invoice.CustomerTaxNumber) && invoice.CustomerTaxNumber.Length >= 10)
+                    {
+                        try
+                        {
+                            useEFatura = await _invoiceProvider.IsEInvoiceTaxpayerAsync(
+                                invoice.CustomerTaxNumber, ct).ConfigureAwait(false);
+                        }
+                        catch (Exception vknEx) when (vknEx is not OperationCanceledException)
+                        {
+                            _logger.LogWarning(vknEx, "[{JobId}] VKN sorgu başarısız {VKN} — e-Arşiv ile devam", JobId, invoice.CustomerTaxNumber);
+                        }
+                    }
+
+                    var dto = new InvoiceDto(
+                        InvoiceNumber: invoice.InvoiceNumber ?? $"INV-{invoice.Id:N}"[..16],
+                        CustomerName: invoice.CustomerName,
+                        CustomerTaxNumber: invoice.CustomerTaxNumber,
+                        CustomerTaxOffice: invoice.CustomerTaxOffice,
+                        CustomerAddress: invoice.CustomerAddress,
+                        SubTotal: invoice.SubTotal,
+                        TaxTotal: invoice.TaxTotal,
+                        GrandTotal: invoice.GrandTotal,
+                        Lines: invoice.Lines.Select(l => new InvoiceLineDto(
+                            l.ProductName, l.SKU, l.Quantity, l.UnitPrice,
+                            l.TaxRate, l.TaxAmount, l.LineTotal)).ToList());
+
+                    var result = useEFatura
+                        ? await _invoiceProvider.CreateEFaturaAsync(dto, ct).ConfigureAwait(false)
+                        : await _invoiceProvider.CreateEArsivAsync(dto, ct).ConfigureAwait(false);
+
+                    if (result.Success)
+                    {
+                        invoice.MarkAsSent(result.GibInvoiceId, result.PdfUrl);
+                        success++;
+                        _logger.LogInformation("[{JobId}] Fatura {InvoiceId} retry BAŞARILI — GIB={GibId}",
+                            JobId, invoice.Id, result.GibInvoiceId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[{JobId}] Fatura {InvoiceId} retry BAŞARISIZ — {Error}",
+                            JobId, invoice.Id, result.ErrorMessage);
+                        failed++;
+                    }
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
