@@ -123,11 +123,29 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
             Notes = $"Trendyol sync — {dto.Status} — Kargo: {dto.CargoProviderName} — Takip: {dto.CargoTrackingNumber}"
         };
 
+        // OrderItems — siparis kalemleri (fatura + GL zinciri icin zorunlu)
+        foreach (var line in dto.Lines)
+        {
+            var item = new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                OrderId = order.Id,
+                ProductId = Guid.Empty, // Product matching ayri reconciliation adimi
+                ProductName = line.ProductName,
+                ProductSKU = line.SKU ?? line.Barcode ?? "",
+                TaxRate = line.TaxRate
+            };
+            item.SetQuantityAndPrice(line.Quantity, line.UnitPrice);
+            order.AddItem(item);
+        }
+
         // Financials — brut tutar ve indirim varsa ayristir
+        // AddItem zaten CalculateTotals yapar ama grossAmount/discount varsa override et
         var gross = dto.GrossAmount ?? dto.TotalAmount;
         var discount = dto.TotalDiscount ?? 0m;
         var subTotal = gross - discount;
-        var taxAmount = dto.Lines.Sum(l => l.TaxRate * l.LineTotal);
+        var taxAmount = order.TaxAmount; // AddItem→CalculateTotals'tan gelen deger
         order.SetFinancials(subTotal, taxAmount, dto.TotalAmount);
 
         order.Status = MapStatus(dto.Status);
