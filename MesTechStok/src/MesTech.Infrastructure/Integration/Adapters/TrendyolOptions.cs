@@ -48,4 +48,11 @@ public sealed class TrendyolOptions
     /// Override via config: Integrations:Trendyol:MaxConcurrentRequests
     /// </summary>
     public int MaxConcurrentRequests { get; set; } = 50;
+
+    /// <summary>
+    /// Webhook HMAC-SHA256 dogrulama secret'i.
+    /// Trendyol webhook imzasi kontrol icin kullanilir.
+    /// Bos ise webhook dogrulama atlaniyor (log uyarisi).
+    /// </summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }

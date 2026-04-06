@@ -31,4 +31,7 @@ public sealed class HepsiburadaOptions
 
     /// <summary>Max concurrent API requests (SemaphoreSlim limit). Override via config.</summary>
     public int MaxConcurrentRequests { get; set; } = 20;
+
+    /// <summary>Webhook HMAC-SHA256 dogrulama secret'i. Bos ise dogrulama atlaniyor.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }

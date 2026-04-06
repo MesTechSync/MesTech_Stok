@@ -23,4 +23,7 @@ public sealed class OzonOptions
 
     /// <summary>HTTP client timeout in seconds.</summary>
     public int HttpTimeoutSeconds { get; set; } = 30;
+
+    /// <summary>Webhook HMAC-SHA256 dogrulama secret'i. Bos ise dogrulama atlaniyor.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }

@@ -15,4 +15,7 @@ public sealed class OpenCartOptions
     public bool Enabled { get; set; } = false;
 
     public int HttpTimeoutSeconds { get; set; } = 60;
+
+    /// <summary>Webhook HMAC-SHA256 dogrulama secret'i. Bos ise dogrulama atlaniyor.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }
