@@ -74,7 +74,7 @@ public sealed class SettlementImportedOrderPaymentHandler : ISettlementImportedO
                 continue;
             }
 
-            if (order.PaymentStatus == "Paid")
+            if (string.Equals(order.PaymentStatus, "Paid", StringComparison.Ordinal))
             {
                 alreadyPaid++;
                 continue;
