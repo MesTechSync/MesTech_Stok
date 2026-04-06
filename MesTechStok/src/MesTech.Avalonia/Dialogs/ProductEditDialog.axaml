@@ -61,9 +61,9 @@
               <TextBlock Text="Kategori"
                          FontSize="{StaticResource FontSizeSmall}"
                          Foreground="{DynamicResource TextSecondaryBrush}" />
-              <TextBox x:Name="CategoryBox"
-                       Classes="mestech"
-                       Watermark="Kategori" />
+              <ComboBox x:Name="CategoryBox"
+                        PlaceholderText="Kategori secin"
+                        HorizontalAlignment="Stretch" />
             </StackPanel>
           </Grid>
 

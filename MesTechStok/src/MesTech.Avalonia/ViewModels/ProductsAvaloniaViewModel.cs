@@ -63,6 +63,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     public ObservableCollection<string> RecentSearches { get; } = [];
 
     private List<ProductItemDto> _allProducts = [];
+    private IReadOnlyList<(Guid Id, string Name)> _categoryList = [];
 
     public ProductsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IToastService toast)
     {
@@ -78,6 +79,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             // Fetch categories for name resolution (handler only returns CategoryId)
             var categories = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: false), ct);
             var catMap = categories.ToDictionary(c => c.Id, c => c.Name);
+            _categoryList = categories.Select(c => (c.Id, c.Name)).ToArray();
 
             var result = await _mediator.Send(new GetProductsQuery(
                 _currentUser.TenantId,
@@ -100,6 +102,7 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
                 Stock = dto.Stock,
                 MinimumStock = dto.MinimumStock,
                 Brand = dto.Brand ?? string.Empty,
+                CategoryId = dto.CategoryId,
                 CategoryName = dto.CategoryName
                     ?? (catMap.TryGetValue(dto.CategoryId, out var catName) ? catName : string.Empty),
                 ImageUrl = dto.ImageUrl ?? string.Empty,
@@ -380,7 +383,8 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddProduct()
     {
-        var dialog = new MesTech.Avalonia.Dialogs.ProductEditDialog("Yeni Urun Ekle");
+        var dialog = new MesTech.Avalonia.Dialogs.ProductEditDialog(
+            "Yeni Urun Ekle", categories: _categoryList);
         var owner = global::Avalonia.Application.Current?.ApplicationLifetime
             is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
             ? desktop.MainWindow : null;
@@ -393,13 +397,16 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             await SafeExecuteAsync(async ct =>
             {
                 _ = decimal.TryParse(dialog.Price, out var price);
+                var catId = dialog.SelectedCategoryId != Guid.Empty
+                    ? dialog.SelectedCategoryId
+                    : (_categoryList.Count > 0 ? _categoryList[0].Id : Guid.Empty);
                 var result = await _mediator.Send(new CreateProductCommand(
                     Name: dialog.ProductName!,
                     SKU: dialog.Sku ?? $"SKU-{DateTime.Now:yyyyMMddHHmmss}",
                     Barcode: dialog.Barcode,
                     PurchasePrice: 0m,
                     SalePrice: price,
-                    CategoryId: Guid.Empty,
+                    CategoryId: catId,
                     Description: dialog.Description,
                     Brand: null,
                     SyncToPlatforms: true), ct);
@@ -430,7 +437,10 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             sku: p.SKU,
             barcode: p.Barcode,
             price: p.SalePrice.ToString("F2"),
-            description: p.Description);
+            category: p.CategoryName,
+            description: p.Description,
+            categories: _categoryList,
+            selectedCategoryId: p.CategoryId);
 
         var owner = global::Avalonia.Application.Current?.ApplicationLifetime
             is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
@@ -444,11 +454,13 @@ public partial class ProductsAvaloniaViewModel : ViewModelBase
             await SafeExecuteAsync(async ct =>
             {
                 _ = decimal.TryParse(dialog.Price, out var price);
+                var catId = dialog.SelectedCategoryId != Guid.Empty ? dialog.SelectedCategoryId : (Guid?)null;
                 var result = await _mediator.Send(new UpdateProductCommand(
                     ProductId: p.Id,
                     Name: dialog.ProductName,
                     Description: dialog.Description,
                     SalePrice: price > 0 ? price : null,
+                    CategoryId: catId,
                     SyncToPlatforms: true), ct);
 
                 if (result.IsSuccess)
@@ -492,6 +504,7 @@ public class ProductItemDto
     public bool IsActive { get; set; } = true;
     public decimal SalePrice { get; set; }
     public string Brand { get; set; } = string.Empty;
+    public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public string StockStatus { get; set; } = string.Empty;
     public string VariantSKU { get; set; } = string.Empty;
