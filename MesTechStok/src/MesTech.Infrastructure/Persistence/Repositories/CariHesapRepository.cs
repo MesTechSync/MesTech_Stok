@@ -23,6 +23,12 @@ public sealed class CariHesapRepository : ICariHesapRepository
             .Take(5000) // G485
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
+    public async Task<CariHesap?> GetByNameAsync(Guid tenantId, string name, CancellationToken ct = default)
+        => await _context.CariHesaplar
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Name == name, ct)
+            .ConfigureAwait(false);
+
     public async Task<IReadOnlyList<CariHesap>> GetAllAsync(Guid? tenantId = null, CancellationToken ct = default)
         => await _context.CariHesaplar
             .Where(c => tenantId == null || c.TenantId == tenantId.Value)

@@ -703,6 +703,8 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCompletedInvoiceHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
             Application.EventHandlers.SettlementPaymentGLHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderPlacedCariHesapHandler,
+            Application.EventHandlers.OrderPlacedCariHesapHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementImportedOrderPaymentHandler,
             Application.EventHandlers.SettlementImportedOrderPaymentHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
