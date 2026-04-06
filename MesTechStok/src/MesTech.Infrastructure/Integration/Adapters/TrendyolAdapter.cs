@@ -9,6 +9,8 @@ using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
 using MesTech.Domain.Interfaces;
 using MesTech.Infrastructure.Integration.Security;
+using MesTech.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -468,6 +470,41 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         EnsureConfigured();
         _logger.LogInformation("TrendyolAdapter.PullProductsAsync called (limit={Limit})", limit?.ToString() ?? "all");
 
+        // Pre-load brand/category platform mappings for FK resolution
+        var brandMap = new Dictionary<string, Guid>();   // externalBrandId → Brand.Id
+        var categoryMap = new Dictionary<string, Guid>(); // externalCategoryId → Category.Id
+        if (_scopeFactory is not null)
+        {
+            try
+            {
+                using var lookupScope = _scopeFactory.CreateScope();
+                var db = lookupScope.ServiceProvider.GetService<AppDbContext>();
+                if (db is not null)
+                {
+                    var brandMappings = await db.BrandPlatformMappings
+                        .Where(m => m.PlatformType == PlatformType.Trendyol && m.ExternalBrandId != null)
+                        .Select(m => new { m.ExternalBrandId, m.BrandId })
+                        .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                    foreach (var bm in brandMappings)
+                        brandMap.TryAdd(bm.ExternalBrandId!, bm.BrandId);
+
+                    var catMappings = await db.Set<CategoryPlatformMapping>()
+                        .Where(m => m.PlatformType == PlatformType.Trendyol && m.ExternalCategoryId != null)
+                        .Select(m => new { m.ExternalCategoryId, m.CategoryId })
+                        .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
+                    foreach (var cm in catMappings)
+                        categoryMap.TryAdd(cm.ExternalCategoryId!, cm.CategoryId);
+
+                    _logger.LogDebug("PullProducts FK lookup loaded: {BrandCount} brands, {CatCount} categories",
+                        brandMap.Count, categoryMap.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "PullProducts FK lookup failed — products will have empty BrandId/CategoryId");
+            }
+        }
+
         var products = new List<Product>();
         var page = 0;
         var pageSize = limit.HasValue ? Math.Min(limit.Value, 50) : 50;
@@ -533,20 +570,31 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                         if (string.IsNullOrEmpty(skuValue))
                             skuValue = item.TryGetProperty("barcode", out var bc2) ? bc2.GetString() : null;
 
-                        // External IDs — PushProduct'ta BrandPlatformMapping/ProductPlatformMapping ile eslestirilir
+                        // FK resolution — brandId → BrandPlatformMapping → Product.BrandId
                         var extBrandId = item.TryGetProperty("brandId", out var bi) ? bi.GetInt64().ToString() : null;
+                        Guid? resolvedBrandId = null;
+                        if (extBrandId is not null && brandMap.TryGetValue(extBrandId, out var mappedBrandId))
+                            resolvedBrandId = mappedBrandId;
+
+                        // FK resolution — categoryId → CategoryPlatformMapping → Product.CategoryId
                         var extCategoryId = item.TryGetProperty("pimCategoryId", out var ci) ? ci.GetInt32().ToString()
                             : item.TryGetProperty("categoryId", out var ci2) ? ci2.GetInt32().ToString() : null;
+                        var resolvedCategoryId = Guid.Empty;
+                        if (extCategoryId is not null && categoryMap.TryGetValue(extCategoryId, out var mappedCatId))
+                            resolvedCategoryId = mappedCatId;
 
-                        // Structured metadata JSON — downstream sync handler'lari icin
-                        var metadata = JsonSerializer.Serialize(new
+                        // Notes — ek resimler + platform metadata (PlatformMapping StoreId gerektirir, caller olusturur)
+                        string? notes = null;
+                        if (allImageUrls.Count > 1 || extBrandId is not null || extCategoryId is not null)
                         {
-                            trendyolBrandId = extBrandId,
-                            trendyolCategoryId = extCategoryId,
-                            images = allImageUrls,
-                            color = item.TryGetProperty("color", out var clr) ? clr.GetString() : null,
-                            gender = item.TryGetProperty("gender", out var gen) ? gen.GetString() : null
-                        }, _jsonOptions);
+                            notes = JsonSerializer.Serialize(new
+                            {
+                                images = allImageUrls,
+                                trendyolBrandId = extBrandId,
+                                trendyolCategoryId = extCategoryId,
+                                gender = item.TryGetProperty("gender", out var gen) ? gen.GetString() : null
+                            }, _jsonOptions);
+                        }
 
                         var product = new Product
                         {
@@ -562,7 +610,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             Code = item.TryGetProperty("productMainId", out var pmi) ? pmi.GetString() : null,
                             Color = item.TryGetProperty("color", out var clr2) ? clr2.GetString() : null,
                             CurrencyCode = item.TryGetProperty("currencyType", out var ccy) ? ccy.GetString() ?? "TRY" : "TRY",
-                            Notes = metadata
+                            BrandId = resolvedBrandId,
+                            CategoryId = resolvedCategoryId,
+                            Notes = notes
                         };
                         product.SyncStock(item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0, "trendyol-sync");
                         products.Add(product);
