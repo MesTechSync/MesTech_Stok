@@ -271,6 +271,10 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "StoreSettings" => "Magaza Ayarlari",
             "StoreWizard" => "Magaza Sihirbazi",
             "SupplierFeeds" => "Tedarikci Feed'leri",
+            // D7-035: Missing sidebar nav titles
+            "Bitrix24" => "Bitrix24 CRM",
+            "CategoryMapping" => "Kategori Eslestirme",
+            "ImportSettings" => "Iceri Aktarma Ayarlari",
             _ => CurrentViewTitle
         };
 
