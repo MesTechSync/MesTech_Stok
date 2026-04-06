@@ -835,9 +835,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                                     Quantity = line.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
                                     UnitPrice = line.TryGetProperty("price", out var up) ? up.GetDecimal() : 0,
                                     DiscountAmount = line.TryGetProperty("discount", out var disc) ? disc.GetDecimal() : null,
-                                    TaxRate = line.TryGetProperty("vatBaseAmount", out var vba) && vba.GetDecimal() > 0 && line.TryGetProperty("amount", out var amt2) && amt2.GetDecimal() > 0
-                                        ? (vba.GetDecimal() / amt2.GetDecimal())
-                                        : 0,
+                                    TaxRate = line.TryGetProperty("vatRate", out var lvr) ? lvr.GetDecimal() / 100m : 0m,
                                     LineTotal = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0
                                 });
                             }
