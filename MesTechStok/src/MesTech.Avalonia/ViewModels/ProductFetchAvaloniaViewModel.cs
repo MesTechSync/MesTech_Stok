@@ -25,8 +25,9 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private decimal fetchedPrice;
     [ObservableProperty] private string fetchedDescription = string.Empty;
     [ObservableProperty] private string fetchedCategory = string.Empty;
-    [ObservableProperty] private Guid selectedCategoryId;
+    [ObservableProperty] private CategoryItem? selectedCategory;
     public ObservableCollection<CategoryItem> Categories { get; } = [];
+    private Guid SelectedCategoryId => SelectedCategory?.Id ?? Guid.Empty;
     [ObservableProperty] private string fetchedSKU = string.Empty;
     [ObservableProperty] private int fetchedStock;
     [ObservableProperty] private string fetchedImageUrl = string.Empty;
@@ -58,7 +59,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
             FetchedPrice = 0;
             FetchedDescription = string.Empty;
             FetchedCategory = string.Empty;
-            SelectedCategoryId = Guid.Empty;
+            SelectedCategory = null;
             FetchedSKU = string.Empty;
             FetchedStock = 0;
             FetchedImageUrl = string.Empty;

@@ -76,7 +76,11 @@
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FetchedStock}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Kategori:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FetchedCategory}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
+                            <StackPanel Grid.Row="4" Grid.Column="1" Spacing="4" Margin="0,6,0,0">
+                                <TextBlock Text="{Binding FetchedCategory}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
+                                <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
+                                          PlaceholderText="Kategori sec" HorizontalAlignment="Stretch" AutomationProperties.Name="Kategori" />
+                            </StackPanel>
 
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Platform:" FontSize="{StaticResource FontSizeCallout}" Foreground="{DynamicResource MesSlateGray}" Margin="0,6,0,0" />
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding FetchedPlatform}" FontSize="{StaticResource FontSizeCallout}" Margin="0,6,0,0" />
