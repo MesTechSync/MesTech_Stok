@@ -57,6 +57,11 @@
                             Command="{Binding AddProductCommand}"
                             Background="{DynamicResource MesSuccessGreen}" Foreground="{DynamicResource MesBgPrimary}" FontWeight="SemiBold"
                             Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <!-- KD-DEV2-005: Export CSV -->
+                    <Button Content="CSV Aktar" ToolTip.Tip="Urun listesini CSV olarak disari aktar"
+                            Command="{Binding ExportCsvCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
                     <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
                             Command="{Binding RefreshCommand}"
                             Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
