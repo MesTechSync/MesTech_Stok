@@ -42,9 +42,19 @@ public sealed class FeedCredentialProtector : IFeedCredentialProtector
     {
         if (string.IsNullOrWhiteSpace(encryptionKey))
         {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "[FeedCredentialProtector] CRITICAL: FeedCredentials:EncryptionKey is not configured. " +
+                    "In Production, a stable encryption key is REQUIRED — otherwise encrypted feed credentials " +
+                    "are lost on every application restart. Set the key in appsettings.Production.json or environment variables.");
+            }
+
             logger?.LogWarning(
                 "[FeedCredentialProtector] No encryption key configured (FeedCredentials:EncryptionKey). " +
-                "Using random key — encrypted credentials will be LOST on application restart.");
+                "Using random key — encrypted credentials will be LOST on application restart. " +
+                "This is acceptable for Development only.");
             encryptionKey = AesGcmEncryptionService.GenerateKey();
         }
 
