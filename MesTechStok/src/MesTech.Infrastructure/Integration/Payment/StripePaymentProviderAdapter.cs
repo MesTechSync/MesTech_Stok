@@ -45,13 +45,13 @@ public sealed class StripePaymentProviderAdapter : AppPayment.IPaymentProvider
 
     public Task<AppPayment.PaymentStatusResult> GetTransactionStatusAsync(string transactionId, CancellationToken ct = default)
     {
-        _logger.LogInformation("Stripe GetTransactionStatus: {TransactionId}", transactionId);
+        _logger.LogWarning("Stripe GetTransactionStatus: {TransactionId} — status query requires Stripe API integration (IHttpClientFactory). Returning Pending to prevent false-positive completion.", transactionId);
 
         return Task.FromResult(new AppPayment.PaymentStatusResult(
             TransactionId: transactionId,
-            Status: PaymentTransactionStatus.Completed,
+            Status: PaymentTransactionStatus.Pending,
             Amount: 0m,
-            PaidAt: DateTime.UtcNow));
+            PaidAt: null));
     }
 
     public Task<AppPayment.InstallmentOptions> GetInstallmentOptionsAsync(decimal amount, string? binNumber, CancellationToken ct = default)
