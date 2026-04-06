@@ -98,6 +98,8 @@ public class AppDbContext : DbContext
     // ── Domain Entities ──
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
+    public DbSet<ProductMedia> ProductMedia => Set<ProductMedia>();
+    public DbSet<ProductSpecification> ProductSpecifications => Set<ProductSpecification>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
