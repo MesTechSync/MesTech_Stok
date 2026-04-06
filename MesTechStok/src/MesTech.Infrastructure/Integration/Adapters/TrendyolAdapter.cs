@@ -815,9 +815,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             OrderNumber = orderNumber,
                             Status = item.TryGetProperty("status", out var st) ? st.GetString() ?? "" : "",
                             CustomerName = BuildTrendyolCustomerName(item),
-                            TotalAmount = item.TryGetProperty("totalPrice", out var tp2) ? tp2.GetDecimal() : 0,
-                            GrossAmount = item.TryGetProperty("grossAmount", out var ga) ? ga.GetDecimal() : null,
-                            TotalDiscount = item.TryGetProperty("totalDiscount", out var td) ? td.GetDecimal() : null,
+                            TotalAmount = item.TryGetProperty("totalPrice", out var tp2) && tp2.ValueKind == JsonValueKind.Number ? tp2.GetDecimal()
+                                : item.TryGetProperty("packageTotalPrice", out var ptp) && ptp.ValueKind == JsonValueKind.Number ? ptp.GetDecimal() : 0,
+                            GrossAmount = item.TryGetProperty("grossAmount", out var ga) && ga.ValueKind == JsonValueKind.Number ? ga.GetDecimal()
+                                : item.TryGetProperty("packageGrossAmount", out var pga) && pga.ValueKind == JsonValueKind.Number ? pga.GetDecimal() : null,
+                            TotalDiscount = item.TryGetProperty("totalDiscount", out var td) && td.ValueKind == JsonValueKind.Number ? td.GetDecimal()
+                                : item.TryGetProperty("packageTotalDiscount", out var ptd) && ptd.ValueKind == JsonValueKind.Number ? ptd.GetDecimal() : null,
                             OrderDate = item.TryGetProperty("orderDate", out var od) ? DateTimeOffset.FromUnixTimeMilliseconds(od.GetInt64()).UtcDateTime : DateTime.UtcNow
                         };
 
@@ -828,15 +831,20 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             {
                                 order.Lines.Add(new ExternalOrderLineDto
                                 {
-                                    PlatformLineId = line.TryGetProperty("id", out var lid) ? lid.GetInt64().ToString() : null,
-                                    SKU = line.TryGetProperty("merchantSku", out var sku) ? sku.GetString() : null,
+                                    PlatformLineId = line.TryGetProperty("lineId", out var lid) ? lid.GetInt64().ToString()
+                                        : line.TryGetProperty("id", out var lid2) ? lid2.GetInt64().ToString() : null,
+                                    SKU = line.TryGetProperty("merchantSku", out var sku) ? sku.GetString()
+                                        : line.TryGetProperty("stockCode", out var sc2) ? sc2.GetString() : null,
                                     Barcode = line.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
                                     ProductName = line.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
                                     Quantity = line.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
-                                    UnitPrice = line.TryGetProperty("price", out var up) ? up.GetDecimal() : 0,
-                                    DiscountAmount = line.TryGetProperty("discount", out var disc) ? disc.GetDecimal() : null,
+                                    UnitPrice = line.TryGetProperty("price", out var up) && up.ValueKind == JsonValueKind.Number ? up.GetDecimal()
+                                        : line.TryGetProperty("lineUnitPrice", out var lup) && lup.ValueKind == JsonValueKind.Number ? lup.GetDecimal() : 0,
+                                    DiscountAmount = line.TryGetProperty("discount", out var disc) && disc.ValueKind == JsonValueKind.Number ? disc.GetDecimal()
+                                        : line.TryGetProperty("lineTotalDiscount", out var ltd) && ltd.ValueKind == JsonValueKind.Number ? ltd.GetDecimal() : null,
                                     TaxRate = line.TryGetProperty("vatRate", out var lvr) ? lvr.GetDecimal() / 100m : 0m,
-                                    LineTotal = line.TryGetProperty("amount", out var amt) ? amt.GetDecimal() : 0
+                                    LineTotal = line.TryGetProperty("amount", out var amt) && amt.ValueKind == JsonValueKind.Number ? amt.GetDecimal()
+                                        : line.TryGetProperty("lineGrossAmount", out var lga) && lga.ValueKind == JsonValueKind.Number ? lga.GetDecimal() : 0
                                 });
                             }
                         }
