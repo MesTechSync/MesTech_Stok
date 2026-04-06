@@ -26,6 +26,13 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int changedCount;
     [ObservableProperty] private string updateStatus = string.Empty;
 
+    // Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+    public int[] PageSizeOptions { get; } = [25, 50, 100];
+
     // Sort
     [ObservableProperty] private string sortColumn = "default";
     [ObservableProperty] private bool sortAscending = true;
@@ -134,16 +141,30 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
             _           => SortAscending ? filtered.OrderBy(x => x.UrunAdi)    : filtered.OrderByDescending(x => x.UrunAdi),
         };
 
-        foreach (var item in filtered)
+        var all = filtered.ToList();
+        TotalCount = all.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
+        foreach (var item in all.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Items.Add(item);
 
         foreach (var item in Items)
             item.PropertyChanged += _itemChangedHandler;
 
-        TotalCount = Items.Count;
-        IsEmpty = Items.Count == 0;
+        IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} hareket)"
+            : string.Empty;
         RecalculateChangedCount();
     }
+
+    partial void OnPageSizeChanged(int value) { CurrentPage = 1; ApplyFilter(); }
+
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilter(); } }
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilter(); } }
 
     [RelayCommand]
     private void SortBy(string column)
@@ -178,7 +199,7 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleAddMovement() => IsAddingMovement = !IsAddingMovement;
 
-    // HH-DEV2-012: Save new stock movement
+    // HH-DEV2-012: Save new stock movement via AdjustStockCommand
     [RelayCommand]
     private async Task SaveNewMovement()
     {
@@ -188,16 +209,49 @@ public partial class StockMovementAvaloniaViewModel : ViewModelBase
             return;
         }
 
-        UpdateStatus = $"{NewMovementType} hareketi kaydediliyor...";
-        // TODO: CreateStockMovementCommand handler DEV1 tarafindan eklenecek
-        // await _mediator.Send(new CreateStockMovementCommand(...));
+        await SafeExecuteAsync(async ct =>
+        {
+            UpdateStatus = $"{NewMovementType} hareketi kaydediliyor...";
 
-        UpdateStatus = $"{NewMovementType}: {NewMovementSku} x {NewMovementQuantity} — kaydedildi.";
-        NewMovementSku = string.Empty;
-        NewMovementQuantity = 0;
-        NewMovementNote = string.Empty;
-        IsAddingMovement = false;
-        await LoadAsync();
+            // SKU → ProductId lookup
+            var products = await _mediator.Send(
+                new Application.Features.Product.Queries.GetProducts.GetProductsQuery(
+                    _tenantProvider.GetCurrentTenantId(),
+                    SearchTerm: NewMovementSku, PageSize: 1), ct);
+
+            var product = products.Items.FirstOrDefault();
+            if (product is null)
+            {
+                UpdateStatus = $"SKU '{NewMovementSku}' bulunamadi.";
+                return;
+            }
+
+            // Giris=pozitif, Cikis/Transfer=negatif, Duzeltme=pozitif
+            var qty = NewMovementType is "Cikis" or "Transfer"
+                ? -NewMovementQuantity
+                : NewMovementQuantity;
+
+            var reason = string.IsNullOrWhiteSpace(NewMovementNote)
+                ? $"{NewMovementType} — {NewMovementWarehouse}"
+                : NewMovementNote;
+
+            var result = await _mediator.Send(
+                new Application.Commands.AdjustStock.AdjustStockCommand(
+                    product.Id, qty, reason), ct);
+
+            if (!result.IsSuccess)
+            {
+                UpdateStatus = $"Hata: {result.ErrorMessage}";
+                return;
+            }
+
+            UpdateStatus = $"{NewMovementType}: {NewMovementSku} x {NewMovementQuantity} — kaydedildi. Yeni stok: {result.NewStockLevel}";
+            NewMovementSku = string.Empty;
+            NewMovementQuantity = 0;
+            NewMovementNote = string.Empty;
+            IsAddingMovement = false;
+            await LoadAsync();
+        }, "Stok hareketi kaydedilirken hata");
     }
 
     private void UnsubscribeItemEvents()

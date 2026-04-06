@@ -35,7 +35,7 @@
         <!-- Toolbar -->
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBox x:Name="SearchBox" Grid.Column="0" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
+                <TextBox x:Name="SearchBox" Grid.Column="0" Text="{Binding SearchText}" Watermark="Urun veya SKU ara..." AutomationProperties.Name="Urun veya SKU ara..." Width="280" HorizontalAlignment="Left" />
                 <ComboBox Grid.Column="1" PlaceholderText="Depo" Width="140" Margin="8,0"  AutomationProperties.Name="Depo" />
                 <Button Grid.Column="2" Content="+ Stok Hareketi" Command="{Binding AddMovementCommand}"
                         Background="{DynamicResource MesTeal}" Foreground="{DynamicResource MesBgPrimary}"
@@ -102,11 +102,11 @@
             </Border>
         </Grid>
 
-        <!-- Content area: Out of stock + Sync Status -->
-        <Grid Grid.Row="3" RowDefinitions="Auto,*" Margin="22,0,22,22">
+        <!-- Content: Sync Status + Search/Filter Bar + DataGrid -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto,*,Auto" Margin="22,0,22,22">
             <!-- Sync status bar -->
             <Border Grid.Row="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
-                    Padding="16,12" Margin="0,0,0,12"
+                    Padding="16,12" Margin="0,0,0,8"
                     IsVisible="{Binding SyncStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                     BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" Spacing="12">
@@ -117,47 +117,56 @@
                 </StackPanel>
             </Border>
 
-            <!-- Stock critical alerts panel -->
+            <!-- Search + Filter bar -->
             <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
-                    Padding="20" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Stok Durumu Ozeti" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource MesDarkSlate}" />
-                    <TextBlock Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextWrapping="Wrap"
+                    Padding="16,10" Margin="0,0,0,8"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                    <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Urun adi, SKU veya barkod ara..."
+                             AutomationProperties.Name="Ara" Width="300" HorizontalAlignment="Left" />
+                    <ComboBox Grid.Column="1" SelectedItem="{Binding SelectedStockFilter}"
+                              ItemsSource="{Binding StockFilterOptions}" Width="140" Margin="8,0"
+                              AutomationProperties.Name="Stok Filtre" />
+                    <ComboBox Grid.Column="2" SelectedItem="{Binding PageSize}"
+                              ItemsSource="{Binding PageSizeOptions}" Width="80"
+                              AutomationProperties.Name="Sayfa Boyutu" />
+                </Grid>
+            </Border>
+
+            <!-- Product Stock DataGrid -->
+            <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                <DataGrid ItemsSource="{Binding Products}"
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True" CanUserResizeColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          Background="{DynamicResource MesBgPrimary}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="120" />
+                        <DataGridTextColumn Header="Urun Adi" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Marka" Binding="{Binding Brand}" Width="120" />
+                        <DataGridTextColumn Header="Stok" Binding="{Binding Stock}" Width="80" />
+                        <DataGridTextColumn Header="Min Stok" Binding="{Binding MinimumStock}" Width="80" />
+                        <DataGridTextColumn Header="Fiyat" Binding="{Binding SalePrice, StringFormat='{}{0:N2}'}" Width="100" />
+                        <DataGridTextColumn Header="Stok Degeri" Binding="{Binding StockValue, StringFormat='₺{0:N0}'}" Width="110" />
+                        <DataGridTextColumn Header="Durum" Binding="{Binding StockStatus}" Width="90" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Pagination -->
+            <Border Grid.Row="3" Padding="0,8,0,0">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto,*">
+                    <Button Grid.Column="1" Content="Onceki" Command="{Binding PrevPageCommand}"
+                            Padding="12,6" Margin="0,0,8,0" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <TextBlock Grid.Column="2" Text="{Binding PaginationInfo}"
+                               VerticalAlignment="Center" FontSize="{StaticResource FontSizeSmall}"
                                Foreground="{DynamicResource MesSlateGray}" />
-
-                    <!-- Out-of-stock warning -->
-                    <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusSm}"
-                            Padding="14,10" IsVisible="{Binding OutOfStockProducts}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MesRedAlert}" VerticalAlignment="Center" />
-                            <TextBlock Foreground="{DynamicResource MesRedAlert}" VerticalAlignment="Center">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} urun stokta yok — acil tedarik gerekli">
-                                        <Binding Path="OutOfStockProducts" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Low-stock warning -->
-                    <Border Background="{DynamicResource MesBgAmberLight}" CornerRadius="{StaticResource MesRadiusSm}"
-                            Padding="14,10" IsVisible="{Binding LowStockProducts}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="!" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MesAmberDark}" VerticalAlignment="Center" />
-                            <TextBlock Foreground="{DynamicResource MesAmberDark}" VerticalAlignment="Center">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} urunde dusuk stok uyarisi">
-                                        <Binding Path="LowStockProducts" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                    <Button Grid.Column="3" Content="Sonraki" Command="{Binding NextPageCommand}"
+                            Padding="12,6" Margin="8,0,0,0" CornerRadius="{StaticResource MesRadiusSm}" />
+                </Grid>
             </Border>
         </Grid>
 
