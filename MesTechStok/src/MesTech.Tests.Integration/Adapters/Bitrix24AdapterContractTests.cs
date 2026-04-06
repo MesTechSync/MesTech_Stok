@@ -619,7 +619,7 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
         await adapter.TestConnectionAsync(ValidCredentials);
 
         var adapters = new MesTech.Application.Interfaces.IIntegratorAdapter[] { adapter };
-        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, NullLogger<WebhookReceiverService>.Instance);
+        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, new Mock<Microsoft.Extensions.Configuration.IConfiguration>().Object, NullLogger<WebhookReceiverService>.Instance);
 
         var payload = "event=ONCRMDEALADD&data[FIELDS][ID]=123&auth[application_token]=test-token";
         var result = await service.ProcessBitrix24WebhookAsync(payload);
@@ -639,7 +639,7 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
         await adapter.TestConnectionAsync(ValidCredentials);
 
         var adapters = new MesTech.Application.Interfaces.IIntegratorAdapter[] { adapter };
-        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, NullLogger<WebhookReceiverService>.Instance);
+        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, new Mock<Microsoft.Extensions.Configuration.IConfiguration>().Object, NullLogger<WebhookReceiverService>.Instance);
 
         var payload = "event=ONCRMCONTACTUPDATE&data[FIELDS][ID]=456&auth[application_token]=test-token";
         var result = await service.ProcessBitrix24WebhookAsync(payload);
@@ -653,7 +653,7 @@ public class Bitrix24AdapterContractTests : IClassFixture<WireMockFixture>, IDis
     public async Task WebhookReceiver_GenericBitrix24Route_DelegatesToBitrix24Handler()
     {
         var adapters = Array.Empty<MesTech.Application.Interfaces.IIntegratorAdapter>();
-        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, NullLogger<WebhookReceiverService>.Instance);
+        var service = new WebhookReceiverService(adapters, new Mock<IIntegrationEventPublisher>().Object, new Mock<Microsoft.Extensions.Configuration.IConfiguration>().Object, NullLogger<WebhookReceiverService>.Instance);
 
         var payload = "event=ONCRMDEALADD&data[FIELDS][ID]=789&auth[application_token]=test-token";
         var result = await service.ProcessGenericWebhookAsync("Bitrix24", "crm", payload);
