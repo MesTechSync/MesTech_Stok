@@ -123,8 +123,12 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
             Notes = $"Trendyol sync — {dto.Status} — Kargo: {dto.CargoProviderName} — Takip: {dto.CargoTrackingNumber}"
         };
 
-        // Set financials via domain method (private set properties)
-        order.SetFinancials(dto.TotalAmount, 0, dto.TotalAmount);
+        // Financials — brut tutar ve indirim varsa ayristir
+        var gross = dto.GrossAmount ?? dto.TotalAmount;
+        var discount = dto.TotalDiscount ?? 0m;
+        var subTotal = gross - discount;
+        var taxAmount = dto.Lines.Sum(l => l.TaxRate * l.LineTotal);
+        order.SetFinancials(subTotal, taxAmount, dto.TotalAmount);
 
         order.Status = MapStatus(dto.Status);
 
