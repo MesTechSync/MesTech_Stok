@@ -34,6 +34,7 @@ public static class WebhookEndpoints
     /// <summary>
     /// Webhook payload'inin HMAC-SHA256 ile dogrulanmasi.
     /// Trendyol ve diger platformlar icin guvenlik katmani.
+    /// Base64-encoded signature karsilastirmasi (Shopify, WooCommerce, Trendyol).
     /// </summary>
     public static bool ValidateHmacSignature(string payload, string signature, string secret)
     {
@@ -42,11 +43,19 @@ public static class WebhookEndpoints
 
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-        var computed = Convert.ToBase64String(hash);
+        var computedBase64 = Convert.ToBase64String(hash);
 
+        // Try base64 comparison first (Shopify, WooCommerce convention)
+        if (CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(computedBase64),
+            Encoding.UTF8.GetBytes(signature)))
+            return true;
+
+        // Try hex comparison (eBay, Hepsiburada, Amazon SNS convention)
+        var computedHex = Convert.ToHexStringLower(hash);
         return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(computed),
-            Encoding.UTF8.GetBytes(signature));
+            Encoding.UTF8.GetBytes(computedHex),
+            Encoding.UTF8.GetBytes(signature.ToLowerInvariant()));
     }
 }
 

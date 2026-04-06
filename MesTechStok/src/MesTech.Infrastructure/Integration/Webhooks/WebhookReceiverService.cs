@@ -3,6 +3,7 @@ using System.Web;
 using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Infrastructure.Messaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Webhooks;
@@ -12,21 +13,65 @@ namespace MesTech.Infrastructure.Integration.Webhooks;
 /// Trendyol: OrderCreated, OrderStatusChanged, ClaimCreated
 /// Bitrix24: ONCRMDEALADD, ONCRMDEALUPDATE, ONCRMCONTACTADD, ONCRMCONTACTUPDATE (form-encoded)
 /// Diger platformlar: generic event routing
+///
+/// HMAC-SHA256 dogrulama: WebhookRequest.Signature dolu ise
+/// Integrations:{PlatformCode}:WebhookSecret config degerini kullanarak dogrular.
+/// Secret yoksa veya signature bos ise islem devam eder (backward compat, log uyarisi).
 /// </summary>
 public sealed class WebhookReceiverService : IWebhookReceiverService
 {
     private readonly IEnumerable<IIntegratorAdapter> _adapters;
     private readonly IIntegrationEventPublisher _eventPublisher;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<WebhookReceiverService> _logger;
 
     public WebhookReceiverService(
         IEnumerable<IIntegratorAdapter> adapters,
         IIntegrationEventPublisher eventPublisher,
+        IConfiguration configuration,
         ILogger<WebhookReceiverService> logger)
     {
         _adapters = adapters ?? throw new ArgumentNullException(nameof(adapters));
         _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Platform webhook secret'ini config'den okur ve HMAC-SHA256 dogrulamasi yapar.
+    /// Config key: Integrations:{platformCode}:WebhookSecret
+    /// Secret yoksa veya signature null ise uyari loglar ve isleme devam eder.
+    /// </summary>
+    private bool ValidateSignatureIfConfigured(string platformCode, string payload, string? signature)
+    {
+        var secret = _configuration[$"Integrations:{platformCode}:WebhookSecret"];
+
+        if (string.IsNullOrEmpty(secret))
+        {
+            _logger.LogDebug(
+                "Webhook HMAC: {Platform} icin WebhookSecret yapilandirilmamis — dogrulama atlaniyor",
+                platformCode);
+            return true; // backward compat — secret yoksa kabul et
+        }
+
+        if (string.IsNullOrEmpty(signature))
+        {
+            _logger.LogWarning(
+                "Webhook HMAC UYARI: {Platform} icin secret var ama istek signature header'i bos — " +
+                "potansiyel sahte istek! PayloadLength={Length}",
+                platformCode, payload.Length);
+            return false;
+        }
+
+        var isValid = WebhookEndpoints.ValidateHmacSignature(payload, signature, secret);
+        if (!isValid)
+        {
+            _logger.LogWarning(
+                "Webhook HMAC BASARISIZ: {Platform} imza dogrulanamadi — istek reddedildi. PayloadLength={Length}",
+                platformCode, payload.Length);
+        }
+
+        return isValid;
     }
 
     public async Task<WebhookProcessResult> ProcessOrderWebhookAsync(
@@ -232,6 +277,53 @@ public sealed class WebhookReceiverService : IWebhookReceiverService
             ProcessedCount = 1,
             Message = $"Bilinmeyen event tipi '{eventType}' islendi."
         };
+    }
+
+    // ── Signature-aware overloads (HMAC-SHA256 dogrulama) ──
+
+    public async Task<WebhookProcessResult> ProcessOrderWebhookAsync(
+        string platformCode, string payload, string? signature, CancellationToken ct = default)
+    {
+        if (!ValidateSignatureIfConfigured(platformCode, payload, signature))
+        {
+            return new WebhookProcessResult
+            {
+                Success = false,
+                Message = $"Platform '{platformCode}' webhook HMAC dogrulama basarisiz — istek reddedildi."
+            };
+        }
+
+        return await ProcessOrderWebhookAsync(platformCode, payload, ct).ConfigureAwait(false);
+    }
+
+    public async Task<WebhookProcessResult> ProcessClaimWebhookAsync(
+        string platformCode, string payload, string? signature, CancellationToken ct = default)
+    {
+        if (!ValidateSignatureIfConfigured(platformCode, payload, signature))
+        {
+            return new WebhookProcessResult
+            {
+                Success = false,
+                Message = $"Platform '{platformCode}' webhook HMAC dogrulama basarisiz — istek reddedildi."
+            };
+        }
+
+        return await ProcessClaimWebhookAsync(platformCode, payload, ct).ConfigureAwait(false);
+    }
+
+    public async Task<WebhookProcessResult> ProcessGenericWebhookAsync(
+        string platformCode, string eventType, string payload, string? signature, CancellationToken ct = default)
+    {
+        if (!ValidateSignatureIfConfigured(platformCode, payload, signature))
+        {
+            return new WebhookProcessResult
+            {
+                Success = false,
+                Message = $"Platform '{platformCode}' webhook HMAC dogrulama basarisiz — istek reddedildi."
+            };
+        }
+
+        return await ProcessGenericWebhookAsync(platformCode, eventType, payload, ct).ConfigureAwait(false);
     }
 
     private IWebhookCapableAdapter? FindWebhookAdapter(string platformCode)
