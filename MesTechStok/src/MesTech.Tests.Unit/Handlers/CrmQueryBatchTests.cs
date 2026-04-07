@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MesTech.Application.DTOs.Crm;
 using MesTech.Application.Features.Crm.Commands.ExportCustomers;
+using PlatformMessage = MesTech.Domain.Entities.PlatformMessage;
 using MesTech.Application.Features.Crm.Commands.RedeemPoints;
 using MesTech.Application.Features.Crm.Commands.SaveCrmSettings;
 using MesTech.Application.Features.Crm.Queries.GetActiveCampaigns;

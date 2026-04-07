@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MesTech.Application.Features.Crm.Commands.EarnPoints;
+using PlatformMessage = MesTech.Domain.Entities.PlatformMessage;
 using MesTech.Application.Features.Crm.Queries.ApplyCampaignDiscount;
 using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 using MesTech.Application.Features.Crm.Queries.GetPlatformMessages;

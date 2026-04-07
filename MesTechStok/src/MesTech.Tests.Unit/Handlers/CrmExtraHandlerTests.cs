@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MediatR;
 using MesTech.Application.DTOs.Crm;
+using PlatformMessage = MesTech.Domain.Entities.PlatformMessage;
 using MesTech.Application.Features.Crm.Commands.CreateDeal;
 using MesTech.Application.Features.Crm.Commands.CreateLead;
 using MesTech.Application.Features.Crm.Commands.LoseDeal;
