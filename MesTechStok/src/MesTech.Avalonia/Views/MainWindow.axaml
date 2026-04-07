@@ -513,6 +513,17 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Cek / Senet Takip"
+                                    AutomationProperties.Name="Cek Senet Takip"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Cheque"
+                                    IsVisible="{Binding ShowReports}">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="Receipt" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="Çek / Senet"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Giderler"
                                     AutomationProperties.Name="Giderler"
                                     Command="{Binding NavigateToCommand}"
@@ -1828,6 +1839,10 @@
                             <views:SettlementAvaloniaView />
                         </DataTemplate>
                         <!-- D12: FixedAsset/Expense/Penalty/TaxRecord DataTemplates zaten satir 1480-1492'de mevcut -->
+                        <!-- D13-17: Cheque/Senet -->
+                        <DataTemplate DataType="vm:ChequeAvaloniaViewModel">
+                            <views:ChequeAvaloniaView />
+                        </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
             </DockPanel>
