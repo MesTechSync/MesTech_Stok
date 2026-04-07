@@ -280,3 +280,48 @@ public sealed class WithholdingTaxGLBridge
         }
     }
 }
+
+/// <summary>
+/// SettlementImportedEvent → siparis odeme guncelleme (Z4a).
+/// </summary>
+public sealed class SettlementImportedPaymentBridge
+    : INotificationHandler<DomainEventNotification<SettlementImportedEvent>>
+{
+    private readonly ISettlementImportedOrderPaymentHandler _handler;
+    private readonly ILogger<SettlementImportedPaymentBridge> _logger;
+
+    public SettlementImportedPaymentBridge(
+        ISettlementImportedOrderPaymentHandler handler,
+        ILogger<SettlementImportedPaymentBridge> logger)
+    { _handler = handler; _logger = logger; }
+
+    public async Task Handle(DomainEventNotification<SettlementImportedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug("[Bridge] SettlementImported → OrderPayment: BatchId={BatchId}, Platform={Platform}",
+            e.SettlementBatchId, e.Platform);
+        await _handler.HandleAsync(e.SettlementBatchId, e.TenantId, ct).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// SettlementReconciledEvent → bildirim + audit log.
+/// </summary>
+public sealed class SettlementReconciledBridge
+    : INotificationHandler<DomainEventNotification<SettlementReconciledEvent>>
+{
+    private readonly ISettlementReconciledNotificationHandler _handler;
+    private readonly ILogger<SettlementReconciledBridge> _logger;
+
+    public SettlementReconciledBridge(
+        ISettlementReconciledNotificationHandler handler,
+        ILogger<SettlementReconciledBridge> logger)
+    { _handler = handler; _logger = logger; }
+
+    public async Task Handle(DomainEventNotification<SettlementReconciledEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug("[Bridge] SettlementReconciled: BatchId={BatchId}", e.SettlementBatchId);
+        await _handler.HandleAsync(e.SettlementBatchId, e.TenantId, e.Platform, e.TotalNet, ct).ConfigureAwait(false);
+    }
+}

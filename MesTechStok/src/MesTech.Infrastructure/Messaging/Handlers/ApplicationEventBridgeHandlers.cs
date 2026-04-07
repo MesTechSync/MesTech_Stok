@@ -306,4 +306,48 @@ public sealed class OversellingAttemptedBridge
     }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// DEV1 TUR — Eksik bridge handler'lar
+// ════════════════════════════════════════════════════════════════════════════
+
+/// <summary>
+/// OrderPlacedEvent → CariHesap otomatik olusturma.
+/// </summary>
+public sealed class OrderPlacedCariHesapBridge
+    : INotificationHandler<DomainEventNotification<OrderPlacedEvent>>
+{
+    private readonly IOrderPlacedCariHesapHandler _handler;
+    private readonly ILogger<OrderPlacedCariHesapBridge> _logger;
+
+    public OrderPlacedCariHesapBridge(IOrderPlacedCariHesapHandler handler, ILogger<OrderPlacedCariHesapBridge> logger)
+    { _handler = handler; _logger = logger; }
+
+    public async Task Handle(DomainEventNotification<OrderPlacedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug("[Bridge] OrderPlaced → CariHesap: OrderId={OrderId}", e.OrderId);
+        await _handler.HandleAsync(e.OrderId, e.TenantId, ct).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// OrderCompletedEvent → Otomatik fatura olusturma (Z2→Z3).
+/// </summary>
+public sealed class OrderCompletedInvoiceBridge
+    : INotificationHandler<DomainEventNotification<OrderCompletedEvent>>
+{
+    private readonly IOrderCompletedInvoiceHandler _handler;
+    private readonly ILogger<OrderCompletedInvoiceBridge> _logger;
+
+    public OrderCompletedInvoiceBridge(IOrderCompletedInvoiceHandler handler, ILogger<OrderCompletedInvoiceBridge> logger)
+    { _handler = handler; _logger = logger; }
+
+    public async Task Handle(DomainEventNotification<OrderCompletedEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug("[Bridge] OrderCompleted → Invoice: Order={OrderNumber}, Amount={Amount}", e.OrderNumber, e.TotalAmount);
+        await _handler.HandleAsync(e.OrderId, e.TenantId, e.OrderNumber, e.TotalAmount, ct).ConfigureAwait(false);
+    }
+}
+
 // InvoiceApprovedGLBridge + InvoiceCancelledReversalBridge → AccountingEventBridgeHandlers.cs (canonical)
