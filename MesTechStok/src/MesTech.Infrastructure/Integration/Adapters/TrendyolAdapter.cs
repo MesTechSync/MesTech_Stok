@@ -916,8 +916,7 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                                 {
                                     PlatformLineId = line.TryGetProperty("lineId", out var lid) ? lid.GetInt64().ToString()
                                         : line.TryGetProperty("id", out var lid2) ? lid2.GetInt64().ToString() : null,
-                                    SKU = line.TryGetProperty("merchantSku", out var sku) ? sku.GetString()
-                                        : line.TryGetProperty("stockCode", out var sc2) ? sc2.GetString() : null,
+                                    SKU = ResolveLineSku(line),
                                     Barcode = line.TryGetProperty("barcode", out var bc) ? bc.GetString() : null,
                                     ProductName = line.TryGetProperty("productName", out var pn) ? pn.GetString() ?? "" : "",
                                     Quantity = line.TryGetProperty("quantity", out var qty) ? qty.GetInt32() : 1,
@@ -942,6 +941,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             order.CargoTrackingNumber = ctn.ValueKind == JsonValueKind.String
                                 ? ctn.GetString()
                                 : ctn.ValueKind == JsonValueKind.Number ? ctn.GetInt64().ToString() : null;
+
+                        // Fatura linki — Trendyol tarafından oluşturulan fatura PDF'i
+                        if (item.TryGetProperty("invoiceLink", out var invLink))
+                            order.InvoiceLink = invLink.GetString();
 
                         // Müşteri email + adres
                         if (item.TryGetProperty("customerEmail", out var email))
@@ -3496,5 +3499,35 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
         product.SyncStock(item.TryGetProperty("quantity", out var q) ? q.GetInt32() : 0, "trendyol-delta-sync");
 
         return product;
+    }
+
+    /// <summary>
+    /// Line-level SKU resolution: merchantSku → stockCode → barcode.
+    /// Guard: stockCode="merchantSku" literal string → placeholder, barcode'a fallback.
+    /// </summary>
+    private static string? ResolveLineSku(JsonElement line)
+    {
+        // 1. merchantSku (Trendyol bazen null döndürür)
+        if (line.TryGetProperty("merchantSku", out var msku) && msku.ValueKind == JsonValueKind.String)
+        {
+            var val = msku.GetString();
+            if (!string.IsNullOrEmpty(val)) return val;
+        }
+
+        // 2. stockCode — ama "merchantSku" literal string'i placeholder'dır, kullanma
+        if (line.TryGetProperty("stockCode", out var sc) && sc.ValueKind == JsonValueKind.String)
+        {
+            var val = sc.GetString();
+            if (!string.IsNullOrEmpty(val) &&
+                !string.Equals(val, "merchantSku", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(val, "stockCode", StringComparison.OrdinalIgnoreCase))
+                return val;
+        }
+
+        // 3. barcode fallback
+        if (line.TryGetProperty("barcode", out var bc) && bc.ValueKind == JsonValueKind.String)
+            return bc.GetString();
+
+        return null;
     }
 }

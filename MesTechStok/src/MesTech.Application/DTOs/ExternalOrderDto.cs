@@ -37,6 +37,9 @@ public sealed class ExternalOrderDto
     public string? CargoProviderName { get; set; }
     public string? CargoTrackingNumber { get; set; }
 
+    // Fatura
+    public string? InvoiceLink { get; set; }
+
     // Tarihler
     public DateTime OrderDate { get; set; }
     public DateTime? LastModifiedDate { get; set; }
