@@ -16,6 +16,7 @@ COPY MesTech_Stok/MesTechStok/global.json ./global.json
 COPY MesTech_Stok/MesTechStok/MesTechStok.sln ./MesTechStok.sln
 COPY MesTech_Stok/MesTechStok/Directory.Build.props ./Directory.Build.props
 COPY MesTech_Stok/MesTechStok/Directory.Packages.props ./Directory.Packages.props
+COPY MesTech_Stok/MesTechStok/.editorconfig ./.editorconfig
 
 # Copy all project files for restore (csproj-only layer — changes rarely)
 COPY MesTech_Stok/MesTechStok/src/MesTech.Domain/MesTech.Domain.csproj ./src/MesTech.Domain/
