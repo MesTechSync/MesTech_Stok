@@ -765,6 +765,18 @@
                                 </StackPanel>
                             </Button>
 
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="360 Musteri Gorunumu"
+                                    AutomationProperties.Name="360 Musteri"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="Customer360"
+                                    IsVisible="{Binding ShowCrm}">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="PersonCircle" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="360° Müşteri"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- 10. PLATFORM -->
                             <TextBlock Classes="sidebar-section" Text="PLATFORM"
                                        IsVisible="{Binding ShowMultiPlatform}"/>
@@ -1863,6 +1875,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:PerformanceDashboardAvaloniaViewModel">
                             <views:PerformanceDashboardAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:Customer360AvaloniaViewModel">
+                            <views:Customer360AvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

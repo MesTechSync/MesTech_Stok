@@ -276,6 +276,7 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<ChequeAvaloniaViewModel>();
                 services.AddTransient<CommissionCompareAvaloniaViewModel>();
                 services.AddTransient<PerformanceDashboardAvaloniaViewModel>();
+                services.AddTransient<Customer360AvaloniaViewModel>();
                 services.AddTransient<ImportSettingsAvaloniaViewModel>();
                 services.AddTransient<ImportProductsAvaloniaViewModel>();
                 services.AddTransient<ProductVariantMatrixViewModel>();
