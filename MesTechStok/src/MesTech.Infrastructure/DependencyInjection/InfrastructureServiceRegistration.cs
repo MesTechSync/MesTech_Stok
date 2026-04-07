@@ -276,9 +276,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,
             MesTech.Infrastructure.Messaging.MassTransitMessagePublisher>();
 
-        // Encryption
-        var encryptionKey = configuration!["Security:EncryptionKey"]
-            ?? AesGcmEncryptionService.GenerateKey();
+        // Encryption — placeholder/invalid key ise ephemeral key üret (dev ortamı)
+        var encryptionKey = configuration!["Security:EncryptionKey"];
+        if (string.IsNullOrWhiteSpace(encryptionKey) || !IsValidBase64Key(encryptionKey))
+        {
+            encryptionKey = AesGcmEncryptionService.GenerateKey();
+        }
         services.AddSingleton(new AesGcmEncryptionService(encryptionKey));
 
         // JWT Token Service (Dalga 9 — Blazor SaaS authentication)
@@ -793,5 +796,18 @@ public static class InfrastructureServiceRegistration
             Persistence.Repositories.AccessLogRepository>();
 
         return services;
+    }
+
+    private static bool IsValidBase64Key(string value)
+    {
+        try
+        {
+            var bytes = Convert.FromBase64String(value);
+            return bytes.Length == 32; // AES-256 = 32 bytes
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
