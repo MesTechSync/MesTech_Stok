@@ -789,6 +789,10 @@ public static class IntegrationServiceRegistration
         services.AddScoped<Integration.Services.IProductMatchingService,
             Integration.Services.ProductMatchingService>();
 
+        // S4-DEV3: ERP cari hesap eşleştirme + sync hata yönetimi
+        services.AddSingleton<Integration.Services.IErpAccountMatchingService,
+            Integration.Services.ErpAccountMatchingService>();
+
         return services;
     }
 }
