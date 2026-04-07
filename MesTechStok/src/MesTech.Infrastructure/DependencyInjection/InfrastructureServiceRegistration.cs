@@ -554,6 +554,16 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Repositories.ProductMediaRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Reporting.IKpiSnapshotRepository,
             MesTech.Infrastructure.Persistence.Repositories.KpiSnapshotRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ITaxCalendarItemRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.TaxCalendarItemRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Reporting.IReportDefinitionRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ReportDefinitionRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.IErpFieldMappingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ErpFieldMappingRepository>();
+        services.AddScoped<IProductSpecificationRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ProductSpecificationRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.IPlatformAttributeValueMappingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.PlatformAttributeValueMappingRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IReconciliationMatchRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ReconciliationMatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingDocumentRepository,
