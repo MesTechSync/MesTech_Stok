@@ -246,6 +246,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "CommissionCompare" => "Komisyon Karsilastirma",
             "Customer360" => "360° Musteri",
             "CashRegister" => "Kasa Yonetimi",
+            "NewOrder" => "Yeni Siparis",
             "PerformanceDashboard" => "Performans Paneli",
             "ErpAccountMapping" => "ERP Hesap Esleme",
             "ErpDashboard" => "ERP Paneli",
@@ -285,7 +286,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
         {
             "AppHub" or "Dashboard" or "Welcome" or "Onboarding" => "Ana Sayfa",
             "Products" or "ImportProducts" or "BulkProduct" or "ProductVariantMatrix" or "ProductFetch" or "ProductDescriptionAI" or "Barcode" or "BarcodeScanner" or "BarcodeReader" or "Buybox" => "Urunler",
-            "Orders" or "OrderList" or "OrderDetail" or "OrderKanban" or "StaleOrders" => "Siparisler",
+            "Orders" or "OrderList" or "OrderDetail" or "OrderKanban" or "StaleOrders" or "NewOrder" => "Siparisler",
             "Stock" or "Inventory" or "StockMovement" or "StockPlacement" or "StockLot" or "StockTransfer" or "StockAlert" or "StockUpdate" or "StockTimeline" or "StockValueReport" or "Warehouse" or "WarehouseSummary" or "TransferWizard" => "Stok",
             "Category" or "CategoryMapping" => "Kategoriler",
             "CargoTracking" or "CargoProviders" or "BulkShipment" or "LabelPreview" or "Shipment" or "Cargo" => "Kargo",

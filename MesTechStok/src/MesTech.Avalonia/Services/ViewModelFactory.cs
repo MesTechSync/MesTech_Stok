@@ -155,6 +155,7 @@ public sealed class ViewModelFactory : IViewModelFactory, IDisposable
             "PerformanceDashboard" => sp.GetService<PerformanceDashboardAvaloniaViewModel>(),
             "Customer360" => sp.GetService<Customer360AvaloniaViewModel>(),
             "CashRegister" => sp.GetService<CashRegisterAvaloniaViewModel>(),
+            "NewOrder" => sp.GetService<NewOrderAvaloniaViewModel>(),
             "ImportSettings" => sp.GetService<ImportSettingsAvaloniaViewModel>(),
             "ImportProducts" => sp.GetService<ImportProductsAvaloniaViewModel>(),
             "ProductVariantMatrix" => sp.GetService<ProductVariantMatrixViewModel>(),

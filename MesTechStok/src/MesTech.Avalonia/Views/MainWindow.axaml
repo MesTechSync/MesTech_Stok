@@ -277,6 +277,17 @@
                                 </StackPanel>
                             </Button>
 
+                            <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Yeni Siparis Olustur"
+                                    AutomationProperties.Name="Yeni Siparis"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="NewOrder">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="Add" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="Yeni Sipariş"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- 4. STOK -->
                             <TextBlock Classes="sidebar-section" Text="STOK"/>
                             <Button Classes="sidebar-btn"
@@ -1892,6 +1903,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:CashRegisterAvaloniaViewModel">
                             <views:CashRegisterAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:NewOrderAvaloniaViewModel">
+                            <views:NewOrderAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

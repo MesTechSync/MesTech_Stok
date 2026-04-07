@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.NewOrderAvaloniaView"
+             x:DataType="vm:NewOrderAvaloniaViewModel"
+             AutomationProperties.Name="Yeni Siparis">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <TextBlock Text="Yeni Siparis Olustur" Foreground="{DynamicResource MesBgPrimary}"
+                       FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" />
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Padding="22,16">
+            <Border Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    Padding="24" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" MaxWidth="600">
+                <StackPanel Spacing="16">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Musteri Adi *" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBox Text="{Binding CustomerName}" Watermark="Musteri adi" AutomationProperties.Name="Musteri Adi" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="E-posta" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBox Text="{Binding CustomerEmail}" Watermark="ornek@email.com" AutomationProperties.Name="E-posta" />
+                    </StackPanel>
+                    <Grid ColumnDefinitions="*,16,*">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Siparis Turu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <ComboBox SelectedItem="{Binding OrderType}" ItemsSource="{Binding OrderTypeOptions}"
+                                      HorizontalAlignment="Stretch" AutomationProperties.Name="Siparis Turu" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Termin Tarihi" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                            <DatePicker SelectedDate="{Binding RequiredDate}" HorizontalAlignment="Stretch"
+                                        AutomationProperties.Name="Termin Tarihi" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Notlar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                        <TextBox Text="{Binding Notes}" Watermark="Siparis notlari" AcceptsReturn="True" Height="80"
+                                 TextWrapping="Wrap" AutomationProperties.Name="Notlar" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <Button Content="Siparis Olustur" Command="{Binding CreateOrderCommand}" ToolTip.Tip="Siparisi kaydet"
+                                Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                                FontWeight="SemiBold" Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}"
+                                IsEnabled="{Binding !IsSaving}" />
+                        <Button Content="Temizle" Command="{Binding ClearCommand}" ToolTip.Tip="Formu temizle"
+                                Padding="20,10" CornerRadius="{StaticResource MesRadiusBase}" />
+                    </StackPanel>
+
+                    <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding IsSaving}" />
+
+                    <TextBlock Text="{Binding ResultMessage}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MesTeal}"
+                               IsVisible="{Binding ResultMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <fa:InfoBar Grid.Row="0" Title="Hata" Message="{Binding ErrorMessage}" Severity="Error"
+                    IsOpen="{Binding HasError}" IsClosable="True" Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton><Button Content="Tekrar Dene" Command="{Binding CreateOrderCommand}" /></fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+    </Grid>
+</UserControl>
