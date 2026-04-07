@@ -1604,3 +1604,87 @@ public sealed class ReturnReceivedBridgeHandler
 }
 
 #endregion
+
+// ═══════════════════════════════════════════════════════════════
+// DEV1 — 10 kalan orphan event bridge (audit log)
+// ═══════════════════════════════════════════════════════════════
+
+public sealed class BankBalanceChangedBridge : INotificationHandler<DomainEventNotification<BankBalanceChangedEvent>>
+{
+    private readonly ILogger<BankBalanceChangedBridge> _l;
+    public BankBalanceChangedBridge(ILogger<BankBalanceChangedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<BankBalanceChangedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] BankBalanceChanged"); return Task.CompletedTask; }
+}
+
+public sealed class CariHesapCreatedBridge : INotificationHandler<DomainEventNotification<CariHesapCreatedEvent>>
+{
+    private readonly ILogger<CariHesapCreatedBridge> _l;
+    public CariHesapCreatedBridge(ILogger<CariHesapCreatedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<CariHesapCreatedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] CariHesapCreated — {Name}", n.DomainEvent.Name); return Task.CompletedTask; }
+}
+
+public sealed class CariHareketRecordedBridge : INotificationHandler<DomainEventNotification<CariHareketRecordedEvent>>
+{
+    private readonly ILogger<CariHareketRecordedBridge> _l;
+    public CariHareketRecordedBridge(ILogger<CariHareketRecordedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<CariHareketRecordedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] CariHareketRecorded — Amount={A}", n.DomainEvent.Amount); return Task.CompletedTask; }
+}
+
+public sealed class SettlementDisputedBridge : INotificationHandler<DomainEventNotification<SettlementDisputedEvent>>
+{
+    private readonly ILogger<SettlementDisputedBridge> _l;
+    public SettlementDisputedBridge(ILogger<SettlementDisputedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<SettlementDisputedEvent> n, CancellationToken ct)
+    { _l.LogWarning("[Event] SettlementDisputed — Batch={B}", n.DomainEvent.SettlementBatchId); return Task.CompletedTask; }
+}
+
+public sealed class CampaignCreatedBridge : INotificationHandler<DomainEventNotification<CampaignCreatedEvent>>
+{
+    private readonly ILogger<CampaignCreatedBridge> _l;
+    public CampaignCreatedBridge(ILogger<CampaignCreatedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<CampaignCreatedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] CampaignCreated — {Name}", n.DomainEvent.Name); return Task.CompletedTask; }
+}
+
+public sealed class InvoicePlatformSentBridge : INotificationHandler<DomainEventNotification<InvoicePlatformSentEvent>>
+{
+    private readonly ILogger<InvoicePlatformSentBridge> _l;
+    public InvoicePlatformSentBridge(ILogger<InvoicePlatformSentBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<InvoicePlatformSentEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] InvoicePlatformSent — {Id}", n.DomainEvent.InvoiceId); return Task.CompletedTask; }
+}
+
+public sealed class ReturnRejectedBridge : INotificationHandler<DomainEventNotification<ReturnRejectedEvent>>
+{
+    private readonly ILogger<ReturnRejectedBridge> _l;
+    public ReturnRejectedBridge(ILogger<ReturnRejectedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<ReturnRejectedEvent> n, CancellationToken ct)
+    { _l.LogWarning("[Event] ReturnRejected — {Id}", n.DomainEvent.ReturnRequestId); return Task.CompletedTask; }
+}
+
+public sealed class QuotationAcceptedBridge : INotificationHandler<DomainEventNotification<QuotationAcceptedEvent>>
+{
+    private readonly ILogger<QuotationAcceptedBridge> _l;
+    public QuotationAcceptedBridge(ILogger<QuotationAcceptedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<QuotationAcceptedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] QuotationAccepted — {Id}", n.DomainEvent.QuotationId); return Task.CompletedTask; }
+}
+
+public sealed class QuotationRejectedBridge : INotificationHandler<DomainEventNotification<QuotationRejectedEvent>>
+{
+    private readonly ILogger<QuotationRejectedBridge> _l;
+    public QuotationRejectedBridge(ILogger<QuotationRejectedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<QuotationRejectedEvent> n, CancellationToken ct)
+    { _l.LogWarning("[Event] QuotationRejected — {Id}", n.DomainEvent.QuotationId); return Task.CompletedTask; }
+}
+
+public sealed class QuotationConvertedBridge : INotificationHandler<DomainEventNotification<QuotationConvertedEvent>>
+{
+    private readonly ILogger<QuotationConvertedBridge> _l;
+    public QuotationConvertedBridge(ILogger<QuotationConvertedBridge> l) => _l = l;
+    public Task Handle(DomainEventNotification<QuotationConvertedEvent> n, CancellationToken ct)
+    { _l.LogInformation("[Event] QuotationConverted — Q={Q} Inv={I}", n.DomainEvent.QuotationId, n.DomainEvent.InvoiceId); return Task.CompletedTask; }
+}
