@@ -712,6 +712,22 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderPlacedCariHesapHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementReconciledNotificationHandler,
             Application.EventHandlers.SettlementReconciledNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementDisputedNotificationHandler,
+            Application.EventHandlers.SettlementDisputedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IBankBalanceChangedNotificationHandler,
+            Application.EventHandlers.BankBalanceChangedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICariHesapCreatedNotificationHandler,
+            Application.EventHandlers.CariHesapCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICariHareketRecordedNotificationHandler,
+            Application.EventHandlers.CariHareketRecordedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoicePlatformSentNotificationHandler,
+            Application.EventHandlers.InvoicePlatformSentNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IQuotationNotificationHandler,
+            Application.EventHandlers.QuotationNotificationHandlerImpl>();
+        services.AddScoped<Application.EventHandlers.IReturnRejectedNotificationHandler,
+            Application.EventHandlers.ReturnRejectedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICampaignCreatedNotificationHandler,
+            Application.EventHandlers.CampaignCreatedNotificationHandler>();
         services.AddScoped<Application.EventHandlers.ISettlementImportedOrderPaymentHandler,
             Application.EventHandlers.SettlementImportedOrderPaymentHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
