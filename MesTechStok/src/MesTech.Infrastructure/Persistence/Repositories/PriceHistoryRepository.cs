@@ -18,6 +18,7 @@ public sealed class PriceHistoryRepository : IPriceHistoryRepository
         => await _context.PriceHistories
             .Where(ph => ph.ProductId == productId)
             .OrderByDescending(ph => ph.ChangedAt)
+            .Take(1000) // G485: pagination guard — OOM onleme
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);
