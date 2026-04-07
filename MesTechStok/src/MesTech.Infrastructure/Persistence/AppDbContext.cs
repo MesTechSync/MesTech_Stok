@@ -105,6 +105,8 @@ public class AppDbContext : DbContext
     public DbSet<MesTech.Domain.Accounting.Entities.TaxCalendarItem> TaxCalendarItems => Set<MesTech.Domain.Accounting.Entities.TaxCalendarItem>();
     public DbSet<MesTech.Domain.Entities.Finance.Cheque> Cheques => Set<MesTech.Domain.Entities.Finance.Cheque>();
     public DbSet<MesTech.Domain.Entities.Finance.PromissoryNote> PromissoryNotes => Set<MesTech.Domain.Entities.Finance.PromissoryNote>();
+    public DbSet<MesTech.Domain.Entities.Reporting.KpiSnapshot> KpiSnapshots => Set<MesTech.Domain.Entities.Reporting.KpiSnapshot>();
+    public DbSet<MesTech.Domain.Entities.Reporting.ReportDefinition> ReportDefinitions => Set<MesTech.Domain.Entities.Reporting.ReportDefinition>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
