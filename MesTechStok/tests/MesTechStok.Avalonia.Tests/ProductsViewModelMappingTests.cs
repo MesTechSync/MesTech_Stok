@@ -3,6 +3,7 @@ using FluentAssertions;
 using MediatR;
 using MesTech.Application.DTOs;
 using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Queries.GetCategories;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Common;
@@ -28,6 +29,10 @@ public class ProductsViewModelMappingTests
     public ProductsViewModelMappingTests()
     {
         _userMock.Setup(u => u.TenantId).Returns(TenantId);
+        // GetCategoriesQuery mock — ProductsVM.LoadAsync category lookup için gerekli
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCategoriesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CategoryListDto>().AsReadOnly() as IReadOnlyList<CategoryListDto>);
     }
 
     private ProductsAvaloniaViewModel CreateVM() => new(_mediatorMock.Object, _userMock.Object, _toastMock.Object);

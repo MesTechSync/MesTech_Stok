@@ -1,7 +1,10 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MediatR;
-using MesTech.Application.Features.Dashboard.Queries.GetTopProducts;
+using MesTech.Application.DTOs;
+using MesTech.Application.Features.Product.Queries.GetProducts;
+using MesTech.Application.Queries.GetCategories;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -14,9 +17,14 @@ public class ProductsAvaloniaViewModelTests
 
     private ProductsAvaloniaViewModel CreateSut()
     {
+        // GetProductsQuery mock — empty result
         _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetTopProductsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<TopProductDto>().AsReadOnly());
+            .Setup(m => m.Send(It.IsAny<GetProductsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PagedResult<ProductDto>.Empty());
+        // GetCategoriesQuery mock — empty categories
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetCategoriesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CategoryListDto>().AsReadOnly() as IReadOnlyList<CategoryListDto>);
         return new ProductsAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>(), Mock.Of<MesTech.Avalonia.Services.IToastService>());
     }
 
