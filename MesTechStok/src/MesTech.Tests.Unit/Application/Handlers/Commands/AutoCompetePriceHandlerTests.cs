@@ -18,7 +18,7 @@ public class AutoCompetePriceHandlerTests
     private readonly Mock<ILogger<AutoCompetePriceHandler>> _loggerMock = new();
 
     private AutoCompetePriceHandler CreateHandler() =>
-        new(_buyboxMock.Object, _adapterFactoryMock.Object, _productRepoMock.Object, _loggerMock.Object);
+        new(_buyboxMock.Object, _adapterFactoryMock.Object, _productRepoMock.Object, Mock.Of<IUnitOfWork>(), _loggerMock.Object);
 
     private static AutoCompetePriceCommand CreateCommand(
         Guid? productId = null, decimal floorPrice = 50m, decimal maxDiscount = 5m) =>

@@ -38,6 +38,7 @@ public class AutoCompetePriceHandlerBatchTests
             _buyboxMock.Object,
             _adapterFactoryMock.Object,
             _productRepoMock.Object,
+            Mock.Of<IUnitOfWork>(),
             Mock.Of<ILogger<AutoCompetePriceHandler>>());
     }
 
