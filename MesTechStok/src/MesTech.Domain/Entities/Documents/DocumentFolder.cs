@@ -14,6 +14,7 @@ public sealed class DocumentFolder : BaseEntity, ITenantEntity
     public static DocumentFolder Create(Guid tenantId, string name,
         Guid? parentFolderId = null, int position = 0, bool isSystem = false)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new DocumentFolder
         {

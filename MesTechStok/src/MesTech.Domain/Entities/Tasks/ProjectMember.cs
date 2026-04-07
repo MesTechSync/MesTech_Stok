@@ -14,5 +14,8 @@ public sealed class ProjectMember : BaseEntity, ITenantEntity
     private ProjectMember() { }
 
     public static ProjectMember Create(Guid tenantId, Guid projectId, Guid userId, string role = "Member")
-        => new() { Id = Guid.NewGuid(), TenantId = tenantId, ProjectId = projectId, UserId = userId, Role = role, CreatedAt = DateTime.UtcNow };
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        return new() { Id = Guid.NewGuid(), TenantId = tenantId, ProjectId = projectId, UserId = userId, Role = role, CreatedAt = DateTime.UtcNow };
+    }
 }

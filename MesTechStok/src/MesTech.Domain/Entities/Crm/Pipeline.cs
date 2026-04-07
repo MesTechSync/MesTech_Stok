@@ -16,6 +16,7 @@ public sealed class Pipeline : BaseEntity, ITenantEntity
 
     public static Pipeline Create(Guid tenantId, string name, bool isDefault, int position)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new Pipeline
         {

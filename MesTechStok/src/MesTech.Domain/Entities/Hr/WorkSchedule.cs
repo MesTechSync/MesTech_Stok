@@ -17,6 +17,7 @@ public sealed class WorkSchedule : BaseEntity, ITenantEntity
     public static WorkSchedule Create(Guid tenantId, Guid employeeId,
         DayOfWeek dayOfWeek, TimeSpan startTime, TimeSpan endTime, bool isWorkDay = true)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         if (isWorkDay && endTime <= startTime)
             throw new ArgumentException("End time must be after start time on work days.", nameof(endTime));
         return new WorkSchedule

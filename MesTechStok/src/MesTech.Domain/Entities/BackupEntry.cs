@@ -19,6 +19,7 @@ public sealed class BackupEntry : BaseEntity, ITenantEntity
 
     public static BackupEntry Create(Guid tenantId, string fileName)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         return new BackupEntry
         {
