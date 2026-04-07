@@ -24,6 +24,7 @@ public sealed class ExpenseCategory : BaseEntity, ITenantEntity
         string? code = null,
         Guid? parentId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         return new ExpenseCategory

@@ -23,6 +23,7 @@ public sealed class AccountingSupplierAccount : BaseEntity, ITenantEntity
         string name,
         string currency = "TRY")
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         return new AccountingSupplierAccount

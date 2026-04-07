@@ -37,6 +37,7 @@ public sealed class SettlementLine : BaseEntity, ITenantEntity
         decimal netAmount,
         decimal vatAmount = 0m)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         return new SettlementLine
         {
             Id = Guid.NewGuid(),

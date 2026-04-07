@@ -56,6 +56,7 @@ public sealed class BaBsRecord : BaseEntity, ITenantEntity
         decimal totalAmount,
         int documentCount)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         if (month < 1 || month > 12)
             throw new ArgumentOutOfRangeException(nameof(month), "Ay 1-12 araliginda olmalidir.");
         if (year < 2000 || year > 2100)

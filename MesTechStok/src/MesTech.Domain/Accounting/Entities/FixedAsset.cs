@@ -55,6 +55,7 @@ public sealed class FixedAsset : BaseEntity, ITenantEntity
         DepreciationMethod method,
         string? description = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(assetCode);
 

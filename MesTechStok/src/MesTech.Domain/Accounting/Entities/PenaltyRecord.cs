@@ -36,6 +36,7 @@ public sealed class PenaltyRecord : BaseEntity, ITenantEntity
         string currency = "TRY",
         string? notes = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
         if (amount <= 0)
             throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");

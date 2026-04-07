@@ -44,6 +44,7 @@ public sealed class DropshipProduct : BaseEntity, ITenantEntity
         decimal originalPrice,
         int stockQuantity)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(externalProductId);
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (originalPrice <= 0)

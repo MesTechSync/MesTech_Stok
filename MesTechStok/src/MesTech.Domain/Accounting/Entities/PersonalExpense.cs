@@ -28,6 +28,7 @@ public sealed class PersonalExpense : BaseEntity, ITenantEntity
         ExpenseSource source,
         string? category = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (amount <= 0)
             throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");

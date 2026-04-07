@@ -32,6 +32,7 @@ public sealed class ProfitReport : BaseEntity, ITenantEntity
         decimal totalTax,
         string? platform = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(period);
 
         var netProfit = totalRevenue - totalCost - totalCommission - totalCargo - totalTax;

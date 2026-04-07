@@ -39,6 +39,7 @@ public sealed class AccountingDocument : BaseEntity, ITenantEntity
         decimal? amount = null,
         string? extractedData = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentException.ThrowIfNullOrWhiteSpace(storagePath);
 
