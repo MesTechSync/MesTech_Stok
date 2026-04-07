@@ -70,9 +70,14 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         else if (!Guid.TryParse(uuid, out _))
             errors.Add($"UUID geçerli bir GUID formatında olmalı: '{uuid}'.");
 
-        // 6. IssueDate
-        if (string.IsNullOrWhiteSpace(root.Element(Cbc + "IssueDate")?.Value))
+        // 6. IssueDate — gelecek tarih YASAK (Şematron 2025)
+        var issueDateStr = root.Element(Cbc + "IssueDate")?.Value;
+        if (string.IsNullOrWhiteSpace(issueDateStr))
             errors.Add("IssueDate zorunlu alan eksik.");
+        else if (DateTime.TryParse(issueDateStr, System.Globalization.CultureInfo.InvariantCulture,
+                     System.Globalization.DateTimeStyles.None, out var issueDate)
+                 && issueDate.Date > DateTime.UtcNow.Date.AddDays(1))
+            errors.Add($"IssueDate gelecek tarih olamaz: {issueDateStr}. GİB Şematron 2025 kuralı.");
 
         // 7. IssueTime — GİB UBL-TR 1.2.1 zorunlu
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "IssueTime")?.Value))
@@ -82,8 +87,9 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         var typeCode = root.Element(Cbc + "InvoiceTypeCode")?.Value;
         if (string.IsNullOrWhiteSpace(typeCode))
             errors.Add("InvoiceTypeCode zorunlu alan eksik.");
-        else if (typeCode is not ("SATIS" or "IADE" or "TEVKIFAT" or "ISTISNA" or "OZELMATRAH" or "IHRACKAYITLI"))
-            errors.Add($"InvoiceTypeCode geçersiz: '{typeCode}'. GİB geçerli değerler: SATIS/IADE/TEVKIFAT/ISTISNA/OZELMATRAH/IHRACKAYITLI.");
+        else if (typeCode is not ("SATIS" or "IADE" or "TEVKIFAT" or "ISTISNA" or "OZELMATRAH"
+                 or "IHRACKAYITLI" or "YTBSATIS" or "YTBISTISNA" or "YTBIADE"))
+            errors.Add($"InvoiceTypeCode geçersiz: '{typeCode}'. GİB geçerli değerler: SATIS/IADE/TEVKIFAT/ISTISNA/OZELMATRAH/IHRACKAYITLI/YTBSATIS/YTBISTISNA/YTBIADE.");
 
         // 9. DocumentCurrencyCode
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "DocumentCurrencyCode")?.Value))
