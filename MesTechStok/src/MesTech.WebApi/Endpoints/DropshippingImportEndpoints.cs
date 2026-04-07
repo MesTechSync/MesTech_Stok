@@ -85,6 +85,51 @@ public static class DropshippingImportEndpoints
         .WithName("GetPoolProductReliability")
         .WithSummary("Havuz ürün güvenilirlik skoru — 4 boyutlu (tedarikçi/kalite/satış/lojistik)")
         .Produces(200);
+
+        // GET /api/v1/dropshipping/pool/products/{id}/media — ürün medya listesi (D12-23)
+        poolGroup.MapGet("/products/{id:guid}/media", async (
+            Guid id,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var media = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToListAsync(
+                    System.Linq.Queryable.Where(
+                        Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                            .AsNoTracking(db.ProductMedia),
+                        m => m.ProductId == id),
+                    ct);
+
+            return Results.Ok(new
+            {
+                productId = id,
+                total = media.Count,
+                images = media.Where(m => m.Type == MesTech.Domain.Entities.MediaType.Image)
+                    .OrderBy(m => m.SortOrder)
+                    .Select(m => new { m.Id, m.Url, m.ThumbnailUrl, m.AltText, m.SortOrder }),
+                videos = media.Where(m => m.Type == MesTech.Domain.Entities.MediaType.Video)
+                    .Select(m => new { m.Id, m.Url, m.DurationSeconds }),
+                certificates = media.Where(m => m.Type == MesTech.Domain.Entities.MediaType.Certificate)
+                    .Select(m => new { m.Id, m.Url, m.AltText })
+            });
+        })
+        .WithName("GetPoolProductMedia")
+        .WithSummary("Havuz ürün medya listesi — görsel, video, sertifika (D12-23)")
+        .Produces(200);
+
+        // GET /api/v1/dropshipping/pool/products/{id}/variants — ürün varyantları (D12-23)
+        poolGroup.MapGet("/products/{id:guid}/variants", async (
+            Guid id,
+            Guid tenantId,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Product.Queries.GetProductVariants.GetProductVariantsQuery(tenantId, id), ct);
+            return Results.Ok(new { productId = id, variants = result });
+        })
+        .WithName("GetPoolProductVariants")
+        .WithSummary("Havuz ürün varyant matrisi — renk/beden/barkod/fiyat (D12-23)")
+        .Produces(200);
     }
 
     public record ImportTriggerRequest(
