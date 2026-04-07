@@ -93,5 +93,33 @@ public static class CalendarEndpoints
         .WithName("GenerateTaxCalendar")
         .WithSummary("Yillik vergi takvimi olustur (~40 etkinlik: KDV, SGK, Ba-Bs, Gecici Vergi, Yillik)").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/calendar/upcoming?days=7 — yaklaşan takvim etkinlikleri (S1-DEV6-03)
+        group.MapGet("/upcoming", async (
+            int? days,
+            Guid tenantId,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var horizon = DateTime.UtcNow.AddDays(days ?? 7);
+            var events = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToListAsync(
+                    System.Linq.Queryable.OrderBy(
+                        System.Linq.Queryable.Where(
+                            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                                .AsNoTracking(db.CalendarEvents),
+                            e => e.TenantId == tenantId && e.StartAt >= DateTime.UtcNow && e.StartAt <= horizon),
+                        e => e.StartAt),
+                    ct);
+
+            return Results.Ok(new { daysAhead = days ?? 7, total = events.Count, events = events.Select(e => new
+            {
+                e.Id, e.Title, e.StartAt, e.EndAt, eventType = e.Type.ToString(), e.Description
+            }) });
+        })
+        .WithName("GetUpcomingCalendarEvents")
+        .WithSummary("Yaklaşan takvim etkinlikleri — vergi, toplantı, deadline (S1-DEV6-03)")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
     }
 }
