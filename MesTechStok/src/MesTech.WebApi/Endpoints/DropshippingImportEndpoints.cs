@@ -130,10 +130,66 @@ public static class DropshippingImportEndpoints
         .WithName("GetPoolProductVariants")
         .WithSummary("Havuz ürün varyant matrisi — renk/beden/barkod/fiyat (D12-23)")
         .Produces(200);
+
+        // POST /api/v1/dropshipping/pool/products/{id}/import-to-stock — havuzdan stoğa aktar (D12-23)
+        poolGroup.MapPost("/products/{id:guid}/import-to-stock", async (
+            Guid id,
+            ImportToStockRequest request,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            var poolProduct = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(
+                    Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                        .Include(db.Set<MesTech.Domain.Entities.DropshippingPoolProduct>(), p => p.Product),
+                    p => p.Id == id, ct);
+
+            if (poolProduct is null)
+                return Results.Problem(detail: $"Havuz ürünü {id} bulunamadı.", statusCode: 404);
+
+            if (poolProduct.Product is null)
+                return Results.Problem(detail: "Havuz ürününe bağlı kaynak ürün bulunamadı.", statusCode: 400);
+
+            var source = poolProduct.Product;
+            var createResult = await mediator.Send(
+                new MesTech.Application.Commands.CreateProduct.CreateProductCommand(
+                    Name: source.Name,
+                    SKU: $"DS-{source.SKU}",
+                    Barcode: source.Barcode,
+                    PurchasePrice: poolProduct.PoolPrice * 0.7m,
+                    SalePrice: poolProduct.PoolPrice,
+                    CategoryId: source.CategoryId,
+                    Description: source.Description,
+                    Brand: source.Brand,
+                    ImageUrl: source.ImageUrl,
+                    MinimumStock: request.InitialStock > 0 ? 5 : 0,
+                    SyncToPlatforms: request.SyncToPlatforms), ct);
+
+            if (!createResult.IsSuccess)
+                return Results.Problem(detail: createResult.ErrorMessage, statusCode: 400);
+
+            // Link pool product → new stock product
+            await mediator.Send(
+                new MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct.LinkDropshipProductCommand(
+                    request.TenantId, poolProduct.ProductId, createResult.ProductId), ct);
+
+            return Results.Created($"/api/v1/products/{createResult.ProductId}",
+                new { productId = createResult.ProductId, poolProductId = id, linked = true });
+        })
+        .WithName("ImportPoolProductToStock")
+        .WithSummary("Havuz ürününü stoğa aktar — yeni ürün oluştur + link (D12-23)")
+        .Produces(201).Produces(400).Produces(404)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     public record ImportTriggerRequest(
         Guid TenantId,
         string PlatformCode,
         string SyncType = "QuickDelta");
+
+    public record ImportToStockRequest(
+        Guid TenantId,
+        int InitialStock = 0,
+        bool SyncToPlatforms = false);
 }
