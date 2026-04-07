@@ -620,6 +620,10 @@ public static class InfrastructureServiceRegistration
         // ── Bank Statement Import Service ──
         services.AddScoped<BankStatementImportService>();
 
+        // ── S2-DEV3: KPI + ABC Rapor Servisleri ──
+        services.AddScoped<Services.Reporting.IKpiAggregationService, Services.Reporting.KpiAggregationService>();
+        services.AddScoped<Services.Reporting.IAbcAnalysisService, Services.Reporting.AbcAnalysisService>();
+
         // ── Field Encryption Service ──
         services.AddSingleton<IFieldEncryptionService, FieldEncryptionService>();
 
