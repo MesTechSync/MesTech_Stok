@@ -185,4 +185,15 @@ public class LeadItemVm
     public string Status { get; set; } = string.Empty;
     public string Source { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+
+    // S3-DEV2-02: Lead Scoring
+    public int? Score { get; set; }
+    public string ScoreDisplay => Score.HasValue ? $"{Score.Value}/100" : "-";
+    public string ScoreColor => Score switch
+    {
+        >= 70 => "#10B981",
+        >= 40 => "#F59E0B",
+        > 0 => "#EF4444",
+        _ => "#64748B"
+    };
 }
