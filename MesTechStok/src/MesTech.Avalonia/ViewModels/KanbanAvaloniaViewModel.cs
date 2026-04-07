@@ -98,7 +98,7 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task SwitchToList()
     {
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Liste gorunumune gecmek icin sol menuden 'Siparisler' ekranini kullanin.", "MesTech");
     }
 }
 
