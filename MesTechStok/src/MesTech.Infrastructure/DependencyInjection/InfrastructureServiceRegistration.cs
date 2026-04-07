@@ -548,6 +548,12 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.VatDeclarationRepository>();
         services.AddScoped<IChequeRepository,
             MesTech.Infrastructure.Persistence.Repositories.Finance.ChequeRepository>();
+        services.AddScoped<IPromissoryNoteRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Finance.PromissoryNoteRepository>();
+        services.AddScoped<IProductMediaRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ProductMediaRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Reporting.IKpiSnapshotRepository,
+            MesTech.Infrastructure.Persistence.Repositories.KpiSnapshotRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IReconciliationMatchRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ReconciliationMatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingDocumentRepository,
