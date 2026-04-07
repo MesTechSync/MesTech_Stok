@@ -144,30 +144,9 @@ builder.Services.AddCors(options =>
 // ── Onboarding ──
 builder.Services.AddScoped<OnboardingService>();
 
-// ── Health Checks (Docker + Kubernetes + Prometheus /health endpoint) ──
+// ── Health Checks — postgresql/redis/rabbitmq/mesa/minio zaten Infrastructure'dan geliyor.
+// Blazor sadece WebAPI URL check ekler (duplicate registration önleme).
 builder.Services.AddHealthChecks()
-    .AddNpgSql(
-        builder.Configuration.GetConnectionString("DefaultConnection")!,
-        name: "postgresql",
-        tags: new[] { "db", "ready" })
-    .AddRedis(
-        builder.Configuration.GetConnectionString("Redis") ?? "localhost:3679",
-        name: "redis",
-        tags: new[] { "cache", "ready" })
-    .AddRabbitMQ(
-        sp =>
-        {
-            var factory = new RabbitMQ.Client.ConnectionFactory
-            {
-                HostName = builder.Configuration["RabbitMQ:Host"] ?? "localhost",
-                Port = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672"),
-                UserName = builder.Configuration["RabbitMQ:Username"] ?? "guest",
-                Password = builder.Configuration["RabbitMQ:Password"] ?? "guest"
-            };
-            return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-        },
-        name: "rabbitmq",
-        tags: new[] { "messaging", "ready" })
     .AddUrlGroup(
         new Uri($"{builder.Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100"}/health"),
         name: "webapi",
