@@ -1,0 +1,157 @@
+@page "/reports/commission"
+@attribute [Authorize(Roles = "Admin,Accountant")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<CommissionComparison> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Komisyon Karsilastirma</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#f97316,#ea580c)">
+      <i class="fas fa-percentage text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Komisyon Karsilastirma</h3>
+      <small class="text-muted">Platform komisyon oranlari ve maliyet analizi</small>
+    </div>
+    <div class="ms-auto">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-success" @onclick="ExportExcel">
+          <i class="fas fa-file-excel me-1"></i>Excel
+        </button>
+        <button class="btn btn-outline-danger" @onclick="ExportPdf">
+          <i class="fas fa-file-pdf me-1"></i>PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <!-- Donem secimi -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <label class="form-label">Baslangic</label>
+        <input type="date" class="form-control" @bind="startDate" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Bitis</label>
+        <input type="date" class="form-control" @bind="endDate" />
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-primary" @onclick="LoadData"><i class="fas fa-sync me-1"></i>Hesapla</button>
+      </div>
+    </div>
+
+    <!-- Platform karsilastirma tablosu -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Platform Komisyon Karsilastirmasi</strong>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Platform</th>
+              <th class="text-end">Satis Tutari</th>
+              <th class="text-end">Komisyon %</th>
+              <th class="text-end">Komisyon Tutari</th>
+              <th class="text-end">Kargo Maliyeti</th>
+              <th class="text-end">Net Gelir</th>
+              <th class="text-end">Net Marj %</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var row in rows.OrderByDescending(r => r.NetMargin))
+            {
+              <tr>
+                <td><strong>@row.Platform</strong></td>
+                <td class="text-end">@row.SalesTotal.ToString("N0") TL</td>
+                <td class="text-end">%@row.CommissionRate.ToString("F1")</td>
+                <td class="text-end text-danger">@row.CommissionAmount.ToString("N0") TL</td>
+                <td class="text-end text-warning">@row.ShippingCost.ToString("N0") TL</td>
+                <td class="text-end text-success">@row.NetIncome.ToString("N0") TL</td>
+                <td class="text-end">
+                  <span class="badge bg-@(row.NetMargin >= 15 ? "success" : row.NetMargin >= 10 ? "warning" : "danger")">
+                    %@row.NetMargin.ToString("F1")
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <td><strong>TOPLAM</strong></td>
+              <td class="text-end"><strong>@rows.Sum(r => r.SalesTotal).ToString("N0") TL</strong></td>
+              <td></td>
+              <td class="text-end text-danger"><strong>@rows.Sum(r => r.CommissionAmount).ToString("N0") TL</strong></td>
+              <td class="text-end text-warning"><strong>@rows.Sum(r => r.ShippingCost).ToString("N0") TL</strong></td>
+              <td class="text-end text-success"><strong>@rows.Sum(r => r.NetIncome).ToString("N0") TL</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private DateTime startDate = DateTime.Today.AddMonths(-1);
+    private DateTime endDate = DateTime.Today;
+    private List<CommissionRow> rows = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        isLoading = false;
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<CommissionRow>>(
+                $"reports/commission/comparison?from={startDate:yyyy-MM-dd}&to={endDate:yyyy-MM-dd}");
+            if (result.IsSuccess && result.Data is not null)
+                rows = result.Data;
+            else { _isDemoMode = true; LoadDemoData(); }
+        }
+        catch { _isDemoMode = true; LoadDemoData(); }
+    }
+
+    private void LoadDemoData()
+    {
+        rows = new()
+        {
+            new("Trendyol", 185000m, 18.5m, 34225m, 12500m, 138275m, 74.7m),
+            new("Hepsiburada", 92000m, 15.0m, 13800m, 8200m, 70000m, 76.1m),
+            new("N11", 45000m, 12.0m, 5400m, 4100m, 35500m, 78.9m),
+            new("Ciceksepeti", 28000m, 20.0m, 5600m, 2800m, 19600m, 70.0m),
+            new("Amazon", 62000m, 15.0m, 9300m, 7500m, 45200m, 72.9m),
+        };
+    }
+
+    private Task ExportExcel() => ExportReport("excel");
+    private Task ExportPdf() => ExportReport("pdf");
+
+    private async Task ExportReport(string format)
+    {
+        try { await ApiClient.SafeGetAsync<object>($"reports/commission/export?format={format}&from={startDate:yyyy-MM-dd}&to={endDate:yyyy-MM-dd}"); }
+        catch (Exception ex) { Logger.LogWarning(ex, "Export failed"); }
+    }
+
+    private sealed record CommissionRow(
+        string Platform, decimal SalesTotal, decimal CommissionRate,
+        decimal CommissionAmount, decimal ShippingCost, decimal NetIncome, decimal NetMargin);
+}
