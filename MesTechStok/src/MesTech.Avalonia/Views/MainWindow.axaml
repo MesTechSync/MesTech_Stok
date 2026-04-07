@@ -1827,19 +1827,7 @@
                         <DataTemplate DataType="vm:SettlementAvaloniaViewModel">
                             <views:SettlementAvaloniaView />
                         </DataTemplate>
-                        <!-- D12: Missing DataTemplates — Accounting sub-namespace views -->
-                        <DataTemplate DataType="acctvm:FixedAssetAvaloniaViewModel">
-                            <acctviews:FixedAssetAvaloniaView />
-                        </DataTemplate>
-                        <DataTemplate DataType="acctvm:FixedExpenseAvaloniaViewModel">
-                            <acctviews:FixedExpenseAvaloniaView />
-                        </DataTemplate>
-                        <DataTemplate DataType="acctvm:PenaltyAvaloniaViewModel">
-                            <acctviews:PenaltyAvaloniaView />
-                        </DataTemplate>
-                        <DataTemplate DataType="acctvm:TaxRecordAvaloniaViewModel">
-                            <acctviews:TaxRecordAvaloniaView />
-                        </DataTemplate>
+                        <!-- D12: FixedAsset/Expense/Penalty/TaxRecord DataTemplates zaten satir 1480-1492'de mevcut -->
                     </ContentControl.DataTemplates>
                 </ContentControl>
             </DockPanel>
