@@ -214,6 +214,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IFeedSyncJobService, MesTech.Infrastructure.Jobs.FeedSyncJobService>();
         services.AddScoped<IFeedReliabilityScoreService, MesTech.Infrastructure.Services.FeedReliabilityScoreServiceAdapter>();
         services.AddScoped<IProductReliabilityCalculator, MesTech.Infrastructure.Services.ProductReliabilityCalculator>(); // D12-24: 4 boyutlu güvenilirlik
+        services.AddSingleton<MesTech.Infrastructure.Integration.Services.IPlatformSyncIssueService, MesTech.Infrastructure.Integration.Services.PlatformSyncIssueService>(); // D12-22: Sync issues
 
         // Dropship Feed Fetcher (K1d-05 — SyncDropshipProducts handler icin)
         services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipFeedFetcher,
