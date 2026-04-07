@@ -39,6 +39,9 @@ public class ReturnListAvaloniaViewModelTests
         currentUserMock.Setup(u => u.TenantId).Returns(TestTenantId);
 
         _sut = new ReturnListAvaloniaViewModel(_mediatorMock.Object, currentUserMock.Object);
+        // Constructor "Bu Ay" filtresi uygular — test verileri Mart 2026 olduğu için
+        // "Tumu" seçerek tarih filtresini kaldır
+        _sut.SelectedDateRange = "Tumu";
     }
 
     [Fact]
