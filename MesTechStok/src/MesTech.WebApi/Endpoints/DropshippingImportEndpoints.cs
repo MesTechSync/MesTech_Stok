@@ -193,12 +193,17 @@ public static class DropshippingImportEndpoints
                 return Results.Problem(detail: "Havuz ürününe bağlı kaynak ürün bulunamadı.", statusCode: 400);
 
             var source = poolProduct.Product;
+            // SKU benzersizlik: DS-{SKU}-{timestamp} (çakışma önleme)
+            var uniqueSku = $"DS-{source.SKU}-{DateTime.UtcNow:yyMMddHHmm}";
+            // PurchasePrice: request'ten marj oranı veya default %70
+            var purchasePrice = poolProduct.PoolPrice * (request.MarginRate > 0 ? (1 - request.MarginRate) : 0.7m);
+
             var createResult = await mediator.Send(
                 new MesTech.Application.Commands.CreateProduct.CreateProductCommand(
                     Name: source.Name,
-                    SKU: $"DS-{source.SKU}",
+                    SKU: uniqueSku,
                     Barcode: source.Barcode,
-                    PurchasePrice: poolProduct.PoolPrice * 0.7m,
+                    PurchasePrice: purchasePrice,
                     SalePrice: poolProduct.PoolPrice,
                     CategoryId: source.CategoryId,
                     Description: source.Description,
@@ -210,10 +215,19 @@ public static class DropshippingImportEndpoints
             if (!createResult.IsSuccess)
                 return Results.Problem(detail: createResult.ErrorMessage, statusCode: 400);
 
-            // Link pool product → new stock product
-            await mediator.Send(
-                new MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct.LinkDropshipProductCommand(
-                    request.TenantId, poolProduct.ProductId, createResult.ProductId), ct);
+            // Link pool product → new stock product (best-effort — CreateProduct already committed)
+            try
+            {
+                await mediator.Send(
+                    new MesTech.Application.Features.Dropshipping.Commands.LinkDropshipProduct.LinkDropshipProductCommand(
+                        request.TenantId, poolProduct.ProductId, createResult.ProductId), ct);
+            }
+            catch (Exception)
+            {
+                // Link failed but product created — return partial success
+                return Results.Ok(new { productId = createResult.ProductId, poolProductId = id, linked = false,
+                    warning = "Ürün oluşturuldu ama link başarısız — manuel eşleştirme gerekli" });
+            }
 
             return Results.Created($"/api/v1/products/{createResult.ProductId}",
                 new { productId = createResult.ProductId, poolProductId = id, linked = true });
@@ -232,7 +246,8 @@ public static class DropshippingImportEndpoints
     public record ImportToStockRequest(
         Guid TenantId,
         int InitialStock = 0,
-        bool SyncToPlatforms = false);
+        bool SyncToPlatforms = false,
+        decimal MarginRate = 0);
 
     public record ResolveIssueRequest(string Resolution, string? NewBarcode = null);
 }
