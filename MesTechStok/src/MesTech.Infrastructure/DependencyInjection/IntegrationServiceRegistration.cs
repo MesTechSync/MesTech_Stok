@@ -785,6 +785,10 @@ public static class IntegrationServiceRegistration
         services.AddSingleton<Integration.Services.IPlatformSyncIssueService,
             Integration.Services.PlatformSyncIssueService>();
 
+        // S3-DEV3-02: Ürün eşleştirme servisi
+        services.AddScoped<Integration.Services.IProductMatchingService,
+            Integration.Services.ProductMatchingService>();
+
         return services;
     }
 }
