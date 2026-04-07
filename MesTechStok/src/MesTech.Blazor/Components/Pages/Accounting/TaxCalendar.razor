@@ -1,0 +1,144 @@
+@page "/accounting/tax-calendar"
+@attribute [Authorize(Roles = "Admin,Accountant")]
+@using Microsoft.AspNetCore.Authorization
+@inject ILogger<TaxCalendar> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Vergi Takvimi</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#f59e0b,#d97706)">
+      <i class="fas fa-calendar-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Vergi Takvimi @selectedYear</h3>
+      <small class="text-muted">Turkiye vergi beyanname ve odeme tarihleri</small>
+    </div>
+    <div class="ms-auto">
+      <select class="form-select form-select-sm" style="width:100px" @bind="selectedYear">
+        @for (int y = DateTime.Now.Year + 1; y >= 2024; y--)
+        {
+          <option value="@y">@y</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    @foreach (var month in taxEvents.GroupBy(e => e.Month))
+    {
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0">
+            <strong>@GetMonthName(month.Key)</strong>
+            <span class="badge bg-info float-end">@month.Count() beyanname</span>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              @foreach (var evt in month.OrderBy(e => e.Day))
+              {
+                var isPast = new DateTime(selectedYear, evt.Month, evt.Day) < DateTime.Today;
+                <li class="list-group-item d-flex justify-content-between align-items-center @(isPast ? "bg-light" : "")">
+                  <div>
+                    <span class="badge bg-@(evt.TypeColor) me-2">@evt.Day</span>
+                    <span class="@(isPast ? "text-muted text-decoration-line-through" : "")">@evt.Description</span>
+                  </div>
+                  @if (isPast)
+                  {
+                    <i class="fas fa-check-circle text-success"></i>
+                  }
+                  else if (new DateTime(selectedYear, evt.Month, evt.Day) <= DateTime.Today.AddDays(7))
+                  {
+                    <span class="badge bg-danger">Yaklasan!</span>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+@code {
+    private bool _isDemoMode;
+    private int selectedYear = DateTime.Now.Year;
+    private List<TaxEvent> taxEvents = new();
+
+    protected override void OnInitialized()
+    {
+        taxEvents = GetTurkeyTaxCalendar();
+    }
+
+    private static List<TaxEvent> GetTurkeyTaxCalendar() => new()
+    {
+        // Ocak
+        new(1, 20, "Stopaj Gelir Vergisi Beyannamesi (Muhtasar)", "danger"),
+        new(1, 26, "KDV Beyannamesi (Aylik)", "danger"),
+        new(1, 31, "SGK Prim Bildirgesi", "warning"),
+        // Subat
+        new(2, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(2, 26, "KDV Beyannamesi", "danger"),
+        new(2, 28, "SGK Prim Bildirgesi", "warning"),
+        // Mart
+        new(3, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(3, 26, "KDV Beyannamesi", "danger"),
+        new(3, 31, "Gelir Vergisi Beyannamesi (Yillik)", "primary"),
+        new(3, 31, "SGK Prim Bildirgesi", "warning"),
+        // Nisan
+        new(4, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(4, 26, "KDV Beyannamesi", "danger"),
+        new(4, 30, "Kurumlar Vergisi Beyannamesi (Yillik)", "primary"),
+        new(4, 30, "SGK Prim Bildirgesi", "warning"),
+        // Mayis
+        new(5, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(5, 26, "KDV Beyannamesi", "danger"),
+        new(5, 31, "SGK Prim Bildirgesi", "warning"),
+        // Haziran
+        new(6, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(6, 26, "KDV Beyannamesi", "danger"),
+        new(6, 30, "Gecici Vergi Beyannamesi (Q1: Ocak-Mart)", "info"),
+        new(6, 30, "SGK Prim Bildirgesi", "warning"),
+        // Temmuz
+        new(7, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(7, 26, "KDV Beyannamesi", "danger"),
+        new(7, 31, "SGK Prim Bildirgesi", "warning"),
+        // Agustos
+        new(8, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(8, 26, "KDV Beyannamesi", "danger"),
+        new(8, 31, "SGK Prim Bildirgesi", "warning"),
+        // Eylul
+        new(9, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(9, 26, "KDV Beyannamesi", "danger"),
+        new(9, 30, "Gecici Vergi Beyannamesi (Q2: Nisan-Haziran)", "info"),
+        new(9, 30, "SGK Prim Bildirgesi", "warning"),
+        // Ekim
+        new(10, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(10, 26, "KDV Beyannamesi", "danger"),
+        new(10, 31, "SGK Prim Bildirgesi", "warning"),
+        // Kasim
+        new(11, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(11, 26, "KDV Beyannamesi", "danger"),
+        new(11, 30, "Gecici Vergi Beyannamesi (Q3: Temmuz-Eylul)", "info"),
+        new(11, 30, "SGK Prim Bildirgesi", "warning"),
+        // Aralik
+        new(12, 20, "Stopaj Gelir Vergisi (Muhtasar)", "danger"),
+        new(12, 26, "KDV Beyannamesi", "danger"),
+        new(12, 31, "Gecici Vergi Beyannamesi (Q4: Ekim-Aralik)", "info"),
+        new(12, 31, "SGK Prim Bildirgesi", "warning"),
+    };
+
+    private static string GetMonthName(int month) => month switch
+    {
+        1 => "Ocak", 2 => "Subat", 3 => "Mart", 4 => "Nisan",
+        5 => "Mayis", 6 => "Haziran", 7 => "Temmuz", 8 => "Agustos",
+        9 => "Eylul", 10 => "Ekim", 11 => "Kasim", 12 => "Aralik",
+        _ => ""
+    };
+
+    private sealed record TaxEvent(int Month, int Day, string Description, string TypeColor);
+}
