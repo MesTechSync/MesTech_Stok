@@ -89,5 +89,27 @@ public static class ReportKpiEndpoints
         .WithSummary("Düşük stok raporu — minimum stok altındaki ürünler")
         .Produces(200)
         .CacheOutput("Dashboard30s");
+
+        // ═══ Sprint 2 Rapor Endpoint'leri ═══
+
+        var reportGroup = app.MapGroup("/api/v1/reports/stock")
+            .WithTags("Reports Stock")
+            .RequireAuthorization()
+            .RequireRateLimiting("PerApiKey");
+
+        // GET /api/v1/reports/stock/abc — ABC analizi (S2-DEV6)
+        reportGroup.MapGet("/abc", async (
+            Guid tenantId,
+            int? days,
+            MesTech.Infrastructure.Services.Reporting.IAbcAnalysisService abcService,
+            CancellationToken ct) =>
+        {
+            var result = await abcService.AnalyzeAsync(tenantId, days ?? 90, ct);
+            return Results.Ok(result);
+        })
+        .WithName("GetAbcAnalysis")
+        .WithSummary("ABC stok analizi — 80/15/5 kuralı ile ürün sınıflandırma (S2-DEV6)")
+        .Produces(200)
+        .CacheOutput("Report120s");
     }
 }
