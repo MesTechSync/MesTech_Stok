@@ -544,6 +544,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.SettlementBatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IBankTransactionRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.BankTransactionRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IVatDeclarationRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.VatDeclarationRepository>();
+        services.AddScoped<IChequeRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Finance.ChequeRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IReconciliationMatchRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ReconciliationMatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingDocumentRepository,
