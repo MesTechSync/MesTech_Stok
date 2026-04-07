@@ -646,8 +646,10 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
                             }
                         }
 
-                        // SKU resolution: stockCode → productMainId → barcode (Trendyol API often returns stockCode=null)
+                        // SKU resolution: stockCode → productMainId → barcode
+                        // Guard: stockCode="merchantSku" literal placeholder → skip
                         var skuValue = item.TryGetProperty("stockCode", out var sc) && sc.ValueKind == JsonValueKind.String ? sc.GetString() : null;
+                        if (IsPlaceholderSku(skuValue)) skuValue = null;
                         if (string.IsNullOrEmpty(skuValue))
                             skuValue = item.TryGetProperty("productMainId", out var pmi2) && pmi2.ValueKind == JsonValueKind.String ? pmi2.GetString() : null;
                         if (string.IsNullOrEmpty(skuValue))
@@ -3475,8 +3477,9 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
             }
         }
 
-        // SKU resolution: stockCode → productMainId → barcode
+        // SKU resolution: stockCode → productMainId → barcode (placeholder guard)
         var skuValue = item.TryGetProperty("stockCode", out var sc) && sc.ValueKind == JsonValueKind.String ? sc.GetString() : null;
+        if (IsPlaceholderSku(skuValue)) skuValue = null;
         if (string.IsNullOrEmpty(skuValue))
             skuValue = item.TryGetProperty("productMainId", out var pmi2) && pmi2.ValueKind == JsonValueKind.String ? pmi2.GetString() : null;
         if (string.IsNullOrEmpty(skuValue))
@@ -3500,6 +3503,12 @@ public sealed class TrendyolAdapter : IIntegratorAdapter, IWebhookCapableAdapter
 
         return product;
     }
+
+    private static bool IsPlaceholderSku(string? value) =>
+        string.IsNullOrEmpty(value) ||
+        string.Equals(value, "merchantSku", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(value, "stockCode", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(value, "barcode", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Line-level SKU resolution: merchantSku → stockCode → barcode.
