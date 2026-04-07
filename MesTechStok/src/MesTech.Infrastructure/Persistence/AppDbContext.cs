@@ -107,6 +107,8 @@ public class AppDbContext : DbContext
     public DbSet<MesTech.Domain.Entities.Finance.PromissoryNote> PromissoryNotes => Set<MesTech.Domain.Entities.Finance.PromissoryNote>();
     public DbSet<MesTech.Domain.Entities.Reporting.KpiSnapshot> KpiSnapshots => Set<MesTech.Domain.Entities.Reporting.KpiSnapshot>();
     public DbSet<MesTech.Domain.Entities.Reporting.ReportDefinition> ReportDefinitions => Set<MesTech.Domain.Entities.Reporting.ReportDefinition>();
+    public DbSet<MesTech.Domain.Entities.Crm.LeadScore> LeadScores => Set<MesTech.Domain.Entities.Crm.LeadScore>();
+    public DbSet<MesTech.Domain.Entities.Erp.ErpFieldMapping> ErpFieldMappings => Set<MesTech.Domain.Entities.Erp.ErpFieldMapping>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
