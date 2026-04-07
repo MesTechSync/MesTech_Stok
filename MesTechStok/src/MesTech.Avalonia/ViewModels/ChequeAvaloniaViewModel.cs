@@ -36,12 +36,15 @@ public partial class ChequeAvaloniaViewModel : ViewModelBase
     public ObservableCollection<ChequeItemDto> Cheques { get; } = [];
     private List<ChequeItemDto> _allCheques = [];
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        // DEP: GetChequesQuery henüz yok — DEV1 handler gerekli.
-        // Hazır olduğunda: _mediator.Send(new GetChequesQuery(TenantId))
-        IsEmpty = true;
-        return Task.CompletedTask;
+        await SafeExecuteAsync(_ =>
+        {
+            // DEP: GetChequesQuery henüz yok — DEV1 handler gerekli.
+            // Hazır olduğunda: var result = await _mediator.Send(new GetChequesQuery(TenantId), ct);
+            IsEmpty = true;
+            return Task.CompletedTask;
+        }, "Cek/Senet verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) { if (_allCheques.Count > 0) { CurrentPage = 1; ApplyFilters(); } }
