@@ -61,15 +61,10 @@ public static class DropshippingImportEndpoints
             MesTech.Infrastructure.Integration.Services.IPlatformSyncIssueService issueService,
             CancellationToken ct) =>
         {
-            var issues = await issueService.GetOpenIssuesAsync(ct: ct);
-            var issue = issues.FirstOrDefault(i => i.Id == id);
-            if (issue is null)
-                return Results.Problem(detail: $"Issue {id} bulunamadı.", statusCode: 404);
-
-            issue.IsResolved = true;
-            issue.ResolvedAt = DateTime.UtcNow;
-
-            return Results.Ok(new { issueId = id, resolved = true, resolution = request.Resolution });
+            var resolved = await issueService.ResolveAsync(id, ct);
+            return resolved
+                ? Results.Ok(new { issueId = id, resolved = true, resolution = request.Resolution })
+                : Results.Problem(detail: $"Issue {id} bulunamadı veya zaten çözülmüş.", statusCode: 404);
         })
         .WithName("ResolveSyncIssue")
         .WithSummary("Sync sorununu çözüldü olarak işaretle")
