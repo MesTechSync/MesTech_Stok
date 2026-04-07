@@ -524,6 +524,17 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Kasa Yonetimi"
+                                    AutomationProperties.Name="Kasa Yonetimi"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CashRegister"
+                                    IsVisible="{Binding ShowReports}">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="Wallet" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="Kasa"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Komisyon Karsilastirma"
                                     AutomationProperties.Name="Komisyon Karsilastirma"
                                     Command="{Binding NavigateToCommand}"
@@ -1878,6 +1889,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="vm:Customer360AvaloniaViewModel">
                             <views:Customer360AvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CashRegisterAvaloniaViewModel">
+                            <views:CashRegisterAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>
