@@ -1,0 +1,189 @@
+@page "/accounting/ba-bs"
+@attribute [Authorize(Roles = "Admin,Accountant")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<BaBsForm> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Ba-Bs Formu</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#8b5cf6,#7c3aed)">
+      <i class="fas fa-file-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Ba-Bs Formu</h3>
+      <small class="text-muted">5.000 TL ustu alisvaris bildirim formu (Ba: Alim, Bs: Satim)</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <!-- Donem secimi -->
+    <div class="row mb-4">
+      <div class="col-md-2">
+        <label class="form-label">Yil</label>
+        <select class="form-select" @bind="selectedYear">
+          @for (int y = DateTime.Now.Year; y >= 2020; y--)
+          { <option value="@y">@y</option> }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Ay</label>
+        <select class="form-select" @bind="selectedMonth">
+          @for (int m = 1; m <= 12; m++)
+          { <option value="@m">@m</option> }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Form Tipi</label>
+        <select class="form-select" @bind="selectedType">
+          <option value="Ba">Ba (Alim)</option>
+          <option value="Bs">Bs (Satim)</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary me-2" @onclick="GenerateForm">
+          <i class="fas fa-cogs me-1"></i>Olustur
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="ExportXml" disabled="@(rows.Count == 0)">
+          <i class="fas fa-download me-1"></i>XML Indir
+        </button>
+      </div>
+    </div>
+
+    <!-- Ozet -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Kayit Sayisi</small>
+            <h4 class="mb-0">@rows.Count</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Toplam Tutar</small>
+            <h4 class="mb-0">@rows.Sum(r => r.TotalAmount).ToString("N2") TL</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Esik (5.000 TL)</small>
+            <h4 class="mb-0 text-info">@selectedType Formu</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tablo -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between">
+        <strong>@selectedType Listesi — @selectedMonth/@selectedYear</strong>
+        <span class="text-muted">5.000 TL ustu islemler</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>VKN/TCKN</th>
+              <th>Unvan</th>
+              <th class="text-end">Fatura Sayisi</th>
+              <th class="text-end">Toplam Tutar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var row in rows.OrderByDescending(r => r.TotalAmount))
+            {
+              <tr>
+                <td><code>@row.TaxNumber</code></td>
+                <td>@row.CompanyName</td>
+                <td class="text-end">@row.InvoiceCount</td>
+                <td class="text-end"><strong>@row.TotalAmount.ToString("N2") TL</strong></td>
+              </tr>
+            }
+            @if (rows.Count == 0)
+            {
+              <tr><td colspan="4" class="text-center text-muted py-4">Kayit bulunamadi</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private int selectedYear = DateTime.Now.Year;
+    private int selectedMonth = DateTime.Now.Month;
+    private string selectedType = "Bs";
+    private List<BaBsRow> rows = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GenerateForm();
+        isLoading = false;
+    }
+
+    private async Task GenerateForm()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<BaBsRow>>(
+                $"accounting/ba-bs?year={selectedYear}&month={selectedMonth}&type={selectedType}");
+            if (result.IsSuccess && result.Data is not null)
+                rows = result.Data;
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch
+        {
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+    }
+
+    private void LoadDemoData()
+    {
+        rows = new()
+        {
+            new("1234567890", "ABC Ticaret A.S.", 5, 28500m),
+            new("9876543210", "XYZ Tekstil Ltd.", 3, 15200m),
+            new("5551234567", "DEF Elektronik San.", 8, 42000m),
+            new("3334445556", "GHI Gida Paz.", 2, 8900m),
+        };
+    }
+
+    private async Task ExportXml()
+    {
+        Logger.LogInformation("Ba-Bs XML export triggered: {Type} {Year}/{Month}", selectedType, selectedYear, selectedMonth);
+        // XML indirme — API endpoint'i tetikler
+        try
+        {
+            await ApiClient.SafeGetAsync<object>(
+                $"accounting/ba-bs/export?year={selectedYear}&month={selectedMonth}&type={selectedType}&format=xml");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Ba-Bs XML export failed");
+        }
+    }
+
+    private sealed record BaBsRow(string TaxNumber, string CompanyName, int InvoiceCount, decimal TotalAmount);
+}
