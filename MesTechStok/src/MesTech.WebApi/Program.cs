@@ -738,6 +738,7 @@ if (!app.Environment.IsProduction())
     SandboxEndpoints.Map(app);
 DashboardWidgetEndpoints.Map(app);
 ReportEndpoints.Map(app);
+ReportKpiEndpoints.Map(app); // S2-DEV6: KPI dashboard aggregate endpoints
 SavedReportEndpoints.Map(app);
 WebhookEndpoints.Map(app);
 IncomeEndpoints.Map(app);
