@@ -234,7 +234,108 @@ public static class FinanceEndpoints
         .WithSummary("Banka hesap listesi — bakiye ve detaylar")
         .Produces<IReadOnlyList<BankAccountDto>>(200)
         .CacheOutput("Lookup60s");
+
+        // ═══ ÇEK/SENET (S1-DEV6-02) ═══
+
+        // POST /api/v1/finance/cheques — yeni çek kayıt
+        group.MapPost("/cheques", async (
+            MesTech.Application.Features.Finance.Commands.CreateCheque.CreateChequeCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/finance/cheques/{id}", new { chequeId = id });
+        })
+        .WithName("CreateCheque")
+        .WithSummary("Yeni çek/senet kaydı oluştur (S1-DEV6-02)")
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/finance/cheques — çek listesi (filtreli)
+        group.MapGet("/cheques", async (
+            Guid tenantId,
+            string? status,
+            bool? overdue,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var query = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .AsNoTracking(db.Set<MesTech.Domain.Entities.Finance.Cheque>())
+                .Where(c => c.TenantId == tenantId);
+
+            if (!string.IsNullOrEmpty(status) &&
+                Enum.TryParse<MesTech.Domain.Entities.Finance.ChequeStatus>(status, true, out var parsed))
+                query = query.Where(c => c.Status == parsed);
+
+            var cheques = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToListAsync(query.OrderByDescending(c => c.MaturityDate).Take(500), ct);
+
+            var result = cheques.AsEnumerable();
+            if (overdue == true)
+                result = result.Where(c => c.IsOverdue);
+
+            return Results.Ok(new { total = result.Count(), cheques = result });
+        })
+        .WithName("GetCheques")
+        .WithSummary("Çek/senet listesi — durum ve vade filtresi (S1-DEV6-02)")
+        .Produces(200)
+        .CacheOutput("Lookup60s");
+
+        // PUT /api/v1/finance/cheques/{id}/collect — tahsile gönder
+        group.MapPut("/cheques/{id:guid}/collect", async (
+            Guid id,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.SendForCollection();
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "SentForCollection" });
+        })
+        .WithName("CollectCheque")
+        .WithSummary("Çeki tahsile gönder")
+        .Produces(200).Produces(404);
+
+        // PUT /api/v1/finance/cheques/{id}/endorse — ciro et
+        group.MapPut("/cheques/{id:guid}/endorse", async (
+            Guid id,
+            ChequeEndorseRequest request,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.Endorse(request.EndorserName);
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "Endorsed", endorser = request.EndorserName });
+        })
+        .WithName("EndorseCheque")
+        .WithSummary("Çeki ciro et")
+        .Produces(200).Produces(404);
+
+        // PUT /api/v1/finance/cheques/{id}/bounce — karşılıksız işaretle
+        group.MapPut("/cheques/{id:guid}/bounce", async (
+            Guid id,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.MarkBounced();
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "Bounced" });
+        })
+        .WithName("BounceCheque")
+        .WithSummary("Çeki karşılıksız işaretle")
+        .Produces(200).Produces(404);
     }
 
     public sealed record CashRegisterCloseResponse(string Message, DateTime ClosedAt);
+    public sealed record ChequeEndorseRequest(string EndorserName);
 }
