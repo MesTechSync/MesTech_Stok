@@ -681,6 +681,35 @@ public static class AccountingEndpoints
         .Produces<KdvReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
+        // POST /api/v1/accounting/vat-declaration — yeni KDV beyanname oluştur (S1-DEV6-01)
+        group.MapPost("/vat-declaration", async (
+            MesTech.Application.Features.Accounting.Commands.CreateVatDeclaration.CreateVatDeclarationCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/accounting/vat-declaration/{id}", new { declarationId = id });
+        })
+        .WithName("CreateVatDeclaration")
+        .WithSummary("KDV beyanname oluştur — yıl/ay bazlı dönem (S1-DEV6-01)")
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // POST /api/v1/accounting/vat-declaration/{id}/calculate — KDV beyanname hesapla (S1-DEV6-01)
+        group.MapPost("/vat-declaration/{id:guid}/calculate", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new MesTech.Application.Features.Accounting.Commands.CalculateVatDeclaration.CalculateVatDeclarationCommand(id), ct);
+            return result.IsSuccess
+                ? Results.Ok(result)
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("CalculateVatDeclaration")
+        .WithSummary("KDV beyanname hesapla — GL yevmiye'den 391/191 hesap toplamları (S1-DEV6-01)")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
         // GET /api/v1/accounting/tax-summary — vergi özet raporu
         group.MapGet("/tax-summary", async (
             Guid tenantId, string period,
