@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.Customer360AvaloniaView"
+             x:DataType="vm:Customer360AvaloniaViewModel"
+             AutomationProperties.Name="360 Musteri Gorunumu">
+<UserControl.KeyBindings><KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" /></UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="360° Musteri" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding CustomerName}" Foreground="{DynamicResource MesBgPrimary}"
+                                   FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}" ToolTip.Tip="Verileri yenile"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*" Margin="16,16,16,0">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="4"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="12">
+                        <TextBlock Text="Siparis" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding OrderCount}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,4,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="4"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="12">
+                        <TextBlock Text="Harcama" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalSpent, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,4,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="4"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesBrandAccent}" />
+                    <StackPanel Grid.Column="1" Margin="12">
+                        <TextBlock Text="Puan Bakiye" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding LoyaltyBalance}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesBrandAccent}" Margin="0,4,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="4"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
+                    <StackPanel Grid.Column="1" Margin="12">
+                        <TextBlock Text="Kazanilan" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalEarned}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,4,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="4" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="4"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="#8B5CF6" />
+                    <StackPanel Grid.Column="1" Margin="12">
+                        <TextBlock Text="Kullanilan" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalRedeemed}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="#8B5CF6" Margin="0,4,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+        </Grid>
+
+        <!-- Content: Orders + Loyalty -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" Margin="16,16,16,16">
+            <!-- Recent Orders -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Son Siparisler" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                    </Border>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding RecentOrders}" AutoGenerateColumns="False"
+                              IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0"
+                              Background="{DynamicResource MesBgPrimary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="No" Binding="{Binding OrderNumber}" Width="100" />
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="90" />
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding Amount, StringFormat='₺{0:N2}'}" Width="100" />
+                            <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="90" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Loyalty History -->
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="8,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Puan Gecmisi" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                    </Border>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding LoyaltyHistory}" AutoGenerateColumns="False"
+                              IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0"
+                              Background="{DynamicResource MesBgPrimary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}" Width="100" />
+                            <DataGridTextColumn Header="Puan" Binding="{Binding Points}" Width="70" />
+                            <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="80" />
+                            <DataGridTextColumn Header="Aciklama" Binding="{Binding Description}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource MesBgPage}" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" /></Border>
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Musteri secilmedi" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <TextBlock Text="Musteriler ekranindan bir musteri secerek 360 gorunume gecin."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+            </StackPanel></Border>
+        <fa:InfoBar Grid.Row="0" Title="Hata" Message="{Binding ErrorMessage}" Severity="Error"
+                    IsOpen="{Binding HasError}" IsClosable="True" Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton><Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" /></fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+    </Grid>
+</UserControl>
