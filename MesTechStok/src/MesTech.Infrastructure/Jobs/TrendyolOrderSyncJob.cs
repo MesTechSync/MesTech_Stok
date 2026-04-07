@@ -21,6 +21,7 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
 
     private readonly IAdapterFactory _factory;
     private readonly IOrderRepository _orderRepo;
+    private readonly IProductRepository _productRepo;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantProvider _tenantProvider;
     private readonly ILogger<TrendyolOrderSyncJob> _logger;
@@ -28,12 +29,14 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
     public TrendyolOrderSyncJob(
         IAdapterFactory factory,
         IOrderRepository orderRepo,
+        IProductRepository productRepo,
         IUnitOfWork unitOfWork,
         ITenantProvider tenantProvider,
         ILogger<TrendyolOrderSyncJob> logger)
     {
         _factory = factory;
         _orderRepo = orderRepo;
+        _productRepo = productRepo;
         _unitOfWork = unitOfWork;
         _tenantProvider = tenantProvider;
         _logger = logger;
@@ -87,7 +90,7 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
                     continue;
                 }
 
-                var order = MapToOrder(dto, tenantId);
+                var order = await MapToOrderAsync(dto, tenantId, ct).ConfigureAwait(false);
                 await _orderRepo.AddAsync(order, ct).ConfigureAwait(false);
                 created++;
             }
@@ -106,7 +109,11 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
         }
     }
 
-    private static Order MapToOrder(ExternalOrderDto dto, Guid tenantId)
+    /// <summary>
+    /// Z1 zinciri: ExternalOrderDto → Order + OrderItem (ProductId eşleştirmeli).
+    /// Barcode/SKU ile Product lookup — eşleşirse ProductId set edilir, stok düşürme tetiklenir.
+    /// </summary>
+    private async Task<Order> MapToOrderAsync(ExternalOrderDto dto, Guid tenantId, CancellationToken ct)
     {
         var order = new Order
         {
@@ -124,15 +131,28 @@ public sealed class TrendyolOrderSyncJob : ISyncJob
             Notes = $"Trendyol sync — {dto.Status} — Kargo: {dto.CargoProviderName} — Takip: {dto.CargoTrackingNumber}"
         };
 
-        // OrderItems — siparis kalemleri (fatura + GL zinciri icin zorunlu)
+        // OrderItems — barcode/SKU ile Product eşleştirme (Z1 zinciri)
         foreach (var line in dto.Lines)
         {
+            // Product matching: barcode → SKU fallback (Z1 zinciri — stok düşürme için kritik)
+            Guid productId = Guid.Empty;
+            if (!string.IsNullOrEmpty(line.Barcode))
+            {
+                var product = await _productRepo.GetByBarcodeAsync(line.Barcode, ct).ConfigureAwait(false);
+                if (product is not null) productId = product.Id;
+            }
+            if (productId == Guid.Empty && !string.IsNullOrEmpty(line.SKU))
+            {
+                var product = await _productRepo.GetBySKUAsync(line.SKU, ct).ConfigureAwait(false);
+                if (product is not null) productId = product.Id;
+            }
+
             var item = new OrderItem
             {
                 Id = Guid.NewGuid(),
                 TenantId = tenantId,
                 OrderId = order.Id,
-                ProductId = Guid.Empty, // Product matching ayri reconciliation adimi
+                ProductId = productId,
                 ProductName = line.ProductName,
                 ProductSKU = line.SKU ?? line.Barcode ?? "",
                 TaxRate = line.TaxRate
