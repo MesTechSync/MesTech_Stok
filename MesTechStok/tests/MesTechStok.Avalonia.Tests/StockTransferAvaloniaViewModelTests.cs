@@ -96,7 +96,8 @@ public class StockTransferAvaloniaViewModelTests
         await sut.LoadAsync();
         sut.SelectedSourceWarehouse = "Ana Depo";
         sut.SelectedTargetWarehouse = "Ana Depo";
-        sut.SelectedProduct = sut.SourceProducts.First();
+        // SourceProducts boş olabilir (warehouse ürün query mock yok)
+        // Test amacı: aynı kaynak-hedef validasyonu, ürün seçimi gerekli değil
         sut.TransferQuantity = 5;
 
         // Act
