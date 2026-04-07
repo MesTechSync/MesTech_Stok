@@ -101,6 +101,10 @@ public class AppDbContext : DbContext
     public DbSet<ProductMedia> ProductMedia => Set<ProductMedia>();
     public DbSet<ProductSpecification> ProductSpecifications => Set<ProductSpecification>();
     public DbSet<PlatformAttributeValueMapping> PlatformAttributeValueMappings => Set<PlatformAttributeValueMapping>();
+    public DbSet<MesTech.Domain.Accounting.Entities.VatDeclaration> VatDeclarations => Set<MesTech.Domain.Accounting.Entities.VatDeclaration>();
+    public DbSet<MesTech.Domain.Accounting.Entities.TaxCalendarItem> TaxCalendarItems => Set<MesTech.Domain.Accounting.Entities.TaxCalendarItem>();
+    public DbSet<MesTech.Domain.Entities.Finance.Cheque> Cheques => Set<MesTech.Domain.Entities.Finance.Cheque>();
+    public DbSet<MesTech.Domain.Entities.Finance.PromissoryNote> PromissoryNotes => Set<MesTech.Domain.Entities.Finance.PromissoryNote>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
