@@ -350,4 +350,26 @@ public sealed class OrderCompletedInvoiceBridge
     }
 }
 
+/// <summary>
+/// Z5a: OrderCancelledEvent → stok geri yukleme.
+/// </summary>
+public sealed class OrderCancelledStockRestorationBridge
+    : INotificationHandler<DomainEventNotification<OrderCancelledEvent>>
+{
+    private readonly IOrderCancelledStockRestorationHandler _handler;
+    private readonly ILogger<OrderCancelledStockRestorationBridge> _logger;
+
+    public OrderCancelledStockRestorationBridge(
+        IOrderCancelledStockRestorationHandler handler,
+        ILogger<OrderCancelledStockRestorationBridge> logger)
+    { _handler = handler; _logger = logger; }
+
+    public async Task Handle(DomainEventNotification<OrderCancelledEvent> notification, CancellationToken ct)
+    {
+        var e = notification.DomainEvent;
+        _logger.LogDebug("[Bridge] OrderCancelled → StockRestoration: OrderId={OrderId}", e.OrderId);
+        await _handler.HandleAsync(e.OrderId, e.TenantId, e.Reason, ct).ConfigureAwait(false);
+    }
+}
+
 // InvoiceApprovedGLBridge + InvoiceCancelledReversalBridge → AccountingEventBridgeHandlers.cs (canonical)
