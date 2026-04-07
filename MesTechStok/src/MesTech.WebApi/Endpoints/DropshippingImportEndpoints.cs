@@ -35,6 +35,47 @@ public static class DropshippingImportEndpoints
         .Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
+        // GET /api/v1/dropshipping/import/issues — sync sorunları listesi (D12-22 / Sprint 0)
+        group.MapGet("/issues", async (
+            string? platformCode,
+            MesTech.Infrastructure.Integration.Services.IPlatformSyncIssueService issueService,
+            CancellationToken ct) =>
+        {
+            MesTech.Domain.Enums.PlatformType? platform = null;
+            if (!string.IsNullOrEmpty(platformCode) &&
+                Enum.TryParse<MesTech.Domain.Enums.PlatformType>(platformCode, true, out var parsed))
+                platform = parsed;
+
+            var issues = await issueService.GetOpenIssuesAsync(platform, ct);
+            return Results.Ok(new { total = issues.Count, issues });
+        })
+        .WithName("GetSyncIssues")
+        .WithSummary("Platform sync sorunları — barkod çakışması, kategori mismatch vb.")
+        .Produces(200)
+        .CacheOutput("Dashboard30s");
+
+        // POST /api/v1/dropshipping/import/issues/{id}/resolve — sorun çöz (D12-22 / Sprint 0)
+        group.MapPost("/issues/{id:guid}/resolve", async (
+            Guid id,
+            ResolveIssueRequest request,
+            MesTech.Infrastructure.Integration.Services.IPlatformSyncIssueService issueService,
+            CancellationToken ct) =>
+        {
+            var issues = await issueService.GetOpenIssuesAsync(ct: ct);
+            var issue = issues.FirstOrDefault(i => i.Id == id);
+            if (issue is null)
+                return Results.Problem(detail: $"Issue {id} bulunamadı.", statusCode: 404);
+
+            issue.IsResolved = true;
+            issue.ResolvedAt = DateTime.UtcNow;
+
+            return Results.Ok(new { issueId = id, resolved = true, resolution = request.Resolution });
+        })
+        .WithName("ResolveSyncIssue")
+        .WithSummary("Sync sorununu çözüldü olarak işaretle")
+        .Produces(200).Produces(404)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
         // GET /api/v1/dropshipping/import/status — tüm platform sync durumu (D12-22)
         group.MapGet("/status", (
             IIntegratorOrchestrator orchestrator) =>
@@ -192,4 +233,6 @@ public static class DropshippingImportEndpoints
         Guid TenantId,
         int InitialStock = 0,
         bool SyncToPlatforms = false);
+
+    public record ResolveIssueRequest(string Resolution, string? NewBarcode = null);
 }
