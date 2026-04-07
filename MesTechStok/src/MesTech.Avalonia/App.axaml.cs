@@ -274,6 +274,8 @@ public partial class App : global::Avalonia.Application
                 services.AddTransient<DropshipProfitAvaloniaViewModel>();
                 services.AddTransient<DropshippingPoolAvaloniaViewModel>();
                 services.AddTransient<ChequeAvaloniaViewModel>();
+                services.AddTransient<CommissionCompareAvaloniaViewModel>();
+                services.AddTransient<PerformanceDashboardAvaloniaViewModel>();
                 services.AddTransient<ImportSettingsAvaloniaViewModel>();
                 services.AddTransient<ImportProductsAvaloniaViewModel>();
                 services.AddTransient<ProductVariantMatrixViewModel>();

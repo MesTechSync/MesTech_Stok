@@ -243,6 +243,8 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "DropshipProfit" => "Dropship Karlilik",
             "DropshippingPool" => "Dropship Havuz",
             "Cheque" => "Cek/Senet Takip",
+            "CommissionCompare" => "Komisyon Karsilastirma",
+            "PerformanceDashboard" => "Performans Paneli",
             "ErpAccountMapping" => "ERP Hesap Esleme",
             "ErpDashboard" => "ERP Paneli",
             "FeedCreate" => "Feed Olustur",
@@ -287,7 +289,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "CargoTracking" or "CargoProviders" or "BulkShipment" or "LabelPreview" or "Shipment" or "Cargo" => "Kargo",
             "ReturnList" or "ReturnDetail" => "Iadeler",
             "InvoiceManagement" or "InvoiceList" or "InvoiceCreate" or "BulkInvoice" or "InvoiceProviders" or "InvoiceReport" or "InvoicePdf" or "EInvoice" => "E-Fatura",
-            "ProfitLoss" or "Expenses" or "BankAccounts" or "CariHesaplar" or "Cari" or "NakitAkis" or "CashFlowReport" or "Quotation" or "Billing" or "Budget" or "Settlement" or "SalesAnalytics" or "ProfitabilityReport" or "Cheque" => "Finans",
+            "ProfitLoss" or "Expenses" or "BankAccounts" or "CariHesaplar" or "Cari" or "NakitAkis" or "CashFlowReport" or "Quotation" or "Billing" or "Budget" or "Settlement" or "SalesAnalytics" or "ProfitabilityReport" or "Cheque" or "CommissionCompare" => "Finans",
             "JournalEntries" or "TrialBalance" or "CommissionRates" or "AccountingDashboard" or "GLTransaction" or "KarZarar" or "GelirGider" or "KarlilikAnalizi" or "KdvRapor" or "Mutabakat" or "Komisyon" or "VergiTakvimi" or "SabitGiderler" or "Bordro" or "FixedAsset" or "FixedExpense" or "Penalty" or "TaxRecord" or "IncomeExpenseDashboard" or "IncomeExpenseList" => "Muhasebe",
             "Trendyol" or "Hepsiburada" or "N11" or "Ciceksepeti" or "Amazon" or "AmazonEu" or "Ebay" or "Ozon" or "Etsy" or "Shopify" or "WooCommerce" or "Zalando" or "PttAvm" or "Pazarama" or "OpenCart" or "Bitrix24" or "Marketplaces" or "PlatformList" or "PlatformSync" or "PlatformSyncStatus" or "PlatformSyncHistory" or "PlatformConnectionTest" or "PlatformMessages" or "SyncStatus" => "Pazaryerleri",
             "Settings" or "CargoSettings" or "ErpSettings" or "InvoiceSettings" or "CrmSettings" or "NotificationSettings" or "StoreSettings" or "StoreDetail" or "StoreWizard" or "StoreManagement" or "ImportSettings" or "FulfillmentSettings" or "MfaSetup" or "MultiTenant" or "Tenant" or "UserManagement" or "Backup" => "Ayarlar",
@@ -298,7 +300,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "ErpDashboard" or "ErpAccountMapping" => "ERP",
             "DropshipDashboard" or "DropshipOrders" or "DropshipProfit" or "DropshippingPool" or "FeedPreview" or "FeedCreate" or "SupplierFeeds" or "Supplier" => "Dropshipping",
             "Reports" or "Report" or "ReportDashboard" => "Raporlar",
-            "Health" or "LogViewer" or "AuditLog" or "Mesa" or "Notification" => "Sistem",
+            "Health" or "LogViewer" or "AuditLog" or "Mesa" or "Notification" or "PerformanceDashboard" => "Sistem",
             "About" or "Login" or "Activity" or "Calendar" => "Genel",
             _ => "Diger"
         };

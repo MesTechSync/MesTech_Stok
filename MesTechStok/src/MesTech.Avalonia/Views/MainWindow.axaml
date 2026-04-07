@@ -524,6 +524,17 @@
                                 </StackPanel>
                             </Button>
                             <Button Classes="sidebar-btn"
+                                    ToolTip.Tip="Komisyon Karsilastirma"
+                                    AutomationProperties.Name="Komisyon Karsilastirma"
+                                    Command="{Binding NavigateToCommand}"
+                                    CommandParameter="CommissionCompare"
+                                    IsVisible="{Binding ShowReports}">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ic:SymbolIcon Symbol="ScaleFill" FontSize="{StaticResource FontSizeSubtitle}"/>
+                                    <TextBlock Text="Komisyon Karşılaştırma"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="sidebar-btn"
                                     ToolTip.Tip="Giderler"
                                     AutomationProperties.Name="Giderler"
                                     Command="{Binding NavigateToCommand}"
@@ -1263,6 +1274,10 @@
                                     IsVisible="{Binding ShowHealthMonitor}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Sistem Sagligi"/></StackPanel>
                             </Button>
+                            <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="PerformanceDashboard" ToolTip.Tip="Performans Paneli" AutomationProperties.Name="Performans Paneli"
+                                    IsVisible="{Binding ShowHealthMonitor}">
+                                <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Gauge" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Performans"/></StackPanel>
+                            </Button>
                             <Button Classes="sidebar-btn" Command="{Binding NavigateToCommand}" CommandParameter="LogViewer" ToolTip.Tip="Log Izleyici" AutomationProperties.Name="Log Izleyici"
                                     IsVisible="{Binding ShowLogViewer}">
                                 <StackPanel Orientation="Horizontal" Spacing="10"><ic:SymbolIcon Symbol="Settings" FontSize="{StaticResource FontSizeSubtitle}"/><TextBlock Text="Log Izleyici"/></StackPanel>
@@ -1842,6 +1857,12 @@
                         <!-- D13-17: Cheque/Senet -->
                         <DataTemplate DataType="vm:ChequeAvaloniaViewModel">
                             <views:ChequeAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:CommissionCompareAvaloniaViewModel">
+                            <views:CommissionCompareAvaloniaView />
+                        </DataTemplate>
+                        <DataTemplate DataType="vm:PerformanceDashboardAvaloniaViewModel">
+                            <views:PerformanceDashboardAvaloniaView />
                         </DataTemplate>
                     </ContentControl.DataTemplates>
                 </ContentControl>

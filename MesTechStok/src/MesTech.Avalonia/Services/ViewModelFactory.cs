@@ -151,6 +151,8 @@ public sealed class ViewModelFactory : IViewModelFactory, IDisposable
             "DropshipProfit" => sp.GetService<DropshipProfitAvaloniaViewModel>(),
             "DropshippingPool" => sp.GetService<DropshippingPoolAvaloniaViewModel>(),
             "Cheque" => sp.GetService<ChequeAvaloniaViewModel>(),
+            "CommissionCompare" => sp.GetService<CommissionCompareAvaloniaViewModel>(),
+            "PerformanceDashboard" => sp.GetService<PerformanceDashboardAvaloniaViewModel>(),
             "ImportSettings" => sp.GetService<ImportSettingsAvaloniaViewModel>(),
             "ImportProducts" => sp.GetService<ImportProductsAvaloniaViewModel>(),
             "ProductVariantMatrix" => sp.GetService<ProductVariantMatrixViewModel>(),
