@@ -1,59 +1,66 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
 /// <summary>
-/// Karsilama Ekrani ViewModel — logo + hosgeldin mesaji + son aktiviteler.
-/// EMR-12: Enhanced from placeholder to functional view.
+/// Karsilama Ekrani ViewModel — logo + hosgeldin mesaji + gercek KPI'lar.
+/// Wired to GetDashboardSummaryQuery via MediatR.
 /// </summary>
 public partial class WelcomeAvaloniaViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string welcomeText = "Entegrator Stok Yonetim Sistemi";
-    [ObservableProperty] private string totalProducts = "0";
-    [ObservableProperty] private string totalOrders = "0";
-    [ObservableProperty] private string activePlatforms = "0";
+    [ObservableProperty] private string totalProducts = "-";
+    [ObservableProperty] private string totalOrders = "-";
+    [ObservableProperty] private string activePlatforms = "-";
 
     public ObservableCollection<RecentActivityDto> RecentActivities { get; } = [];
 
-    public WelcomeAvaloniaViewModel()
+    public WelcomeAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
+        _mediator = mediator;
+        _currentUser = currentUser;
     }
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
+            var summary = await _mediator.Send(
+                new GetDashboardSummaryQuery(_currentUser.TenantId), ct);
 
-            WelcomeText = "Entegrator Stok Yonetim Sistemi";
-            TotalProducts = "3,284";
-            TotalOrders = "156";
-            ActivePlatforms = "5";
+            TotalProducts = summary.ActiveProductCount.ToString("N0");
+            TotalOrders = summary.TodayOrderCount.ToString("N0");
+            ActivePlatforms = summary.ActivePlatformCount.ToString();
 
             RecentActivities.Clear();
-            RecentActivities.Add(new RecentActivityDto { Description = "Trendyol stok senkronizasyonu tamamlandi", TimeAgo = "5 dk once" });
-            RecentActivities.Add(new RecentActivityDto { Description = "3 yeni siparis alindi (Hepsiburada)", TimeAgo = "12 dk once" });
-            RecentActivities.Add(new RecentActivityDto { Description = "Fiyat guncelleme: 47 urun guncellendi", TimeAgo = "1 saat once" });
-            RecentActivities.Add(new RecentActivityDto { Description = "Kargo teslim: SIP-1038 teslim edildi", TimeAgo = "2 saat once" });
-            RecentActivities.Add(new RecentActivityDto { Description = "Yeni urun eklendi: Apple AirPods Pro 2", TimeAgo = "3 saat once" });
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Karsilama ekrani yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        return Task.CompletedTask;
+            foreach (var order in summary.RecentOrders.Take(5))
+            {
+                RecentActivities.Add(new RecentActivityDto
+                {
+                    Description = $"Siparis {order.OrderNumber} — {order.CustomerName} ({order.TotalAmount:N2} TL)",
+                    TimeAgo = FormatTimeAgo(order.CreatedAt)
+                });
+            }
+
+            IsEmpty = summary.ActiveProductCount == 0 && summary.TodayOrderCount == 0;
+        }, "Karsilama ekrani yuklenirken hata");
+    }
+
+    private static string FormatTimeAgo(DateTime dt)
+    {
+        var diff = DateTime.Now - dt;
+        if (diff.TotalMinutes < 1) return "simdi";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} dk once";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} saat once";
+        return $"{(int)diff.TotalDays} gun once";
     }
 
     [RelayCommand]
