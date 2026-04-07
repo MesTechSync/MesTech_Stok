@@ -13,6 +13,7 @@ public interface IPlatformSyncIssueService
         string description, CancellationToken ct = default);
     Task<IReadOnlyList<PlatformSyncIssue>> GetOpenIssuesAsync(PlatformType? platform = null,
         CancellationToken ct = default);
+    Task<bool> ResolveAsync(Guid issueId, CancellationToken ct = default);
 }
 
 public enum SyncIssueType
@@ -87,6 +88,19 @@ public sealed class PlatformSyncIssueService : IPlatformSyncIssueService
                 query = query.Where(i => i.Platform == platform.Value);
             return Task.FromResult<IReadOnlyList<PlatformSyncIssue>>(
                 query.OrderByDescending(i => i.ReportedAt).ToList().AsReadOnly());
+        }
+    }
+
+    public Task<bool> ResolveAsync(Guid issueId, CancellationToken ct = default)
+    {
+        lock (_lock)
+        {
+            var issue = _issues.FirstOrDefault(i => i.Id == issueId && !i.IsResolved);
+            if (issue is null) return Task.FromResult(false);
+            issue.IsResolved = true;
+            issue.ResolvedAt = DateTime.UtcNow;
+            _logger.LogInformation("[SyncIssue] RESOLVED: IssueId={IssueId}", issueId);
+            return Task.FromResult(true);
         }
     }
 }
